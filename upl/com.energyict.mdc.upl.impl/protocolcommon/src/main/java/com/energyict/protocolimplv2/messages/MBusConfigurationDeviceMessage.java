@@ -53,6 +53,12 @@ public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation));
         }
+    },
+    SetMBusConfigBit11(23007, "Change MBus Configuration Object") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetMBusConfigBit11AttributeName, DeviceMessageConstants.SetMBusConfigBit11AttributeDefaultTranslation));
+        }
     };
 
     private final long id;

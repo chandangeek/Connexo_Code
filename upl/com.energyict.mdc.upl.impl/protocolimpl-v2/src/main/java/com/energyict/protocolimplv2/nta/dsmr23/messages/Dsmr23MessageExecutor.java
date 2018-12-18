@@ -518,7 +518,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
      * @param lpr the reader to change
      * @return the addapted LoadProfileReader
      */
-    private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, String serialNumber) {
+    protected LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, String serialNumber) {
         if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
             return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), serialNumber, lpr.getChannelInfos());
         } else {

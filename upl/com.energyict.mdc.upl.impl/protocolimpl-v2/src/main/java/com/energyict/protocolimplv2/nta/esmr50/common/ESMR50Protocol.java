@@ -16,9 +16,11 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.*;
 import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -32,6 +34,8 @@ import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.esmr50.common.events.Esmr50LogBookFactory;
 import com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.esmr50.common.messages.ESMR50MessageExecutor;
+import com.energyict.protocolimplv2.nta.esmr50.common.messages.ESMR50Messaging;
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
@@ -60,11 +64,25 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     ESMR50Cache esmr50Cache;
     private Esmr50LogBookFactory esmr50LogBookFactory;
     ESMR50RegisterFactory registerFactory;
+    private ESMR50Messaging esmr50Messaging;
+    private ESMR50MessageExecutor esmr50MessageExecutor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+    private final Converter converter;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
+    private final NumberLookupExtractor numberLookupExtractor;
+    private final LoadProfileExtractor loadProfileExtractor;
 
-    public ESMR50Protocol(PropertySpecService propertySpecService, NlsService nlsService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+
+    public ESMR50Protocol(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
+        this.calendarExtractor = calendarExtractor;
         this.nlsService = nlsService;
-        this.registerFactory = new ESMR50RegisterFactory(this, collectedDataFactory, issueFactory);
+        this.converter = converter;
+        this.messageFileExtractor = messageFileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
+        this.numberLookupExtractor = numberLookupExtractor;
+        this.loadProfileExtractor = loadProfileExtractor;
     }
 
     @Override
@@ -288,24 +306,38 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         return registerFactory;
     }
 
+    protected ESMR50Messaging getESMR50Messaging(){
+        if(this.esmr50Messaging == null){
+            this.esmr50Messaging = new ESMR50Messaging(getMessageExecutor(), this.getPropertySpecService(), this.nlsService, this.converter, this.messageFileExtractor, this.calendarExtractor, this.numberLookupExtractor, this.loadProfileExtractor, this.keyAccessorTypeExtractor);
+        }
+        return this.esmr50Messaging;
+    }
+
+    protected ESMR50MessageExecutor getMessageExecutor(){
+        if(this.esmr50MessageExecutor == null){
+            this.esmr50MessageExecutor = new ESMR50MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.keyAccessorTypeExtractor);
+        }
+        return this.esmr50MessageExecutor;
+    }
+
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return new ArrayList<>();
+        return getESMR50Messaging().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;
+        return getMessageExecutor().executePendingMessages(pendingMessages);
+    }
+
+    @Override
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
+        return getESMR50Messaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;
-    }
-
-    @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        return null;
+        return getESMR50Messaging().updateSentMessages(sentMessages);
     }
 
     @Override
@@ -320,6 +352,14 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     @Override
     public int getPhysicalAddressFromSerialNumber(final String serialNumber) {
         return 0;
+    }
+
+    public void resetFrameCounter(long newFrameCounter) {
+        getProperties().getSecurityProvider().setInitialFrameCounter(newFrameCounter);
+        if (getDlmsSession().getDLMSConnection()!=null) {
+            getDlmsSession().getAso().getSecurityContext().setFrameCounter(newFrameCounter);
+        }
+        ((ESMR50Cache)getDeviceCache()).setFrameCounter(newFrameCounter);
     }
 }
 

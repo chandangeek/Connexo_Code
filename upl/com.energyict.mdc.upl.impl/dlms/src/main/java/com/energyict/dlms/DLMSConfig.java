@@ -46,6 +46,7 @@ public final class DLMSConfig {
 	private static final DLMSConfig LIMITER = new DLMSConfig("", 71,0,0,17,0,0,255);
 	private static final DLMSConfig PPPSETUP = new DLMSConfig("", 44,0,0,25,3,0,255);
 	private static final DLMSConfig GPRSMODEMSETUP = new DLMSConfig("", 45,0,0,25,4,0,255);
+    private static final DLMSConfig LTEMODEMSETUP = new DLMSConfig("", 45,0,1,25,4,0,255);
 	private static final DLMSConfig TARIFFSCRIPTTABLE = new DLMSConfig("",9,0,0,10,0,100,255);
 	private static final DLMSConfig ACTIVITYCALENDAR = new DLMSConfig("",20,0,0,13,0,0,255);
 	private static final DLMSConfig SPECIALDAYS = new DLMSConfig("",11,0,0,11,0,0,255);
@@ -1300,6 +1301,16 @@ public final class DLMSConfig {
 		}
 		return 0;
 	}
+
+    public int getLTEModemSetupSN(UniversalObject[] objectList) {
+        checkEmptyObjectList(objectList, "DLMSConfig, LTEModemSetup, objectlist empty!");
+        for (int i=0;i<objectList.length;i++) {
+            if (objectList[i].equals(LTEMODEMSETUP)) {
+                return objectList[i].getBaseName();
+            }
+        }
+        return 0;
+    }
 
 
 	public int getUSBSetupSN(UniversalObject[] objectList) throws NotInObjectListException{

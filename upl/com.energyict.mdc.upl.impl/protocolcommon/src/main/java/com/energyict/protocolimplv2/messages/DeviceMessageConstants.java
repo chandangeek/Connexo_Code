@@ -505,6 +505,8 @@ public final class DeviceMessageConstants {
     public static final String negativeThresholdInAmpereAttributeDefaultTranslation = "Negative threshold in ampere(Export)";
     public static final String capturePeriodAttributeName = "LoadProfileConfigurationMessage.captureperiod";
     public static final String capturePeriodAttributeDefaultTranslation = "Capture period";
+    public static final String captureObjectListAttributeName = "LoadProfileConfigurationMessage.captureobjectlist";
+    public static final String captureObjectListDefaultTranslation = "Capture object list";
     public static final String consumerProducerModeAttributeName = "LoadProfileConfigurationMessage.consumerproducermode";
     public static final String consumerProducerModeAttributeDefaultTranslation = "Consumer producer mode";
     public static final String loadProfileOptInOutModeAttributeName = "LoadProfileConfigurationMessage.optinout";
@@ -1025,6 +1027,8 @@ public final class DeviceMessageConstants {
     public static final String SetMBusInterFrameTimeAttributeDefaultTranslation = "MBus inter frame timeout";
     public static final String SetMBusConfigAttributeName = "MBusConfigurationDeviceMessage.setmbusconfig";
     public static final String SetMBusConfigAttributeDefaultTranslation = "MBus configuration";
+    public static final String SetMBusConfigBit11AttributeName = "MBusConfigurationDeviceMessage.setmbusconfigbit11";
+    public static final String SetMBusConfigBit11AttributeDefaultTranslation = "MBus configuration Bit 11 value";
     public static final String SetMBusVIFAttributeName = "MBusConfigurationDeviceMessage.mbusvif";
     public static final String SetMBusVIFAttributeDefaultTranslation = "MBus VIF";
 
