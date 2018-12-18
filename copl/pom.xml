@@ -6,17 +6,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.elster.jupiter</groupId>
-		<artifactId>jupiter</artifactId>
+		<artifactId>parent</artifactId>
 		<version>10.6-SNAPSHOT</version>
 	</parent>	
 
 	<artifactId>copl</artifactId>
-	<version>10.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>[Jupiter Wrapper - COPL] </name>
 
 	<modules>
-		<module>com.elster.jupiter.parent</module>
 		<module>com.elster.jupiter.platform</module>
 	</modules>
 </project>
