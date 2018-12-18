@@ -41,7 +41,8 @@ Ext.define('Cfg.zones.view.Overview', {
                         itemId: 'zones-empty-component',
                         title: Uni.I18n.translate('zones.empty.title', 'CFG', 'No zones found'),
                         reasons: [
-                            Uni.I18n.translate('zones.empty.list.item1', 'CFG', 'No zones have been added yet.')
+                            Uni.I18n.translate('zones.empty.list.item1', 'CFG', 'No zones have been added yet.'),
+                            Uni.I18n.translate('zones.empty.list.item2', 'CFG', 'No zones comply with the filter.')
                         ],
                         stepItems: [
                             {
