@@ -127,7 +127,7 @@ import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_
 public class DeviceResource {
     private static final int RECENTLY_ADDED_COUNT = 5;
     private static final String DEVICE_ASSOCIATION = "device";
-    private static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
+    static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
     private final DeviceService deviceService;
     private final TopologyService topologyService;
     private final MultiElementDeviceService multiElementDeviceService;
@@ -360,7 +360,7 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
-    public Response validateDevices(BulkRequestInfo request, @BeanParam JsonQueryFilter queryFilter, @Context SecurityContext securityContext) {
+    public Response validateDevices(BulkRequestInfo request) {
         if (request.action == null || (!"ValidateDevices".equalsIgnoreCase(request.action))) {
             throw new LocalizedFieldValidationException(MessageSeeds.BAD_ACTION, "action");
         }

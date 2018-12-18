@@ -16,7 +16,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.privileges.RegisteredDevicesKpi',
         'Mdc.privileges.CrlRequest',
         'Apr.controller.TaskManagement',
-        'Apr.controller.TaskManagementGeneralTask'
+        'Apr.controller.TaskManagementGeneralTask',
+        'Bpm.privileges.BpmManagement'
     ],
 
     controllers: [
@@ -138,7 +139,9 @@ Ext.define('Mdc.controller.Main', {
         'Apr.controller.CustomTask',
         'Mdc.crlrequest.controller.TaskManagementCrlRequest',
         'Apr.controller.CustomTask',
-        'Mdc.controller.setup.TaskManagement'
+        'Mdc.controller.setup.TaskManagement',
+        'Mdc.processes.controller.ProcessesController',
+        'Mdc.processes.controller.ProcBulkActions'
     ],
 
     stores: [
@@ -480,6 +483,26 @@ Ext.define('Mdc.controller.Main', {
         }
 
         me.addTaskManagement();
+
+        if (Bpm.privileges.BpmManagement.canViewProcesses()){
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.allprocesses', 'MDC', 'Processes'),
+                portal: 'workspace',
+                route: 'multisenseprocesses',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.allprocesses', 'MDC', 'Processes'),
+                        itemId: 'mdc-workspace-all-processes',
+                        privileges: Bpm.privileges.BpmManagement.viewProcesses,
+                        href: '#/workspace/multisenseprocesses',
+                        route: 'multisenseprocesses'
+                    }
+                ]
+                })
+            );
+        }
+
     },
 
     addTaskManagement: function () {
