@@ -142,7 +142,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
     private List<FaultMessage> processSecurityAttributes(Device device, MeterInfo meterInfo) {
         List<SecurityInfo> securityInfoList = meterInfo.getSecurityInfos();
-        if (!securityInfoList.isEmpty()) {
+        if (securityInfoList != null && !securityInfoList.isEmpty()) {
             return securityHelper.addSecurityKeys(device, securityInfoList);
         }
         return Collections.emptyList();
