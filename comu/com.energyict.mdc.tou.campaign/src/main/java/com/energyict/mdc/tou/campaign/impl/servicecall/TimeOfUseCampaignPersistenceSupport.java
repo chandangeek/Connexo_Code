@@ -3,21 +3,19 @@
  */
 package com.energyict.mdc.tou.campaign.impl.servicecall;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;

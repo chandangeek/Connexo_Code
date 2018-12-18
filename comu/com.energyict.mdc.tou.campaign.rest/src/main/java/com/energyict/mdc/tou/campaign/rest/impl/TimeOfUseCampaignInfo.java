@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.tou.campaign.rest.impl;
 
-import com.sun.xml.internal.bind.v2.model.core.PropertyInfo;
-
 import java.time.Instant;
 import java.util.List;
 
