@@ -3,18 +3,18 @@
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>jupiter</artifactId>
-        <version>10.6-SNAPSHOT</version>
-    </parent>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.elster.jupiter</groupId>
+		<artifactId>parent</artifactId>
+		<version>10.6-SNAPSHOT</version>
+	</parent>
 
-    <artifactId>comu</artifactId>
-    <packaging>pom</packaging>
-    <name>[Jupiter Wrapper - COMU] </name>
+	<artifactId>comu</artifactId>
+	<packaging>pom</packaging>
+	<name>[Jupiter Wrapper - COMU] </name>
 
-    <modules>
-        <module>com.energyict.mdc.parent</module>
-    </modules>
+	<modules>
+		<module>com.energyict.mdc.parent</module>
+	</modules>
 </project>
