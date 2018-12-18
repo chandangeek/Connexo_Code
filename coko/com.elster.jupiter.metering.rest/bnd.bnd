@@ -3,5 +3,7 @@
 
 Export-Package: com.elster.jupiter.metering.rest,\
     com.elster.jupiter.metering.rest.properties
-Private-Package: com.elster.jupiter.metering.rest.impl
+Private-Package: com.elster.jupiter.metering.rest.impl,\
+    com.elster.jupiter.metering.rest.impl.*
+
 
