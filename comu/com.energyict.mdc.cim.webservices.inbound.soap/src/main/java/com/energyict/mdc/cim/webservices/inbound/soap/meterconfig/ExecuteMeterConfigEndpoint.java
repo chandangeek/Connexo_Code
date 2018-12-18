@@ -116,8 +116,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
                         OperationEnum.CREATE);
                 meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
 
-                Device createdDevice = deviceBuilder.prepareCreateFrom(meterConfigParser.asMeterInfo(meter,
-                        meterConfig.getSimpleEndDeviceFunction(), OperationEnum.CREATE)).build();
+                Device createdDevice = deviceBuilder.prepareCreateFrom(meterInfo).build();
                 return processDevice(createdDevice, meterInfo, HeaderType.Verb.CREATED, context);
             }
         } catch (VerboseConstraintViolationException e) {
@@ -172,10 +171,9 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
                 Meter meter = meterConfig.getMeter().stream().findFirst().orElseThrow(faultMessageFactory
                         .meterConfigFaultMessageSupplier(meterName, MessageSeeds.EMPTY_LIST, METER_ITEM));
                 MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
-                        OperationEnum.CREATE);
+                        OperationEnum.UPDATE);
                 meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
-                Device changedDevice = deviceBuilder.prepareChangeFrom(meterConfigParser.asMeterInfo(meter,
-                        meterConfig.getSimpleEndDeviceFunction(), OperationEnum.UPDATE)).build();
+                Device changedDevice = deviceBuilder.prepareChangeFrom(meterInfo).build();
                 return processDevice(changedDevice, meterInfo, HeaderType.Verb.CHANGED, context);
             }
         } catch (VerboseConstraintViolationException | SecurityException | InvalidLastCheckedException

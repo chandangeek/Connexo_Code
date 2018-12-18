@@ -51,6 +51,7 @@ public enum MessageSeeds implements MessageSeed {
     ACTUAL_VALUE_ALREADY_EXISTS(1022, "ActualValueAlreadyExists", "Can''t process device ''{0}'': security accessor ''{1}'' already as an 'active' value"),
     IMPORTING_SECURITY_KEY_FOR_DEVICE(1023, "ImportingSecurityKeysForDevice", "Importing security key for device ''{0}'' and security accessor ''{1}''"),
     EXCEPTION_OCCURRED_DURING_KEY_IMPORT(1024, "ExceptionOccurredDuringKeyImport", "Exception occurred during key import for device ''{0}'' and security accessor ''{1}''"),
+    NO_DEFAULT_DEVICE_CONFIGURATION(1025, "NoDefaultDeviceConfiguration", "No default device configuration"),
 
     // get end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),
