@@ -6,12 +6,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.5.1${revision}</version>
+        <version>10.6-SNAPSHOT</version>
         <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>mdc.sap.soap.wsdl</artifactId>
-    <version>1.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.sap.soap.wsdl</name>
     <description>SAP WSDL resources generation</description>
