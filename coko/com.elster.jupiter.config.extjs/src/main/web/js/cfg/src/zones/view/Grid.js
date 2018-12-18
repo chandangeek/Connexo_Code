@@ -45,10 +45,10 @@ Ext.define('Cfg.zones.view.Grid', {
         ];
 
         me.dockedItems = [
-            {
+           /* {
                 xtype: 'zones-overview-filter',
                 itemId: 'zones-overview-filter'
-            },
+            },*/
             {
                 xtype: 'pagingtoolbartop',
                 itemId: 'zones-grid-paging-toolbar-top',
@@ -59,7 +59,7 @@ Ext.define('Cfg.zones.view.Grid', {
                 emptyMsg: Uni.I18n.translate('zones.pagingtoolbartop.emptyMsg', 'CFG', 'There are no zones to display'),
                 items: [
                     {
-                        itemId: 'empty-zones-add-button',
+                        itemId: 'zones-add-button',
                         text: Uni.I18n.translate('zones.addZone', 'CFG', 'Add zone'),
                         action: 'addZone',
                         privileges: Cfg.privileges.Validation.adminZones,

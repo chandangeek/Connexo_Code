@@ -24,10 +24,10 @@ Ext.define('Cfg.zones.view.Overview', {
             title: Uni.I18n.translate('general.Zones', 'CFG', 'Zones'),
 
             items: [
-                /*{
+                {
                     xtype: 'zones-overview-filter',
                     itemId: 'zones-overview-filter'
-                },*/
+                },
                 {
                     xtype: 'preview-container',
                     grid: {
@@ -45,7 +45,7 @@ Ext.define('Cfg.zones.view.Overview', {
                         ],
                         stepItems: [
                             {
-                                itemId: 'zones-add-button',
+                                itemId: 'empty-zones-add-button',
                                 text: Uni.I18n.translate('zones.addZone', 'CFG', 'Add zone'),
                                 action: 'addZone',
                                 privileges: Cfg.privileges.Validation.adminZones

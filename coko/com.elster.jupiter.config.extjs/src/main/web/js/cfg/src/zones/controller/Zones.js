@@ -37,10 +37,13 @@ Ext.define('Cfg.zones.controller.Zones',{
                 selectionchange: this.showPreview
             },
 
-            'zones-overview #zones-add-button': {
+            'zones-grid #zones-add-button': {
                 click: this.showAddZone
             },
-            'zones-grid #zones-add-button': {
+            'zones-overview #empty-zones-add-button': {
+                click: this.showAddZone
+            },
+            'zones-overview #zones-add-button': {
                click: this.showAddZone
             },
             '#zones-add-form #btn-add-zone': {
