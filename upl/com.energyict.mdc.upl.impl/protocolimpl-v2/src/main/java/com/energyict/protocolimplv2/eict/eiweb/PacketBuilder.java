@@ -10,6 +10,7 @@ import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierLikeSerialNumber;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -215,7 +216,7 @@ public class PacketBuilder {
         if (id == 0 && serialNumber != null) {
             this.deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
         } else {
-            this.deviceIdentifier = new DeviceIdentifierLikeSerialNumber(String.valueOf(id));
+            this.deviceIdentifier = new DialHomeIdDeviceIdentifier(String.valueOf(id));
         }
     }
 
