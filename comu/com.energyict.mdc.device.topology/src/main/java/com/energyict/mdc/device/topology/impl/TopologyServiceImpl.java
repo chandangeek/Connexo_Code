@@ -996,7 +996,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                 .select(targetIsASlave.and(where("interval").isEffective()).and(where("nextHop").isNull())).stream();
     }
 
-    public Stream<G3CommunicationPathSegment> geAllG3CommunicationPathSegments(Device gateway) {
+    public Stream<G3CommunicationPathSegment> getAllG3CommunicationPathSegments(Device gateway) {
         Condition condition = where(G3CommunicationPathSegmentImpl.Field.SOURCE.fieldName()).isEqualTo(gateway).and(where("interval").isEffective());
         return this.dataModel.query(G3CommunicationPathSegment.class)
                 .select(condition).stream();
@@ -1037,7 +1037,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Override
     public void clearOldCommunicationPathSegments(Device source, Instant now)
     {
-        geAllG3CommunicationPathSegments(source).forEach(s -> terminateG3CommunicationPathSegment(s,now));
+        getAllG3CommunicationPathSegments(source).forEach(s -> terminateG3CommunicationPathSegment(s,now));
     }
 
     public void terminateG3CommunicationPathSegment(G3CommunicationPathSegment pathSegment, Instant now) {
