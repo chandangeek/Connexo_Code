@@ -337,7 +337,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
 
     getTaskInfoLink : function(textColor, userTaskInfo){
         var taskName = userTaskInfo.name.length > 0 ? userTaskInfo.name :
-            Uni.I18n.translate('bpm.process.noTaskName', 'BPM', 'No task name');
+            Uni.I18n.translate('bpm.process.noTaskName', 'UNI', 'No task name');
 
         var href = this.router.getRoute('workspace/tasks/task/performTask').buildUrl({taskId: userTaskInfo.id},
             {showNavigation: false});
