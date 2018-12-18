@@ -112,6 +112,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Component(name = "com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + TopologyService.COMPONENT_NAME)
 public class TopologyServiceImpl implements ServerTopologyService, MessageSeedProvider, TranslationKeyProvider {
 
+    private static final long ETERNITY = 1_000_000_000_000_000_000L;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
@@ -971,6 +972,14 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public G3CommunicationPath getCommunicationPath(Device source, Device target) {
         G3CommunicationPathImpl communicationPath = new G3CommunicationPathImpl(source, target);
         DataMapper<G3CommunicationPathSegment> mapper = this.dataModel.mapper(G3CommunicationPathSegment.class);
+        SqlBuilder sqlBuilder = getCommunicationPathSqlBuilder(source, target, mapper);
+        try (Fetcher<G3CommunicationPathSegment> fetcher = mapper.fetcher(sqlBuilder)) {
+            fetcher.forEach(communicationPath::addSegment);
+        }
+        return communicationPath;
+    }
+
+    private static SqlBuilder getCommunicationPathSqlBuilder(Device source, Device target, DataMapper<G3CommunicationPathSegment> mapper) {
         SqlBuilder sqlBuilder = mapper.builder(" cps ");
         sqlBuilder.append("where cps.discriminator = ");
         sqlBuilder.addObject(CommunicationPathSegmentImpl.G3_DISCRIMINATOR);
@@ -978,13 +987,12 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         sqlBuilder.addLong(source.getId());
         sqlBuilder.append(" and cps.targetdevice = ");
         sqlBuilder.addLong(target.getId());
+        sqlBuilder.append(" and cps.endtime = ");
+        sqlBuilder.addLong(ETERNITY);
         sqlBuilder.append(") connect by (cps.srcdevice = prior cps.nexthopdevice and cps.targetdevice = ");
         sqlBuilder.addLong(target.getId());
         sqlBuilder.append(")");
-        try (Fetcher<G3CommunicationPathSegment> fetcher = mapper.fetcher(sqlBuilder)) {
-            fetcher.forEach(communicationPath::addSegment);
-        }
-        return communicationPath;
+        return sqlBuilder;
     }
 
     @Override
