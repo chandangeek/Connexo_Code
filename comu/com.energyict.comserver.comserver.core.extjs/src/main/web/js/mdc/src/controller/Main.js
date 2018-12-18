@@ -16,7 +16,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.privileges.RegisteredDevicesKpi',
         'Mdc.privileges.CrlRequest',
         'Apr.controller.TaskManagement',
-        'Apr.controller.TaskManagementGeneralTask'
+        'Apr.controller.TaskManagementGeneralTask',
+        'Mdc.zones.controller.Zones'
     ],
 
     controllers: [
@@ -138,7 +139,8 @@ Ext.define('Mdc.controller.Main', {
         'Apr.controller.CustomTask',
         'Mdc.crlrequest.controller.TaskManagementCrlRequest',
         'Apr.controller.CustomTask',
-        'Mdc.controller.setup.TaskManagement'
+        'Mdc.controller.setup.TaskManagement',
+        'Mdc.zones.controller.Zones'
     ],
 
     stores: [
@@ -480,6 +482,30 @@ Ext.define('Mdc.controller.Main', {
         }
 
         me.addTaskManagement();
+
+        if (Cfg.privileges.Validation.canViewZones()) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
+                glyph: 'settings',
+                portal: 'administration',
+                index: 10
+            }));
+
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.zone', 'MDC', 'Zone management'),
+                    portal: 'administration',
+                    route: 'zones',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('title.zones', 'MDC', 'Zones'),
+                            itemId: 'mdc-administration-zones-link',
+                            href: '#/administration/zones'
+                        }
+                    ]
+                })
+            );
+        }
     },
 
     addTaskManagement: function () {
