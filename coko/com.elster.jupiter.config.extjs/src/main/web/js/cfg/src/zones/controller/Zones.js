@@ -43,9 +43,6 @@ Ext.define('Cfg.zones.controller.Zones',{
             'zones-overview #empty-zones-add-button': {
                 click: this.showAddZone
             },
-            'zones-overview #zones-add-button': {
-               click: this.showAddZone
-            },
             '#zones-add-form #btn-add-zone': {
                 click: this.addZone
             },
