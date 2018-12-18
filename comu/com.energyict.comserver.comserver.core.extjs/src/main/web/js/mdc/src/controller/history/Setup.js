@@ -1425,7 +1425,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: Cfg.privileges.Validation.adminZones,
                         },
                         edit: {
-                            title: Uni.I18n.translate('zones.addZone', 'MDC', 'Edit zone'),
+                            title: Uni.I18n.translate('zones.editZone', 'MDC', 'Edit zone'),
                             route: '{zoneId}/edit',
                             controller: 'Mdc.zones.controller.Zones',
                             action: 'editZone',
