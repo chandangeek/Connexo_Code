@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.elster.jupiter</groupId>
+	<artifactId>jupiter</artifactId>
+	<version>10.6-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>[Jupiter Wrapper - All apps] </name>
+	<modules>
+		<module>copl</module>
+		<module>coko</module>
+		<module>comu</module>
+		<module>coin</module>
+		<module>copa</module>
+		<module>upl</module>
+		<!--module>upl</module-->
+	</modules>
+	
+	<distributionManagement>
+        <repository>
+            <id>eict-releases</id>
+            <name>EnergyICT releases repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>eict-snapshots</id>
+            <name>EnergyICT snapshots repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+</project>

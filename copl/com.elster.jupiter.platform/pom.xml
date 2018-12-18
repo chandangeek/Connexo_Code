@@ -8,11 +8,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>1.2.0</version>
+        <version>10.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>platform</artifactId>
-    <version>1.5.5${revision}</version>
     <packaging>pom</packaging>
     <name>[Jupiter] com.elster.jupiter.platform</name>
 
@@ -21,486 +20,882 @@
             <!-- Third-party subsystem -->
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>third-party.bom</artifactId>
-                <version>1.5.1${revision}</version>
+                <artifactId>drools-integration</artifactId>
+                <version>1.2.0</version>
                 <type>pom</type>
-                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>1.2</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>1.1.0.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.el</groupId>
+                <artifactId>javax.el-api</artifactId>
+                <version>2.2.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>5.1.3.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml</groupId>
+                <artifactId>classmate</artifactId>
+                <version>0.8.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.logging</groupId>
+                <artifactId>jboss-logging</artifactId>
+                <version>3.1.3.GA</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.web</groupId>
+                <artifactId>javax.el</artifactId>
+                <version>2.2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.main</artifactId>
+                <version>4.4.1</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr</artifactId>
+                <version>1.8.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.log</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.eventadmin</artifactId>
+                <version>1.4.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.configadmin</artifactId>
+                <version>1.6.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.metatype</artifactId>
+                <version>1.0.8</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.http.jetty</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.http.api</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.http.servlet-api</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.gogo.command</artifactId>
+                <version>0.12.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.gogo.runtime</artifactId>
+                <version>0.10.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.gogo.shell</artifactId>
+                <version>0.10.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.aries.jmx</groupId>
+                <artifactId>org.apache.aries.jmx.whiteboard</artifactId>
+                <version>1.1.5</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.eclipse</groupId>
+                        <artifactId>org.eclipse.osgi</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>18.0</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>2.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-jaxb-annotations</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-base</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-common</artifactId>
+                <version>2.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-server</artifactId>
+                <version>2.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>2.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-servlet-core</artifactId>
+                <version>2.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.media</groupId>
+                <artifactId>jersey-media-json-jackson</artifactId>
+                <version>2.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.media</groupId>
+                <artifactId>jersey-media-multipart</artifactId>
+                <version>2.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jvnet.mimepull</groupId>
+                <artifactId>mimepull</artifactId>
+                <version>1.9.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>hk2-api</artifactId>
+                <version>2.3.0-b10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>hk2-locator</artifactId>
+                <version>2.3.0-b10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>hk2-utils</artifactId>
+                <version>2.3.0-b10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>osgi-resource-locator</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.hk2.external</groupId>
+                <artifactId>aopalliance-repackaged</artifactId>
+                <version>2.3.0-b10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.hk2.external</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>2.3.0-b10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.bundles.repackaged</groupId>
+                <artifactId>jersey-guava</artifactId>
+                <version>2.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.18.1-GA</version>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.5</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.aopalliance</artifactId>
+                <version>1.0_6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>4.3.1</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.compendium</artifactId>
+                <version>4.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-core</artifactId>
+                <version>${apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-transports-http</artifactId>
+                <version>${apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-frontend-jaxws</artifactId>
+                <version>${apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-databinding-jaxb</artifactId>
+                <version>${apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-frontend-simple</artifactId>
+                <version>${apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-bindings-soap</artifactId>
+                <version>${apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-bindings-xml</artifactId>
+                <version>${apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-wsdl</artifactId>
+                <version>${apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.asm</artifactId>
+                <version>3.3_2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.javax.mail</artifactId>
+                <version>1.4.1_5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
+                <version>1.6.3_1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.json</artifactId>
+                <version>20090211_2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ws.xmlschema</groupId>
+                <artifactId>xmlschema-core</artifactId>
+                <version>2.2.1</version> <!-- Upgrade required for CXF 3.1 -->
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.woodstox</groupId>
+                <artifactId>stax2-api</artifactId>
+                <version>3.1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.woodstox</groupId>
+                <artifactId>woodstox-core-asl</artifactId>
+                <version>4.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>jupiter-oracle</artifactId>
+                <version>12.1.0.2-1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.oxo42</groupId>
+                <artifactId>stateless4j</artifactId>
+                <version>2.5.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-csv</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.enterprisedt</groupId>
+                <artifactId>edtftpj-pro</artifactId>
+                <version>4.8.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>3.10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.jcip-annotations</artifactId>
+                <version>1.0_2</version>
+            </dependency>
+            <dependency>
+                <groupId>net.minidev</groupId>
+                <artifactId>json-smart</artifactId>
+                <version>1.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <!--  EJBCA library dependencies -->
+            <dependency>
+                <groupId>org.ejbca</groupId>
+                <artifactId>ejbca-elster-bundle</artifactId>
+                <version>${ejbcabundle.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
+                <version>1.4_3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>0.9.10</version>
             </dependency>
 
             <!-- Project modules - please keep in alphabetical order on artifactId -->
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>appserver</artifactId>
-                <version>2.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>appserver.extjs</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bootstrap</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bootstrap.oracle</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bpm</artifactId>
-                <version>3.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bpm.extjs</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bpm.handler</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bpm.rest</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.partners</groupId>
                 <artifactId>connexo.filter</artifactId>
-                <version>1.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>cps</artifactId>
-                <version>1.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>cps.rest</artifactId>
-                <version>1.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>cps.extjs</artifactId>
-                <version>1.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>datavault</artifactId>
-                <version>2.2.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>domain.util</artifactId>
-                <version>3.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>dualcontrol</artifactId>
-                <version>1.2.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>events</artifactId>
-                <version>2.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>events.rest</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>extjs</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.partners</groupId>
                 <artifactId>facts.filter</artifactId>
-                <version>1.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fileimport</artifactId>
-                <version>2.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fileimport.extjs</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fileimport.rest</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.partners</groupId>
                 <artifactId>flow.filter</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fsm</artifactId>
-                <version>3.2.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fsm.handler</artifactId>
-                <version>1.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>fsm.rest</artifactId>
-                <version>1.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>ftpclient</artifactId>
-                <version>1.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>hsm</artifactId>
-                <version>1.1.2${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>http.whiteboard</artifactId>
-                <version>2.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.partners</groupId>
                 <artifactId>jbpm.extension</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>launcher</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>loaderjs</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>login.app</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>mail</artifactId>
-                <version>1.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>messaging</artifactId>
-                <version>3.0.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>messaging.oracle</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>nls.rest</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>orm</artifactId>
-                <version>4.2.5${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>osgi.goodies</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pki</artifactId>
-                <version>3.2.2${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pki.rest</artifactId>
-                <version>1.2.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pki.extjs</artifactId>
-                <version>1.2.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>properties</artifactId>
-                <version>2.4.5${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>properties.rest</artifactId>
-                <version>1.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>public.rest.util</artifactId>
-                <version>1.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>pubsub</artifactId>
-                <version>2.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>rest.util</artifactId>
-                <version>2.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>rest.whiteboard</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>search</artifactId>
-                <version>2.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>search.rest</artifactId>
-                <version>3.2.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>security.thread</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>servicecall</artifactId>
-                <version>1.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>servicecall.examples</artifactId>
-                <version>1.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>servicecall.extjs</artifactId>
-                <version>1.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>servicecall.rest</artifactId>
-                <version>1.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>servicecalltype.extjs</artifactId>
-                <version>1.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>soap.currency.converter</artifactId>
-                <version>1.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>soap.currency.converter.client</artifactId>
-                <version>1.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>soap.whiteboard.cxf</artifactId>
-                <version>2.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>system</artifactId>
-                <version>1.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <!-- todo rename to license -->
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>systemadmin</artifactId>
-                <version>2.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>tasks</artifactId>
-                <version>2.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>tasks.rest</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>theme.skyline</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>time</artifactId>
-                <version>4.2.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>time.extjs</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>time.rest</artifactId>
-                <version>2.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>transaction</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>unifyingjs</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>upgrade</artifactId>
-                <version>1.6.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>users</artifactId>
-                <version>3.4.4${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>users.extjs</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>users.rest</artifactId>
-                <version>4.2.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>util</artifactId>
-                <version>2.4.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>webservices.extjs</artifactId>
-                <version>1.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>webservices.rest</artifactId>
-                <version>1.3.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin</artifactId>
-                <version>3.1.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin.app</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin.installer</artifactId>
-                <version>2.1.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -508,31 +903,31 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>devtools</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>devtools.persistence</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>devtools.rest</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bootstrap.h2</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>messaging.h2</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
 
@@ -718,10 +1113,16 @@
             com.elster.jupiter.appserver.security:com.elster.jupiter.bpm.security:com.elster.jupiter.fileimport.security:com.elster.jupiter.license.security:com.elster.jupiter.servicecall.security:${line.separator}
             com.elster.jupiter.soap.whiteboard.cxf.security:com.elster.jupiter.system.security:com.elster.jupiter.tasks.security:com.elster.jupiter.users.security:com.elster.jupiter.yellowfin.security
         </javadoc.excluded.package.names>
+        <apache.cxf.version>3.1.6</apache.cxf.version>
+        <bouncycastle.version>1.60</bouncycastle.version>
+        <ejbcabundle.version>1.0.0</ejbcabundle.version>
     </properties>
     <profiles>
         <profile>
             <id>platform</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <modules>
                 <module>../com.elster.jupiter.appserver</module>
                 <module>../com.elster.jupiter.appserver.extjs</module>
@@ -798,10 +1199,16 @@
                 <module>../com.elster.jupiter.yellowfin.app</module>
                 <module>../com.elster.jupiter.yellowfin.installer</module>
 
+                <module>../com.elster.jupiter.subsystem.parent</module>
+                <module>../com.elster.jupiter.subsystem.platform</module>
+                <module>../com.elster.jupiter.subsystem.third-party</module>
             </modules>
         </profile>
         <profile>
             <id>test-platform-bundles</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <modules>
                 <module>../com.elster.jupiter.devtools</module>
                 <module>../com.elster.jupiter.devtools.persistence</module>

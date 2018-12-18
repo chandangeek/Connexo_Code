@@ -9,12 +9,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.5.1${revision}</version>
+        <version>10.6-SNAPSHOT</version>
         <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
-    <version>1.2.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.cim.webservices.outbound.soap</name>
     <description>CIM specification for outbound web services</description>
