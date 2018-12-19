@@ -24,6 +24,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -82,12 +83,9 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
+import com.energyict.mdc.device.configuration.rest.impl.SecurityAccessorInfoFactoryImpl;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -149,12 +147,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Currency;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -223,6 +216,10 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     MeteringGroupsService meteringGroupsService;
     @Mock
     SecurityManagementService securityManagementService;
+    @Mock
+    SecurityAccessorInfoFactory securityAccessorInfoFactory;
+    @Mock
+    HsmEnergyService hsmEnergyService;
 
     static ProtocolPluggableService protocolPluggableService;
     static PropertyValueInfoService propertyValueInfoService;
@@ -297,6 +294,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setThreadPrincipalService(threadPrincipalService);
         application.setMdcPropertyUtils(new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupsService));
         application.setSecurityManagementService(securityManagementService);
+        application.setSecurityAccessorInfoFactory(securityAccessorInfoFactory);
+        application.setHsmEnergyService(hsmEnergyService);
         return application;
     }
 
@@ -413,6 +412,16 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return propertySpec;
     }
 
+    PropertySpec mockStringPropertySpec(String key, String value) {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.isRequired()).thenReturn(true);
+        when(propertySpec.getName()).thenReturn(key);
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
+        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
+        when(possibleValues.getDefault()).thenReturn(value);
+        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
+        return propertySpec;
+    }
 
     PropertySpec mockBigDecimalPropertySpec() {
         PropertySpec propertySpec = mock(PropertySpec.class);
@@ -1124,7 +1133,6 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return comment;
     }
 
-
     protected User mockUser(long id, String name) {
         User user = mock(User.class);
         when(user.getId()).thenReturn(id);
@@ -1133,9 +1141,22 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return user;
     }
 
-
     protected IssueAssignee getDefaultAssignee() {
         return mockAssignee(1L, "Admin", 1L, "WorkGroup");
+    }
+
+    protected SecurityAccessor mockSecurityAccessor(String type, PropertySpec... propertySpecs) {
+        SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
+        SecurityAccessorType securityAccessorType = mockSecuritySecurityAccessorType(type);
+        when(securityAccessor.getKeyAccessorType()).thenReturn(securityAccessorType);
+        when(securityAccessor.getPropertySpecs()).thenReturn(Arrays.asList(propertySpecs));
+        return securityAccessor;
+    }
+
+    protected SecurityAccessorType mockSecuritySecurityAccessorType(String type) {
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getName()).thenReturn(type);
+        return securityAccessorType;
     }
 
     private static Location mockLocation(String location) {

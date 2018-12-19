@@ -1,25 +1,54 @@
+/*
+ * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.hsm.impl;
 
 import com.atos.worldline.jss.api.FunctionFailedException;
-import com.atos.worldline.jss.api.basecrypto.*;
-import com.atos.worldline.jss.api.custom.energy.*;
-import com.atos.worldline.jss.api.key.*;
+import com.atos.worldline.jss.api.basecrypto.BlockMode;
+import com.atos.worldline.jss.api.basecrypto.HashAlgorithm;
+import com.atos.worldline.jss.api.basecrypto.MAC;
+import com.atos.worldline.jss.api.basecrypto.RandomMode;
+import com.atos.worldline.jss.api.basecrypto.Symmetric;
+import com.atos.worldline.jss.api.basecrypto.SymmetricMACVerifyResponse;
+import com.atos.worldline.jss.api.custom.energy.AuthenticationMechanism;
+import com.atos.worldline.jss.api.custom.energy.CosemAuthDataDecryptionResponse;
+import com.atos.worldline.jss.api.custom.energy.CosemAuthDataEncryptionResponse;
+import com.atos.worldline.jss.api.custom.energy.CosemHLSAuthenticationResponse;
+import com.atos.worldline.jss.api.custom.energy.Energy;
+import com.atos.worldline.jss.api.custom.energy.KeyIDForAgree;
+import com.atos.worldline.jss.api.custom.energy.KeyImportResponse;
+import com.atos.worldline.jss.api.custom.energy.KeyRenewalResponse;
+import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKey;
+import com.atos.worldline.jss.api.custom.energy.SecurityControl;
+import com.atos.worldline.jss.api.custom.energy.SecurityControlExtended;
+import com.atos.worldline.jss.api.custom.energy.SecuritySuite;
+import com.atos.worldline.jss.api.custom.energy.ServiceKeyInjectionResponse;
+import com.atos.worldline.jss.api.key.AESKeyToken;
+import com.atos.worldline.jss.api.key.KEKEncryptionMethod;
+import com.atos.worldline.jss.api.key.KeyLabel;
+import com.atos.worldline.jss.api.key.PrivateKeyToken;
+import com.atos.worldline.jss.api.key.SecretKey;
 import com.atos.worldline.jss.api.key.derivation.CertificateChainX509KeyDerivation;
 import com.atos.worldline.jss.api.key.derivation.KeyDerivation;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.HsmProtocolService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.Message;
 import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
 import com.elster.jupiter.hsm.model.keys.IrreversibleKey;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
 import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
-import com.elster.jupiter.hsm.model.response.protocols.*;
+import com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTag;
+import com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTagImpl;
 import com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponse;
+import com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponseImpl;
 import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalAgree2EGenerateResponse;
+import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalAgree2EGenerateResponseImpl;
 import org.apache.commons.lang3.SerializationUtils;
+import org.bouncycastle.util.encoders.Hex;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -31,35 +60,54 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.time.Clock;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component(name = "com.elster.jupiter.impl.HsmEnergyServiceImpl", service = {HsmEnergyService.class, HsmProtocolService.class}, immediate = true, property = "name=" + HsmEnergyServiceImpl.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.impl.HsmEnergyServiceImpl",
+        service = {HsmEnergyService.class, HsmProtocolService.class},
+        immediate = true, property = "name=" + HsmEnergyServiceImpl.COMPONENTNAME)
 public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolService {
 
     private static final int AES_KEY_LENGTH = 16;
 
-    /** Size of the frame counter when encoded. */
+    /**
+     * Size of the frame counter when encoded.
+     */
     private static final int FRAMECOUNTER_SIZE = 4;
 
     static final String COMPONENTNAME = "HsmEnergyServiceImpl";
 
-    static final Map<Integer , SecuritySuite> SECURITY_SUITE_MAP = new HashMap<Integer , SecuritySuite>() {{
-        put(0,    SecuritySuite.SUITE0);
+    static final Map<Integer, SecuritySuite> SECURITY_SUITE_MAP = new HashMap<Integer, SecuritySuite>() {{
+        put(0, SecuritySuite.SUITE0);
         put(1, SecuritySuite.SUITE1);
         put(2, SecuritySuite.SUITE2);
     }};
 
-    static final Map<Integer , KeyIDForAgree> KEY_ID_FOR_AGREE_MAP = new HashMap<Integer , KeyIDForAgree>() {{
-        put(0,    KeyIDForAgree.GLOBAL_UNICAST_ENC_KEY);
+    static final Map<Integer, KeyIDForAgree> KEY_ID_FOR_AGREE_MAP = new HashMap<Integer, KeyIDForAgree>() {{
+        put(0, KeyIDForAgree.GLOBAL_UNICAST_ENC_KEY);
         put(1, KeyIDForAgree.GLOBAL_UNICAST_ENC_KEY);
         put(2, KeyIDForAgree.AUTHENTICATION_KEY);
         put(3, KeyIDForAgree.MASTER_KEY);
     }};
 
-
-
+    private volatile Clock clock;
     private volatile HsmConfigurationService hsmConfigurationService;
+
+    public HsmEnergyServiceImpl() {
+        // for OSGI purposes
+    }
+
+    @Reference
+    public final void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
+    public void setHsmConfigurationService(HsmConfigurationService hsmConfigurationService) {
+        this.hsmConfigurationService = hsmConfigurationService;
+    }
 
     @Override
     public HsmEncryptedKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException {
@@ -104,16 +152,38 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         }
     }
 
+    @Override
+    public Message prepareServiceKey(String hexServiceKey, String kek, String hexKeyValue) throws HsmBaseException {
+        try {
+            Message serviceKey = new Message(Hex.decode(hexServiceKey));
+            Message keyValue = new Message(Hex.decode(hexKeyValue));
+            ProtectedSessionKey protectedSessionKey = new ProtectedSessionKey(new KeyLabel(kek), keyValue.getBytes());
+            return new Message(Energy.prepareServiceKeyInjection(serviceKey.getBytes(), protectedSessionKey,
+                    Date.from(clock.instant())));
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException(e);
+        }
+    }
+
+    @Override
+    public com.elster.jupiter.hsm.model.response.ServiceKeyInjectionResponse serviceKeyInjection(String hexData,
+                                                                                                 String hexSignature,
+                                                                                                 String verifyKey) throws HsmBaseException {
+        try {
+            Message data = new Message(Hex.decode(hexData));
+            Message signature = new Message(Hex.decode(hexSignature));
+            ServiceKeyInjectionResponse response = Energy.serviceKeyInjection(data.getBytes(), signature.getBytes(),
+                    new KeyLabel(verifyKey));
+            return new com.elster.jupiter.hsm.model.response.ServiceKeyInjectionResponse(response.getServiceKey(),
+                    response.getWarning());
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException(e);
+        }
+    }
+
     private boolean isSecretRenewal(RenewKeyRequest renewKeyRequest) {
         return renewKeyRequest.getHsmKeyType().getHsmJssKeyType().equals(HsmJssKeyType.AUTHENTICATION)
                 || renewKeyRequest.getHsmKeyType().getHsmJssKeyType().equals(HsmJssKeyType.HLSECRET);
-    }
-
-
-
-    @Reference
-    public void setHsmConfigurationService(HsmConfigurationService hsmConfigurationService) {
-        this.hsmConfigurationService = hsmConfigurationService;
     }
 
     private static KeyDerivation[] createKeyDerivationArray(Certificate[] certChain) {
@@ -306,10 +376,10 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     public boolean verifyFramecounterHMAC(byte[] serverSysT, byte[] clientSysT, byte[] challenge, long framecounter, IrreversibleKey gak, byte[] challengeResponse) throws HsmBaseException {
         final byte[] framecounterBytes = new byte[FRAMECOUNTER_SIZE];
 
-        framecounterBytes[0] = (byte)((framecounter >> 24) & 0xff);
-        framecounterBytes[1] = (byte)((framecounter >> 16) & 0xff);
-        framecounterBytes[2] = (byte)((framecounter >> 8) & 0xff);
-        framecounterBytes[3] = (byte)(framecounter & 0xff);
+        framecounterBytes[0] = (byte) ((framecounter >> 24) & 0xff);
+        framecounterBytes[1] = (byte) ((framecounter >> 16) & 0xff);
+        framecounterBytes[2] = (byte) ((framecounter >> 8) & 0xff);
+        framecounterBytes[3] = (byte) (framecounter & 0xff);
 
         final byte[] macInputData = new byte[serverSysT.length + clientSysT.length + challenge.length + FRAMECOUNTER_SIZE];
 
@@ -387,8 +457,8 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     @Override
     public IrreversibleKey eekAgreeReceiver1e1s(int securitySuite, Certificate[] deviceSignatureKeyCertChain, byte[] ephemeralKaKey, byte[] signature, String hesKaKeyLabel, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmBaseException {
         KeyDerivation[] signatureKeyCertChain = createKeyDerivationArray(deviceSignatureKeyCertChain);
-        ProtectedSessionKey protectedSessionKey =
-                null;
+        ProtectedSessionKey protectedSessionKey = null;
+
         try {
             protectedSessionKey = Energy.eekAgreeReceiver1e1s(getAtosSecuritySuite(securitySuite),
                     signatureKeyCertChain,
@@ -415,11 +485,9 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
     @Override
     public EEKAgreeResponse eekAgreeSender1e1s(int securitySuite, String hesSignatureKeyLabel, Certificate[] deviceKeyAgreementKeyCertChain, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmBaseException {
-
         KeyDerivation[] certChainFromReceiver = createKeyDerivationArray(deviceKeyAgreementKeyCertChain);
+        com.atos.worldline.jss.api.custom.energy.EEKAgreeResponse eekAgreeResponse = null;
 
-        com.atos.worldline.jss.api.custom.energy.EEKAgreeResponse eekAgreeResponse =
-                null;
         try {
             eekAgreeResponse = Energy.eekAgreeSender1e1s(getAtosSecuritySuite(securitySuite),
                     new KeyLabel(hesSignatureKeyLabel),
@@ -480,20 +548,17 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
     private SecuritySuite getAtosSecuritySuite(int securitySuite) throws HsmBaseException {
         SecuritySuite atosSecuritySuite = SECURITY_SUITE_MAP.get(securitySuite);
-        if(atosSecuritySuite == null) {
-            throw new HsmBaseException("Security suite "+securitySuite+" is NOT SUPPORTED!");
+        if (atosSecuritySuite == null) {
+            throw new HsmBaseException("Security suite " + securitySuite + " is NOT SUPPORTED!");
         }
         return atosSecuritySuite;
-
     }
 
     private KeyIDForAgree getAtosKeyIDForAgreement(int keyIdForAgreement) throws HsmBaseException {
         KeyIDForAgree keyIDForAgree = KEY_ID_FOR_AGREE_MAP.get(keyIdForAgreement);
-        if(keyIDForAgree == null) {
-            throw new HsmBaseException("Key ID for agreement "+keyIdForAgreement+" is NOT SUPPORTED!");
+        if (keyIDForAgree == null) {
+            throw new HsmBaseException("Key ID for agreement " + keyIdForAgreement + " is NOT SUPPORTED!");
         }
         return keyIDForAgree;
-
     }
-
 }

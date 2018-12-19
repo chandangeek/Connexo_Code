@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.elster.jupiter.hsm.impl;
 
 
+import com.atos.worldline.jss.configuration.RawLabel;
 import com.elster.jupiter.hsm.impl.resources.HsmConfigRefreshableResourceBuilder;
 import com.elster.jupiter.hsm.impl.config.HsmJssConfigLoader;
 import com.elster.jupiter.hsm.impl.context.HsmClassLoaderHelper;
@@ -15,9 +15,7 @@ import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import com.atos.worldline.jss.api.JSSRuntimeControl;
-import com.atos.worldline.jss.commondev.log.Slf4JLogFactory;
 import com.atos.worldline.jss.configuration.RawConfiguration;
-import groovy.util.logging.Slf4j;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -30,7 +28,9 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationServiceImpl", service = {HsmConfigurationService.class}, immediate = true, property = "name=" + HsmConfigurationServiceImpl.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationServiceImpl",
+        service = {HsmConfigurationService.class},
+        immediate = true, property = "name=" + HsmConfigurationServiceImpl.COMPONENTNAME)
 public class HsmConfigurationServiceImpl implements HsmConfigurationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(HsmConfigurationServiceImpl.class);
@@ -53,7 +53,6 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
             LOG.error("Unable to initialize JSS", e);
             throw (e);
         }
-
     }
 
     private void waitInit() {
@@ -101,11 +100,10 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
             configurator.doConfigure(resource);
         } catch (Exception e) {
             String msg = "Unable to re-configure logger";
-            System.out.println(msg +  e.getMessage() + " stackTrace:");
+            System.out.println(msg + e.getMessage() + " stackTrace:");
             e.printStackTrace();
             LOG.warn(msg, e);
         }
-
     }
 
     @Override
@@ -117,5 +115,6 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     @Override
     public Collection<String> getLabels() throws HsmBaseException {
         checkInit();
-        return rawConfiguration.getRawLabels().stream().map(s -> s.name()).collect(Collectors.toList());    }
+        return rawConfiguration.getRawLabels().stream().map(RawLabel::name).collect(Collectors.toList());
+    }
 }
