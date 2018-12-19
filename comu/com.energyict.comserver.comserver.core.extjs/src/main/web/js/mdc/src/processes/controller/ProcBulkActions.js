@@ -6,10 +6,6 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
     extend: 'Ext.app.Controller',
 
     stores: [
-        /*'Isu.store.IssueStatuses',
-        'Isu.store.UserList',
-        'Isu.store.IssuesBuffered',
-        'Isu.store.BulkChangeIssues'*/
         'Mdc.processes.store.BulkChangeProcesses',
         'Bpm.startprocess.store.AvailableProcesses'
     ],
@@ -21,8 +17,6 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
     views: [
         'Mdc.processes.view.bulk.ProcessBulkBrowse',
         'Mdc.processes.view.RetryProcessDetails'
-/*        'Isu.view.issues.bulk.Browse',
-       'Isu.view.issues.MessagePanel'*/
     ],
 
     refs: [
@@ -68,62 +62,8 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
             },
             'process-bulk-browse process-bulk-wizard #confirmButton': {
                 click: this.confirmClick
-            }/*,
-            'bulk-browse bulk-navigation': {
-                movetostep: this.setActivePage
-            }/*,
-            'bulk-browse bulk-wizard bulk-step2 radiogroup': {
-                change: this.onStep2RadiogroupChangeEvent,
-                afterrender: this.getDefaultStep2Operation
-            },
-            'bulk-browse bulk-wizard bulk-step3 issues-close-form radiogroup': {
-                change: this.onStep3RadiogroupCloseChangeEvent,
-                afterrender: this.getDefaultCloseStatus
-            },
-            'bulk-browse bulk-wizard bulk-step3 set-priority-form radiogroup': {
-                change: this.onStep3RadiogroupSetPriorityChangeEvent,
-                afterrender: this.getDefaultSetPriorityStatus
-            },
-            'bulk-browse bulk-wizard bulk-step3 snooze-bulk-form radiogroup': {
-                change: this.onStep3RadiogroupSnoozeChangeEvent,
-                afterrender: this.getDefaultSnoozeStatus
-            },
-            'bulk-browse bulk-step4': {
-                beforeactivate: this.beforeStep4
-            },
-            'bulk-browse bulk-wizard bulk-step3 issues-close-form': {
-                beforerender: this.issueClosingFormBeforeRenderEvent
-            }*/
-        });
-    },
-
-    issueClosingFormBeforeRenderEvent: function (form) {
-        var statusesContainer = form.down('[name=status]'),
-            values = Ext.state.Manager.get('formCloseValues');
-        Ext.Ajax.request({
-            url: '/api/isu/statuses',
-            method: 'GET',
-            success: function (response) {
-                var statuses = Ext.decode(response.responseText).data;
-                Ext.each(statuses, function (status) {
-                    if (!Ext.isEmpty(status.allowForClosing) && status.allowForClosing) {
-                        statusesContainer.add({
-                            boxLabel: status.name,
-                            inputValue: status.id,
-                            name: 'status'
-                        })
-                    }
-                });
-                if (Ext.isEmpty(values)) {
-                    statusesContainer.items.items[0].setValue(true);
-                } else {
-                    statusesContainer.down('[inputValue=' + values.status + ']').setValue(true);
-                }
             }
         });
-        if (values) {
-            form.down('textarea').setValue(values.comment);
-        }
     },
 
     showBulkActions: function () {
@@ -141,7 +81,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         console.log("queryStringValues=",queryStringValues);
         var property;
         var value;
-
+        /* Assemble filter from query string */
         if (queryStringValues.process){
             property = "process";
             console.log("PROCESSES=",queryStringValues.process);
@@ -201,10 +141,8 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
             if (Ext.isArray(queryStringValues.user))
             {
                 value = queryStringValues.user;
-                console.log("VALUE=",value);
             }else{
                 value = [queryStringValues.user];
-                console.log("VALUE=",value);
             }
             filter.push({
                 property: property,
@@ -232,39 +170,15 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
             });
         }
 
-
-        console.log("filter = ",filter);
-
         widget  = Ext.widget('process-bulk-browse');
 
-        //me.getApplication().fireEvent('changecontentevent', widget);
-
-/*        issuesStoreProxy.extraParams = {};
-        if (queryStringValues.sort) {
-            issuesStoreProxy.setExtraParam('sort', queryStringValues.sort);
-            delete queryStringValues.sort;
-        }
-        if (Ext.isDefined(queryStringValues.groupingType) && Ext.isDefined(queryStringValues.groupingValue) && Ext.isEmpty(queryStringValues[queryStringValues.groupingType])) {
-            filter.push({
-                property: queryStringValues.groupingType,
-                value: queryStringValues.groupingValue
-            });
-        }*/
-        console.log("ASSEMBLED FILTER =",filter);
-
-
-
-
         grid = widget.down('processes-bulk-step1').down('processes-selection-grid');
-        console.log("grid=",grid);
         grid.reconfigure(processesStore);
         grid.filterParams = Ext.clone(filter);
 
         me.getApplication().fireEvent('changecontentevent', widget);
         processesStore.data.clear();
 
-        console.log("filter.length = ",filter.length);
-        console.log("!!filter.length = ",!!filter.length);
         processesStore.clearFilter(true);
 
         processesStore.getProxy().setUrl("deviceId,alarmId,issueId");
@@ -275,20 +189,10 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         processesStore.on('load', function () {
             grid.onSelectDefaultGroupType();
         }, me, {single: true});
-
     },
-
-    setActivePage: function (index) {
-        var wizard = this.createdWizard;
-        wizard.show();
-        wizard.activeItemId = index - 1;
-        wizard.getLayout().setActiveItem(wizard.activeItemId);
-        wizard.fireEvent('wizardpagechange', wizard);
-    },
-
 
     setFailedBulkRecordIssues: function (failedIssues) {
-        var record = this.getBulkRecord(),
+        var record = this.getBulkRecord();/*,
             previousIssues = record.get('issues'),
             leftIssues = [];
 
@@ -299,19 +203,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         });
 
         record.set('issues', leftIssues);
-        record.commit();
-    },
-
-    onIssuesListAfterRender: function (grid) {
-        grid.mask();
-        grid.store.load({
-            params: {sort: ['-priorityTotal'], filter: Ext.encode([{property: 'status', value: ['status.open']}])},
-            start: 0,
-            limit: 99999,
-            callback: function () {
-                grid.unmask();
-            }
-        });
+        record.commit();*/
     },
 
     onBulkActionEvent: function () {
@@ -367,56 +259,10 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         this.setBulkActionListActiveItem(wizard);
     },
 
-    getRequestData: function (bulkStoreRecord) {
-        var requestData = {issues: []},
-            operation = bulkStoreRecord.get('operation'),
-            issues = bulkStoreRecord.get('issues'),
-            allIssues = bulkStoreRecord.get('allIssues'),
-            params = bulkStoreRecord.get('params');
-
-        if (!allIssues) {
-            Ext.iterate(issues, function (issue) {
-                requestData.issues.push(
-                    {
-                        id: issue.get('id'),
-                        version: issue.get('version')
-                    }
-                );
-            });
-            requestData.params = [];
-            requestData.allIssues = false;
-        } else {
-            requestData.params = params;
-            requestData.allIssues = allIssues;
-            requestData.issues = [];
-        }
-
-        switch (operation) {
-            case 'assign':
-                requestData.assignee = {
-                    userId: bulkStoreRecord.get('assignee').userId,
-                    workGroupId: bulkStoreRecord.get('assignee').workGroupId
-                };
-                break;
-            case 'close':
-                requestData.status = bulkStoreRecord.get('status');
-                break;
-            case 'setpriority' :
-                requestData.priority = bulkStoreRecord.get('priority');
-                break;
-            case 'snooze' :
-                requestData.snoozeDateTime = bulkStoreRecord.get('snooze').getTime();
-                break;
-        }
-
-        requestData.comment = bulkStoreRecord.get('comment');
-
-        return requestData;
-    },
-
     onWizardCancelledEvent: function () {
         //this.getController('Uni.controller.history.Router').getRoute('workspace/issues').forward();
-        this.getController('Uni.controller.history.Router').getRoute('workspace/multisenseprocesses').forward();
+        console.log('onWizardCancelledEvent!!!!!!!!!');
+        this.getController('Uni.controller.history.Router').getRoute('workspace/multisenseprocesses').forward(null,Uni.util.QueryString.getQueryStringValues(false));
     },
 
     setBulkActionListActiveItem: function (wizard) {
@@ -430,80 +276,18 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
     },
 
     getBulkRecord: function () {
-        //var bulkStore = Ext.getStore('Isu.store.BulkChangeIssues'),
           var bulkStore = Ext.getStore('Mdc.processes.store.BulkChangeProcesses'),
             bulkRecord = bulkStore.getAt(0);
 
         if (!bulkRecord) {
-        console.log("SET OPERTATION TO RETRY!!!!!!!!!!!!!!!");
             bulkStore.add({
                 operation: 'retry'
             });
         }
-
         return bulkStore.getAt(0);
     },
 
-    /* At current moment only one action is possible. So it is for future purpose */
-    onStep2RadiogroupChangeEvent: function (radiogroup, newValue, oldValue) {
-        var record = this.getBulkRecord();
-        record.set('operation', newValue.operation);
-        record.commit();
-    },
-
-    onStep3RadiogroupCloseChangeEvent: function (radiogroup, newValue, oldValue) {
-        var record = this.getBulkRecord();
-        record.set('status', newValue.status);
-        record.set('statusName', radiogroup.getChecked()[0].boxLabel);
-        record.commit();
-    },
-
-    onStep3RadiogroupSetPriorityChangeEvent: function (radiogroup, newValue, oldValue) {
-        var record = this.getBulkRecord();
-        record.set('status', newValue.status);
-        record.set('statusName', radiogroup.getChecked()[0].boxLabel);
-        record.commit();
-    },
-
-    onStep3RadiogroupSnoozeChangeEvent: function (radiogroup, newValue, oldValue) {
-        var record = this.getBulkRecord();
-        record.set('status', newValue.status);
-        record.set('statusName', radiogroup.getChecked()[0].boxLabel);
-        record.commit();
-    },
-
-    getDefaultStep2Operation: function () {
-        var formPanel = this.getPage().down('bulk-wizard').down('bulk-step2').down('panel'),
-            default_operation = formPanel.down('radiogroup').getValue().operation,
-            record = this.getBulkRecord();
-        record.set('operation', default_operation);
-        record.commit();
-    },
-
-    getDefaultCloseStatus: function () {
-        var formPanel = this.getPage().down('bulk-wizard').down('bulk-step3').down('issues-close-form'),
-            default_status = formPanel.down('radiogroup').getValue().status,
-            record = this.getBulkRecord();
-        record.set('status', default_status);
-        record.commit();
-    },
-
-    getDefaultSetPriorityStatus: function () {
-        var formPanel = this.getPage().down('bulk-wizard').down('bulk-step3').down('set-priority-form'),
-            default_status = formPanel.down('radiogroup').getValue().status,
-            record = this.getBulkRecord();
-        record.set('status', default_status);
-        record.commit();
-    },
-
-    getDefaultSnoozeStatus: function () {
-        var formPanel = this.getPage().down('bulk-wizard').down('bulk-step3').down('snooze-bulk-form'),
-            default_status = formPanel.down('radiogroup').getValue().status,
-            record = this.getBulkRecord();
-        record.set('status', default_status);
-        record.commit();
-    },
-
+    /* Process cllick Next button on Step1 */
     processNextOnStep1: function (wizard) {
         var me = this;
         var record = this.getBulkRecord(),
@@ -597,16 +381,19 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         var step2Panel = wizard.down('processes-bulk-step2');
         console.log("step2Panel=",step2Panel)
         if (actionIsAllowed == false){
+            step2Panel.down('#Restart').setValue(false);
             step2Panel.down('#Restart').disable();
             wizard.down('#next').disable();
         } else{
             console.log("ENABLE ACTION");
+            step2Panel.down('#Restart').setValue(true);
             step2Panel.down('#Restart').enable();
             wizard.down('#next').enable();
         }
 
     },
 
+    /* Process click Next button on Step2 */
     processNextOnStep2: function (wizard) {
         var me = this;
         var record = this.getBulkRecord(),
@@ -672,7 +459,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
         wizard.setLoading(true);
 
-            /*This get request is used to check if process is active and to obtain his versionDB. Instead of using two requests activeprocesses
+            /* This get request is used to check if process is active and to obtain his versionDB. Instead of using two requests activeprocesses
             signal could be used. But it provides list of all active processes. In case if we have a lot of processes it will provide us
             a lot of unnecessary information */
             console.log("GET VERSION of PROCESS!!!!");
@@ -683,7 +470,6 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
                 timeout: 180000,
                 async: false,
                 success: function (response) {
-                    //console.log("GET RESPONSE with VERSION response = ",response);
                     var decodedResponse = response.responseText ? Ext.decode(response.responseText, true) : null;
                     console.log("decodedResponse = ",decodedResponse);
                     processDbVersionToStart = decodedResponse.versionDB;
@@ -700,14 +486,6 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
 
             /* This get request is used to obtain process DeploymentID and ProcessID */
-
-            /*processJsonData.bulkBusinessObjects = me.validatedForProcessDevices.map(function (mRID) {
-                return {
-                    id: 'deviceId',
-                    type: 'device',
-                    value: mRID
-                }
-            });*/
             console.log("TRY TO GET INFORMATION ABOUT PROCESS!!!!!",processUrl);
             Ext.Ajax.request({
                 url: processUrl,
@@ -759,6 +537,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
                          },
                          failure: function (record, operation) {
                             console.log("LOADING PROPERTIES IS FAILED");
+                            wizard.setLoading(false);
                              /*startProcessPanel.setLoading(false);
                              propertyForm.hide();
                              propertyForm.up('#process-start-content').doLayout();*/
@@ -768,43 +547,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
     },
 
-    retrySelectedProcesses: function () {
-
-    },
-
-    /* Here we have to prepare and count objects on which process should be restarted
-        (and fill all needed information maybe?)*/
-   /* processNextOnStep3: function (wizard) {
-        var record = this.getBulkRecord(),
-            step4Panel = wizard.down('processes-bulk-step4'),
-            operation = record.get('operation'),
-            //formPanel = wizard.down('processes-bulk-step3').down('form'),
-            message, widget;
-
-            var step3Panel = wizard.down('processes-bulk-step3');
-            var propertyForm = step3Panel.down('retry-process').down('property-form');
-
-            console.log("PRINT PROPERTIES FOR PROCESS BEFORE UPDATE RECORD!!!!!");
-
-            console.log("globalStartProcessRecord = ",globalStartProcessRecord);
-
-            propertyForm.updateRecord();
-            console.log('propertyForm.getRecord() = ',propertyForm.getRecord());
-
-            console.log("PRINT PROPERTIES FOR PROCESS AFTER UPDATE RECORD!!!!!");
-
-            globalStartProcessRecord = propertyForm.getRecord();
-
-            console.log("PROPERTIES = ", globalStartProcessRecord.getWriteData(true, true).properties);
-
-
-            console.log("globalStartProcessRecord = ",globalStartProcessRecord);
-
-            console.log("propertyForm is valid? = ",propertyForm.isValid());
-
-
-    },*/
-
+    /* Process cllick Next button on Step3 */
     onWizardPreparationFinishedEvent: function (wizard) {
         me = this;
         var record = this.getBulkRecord(),
@@ -991,58 +734,12 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
                     wizard.setLoading(false);
                 }
-/*
-                success: function (response) {
-                    console.log("response=",response);
-                    console.log("Ext.decode(response.responseText)=", Ext.decode(response.responseText));
-
-                    var validatedProcesses = Ext.decode(response.responseText).processHistories;
-
-                    console.log("validatedProcesses=",validatedProcesses);
-                    console.log("variableId=",validatedProcesses[0].variableId);
-                    var tmpObjId;
-                    var tmpObjType;
-                    switch (validatedProcesses[0].variableId) {
-                        case 'deviceId':
-                            tmpObjId = 'deviceId';
-                            tmpObjType = 'device';
-                        break;
-                        case 'alarmId':
-                            tmpObjId = 'alarmId';
-                            tmpObjType = 'alarm';
-                        break;
-                        case 'issueId':
-                            tmpObjId = 'issueId';
-                            tmpObjType = 'issue';
-                            break;
-                        }
-
-                    //record.set('objectsToStartProcess')
-                     var array =  validatedProcesses.map(function (value){
-                                        console.log("VALUE=",value.value);
-                                        return {
-                                            id: tmpObjId,
-                                            type: tmpObjType,
-                                            value: value.value
-                                        }
-                    });
-
-                    record.set('objectsToStartProcess',array);
-
-                    me.getBulkNavigation().moveNextStep();
-                    me.setBulkActionListActiveItem(wizard);
-                    wizard.getLayout().setActiveItem(++wizard.activeItemId);
-                    wizard.fireEvent('wizardpagechange', wizard);
-
-                },
-
-                failure: function () {
-
-                }*/
         });
     },
 
 
+
+    /* Process cllick Next button on Step3 */
     /* Here we send request to restart processes */
     onWizardFinishedEvent: function (wizard) {
        console.log("onWizardFinishedEvent!!!!!!!!!!!!!");
@@ -1072,14 +769,6 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
             console.log("Selected processes = ",record.get('objectsToStartProcess'));
             processJsonData.bulkBusinessObjects = record.get('objectsToStartProcess');
-/*                processJsonData.bulkBusinessObjects = record.get('processes').map(function (value){
-                    console.log("VALUE=",value.data.value);
-                    return {
-                        id: objectId,
-                        type: objectType,
-                        value: value.data.value
-                    }
-                });*/
 
             console.log("START PROCESSES IN SEARCH !!!!!!!!!!!!!!!!!!!!!");
             console.log('processJsonData=',processJsonData);
@@ -1122,12 +811,6 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
     onBulkActionFinished: function (wizard) {
         //Possibly we have to save here filter parameters and pass it to main page
         this.getController('Uni.controller.history.Router').getRoute('workspace/multisenseprocesses').forward(null,Uni.util.QueryString.getQueryStringValues(false));
-    },
-
-
-
-    beforeStep4: function () {
-        return true;
     },
 
     getIssueType: function (array, value) {

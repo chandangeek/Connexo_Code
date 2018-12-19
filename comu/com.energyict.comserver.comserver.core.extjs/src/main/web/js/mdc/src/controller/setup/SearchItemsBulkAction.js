@@ -761,8 +761,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 if(nextCmp.name == 'confirmPage'){
                                     nextCmp.removeAll();
                                     wizard.down('#confirmButton').enable();
+                                    console.log("buildConfirmMessage2!!!!!!!!!");
                                     var message = me.buildConfirmMessage();
+                                    console.log("message=",message);
                                     additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'Changing the device configuration could lead to critical data loss (security settings, connection methods, communication tasks,...).');
+                                    console.log("additionalText=",additionalText);
                                     nextCmp.showStartProcessConfirmation(message.title, message.body, null, additionalText)
                                 }
                                 wizard.setLoading(false);
@@ -810,6 +813,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     if (me.operation == 'startprocess'){
 
                     } else if (me.operation != 'changeconfig') {
+                        console.log("buildConfirmMessage3!!!!!!!!!");
                         nextCmp.showMessage(me.buildConfirmMessage());
                         wizard.down('#confirmButton').setDisabled(me.operation === 'add' && wizard.down('#strategyRadioGroup').getChecked().length === 0);
                         if (me.operation === 'remove') {
@@ -843,6 +847,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 }
                             } else {
                                 wizard.down('#confirmButton').enable();
+                                console.log("buildConfirmMessage1!!!!!!!!!");
                                 var message = me.buildConfirmMessage();
                                 additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'Changing the device configuration could lead to critical data loss (security settings, connection methods, communication tasks,...).');
                                 nextCmp.showChangeDeviceConfigConfirmation(message.title, message.body, null, additionalText)

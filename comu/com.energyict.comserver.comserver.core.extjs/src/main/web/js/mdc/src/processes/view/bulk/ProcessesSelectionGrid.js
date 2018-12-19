@@ -17,7 +17,7 @@ Ext.define('Mdc.processes.view.bulk.ProcessesSelectionGrid', {
     },
 
     allLabel: 'All processes',//Uni.I18n.translate('workspace.issues.bulk.IssuesSelectionGrid.allLabel', 'ISU', 'All issues'),
-    allDescription: 'Select all processes',//Uni.I18n.translate('workspace.issues.bulk.IssuesSelectionGrid.allDescription', 'ISU', 'Select all issues (related to filters and grouping on the issues screen)'),
+    allDescription: 'Select all processes (related to filters and grouping on the processes screen)',//Uni.I18n.translate('workspace.issues.bulk.IssuesSelectionGrid.allDescription', 'ISU', 'Select all issues (related to filters and grouping on the issues screen)'),
 
     selectedLabel: 'Selected processes',//Uni.I18n.translate('workspace.issues.bulk.IssuesSelectionGrid.selectedLabel', 'ISU', 'Selected issues'),
     selectedDescription: 'Select processes in table',//Uni.I18n.translate('workspace.issues.bulk.IssuesSelectionGrid.selectedDescription', 'ISU', 'Select issues in table'),
@@ -30,13 +30,19 @@ Ext.define('Mdc.processes.view.bulk.ProcessesSelectionGrid', {
                 itemId: 'process-grid-processId',
                 header: 'Process ID',//Uni.I18n.translate('general.title.issue', 'ISU', 'Issue'),
                 dataIndex: 'processId',
-                flex: 2
+                flex: 1
             },
             {
                 itemId: 'process-grid-name',
                 header: 'Name',//Uni.I18n.translate('general.type', 'ISU', 'Type'),
                 dataIndex: 'name',
-                flex: 1.2
+                flex: 1
+            },
+            {
+                itemId: 'process-grid-version',
+                header: 'Version',//Uni.I18n.translate('general.type', 'ISU', 'Type'),
+                dataIndex: 'version',
+                flex: 1
             },
             {
                 itemId: 'process-grid-type',
@@ -52,7 +58,7 @@ Ext.define('Mdc.processes.view.bulk.ProcessesSelectionGrid', {
             },
             {
                 itemId: 'process-grid-startedOn',
-                header: 'StartedOn',//Uni.I18n.translate('general.priority', 'ISU', 'Priority'),
+                header: 'Started on',//Uni.I18n.translate('general.priority', 'ISU', 'Priority'),
                 dataIndex: 'startDateDisplay',
                 flex: 1
             },

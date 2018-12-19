@@ -1386,6 +1386,8 @@ public class JbpmTaskResource {
                     order += orders.get(i);
                 }
             }
+        }else{
+            order += "order by p.PROCESSINSTANCEID DESC";
         }
         return order;
     }

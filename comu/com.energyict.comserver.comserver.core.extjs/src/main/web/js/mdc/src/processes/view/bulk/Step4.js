@@ -5,24 +5,17 @@
 Ext.define('Mdc.processes.view.bulk.Step4', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.processes-bulk-step4',
-    title: 'Retry process',//Uni.I18n.translate('issue.actionDetails','ISU','Action details'),
+    title: 'Confirmation',//'Retry process',//Uni.I18n.translate('issue.actionDetails','ISU','Action details'),
 
-    requires: [
-        'Isu.view.issues.CloseForm',
-        'Isu.view.issues.AssignIssue',
-        'Isu.view.issues.SetPriority',
-        'Isu.view.issues.SnoozeBulkForm',
-        'Mdc.processes.view.RetryProcessDetails'
-    ],
-
-    items: [
-        {
-            xtype: 'displayfield',
-            name: 'startProcConfirmationMsg',
-            fieldLabel: 'Confirmation:',//Uni.I18n.translate('mdc.processpreviewform.device', 'MDC', 'Device'),
-            itemId: 'processNameToRetry'
-        }
-    ],
+    tbar: {
+        xtype: 'panel',
+        ui: 'medium',
+        style: {
+            padding: '0 0 0 0px'
+            //padding: '0 0 0 3px'
+        },
+        title: 'Retry process'
+    },
 
     initComponent: function () {
         this.callParent(arguments);
