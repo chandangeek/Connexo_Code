@@ -9,7 +9,7 @@
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
         <version>10.6-SNAPSHOT</version>
-        <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
+
     </parent>
     <artifactId>yellowfin.groups</artifactId>
     <packaging>bundle</packaging>

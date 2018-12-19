@@ -9,8 +9,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>mdm.parent</artifactId>
-        <version>10.6-SNAPSHOT</version>
-        <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
+        <version>10.6-SNAPSHOT</version>        
     </parent>
 
     <artifactId>mdm.dataquality</artifactId>
