@@ -9,7 +9,7 @@
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
         <version>10.6-SNAPSHOT</version>
-        <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
+
     </parent>
     <artifactId>data.lifecycle</artifactId>
     <packaging>bundle</packaging>
@@ -154,11 +154,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bpm</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>usagepoint.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
