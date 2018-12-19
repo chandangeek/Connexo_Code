@@ -30,6 +30,7 @@
 
 	<scm>
 		<connection>scm:git:ssh://git@source.eict.vpdc/com/elster/jupiter/parent</connection>
+        <url>ssh://git@stash.eict.local:7999/con/connexo.git</url>
 	</scm>
 
 	<properties>
