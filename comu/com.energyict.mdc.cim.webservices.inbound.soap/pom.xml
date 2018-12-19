@@ -38,6 +38,12 @@
             <artifactId>fsm</artifactId>
         </dependency>
         <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>pki</artifactId>
+                <!-- platform depends on 2.2.1 for some reason -->
+                <version>3.1.1-SNAPSHOT</version>
+            </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging</artifactId>
         </dependency>
