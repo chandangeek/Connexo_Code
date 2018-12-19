@@ -54,7 +54,8 @@ Ext.define('Cfg.zones.view.Overview', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'zonePreview'
+                        xtype: 'zone-preview',
+                        itemId: 'zone-preview',
                     }
                 }
             ]

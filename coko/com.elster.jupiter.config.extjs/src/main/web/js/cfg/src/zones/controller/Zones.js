@@ -5,21 +5,16 @@
 Ext.define('Cfg.zones.controller.Zones',{
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.controller.history.Router',
-        'Cfg.zones.model.Zone',
-        'Cfg.zones.store.Zones'
+        'Uni.controller.history.Router'
     ],
     views: [
         'Cfg.zones.view.Overview',
-        'Cfg.zones.view.AddForm',
-        'Cfg.zones.view.Grid',
-        'Cfg.zones.view.ZonePreview',
-        'Cfg.zones.view.ActionMenu'
+        'Cfg.zones.view.AddForm'
     ],
     refs: [
         {ref: 'zoneGrid', selector: '#grd-zones'},
-        {ref: 'zonePreviewForm', selector: '#zonePreviewForm'},
-        {ref: 'zonePreview', selector: '#zonePreview'},
+        {ref: 'zonePreviewForm', selector: '#zone-preview-form'},
+        {ref: 'zonePreview', selector: '#zone-preview'},
         {ref: 'zoneAdd', selector: '#zones-add-form'}
     ],
     stores: [
@@ -36,7 +31,6 @@ Ext.define('Cfg.zones.controller.Zones',{
             'zones-grid': {
                 selectionchange: this.showPreview
             },
-
             'zones-grid #zones-add-button': {
                 click: this.showAddZone
             },
@@ -64,13 +58,13 @@ Ext.define('Cfg.zones.controller.Zones',{
     },
 
     showAddZone: function () {
-        location.href = '#/administration/zones/add';
+        window.location.href = '#/administration/zones/add';
         var me = this,
             widget = Ext.widget('zone-add',{
                 edit: false,
                 title: Uni.I18n.translate('zones.addZone', 'CFG', 'Add zone'),
                 router: me.getController('Uni.controller.history.Router'),
-                cancelLink : '#/administration/zones',
+                cancelLink : '#/administration/zones'
             });
 
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -89,6 +83,7 @@ Ext.define('Cfg.zones.controller.Zones',{
         var me = this;
 
         me.getModel('Cfg.zones.model.Zone').load(zoneId, {
+
             success: function (record) {
                 widget =  Ext.create('Cfg.zones.view.AddForm', {
                     edit: true,
