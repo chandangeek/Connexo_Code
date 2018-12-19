@@ -7,10 +7,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>parent</artifactId>
+        <groupId>com.energyict</groupId>
+        <artifactId>mdc.parent</artifactId>
         <version>10.6-SNAPSHOT</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>demo</artifactId>
