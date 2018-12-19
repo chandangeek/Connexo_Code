@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>kore</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>pom</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.kore</name>
     <description>This POM details all versions of bundles related to business intelligence (e.g. Metering, Issues,...)
     </description>

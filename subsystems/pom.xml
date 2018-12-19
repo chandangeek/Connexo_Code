@@ -2,25 +2,27 @@
 <!--
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.elster.jupiter</groupId>
+		<artifactId>parent</artifactId>
+		<version>10.6-SNAPSHOT</version>
+	</parent>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>parent</artifactId>
-        <version>10.6-SNAPSHOT</version>
-    </parent>
-
-    <groupId>com.elster.jupiter.subsystem</groupId>
+	<groupId>com.elster.jupiter.subsystem</groupId>
     <artifactId>parent</artifactId>
-    <version>10.6-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.parent</name>
+	<packaging>pom</packaging>
+	<name>[Jupiter Wrapper - Delivery] </name>
 
-    <build>
+	<modules>
+		<module>com.elster.jupiter.subsystem.platform</module>		
+		<module>com.elster.jupiter.subsystem.third-party</module>
+		<module>com.elster.jupiter.subsystem.kore</module>
+		<module>com.elster.insight.subsystem</module>
+	</modules>
+	
+	<build>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -200,4 +202,5 @@
         </plugins>
     </build>
 
+	
 </project>

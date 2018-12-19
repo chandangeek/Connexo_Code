@@ -20,6 +20,7 @@
         <module>coin</module>
         <module>copa</module>
         <module>upl</module>
+		<module>subsystems</module>
     </modules>
 
 	<organization>
