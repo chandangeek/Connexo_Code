@@ -171,7 +171,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     private PropertySpec callingAPTitlePropertySpec() {
-        return this.stringSpecOfExactLength(IDIS.CALLING_AP_TITLE, false, 8, PropertyTranslationKeys.V2_EICT_CALLING_AP_TITLE);
+        return this.hexStringSpecOfExactLength(IDIS.CALLING_AP_TITLE, false, 16, PropertyTranslationKeys.V2_EICT_CALLING_AP_TITLE);
     }
 
     /**
@@ -277,8 +277,8 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         return UPLPropertySpecFactory.specBuilder(name, required, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpecOfExactLength(String name, boolean required, int length, TranslationKey translationKey) {
-        return this.spec(name, required, translationKey, () -> this.getPropertySpecService().stringSpecOfExactLength(length));
+    private PropertySpec hexStringSpecOfExactLength(String name, boolean required, int length, TranslationKey translationKey) {
+        return this.spec(name, required, translationKey, () -> this.getPropertySpecService().hexStringSpecOfExactLength(length));
     }
 
     private PropertySpec stringSpec(String name, boolean required, TranslationKey translationKey, String... validValues) {
