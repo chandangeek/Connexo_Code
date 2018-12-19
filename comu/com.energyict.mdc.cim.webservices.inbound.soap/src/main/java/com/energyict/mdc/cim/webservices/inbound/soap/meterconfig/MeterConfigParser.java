@@ -59,6 +59,7 @@ public class MeterConfigParser {
     public MeterInfo asMeterInfo(Meter meter, List<SimpleEndDeviceFunction> endDeviceFunctions,
             OperationEnum operationEnum) throws FaultMessage {
         MeterInfo meterInfo = new MeterInfo();
+        meterInfo.setSerialNumber(extractSerialNumber(meter).orElse(null));
 
         switch (operationEnum) {
         case CREATE:
@@ -74,13 +75,19 @@ public class MeterConfigParser {
             meterInfo.setStatusValue(extractStatusValue(meter).orElse(null));
             meterInfo.setStatusEffectiveDate(extractConfigurationEffectiveDate(meter).orElse(null));
             meterInfo.setMultiplierEffectiveDate(extractConfigurationEffectiveDate(meter).orElse(null));
+            // at least one of name, serial number and mrid should be present
+            if (meterInfo.getDeviceName() == null && meterInfo.getSerialNumber() == null
+                    && meterInfo.getmRID() == null) {
+                throw faultMessageFactory
+                        .meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.DEVICE_IDENTIFIER_MISSING)
+                        .get();
+            }
             break;
         default:
             break;
         }
 
         meterInfo.setBatch(extractBatch(meter).orElse(null));
-        meterInfo.setSerialNumber(extractSerialNumber(meter).orElse(null));
         meterInfo.setManufacturer(extractManufacturer(meter).orElse(null));
         meterInfo.setModelNumber(extractModelNumber(meter).orElse(null));
         meterInfo.setModelVersion(extractModelVersion(meter).orElse(null));
@@ -240,12 +247,11 @@ public class MeterConfigParser {
         return Stream.of(extractName(meter.getNames()), extractSerialNumber(meter), extractMrid(meter))
                 .flatMap(Functions.asStream()).findFirst()
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter),
-                        MessageSeeds.CREATE_DEVICE_IDENTIFIER_MISSING));
+                        MessageSeeds.DEVICE_IDENTIFIER_MISSING));
     }
 
     public String extractDeviceNameForUpdate(Meter meter) throws FaultMessage {
-        return extractName(meter.getNames()).orElseThrow(faultMessageFactory
-                .meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.CHANGE_DEVICE_IDENTIFIER_MISSING));
+        return extractName(meter.getNames()).orElse(null);
     }
 
     public String extractDeviceTypeName(Meter meter) throws FaultMessage {

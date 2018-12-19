@@ -89,10 +89,24 @@ public class DeviceBuilder {
         String newDeviceConfigurationName = meter.getDeviceConfigurationName();
 
         return () -> {
-            Device changedDevice = mrid.isPresent() ? findDeviceByMRID(meter, mrid.get())
-                    : deviceService.findDeviceByName(meter.getDeviceName())
-                            .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(),
-                                    MessageSeeds.NO_DEVICE_WITH_NAME, meter.getDeviceName()));
+            Device changedDevice;
+            if (mrid.isPresent()) {
+                changedDevice = findDeviceByMRID(meter, mrid.get());
+            } else if (meter.getDeviceName() != null) {
+                changedDevice = deviceService.findDeviceByName(meter.getDeviceName())
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(),
+                                MessageSeeds.NO_DEVICE_WITH_NAME, meter.getDeviceName()));
+            } else {
+                List<Device> foundDevices = deviceService.findDevicesBySerialNumber(meter.getSerialNumber());
+                if (foundDevices.isEmpty()) {
+                    throw faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(),
+                            MessageSeeds.NO_DEVICE_WITH_SERIAL_NUMBER, meter.getSerialNumber()).get();
+                } else {
+                    changedDevice = foundDevices.get(0);
+                }
+            }
+
+                            ;
             if (newDeviceConfigurationName != null
                     && !changedDevice.getDeviceConfiguration().getName().equals(newDeviceConfigurationName)) {
                 DeviceConfiguration deviceConfig = changedDevice.getDeviceType().getConfigurations().stream()
@@ -137,7 +151,7 @@ public class DeviceBuilder {
                         multiplierEffectiveDate.orElse(clock.instant()));
             }
 
-            if (mrid.isPresent()) {
+            if (mrid.isPresent() && meter.getDeviceName() != null) {
                 changedDevice.setName(meter.getDeviceName());
             }
 
