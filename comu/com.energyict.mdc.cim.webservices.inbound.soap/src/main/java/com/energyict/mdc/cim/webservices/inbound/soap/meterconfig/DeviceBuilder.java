@@ -86,13 +86,20 @@ public class DeviceBuilder {
         Optional<String> statusValue = Optional.ofNullable(meter.getStatusValue());
         Optional<Instant> statusEffectiveDate = Optional.ofNullable(meter.getStatusEffectiveDate());
         Optional<Instant> multiplierEffectiveDate = Optional.ofNullable(meter.getMultiplierEffectiveDate());
+        String newDeviceConfigurationName = meter.getDeviceConfigurationName();
 
         return () -> {
             Device changedDevice = mrid.isPresent() ? findDeviceByMRID(meter, mrid.get())
                     : deviceService.findDeviceByName(meter.getDeviceName())
                             .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(),
                                     MessageSeeds.NO_DEVICE_WITH_NAME, meter.getDeviceName()));
-
+            if (newDeviceConfigurationName != null
+                    && !changedDevice.getDeviceConfiguration().getName().equals(newDeviceConfigurationName)) {
+                DeviceConfiguration deviceConfig = findDeviceConfiguration(meter, newDeviceConfigurationName,
+                        meter.getDeviceType());
+                deviceService.changeDeviceConfigurationForSingleDevice(changedDevice.getId(),
+                        changedDevice.getVersion(), deviceConfig.getId(), deviceConfig.getVersion());
+            }
             String currentModelNumber = changedDevice.getModelNumber();
             String currentModelVersion = changedDevice.getModelVersion();
             String currentManufacturer = changedDevice.getManufacturer();

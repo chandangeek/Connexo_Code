@@ -63,7 +63,6 @@ public class MeterConfigParser {
         switch (operationEnum) {
         case CREATE:
             meterInfo.setDeviceName(extractDeviceNameForCreate(meter));
-            meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
             meterInfo.setShipmentDate(extractShipmentDate(meter));
             meterInfo.setDeviceType(extractDeviceTypeName(meter));
             meterInfo.setSecurityInfoList(extractSecurityAttributeSets(meter));
@@ -88,6 +87,7 @@ public class MeterConfigParser {
         meterInfo.setMultiplier(extractMultiplier(meter).orElse(null));
         meterInfo.setElectronicAddress(meter.getElectronicAddress());
         meterInfo.setCustomAttributeSets(extractCustomPropertySets(meter));
+        meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
         return meterInfo;
     }
 
