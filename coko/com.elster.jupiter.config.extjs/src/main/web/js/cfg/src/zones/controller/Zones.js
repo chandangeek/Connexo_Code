@@ -15,7 +15,8 @@ Ext.define('Cfg.zones.controller.Zones',{
         {ref: 'zoneGrid', selector: '#grd-zones'},
         {ref: 'zonePreviewForm', selector: '#zone-preview-form'},
         {ref: 'zonePreview', selector: '#zone-preview'},
-        {ref: 'zoneAdd', selector: '#zones-add-form'}
+        {ref: 'zoneAdd', selector: '#zones-add-form'},
+        {ref: 'zonesOverview', selector: '#panel-zones-overview'}
     ],
     stores: [
         'Cfg.zones.store.Zones',
@@ -99,8 +100,10 @@ Ext.define('Cfg.zones.controller.Zones',{
 
     removeZone: function (record) {
         var me = this,
-            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
+            form =  this.getZonesOverview();
 
+        form.setLoading(true);
         confirmationWindow.show({
             msg: Uni.I18n.translate('zone.general.remove.msg', 'CFG', 'This zone will no longer be available.'),
             title: Uni.I18n.translate('zone.remove', 'CFG', "Remove '{0}'?", [record.data.name]),
@@ -110,7 +113,19 @@ Ext.define('Cfg.zones.controller.Zones',{
                     record.destroy({
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('zone.remove.success.msg', 'CFG', 'Zone removed'));
-                            me.showOverview();
+                            router.getRoute('administration/zones').forward();
+                        },
+                        failure: function (record, operation) {
+                            if (operation.response.status == 400) {
+                                var json = Ext.decode(operation.response.responseText, true);
+                                if (json && json.errors) {
+                                    form.getForm().markInvalid(json.errors);
+                                    formErrorsPanel.show();
+                                }
+                            }
+                        },
+                        callback: function () {
+                            form.setLoading(false);
                         }
                     });
                 } else if (state === 'cancel') {
