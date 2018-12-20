@@ -339,8 +339,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         var taskName = userTaskInfo.name.length > 0 ? userTaskInfo.name :
             Uni.I18n.translate('bpm.process.noTaskName', 'UNI', 'No task name');
 
-        var href = this.router.getRoute('workspace/tasks/task/performTask').buildUrl({taskId: userTaskInfo.id},
-            {showNavigation: false});
+        var href = this.router.getRoute('workspace/tasks/task').buildUrl({taskId: userTaskInfo.id});
         var html = '<a class="a-underline" title="'+Ext.String.htmlEncode(taskName)+'" style="text-overflow: ellipsis; color:' + textColor + ';" href="' + href + '">'
                 + Ext.util.Format.ellipsis(Ext.String.htmlEncode(taskName), 30, true)
                 + '</a>';
@@ -368,11 +367,6 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 if(me.type == 'usagepoint'){
                     href = this.router.getRoute('usagepoints/view').buildUrl({usagePointId: this.usagePointId}) + '/processes?activeTab=running';
                     html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
-                    var userTaskInfo = value.userTaskInfo;
-                    if(userTaskInfo){
-                        html += ' - ' + me.getTaskInfoLink(textColor, userTaskInfo);
-                    }
-
                 } else  if (me.type == 'device'){
                     href = this.router.getRoute('devices/device').buildUrl({deviceId: this.deviceId}) + '/processes?activeTab=running';
                     html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
@@ -381,6 +375,11 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         }
         html += !!value.dueDate ? ' ' + Uni.I18n.translate('whatsGoingOn.due', 'UNI', '(due {0})', Uni.DateTime.formatDateShort(new Date(value.dueDate))) : '';
         html += '</a>';
+
+        if(value.type === 'process' && value.userTaskInfo){
+            html += ' - ' + me.getTaskInfoLink(textColor, value.userTaskInfo);
+        }
+
         return html;
     },
 

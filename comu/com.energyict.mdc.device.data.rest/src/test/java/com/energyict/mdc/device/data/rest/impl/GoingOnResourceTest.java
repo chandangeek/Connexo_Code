@@ -5,7 +5,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 
+import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
+import com.elster.jupiter.bpm.UserTaskInfo;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -29,7 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.Before;
 import org.junit.Test;
+
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -42,32 +47,81 @@ import static org.mockito.Mockito.when;
 
 public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    @Test
-    public void testWhatsGoingOn(){
-        Device device = mock(Device.class);
-        AmrSystem amrSystem = mock(AmrSystem.class);
-        Meter meter = mock(Meter.class);
-        IssueFilter issueFilter = mock(IssueFilter.class);
-        IssueStatus openStatus = mock(IssueStatus.class);
-        IssueStatus inProgressStatus = mock(IssueStatus.class);
-        Finder<? extends Issue> issueFinder = mock(Finder.class);
-        Finder<? extends DeviceAlarm> alarmFinder = mock(Finder.class);
-        Issue issue = mock(Issue.class);
-        IssueReason reason = mock(IssueReason.class);
-        IssueType issueType = mock(IssueType.class);
-        DeviceAlarm deviceAlarm = mock(DeviceAlarm.class);
-        ProcessInstanceInfos infos = new ProcessInstanceInfos();
-        IssueAssignee issueAssignee = mock(IssueAssignee.class);
-        Privilege userTaskPrivilege = mock(Privilege.class);
-        Privilege issuePrivilege = mock(Privilege.class);
-        Privilege alarmPrivilege = mock(Privilege.class);
-        Map<String, List<Privilege>> appPrivileges = new HashMap<>();
-        appPrivileges.put("MDC", Arrays.asList(userTaskPrivilege, issuePrivilege, alarmPrivilege));
-        User user = mock(User.class);
+
+    @Mock
+    Device device;
+
+    @Mock
+    AmrSystem amrSystem;
+
+    @Mock
+    Meter meter;
+
+    @Mock
+    IssueFilter issueFilter;
+
+    @Mock
+    IssueStatus openStatus;
+
+    @Mock
+    IssueStatus inProgressStatus;
+
+    @Mock
+    Finder<? extends Issue> issueFinder;
+
+    @Mock
+    Finder<? extends DeviceAlarm> alarmFinder;
+
+    @Mock
+    Issue issue;
+
+    @Mock
+    IssueReason reason;
+
+    @Mock
+    IssueType issueType;
+
+    @Mock
+    DeviceAlarm deviceAlarm;
+
+    @Mock
+    IssueAssignee issueAssignee;
+
+    @Mock
+    Privilege userTaskPrivilege;
+
+    @Mock
+    Privilege issuePrivilege;
+
+    @Mock
+    Privilege alarmPrivilege;
+
+    @Mock
+    User user;
+
+
+    @Before
+    public void setup(){
+
+        Map<String, List<Privilege>> appPrivileges = new HashMap<String, List<Privilege>>(){{
+            put("MDC", Arrays.asList(userTaskPrivilege, issuePrivilege, alarmPrivilege));
+        }};
+
+        when(user.getName()).thenReturn("Admin");
+        when(user.getId()).thenReturn(1L);
+        when(user.getApplicationPrivileges()).thenReturn(appPrivileges);
+
+        when(securityContext.getUserPrincipal()).thenReturn(user);
+        when(issueAssignee.getUser()).thenReturn(user);
+
+        when(userTaskPrivilege.getName()).thenReturn("privilege.execute.task");
+        when(issuePrivilege.getName()).thenReturn("privilege.comment.issue");
+        when(alarmPrivilege.getName()).thenReturn("privilege.action.alarm");
 
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
         when(meteringService.findAmrSystem(anyLong())).thenReturn(Optional.of(amrSystem));
         when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
+
         when(issueService.newIssueFilter()).thenReturn(issueFilter);
         when(issueService.findStatus(IssueStatus.OPEN)).thenReturn(Optional.of(openStatus));
         when(issueService.findStatus(IssueStatus.IN_PROGRESS)).thenReturn(Optional.of(inProgressStatus));
@@ -82,27 +136,24 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(issue.getIssueId()).thenReturn("DCI-1");
         when(issue.getDueDate()).thenReturn(null);
         when(issue.getStatus()).thenReturn(openStatus);
+        when(issue.getAssignee()).thenReturn(issueAssignee);
         when(openStatus.getName()).thenReturn(IssueStatus.OPEN);
+
         when(serviceCallService.findServiceCalls(any(), any())).thenReturn(new HashSet<>());
         doReturn(alarmFinder).when(deviceAlarmService).findAlarms(any(DeviceAlarmFilter.class), anyVararg());
         doReturn(Collections.singletonList(deviceAlarm).stream()).when(alarmFinder).stream();
+        ProcessInstanceInfos infos = new ProcessInstanceInfos();
         when(bpmService.getRunningProcesses(any(), any(), any())).thenReturn(infos);
         when(deviceAlarm.getId()).thenReturn(1L);
         when(deviceAlarm.getIssueId()).thenReturn("ALM-1");
         when(deviceAlarm.getReason()).thenReturn(reason);
         when(deviceAlarm.getDueDate()).thenReturn(null);
         when(deviceAlarm.getStatus()).thenReturn(openStatus);
-        when(issue.getAssignee()).thenReturn(issueAssignee);
-        when(issueAssignee.getUser()).thenReturn(user);
-        when(user.getName()).thenReturn("Admin");
-        when(user.getId()).thenReturn(1L);
         when(deviceAlarm.getAssignee()).thenReturn(issueAssignee);
-        when(securityContext.getUserPrincipal()).thenReturn(user);
-        when(user.getApplicationPrivileges()).thenReturn(appPrivileges);
-        when(userTaskPrivilege.getName()).thenReturn("privilege.execute.task");
-        when(issuePrivilege.getName()).thenReturn("privilege.comment.issue");
-        when(alarmPrivilege.getName()).thenReturn("privilege.action.alarm");
+    }
 
+    @Test
+    public void testWhatsGoingOnReturnsIssue(){
         Map<String, Object> response = target("/devices/SPE01/whatsgoingon").request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
         List<?> data = (List<?>) response.get("goingsOn");
@@ -115,15 +166,45 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(issueMap.get("status")).isEqualTo("status.open");
         assertThat(issueMap.get("issueType")).isEqualTo("issueType.key");
         assertThat(issueMap.get("userAssignee")).isEqualTo("Admin");
+    }
 
+    @Test
+    public void testWhatsGoingOnReturnsAlarm(){
+        Map<String, Object> response = target("/devices/SPE01/whatsgoingon").request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(2);
+        List<?> data = (List<?>) response.get("goingsOn");
+        assertThat(data).hasSize(2);
         Map<?, ?> alarmMap = (Map<?, ?>) data.get(1);
         assertThat(alarmMap.get("type")).isEqualTo("alarm");
         assertThat(alarmMap.get("id")).isEqualTo("ALM-1");
         assertThat(alarmMap.get("isMyWorkGroup")).isEqualTo(false);
         assertThat(alarmMap.get("userAssigneeIsCurrentUser")).isEqualTo(true);
         assertThat(alarmMap.get("status")).isEqualTo("status.open");
-        assertThat(issueMap.get("userAssignee")).isEqualTo("Admin");
+    }
 
+    @Test
+    public void testWhatsGoingOnReturnsProcessesWithOpenTask(){
+        UserTaskInfo task1 = new UserTaskInfo();
+        task1.id = "1";
+        task1.name = "Task1";
+
+        ProcessInstanceInfo info1 = new ProcessInstanceInfo();
+        info1.processId = "P1";
+        info1.name = "Process1";
+        info1.openTasks = Arrays.asList(task1);
+
+        ProcessInstanceInfos infos = new ProcessInstanceInfos(Arrays.asList(info1));
+        when(bpmService.getRunningProcesses(any(), any(), any())).thenReturn(infos);
+
+        Map<String, Object> response = target("/devices/SPE01/whatsgoingon").request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(3);
+        List<?> data = (List<?>) response.get("goingsOn");
+        Map<?, ?> processMap = (Map<?, ?>) data.get(1);
+        assertThat(processMap.get("type")).isEqualTo("process");
+        assertThat(processMap.get("id")).isEqualTo("P1");
+        Map<?, ?> task = (Map<?,?>) processMap.get("userTaskInfo");
+        assertThat(task.get("name")).isEqualTo("Task1");
+        assertThat(task.get("id")).isEqualTo("1");
     }
 
 }
