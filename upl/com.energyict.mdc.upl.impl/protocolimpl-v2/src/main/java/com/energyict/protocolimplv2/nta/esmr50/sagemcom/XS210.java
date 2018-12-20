@@ -29,7 +29,7 @@ public class T210 extends ESMR50Protocol implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "Enexis first protocol integration version 20.12.2018";
+        return "Enexis first protocol integration version 10.10.2018";
     }
 
 }
