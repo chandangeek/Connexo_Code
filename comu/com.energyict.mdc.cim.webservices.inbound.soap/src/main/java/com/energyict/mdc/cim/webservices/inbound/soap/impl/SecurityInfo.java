@@ -1,45 +1,28 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import java.util.List;
+import java.util.Optional;
+
 public class SecurityInfo {
 
-	private String publicKeyLabel;
+	private List<SecurityKeyInfo> securityKeys;
 
-	private byte[] symmetricKey;
+	private Optional<List<String>> deviceStatuses;
 
-	private byte[] securityAccessorKey;
-
-	private String securityAccessorName;
-
-	public String getPublicKeyLabel() {
-		return publicKeyLabel;
+	public List<SecurityKeyInfo> getSecurityKeys() {
+		return securityKeys;
 	}
 
-	public void setPublicKeyLabel(String publicKeyLabel) {
-		this.publicKeyLabel = publicKeyLabel;
+	public void setSecurityKeys(List<SecurityKeyInfo> securityKeys) {
+		this.securityKeys = securityKeys;
 	}
 
-	public byte[] getSymmetricKey() {
-		return symmetricKey;
+	public Optional<List<String>> getDeviceStatuses() {
+		return deviceStatuses;
 	}
 
-	public void setSymmetricKey(byte[] symmetricKey) {
-		this.symmetricKey = symmetricKey;
-	}
-
-	public byte[] getSecurityAccessorKey() {
-		return securityAccessorKey;
-	}
-
-	public void setSecurityAccessorKey(byte[] securityAccessorKey) {
-		this.securityAccessorKey = securityAccessorKey;
-	}
-
-	public String getSecurityAccessorName() {
-		return securityAccessorName;
-	}
-
-	public void setSecurityAccessorName(String securityAccessorName) {
-		this.securityAccessorName = securityAccessorName;
+	public void setDeviceStatuses(Optional<List<String>> deviceStatuses) {
+		this.deviceStatuses = deviceStatuses;
 	}
 
 }

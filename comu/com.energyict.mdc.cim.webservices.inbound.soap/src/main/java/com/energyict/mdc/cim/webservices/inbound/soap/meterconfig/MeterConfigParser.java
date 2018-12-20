@@ -12,6 +12,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.CustomPropertySetInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfig.ConfigurationEvent;
@@ -26,12 +27,15 @@ import ch.iec.tc57._2011.meterconfig.Status;
 import com.elster.connexo._2017.schema.customattributes.Attribute;
 import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKey;
+import com.elster.connexo._2018.schema.securitykeys.SecurityKeys;
 
 import javax.inject.Inject;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +70,6 @@ public class MeterConfigParser {
             meterInfo.setDeviceName(extractDeviceNameForCreate(meter));
             meterInfo.setShipmentDate(extractShipmentDate(meter));
             meterInfo.setDeviceType(extractDeviceTypeName(meter));
-            meterInfo.setSecurityInfoList(extractSecurityAttributeSets(meter));
             break;
         case UPDATE:
             meterInfo.setDeviceName(extractDeviceNameForUpdate(meter));
@@ -95,6 +98,7 @@ public class MeterConfigParser {
         meterInfo.setElectronicAddress(meter.getElectronicAddress());
         meterInfo.setCustomAttributeSets(extractCustomPropertySets(meter));
         meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
+		meterInfo.setSecurityInfo(extractSecurityInfo(meter));
         return meterInfo;
     }
 
@@ -127,20 +131,31 @@ public class MeterConfigParser {
         return info;
     }
 
-    private List<SecurityInfo> extractSecurityAttributeSets(Meter meter) throws FaultMessage {
-        List<SecurityInfo> infos = new ArrayList<>();
-        for (SecurityKey key : meter.getSecurityKey()) {
-            SecurityInfo info = new SecurityInfo();
-            info.setSecurityAccessorName(extractSecurityAccessorName(key, meter));
-            info.setSecurityAccessorKey(extractSecurityAccessorKey(key, meter));
-            if (key.getWrapKeyInfo() != null) {
-                info.setPublicKeyLabel(extractPublicKeyLabel(key, meter));
-                info.setSymmetricKey(extractSymmetricKey(key, meter));
-            }
-            infos.add(info);
-        }
-        return infos;
-    }
+	private SecurityInfo extractSecurityInfo(Meter meter) throws FaultMessage {
+		final SecurityInfo securityInfo = new SecurityInfo();
+		securityInfo.setSecurityKeys(new ArrayList<>());
+		securityInfo.setDeviceStatuses(Optional.empty());
+		if (meter.getSecurityKeys() != null) {
+			final SecurityKeys securityKeys = meter.getSecurityKeys();
+			if (securityKeys.getAllowedDeviceStatuses() != null) {
+				securityInfo.setDeviceStatuses(
+						Optional.of(securityKeys.getAllowedDeviceStatuses().getAllowedDeviceStatus()));
+			}
+			List<SecurityKeyInfo> infos = new ArrayList<>();
+			for (SecurityKey key : securityKeys.getSecurityKey()) {
+				SecurityKeyInfo info = new SecurityKeyInfo();
+				info.setSecurityAccessorName(extractSecurityAccessorName(key, meter));
+				info.setSecurityAccessorKey(extractSecurityAccessorKey(key, meter));
+				if (key.getWrapKeyInfo() != null) {
+					info.setPublicKeyLabel(extractPublicKeyLabel(key, meter));
+					info.setSymmetricKey(extractSymmetricKey(key, meter));
+				}
+				infos.add(info);
+			}
+			securityInfo.setSecurityKeys(infos);
+		}
+		return securityInfo;
+	}
 
     private String extractSecurityAccessorName(SecurityKey key, Meter meter) throws FaultMessage {
         return Optional.ofNullable(key.getSecurityAccessorName())

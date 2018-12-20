@@ -35,7 +35,7 @@ public class MeterInfo {
 	private String configurationEventReason;
 	private ElectronicAddressInfo electronicAddressInfo;
 	private List<CustomPropertySetInfo> customAttributeSets;
-	private List<SecurityInfo> securityInfos;
+	private SecurityInfo securityInfo;
 
 	public MeterInfo() {
 	}
@@ -217,11 +217,11 @@ public class MeterInfo {
 		this.customAttributeSets = customAttributeSets;
 	}
 
-	public List<SecurityInfo> getSecurityInfos() {
-		return securityInfos;
+	public SecurityInfo getSecurityInfo() {
+		return securityInfo;
 	}
 
-	public void setSecurityInfoList(List<SecurityInfo> securityInfos) {
-		this.securityInfos = securityInfos;
+	public void setSecurityInfo(SecurityInfo securityInfo) {
+		this.securityInfo = securityInfo;
 	}
 }

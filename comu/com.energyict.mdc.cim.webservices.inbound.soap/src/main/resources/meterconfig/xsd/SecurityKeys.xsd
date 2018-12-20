@@ -4,7 +4,7 @@
 	xmlns="http://connexo.elster.com/2018/schema/securitykeys"
 	targetNamespace="http://connexo.elster.com/2018/schema/securitykeys"
 	xmlns:sec="http://connexo.elster.com/2018/schema/securitykeys"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:xenc="http://www.w3.org/2001/04/xmlenc#"
 	xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
 	elementFormDefault="qualified" attributeFormDefault="unqualified">
@@ -13,6 +13,17 @@
 	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#"
 		schemaLocation="xmldsig-core-schema.xsd" />
 
+	<xs:complexType name="SecurityKeys">
+		<xs:sequence>
+			<xs:element name="allowedDeviceStatuses" type="AllowedDeviceStatuses" minOccurs="0" maxOccurs="1" />
+			<xs:element name="securityKey" type="SecurityKey" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AllowedDeviceStatuses">
+		<xs:sequence>
+			<xs:element name="allowedDeviceStatus" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="SecurityKey">
 		<xs:sequence>
 			<xs:element name="wrapKeyInfo" type="WrapKey" minOccurs="0" maxOccurs="1" />
@@ -25,15 +36,21 @@
 			<xs:element name="SymmetricKey"
 				type="xenc:EncryptedKeyType" minOccurs="1" maxOccurs="1">
 				<xs:annotation>
-					<xs:documentation>If publicKey is provided than this should be also provided</xs:documentation>
+					<xs:documentation>If publicKey is provided than this should be also
+						provided
+					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="PublicKey" type="ds:RSAKeyValueType" minOccurs="1" maxOccurs="1">
+			<xs:element name="PublicKey" type="ds:RSAKeyValueType"
+				minOccurs="1" maxOccurs="1">
 				<xs:annotation>
-					<xs:documentation>If symmetricKey is provided than this should be also provided</xs:documentation>
+					<xs:documentation>If symmetricKey is provided than this should be
+						also provided
+					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
-		<xs:attribute name="Label" type="xs:string" use="required" />
+		<xs:attribute name="Label" type="xs:string"
+			use="required" />
 	</xs:complexType>
 </xs:schema>

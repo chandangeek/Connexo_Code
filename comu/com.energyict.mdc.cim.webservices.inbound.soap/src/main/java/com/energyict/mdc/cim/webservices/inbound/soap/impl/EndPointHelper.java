@@ -42,8 +42,6 @@ public class EndPointHelper {
             try (TransactionContext context = transactionService.getContext()) {
                 User user = userService.findUser(DEFAULT_USER_NAME, userService.getRealm()).orElseGet(() -> {
                     User newUser = userService.createUser(DEFAULT_USER_NAME, DEFAULT_USER_NAME);
-                    Group group = userService.getGroup(MdcAppService.Roles.METER_EXPERT.value()).get();
-                    newUser.join(group);
                     return newUser;
                 });
                 threadPrincipalService.set(user);

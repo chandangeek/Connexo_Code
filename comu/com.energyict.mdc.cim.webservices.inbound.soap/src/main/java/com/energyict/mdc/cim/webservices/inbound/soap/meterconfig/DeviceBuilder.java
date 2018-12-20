@@ -10,6 +10,7 @@ import com.elster.jupiter.util.conditions.Where;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -106,7 +107,8 @@ public class DeviceBuilder {
                 }
             }
 
-                            ;
+			validateSecurityKeyChangeIsAllowedOnUpdate(changedDevice, meter.getSecurityInfo());
+            
             if (newDeviceConfigurationName != null
                     && !changedDevice.getDeviceConfiguration().getName().equals(newDeviceConfigurationName)) {
                 DeviceConfiguration deviceConfig = changedDevice.getDeviceType().getConfigurations().stream()
@@ -178,6 +180,21 @@ public class DeviceBuilder {
         return deviceService.findDeviceByMrid(mrid).orElseThrow(faultMessageFactory
                 .meterConfigFaultMessageSupplier(meter.getDeviceName(), MessageSeeds.NO_DEVICE_WITH_MRID, mrid));
     }
+    
+	private void validateSecurityKeyChangeIsAllowedOnUpdate(Device device, SecurityInfo securityInfo)
+			throws FaultMessage {
+		if (securityInfo.getSecurityKeys().isEmpty()) {
+			return;
+		}
+		if (securityInfo.getDeviceStatuses().isPresent()) {
+			final List<String> allowedStatuses = securityInfo.getDeviceStatuses().get();
+			final String deviceStatus = device.getState().getName();
+			if (!allowedStatuses.contains(deviceStatus)) {
+				throw faultMessageFactory.meterConfigFaultMessageSupplier(device.getName(),
+						MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS, deviceStatus).get();
+			}
+		}
+	}
 
     private DeviceConfiguration findDeviceConfiguration(MeterInfo meter, String deviceConfigurationName,
             String deviceType) throws FaultMessage {

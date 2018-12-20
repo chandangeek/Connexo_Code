@@ -25,6 +25,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsA
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -135,11 +136,11 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 			switch (OperationEnum.getFromString(extensionFor.getOperation())) {
 			case CREATE:
 				device = getDeviceBuilder().prepareCreateFrom(meterInfo).build();
-				processDevice(serviceCall, meterInfo, device, OperationEnum.CREATE);
+				processDevice(serviceCall, meterInfo, device);
 				break;
 			case UPDATE:
 				device = getDeviceBuilder().prepareChangeFrom(meterInfo).build();
-				processDevice(serviceCall, meterInfo, device, OperationEnum.UPDATE);
+				processDevice(serviceCall, meterInfo, device);
 				break;
 			default:
 				break;
@@ -169,18 +170,16 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 		}
 	}
 
-	private void processDevice(ServiceCall serviceCall, MeterInfo meterInfo, Device device, OperationEnum operation)
+	private void processDevice(ServiceCall serviceCall, MeterInfo meterInfo, Device device)
 			throws FaultMessage {
 		List<FaultMessage> faultsForCreate = processCustomAttributeSets(serviceCall, device, meterInfo);
 		if (!faultsForCreate.isEmpty()) {
 			// TODO send first reason?
 			throw faultsForCreate.get(0);
 		}
-		if (OperationEnum.CREATE.equals(operation)) {
-			faultsForCreate = processSecurityKeys(serviceCall, device, meterInfo);
-			if (!faultsForCreate.isEmpty()) {
-				throw faultsForCreate.get(0);
-			}
+		faultsForCreate = processSecurityKeys(serviceCall, device, meterInfo);
+		if (!faultsForCreate.isEmpty()) {
+			throw faultsForCreate.get(0);
 		}
 		postProcessDevice(device, meterInfo);
 	}
@@ -204,7 +203,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 	}
 
 	private List<FaultMessage> processSecurityKeys(ServiceCall serviceCall, Device device, MeterInfo meterInfo) {
-		List<SecurityInfo> securityInfos = meterInfo.getSecurityInfos();
+		List<SecurityKeyInfo> securityInfos = meterInfo.getSecurityInfo().getSecurityKeys();
 		if (securityInfos.isEmpty()) {
 			return Collections.emptyList();
 		}

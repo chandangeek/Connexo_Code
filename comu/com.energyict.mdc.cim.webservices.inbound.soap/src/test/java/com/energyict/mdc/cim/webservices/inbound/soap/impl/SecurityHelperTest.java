@@ -128,12 +128,12 @@ public class SecurityHelperTest {
 
 	@Test
 	public void testAddKeysHsmSuccess() throws HsmBaseException {
-		final SecurityInfo securityInfo = new SecurityInfo();
+		final SecurityKeyInfo securityInfo = new SecurityKeyInfo();
 		securityInfo.setPublicKeyLabel(PUBLIC_KEY_LABEL);
 		securityInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY);
 		securityInfo.setSecurityAccessorName(SECURITY_ACCESSOR_NAME);
 		securityInfo.setSymmetricKey(SYMMETRIC_KEY);
-		final List<SecurityInfo> securityInfoList = Arrays.asList(securityInfo);
+		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
 		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
@@ -161,12 +161,12 @@ public class SecurityHelperTest {
 
 	@Test
 	public void testAddKeysNoHsmSuccess() throws HsmBaseException {
-		final SecurityInfo securityInfo = new SecurityInfo();
+		final SecurityKeyInfo securityInfo = new SecurityKeyInfo();
 		securityInfo.setPublicKeyLabel(null);
 		securityInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY);
 		securityInfo.setSecurityAccessorName(SECURITY_ACCESSOR_NAME);
 		securityInfo.setSymmetricKey(null);
-		final List<SecurityInfo> securityInfoList = Arrays.asList(securityInfo);
+		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
 		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));

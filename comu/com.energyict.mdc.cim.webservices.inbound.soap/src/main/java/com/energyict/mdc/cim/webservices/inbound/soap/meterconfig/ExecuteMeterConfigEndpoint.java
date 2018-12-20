@@ -23,7 +23,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityHelper;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
@@ -140,13 +140,13 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         throw faultMessageFactory.meterConfigFaultMessage(faults);
     }
 
-    private List<FaultMessage> processSecurityAttributes(Device device, MeterInfo meterInfo) {
-        List<SecurityInfo> securityInfoList = meterInfo.getSecurityInfos();
-        if (securityInfoList != null && !securityInfoList.isEmpty()) {
-            return securityHelper.addSecurityKeys(device, securityInfoList);
-        }
-        return Collections.emptyList();
-    }
+	private List<FaultMessage> processSecurityAttributes(Device device, MeterInfo meterInfo) {
+		List<SecurityKeyInfo> securityInfoList = meterInfo.getSecurityInfo().getSecurityKeys();
+		if (securityInfoList != null && !securityInfoList.isEmpty()) {
+			return securityHelper.addSecurityKeys(device, securityInfoList);
+		}
+		return Collections.emptyList();
+	}
 
     @Override
     public MeterConfigResponseMessageType changeMeterConfig(MeterConfigRequestMessageType requestMessage)

@@ -52,6 +52,7 @@ public enum MessageSeeds implements MessageSeed {
     EXCEPTION_OCCURRED_DURING_KEY_IMPORT(1024, "ExceptionOccurredDuringKeyImport", "Exception occurred during key import for device ''{0}'' and security accessor ''{1}''"),
     NO_DEFAULT_DEVICE_CONFIGURATION(1025, "NoDefaultDeviceConfiguration", "No default device configuration"),
     NO_DEVICE_WITH_SERIAL_NUMBER(1026, "NoDeviceWithSerialNumber", "No device found with serial number ''{0}''"),
+	SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS(1027, "SecurityKeyUpdateForbidden", "Security key update is forbidden for device ''{0}'' because it is in state ''{1}''"),
 
     // get end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),

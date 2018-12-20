@@ -53,15 +53,15 @@ public class SecurityHelper {
 		this.thesaurus = thesaurus;
 	}
 
-	public List<FaultMessage> addSecurityKeys(Device device, List<SecurityInfo> securityInfoList) {
+	public List<FaultMessage> addSecurityKeys(Device device, List<SecurityKeyInfo> securityInfoList) {
 		return addSecurityKeys(device, securityInfoList, null);
 	}
 
-	public List<FaultMessage> addSecurityKeys(Device device, List<SecurityInfo> securityInfoList,
+	public List<FaultMessage> addSecurityKeys(Device device, List<SecurityKeyInfo> securityInfoList,
 			ServiceCall serviceCall) {
 		List<FaultMessage> allFaults = new ArrayList<>();
 		if (securityInfoList != null && !securityInfoList.isEmpty()) {
-			for (SecurityInfo securityInfo : securityInfoList) {
+			for (SecurityKeyInfo securityInfo : securityInfoList) {
 				try {
 					logInfo(serviceCall, MessageSeeds.IMPORTING_SECURITY_KEY_FOR_DEVICE, device.getName(),
 							securityInfo.getSecurityAccessorName());
@@ -79,7 +79,7 @@ public class SecurityHelper {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<FaultMessage> addKey(Device device, SecurityInfo securityInfo, ServiceCall serviceCall) {
+	private List<FaultMessage> addKey(Device device, SecurityKeyInfo securityInfo, ServiceCall serviceCall) {
 		final List<FaultMessage> faults = new ArrayList<>();
 		Optional<SecurityAccessorType> optionalSecurityAccessorType = getSecurityAccessorType(device,
 				securityInfo.getSecurityAccessorName());

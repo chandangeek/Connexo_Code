@@ -405,8 +405,7 @@
             <!-- Below elements added for Connexo -->
             <xs:element name="MeterCustomAttributeSet" type="cas:CustomAttributeSet" minOccurs="0"
                         maxOccurs="unbounded"/>
-            <xs:element name="SecurityKey" type="sec:SecurityKey" minOccurs="0"
-                        maxOccurs="unbounded"/>
+			<xs:element name="SecurityKeys" type="sec:SecurityKeys" minOccurs="0" maxOccurs="1" />
             <xs:element name="TimeSeriesCustomAttributeSet" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>
