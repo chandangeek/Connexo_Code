@@ -5,24 +5,41 @@
 package com.elster.jupiter.metering.zone.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneType;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 
 import com.google.inject.AbstractModule;
@@ -57,15 +74,9 @@ public class MeteringZoneImplIT {
     private static ServiceRegistration serviceRegistration = mock(ServiceRegistration.class);
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-    private static final String ZONE_NAME_1 = "ZoneName1";
-    private static final String ZONE_NAME_2 = "ZoneName2";
-    private static final long ZONE_ID = 1L;
-    private static final String APPLICATION_1 = "APPNAME1";
-    private static final String APPLICATION_2 = "APPNAME2";
-    private static final String ZONE_TYPE_NAME_1 = "ZoneTypeName1";
-    private static final String ZONE_TYPE_NAME_2 = "ZoneTypeName2";
-    private static final long ZONE_TYPE_ID = 10L;
-    private static final long VERSION = 1L;
+    private static final String ZONE_NAME = "ZoneName";
+    private static final String APPLICATION = "APPNAME";
+    private static final String ZONE_TYPE_NAME = "ZoneTypeName";
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -79,6 +90,7 @@ public class MeteringZoneImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
 
@@ -97,7 +109,23 @@ public class MeteringZoneImplIT {
                     new DomainUtilModule(),
                     new OrmModule(),
                     new UtilModule(),
-                    new NlsModule()
+                    new MeteringModule(),
+                    new NlsModule(),
+                    new CalendarModule(),
+                    new CustomPropertySetsModule(),
+                    new EventsModule(),
+                    new FiniteStateMachineModule(),
+                    new IdsModule(),
+                    new PartyModule(),
+                    new BasicPropertiesModule(),
+                    new SearchModule(),
+                    new TimeModule(),
+                    new BpmModule(),
+                    new TaskModule(),
+                    new WebServicesModule(),
+                    new UsagePointLifeCycleConfigurationModule(),
+                    new UserModule(),
+                    new DataVaultModule()
 
             );
         } catch (Exception e) {
@@ -121,15 +149,15 @@ public class MeteringZoneImplIT {
         MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         ZoneType zoneType = createZoneType(meteringZoneService);
         meteringZoneService.newZoneBuilder()
-                .withName(ZONE_NAME_1)
+                .withName(ZONE_NAME)
                 .withZoneType(zoneType)
                 .create();
 
-        Finder<Zone> finder = meteringZoneService.getZones(APPLICATION_1, meteringZoneService.newZoneFilter());
+        Finder<Zone> finder = meteringZoneService.getZones(APPLICATION, meteringZoneService.newZoneFilter());
 
-        assertThat(finder.stream().map(Zone::getName).findFirst().get()).isEqualTo(ZONE_NAME_1);
-        assertThat(finder.stream().map(Zone::getApplication).findFirst().get()).isEqualTo(APPLICATION_1);
-        assertThat(finder.stream().map(zone -> zone.getZoneType().getName()).findFirst().get()).isEqualTo(ZONE_TYPE_NAME_1);
+        assertThat(finder.stream().map(Zone::getName).findFirst().get()).isEqualTo(ZONE_NAME);
+        assertThat(finder.stream().map(Zone::getApplication).findFirst().get()).isEqualTo(APPLICATION);
+        assertThat(finder.stream().map(zone -> zone.getZoneType().getName()).findFirst().get()).isEqualTo(ZONE_TYPE_NAME);
     }
 
     @Test
@@ -139,11 +167,11 @@ public class MeteringZoneImplIT {
         MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         ZoneType zoneType = createZoneType(meteringZoneService);
         meteringZoneService.newZoneBuilder()
-                .withName(ZONE_NAME_1)
+                .withName(ZONE_NAME)
                 .withZoneType(zoneType)
                 .create();
         meteringZoneService.newZoneBuilder()
-                .withName(ZONE_NAME_1)
+                .withName(ZONE_NAME)
                 .withZoneType(zoneType)
                 .create();
     }
@@ -187,8 +215,8 @@ public class MeteringZoneImplIT {
     private ZoneType createZoneType(MeteringZoneService meteringZoneService) {
         return meteringZoneService
                 .newZoneTypeBuilder()
-                .withName(ZONE_TYPE_NAME_1)
-                .withApplication(APPLICATION_1)
+                .withName(ZONE_TYPE_NAME)
+                .withApplication(APPLICATION)
                 .create();
     }
 }

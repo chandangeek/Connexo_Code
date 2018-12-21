@@ -33,6 +33,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -154,6 +155,10 @@ public class DeviceInfoFactoryTest {
     private TopologyService topologyService;
     @Mock
     private MultiElementDeviceService multiElementDeviceService;
+    @Mock
+    MeteringZoneService meteringZoneService;
+    @Mock
+    EndDeviceZoneInfoFactory endDeviceZoneInfoFactory;
     @Mock
     private IssueDataValidationService issueDataValidationService;
     @Mock
@@ -506,7 +511,9 @@ public class DeviceInfoFactoryTest {
     public void fromDataLoggerTest() {
         DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService, multiElementDeviceService, deviceDataInfoFactory, batchService, channelInfoFactory);
 
-        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, multiElementDeviceService, issueService, dataLoggerSlaveDeviceInfoFactory, deviceService, deviceLifeCycleConfigurationService, firmwareService, clock);
+        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService,
+                meteringZoneService, meteringService, endDeviceZoneInfoFactory, multiElementDeviceService, issueService,
+                dataLoggerSlaveDeviceInfoFactory, deviceService, deviceLifeCycleConfigurationService, firmwareService, clock);
         DeviceInfo info = deviceInfoFactory.deviceInfo(dataLogger);
 
         assertThat(info.id).isEqualTo(DATALOGGER_ID);

@@ -4,24 +4,25 @@
 
 package com.elster.jupiter.metering.zone;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.orm.HasAuditInfo;
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
-public interface ZoneType extends HasName, HasId, HasAuditInfo {
+public interface EndDeviceZone extends HasAuditInfo {
 
     long getId();
 
-    String getApplication();
+    Zone getZone();
 
-    String getName();
+    EndDevice getEndDevice();
 
-    void setName(String name);
+    void setZone(Zone zone);
 
-    void setApplication(String name);
+    void setEndDevice(EndDevice endDevice);
 
     void save();
+
+    void delete();
 }

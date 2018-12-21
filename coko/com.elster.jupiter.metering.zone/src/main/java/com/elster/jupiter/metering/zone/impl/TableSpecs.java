@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.zone.impl;
 
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.zone.EndDeviceZone;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneType;
 import com.elster.jupiter.orm.Column;
@@ -48,6 +50,33 @@ public enum TableSpecs {
                     .on(zoneType)
                     .references(MTZ_ZONETYPE.name())
                     .map("zoneType")
+                    .add();
+        }
+    },
+    MTZ_ZONETOENDDEVICE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EndDeviceZone> table = dataModel.addTable(name(), EndDeviceZone.class);
+            table.map(EndDeviceZoneImpl.class);
+            table.since(version(10, 6));
+            table.setJournalTableName("MTZ_ZONETOENDDEVICEJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            Column zone = table.column("ZONE").number().notNull().conversion(NUMBER2LONG)/*.map("zoneId")*/.add();
+            Column endDevice = table.column("ENDDEVICE").number().notNull().conversion(NUMBER2LONG).map("endDeviceId").add();
+            table.addAuditColumns();
+            table.primaryKey("MTZ_PK_ZONETOENDDEVICE").on(idColumn).add();
+            //table.unique("MTZ_UK_ZONETOENDDEVICE").on(zone, endDevice).add();
+            table
+                    .foreignKey("MTZ_FK_DEVZONE_ZONE")
+                    .on(zone)
+                    .references(MTZ_ZONE.name())
+                    .map("zone", ZoneTypeImpl.class)
+                    .add();
+            table
+                    .foreignKey("MTZ_FK_DEVZONE_DEV")
+                    .on(endDevice)
+                    .references(EndDevice.class)
+                    .map("endDevice")
                     .add();
         }
     };

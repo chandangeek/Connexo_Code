@@ -30,7 +30,8 @@ public enum MessageSeeds implements MessageSeed {
     ALIAS_ALREADY_EXISTS(17, "readingtype.aliasAlreadyExists", "Alias {0} already exists."),
     READINGTYPE_UPDATING_FAIL(18, "readingtype.updatingFail", "Failed updating reading types."),
     INVALID_LIFE_CYCLE(19, PrivateMessageSeeds.Constants.INVALID_END_DEVICE_STAGE, "Cannot change life cycle. ''{0}'' doesn''t contain the actual state ''{1}''."),
-    ZONE_CREATING_FAIL(20, "zone.creatingFail", "Failed creating zone.");
+    ZONE_CREATING_FAIL(20, "zone.creatingFail", "Failed creating zone."),
+    ZONE_SAVING_FAIL(21, "zone.savingFail", "Failed saving zone.");
 
     private final int number;
     private final String key;
