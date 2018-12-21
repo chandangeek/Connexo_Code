@@ -24,7 +24,7 @@ public class T210 extends ESMR50Protocol implements SerialNumberSupport {
 
     @Override
     public String getProtocolDescription() {
-        return "Sagemcom T210 protocol V2";
+        return "Sagemcom XS210 protocol V2";
     }
 
     @Override
