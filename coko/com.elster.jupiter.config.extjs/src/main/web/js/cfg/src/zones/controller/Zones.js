@@ -9,7 +9,10 @@ Ext.define('Cfg.zones.controller.Zones',{
     ],
     views: [
         'Cfg.zones.view.Overview',
-        'Cfg.zones.view.AddForm'
+        'Cfg.zones.view.AddForm',
+        'Cfg.zones.view.Grid',
+        'Cfg.zones.view.ZonePreview',
+        'Cfg.zones.view.ActionMenu'
     ],
     refs: [
         {ref: 'zoneGrid', selector: '#grd-zones'},
@@ -25,7 +28,6 @@ Ext.define('Cfg.zones.controller.Zones',{
     models: [
         'Cfg.zones.model.Zone'
     ],
-    zonesStore: 'Cfg.zones.store.Zones',
 
     init: function () {
         this.control({
@@ -101,6 +103,7 @@ Ext.define('Cfg.zones.controller.Zones',{
     removeZone: function (record) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
+            router = me.getController('Uni.controller.history.Router'),
             form =  this.getZonesOverview();
 
         form.setLoading(true);
@@ -114,15 +117,6 @@ Ext.define('Cfg.zones.controller.Zones',{
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('zone.remove.success.msg', 'CFG', 'Zone removed'));
                             router.getRoute('administration/zones').forward();
-                        },
-                        failure: function (record, operation) {
-                            if (operation.response.status == 400) {
-                                var json = Ext.decode(operation.response.responseText, true);
-                                if (json && json.errors) {
-                                    form.getForm().markInvalid(json.errors);
-                                    formErrorsPanel.show();
-                                }
-                            }
                         },
                         callback: function () {
                             form.setLoading(false);
