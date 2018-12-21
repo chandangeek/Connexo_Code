@@ -16,11 +16,10 @@ import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.upl.TypedProperties;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -28,12 +27,10 @@ import java.util.stream.Collectors;
 
 public class GetMeterConfigFactory {
     private volatile CustomPropertySetService customPropertySetService;
-    private volatile Clock clock;
 
     @Inject
-    public GetMeterConfigFactory(CustomPropertySetService customPropertySetService, Clock clock) {
+    public GetMeterConfigFactory(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
-        this.clock = clock;
     }
 
     public MeterConfig asMeterConfig(Device device) {
@@ -41,16 +38,6 @@ public class GetMeterConfigFactory {
         Meter meter = getMeter(device);
         meterConfig.getMeter().add(meter);
         return meterConfig;
-    }
-
-    @Reference
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        this.customPropertySetService = customPropertySetService;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     private Meter getMeter(Device device) {
@@ -115,8 +102,7 @@ public class GetMeterConfigFactory {
             values = customPropertySetService.getUniqueValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device);
         } else {
             values = customPropertySetService.getUniqueValuesFor(registeredCustomPropertySet.getCustomPropertySet(),
-                            device,
-                            this.clock.instant());
+                            device, Instant.now());
         }
         if (values == null || values.isEmpty()) {
             List<PropertySpec> propertySpecs = registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs();
