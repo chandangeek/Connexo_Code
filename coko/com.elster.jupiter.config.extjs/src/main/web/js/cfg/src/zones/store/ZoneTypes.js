@@ -4,15 +4,21 @@
 
 Ext.define('Cfg.zones.store.ZoneTypes', {
     extend: 'Ext.data.Store',
-    model: 'Cfg.zones.model.ZoneType',
     autoLoad: true,
 
+    fields: [
+        'id',
+        'name'
+    ],
     proxy: {
         type: 'rest',
         url: '/api/mtr/zones/types',
         reader: {
             type: 'json',
             root: 'types'
-        }
+        },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
     }
 });

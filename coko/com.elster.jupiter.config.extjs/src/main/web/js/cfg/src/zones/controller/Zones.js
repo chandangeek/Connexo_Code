@@ -5,9 +5,7 @@
 Ext.define('Cfg.zones.controller.Zones',{
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.controller.history.Router',
-        'Cfg.zones.model.Zone',
-        'Cfg.zones.store.Zones'
+        'Uni.controller.history.Router'
     ],
     views: [
         'Cfg.zones.view.Overview',
@@ -18,9 +16,10 @@ Ext.define('Cfg.zones.controller.Zones',{
     ],
     refs: [
         {ref: 'zoneGrid', selector: '#grd-zones'},
-        {ref: 'zonePreviewForm', selector: '#zonePreviewForm'},
-        {ref: 'zonePreview', selector: '#zonePreview'},
-        {ref: 'zoneAdd', selector: '#zones-add-form'}
+        {ref: 'zonePreviewForm', selector: '#zone-preview-form'},
+        {ref: 'zonePreview', selector: '#zone-preview'},
+        {ref: 'zoneAdd', selector: '#zones-add-form'},
+        {ref: 'zonesOverview', selector: '#panel-zones-overview'}
     ],
     stores: [
         'Cfg.zones.store.Zones',
@@ -29,14 +28,12 @@ Ext.define('Cfg.zones.controller.Zones',{
     models: [
         'Cfg.zones.model.Zone'
     ],
-    zonesStore: 'Cfg.zones.store.Zones',
 
     init: function () {
         this.control({
             'zones-grid': {
                 selectionchange: this.showPreview
             },
-
             'zones-grid #zones-add-button': {
                 click: this.showAddZone
             },
@@ -64,13 +61,13 @@ Ext.define('Cfg.zones.controller.Zones',{
     },
 
     showAddZone: function () {
-        location.href = '#/administration/zones/add';
+        window.location.href = '#/administration/zones/add';
         var me = this,
             widget = Ext.widget('zone-add',{
                 edit: false,
                 title: Uni.I18n.translate('zones.addZone', 'CFG', 'Add zone'),
                 router: me.getController('Uni.controller.history.Router'),
-                cancelLink : '#/administration/zones',
+                cancelLink : '#/administration/zones'
             });
 
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -89,6 +86,7 @@ Ext.define('Cfg.zones.controller.Zones',{
         var me = this;
 
         me.getModel('Cfg.zones.model.Zone').load(zoneId, {
+
             success: function (record) {
                 widget =  Ext.create('Cfg.zones.view.AddForm', {
                     edit: true,
@@ -104,8 +102,11 @@ Ext.define('Cfg.zones.controller.Zones',{
 
     removeZone: function (record) {
         var me = this,
-            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
+            router = me.getController('Uni.controller.history.Router'),
+            form =  this.getZonesOverview();
 
+        form.setLoading(true);
         confirmationWindow.show({
             msg: Uni.I18n.translate('zone.general.remove.msg', 'CFG', 'This zone will no longer be available.'),
             title: Uni.I18n.translate('zone.remove', 'CFG', "Remove '{0}'?", [record.data.name]),
@@ -115,7 +116,10 @@ Ext.define('Cfg.zones.controller.Zones',{
                     record.destroy({
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('zone.remove.success.msg', 'CFG', 'Zone removed'));
-                            me.showOverview();
+                            router.getRoute('administration/zones').forward();
+                        },
+                        callback: function () {
+                            form.setLoading(false);
                         }
                     });
                 } else if (state === 'cancel') {
