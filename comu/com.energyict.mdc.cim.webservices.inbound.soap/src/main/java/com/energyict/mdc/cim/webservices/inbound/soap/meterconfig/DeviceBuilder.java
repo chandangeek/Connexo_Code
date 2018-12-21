@@ -191,7 +191,8 @@ public class DeviceBuilder {
 			final String deviceStatus = device.getState().getName();
 			if (!allowedStatuses.contains(deviceStatus)) {
 				throw faultMessageFactory.meterConfigFaultMessageSupplier(device.getName(),
-						MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS, deviceStatus).get();
+						MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS, device.getName(), deviceStatus)
+						.get();
 			}
 		}
 	}

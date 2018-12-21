@@ -93,44 +93,37 @@ public class SecurityHelper {
 		}
 		@SuppressWarnings("rawtypes")
 		Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
-		if (securityAccessorOptional.flatMap(SecurityAccessor::getActualValue).isPresent()) {
-			logSevere(device, faults, serviceCall, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, device.getName(),
-					securityInfo.getSecurityAccessorName());
-			return faults;
-		} else {
-			@SuppressWarnings("rawtypes")
-			final SecurityAccessor securityAccessor = securityAccessorOptional
-					.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
-			if (securityInfo.getPublicKeyLabel() != null && securityInfo.getSymmetricKey() != null) {
-				// HSM
-				AsymmetricAlgorithm wrapperKeyAlgorithm = getAsymmetricAlgorithm();
-				SymmetricAlgorithm symmetricAlgorithm = getSymmetricAlgorithm();
-				final byte[] initializationVector = getInitializationVector(securityInfo.getSecurityAccessorKey());
-				final byte[] cipher = getCipher(securityInfo.getSecurityAccessorKey());
-				ImportKeyRequest importKeyRequest = new ImportKeyRequest(securityInfo.getPublicKeyLabel(),
-						wrapperKeyAlgorithm, securityInfo.getSymmetricKey(), symmetricAlgorithm, cipher,
-						initializationVector, securityAccessorType.getHsmKeyType());
-				HsmEncryptedKey hsmEncryptedKey = null;
-				try {
-					hsmEncryptedKey = hsmEnergyService.importKey(importKeyRequest);
-				} catch (HsmBaseException hsmEx) {
-					logException(device, faults, serviceCall, hsmEx, MessageSeeds.CANNOT_IMPORT_KEY_TO_HSM,
-							device.getName(), securityInfo.getSecurityAccessorName());
-					return faults;
-				}
-				HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
-				hsmKey.setKey(hsmEncryptedKey.getEncryptedKey(), hsmEncryptedKey.getKeyLabel());
-				securityAccessor.setActualValue(hsmKey);
-				securityAccessor.save();
-			} else if (securityInfo.getPublicKeyLabel() == null && securityInfo.getSymmetricKey() == null) {
-				SecurityValueWrapper wrapperValue = createPlaintextWrapper(securityInfo.getSecurityAccessorKey(),
-						securityAccessorType);
-				securityAccessor.setActualValue(wrapperValue);
-				securityAccessor.save();
-			} else {
-				logSevere(device, faults, serviceCall, MessageSeeds.BOTH_PUBLIC_AND_SYMMETRIC_KEYS_SHOULD_BE_SPECIFIED);
+		final SecurityAccessor securityAccessor = securityAccessorOptional
+				.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
+		if (securityInfo.getPublicKeyLabel() != null && securityInfo.getSymmetricKey() != null) {
+			// HSM
+			AsymmetricAlgorithm wrapperKeyAlgorithm = getAsymmetricAlgorithm();
+			SymmetricAlgorithm symmetricAlgorithm = getSymmetricAlgorithm();
+			final byte[] initializationVector = getInitializationVector(securityInfo.getSecurityAccessorKey());
+			final byte[] cipher = getCipher(securityInfo.getSecurityAccessorKey());
+			ImportKeyRequest importKeyRequest = new ImportKeyRequest(securityInfo.getPublicKeyLabel(),
+					wrapperKeyAlgorithm, securityInfo.getSymmetricKey(), symmetricAlgorithm, cipher,
+					initializationVector, securityAccessorType.getHsmKeyType());
+			HsmEncryptedKey hsmEncryptedKey = null;
+			try {
+				hsmEncryptedKey = hsmEnergyService.importKey(importKeyRequest);
+			} catch (HsmBaseException hsmEx) {
+				logException(device, faults, serviceCall, hsmEx, MessageSeeds.CANNOT_IMPORT_KEY_TO_HSM,
+						device.getName(), securityInfo.getSecurityAccessorName());
 				return faults;
 			}
+			HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
+			hsmKey.setKey(hsmEncryptedKey.getEncryptedKey(), hsmEncryptedKey.getKeyLabel());
+			securityAccessor.setActualValue(hsmKey);
+			securityAccessor.save();
+		} else if (securityInfo.getPublicKeyLabel() == null && securityInfo.getSymmetricKey() == null) {
+			SecurityValueWrapper wrapperValue = createPlaintextWrapper(securityInfo.getSecurityAccessorKey(),
+					securityAccessorType);
+			securityAccessor.setActualValue(wrapperValue);
+			securityAccessor.save();
+		} else {
+			logSevere(device, faults, serviceCall, MessageSeeds.BOTH_PUBLIC_AND_SYMMETRIC_KEYS_SHOULD_BE_SPECIFIED);
+			return faults;
 		}
 		return faults;
 	}
