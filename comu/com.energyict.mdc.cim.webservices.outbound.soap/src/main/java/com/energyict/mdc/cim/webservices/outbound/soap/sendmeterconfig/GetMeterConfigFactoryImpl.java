@@ -87,7 +87,7 @@ public class GetMeterConfigFactoryImpl implements GetMeterConfigFactory {
         //custom attributes
         List<CustomAttributeSet> customList = device.getDeviceType().getCustomPropertySets()
                 .stream()
-                //.filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(registeredCustomPropertySet -> convertToCustomAttributeSet(registeredCustomPropertySet, device))
                 .collect(Collectors.toList());
         meter.getMeterCustomAttributeSet().addAll(customList);
