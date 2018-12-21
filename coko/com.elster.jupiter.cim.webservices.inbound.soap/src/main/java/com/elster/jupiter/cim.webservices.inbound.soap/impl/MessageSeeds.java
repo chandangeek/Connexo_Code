@@ -56,12 +56,18 @@ public enum MessageSeeds implements MessageSeed {
     NO_METROLOGYCONFIG_FOR_USAGEPOINT(2019, "NoMetrologyConfigForUsagePoint", "Usage point {0} doesn''t have a link to metrology configuration."),
     UNSATISFIED_READING_TYPE_REQUIREMENTS(2020, "UnsatisfiedReadingTypeRequirments", "Meters don''t provide reading types specified in the metrology contract."),
     MORE_THAN_ONE_METROLOGY_CONFIGURATION_SPECIFIED(2021, "MoreThanOneMetrologyConfigurationSpecified", "Metrology requirement can''t accept more than one metrology configuration."),
+    /// FIXME used NO_METER_WITH_MRID and NO_METER_WITH_NAME instead of these two messages?
+    NO_END_DEVICE_WITH_MRID(2022, "NoEndDeviceWithMRID", "No end device is found by MRID ''{0}''."),
+    NO_END_DEVICE_WITH_NAME(2023, "NoEndDeviceWithName", "No end device is found by name ''{0}''."),
 
     // meter readings
     UNABLE_TO_GET_READINGS(3001, "UnableToGetReadings", "Unable to get readings"),
     NO_PURPOSES_WITH_NAMES(3002, "NoPurposesWithNames", "No metrology purposes are found for names: {0}."),
     INVALID_OR_EMPTY_TIME_PERIOD(3003, "InvalidOrEmptyTimePeriod",
             "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
+    /// TODO update confluence faultCodes
+    END_DEVICES_NOT_FOUND(3005, "NoDevicesWithMRID", "''{0}'' devices have not been found.", Level.WARNING),
+
 
     // master data linkage
     UNABLE_TO_LINK_METER(4001, "UnableToLinkMeter", "Unable to link meter to usage point"),
@@ -71,6 +77,11 @@ public enum MessageSeeds implements MessageSeed {
     METER_AND_USAGE_POINT_NOT_LINKED(4004, "MeterAndUsagePointNotLinked",
             "Meter ''{0}'' is not linked to usage point ''{1}'' at the given time ''{2}''."),
     NO_METER_ROLE_WITH_KEY(4005, "NoMeterRoleWithKey", "No meter role is found by key ''{0}''."),
+
+    // async
+    //COULD_NOT_FIND_SERVICE_CALL_TYPE(5001, "CouldNotFindServiceCallType", "Could not find service call type {0} having version {1}"),
+    NO_END_POINT_WITH_URL(5002, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
+    NO_PUBLISHED_END_POINT_WITH_URL(5003, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
     ;
 
     private final int number;
