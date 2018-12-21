@@ -8,8 +8,8 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.app.MdcAppService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
-
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -58,10 +58,14 @@ public class TimeOfUseItemPersistenceSupport implements PersistenceSupport<Servi
 
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-        table.column(TimeOfUseItemDomainExtension.FieldNames.DEVICE_NAME.databaseName())
-                .varChar()
-                .map(TimeOfUseItemDomainExtension.FieldNames.DEVICE_NAME.javaName())
+        Column device = table.column(TimeOfUseItemDomainExtension.FieldNames.DEVICE.databaseName())
+                .number()
                 .notNull()
+                .add();
+        table.foreignKey(FK_NAME + "_DEV")
+                .on(device)
+                .references(Device.class)
+                .map(TimeOfUseItemDomainExtension.FieldNames.DEVICE.javaName())
                 .add();
     }
 

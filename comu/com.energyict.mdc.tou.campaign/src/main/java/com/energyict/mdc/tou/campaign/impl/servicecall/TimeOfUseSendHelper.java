@@ -74,7 +74,7 @@ public class TimeOfUseSendHelper {
         if (timeOfUseCampaign.getActivationDate().equals(TranslationKeys.IMMEDIATELY.getKey())) {
             if (!timeOfUseCampaignService.getActiveVerificationTask(device).isPresent()) {
                 serviceCall.log(LogLevel.SEVERE, "device don't contain verification tasks for calendars or contains only wrong ");
-                timeOfUseCampaignService.changeServiceCallStatus(device.getName(), DefaultState.REJECTED);
+                timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.REJECTED);
                 return;
             }
         }
@@ -101,14 +101,14 @@ public class TimeOfUseSendHelper {
             }
             if (comTaskExecution.getConnectionTask().isPresent()) {
                 scheduleCampaign(comTaskExecution, timeOfUseCampaign.getActivationStart(), timeOfUseCampaign.getActivationEnd());
-                timeOfUseCampaignService.changeServiceCallStatus(device.getName(), DefaultState.PENDING);
+                timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.PENDING);
             } else {
                 serviceCall.log(LogLevel.SEVERE, "missing connection task");
-                timeOfUseCampaignService.changeServiceCallStatus(device.getName(), DefaultState.REJECTED);
+                timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.REJECTED);
             }
         } else {
             serviceCall.log(LogLevel.SEVERE, "device don't contain communication task for calendars or contains only wrong ");
-            timeOfUseCampaignService.changeServiceCallStatus(device.getName(), DefaultState.REJECTED);
+            timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.REJECTED);
         }
     }
 

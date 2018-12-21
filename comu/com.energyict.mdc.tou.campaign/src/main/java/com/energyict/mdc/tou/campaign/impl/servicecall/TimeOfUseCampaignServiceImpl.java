@@ -95,9 +95,10 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     private volatile Clock clock;
     private volatile DeviceService deviceService;
     private volatile CalendarService calendarService;
+    private volatile NlsService nlsService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
-    private Map<String, CustomPropertySet> customPropertySetsMap = new HashMap<>();
+    private List<CustomPropertySet> customPropertySets = new ArrayList<>();
 
 
     public TimeOfUseCampaignServiceImpl() {
@@ -149,6 +150,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 bind(Clock.class).toInstance(clock);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(CalendarService.class).toInstance(calendarService);
+                bind(NlsService.class).toInstance(nlsService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(TimeOfUseCampaignService.class).toInstance(TimeOfUseCampaignServiceImpl.this);
@@ -161,23 +163,20 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     public void activate() {
         dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(getModule());
-        customPropertySetsMap.put(TimeOfUseCampaignDomainExtension.class.getName(),
-                dataModel.getInstance(TimeOfUseCampaignCustomPropertySet.class));
-        getServiceCallCustomPropertySets().values().forEach(customPropertySetService::addCustomPropertySet);
+        customPropertySets.add(dataModel.getInstance(TimeOfUseCampaignCustomPropertySet.class));
+        customPropertySets.add(dataModel.getInstance(TimeOfUseItemPropertySet.class));
+        customPropertySets.forEach(customPropertySetService::addCustomPropertySet);
         upgradeService.register(InstallIdentifier.identifier(MdcAppService.APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Deactivate
     public void stop() {
-        getServiceCallCustomPropertySets().values().forEach(customPropertySetService::removeCustomPropertySet);
-    }
-
-    private Map<String, CustomPropertySet> getServiceCallCustomPropertySets() {
-        return customPropertySetsMap;
+        customPropertySets.forEach(customPropertySetService::removeCustomPropertySet);
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer())
                 .join(nlsService.getThesaurus(MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN));
     }
@@ -351,19 +350,19 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     private byte createChildServiceCall(ServiceCall parent, TimeOfUseItem timeOfUseItem) {
-        if (deviceService.findDeviceByName(timeOfUseItem.getDeviceName()).get().calendars().getActive().isPresent()) {
-            if (deviceService.findDeviceByName(timeOfUseItem.getDeviceName()).get().calendars().getActive().get().getAllowedCalendar().getId()
+        if (deviceService.findDeviceByName(timeOfUseItem.getDevice().getName()).get().calendars().getActive().isPresent()) {
+            if (deviceService.findDeviceByName(timeOfUseItem.getDevice().getName()).get().calendars().getActive().get().getAllowedCalendar().getId()
                     == parent.getExtension(TimeOfUseCampaignDomainExtension.class).get().getCalendar().getId()) {
                 return 0;
             }
         }
-        if (findServiceCallsByDeviceName(timeOfUseItem.getDeviceName())
+        if (findServiceCallsByDevice(timeOfUseItem.getDevice())
                 .noneMatch(serviceCall -> (serviceCall.getParent().get().getState().equals(DefaultState.ONGOING)
                         || serviceCall.getParent().get().getState().equals(DefaultState.PENDING)))) {
             ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.TIME_OF_USE_CAMPAIGN_ITEM);
             TimeOfUseItemDomainExtension timeOfUseItemDomainExtension = new TimeOfUseItemDomainExtension();
             timeOfUseItemDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
-            timeOfUseItemDomainExtension.setDeviceName(timeOfUseItem.getDeviceName());
+            timeOfUseItemDomainExtension.setDevice(timeOfUseItem.getDevice());
             setCalendarOnDevice(parent.newChildCall(serviceCallType)
                     .extendedWith(timeOfUseItemDomainExtension)
                     .create());
@@ -417,7 +416,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
 
     @Override
     public Optional<TimeOfUseCampaign> getCampaignOn(ComTaskExecution comTaskExecution) {
-        return findServiceCallsByDeviceName(comTaskExecution.getDevice().getName())
+        return findServiceCallsByDevice(comTaskExecution.getDevice())
                 .filter(serviceCall -> serviceCall.getParent().isPresent())
                 .filter(serviceCall -> (serviceCall.getParent().get().getState().equals(DefaultState.ONGOING)
                         || serviceCall.getParent().get().getState().equals(DefaultState.PENDING)))
@@ -450,12 +449,12 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
 
     private TimeOfUseItem buildToUItem(Device device) {
         TimeOfUseItemDomainExtension timeOfUseItemDomainExtension = new TimeOfUseItemDomainExtension();
-        timeOfUseItemDomainExtension.setDeviceName(device.getName());
+        timeOfUseItemDomainExtension.setDevice(device);
         return timeOfUseItemDomainExtension;
     }
 
     private void setCalendarOnDevice(ServiceCall serviceCall) {
-        Device device = deviceService.findDeviceByName(serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().getDeviceName()).get();
+        Device device = deviceService.findDeviceByName(serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().getDevice().getName()).get();
         revokeCalendarsCommands(device);
         dataModel.getInstance(TimeOfUseSendHelper.class).setCalendarOnDevice(device, serviceCall);
     }
@@ -468,8 +467,8 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .forEach(DeviceMessage::revoke);
     }
 
-    void changeServiceCallStatus(String deviceName, DefaultState defaultState) {
-        findServiceCallsByDeviceName(deviceName)
+    void changeServiceCallStatus(Device device, DefaultState defaultState) {
+        findServiceCallsByDevice(device)
                 .filter(serviceCall1 -> (serviceCall1.getParent().get().getState().equals(DefaultState.ONGOING)
                         || serviceCall1.getParent().get().getState().equals(DefaultState.PENDING)))
                 .filter(serviceCall1 -> serviceCall1.canTransitionTo(defaultState))
@@ -477,8 +476,8 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     @Override
-    public void cancelDevice(String deviceName) {
-        cancelCalendarSend(findActiveServiceCallByDeviceName(deviceName).get());
+    public void cancelDevice(Device device) {
+        cancelCalendarSend(findActiveServiceCallByDevice(device).get());
     }
 
     @Override
@@ -493,13 +492,13 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     void cancelCalendarSend(ServiceCall serviceCall) {
         revokeCalendarsCommands(findDeviceByServiceCall(serviceCall));
         findCalendarsComTaskExecutions(findDeviceByServiceCall(serviceCall)).findAny().ifPresent(comTaskExecution -> comTaskExecution.schedule(null));
-        changeServiceCallStatus(findDeviceByServiceCall(serviceCall).getName(), DefaultState.CANCELLED);
+        changeServiceCallStatus(findDeviceByServiceCall(serviceCall), DefaultState.CANCELLED);
         serviceCall.log(LogLevel.INFO, "cancelled by user");
     }
 
     @Override
-    public void retry(String deviceName) {
-        findServiceCallsByDeviceName(deviceName)
+    public void retry(Device device) {
+        findServiceCallsByDevice(device)
                 .filter(serviceCall1 -> serviceCall1.getParent().isPresent())
                 .filter(serviceCall1 -> (serviceCall1.getParent().get().getState().equals(DefaultState.ONGOING)
                         || serviceCall1.getParent().get().getState().equals(DefaultState.PENDING)))
@@ -508,25 +507,29 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                     revokeCalendarsCommands(findDeviceByServiceCall(serviceCall1));
                     serviceCall1.log(LogLevel.INFO, "retrying by user");
                     dataModel.getInstance(TimeOfUseSendHelper.class)
-                            .setCalendarOnDevice(deviceService.findDeviceByName(deviceName).get(), serviceCall1);
+                            .setCalendarOnDevice(deviceService.findDeviceById(device.getId()).get(), serviceCall1);
                 });
     }
 
-    private Optional<ServiceCall> findActiveServiceCallByDeviceName(String deviceName) {
-        return findServiceCallsByDeviceName(deviceName)
+    private Optional<ServiceCall> findActiveServiceCallByDevice(Device device) {
+        return findServiceCallsByDevice(device)
                 .filter(serviceCall1 -> serviceCall1.getParent().isPresent())
                 .filter(serviceCall1 -> (serviceCall1.getState().equals(DefaultState.ONGOING)
                         || serviceCall1.getState().equals(DefaultState.PENDING))).findAny();
     }
 
-    private Stream<ServiceCall> findServiceCallsByDeviceName(String deviceName) {
+    private Stream<ServiceCall> findServiceCallsByDevice(Device device) {
         return serviceCallService.getServiceCallFinder().find().stream()
                 .filter(serviceCall1 -> serviceCall1.getExtension(TimeOfUseItemDomainExtension.class).isPresent())
-                .filter(serviceCall1 -> serviceCall1.getExtension(TimeOfUseItemDomainExtension.class).get().getDeviceName().equals(deviceName));
+                .filter(serviceCall1 -> serviceCall1.getExtension(TimeOfUseItemDomainExtension.class).get().getDevice().equals(device));
     }
 
     private Device findDeviceByServiceCall(ServiceCall serviceCall) {
-        return deviceService.findDeviceByName(Objects.requireNonNull(serviceCall.getExtension(TimeOfUseItemDomainExtension.class).orElse(null)).getDeviceName()).orElse(null);
+        if (serviceCall.getExtension(TimeOfUseItemDomainExtension.class).isPresent()) {
+            return deviceService.findDeviceByName(serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().getDevice().getName()).orElse(null);
+        } else {
+            return null;
+        }
     }
 
     private Stream<ComTaskExecution> findCalendarsComTaskExecutions(Device device) {
@@ -573,7 +576,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     void logInServiceCallByDevice(Device device, String message, LogLevel logLevel) {
-        findActiveServiceCallByDeviceName(device.getName()).ifPresent(serviceCall -> serviceCall.log(logLevel, message));
+        findActiveServiceCallByDevice(device).ifPresent(serviceCall -> serviceCall.log(logLevel, message));
     }
 
     ComTaskExecution findComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {

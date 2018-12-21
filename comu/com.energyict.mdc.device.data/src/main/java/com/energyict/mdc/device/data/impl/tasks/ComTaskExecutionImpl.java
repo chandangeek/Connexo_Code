@@ -1315,56 +1315,20 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public void comTaskStarted() {
-            if (ComTaskExecutionImpl.this.getComTask().getProtocolTasks().stream()
-                    .filter(task -> task instanceof MessagesTask)
-                    .map(task -> ((MessagesTask) task))
-                    .map(MessagesTask::getDeviceMessageCategories)
-                    .flatMap(List::stream)
-                    .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 0)) {
-                LOGGER.info("Raised event " + EventType.TOU_COMTASKEXECUTION_STARTED.topic());
-                postEvent(EventType.TOU_COMTASKEXECUTION_STARTED);
-            }
-            if (ComTaskExecutionImpl.this.getComTask().getProtocolTasks().stream()
-                    .anyMatch(StatusInformationTask.class::isInstance)) {
-                LOGGER.info("Raised event " + EventType.VERIFICATION_STARTED.topic());
-                postEvent(EventType.VERIFICATION_STARTED);
-            }
+                LOGGER.info("Raised event " + EventType.COMTASKEXECUTION_STARTED.topic());
+                postEvent(EventType.COMTASKEXECUTION_STARTED);
         }
 
         @Override
         public void comTaskCompleted() {
-            if (ComTaskExecutionImpl.this.getComTask().getProtocolTasks().stream()
-                    .filter(task -> task instanceof MessagesTask)
-                    .map(task -> ((MessagesTask) task))
-                    .map(MessagesTask::getDeviceMessageCategories)
-                    .flatMap(List::stream)
-                    .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 0)) {
-                LOGGER.info("Raised event " + EventType.TOU_COMTASKEXECUTION_COMPLETED.topic());
-                postEvent(EventType.TOU_COMTASKEXECUTION_COMPLETED);
-            }
-            if (ComTaskExecutionImpl.this.getComTask().getProtocolTasks().stream()
-                    .anyMatch(StatusInformationTask.class::isInstance)) {
-                LOGGER.info("Raised event " + EventType.VERIFICATION_COMPLETED.topic());
-                postEvent(EventType.VERIFICATION_COMPLETED);
-            }
+                LOGGER.info("Raised event " + EventType.COMTASKEXECUTION_COMPLETED.topic());
+                postEvent(EventType.COMTASKEXECUTION_COMPLETED);
         }
 
         @Override
         public void comTaskFailed() {
-            if (ComTaskExecutionImpl.this.getComTask().getProtocolTasks().stream()
-                    .filter(task -> task instanceof MessagesTask)
-                    .map(task -> ((MessagesTask) task))
-                    .map(MessagesTask::getDeviceMessageCategories)
-                    .flatMap(List::stream)
-                    .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 0)) {
-                LOGGER.info("Raised event " + EventType.TOU_COMTASKEXECUTION_FAILED.topic());
-                postEvent(EventType.TOU_COMTASKEXECUTION_FAILED);
-            }
-            if (ComTaskExecutionImpl.this.getComTask().getProtocolTasks().stream()
-                    .anyMatch(StatusInformationTask.class::isInstance)) {
-                LOGGER.info("Raised event " + EventType.VERIFICATION_FAILED.topic());
-                postEvent(EventType.VERIFICATION_FAILED);
-            }
+                LOGGER.info("Raised event " + EventType.COMTASKEXECUTION_FAILED.topic());
+                postEvent(EventType.COMTASKEXECUTION_FAILED);
         }
 
         @Override
@@ -1459,56 +1423,20 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public void comTaskStarted() {
-            if (ComTaskExecutionImpl.this.getComTask().getProtocolTasks().stream()
-                    .filter(task -> task instanceof MessagesTask)
-                    .map(task -> ((MessagesTask) task))
-                    .map(MessagesTask::getDeviceMessageCategories)
-                    .flatMap(List::stream)
-                    .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 0)) {
-                LOGGER.info("Raised event " + EventType.TOU_COMTASKEXECUTION_STARTED.topic());
-                postEvent(EventType.TOU_COMTASKEXECUTION_STARTED);
-            }
-            if (ComTaskExecutionImpl.this.getComTask().getProtocolTasks().stream()
-                    .anyMatch(StatusInformationTask.class::isInstance)) {
-                LOGGER.info("Raised event " + EventType.VERIFICATION_STARTED.topic());
-                postEvent(EventType.VERIFICATION_STARTED);
-            }
+                LOGGER.info("Raised event " + EventType.SCHEDULED_COMTASKEXECUTION_STARTED.topic());
+                postEvent(EventType.SCHEDULED_COMTASKEXECUTION_STARTED);
         }
 
         @Override
         public void comTaskCompleted() {
-            if (ComTaskExecutionImpl.this.getComTask().getProtocolTasks().stream()
-                    .filter(task -> task instanceof MessagesTask)
-                    .map(task -> ((MessagesTask) task))
-                    .map(MessagesTask::getDeviceMessageCategories)
-                    .flatMap(List::stream)
-                    .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 0)) {
-                LOGGER.info("Raised event " + EventType.TOU_COMTASKEXECUTION_COMPLETED.topic());
-                postEvent(EventType.TOU_COMTASKEXECUTION_COMPLETED);
-            }
-            if (ComTaskExecutionImpl.this.getComTask().getProtocolTasks().stream()
-                    .anyMatch(StatusInformationTask.class::isInstance)) {
-                LOGGER.info("Raised event " + EventType.VERIFICATION_COMPLETED.topic());
-                postEvent(EventType.VERIFICATION_COMPLETED);
-            }
+                LOGGER.info("Raised event " + EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED.topic());
+                postEvent(EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED);
         }
 
         @Override
         public void comTaskFailed() {
-            if (ComTaskExecutionImpl.this.getComTask().getProtocolTasks().stream()
-                    .filter(task -> task instanceof MessagesTask)
-                    .map(task -> ((MessagesTask) task))
-                    .map(MessagesTask::getDeviceMessageCategories)
-                    .flatMap(List::stream)
-                    .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 0)) {
-                LOGGER.info("Raised event " + EventType.TOU_COMTASKEXECUTION_FAILED.topic());
-                postEvent(EventType.TOU_COMTASKEXECUTION_FAILED);
-            }
-            if (ComTaskExecutionImpl.this.getComTask().getProtocolTasks().stream()
-                    .anyMatch(StatusInformationTask.class::isInstance)) {
-                LOGGER.info("Raised event " + EventType.VERIFICATION_FAILED.topic());
-                postEvent(EventType.VERIFICATION_FAILED);
-            }
+                LOGGER.info("Raised event " + EventType.SCHEDULED_COMTASKEXECUTION_FAILED.topic());
+                postEvent(EventType.SCHEDULED_COMTASKEXECUTION_FAILED);
         }
 
         public Optional<ComSchedule> getComSchedule() {

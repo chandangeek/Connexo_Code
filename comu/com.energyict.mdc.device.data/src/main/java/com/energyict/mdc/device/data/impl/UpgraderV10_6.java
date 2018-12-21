@@ -42,11 +42,11 @@ class UpgraderV10_6 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 6));
         // Validation for Device Configuration Change on data loggers and multi-elememt devices
-        EventType.TOU_COMTASKEXECUTION_STARTED.createIfNotExists(eventService);
-        EventType.TOU_COMTASKEXECUTION_COMPLETED.createIfNotExists(eventService);
-        EventType.TOU_COMTASKEXECUTION_FAILED.createIfNotExists(eventService);
-        EventType.VERIFICATION_STARTED.createIfNotExists(eventService);
-        EventType.VERIFICATION_COMPLETED.createIfNotExists(eventService);
-        EventType.VERIFICATION_FAILED.createIfNotExists(eventService);
+        EventType.COMTASKEXECUTION_STARTED.createIfNotExists(eventService);
+        EventType.COMTASKEXECUTION_COMPLETED.createIfNotExists(eventService);
+        EventType.COMTASKEXECUTION_FAILED.createIfNotExists(eventService);
+        EventType.SCHEDULED_COMTASKEXECUTION_STARTED.createIfNotExists(eventService);
+        EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED.createIfNotExists(eventService);
+        EventType.SCHEDULED_COMTASKEXECUTION_FAILED.createIfNotExists(eventService);
     }
 }

@@ -15,6 +15,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 
 import org.osgi.service.component.annotations.Component;
@@ -26,48 +28,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemPropertySet",
-        service = CustomPropertySet.class,
-        property = "name=" + TimeOfUseItemPropertySet.CUSTOM_PROPERTY_SET_NAME, immediate = true)
 public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, TimeOfUseItemDomainExtension> {
 
     public static final String CUSTOM_PROPERTY_SET_NAME = "TimeOfUseItemPropertySet";
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
-
-    public TimeOfUseItemPropertySet() {
-    }
+    private volatile DeviceService deviceService;
 
     @Inject
-    public TimeOfUseItemPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
+    public TimeOfUseItemPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService,
+                                    CustomPropertySetService customPropertySetService, DeviceService deviceService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
+        this.deviceService = deviceService;
         customPropertySetService.addCustomPropertySet(this);
-    }
-
-    @Reference
-    @SuppressWarnings("unused")
-    public void setNlsService(NlsService nlsService) {
-        thesaurus = nlsService.getThesaurus(TimeOfUseCampaignServiceImpl.COMPONENT_NAME, Layer.SOAP);
-    }
-
-    @Reference
-    @SuppressWarnings("unused")
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    @SuppressWarnings("unused")
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        customPropertySetService.addCustomPropertySet(this);
-    }
-
-    @Reference
-    @SuppressWarnings("unused")
-    public void setServiceCallService(ServiceCallService serviceCallService) {
-        // required for proper startup; do not delete
     }
 
     @Override
@@ -114,9 +89,9 @@ public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, 
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 propertySpecService
-                        .stringSpec()
-                        .named(TimeOfUseItemDomainExtension.FieldNames.DEVICE_NAME.javaName(), TranslationKeys.DEVICE_NAME)
-                        .describedAs(TranslationKeys.DEVICE_NAME)
+                        .referenceSpec(Device.class)
+                        .named(TimeOfUseItemDomainExtension.FieldNames.DEVICE.javaName(), TranslationKeys.DEVICE)
+                        .describedAs(TranslationKeys.DEVICE)
                         .fromThesaurus(thesaurus)
                         .finish()
         );

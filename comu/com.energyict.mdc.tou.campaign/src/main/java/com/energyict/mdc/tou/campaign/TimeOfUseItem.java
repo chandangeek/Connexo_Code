@@ -4,10 +4,12 @@
 
 package com.energyict.mdc.tou.campaign;
 
+import com.energyict.mdc.device.data.Device;
+
 import java.math.BigDecimal;
 
 public interface TimeOfUseItem {
-    String getDeviceName();
+    Device getDevice();
 
     BigDecimal getParentServiceCallId();
 }

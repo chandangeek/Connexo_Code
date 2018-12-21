@@ -17,7 +17,7 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component(name = "com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignCallHandler", service = ServiceCallHandler.class,
+@Component(name = "com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceCallHandler", service = ServiceCallHandler.class,
         property = "name=" + TimeOfUseCampaignServiceCallHandler.NAME, immediate = true)
 public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
 
@@ -25,6 +25,10 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
     public static final String VERSION = "v1.0";
 
     private volatile TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
+
+    public TimeOfUseCampaignServiceCallHandler() {
+        // for osgi
+    }
 
     public TimeOfUseCampaignServiceCallHandler(TimeOfUseCampaignService timeOfUseCampaignService) {
         this.timeOfUseCampaignService = ((TimeOfUseCampaignServiceImpl) timeOfUseCampaignService);

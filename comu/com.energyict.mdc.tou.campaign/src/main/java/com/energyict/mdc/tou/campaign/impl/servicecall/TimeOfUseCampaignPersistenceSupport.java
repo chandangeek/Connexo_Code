@@ -7,7 +7,6 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.app.MdcAppService;
@@ -77,10 +76,6 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.NAME_OF_CAMPAIGN.javaName())
                 .notNull()
                 .add();
-        table.column(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_TYPE.databaseName())
-                .number()
-                .notNull()
-                .add();
         table.column(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_GROUP.databaseName())
                 .varChar()
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_GROUP.javaName())
@@ -100,7 +95,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .number()
                 .notNull()
                 .add();
-        Column deviceType = table.column(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR.databaseName())
+        Column deviceType = table.column(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_TYPE.databaseName())
                 .number()
                 .notNull()
                 .add();
@@ -117,17 +112,15 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .conversion(ColumnConversion.NUMBER2LONG)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.TIME_VALIDATION.javaName())
                 .add();
-        table.foreignKey(FK_NAME+"_CAL")
+        table.foreignKey(FK_NAME + "_CAL")
                 .on(calendar)
                 .references(Calendar.class)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR.javaName())
-                .onDelete(DeleteRule.CASCADE)
                 .add();
         table.foreignKey(FK_NAME+"_DT")
                 .on(deviceType)
                 .references(DeviceType.class)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_TYPE.javaName())
-                .onDelete(DeleteRule.CASCADE)
                 .add();
     }
 

@@ -6,6 +6,7 @@ package com.energyict.mdc.tou.campaign;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import aQute.bnd.annotation.ProviderType;
@@ -35,9 +36,9 @@ public interface TimeOfUseCampaignService {
 
     List<DeviceType> getDeviceTypesWithCalendars();
 
-    void retry(String deviceName);
+    void retry(Device device);
 
-    void cancelDevice(String deviceName);
+    void cancelDevice(Device device);
 
     void cancelCampaign(String campaign);
 

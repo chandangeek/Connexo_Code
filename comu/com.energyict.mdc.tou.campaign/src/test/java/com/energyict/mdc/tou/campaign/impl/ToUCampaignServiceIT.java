@@ -4,6 +4,11 @@
 
 package com.energyict.mdc.tou.campaign.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.EventSet;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -18,6 +23,10 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallStateChangeTopicHandler;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignCustomPropertySet;
@@ -27,6 +36,10 @@ import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceC
 import com.google.common.collect.ImmutableMap;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.MonthDay;
+import java.time.Year;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -34,10 +47,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ToUCampaignServiceIT {
@@ -48,8 +64,16 @@ public class ToUCampaignServiceIT {
     private static TransactionService transactionService;
     private static TimeOfUseCampaignService timeOfUseCampaignService;
     private static ServiceCallHandler serviceCallHandler;
+    private static CalendarService calendarService;
+    private static DeviceConfigurationService deviceConfigurationService;
     private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
-//    private static DataExportServiceCallType dataExportServiceCallType;
+    @Mock
+    private static DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+    @Mock
+    private static DeviceProtocol deviceProtocol;
+    //    private static Calendar calendar;
+//    private static DeviceType deviceType;
+    //    private static DataExportServiceCallType dataExportServiceCallType;
     private static CustomPropertySet<ServiceCall, TimeOfUseCampaignDomainExtension> serviceCallCPS;
 
     @Rule
@@ -62,6 +86,13 @@ public class ToUCampaignServiceIT {
         timeOfUseCampaignService = inMemoryPersistence.get(TimeOfUseCampaignService.class);
         meteringGroupsService = inMemoryPersistence.get(MeteringGroupsService.class);
         transactionService = inMemoryPersistence.get(TransactionService.class);
+        calendarService = inMemoryPersistence.get(CalendarService.class);
+        deviceConfigurationService = inMemoryPersistence.get(DeviceConfigurationService.class);
+        when(deviceProtocolPluggableClass.getId()).thenReturn(1L);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+
+        //  when(deviceConfigurationService.findDeviceType(0).get()).thenReturn(deviceType);
+
         transactionService.execute(() -> {
             EventServiceImpl eventService = inMemoryPersistence.get(EventServiceImpl.class);
             // add transition topic handlers to make fsm transitions work
@@ -90,9 +121,9 @@ public class ToUCampaignServiceIT {
         timeOfUseCampaign.setName("tou-c-1");
         timeOfUseCampaign.setActivationStart(Instant.ofEpochSecond(1544400000));
         timeOfUseCampaign.setActivationEnd(Instant.ofEpochSecond(1544410000));
-        timeOfUseCampaign.setCalendar("cal01");
+        timeOfUseCampaign.setCalendar(makeCalendar("Re-Cu-01"));
         timeOfUseCampaign.setDeviceGroup("group1");
-        timeOfUseCampaign.setDeviceType("Elster AS1440");
+        timeOfUseCampaign.setDeviceType(deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass));
         timeOfUseCampaign.setUpdateType("fullCalendar");
         timeOfUseCampaign.setActivationDate("Immediately");
         timeOfUseCampaign.setTimeValidation(120);
@@ -110,29 +141,27 @@ public class ToUCampaignServiceIT {
     @Test
     @Transactional
     public void touBuilderTest() {
-        TimeOfUseCampaignDomainExtension timeOfUseCampaign = new TimeOfUseCampaignDomainExtension();
-        timeOfUseCampaign.setName("tou-c-1");
-        timeOfUseCampaign.setActivationStart(Instant.ofEpochSecond(1544400000));
-        timeOfUseCampaign.setActivationEnd(Instant.ofEpochSecond(1544410000));
-        timeOfUseCampaign.setCalendar("cal01");
-        timeOfUseCampaign.setDeviceGroup("group1");
-        timeOfUseCampaign.setDeviceType("Elster AS1440");
-        timeOfUseCampaign.setUpdateType("fullCalendar");
-        timeOfUseCampaign.setActivationDate("Immediately");
-        timeOfUseCampaign.setTimeValidation(120);
-        TimeOfUseCampaign timeOfUseCampaign1 = timeOfUseCampaignService.newToUbuilder(timeOfUseCampaign.getName(), timeOfUseCampaign.getDeviceType(),
-                timeOfUseCampaign.getDeviceGroup(), timeOfUseCampaign.getActivationStart(), timeOfUseCampaign.getActivationEnd(),
-                timeOfUseCampaign.getCalendar(), timeOfUseCampaign.getActivationDate(), timeOfUseCampaign.getUpdateType(),
-                timeOfUseCampaign.getTimeValidation()).create();
-        assertThat(timeOfUseCampaign.getName()).isEqualTo(timeOfUseCampaign1.getName());
-        assertThat(timeOfUseCampaign.getDeviceGroup()).isEqualTo(timeOfUseCampaign1.getDeviceGroup());
-        assertThat(timeOfUseCampaign.getDeviceType()).isEqualTo(timeOfUseCampaign1.getDeviceType());
-        assertThat(timeOfUseCampaign.getActivationStart()).isEqualTo(timeOfUseCampaign1.getActivationStart());
-        assertThat(timeOfUseCampaign.getActivationEnd()).isEqualTo(timeOfUseCampaign1.getActivationEnd());
-        assertThat(timeOfUseCampaign.getCalendar()).isEqualTo(timeOfUseCampaign1.getCalendar());
-        assertThat(timeOfUseCampaign.getActivationDate()).isEqualTo(timeOfUseCampaign1.getActivationDate());
-        assertThat(timeOfUseCampaign.getUpdateType()).isEqualTo(timeOfUseCampaign1.getUpdateType());
-        assertThat(timeOfUseCampaign.getTimeValidation()).isEqualTo(timeOfUseCampaign1.getTimeValidation());
+        Calendar calendar1 = makeCalendar("Cal01");
+        DeviceType deviceType1 = deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass);
+        String name="toucamp-01";
+        long deviceType=1;
+        String deviceGroup="Electro";
+        Instant activationStart=Instant.ofEpochSecond(1544400000);
+        Instant activationEnd=Instant.ofEpochSecond(1544410000);
+        long calendar=1;
+        String activationDate="immediately";
+        String updateType="fullCalendar";
+        long timeValidation=120;
+        TimeOfUseCampaign timeOfUseCampaign1 = timeOfUseCampaignService.newToUbuilder(name,deviceType,deviceGroup,activationStart,activationEnd,calendar,activationDate,updateType,timeValidation).create();
+        assertThat(timeOfUseCampaign1.getName()).isEqualTo(name);
+        assertThat(timeOfUseCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);
+        assertThat(timeOfUseCampaign1.getDeviceType()).isEqualTo(deviceType1);
+        assertThat(timeOfUseCampaign1.getActivationStart()).isEqualTo(activationStart);
+        assertThat(timeOfUseCampaign1.getActivationEnd()).isEqualTo(activationEnd);
+        assertThat(timeOfUseCampaign1.getCalendar()).isEqualTo(calendar1);
+        assertThat(timeOfUseCampaign1.getActivationDate()).isEqualTo(activationDate);
+        assertThat(timeOfUseCampaign1.getUpdateType()).isEqualTo(updateType);
+        assertThat(timeOfUseCampaign1.getTimeValidation()).isEqualTo(timeValidation);
     }
 
     @Test
@@ -143,11 +172,11 @@ public class ToUCampaignServiceIT {
         timeOfUseCampaign.setName("tou-c-1");
         timeOfUseCampaign.setActivationStart(Instant.ofEpochSecond(1544400000));
         timeOfUseCampaign.setActivationEnd(Instant.ofEpochSecond(1544410000));
-        timeOfUseCampaign.setCalendar("cal01");
+        timeOfUseCampaign.setCalendar(makeCalendar("Cal01"));
         timeOfUseCampaign.setDeviceGroup("group1");
-        timeOfUseCampaign.setDeviceType("Elster AS1440");
+        timeOfUseCampaign.setDeviceType(deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass));
         timeOfUseCampaign.setUpdateType("fullCalendar");
-        timeOfUseCampaign.setActivationDate("Immediately");
+        timeOfUseCampaign.setActivationDate("immediately");
         timeOfUseCampaign.setTimeValidation(120);
         timeOfUseCampaignService.createToUCampaign(timeOfUseCampaign);
         TimeOfUseCampaignDomainExtension timeOfUseCampaign1 = timeOfUseCampaign;
@@ -165,8 +194,55 @@ public class ToUCampaignServiceIT {
 
     @Test
     @Transactional
-    public void test(){
+    public void test() {
         //timeOfUseCampaignService.retry();
     }
 
+
+    private Calendar makeCalendar(String name){
+        EventSet eventSet = calendarService.newEventSet("eventSet")
+                .addEvent("On peak").withCode(3)
+                .addEvent("Off peak").withCode(5)
+                .addEvent("Demand response").withCode(97)
+                .add();
+        Category category = calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name()).get();
+        return calendarService.newCalendar(name, category, Year.of(2010), eventSet).description("Created via gogo command :-)")
+                .mRID("1")
+                .newDayType("Summer weekday")
+                .event("Off peak").startsFrom(LocalTime.of(0,0,0))
+                .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
+                .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
+                .add()
+                .newDayType("Weekend")
+                .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                .add()
+                .newDayType("Holiday")
+                .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                .add()
+                .newDayType("Winter day")
+                .event("Off peak").startsFrom(LocalTime.of(0,0,0))
+                .event("On peak").startsFrom(LocalTime.of(5, 0, 0))
+                .event("Off peak").startsFrom(LocalTime.of(21, 0, 0))
+                .add()
+                .newDayType("Demand response")
+                .eventWithCode(97).startsFrom(LocalTime.MIDNIGHT)
+                .add()
+                .addPeriod("Summer", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Weekend", "Weekend")
+                .addPeriod("Winter", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day")
+                .on(MonthDay.of(5, 1)).transitionTo("Summer")
+                .on(MonthDay.of(11, 1)).transitionTo("Winter")
+                .except("Holiday")
+                .occursOnceOn(LocalDate.of(2016, 1, 18))
+                .occursOnceOn(LocalDate.of(2016, 2, 15))
+                .occursOnceOn(LocalDate.of(2016, 5, 30))
+                .occursAlwaysOn(MonthDay.of(7, 4))
+                .occursOnceOn(LocalDate.of(2016, 9, 5))
+                .occursOnceOn(LocalDate.of(2016, 10, 10))
+                .occursAlwaysOn(MonthDay.of(11, 11))
+                .occursOnceOn(LocalDate.of(2016, 11, 24))
+                .occursAlwaysOn(MonthDay.of(12, 25))
+                .occursAlwaysOn(MonthDay.of(12, 26))
+                .add()
+                .add();
+    }
 }

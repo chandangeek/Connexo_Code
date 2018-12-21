@@ -6,22 +6,19 @@ package com.energyict.mdc.tou.campaign.impl.servicecall;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.tou.campaign.TimeOfUseItem;
-import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, TimeOfUseItem {
 
     public enum FieldNames {
         DOMAIN("serviceCall", "service_call"),
-        DEVICE_NAME("deviceName", "device_name"),
+        DEVICE("device", "device"),
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -43,14 +40,13 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String deviceName;
+    @IsPresent
+    private Reference<Device> device = Reference.empty();
     private BigDecimal parentServiceCallId;
 
     @Override
-    public String getDeviceName() {
-        return deviceName;
+    public Device getDevice() {
+        return device.get();
     }
 
     @Override
@@ -62,8 +58,8 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
         this.parentServiceCallId = parentServiceCallId;
     }
 
-    public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
+    public void setDevice(Device device) {
+        this.device.set(device);
     }
 
     public TimeOfUseItemDomainExtension() {
@@ -73,12 +69,12 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     @Override
     public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(domainInstance);
-        this.setDeviceName((String) propertyValues.getProperty(FieldNames.DEVICE_NAME.javaName()));
+        this.setDevice((Device) propertyValues.getProperty(FieldNames.DEVICE.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(FieldNames.DEVICE_NAME.javaName(), this.getDeviceName());
+        propertySetValues.setProperty(FieldNames.DEVICE.javaName(), this.getDevice());
     }
 
     @Override
