@@ -186,8 +186,8 @@ public class DeviceBuilder {
 		if (securityInfo.getSecurityKeys().isEmpty()) {
 			return;
 		}
-		if (securityInfo.getDeviceStatuses().isPresent()) {
-			final List<String> allowedStatuses = securityInfo.getDeviceStatuses().get();
+		if (securityInfo.isDeviceStatusesElementPresent()) {
+			final List<String> allowedStatuses = securityInfo.getDeviceStatuses();
 			final String deviceStatus = device.getState().getName();
 			if (!allowedStatuses.contains(deviceStatus)) {
 				throw faultMessageFactory.meterConfigFaultMessageSupplier(device.getName(),

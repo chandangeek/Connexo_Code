@@ -134,12 +134,14 @@ public class MeterConfigParser {
 	private SecurityInfo extractSecurityInfo(Meter meter) throws FaultMessage {
 		final SecurityInfo securityInfo = new SecurityInfo();
 		securityInfo.setSecurityKeys(new ArrayList<>());
-		securityInfo.setDeviceStatuses(Optional.empty());
+		securityInfo.setDeviceStatuses(new ArrayList<>());
 		if (meter.getSecurityKeys() != null) {
 			final SecurityKeys securityKeys = meter.getSecurityKeys();
 			if (securityKeys.getAllowedDeviceStatuses() != null) {
-				securityInfo.setDeviceStatuses(
-						Optional.of(securityKeys.getAllowedDeviceStatuses().getAllowedDeviceStatus()));
+				securityInfo.setDeviceStatusesElementPresent(true);
+				securityInfo.setDeviceStatuses(securityKeys.getAllowedDeviceStatuses().getAllowedDeviceStatus());
+			} else {
+				securityInfo.setDeviceStatusesElementPresent(false);
 			}
 			List<SecurityKeyInfo> infos = new ArrayList<>();
 			for (SecurityKey key : securityKeys.getSecurityKey()) {

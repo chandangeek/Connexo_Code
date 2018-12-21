@@ -7,7 +7,9 @@ public class SecurityInfo {
 
 	private List<SecurityKeyInfo> securityKeys;
 
-	private Optional<List<String>> deviceStatuses;
+	private List<String> deviceStatuses;
+
+	private boolean deviceStatusesElementPresent;
 
 	public List<SecurityKeyInfo> getSecurityKeys() {
 		return securityKeys;
@@ -17,12 +19,19 @@ public class SecurityInfo {
 		this.securityKeys = securityKeys;
 	}
 
-	public Optional<List<String>> getDeviceStatuses() {
+	public List<String> getDeviceStatuses() {
 		return deviceStatuses;
 	}
 
-	public void setDeviceStatuses(Optional<List<String>> deviceStatuses) {
+	public void setDeviceStatuses(List<String> deviceStatuses) {
 		this.deviceStatuses = deviceStatuses;
 	}
 
+	public boolean isDeviceStatusesElementPresent() {
+		return deviceStatusesElementPresent;
+	}
+
+	public void setDeviceStatusesElementPresent(boolean deviceStatusesElementPresent) {
+		this.deviceStatusesElementPresent = deviceStatusesElementPresent;
+	}
 }
