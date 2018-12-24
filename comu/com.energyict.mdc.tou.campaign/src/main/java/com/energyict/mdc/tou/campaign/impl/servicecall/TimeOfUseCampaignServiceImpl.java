@@ -497,8 +497,8 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     @Override
-    public void retry(Device device) {
-        findServiceCallsByDevice(device)
+    public void retry(long id) {
+        findServiceCallsByDevice(deviceService.findDeviceById(id).get())
                 .filter(serviceCall1 -> serviceCall1.getParent().isPresent())
                 .filter(serviceCall1 -> (serviceCall1.getParent().get().getState().equals(DefaultState.ONGOING)
                         || serviceCall1.getParent().get().getState().equals(DefaultState.PENDING)))
@@ -507,7 +507,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                     revokeCalendarsCommands(findDeviceByServiceCall(serviceCall1));
                     serviceCall1.log(LogLevel.INFO, "retrying by user");
                     dataModel.getInstance(TimeOfUseSendHelper.class)
-                            .setCalendarOnDevice(deviceService.findDeviceById(device.getId()).get(), serviceCall1);
+                            .setCalendarOnDevice(deviceService.findDeviceById(id).get(), serviceCall1);
                 });
     }
 
@@ -547,6 +547,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         Optional<ServiceCall> serviceCall = findCampaignServiceCall(name);
         if (serviceCall.isPresent()) {
             TimeOfUseCampaignDomainExtension extension = serviceCall.get().getExtension(TimeOfUseCampaignDomainExtension.class).get();
+            Instant oldReleaseDate = extension.getActivationStart();
             extension.setName(timeOfUseCampaign.getName());
             extension.setActivationStart(timeOfUseCampaign.getActivationStart());
             extension.setActivationEnd(timeOfUseCampaign.getActivationEnd());
@@ -555,7 +556,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                     .map(this::findDeviceByServiceCall)
                     .forEach(device -> {
                         device.getMessages().stream()
-                                .filter(deviceMessage -> deviceMessage.getReleaseDate().equals(timeOfUseCampaign.getActivationStart()))
+                                .filter(deviceMessage -> deviceMessage.getReleaseDate().equals(oldReleaseDate))
                                 .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 0)
                                 .filter(deviceMessage -> (deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING)
                                         || (deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING))))

@@ -36,7 +36,7 @@ public interface TimeOfUseCampaignService {
 
     List<DeviceType> getDeviceTypesWithCalendars();
 
-    void retry(Device device);
+    void retry(long id);
 
     void cancelDevice(Device device);
 

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.tou.campaign.rest.impl;
 
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -76,8 +77,8 @@ public class TimeOfUseCampaignResource {
     @Path("/retry")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
-    public Response retry(String deviceName) {
-        timeOfUseCampaignService.retry(deviceName);
+    public Response retry(long id) {
+        timeOfUseCampaignService.retry(id);
         return Response.ok().build();
     }
 
@@ -107,7 +108,9 @@ public class TimeOfUseCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
     public Response getDeviceTypesForCalendars(@BeanParam JsonQueryParameters queryParameters) {
-        List<DeviceType> deviceTypes = timeOfUseCampaignService.getDeviceTypesWithCalendars();
+        List<IdWithNameInfo> deviceTypes = new ArrayList<>();
+        timeOfUseCampaignService.getDeviceTypesWithCalendars()
+                .forEach(deviceType -> deviceTypes.add(new IdWithNameInfo(deviceType.getId(), deviceType.getName())));
         return Response.ok(deviceTypes).build();
     }
 

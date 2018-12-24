@@ -199,12 +199,12 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.ACTIVATION_START.javaName(), this.getActivationStart());
         propertySetValues.setProperty(FieldNames.ACTIVATION_END.javaName(), this.getActivationEnd());
         propertySetValues.setProperty(FieldNames.CALENDAR.javaName(), this.getCalendar());
-        propertySetValues.setProperty(FieldNames.ACTIVATION_DATE.javaName(), this.getFormatedActivationDate());
-        propertySetValues.setProperty(FieldNames.UPDATE_TYPE.javaName(), this.getFormatedUpdateType());
+        propertySetValues.setProperty(FieldNames.ACTIVATION_DATE.javaName(), this.getActivationDate());
+        propertySetValues.setProperty(FieldNames.UPDATE_TYPE.javaName(), this.getUpdateType());
         propertySetValues.setProperty(FieldNames.TIME_VALIDATION.javaName(), this.getTimeValidation());
     }
 
-    public String getFormatedActivationDate() {
+    public String getFormattedActivationDate() {
         if (activationDate.equals(TranslationKeys.IMMEDIATELY.getKey())) {
             return thesaurus.getString(TranslationKeys.IMMEDIATELY.getKey(), TranslationKeys.IMMEDIATELY.getDefaultFormat());
         } else if (activationDate.equals(TranslationKeys.WITHOUT_ACTIVATION.getKey())) {
@@ -215,7 +215,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
 
     }
 
-    public String getFormatedUpdateType() {
+    public String getFormattedUpdateType() {
         if (updateType.equals(TranslationKeys.FULL_CALENDAR.getKey())) {
             return thesaurus.getString(TranslationKeys.FULL_CALENDAR.getKey(), TranslationKeys.FULL_CALENDAR.getDefaultFormat());
         } else {
