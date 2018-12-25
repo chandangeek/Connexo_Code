@@ -120,6 +120,7 @@ public class ProcessResource {
         try {
             String rest = "/rest/tasks/process/allprocesses";
             String req = getQueryParam(queryParameters);
+
             if (!"".equals(req)) {
                 rest += req;
             }
@@ -165,7 +166,7 @@ public class ProcessResource {
                 String alarmId = processGeneralInfos.getValue(i);
                 Optional<? extends DeviceAlarm> tmpAlarm = deviceAlarmService.findAlarm(Long.valueOf(alarmId));
                 if (tmpAlarm.isPresent()) {
-                    processGeneralInfos.setObjectName(i, tmpAlarm.get().getIssueId() + ":" + tmpAlarm.get().getTitle());
+                    processGeneralInfos.setObjectName(i, tmpAlarm.get().getIssueId() + ": " + tmpAlarm.get().getTitle());
                     processGeneralInfos.setCorrDeviceName(i, tmpAlarm.get().getDevice().getName());
                 } else {
                     /*This case can happen when you clear Connexo database.
@@ -178,7 +179,7 @@ public class ProcessResource {
                 String issueId = processGeneralInfos.getValue(i);
                 Optional<? extends Issue> tmpIssue = issueService.findIssue(Long.valueOf(issueId));
                 if (tmpIssue.isPresent()) {
-                    processGeneralInfos.setObjectName(i, tmpIssue.get().getIssueId() + ":" + tmpIssue.get().getTitle());
+                    processGeneralInfos.setObjectName(i, tmpIssue.get().getIssueId() + ": " + tmpIssue.get().getTitle());
                     processGeneralInfos.setCorrDeviceName(i, tmpIssue.get().getDevice().getName());
                     processGeneralInfos.setIssueType(i, tmpIssue.get().getReason().getIssueType().getKey());
                 } else {

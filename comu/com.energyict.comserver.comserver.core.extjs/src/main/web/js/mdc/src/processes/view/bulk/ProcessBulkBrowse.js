@@ -10,8 +10,6 @@ Ext.define('Mdc.processes.view.bulk.ProcessBulkBrowse', {
     requires: [
         'Uni.view.navigation.SubMenu',
         'Mdc.processes.view.bulk.ProcessesBulkWizard',
-        //'Isu.view.issues.bulk.BulkWizard',
-        //'Isu.view.issues.bulk.Navigation',
         'Mdc.processes.view.bulk.ProcessBulkNavigation'
     ],
 

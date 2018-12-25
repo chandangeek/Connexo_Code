@@ -683,6 +683,8 @@ public class JbpmTaskResource {
         String rawVariableId = getQueryValue(uriInfo, "variableid");
         String variableValue = getQueryValue(uriInfo, "variablevalue");
 
+        System.out.println("HANLE ALL PROCESSES!!!!");
+
         String variableId = "'"+rawVariableId.replaceAll(",","\',\'")+"'";
 
         Map<String, JsonNode> filterProperties;

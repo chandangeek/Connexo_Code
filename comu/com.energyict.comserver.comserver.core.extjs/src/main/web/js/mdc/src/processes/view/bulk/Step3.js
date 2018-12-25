@@ -5,7 +5,7 @@
 Ext.define('Mdc.processes.view.bulk.Step3', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.processes-bulk-step3',
-    title: 'Action details',//Uni.I18n.translate('issue.actionDetails','ISU','Action details'),
+    title: Uni.I18n.translate('mdc.processstep3.bulk.actionDetails','MDC','Action details'),
 
     requires: [
         'Mdc.processes.view.RetryProcessDetails'

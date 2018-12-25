@@ -4,6 +4,7 @@
 package com.elster.partners.jbpm.extension;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ProcessHistoryGenInfos {
@@ -28,6 +29,12 @@ public class ProcessHistoryGenInfos {
 
     public ProcessHistoryGenInfo add(Object[] object){
         ProcessHistoryGenInfo processHistoryGenInfo = new ProcessHistoryGenInfo(object);
+        /* If process in active state calculate duration time here */
+        if (processHistoryGenInfo.getStatus() == 1){
+            Date currentDate = new Date();
+            long duration = currentDate.getTime() - processHistoryGenInfo.getStartDate().getTime();
+            processHistoryGenInfo.setDuration(duration);
+        }
         processHistories.add(processHistoryGenInfo);
         total++;
         return processHistoryGenInfo;

@@ -3,24 +3,18 @@
  */
 
 Ext.define('Mdc.processes.view.bulk.ProcessesBulkWizard', {
-    //extend: 'Isu.view.issues.bulk.Wizard',
     extend: 'Mdc.processes.view.bulk.Wizard',
     alias: 'widget.process-bulk-wizard',
     itemId: 'process-bulk-wizard',
-    titlePrefix: Uni.I18n.translate('general.title.bulkActions', 'ISU', 'Bulk action'),
+    titlePrefix: Uni.I18n.translate('mdc.processgrid.bulk.title.bulkActions', 'MDC', 'Bulk action'),
     includeSubTitle: true,
 
     requires: [
-        //'Isu.view.issues.bulk.Step1',
         'Mdc.processes.view.bulk.Step1',
         'Mdc.processes.view.bulk.Step2',
         'Mdc.processes.view.bulk.Step3',
         'Mdc.processes.view.bulk.Step4',
         'Mdc.processes.view.bulk.Step5'
-        /*'Isu.view.issues.bulk.Step2',
-        'Isu.view.issues.bulk.Step3',
-        'Isu.view.issues.bulk.Step4',
-        'Isu.view.issues.bulk.Step5'*/
     ],
 
     title: 'Wizard',
@@ -29,7 +23,6 @@ Ext.define('Mdc.processes.view.bulk.ProcessesBulkWizard', {
     items: [
         {
             itemId: 'processes-bulk-step1',
-            //xtype: 'bulk-step1',
             xtype: 'processes-bulk-step1',
             buttonsConfig: {
                 prevbuttonDisabled: true,
@@ -131,17 +124,14 @@ Ext.define('Mdc.processes.view.bulk.ProcessesBulkWizard', {
 
     onCancelButtonClick: function (cancel) {
         var wizard = cancel.up('wizard');
-        console.log("onCancelButtonClick is callsed in ProcessesBulkWizard!!!");
         Ext.state.Manager.clear('formAssignValues');
         Ext.state.Manager.clear('formCloseValues');
         wizard.fireEvent('wizardcancelled', wizard);
     },
 
     onConfirmButtonClick: function (finish) {
-        console.log("onConfirmButtonClick in PROCESSBULKWIZARD!!!!!!!!!!!!!!!!!!!!");
         var wizard = finish.up('wizard');
         var docked = wizard.getDockedItems('toolbar[dock="bottom"]')[0];
-        //docked.setVisible(false);
 
         wizard.getLayout().setActiveItem(++wizard.activeItemId);
         wizard.fireEvent('wizardpagechange', wizard);
@@ -149,34 +139,22 @@ Ext.define('Mdc.processes.view.bulk.ProcessesBulkWizard', {
     },
 
     onNextButtonClick: function (next) {
-        console.log("NEXT =",next);
         var wizard = next.up('wizard'),
             functionName = 'processValidateOnStep' + (wizard.activeItemId + 1);
-            console.log('wizard=',wizard);
         if (this.processValidate(functionName, wizard)) {
-            console.log('setActiveItem!!! wizard.getLayout()=',wizard.getLayout());
             wizard.getLayout().setActiveItem(++wizard.activeItemId);
-            console.log('fireEvent!!!');
             wizard.fireEvent('wizardpagechange', wizard);
             wizard.fireEvent('wizardnext', wizard);
         }
     },
 
-    /* XROMVYU  callback!!!!!!!!!!!!*/
     onPrepareActionButtonClick: function (finish) {
         var wizard = finish.up('wizard');
-        //var docked = wizard.getDockedItems('toolbar[dock="bottom"]')[0];
-        //docked.setVisible(false);
-
         wizard.fireEvent('wizarpreparationfinished', wizard);
     },
 
     onFinishButtonClick: function (finish) {
         var wizard = finish.up('wizard');
-        //var docked = wizard.getDockedItems('toolbar[dock="bottom"]')[0];
-        //docked.setVisible(false);
-
-//        wizard.getLayout().setActiveItem(++wizard.activeItemId);
         wizard.fireEvent('wizaractionfinished', wizard);
     },
 
@@ -189,7 +167,7 @@ Ext.define('Mdc.processes.view.bulk.ProcessesBulkWizard', {
     },
 
     processValidateOnStep1: function (wizard) {
-        var processesGrid = wizard.down('processes-selection-grid'/*'issues-selection-grid'*/),
+        var processesGrid = wizard.down('processes-selection-grid'),
             step1ErrorPanel = wizard.down('[name=step1-errors]'),
             gridError = wizard.down('#selection-grid-error');
 

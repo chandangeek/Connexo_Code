@@ -5,16 +5,15 @@
 Ext.define('Mdc.processes.view.bulk.Step5', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.processes-bulk-step5',
-    title: 'Status',//Uni.I18n.translate('issue.actionDetails','ISU','Action details'),
+    title: Uni.I18n.translate('mdc.processstep5.bulk.status','MDC','Status'),
 
     tbar: {
         xtype: 'panel',
         ui: 'medium',
         style: {
             padding: '0 0 0 0px'
-            //padding: '0 0 0 3px'
         },
-        title: 'Retry process'
+        title: Uni.I18n.translate('mdc.processstep5.bulk.retryProcess', 'MDC', 'Retry process')
     },
 
     initComponent: function () {

@@ -2657,37 +2657,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         }
                     },
-                    /*multisenseprocesses: {
-
-                        title: "Active and complited processes!!!!!!!!!!!!!!",//Uni.I18n.translate('general.registeredDevicesKPIs', 'MDC', 'Registered devices KPIs'),
-                        route: 'multisenseprocesses',
-                        privileges: Mdc.privileges.RegisteredDevicesKpi.view,
-                        controller: 'Mdc.processes.controller.ProcessesController',
-                        action: 'showProcesses',
-                        items: {
-                            add: {
-                                title: Uni.I18n.translate('registeredDevicesKPIs.add', 'MDC', 'Add registered devices KPI'),
-                                route: 'add',
-                                privileges: Mdc.privileges.RegisteredDevicesKpi.admin,
-                                controller: 'Mdc.registereddevices.controller.RegisteredDevices',
-                                action: 'showEditKPIView'
-                            },
-                            edit: {
-                                title: Uni.I18n.translate('registeredDevicesKPIs.edit', 'MDC', 'Edit registered devices KPI'),
-                                route: '{id}/edit',
-                                privileges: Mdc.privileges.RegisteredDevicesKpi.admin,
-                                controller: 'Mdc.registereddevices.controller.RegisteredDevices',
-                                action: 'showEditKPIView',
-                                callback: function (route) {
-                                    this.getApplication().on('loadRegisteredDevicesKpi', function (deviceGroupName) {
-                                        route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", deviceGroupName, false));
-                                        return true;
-                                    }, {single: true});
-                                    return this;
-                                }
-                            }
-                        }
-                    },*/
                     securityaccessors: {
                         title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
                         route: 'securityaccessors',
@@ -2883,7 +2852,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 title: Uni.I18n.translate('mdc.process.bulkActions', 'MDC', 'Bulk action'),
                                 route: 'bulkaction',
                                 action: 'showBulkActions',
-                                privileges: Bpm.privileges.BpmManagement.viewProcesses,//Change!!!
+                                privileges: Bpm.privileges.BpmManagement.administrateProcesses,
                                 controller: 'Mdc.processes.controller.ProcBulkActions'
                             }
                         }

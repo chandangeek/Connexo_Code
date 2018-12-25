@@ -5,12 +5,11 @@
 Ext.define('Mdc.processes.view.bulk.Step1', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.processes-bulk-step1',
-    title: 'Select processes',//Uni.I18n.translate('issues.selectIssues','ISU','Select issues'),
+    title: Uni.I18n.translate('mdc.processgrid.bulk.selectProcesses','MDC','Select processes'),
 
     requires: [
         'Uni.util.FormErrorMessage',
         'Mdc.processes.view.bulk.ProcessesSelectionGrid'
-        //'Isu.view.issues.bulk.IssuesSelectionGrid'
     ],
 
     items: [
@@ -34,7 +33,7 @@ Ext.define('Mdc.processes.view.bulk.Step1', {
             itemId: 'selection-grid-error',
             cls: 'x-form-invalid-under',
             margin: '-30 0 0 0',
-            html: Uni.I18n.translate('issues.selectIssues.selectionGridError', 'ISU', 'Select at least one issue'),
+            html: Uni.I18n.translate('mdc.processgrid.bulk.selectionGridError', 'MDC', 'Select at least one process'),
             hidden: true
         }
     ],

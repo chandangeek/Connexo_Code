@@ -20,9 +20,9 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
     listeners: {
         render: function () {
             if (this.includeSubTitle) {
-                this.setTitle(Uni.I18n.translate('issue.title.steps', 'ISU', 'Step {0}', 1) + ': ' + this.getActiveItem().title);
+                this.setTitle(Uni.I18n.translate('mdc.process.steps', 'MDC', 'Step {0}', 1) + ': ' + this.getActiveItem().title);
             } else {
-                this.setTitle(Uni.I18n.translate('issue.title.steps', 'ISU', 'Step {0}', 1));
+                this.setTitle(Uni.I18n.translate('mdc.process.steps', 'MDC', 'Step {0}', 1));
             }
             this.inWizard = true;
             this.setButtonsState(this);
@@ -36,7 +36,6 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
         },
 
         wizardpagechange: function (wizard) {
-            console.log('wizardpagechange is fired!!!');
             this.onWizardPageChangeEvent(wizard);
         }
     },
@@ -44,9 +43,9 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
     onWizardPageChangeEvent: function (wizard) {
         if (this.includeSubTitle) {
             wizard.getActiveItem().preventHeader = true;
-            wizard.setTitle(Uni.I18n.translate('issue.title.steps', 'ISU', 'Step {0}', wizard.activeItemId + 1) + ': ' + this.getActiveItem().title);
+            wizard.setTitle(Uni.I18n.translate('mdc.process.steps', 'MDC', 'Step {0}', wizard.activeItemId + 1) + ': ' + this.getActiveItem().title);
         } else {
-            wizard.setTitle(Uni.I18n.translate('issue.title.steps', 'ISU', 'Step {0}', wizard.activeItemId + 1));
+            wizard.setTitle(Uni.I18n.translate('mdc.process.steps', 'MDC', 'Step {0}', wizard.activeItemId + 1));
         }
 
         this.setButtonsState(wizard);
@@ -55,8 +54,6 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
     setButtonsState: function (wizard) {
         var toolbar = wizard.down('toolbar[name="wizar-toolbar"]');
         var activeItem = wizard.getActiveItem();
-
-        console.log("SET BUTTON STATE!!!!!!!!!!!!",activeItem);
 
         toolbar.child('#prev').setDisabled(activeItem.buttonsConfig.prevbuttonDisabled);
         toolbar.child('#next').setDisabled(activeItem.buttonsConfig.nextbuttonDisabled);
@@ -77,26 +74,6 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
 
     onPrevButtonClick: function (prev) {
         var wizard = prev.up('wizard');
-        console.log("onPrevButtonClick!!!!");
-        /*if (!wizard.getForm().isValid()) {
-            var fields = wizard.down('assign-issue').getForm().getFields();
-            fields.each(function (field) {
-                field.disable();
-            });
-        } else if (wizard.down('assign-issue')) {
-            /*var assignValues = wizard.getForm().getValues(),
-                assignRadio = wizard.down('issues-assign-form').down('radiogroup').items.items[0].getGroupValue();
-            Ext.state.Manager.set('formAssignRadio', assignRadio);
-            Ext.state.Manager.set('formAssignValues', assignValues);*/
-        /*} else if (wizard.down('issues-close-form')) {
-            var closeValues = wizard.getForm().getValues(),
-                closeRadio = wizard.down('issues-close-form').down('radiogroup').items.items[0].getGroupValue();
-            Ext.state.Manager.set('formCloseRadio', closeRadio);
-            Ext.state.Manager.set('formCloseValues', closeValues);
-        }else if (wizard.down('set-priority-form')) {
-            var setPriorityValues = wizard.getForm().getValues();
-            Ext.state.Manager.set('formSetPriorityValues', setPriorityValues);
-        }*/
         wizard.getLayout().setActiveItem(--wizard.activeItemId);
         wizard.fireEvent('wizardpagechange', wizard);
         wizard.fireEvent('wizardprev', wizard);
@@ -105,59 +82,19 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
     onNextButtonClick: function (next) {
 
         var wizard = next.up('wizard');
-        console.log('WIZARD = ',wizard);
         wizard.getLayout().setActiveItem(++wizard.activeItemId);
         wizard.fireEvent('wizardpagechange', wizard);
         wizard.fireEvent('wizardnext', wizard);
     },
 
+    /* Overwritten in ProcessBulkWizard */
     onConfirmButtonClick: function (finish) {
-        console.log("onConfirmButtonClick in WIZARD!!!!!!!!!!!!!!!!!!!!");
-        var wizard = finish.up('wizard');
-        if (!wizard.getForm().isValid()) {
-            var invalidFields = Uni.I18n.translate('issue.correctErrors.beforeResume','ISU','Please correct the following errors before resumitting<br>');
-            wizard.getForm().getFields().each(function (field) {
-                if (!field.isValid()) {
-                    invalidFields += '<br><b>' + field.getFieldLabel() + '</b>';
-                    invalidFields += '<br>' + field.getErrors(field.getValue());
-                    invalidFields += '<br>';
-                }
-            });
-            Ext.Msg.show({
-                scope: this,
-                title: Uni.I18n.translate('issue.wizardInvalid','ISU','Wizard Invalid'),
-                msg: invalidFields,
-                buttons: Ext.Msg.OK,
-                icon: Ext.Msg.ERROR
-            });
-        } else {
-            wizard.inWizard = false;
-            wizard.fireEvent('wizardfinished', wizard);
-        }
+
     },
 
+    /* Overwritten in ProcessBulkWizard */
     onCancelButtonClick: function (cancel) {
-        var wizard = cancel.up('wizard');
-        if (wizard.getForm().isDirty()) {
-            Ext.Msg.show({
-                scope: this,
-                title: Uni.I18n.translate('issue.cancellingWizard','ISU','Cancelling Wizard'),
-                msg: Uni.I18n.translate('issue.cancellingWizard.msg', 'ISU', 'All changes will be lost. Are you sure you want to cancel?'),
-                buttons: Ext.Msg.YESNO,
-                icon: Ext.Msg.QUESTION,
-                fn: function (buttonId, text, opt) {
-                    switch (buttonId) {
-                        case 'yes':
-                            wizard.fireEvent('wizardcancelled', wizard);
-                            break;
-                        case 'no':
-                            break;
-                    }
-                }
-            });
-        } else {
-            wizard.fireEvent('wizardcancelled', wizard);
-        }
+
     },
 
     getActiveItem: function () {
@@ -180,7 +117,7 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
                     items: [
                         {
                             xtype: 'button',
-                            text: Uni.I18n.translate('general.back', 'ISU', 'Back'),
+                            text: Uni.I18n.translate('mdc.process.bulk.back', 'MDC', 'Back'),
                             itemId: 'prev',
                             action: 'prevWizard',
                             scope: this,
@@ -188,7 +125,7 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
                         },
                         {
                             xtype: 'button',
-                            text: Uni.I18n.translate('general.next', 'ISU', 'Next'),
+                            text: Uni.I18n.translate('mdc.process.bulk.next', 'MDC', 'Next'),
                             itemId: 'next',
                             action: 'nextWizard',
                             scope: this,
@@ -197,7 +134,7 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
                         },
                         {
                             xtype: 'button',
-                            text: Uni.I18n.translate('general.next', 'ISU', 'Next'),
+                            text: Uni.I18n.translate('mdc.process.bulk.next', 'MDC', 'Next'),
                             itemId: 'nextForActionPreparation',
                             scope: this,
                             handler: this.onPrepareActionButtonClick,
@@ -205,7 +142,7 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
                         },
                         {
                             xtype: 'button',
-                            text: Uni.I18n.translate('general.confirm', 'ISU', 'Confirm'),
+                            text: Uni.I18n.translate('mdc.process.bulk.confirm', 'MDC', 'Confirm'),
                             itemId: 'finish',
                             action: 'finishWizard',
                             hidden: true,
@@ -215,7 +152,7 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
                         },
                         {
                             xtype: 'button',
-                            text: Uni.I18n.translate('general.cancel', 'ISU', 'Cancel'),
+                            text: Uni.I18n.translate('mdc.process.bulk.cancel', 'MDC', 'Cancel'),
                             ui: 'link',
                             itemId: 'cancel',
                             action: 'cancelWizard',
@@ -224,7 +161,7 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
                         },
                         {
                             xtype: 'button',
-                            text: Uni.I18n.translate('general.finish', 'MDC', 'Finish'),
+                            text: Uni.I18n.translate('mdc.process.bulk.finish', 'MDC', 'Finish'),
                             ui: 'action',
                             action: 'finish',
                             itemId: 'finishButton',
@@ -234,7 +171,7 @@ Ext.define('Mdc.processes.view.bulk.Wizard', {
                         },
                         {
                             xtype: 'button',
-                            text: Uni.I18n.translate('general.finish', 'MDC', 'Finish'),
+                            text: Uni.I18n.translate('mdc.process.bulk.finish', 'MDC', 'Finish'),
                             ui: 'remove',
                             action: 'finish',
                             itemId: 'failureFinishButton',

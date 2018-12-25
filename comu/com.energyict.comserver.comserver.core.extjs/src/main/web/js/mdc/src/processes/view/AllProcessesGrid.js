@@ -119,13 +119,10 @@ Ext.define('Mdc.processes.view.AllProcessesGrid', {
                         xtype: 'button',
                         itemId: 'alarms-bulk-action',
                         text: Uni.I18n.translate('mdc.process.bulkActions', 'MDC', 'Bulk action'),
-                        //privileges: Dal.privileges.Alarm.closeOrAssing,
+                        privileges: Bpm.privileges.BpmManagement.administrateProcesses,
                         action: 'showBulkActions',
                         handler: function () {
-                            console.log("BUKL ACTION BUTTON WAS PRESSED ");
-                            console.log("ROUTE FOR BULK ACTIONS = ",me.router.getRoute(me.router.currentRoute + '/bulkaction'));
                             me.router.getRoute(me.router.currentRoute + '/bulkaction').forward(me.router.arguments, Uni.util.QueryString.getQueryStringValues(false));
-                            //me.router.getRoute(me.router.currentRoute + '/bulkaction').forward();
                         }
                     }
                 ]

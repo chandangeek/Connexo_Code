@@ -4,23 +4,18 @@
 
 Ext.define('Mdc.processes.view.bulk.ProcessesSelectionGrid', {
     extend: 'Uni.view.grid.BulkSelection',
-    //xtype: 'issues-selection-grid',
     xtype: 'processes-selection-grid',
 
     counterTextFn: function (count) {
-        /*return Uni.I18n.translatePlural('general.nrOfIssues.selected', count, 'ISU',
-            'No issues selected', '{0} issue selected', '{0} issues selected'
-        );*/
-        return Uni.I18n.translatePlural('general.nrOfProcess.selected', count, 'MDC',
+        return Uni.I18n.translatePlural('mdc.processgrid.bulk.nrOfProcess.selected', count, 'MDC',
                     'No processes selected', '{0} process selected', '{0} processes selected');
-        //return 'No processes selected';
     },
 
-    allLabel: 'All processes',//Uni.I18n.translate('workspace.issues.bulk.IssuesSelectionGrid.allLabel', 'ISU', 'All issues'),
-    allDescription: 'Select all processes (related to filters and grouping on the processes screen)',//Uni.I18n.translate('workspace.issues.bulk.IssuesSelectionGrid.allDescription', 'ISU', 'Select all issues (related to filters and grouping on the issues screen)'),
+    allLabel: Uni.I18n.translate('mdc.processgrid.bulk.allprocesses', 'MDC', 'All processes'),
+    allDescription: Uni.I18n.translate('mdc.processgrid.bulk.allDescription', 'MDC', 'Select all processes (related to filters and grouping on the processes screen)'),
 
-    selectedLabel: 'Selected processes',//Uni.I18n.translate('workspace.issues.bulk.IssuesSelectionGrid.selectedLabel', 'ISU', 'Selected issues'),
-    selectedDescription: 'Select processes in table',//Uni.I18n.translate('workspace.issues.bulk.IssuesSelectionGrid.selectedDescription', 'ISU', 'Select issues in table'),
+    selectedLabel: Uni.I18n.translate('mdc.processgrid.bulk.selectedLabel', 'MDC', 'Selected processes'),
+    selectedDescription: Uni.I18n.translate('mdc.processgrid.bulk.selectedDescription', 'MDC', 'Select processes in table'),
 
     cancelHref: '#/search',
 
@@ -28,42 +23,43 @@ Ext.define('Mdc.processes.view.bulk.ProcessesSelectionGrid', {
         items: [
             {
                 itemId: 'process-grid-processId',
-                header: 'Process ID',//Uni.I18n.translate('general.title.issue', 'ISU', 'Issue'),
+                header: Uni.I18n.translate('mdc.processgrid.bulk.processId', 'MDC', 'Process ID'),
                 dataIndex: 'processId',
                 flex: 1
             },
             {
                 itemId: 'process-grid-name',
-                header: 'Name',//Uni.I18n.translate('general.type', 'ISU', 'Type'),
+                header: Uni.I18n.translate('mdc.processgrid.bulk.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 flex: 1
             },
             {
                 itemId: 'process-grid-version',
-                header: 'Version',//Uni.I18n.translate('general.type', 'ISU', 'Type'),
+                header: Uni.I18n.translate('mdc.processgrid.bulk.version', 'MDC', 'Version'),
                 dataIndex: 'version',
                 flex: 1
             },
             {
                 itemId: 'process-grid-type',
-                header: 'Type',//Uni.I18n.translate('general.priority', 'ISU', 'Priority'),
+                header: Uni.I18n.translate('mdc.processgrid.bulk.type', 'MDC', 'Type'),
                 dataIndex: 'type',
                 flex: 1
             },
             {
                 itemId: 'process-grid-object',
-                header: 'Object',//Uni.I18n.translate('general.priority', 'ISU', 'Priority'),
+                header: Uni.I18n.translate('mdc.processgrid.bulk.object', 'MDC', 'Object'),
                 dataIndex: 'objectName',
                 flex: 1
             },
             {
                 itemId: 'process-grid-startedOn',
-                header: 'Started on',//Uni.I18n.translate('general.priority', 'ISU', 'Priority'),
+                header: Uni.I18n.translate('mdc.processgrid.bulk.startedOn', 'MDC', 'Started on'),
                 dataIndex: 'startDateDisplay',
                 flex: 1
             },
             {
                 xtype: 'uni-grid-column-duration',
+                header: Uni.I18n.translate('mdc.processgrid.bulk.duration', 'MDC', 'Duration'),
                 dataIndex: 'duration',
                 shortFormat: true,
                 textAlign: 'center',
@@ -71,13 +67,13 @@ Ext.define('Mdc.processes.view.bulk.ProcessesSelectionGrid', {
             },
             {
                 itemId: 'process-grid-status',
-                header: 'Status',//Uni.I18n.translate('general.priority', 'ISU', 'Priority'),
+                header: Uni.I18n.translate('mdc.processgrid.bulk.status', 'MDC', 'Status'),
                 dataIndex: 'statusDisplay',
                 flex: 1
             },
             {
                 itemId: 'process-grid-startedBy',
-                header: 'Started by',//Uni.I18n.translate('general.priority', 'ISU', 'Priority'),
+                header: Uni.I18n.translate('mdc.processgrid.bulk.startedBy', 'MDC', 'Started by'),
                 dataIndex: 'startedBy',
                 flex: 1
             }

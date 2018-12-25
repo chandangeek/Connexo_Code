@@ -80,10 +80,15 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
    showProcesses: function () {
         var me = this;
         var queryString = Uni.util.QueryString.getQueryStringValues(false);
+        var sort;
 
         if (!queryString.status){
+            //sort = [{property: 'processId', direction: Uni.component.sort.model.Sort.DESC}];//,
+            //{property: 'creationDate', direction: Uni.component.sort.model.Sort.DESC}];
+
             /*First load of page with processes*/
             queryString.status = ['1'];
+            //queryString.sort = Ext.JSON.encode(sort);
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
             /* Set default values for sorting panel */
             me.setDefaultSort();
@@ -119,7 +124,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
             var type = process.get('type');
 
-            if(type == "Device")
+            if (type == "Device")
             {
                 previewForm.down("#deviceName").setValue(process.get('objectName'));
                 previewForm.down("#deviceName").setVisible(true);
@@ -141,7 +146,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                 previewForm.down("#deviceForAlarm").setVisible(true);
             }
 
-            if(type == "Issue")
+            if (type == "Issue")
             {
                 previewForm.down("#issueName").setRawValue(process);
                 previewForm.down("#issueName").setVisible(true);
@@ -271,8 +276,6 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
                sortingItem;
 
-           console.log("chooseSort!!!!!!!!!!!!!!!!!!!!!!!",sorting);
-
            if (Ext.isArray(sorting)) {
                sortingItem = Ext.Array.findBy(sorting, function (item) {
                    return item.property === name
@@ -295,7 +298,6 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
            }
 
            store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
-           console.log("Call updateSortingToolbarAndResults!!!");
            me.updateSortingToolbarAndResults();
    },
 
@@ -312,14 +314,13 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
             sortContainer = page.down('container[name=sortprocessespanel]').getContainer(),
             store = me.getStore('Mdc.processes.store.AllProcessesStore'),
             menu = page.down('#processes-sorting-menu-id'),
+            addSortBtn = page.down('#add-sort-btn'),
             sorting,
             menuItem,
             cls;
 
         sortContainer.removeAll();
         sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
-
-        console.log("updateSortingToolbar = ",sorting);
 
         menu.down('[name=processId]').show();
         page.down('#add-sort-btn').enable();
@@ -342,6 +343,10 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                         iconCls: cls
                     });
                     menuItem.hide();
+
+                    if (sortContainer.items.getCount() == menu.totalNumberOfItems){
+                        addSortBtn.disable();
+                    }
                 }
             });
         }
@@ -358,6 +363,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                 property: 'processId',
                 direction: Uni.component.sort.model.Sort.DESC
             });
+            console.log("SET DEFAULT SORTING = ",Ext.JSON.encode(sorting));
             store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
         }
     },
@@ -388,26 +394,29 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
     clearAllSorting: function (btn) {
         var me = this,
             store = me.getStore('Mdc.processes.store.AllProcessesStore'),
+            page = me.getProcesses(),
+            menu = page.down('#processes-sorting-menu-id'),
             sorting;
 
         sorting = [];
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        menu.activeSortingImtes = 0;
         me.updateSortingToolbarAndResults();
     },
 
     onSortCloseClicked: function (btn) {
         var me = this,
             store = me.getStore('Mdc.processes.store.AllProcessesStore'),
-            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
-
-        console.log("onSortCloseClicked is called!!!!!!!!!!!!!!!!!!!!!!!!!!!!",sorting);
+            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
+            page = me.getProcesses(),
+            menu = page.down('#processes-sorting-menu-id');
 
         if (Ext.isArray(sorting)) {
             Ext.Array.remove(sorting, Ext.Array.findBy(sorting, function (item) {
                 return item.property === btn.sortType
             }));
         }
-        /**/
+
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
         me.updateSortingToolbarAndResults();
     }

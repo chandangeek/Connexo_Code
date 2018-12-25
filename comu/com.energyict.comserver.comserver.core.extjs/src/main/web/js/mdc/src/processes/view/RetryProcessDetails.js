@@ -4,7 +4,6 @@
 
 Ext.define('Mdc.processes.view.RetryProcessDetails', {
     extend: 'Uni.view.container.ContentContainer',
-    //extend: 'Ext.panel.Panel',
     requires: [
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
@@ -21,10 +20,8 @@ Ext.define('Mdc.processes.view.RetryProcessDetails', {
 
         me.content = [
             {
-                //xtype: 'form',
                 xtype: 'panel',
                 ui: 'large',
-                //title: Uni.I18n.translate('mdc.retryProcess.title', 'MDC', 'Retry process'),//'RETRY PROCESS DETAILES',//Uni.I18n.translate('issue.assignIssue', 'ISU', 'Assign issue'),
                 itemId: 'frm-retry-process',
                 defaults: {
                     labelWidth: me.labelWidth,
@@ -52,7 +49,7 @@ Ext.define('Mdc.processes.view.RetryProcessDetails', {
                             {
                                 xtype: 'displayfield',
                                 name: 'processName',
-                                fieldLabel: 'Process name',//Uni.I18n.translate('mdc.processpreviewform.device', 'MDC', 'Device'),
+                                fieldLabel: Uni.I18n.translate('mdc.retryprocess.bulk.processName', 'MDC', 'Process name'),
                                 itemId: 'processNameToRetry',
                                 required: true
                             }

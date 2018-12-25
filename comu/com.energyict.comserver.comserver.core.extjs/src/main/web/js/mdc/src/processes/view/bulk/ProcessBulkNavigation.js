@@ -10,26 +10,26 @@ Ext.define('Mdc.processes.view.bulk.ProcessBulkNavigation', {
     jumpForward: false,
     jumpBack: false,
     ui: 'medium',
-    title: Uni.I18n.translate('mdc.process.bulkActions', 'MDC', 'Bulk action'),
+    title: Uni.I18n.translate('mdc.process.bulknavigation.actions', 'MDC', 'Bulk action'),
     items: [
         {
             itemId: 'SelectIssues',
-            text: "Select processes"//Uni.I18n.translate('md','ISU','Select issues')
+            text: Uni.I18n.translate('mdc.process.bulknavigation.selectprocesses','MDC','Select processes')
         },
         {
             itemId: 'SelectAction',
-            text: 'Select action'//Uni.I18n.translate('issue.selectAction','ISU','Select action')
+            text: Uni.I18n.translate('mdc.process.bulknavigation.selectaction','MDC','Select action')
         },
         {
             itemId: 'actionDetails',
-            text: 'Action details'//Uni.I18n.translate('issue.actionDetails','ISU','Action details')
+            text: Uni.I18n.translate('mdc.process.bulknavigation.actiondetails', 'MDC', 'Action details')
         },
         {   itemId: 'Confirmation',
-            text: 'Confirmation'//Uni.I18n.translate('issue.confirmation','ISU','Confirmation')
+            text: Uni.I18n.translate('mdc.process.bulknavigation.confirmation', 'MDC', 'Confirmation')
         },
         {
             itemId: 'Status',
-            text: 'Status'//Uni.I18n.translate('issue.status','ISU','Status')
+            text: Uni.I18n.translate('mdc.process.bulknavigation.status', 'MDC', 'Status')
         }
     ]
 });
