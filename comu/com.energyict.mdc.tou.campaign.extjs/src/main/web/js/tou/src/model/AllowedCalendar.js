@@ -15,9 +15,9 @@ Ext.define('Tou.model.AllowedCalendar', {
             persist: false,
             mapping: function (data) {
                 if (data.ghost) {
-                    return Uni.I18n.translate('timeofuse.ghost', 'MDC', 'Ghost');
+                    return 'Ghost';
                 } else {
-                    return Uni.I18n.translate('timeofuse.final', 'MDC', 'Final');
+                    return 'Final';
                 }
             }
         }

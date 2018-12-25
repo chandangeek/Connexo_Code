@@ -91,14 +91,7 @@ Ext.define('Tou.view.AddForm', {
                         xtype: 'displayfield',
                         margin: '0 0 0 10',
                         htmlEncode: false,
-                        value: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qwidth="400" data-qtitle="' +
-                                                    Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.header', 'FWC', 'Help - About device group')+'" data-qtip="'
-                                                    + Ext.htmlEncode(Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.title', 'FWC', 'Only devices that meet the following criteria will be included in the firmware campaign')
-                                                        + ':<ul class="ul#uni-panel-no-items-found"><li>'
-                                                        + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason1', 'FWC', 'Devices with as device type the selected device type')
-                                                        + '</li><li>'
-                                                        + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason2', 'FWC', 'Devices that are member of the selected device group at the moment the firmware campaign is added'))
-                                                    + '</li></ul>"></span>'
+                        value: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qwidth="400" data-qtitle="Help - About device group" data-qtip="Only devices that meet the following criteria will be included in the tou campaign:<ul class="ul#uni-panel-no-items-found"><li>Devices with as device type the selected device type</li><li>Devices that are member of the selected device group at the moment the tou campaign is added</li></ul>"></span>'
                     }
                 ]
             },

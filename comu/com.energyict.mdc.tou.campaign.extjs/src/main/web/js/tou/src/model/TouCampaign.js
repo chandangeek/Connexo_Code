@@ -37,6 +37,7 @@ Ext.define('Tou.model.TouCampaign', {
         api: {
              read: '/api/tou/touCampaigns',
              create: '/api/tou/touCampaigns/create',
+             update: '/api/tou/touCampaigns'
         },
         reader: {
             type: 'json'

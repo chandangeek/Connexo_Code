@@ -40,9 +40,9 @@ Ext.define('Tou.view.Grid', {
                         itemId: 'tou-campaigns-grid-paging-toolbar-top',
                         dock: 'top',
                         store: me.store,
-                        displayMsg: Uni.I18n.translate('firmware.campaigns.pagingtoolbartop.displayMsg', 'FWC', '{0} - {1} of {2} firmware campaigns'),
-                        displayMoreMsg: Uni.I18n.translate('firmware.campaigns.pagingtoolbartop.displayMoreMsg', 'FWC', '{0} - {1} of more than {2} firmware campaigns'),
-                        emptyMsg: Uni.I18n.translate('firmware.campaigns.pagingtoolbartop.emptyMsg', 'FWC', 'There are no firmware campaigns to display'),
+                        displayMsg: 'Tou campaigns',
+                        displayMoreMsg: 'Tou campaigns',
+                        emptyMsg: 'There are no tou campaigns to display',
                         items: [
                             {
                                 itemId: 'tou-campaigns-add-button',
@@ -58,7 +58,7 @@ Ext.define('Tou.view.Grid', {
                         itemId: 'tou-campaigns-grid-paging-toolbar-bottom',
                         dock: 'bottom',
                         store: me.store,
-                        itemsPerPageMsg: Uni.I18n.translate('firmware.campaigns.pagingtoolbarbottom.itemsPerPage', 'FWC', 'Firmware campaigns per page')
+                        itemsPerPageMsg: 'Tou campaigns per page'
                     }
                 ];
 
