@@ -26,7 +26,8 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         'Mdc.processes.store.AllProcessesFilterStore',
         'Mdc.processes.store.AllProcessesStatusStore',
         'Mdc.processes.store.AllProcessTypeStore',
-        'Bpm.monitorprocesses.store.HistoryProcessesFilterUsers'
+        'Bpm.monitorprocesses.store.HistoryProcessesFilterUsers',
+        'Mdc.processes.store.ObjectStoreExtended'
     ],
 
     mixins: [],
