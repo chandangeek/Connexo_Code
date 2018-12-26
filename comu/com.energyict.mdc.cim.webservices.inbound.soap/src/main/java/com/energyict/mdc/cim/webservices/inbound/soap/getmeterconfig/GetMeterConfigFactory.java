@@ -7,6 +7,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.getmeterconfig;
 import ch.iec.tc57._2011.meterconfig.*;
 import com.elster.connexo._2017.schema.customattributes.Attribute;
 import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -16,6 +17,7 @@ import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.upl.TypedProperties;
+import sun.util.calendar.ZoneInfo;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -59,16 +61,16 @@ public class GetMeterConfigFactory {
         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
         if (device.getDeviceType().getDeviceProtocolPluggableClass().isPresent()) {
             List<PropertySpec> propertySpecs = device.getDeviceType().getDeviceProtocolPluggableClass().get().getDeviceProtocol().getPropertySpecs();
+            CustomAttributeSet attributeSet = new CustomAttributeSet();
+            attributeSet.setId(MessageSeeds.GENERAL_ATTRIBUTES.getDefaultFormat());
             for (PropertySpec propertySpec : propertySpecs) {
-                CustomAttributeSet attributeSet = new CustomAttributeSet();
-                attributeSet.setId(MessageSeeds.GENERAL_ATTRIBUTES.getDefaultFormat());
                 Attribute attr = new Attribute();
                 attr.setName(propertySpec.getName());
                 Object propertyValue = getPropertyValue(propertySpec, deviceProperties, deviceProperties.getLocalValue(propertySpec.getName()) != null ? deviceProperties::getLocalValue : null);
-                attr.setValue(String.valueOf(propertyValue));
+                attr.setValue(convertPropertyValue(propertyValue));
                 attributeSet.getAttribute().add(attr);
-                generalList.add(attributeSet);
             }
+            generalList.add(attributeSet);
         }
         meter.getMeterCustomAttributeSet().addAll(generalList);
         //custom attributes
@@ -98,32 +100,34 @@ public class GetMeterConfigFactory {
     private CustomAttributeSet convertToCustomAttributeSet(RegisteredCustomPropertySet registeredCustomPropertySet, Device device) {
         CustomAttributeSet customAttribute = new CustomAttributeSet();
         CustomPropertySetValues values = null;
-        if (!registeredCustomPropertySet.getCustomPropertySet().isVersioned()) {
-            values = customPropertySetService.getUniqueValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device);
+        CustomPropertySet propertySet = registeredCustomPropertySet.getCustomPropertySet();
+        if (!propertySet.isVersioned()) {
+            values = customPropertySetService.getUniqueValuesFor(propertySet, device);
         } else {
-            values = customPropertySetService.getUniqueValuesFor(registeredCustomPropertySet.getCustomPropertySet(),
-                            device, Instant.now());
+            values = customPropertySetService.getUniqueValuesFor(propertySet, device, Instant.now());
         }
         if (values == null || values.isEmpty()) {
-            List<PropertySpec> propertySpecs = registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs();
+            List<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
+            customAttribute.setId(propertySet.getName());
             for (PropertySpec propertySpec : propertySpecs) {
                 Attribute attr = new Attribute();
                 attr.setName(propertySpec.getName());
                 Object propertyValue = getPropertyValue(propertySpec, null, null);
-                attr.setValue(String.valueOf(propertyValue));
+                attr.setValue(convertPropertyValue(propertyValue));
                 customAttribute.getAttribute().add(attr);
             }
         } else {
-            setAttrToCustomAttribute(values, customAttribute);
+            setAttrToCustomAttribute(propertySet, values, customAttribute);
         }
         return customAttribute;
     }
 
-    private void setAttrToCustomAttribute(CustomPropertySetValues values, CustomAttributeSet customAttribute) {
+    private void setAttrToCustomAttribute(CustomPropertySet propertySet, CustomPropertySetValues values, CustomAttributeSet customAttribute) {
+        customAttribute.setId(propertySet.getName());
         for (String property : values.propertyNames()) {
             Attribute attr = new Attribute();
             attr.setName(property);
-            attr.setValue(String.valueOf(values.getProperty(property)));
+            attr.setValue(convertPropertyValue(values.getProperty(property)));
             customAttribute.getAttribute().add(attr);
             if (values.getEffectiveRange().hasLowerBound()) {
                 customAttribute.setFromDateTime(values.getEffectiveRange().lowerEndpoint());
@@ -131,6 +135,16 @@ public class GetMeterConfigFactory {
             if (values.getEffectiveRange().hasUpperBound()) {
                 customAttribute.setToDateTime(values.getEffectiveRange().upperEndpoint());
             }
+        }
+    }
+
+    private String convertPropertyValue(Object value) {
+        if (value == null) {
+            return "null";
+        } else if (value instanceof ZoneInfo) {
+            return ((ZoneInfo)value).getDisplayName();
+        } else {
+            return String.valueOf(value);
         }
     }
 
