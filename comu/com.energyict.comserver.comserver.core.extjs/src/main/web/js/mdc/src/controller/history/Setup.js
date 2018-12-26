@@ -231,6 +231,26 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         },
+
+                        zones: {
+                            title: Uni.I18n.translate('general.zones', 'MDC', 'Zones'),
+                            route: 'zones',
+                            controller: 'Mdc.controller.setup.DeviceZones',
+                            //privileges: Ext.Array.merge(Mdc.privileges.Device.viewCommands, Mdc.privileges.DeviceCommands.executeCommands),
+                            action: 'showDeviceZoneView',
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
+                            items: {
+                                add: {
+                                    title: Uni.I18n.translate('general.addZone', 'MDC', 'Add zone'),
+                                    route: 'add',
+                                    controller: 'Mdc.controller.setup.DeviceZones',
+                                    //privileges: Mdc.privileges.DeviceCommands.executeCommands,
+                                    action: 'showAddOverview',
+                                    //dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
+                                    //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges
+                                }
+                            }
+                        },
                         //protocol dialects routes
                         protocols: {
                             title: Uni.I18n.translate('general.protocolDialects', 'MDC', 'Protocol dialects'),
