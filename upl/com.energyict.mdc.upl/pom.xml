@@ -7,7 +7,7 @@
 
     <groupId>com.energyict</groupId>
     <artifactId>mdc.upl</artifactId>
-    <version>4.0.1${revision}</version>
+    <version>10.6-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] com.energyict.mdc.upl</name>
     <description>
@@ -226,11 +226,6 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>1.4</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>2.6</version>
                 </plugin>
@@ -312,47 +307,6 @@
                             <artifactRepoIds>
                                 <artifactRepoId>eict-public</artifactRepoId>
                             </artifactRepoIds>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.elster.jupiter</groupId>
-                        <artifactId>buildtools</artifactId>
-                        <version>1.0.1</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <id>enforce-no-snapshots</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <requireReleaseDeps>
-                                    <message>No Snapshots Allowed during release</message>
-                                    <onlyWhenRelease>true</onlyWhenRelease>
-                                </requireReleaseDeps>
-                            </rules>
-                            <fail>true</fail>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>check-bundle-version</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <inherited>true</inherited>
-                        <configuration>
-                            <rules>
-                                <enforceBundleVersion implementation="com.elster.jupiter.buildtools.EnforceBundleVersion"/>
-                            </rules>
                         </configuration>
                     </execution>
                 </executions>

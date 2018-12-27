@@ -8,12 +8,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.4.5${revision}</version>
+        <version>10.6-SNAPSHOT</version>
         <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>mdc.protocols</artifactId>
-    <version>2.1.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.protocols [init PR1]</name>
     <description>
@@ -265,10 +264,15 @@
             <artifactId>cryptoprotocols</artifactId>
             <version>${protocols.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.upl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

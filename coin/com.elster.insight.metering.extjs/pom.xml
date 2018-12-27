@@ -2,19 +2,18 @@
 <!--
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>mdm.parent</artifactId>
-        <version>1.3.5${revision}</version>
+        <version>10.6-SNAPSHOT</version>
         <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>mdm.metering.extjs</artifactId>
     <packaging>bundle</packaging>
-    <version>1.3.5${revision}</version>
     <name>[MDM] mdm.metering.extjs</name>
     <description>
         Contains ExtJS code for metering
@@ -69,6 +68,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>estimation.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue.extjs</artifactId>
         </dependency>
     </dependencies>
 

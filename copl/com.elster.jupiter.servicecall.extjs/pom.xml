@@ -8,12 +8,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.4.5${revision}</version>
+        <version>10.6-SNAPSHOT</version>
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
 
     <artifactId>servicecall.extjs</artifactId>
-    <version>1.2.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.servicecall.extjs</name>
 

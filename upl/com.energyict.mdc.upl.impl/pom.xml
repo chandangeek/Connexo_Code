@@ -5,15 +5,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>com.energyict</groupId>
-		<artifactId>parent</artifactId>
-		<version>2.0.2</version>
-	</parent>
-
+	<groupId>com.energyict</groupId>
     <artifactId>protocols</artifactId>
+    <version>10.6-SNAPSHOT</version>
     <packaging>pom</packaging>
-	<version>1.1.5${revision}</version>
     <name>protocols</name>
 
 	<dependencies>
@@ -30,10 +25,7 @@
 		<revision>-SNAPSHOT</revision>
 		<source.version>1.8</source.version>
 		<target.version>1.8</target.version>
-		<eiserver.version>${project.version}</eiserver.version>
-		<comserver.version>${project.version}</comserver.version>
-		<protocols.version>${project.version}</protocols.version>
-		<universal-protocol.version>4.0.1${revision}</universal-protocol.version>
+		<universal-protocol.version>4.0.2${revision}</universal-protocol.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<proguard.maven.version>2.0.11</proguard.maven.version>
 		<!-- Supports Java 7 from version 4.7 -->
@@ -50,18 +42,18 @@
 			<dependency>
 				<groupId>com.energyict</groupId>
 				<artifactId>mdc.upl</artifactId>
-				<version>${universal-protocol.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<!-- Protocol api -->
             <dependency>
                 <groupId>com.energyict</groupId>
 				<artifactId>protocol-api</artifactId>
-				<version>${protocols.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.energyict</groupId>
 				<artifactId>protocolimpl</artifactId>
-				<version>${protocols.version}</version>
+				<version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
@@ -175,6 +167,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
 				<configuration>
 					<source>${source.version}</source>
 					<target>${target.version}</target>

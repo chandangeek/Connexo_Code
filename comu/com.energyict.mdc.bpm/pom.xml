@@ -8,11 +8,10 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.4.5${revision}</version>
+        <version>10.6-SNAPSHOT</version>
         <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
     <artifactId>mdc.bpm</artifactId>
-    <version>1.2.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.bpm</name>
     <description>
@@ -331,6 +330,16 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>soap.whiteboard.cxf</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>hsm</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

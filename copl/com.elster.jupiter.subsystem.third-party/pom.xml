@@ -8,11 +8,10 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>1.2.0</version>
+        <version>${project.version}</version>
     </parent>
 
     <artifactId>third-party</artifactId>
-    <version>1.4.5${revision}</version>
     <packaging>pom</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.third-party</name>
 
@@ -20,8 +19,8 @@
         <dependencies>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>third-party.bom</artifactId>
-                <version>1.4.5${revision}</version>
+                <artifactId>platform</artifactId>
+                <version>${project.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>

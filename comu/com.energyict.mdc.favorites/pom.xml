@@ -8,15 +8,13 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.4.5${revision}</version>
+        <version>10.6-SNAPSHOT</version>
         <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>mdc.favorites</artifactId>
-    <version>1.4.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.favorites [init FAV]</name>
-
 
     <dependencies>
         <dependency>
@@ -242,7 +240,6 @@
             <artifactId>mdc.protocol.pluggable</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>estimation</artifactId>
@@ -303,6 +300,25 @@
             <artifactId>pki</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>soap.whiteboard.cxf</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>hsm</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
 </project>

@@ -8,11 +8,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.4.5${revision}</version>
+        <version>10.6-SNAPSHOT</version>
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
     <artifactId>systemadmin.rest</artifactId>
-    <version>1.4.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.systemadmin.rest</name>
 
