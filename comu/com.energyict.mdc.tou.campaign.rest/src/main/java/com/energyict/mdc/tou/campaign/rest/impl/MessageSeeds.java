@@ -10,7 +10,14 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    NO_TIME_OF_USE_CAMPAIGN_IS_FOUND(1, "NoTimeOfUseCampaignIsFound", "No time of use campaign is found.");
+    NO_TIME_OF_USE_CAMPAIGN_IS_FOUND(1, "NoTimeOfUseCampaignIsFound", "No time of use campaign is found."),
+
+    STATUS_SUCCESSFUL(1001, "successful","Successful"),
+    STATUS_FAILED(1002, "failed","Failed"),
+    STATUS_CONFIGURATION_ERROR(1003, "configurationError","Configuration Error"),
+    STATUS_ONGOING(1004, "ongoing","Ongoing"),
+    STATUS_PENDING(1005, "pending","Pending"),
+    STATUS_CANCELED(1006, "canceled","Canceled");
 
     private final int number;
     private final String key;

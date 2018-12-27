@@ -21,19 +21,18 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
-import com.energyict.mdc.tou.campaign.impl.TimeOfUseCampaignException;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
+import com.energyict.mdc.tou.campaign.ToUUtil;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -89,7 +88,8 @@ public class TimeOfUseSendHelper {
             sendCalendarInfo.type = null;//string
             Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device, deviceConfigurationService);
             AllowedCalendar calendar = device.getDeviceType().getAllowedCalendars().stream()
-                    .filter(allowedCalendar -> !allowedCalendar.isGhost() && allowedCalendar.getId() == sendCalendarInfo.allowedCalendarId)
+                    .filter(allowedCalendar -> allowedCalendar.getCalendar().isPresent())
+                    .filter(allowedCalendar -> !allowedCalendar.isGhost() && allowedCalendar.getCalendar().get().getId() == sendCalendarInfo.allowedCalendarId)
                     .findFirst().orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.UNABLE_TO_FIND_CALENDAR));
             DeviceMessageId deviceMessageId = getDeviceMessageId(sendCalendarInfo, allowedOptions)
                     .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_ALLOWED_CALENDAR_DEVICE_MESSAGE));
@@ -125,64 +125,15 @@ public class TimeOfUseSendHelper {
     private Instant getActivationDate(String activationDate, ServiceCall serviceCall) {
         Instant instant;
         try {
-            instant = parse(activationDate);
+            instant = ToUUtil.parseStringToInstant(activationDate);
             return instant;
         } catch (Exception e) {
-            if (activationDate.equals("immediately")) {
+            if (activationDate.equals("Immediately")) {
                 return serviceCall.getCreationTime();
             } else {
                 return null;
             }
         }
-    }
-
-    private Instant parse(String text) {
-        List<String> elementsOfDate = new ArrayList<>();
-        List<String> elementsOfDate2 = new ArrayList<>();
-        Arrays.asList(text.split(" ")).forEach(s -> elementsOfDate.add(s));
-        elementsOfDate2.add("20" + elementsOfDate.get(2).substring(1));
-        switch (elementsOfDate.get(1)) {
-            case "Jan":
-                elementsOfDate2.add("01");
-                break;
-            case "Feb":
-                elementsOfDate2.add("02");
-                break;
-            case "Mar":
-                elementsOfDate2.add("03");
-                break;
-            case "Apr":
-                elementsOfDate2.add("04");
-                break;
-            case "May":
-                elementsOfDate2.add("05");
-                break;
-            case "Jun":
-                elementsOfDate2.add("06");
-                break;
-            case "Jul":
-                elementsOfDate2.add("07");
-                break;
-            case "Aug":
-                elementsOfDate2.add("08");
-                break;
-            case "Sep":
-                elementsOfDate2.add("09");
-                break;
-            case "Oct":
-                elementsOfDate2.add("10");
-                break;
-            case "Nov":
-                elementsOfDate2.add("11");
-                break;
-            case "Dec":
-                elementsOfDate2.add("12");
-                break;
-        }
-        elementsOfDate2.add(elementsOfDate.get(0));
-        elementsOfDate2.add(elementsOfDate.get(4));
-        String dateTime = elementsOfDate2.get(0) + "-" + elementsOfDate2.get(1) + "-" + elementsOfDate2.get(2) + "T" + elementsOfDate2.get(3) + ":00Z";
-        return Instant.parse(dateTime);
     }
 
 

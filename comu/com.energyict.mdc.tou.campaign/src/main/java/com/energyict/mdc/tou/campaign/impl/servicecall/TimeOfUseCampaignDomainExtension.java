@@ -16,8 +16,8 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
-import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 
+import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -27,6 +27,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
 
     private Thesaurus thesaurus;
 
+    @Inject
     public TimeOfUseCampaignDomainExtension(Thesaurus thesaurus) {
         super();
         this.thesaurus = thesaurus;
@@ -202,25 +203,6 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.ACTIVATION_DATE.javaName(), this.getActivationDate());
         propertySetValues.setProperty(FieldNames.UPDATE_TYPE.javaName(), this.getUpdateType());
         propertySetValues.setProperty(FieldNames.TIME_VALIDATION.javaName(), this.getTimeValidation());
-    }
-
-    public String getFormattedActivationDate() {
-        if (activationDate.equals(TranslationKeys.IMMEDIATELY.getKey())) {
-            return thesaurus.getString(TranslationKeys.IMMEDIATELY.getKey(), TranslationKeys.IMMEDIATELY.getDefaultFormat());
-        } else if (activationDate.equals(TranslationKeys.WITHOUT_ACTIVATION.getKey())) {
-            return thesaurus.getString(TranslationKeys.WITHOUT_ACTIVATION.getKey(), TranslationKeys.WITHOUT_ACTIVATION.getDefaultFormat());
-        } else {
-            return activationDate;
-        }
-
-    }
-
-    public String getFormattedUpdateType() {
-        if (updateType.equals(TranslationKeys.FULL_CALENDAR.getKey())) {
-            return thesaurus.getString(TranslationKeys.FULL_CALENDAR.getKey(), TranslationKeys.FULL_CALENDAR.getDefaultFormat());
-        } else {
-            return thesaurus.getString(TranslationKeys.SPECIAL_DAYS.getKey(), TranslationKeys.SPECIAL_DAYS.getDefaultFormat());
-        }
     }
 
     @Override

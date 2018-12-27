@@ -7,7 +7,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import org.osgi.service.component.annotations.Component;
@@ -57,6 +56,7 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
                 timeOfUseCampaignService.createItemsOnCampaign(serviceCall);
                 break;
             case CANCELLED:
+                serviceCall.findChildren().stream().forEach(serviceCall1 -> timeOfUseCampaignService.cancelCalendarSend(serviceCall));
                 break;
             case SUCCESSFUL:
                 serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");

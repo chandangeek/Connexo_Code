@@ -7,6 +7,7 @@ package com.energyict.mdc.tou.campaign.rest.impl;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
+import com.energyict.mdc.tou.campaign.ToUUtil;
 
 import javax.inject.Inject;
 
@@ -37,7 +38,11 @@ public class TimeOfUseCampaignInfoFactory {
         timeOfUseCampaignInfo.activationEnd = campaign.getActivationEnd();
         timeOfUseCampaignInfo.calendar = campaign.getCalendar().getId();
         timeOfUseCampaignInfo.updateType = campaign.getUpdateType();
-        timeOfUseCampaignInfo.activationDate = campaign.getActivationDate();
+        if (((campaign.getActivationDate().equals("Immediately") || (campaign.getActivationDate().equals("Without Activation"))))) {
+            timeOfUseCampaignInfo.activationDate = campaign.getActivationDate();
+        } else {
+            timeOfUseCampaignInfo.activationDate = ToUUtil.parseStringToInstant(campaign.getActivationDate()).getEpochSecond() + "000";
+        }
         timeOfUseCampaignInfo.timeValidation = campaign.getTimeValidation();
         timeOfUseCampaignInfo.id = campaign.getId();
         return timeOfUseCampaignInfo;

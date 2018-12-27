@@ -5,8 +5,6 @@
 package com.energyict.mdc.tou.campaign;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.orm.associations.Reference;
-
 import com.energyict.mdc.device.config.DeviceType;
 
 import java.time.Instant;

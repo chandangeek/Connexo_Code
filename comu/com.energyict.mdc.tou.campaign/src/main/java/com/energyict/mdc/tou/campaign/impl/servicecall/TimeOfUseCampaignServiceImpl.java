@@ -43,11 +43,12 @@ import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.TimeOfUseItem;
+import com.energyict.mdc.tou.campaign.ToUUtil;
 import com.energyict.mdc.tou.campaign.impl.Installer;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 import com.energyict.mdc.tou.campaign.impl.ServiceCallTypes;
 import com.energyict.mdc.tou.campaign.impl.TimeOfUseCampaignBuilderImpl;
-import com.energyict.mdc.tou.campaign.impl.TimeOfUseCampaignException;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
@@ -69,7 +70,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -383,20 +383,39 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     @Override
-    public List<TimeOfUseCampaign> getAllCampaigns() {
-        return serviceCallService.getServiceCallFinder().find().stream()
+    public Map<TimeOfUseCampaign, DefaultState> getAllCampaigns() {
+        Map<TimeOfUseCampaign, DefaultState> timeOfUseCampaignDefaultStateMap = new HashMap<>();
+        serviceCallService.getServiceCallFinder().find().stream()
                 .filter(serviceCall -> serviceCall.getExtension(TimeOfUseCampaignDomainExtension.class).isPresent())
                 .map(serviceCall -> serviceCall.getExtension(TimeOfUseCampaignDomainExtension.class).get())
-                .collect(Collectors.toList());
+                .forEach(timeOfUseCampaignDomainExtension -> timeOfUseCampaignDefaultStateMap.put(timeOfUseCampaignDomainExtension, findCampaignServiceCall(timeOfUseCampaignDomainExtension.getName()).get()
+                        .getState()));
+        return timeOfUseCampaignDefaultStateMap;
+    }
+
+    @Override
+    public Map<DefaultState, Long> getChildrenStatusFromCampaign(long id) {
+        return serviceCallService.getChildrenStatus(id);
     }
 
     @Override
     public TimeOfUseCampaignBuilder newToUbuilder(String name, long deviceType, String deviceGroup, Instant activationStart,
                                                   Instant activationEnd, long calendar, String activationDate,
                                                   String updateType, long timeValidation) {
+        if (forTooday(activationStart)) {
+            activationStart = ToUUtil.getTooday(clock).plusSeconds(activationStart.getEpochSecond()).plusMillis(111);
+            activationEnd = ToUUtil.getTooday(clock).plusSeconds(activationEnd.getEpochSecond());
+        } else {
+            activationStart = ToUUtil.getTomorrow(clock).plusSeconds(activationStart.getEpochSecond()).plusMillis(111);
+            activationEnd = ToUUtil.getTomorrow(clock).plusSeconds(activationEnd.getEpochSecond());
+        }
         return new TimeOfUseCampaignBuilderImpl(name, deviceConfigurationService.findDeviceType(deviceType).get(),
                 deviceGroup, activationStart, activationEnd, calendarService.findCalendar(calendar).get(),
                 activationDate, updateType, timeValidation);
+    }
+
+    private boolean forTooday(Instant activationStart) {
+        return ToUUtil.getTooday(clock).plusSeconds(activationStart.getEpochSecond()).isAfter(clock.instant());
     }
 
     @Override
@@ -483,8 +502,9 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     @Override
     public void cancelCampaign(String campaign) {
         findCampaignServiceCall(campaign)
+                .filter(serviceCall -> serviceCall.canTransitionTo(DefaultState.CANCELLED))
                 .ifPresent(serviceCall -> {
-                    serviceCall.findChildren().stream().forEach(this::cancelCalendarSend);
+                    serviceCall.requestTransition(DefaultState.CANCELLED);
                     serviceCall.log(LogLevel.INFO, "campaign cancelled by user");
                 });
     }

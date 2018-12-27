@@ -12,6 +12,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
@@ -23,6 +24,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
 
     private static final String TABLE_NAME = TimeOfUseCampaignService.COMPONENT_NAME + "_" + "TU1_CAMPAIGN";
     private static final String FK_NAME = "FK_" + TABLE_NAME;
+    private static final String COMPONENT_NAME = "TU1";
     private final TimeOfUseCampaignService timeOfUseCampaignService;
 
     public TimeOfUseCampaignPersistenceSupport(TimeOfUseCampaignService timeOfUseCampaignService) {
@@ -31,7 +33,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
 
     @Override
     public String componentName() {
-        return "TU1";
+        return COMPONENT_NAME;
     }
 
     @Override
@@ -117,7 +119,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .references(Calendar.class)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR.javaName())
                 .add();
-        table.foreignKey(FK_NAME+"_DT")
+        table.foreignKey(FK_NAME + "_DT")
                 .on(deviceType)
                 .references(DeviceType.class)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_TYPE.javaName())

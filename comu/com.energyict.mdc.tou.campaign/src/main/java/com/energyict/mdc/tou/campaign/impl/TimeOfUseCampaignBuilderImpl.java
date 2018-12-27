@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
+import com.energyict.mdc.tou.campaign.ToUUtil;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignDomainExtension;
 
 import java.time.Instant;
@@ -49,6 +50,9 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         timeOfUseCampaign.setActivationEnd(activationEnd);
         timeOfUseCampaign.setCalendar(calendar);
         timeOfUseCampaign.setUpdateType(updateType);
+        if (!((activationDate.equals("Immediately") || (activationDate.equals("Without Activation"))))) {
+            activationDate = ToUUtil.parseNumberToDate(activationDate);
+        }
         timeOfUseCampaign.setActivationDate(activationDate);
         Optional.ofNullable(timeValidation).ifPresent(timeOfUseCampaign::setTimeValidation);
         return timeOfUseCampaign;

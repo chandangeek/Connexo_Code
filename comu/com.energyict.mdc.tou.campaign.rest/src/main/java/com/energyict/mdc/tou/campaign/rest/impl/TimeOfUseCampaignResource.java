@@ -4,14 +4,16 @@
 
 package com.energyict.mdc.tou.campaign.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.security.Privileges;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -23,6 +25,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,12 +35,15 @@ public class TimeOfUseCampaignResource {
 
     private final TimeOfUseCampaignService timeOfUseCampaignService;
     private final TimeOfUseCampaignInfoFactory timeOfUseCampaignInfoFactory;
+    private final Thesaurus thesaurus;
 
 
     @Inject
-    public TimeOfUseCampaignResource(TimeOfUseCampaignService timeOfUseCampaignService, TimeOfUseCampaignInfoFactory timeOfUseCampaignInfoFactory) {
+    public TimeOfUseCampaignResource(TimeOfUseCampaignService timeOfUseCampaignService, TimeOfUseCampaignInfoFactory timeOfUseCampaignInfoFactory,
+                                     Thesaurus thesaurus) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.timeOfUseCampaignInfoFactory = timeOfUseCampaignInfoFactory;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -46,7 +52,25 @@ public class TimeOfUseCampaignResource {
     @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
     public Response getToUCampaigns(@BeanParam JsonQueryParameters queryParameters) {
         List<TimeOfUseCampaignInfo> touCampaigns = new ArrayList<>();
-        timeOfUseCampaignService.getAllCampaigns().forEach(campaign -> touCampaigns.add(timeOfUseCampaignInfoFactory.from(campaign)));
+        timeOfUseCampaignService.getAllCampaigns().forEach((campaign, satus) -> {
+            TimeOfUseCampaignInfo info = timeOfUseCampaignInfoFactory.from(campaign);
+            info.status = satus.getDefaultFormat();
+            info.devices = new ArrayList<>();
+            info.devices.add(new DevicesStatusAndQuantity(DefaultState.SUCCESSFUL.toString(), 0L));
+            info.devices.add(new DevicesStatusAndQuantity(DefaultState.FAILED.toString(), 0L));
+            info.devices.add(new DevicesStatusAndQuantity(DefaultState.REJECTED.toString(), 0L));
+            info.devices.add(new DevicesStatusAndQuantity(DefaultState.ONGOING.toString(), 0L));
+            info.devices.add(new DevicesStatusAndQuantity(DefaultState.PENDING.toString(), 0L));
+            info.devices.add(new DevicesStatusAndQuantity(DefaultState.CANCELLED.toString(), 0L));
+            timeOfUseCampaignService.getChildrenStatusFromCampaign(campaign.getId()).forEach((deviceStatus, quantity) -> {
+                info.devices.stream().filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.equals(deviceStatus.name()))
+                        .findAny().ifPresent(devicesStatusAndQuantity -> {
+                    devicesStatusAndQuantity.status = devicesStatusAndQuantity.getStatus(deviceStatus, thesaurus);
+                    devicesStatusAndQuantity.quantity = quantity;
+                });
+            });
+            touCampaigns.add(info);
+        });
         return Response.ok(PagedInfoList.fromPagedList("touCampaigns", touCampaigns, queryParameters)).build();
     }
 
@@ -57,7 +81,7 @@ public class TimeOfUseCampaignResource {
     @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
     public Response getToUCampaign(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaign(name)
-                .orElseThrow(() -> new IllegalStateException("No time of use campaign is found."));//todo ???
+                .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_TIME_OF_USE_CAMPAIGN_IS_FOUND));
         TimeOfUseCampaignInfo timeOfUseCampaignInfo = timeOfUseCampaignInfoFactory.from(timeOfUseCampaign);
         return Response.ok(timeOfUseCampaignInfo).build();
     }

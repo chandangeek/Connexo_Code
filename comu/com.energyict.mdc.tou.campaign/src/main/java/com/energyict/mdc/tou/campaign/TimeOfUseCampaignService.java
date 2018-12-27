@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.tou.campaign;
 
-import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -12,17 +12,19 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
-import com.elster.jupiter.calendar.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
 public interface TimeOfUseCampaignService {
     String COMPONENT_NAME = "TOU";
 
-    List<TimeOfUseCampaign> getAllCampaigns();
+    Map<TimeOfUseCampaign, DefaultState> getAllCampaigns();
 
     void createToUCampaign(TimeOfUseCampaign timeOfUseCampaign);
+
+    Map<DefaultState, Long> getChildrenStatusFromCampaign(long id);
 
     TimeOfUseCampaignBuilder newToUbuilder(String name, long deviceType, String deviceGroup,
                                            Instant activationStart, Instant activationEnd,
