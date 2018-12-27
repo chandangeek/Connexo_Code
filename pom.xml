@@ -580,7 +580,7 @@
 		<profile>
 			<id>sencha-build</id>
 			<properties>
-				<sencha.ext.dir>${project.basedir}/../com.elster.jupiter.extjs/src/main/web/js/ext</sencha.ext.dir>
+				<sencha.ext.dir>${project.basedir}/copl/com.elster.jupiter.extjs/src/main/web/js/ext</sencha.ext.dir>
 			</properties>
 			<build>
 				<plugins>
