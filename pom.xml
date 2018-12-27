@@ -342,7 +342,7 @@
 							<goal>baseline</goal>
 						</goals>
 						<configuration>
-							<failOnError>true</failOnError>
+							<failOnError>false</failOnError>
 							<artifactRepoIds>
 								<artifactRepoId>eict-public</artifactRepoId>
 							</artifactRepoIds>
