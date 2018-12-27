@@ -8,11 +8,10 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>1.2.0</version>
+        <version>10.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>kore</artifactId>
-    <version>1.5.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.kore</name>
     <description>This POM details all versions of bundles related to business intelligence (e.g. Metering, Issues,...)
@@ -23,7 +22,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>kore</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -34,26 +33,26 @@
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>platform</artifactId>
-            <version>1.5.1${revision}</version>
+            <version>${project.version}</version>
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>platform</artifactId>
-            <version>1.5.1${revision}</version>
+            <version>${project.version}</version>
             <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kore</artifactId>
-            <version>1.5.1${revision}</version>
+            <version>${project.version}</version>
             <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>platform</artifactId>
-            <version>1.5.5${revision}</version>
+            <version>${project.version}</version>
             <type>pom</type>
         </dependency>
         <dependency>

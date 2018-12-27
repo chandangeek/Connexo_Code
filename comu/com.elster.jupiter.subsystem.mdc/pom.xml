@@ -8,11 +8,10 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>1.2.0</version>
+        <version>10.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc</artifactId>
-    <version>1.5.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.mdc</name>
 
@@ -21,7 +20,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.parent</artifactId>
-                <version>1.5.1${revision}</version>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -54,14 +53,14 @@
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>kore</artifactId>
-            <version>1.5.1${revision}</version>
+            <version>${project.version}</version>
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.parent</artifactId>
-            <version>1.5.1${revision}</version>
+            <version>${project.version}</version>
             <type>pom</type>
         </dependency>
         <!-- Third parties -->
@@ -366,23 +365,6 @@
             </activation>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>license-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>default-cli</id>
-                                <goals>
-                                    <goal>add-third-party</goal>
-                                </goals>
-                                <configuration>
-                                    <includeTransitiveDependencies>false</includeTransitiveDependencies>
-                                    <acceptPomPackaging>true</acceptPomPackaging>
-                                    <thirdPartyFilename>multisense-third-party.txt</thirdPartyFilename>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <executions>

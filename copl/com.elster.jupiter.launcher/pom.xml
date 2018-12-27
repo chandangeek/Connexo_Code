@@ -8,11 +8,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.5.5${revision}</version>
+        <version>10.6-SNAPSHOT</version>
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>launcher</artifactId>
-    <version>1.5.1${revision}</version>
     <packaging>jar</packaging>
     <name>[Jupiter] Container Launcher</name>
 

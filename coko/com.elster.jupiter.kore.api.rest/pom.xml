@@ -9,11 +9,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.5.1${revision}</version>
+        <version>10.6-SNAPSHOT</version>
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
     <artifactId>kore.api.rest</artifactId>
-    <version>1.3.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.kore.api.rest</name>
     <description>Kore public REST api</description>
