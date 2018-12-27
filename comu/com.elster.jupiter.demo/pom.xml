@@ -250,10 +250,6 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.issue.datavalidation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.firmware</artifactId>
         </dependency>
         <dependency>
@@ -331,10 +327,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.topology.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>mdm.issue.datavalidation</artifactId>
         </dependency>
         <!-- TESTS -->
         <dependency>

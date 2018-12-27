@@ -118,8 +118,6 @@
 				<module>com.elster.insight.usagepoint.config.rest</module>
 				<module>com.elster.insight.usagepoint.data</module>
 				<module>com.elster.insight.usagepoint.data.rest</module>
-				<module>com.elster.insight.issue.datavalidation</module>
-				<module>com.elster.insight.issue.datavalidation.rest</module>
 				<module>com.elster.jupiter.mdm.bpm.event</module>
 				<module>com.elster.jupiter.mdm.dataquality</module>
 				<module>com.elster.jupiter.mdm.dataquality.rest</module>				
