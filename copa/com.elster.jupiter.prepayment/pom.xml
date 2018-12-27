@@ -6,6 +6,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+	<parent>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>copa</artifactId>
+        <version>10.6-SNAPSHOT</version>
+    </parent>
+
     <groupId>com.energyict</groupId>
     <artifactId>prepayment</artifactId>
     <version>10.6-SNAPSHOT</version>
@@ -20,4 +26,16 @@
         <module>simulator</module>
         <module>api</module>
     </modules>
+
+	<dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.parent</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement	>
 </project>
