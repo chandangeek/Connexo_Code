@@ -7,13 +7,12 @@
 
     <groupId>com.elster.partners</groupId>
     <artifactId>flow.filter</artifactId>
-    <version>10.6-SNAPSHOT</version>
     <name>[Partners] Flow SSO servlet filter</name>
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>parent</artifactId>
-        <version>1.2.0</version>
+        <artifactId>copa</artifactId>
+        <version>10.5.1-SNAPSHOT</version>
     </parent>
 
     <repositories>
