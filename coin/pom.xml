@@ -93,18 +93,6 @@
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
-			<dependency>
-				<groupId>com.elster.jupiter</groupId>
-				<artifactId>mdm.issue.datavalidation</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.elster.jupiter</groupId>
-				<artifactId>mdm.issue.datavalidation.rest</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
 			<!-- Other deps-->
 			<dependency>
 				<groupId>org.json</groupId>
@@ -145,7 +133,6 @@
 			</activation>
 			<modules>
 				<module>com.elster.jupiter.mdm.test.api.rest</module>
-				<module>com.elster.jupiter.mdm.demo.customtask</module>
 			</modules>
 		</profile>
 	</profiles>

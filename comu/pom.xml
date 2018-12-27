@@ -388,18 +388,6 @@
 			</dependency>
 			<dependency>
 				<groupId>com.energyict</groupId>
-				<artifactId>mdc.sap.soap.webservices</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.energyict</groupId>
-				<artifactId>mdc.sap.soap.wsdl</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.energyict</groupId>
 				<artifactId>mdc.scheduling</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
@@ -686,8 +674,6 @@
 				<module>com.energyict.mdc.protocol.api</module>
 				<module>com.energyict.mdc.protocol.pluggable</module>
 				<module>com.energyict.mdc.protocols</module>
-				<module>com.energyict.mdc.sap.soap.webservices</module>
-				<module>com.energyict.mdc.sap.soap.wsdl</module>
 				<module>com.energyict.mdc.scheduling</module>
 				<module>com.energyict.mdc.scheduling.rest</module>
 				<module>com.energyict.mdc.tasks</module>
@@ -708,7 +694,6 @@
 				<module>com.energyict.mdc.servicecall.examples</module>
 				<module>com.energyict.mdc.test.api.rest</module>
 				<module>com.energyict.mdc.demo.customtask</module>
-				<module>com.energyict.mdc.webservices.demo</module>
 			</modules>
 		</profile>
 	</profiles>
