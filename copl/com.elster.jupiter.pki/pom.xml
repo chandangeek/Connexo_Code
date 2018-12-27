@@ -6,7 +6,6 @@
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
         <version>10.6-SNAPSHOT</version>
-        <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>pki</artifactId>
     <packaging>bundle</packaging>

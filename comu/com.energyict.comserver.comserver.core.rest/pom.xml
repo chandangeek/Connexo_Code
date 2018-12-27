@@ -9,7 +9,6 @@
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
         <version>10.6-SNAPSHOT</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>comserver.core.rest</artifactId>
