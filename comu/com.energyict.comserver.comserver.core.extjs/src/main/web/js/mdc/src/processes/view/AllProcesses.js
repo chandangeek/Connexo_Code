@@ -107,7 +107,6 @@ Ext.define('Mdc.processes.view.AllProcesses', {
             }
         ],
 
-        this.fireEvent('initStoresForProcesses',this.properties);
         this.callParent(arguments);
    }
 });

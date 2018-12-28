@@ -29,7 +29,8 @@ public enum MessageSeeds implements MessageSeed {
     READINGTYPE_ALREADY_EXISTS_IN_GROUP(16, "readingtype.alreadyExistsinGroup", "Reading type {0} already exists in group {1}."),
     ALIAS_ALREADY_EXISTS(17, "readingtype.aliasAlreadyExists", "Alias {0} already exists."),
     READINGTYPE_UPDATING_FAIL(18, "readingtype.updatingFail", "Failed updating reading types."),
-    INVALID_LIFE_CYCLE(19, PrivateMessageSeeds.Constants.INVALID_END_DEVICE_STAGE, "Cannot change life cycle. ''{0}'' doesn''t contain the actual state ''{1}''.");
+    INVALID_LIFE_CYCLE(19, PrivateMessageSeeds.Constants.INVALID_END_DEVICE_STAGE, "Cannot change life cycle. ''{0}'' doesn''t contain the actual state ''{1}''."),
+    ZONE_CREATING_FAIL(20, "zone.creatingFail", "Failed creating zone.");
 
     private final int number;
     private final String key;

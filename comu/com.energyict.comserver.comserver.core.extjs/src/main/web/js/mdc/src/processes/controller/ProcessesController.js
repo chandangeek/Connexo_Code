@@ -68,14 +68,6 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         });
     },
 
-    initStoresForProcesses: function (properties) {
-        var me = this;
-
-        /* Load all information about processes for devices and alarms */
-        //me.getStore('Mdc.processes.store.AllProcessesStore').getProxy();//.setUrl("deviceId,alarmId,issueId");
-        //me.getStore('Mdc.processes.store.AllProcessesStore').load();
-    },
-
     showProcesses: function () {
         var me = this;
         var queryString = Uni.util.QueryString.getQueryStringValues(false);

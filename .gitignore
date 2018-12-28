@@ -1,13 +1,3 @@
-.classpath
-.project
-.settings/
-.idea/
-*.iml
-*.iws
-.DS_Store
-log/
+.idea
 target/
-build/
-.gradle/
-bin/
-generated/
+*.iml

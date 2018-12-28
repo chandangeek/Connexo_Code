@@ -1408,6 +1408,30 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         }
                     }
+                },
+
+                zones: {
+                    title: Uni.I18n.translate('general.zones', 'MDC', 'Zones'),
+                    route: 'zones',
+                    controller: 'Mdc.zones.controller.Zones',
+                    action: 'showOverview',
+                    privileges: Cfg.privileges.Validation.viewZones,
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('zones.addZone', 'MDC', 'Add zone'),
+                            route: 'add',
+                            controller: 'Mdc.zones.controller.Zones',
+                            action: 'showAddZone',
+                            privileges: Cfg.privileges.Validation.adminZones,
+                        },
+                        edit: {
+                            title: Uni.I18n.translate('zones.editZone', 'MDC', 'Edit zone'),
+                            route: '{zoneId}/edit',
+                            controller: 'Mdc.zones.controller.Zones',
+                            action: 'editZone',
+                            privileges: Cfg.privileges.Validation.adminZones,
+                        }
+                    }
                 }
             }
 
