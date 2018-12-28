@@ -39,7 +39,6 @@ public class GetMeterConfigMasterServiceCallHandler implements ServiceCallHandle
 
     private volatile DeviceService deviceService;
     private volatile EndPointConfigurationService endPointConfigurationService;
-    private volatile JsonService jsonService;
     private static final List<SendMeterConfigService> METER_CONFIG_SERVICES = new CopyOnWriteArrayList<>();
 
     @Override
@@ -102,11 +101,6 @@ public class GetMeterConfigMasterServiceCallHandler implements ServiceCallHandle
         this.endPointConfigurationService = endPointConfigurationService;
     }
 
-    @Reference
-    public void setJsonService(JsonService jsonService) {
-        this.jsonService = jsonService;
-    }
-
     private void updateCounter(ServiceCall serviceCall, DefaultState state) {
         GetMeterConfigMasterDomainExtension extension = serviceCall.getExtension(GetMeterConfigMasterDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
@@ -144,7 +138,10 @@ public class GetMeterConfigMasterServiceCallHandler implements ServiceCallHandle
                 .filter(epc -> epc.getUrl().equals(extensionFor.getCallbackURL()))
                 .findAny();
 
-        METER_CONFIG_SERVICES.stream().forEach(service -> service.call(getSuccessfullyProceededDevices(serviceCall), endPointConfiguration.get().getUrl()));
+        METER_CONFIG_SERVICES.stream().forEach(service -> service.call(getSuccessfullyProceededDevices(serviceCall),
+                getUnsuccessfullyProceededDevices(serviceCall),
+                extensionFor.getExpectedNumberOfCalls(),
+                endPointConfiguration.get().getUrl()));
     }
 
     private List<Device> getSuccessfullyProceededDevices(ServiceCall serviceCall) {
@@ -172,13 +169,12 @@ public class GetMeterConfigMasterServiceCallHandler implements ServiceCallHandle
                 .stream()
                 .filter(child -> child.getState().equals(DefaultState.FAILED))
                 .forEach(child ->  {
-                    MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-                    MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
+                    GetMeterConfigDomainExtension extensionFor = child.getExtensionFor(new GetMeterConfigCustomPropertySet()).get();
                     FailedMeterOperation failedMeterOperation = new FailedMeterOperation();
                     failedMeterOperation.setErrorCode(extensionFor.getErrorCode());
                     failedMeterOperation.setErrorMessage(extensionFor.getErrorMessage());
-                    failedMeterOperation.setmRID(meter.getmRID());
-                    failedMeterOperation.setMeterName(meter.getDeviceName());
+                    failedMeterOperation.setmRID(extensionFor.getMeterMrid());
+                    failedMeterOperation.setMeterName(extensionFor.getMeterName());
                     failedMeterOperations.add(failedMeterOperation);
                 });
         return failedMeterOperations;

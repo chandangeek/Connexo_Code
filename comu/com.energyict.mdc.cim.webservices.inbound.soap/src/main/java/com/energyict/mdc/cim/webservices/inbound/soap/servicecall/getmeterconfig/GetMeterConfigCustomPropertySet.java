@@ -128,6 +128,12 @@ public class GetMeterConfigCustomPropertySet implements CustomPropertySet<Servic
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(GetMeterConfigDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
+                        .describedAs(TranslationKeys.ERROR_CODE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(GetMeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.javaName(), TranslationKeys.ERROR_MESSAGE)
                         .describedAs(TranslationKeys.ERROR_MESSAGE)
                         .fromThesaurus(thesaurus)
@@ -191,12 +197,14 @@ public class GetMeterConfigCustomPropertySet implements CustomPropertySet<Servic
             table.column(GetMeterConfigDomainExtension.FieldNames.METER_MRID.databaseName())
                     .varChar()
                     .map(GetMeterConfigDomainExtension.FieldNames.METER_MRID.javaName())
-                    .notNull()
                     .add();
             table.column(GetMeterConfigDomainExtension.FieldNames.METER_NAME.databaseName())
                     .varChar()
                     .map(GetMeterConfigDomainExtension.FieldNames.METER_NAME.javaName())
-                    .notNull()
+                    .add();
+            table.column(GetMeterConfigDomainExtension.FieldNames.ERROR_CODE.databaseName())
+                    .varChar()
+                    .map(GetMeterConfigDomainExtension.FieldNames.ERROR_CODE.javaName())
                     .add();
             table.column(GetMeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
                     .varChar()

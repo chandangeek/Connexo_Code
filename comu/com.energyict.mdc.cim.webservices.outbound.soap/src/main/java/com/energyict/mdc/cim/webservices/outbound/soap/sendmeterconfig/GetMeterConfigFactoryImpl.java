@@ -22,6 +22,7 @@ import sun.util.calendar.ZoneInfo;
 
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -41,6 +42,8 @@ public class GetMeterConfigFactoryImpl implements GetMeterConfigFactory {
         for (Device device : devices) {
             Meter meter = getMeter(device);
             meterConfig.getMeter().add(meter);
+            SimpleEndDeviceFunction simpleEndDeviceFunction = getSimpleEndDeviceFunction(device, meter);
+            meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
         }
         return meterConfig;
     }
@@ -142,11 +145,17 @@ public class GetMeterConfigFactoryImpl implements GetMeterConfigFactory {
             attr.setName(property);
             attr.setValue(convertPropertyValue(values.getProperty(property)));
             customAttribute.getAttribute().add(attr);
-            if (values.getEffectiveRange().hasLowerBound()) {
-                customAttribute.setFromDateTime(values.getEffectiveRange().lowerEndpoint());
-            }
-            if (values.getEffectiveRange().hasUpperBound()) {
-                customAttribute.setToDateTime(values.getEffectiveRange().upperEndpoint());
+            if (propertySet.isVersioned()) {
+                if (values.getEffectiveRange().hasLowerBound()) {
+                    customAttribute.setFromDateTime(values.getEffectiveRange().lowerEndpoint());
+                } else {
+                    customAttribute.setFromDateTime(Instant.ofEpochMilli(Long.MIN_VALUE));
+                }
+                if (values.getEffectiveRange().hasUpperBound()) {
+                    customAttribute.setToDateTime(values.getEffectiveRange().upperEndpoint());
+                } else {
+                    customAttribute.setToDateTime(Instant.ofEpochMilli(Long.MAX_VALUE));
+                }
             }
         }
     }
@@ -155,7 +164,7 @@ public class GetMeterConfigFactoryImpl implements GetMeterConfigFactory {
         if (value == null) {
             return "null";
         } else if (value instanceof ZoneInfo) {
-            return ((ZoneInfo)value).getDisplayName();
+            return ((ZoneInfo)value).getID();
         } else {
             return String.valueOf(value);
         }
@@ -166,6 +175,26 @@ public class GetMeterConfigFactoryImpl implements GetMeterConfigFactory {
         ProductAssetModel productAssetModel = createAssetModel(device);
         endDeviceInfo.setAssetModel(productAssetModel);
         return endDeviceInfo;
+    }
+
+    private SimpleEndDeviceFunction getSimpleEndDeviceFunction(Device device, Meter meter) {
+        String deviceConfigRef = "" + device.getDeviceConfiguration().getId();
+        Meter.SimpleEndDeviceFunction endDeviceFunctionRef = createEndDeviceFunctionRef(deviceConfigRef);
+        meter.getComFunctionOrConnectDisconnectFunctionOrSimpleEndDeviceFunction().add(endDeviceFunctionRef);
+        return createEndDeviceFunction(deviceConfigRef, device);
+    }
+
+    private Meter.SimpleEndDeviceFunction createEndDeviceFunctionRef(String deviceConfigRef) {
+        Meter.SimpleEndDeviceFunction simpleEndDeviceFunctionRef = new Meter.SimpleEndDeviceFunction();
+        simpleEndDeviceFunctionRef.setRef(deviceConfigRef);
+        return simpleEndDeviceFunctionRef;
+    }
+
+    private SimpleEndDeviceFunction createEndDeviceFunction(String deviceConfigRef, Device device) {
+        SimpleEndDeviceFunction simpleEndDeviceFunction = new SimpleEndDeviceFunction();
+        simpleEndDeviceFunction.setMRID(deviceConfigRef);
+        simpleEndDeviceFunction.setConfigID(device.getDeviceConfiguration().getName());
+        return simpleEndDeviceFunction;
     }
 
     private ProductAssetModel createAssetModel(Device device) {

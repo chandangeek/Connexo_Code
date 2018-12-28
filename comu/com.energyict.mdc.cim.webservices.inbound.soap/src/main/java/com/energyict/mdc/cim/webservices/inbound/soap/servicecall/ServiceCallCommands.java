@@ -196,7 +196,7 @@ public class ServiceCallCommands {
 
         GetMeterConfigDomainExtension domainExtension = new GetMeterConfigDomainExtension();
         domainExtension.setMeterMrid(meter.getMRID());
-        String deviceName = getMeterConfigParser.extractDeviceNameForGet(meter);
+        String deviceName = getMeterConfigParser.extractName(meter.getNames()).orElse(null);
         domainExtension.setMeterName(deviceName);
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(domainExtension);

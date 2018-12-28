@@ -7,12 +7,13 @@ import ch.iec.tc57._2011.getmeterconfigmessage.GetMeterConfigEventMessageType;
 import ch.iec.tc57._2011.getmeterconfigmessage.GetMeterConfigPayloadType;
 import ch.iec.tc57._2011.getmeterconfigmessage.ObjectFactory;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.*;
 import ch.iec.tc57._2011.sendmeterconfig.FaultMessage;
 import ch.iec.tc57._2011.sendmeterconfig.MeterConfigPort;
 import ch.iec.tc57._2011.sendmeterconfig.SendMeterConfig;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.energyict.mdc.cim.webservices.inbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.inbound.soap.SendMeterConfigService;
 import com.energyict.mdc.device.data.Device;
 import org.osgi.service.component.annotations.Component;
@@ -21,6 +22,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,12 +79,11 @@ public class SendMeterConfigServiceProvider implements SendMeterConfigService, O
     }
 
     @Override
-    public void call(List<Device> successfulDevices, String url) {
+    public void call(List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls, String url) {
         try {
-            // TODO send list
             Optional.ofNullable(ports.get(url))
                     .orElseThrow(() -> new SendMeterConfigServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS))
-                    .sendMeterConfig(createResponseMessage(createMeterConfig(successfulDevices)));
+                    .sendMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls));
         } catch (FaultMessage faultMessage) {
             // TODO log
         }
@@ -93,7 +94,7 @@ public class SendMeterConfigServiceProvider implements SendMeterConfigService, O
         return meterConfig;
     }
 
-    private GetMeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig) {
+    private GetMeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls) {
         GetMeterConfigEventMessageType responseMessage = getMeterConfigEventMessageObjectFactory.createGetMeterConfigEventMessageType();
 
         // set header
@@ -101,6 +102,30 @@ public class SendMeterConfigServiceProvider implements SendMeterConfigService, O
         header.setVerb(HeaderType.Verb.REPLY);
         header.setNoun(NOUN);
         responseMessage.setHeader(header);
+        ReplyType replyType = cimMessageObjectFactory.createReplyType();
+        if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(meterConfig.getMeter().size())) == 0) {
+            replyType.setResult(ReplyType.Result.OK);
+        } else if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(failedDevices.size())) == 0) {
+            replyType.setResult(ReplyType.Result.FAILED);
+        } else {
+            replyType.setResult(ReplyType.Result.PARTIAL);
+        }
+
+        // set errors
+        failedDevices.forEach(failedMeterOperation -> {
+            ErrorType errorType = new ErrorType();
+            errorType.setCode(failedMeterOperation.getErrorCode());
+            errorType.setDetails(failedMeterOperation.getErrorMessage());
+            ObjectType objectType = new ObjectType();
+            objectType.setMRID(failedMeterOperation.getmRID());
+            objectType.setObjectType("EndDevice");
+            Name name = new Name();
+            name.setName(failedMeterOperation.getMeterName());
+            objectType.getName().add(name);
+            errorType.setObject(objectType);
+            replyType.getError().add(errorType);
+        });
+        responseMessage.setReply(replyType);
 
         // set payload
         GetMeterConfigPayloadType meterConfigPayload = getMeterConfigEventMessageObjectFactory.createGetMeterConfigPayloadType();

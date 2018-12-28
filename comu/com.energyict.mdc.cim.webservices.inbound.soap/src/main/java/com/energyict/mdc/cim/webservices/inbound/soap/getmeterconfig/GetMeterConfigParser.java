@@ -9,23 +9,17 @@ import ch.iec.tc57._2011.getmeterconfig.Meter;
 import ch.iec.tc57._2011.getmeterconfig.Name;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
 public class GetMeterConfigParser {
-    private final GetMeterConfigFaultMessageFactory faultMessageFactory;
 
-    @Inject
-    public GetMeterConfigParser(GetMeterConfigFaultMessageFactory faultMessageFactory) {
-        this.faultMessageFactory = faultMessageFactory;
+    public GetMeterConfigParser() {
     }
 
     public MeterInfo asMeterInfo(Meter meter) throws FaultMessage {
         MeterInfo meterInfo = new MeterInfo();
-        meterInfo.setDeviceName(extractDeviceNameForGet(meter));
+        meterInfo.setDeviceName(extractName(meter.getNames()).orElse(null));
         meterInfo.setmRID(extractMrid(meter).orElse(null));
         return meterInfo;
     }
@@ -42,12 +36,4 @@ public class GetMeterConfigParser {
                 .findFirst();
     }
 
-    public String extractDeviceNameForGet(Meter meter) throws FaultMessage {
-        return extractName(meter.getNames())
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.GET_DEVICE_IDENTIFIER_MISSING));
-    }
-
-    private String getMeterName(Meter meter){
-        return meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
-    }
 }
