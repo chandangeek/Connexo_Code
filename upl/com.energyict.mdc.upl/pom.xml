@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.elster.jupiter</groupId>
+        <groupId>com.energyict</groupId>
         <artifactId>upl</artifactId>
         <version>10.6-SNAPSHOT</version>
     </parent>
