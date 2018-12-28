@@ -4,10 +4,9 @@
 
 package com.energyict.mdc.tou.campaign.rest.impl;
 
-import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TimeOfUseCampaignInfo {
@@ -16,11 +15,11 @@ public class TimeOfUseCampaignInfo {
     public String name;
     public String status;
     public List<DevicesStatusAndQuantity> devices;
-    public long deviceType;
+    public IdWithNameInfo deviceType;
     public String deviceGroup;
     public Instant activationStart;
     public Instant activationEnd;
-    public long calendar;
+    public IdWithNameInfo calendar;
     public String activationDate;
     public String updateType;
     public long timeValidation;

@@ -446,7 +446,14 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     public List<DeviceType> getDeviceTypesWithCalendars() {
         return deviceConfigurationService.findAllDeviceTypes().stream()
                 .filter(deviceType -> !deviceType.getAllowedCalendars().isEmpty())
+                .filter(deviceType -> deviceConfigurationService.findTimeOfUseOptions(deviceType).isPresent())
+                .filter(deviceType -> !deviceConfigurationService.findTimeOfUseOptions(deviceType).get().getOptions().isEmpty())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public DeviceConfigurationService getDeviceConfigurationService(){
+        return deviceConfigurationService;
     }
 
     @Override
@@ -492,6 +499,15 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                         || serviceCall1.getParent().get().getState().equals(DefaultState.PENDING)))
                 .filter(serviceCall1 -> serviceCall1.canTransitionTo(defaultState))
                 .findAny().ifPresent(serviceCall1 -> serviceCall1.requestTransition(defaultState));
+    }
+
+    void changeServiceCallStatus(ServiceCall serviceCall, DefaultState defaultState) {
+        if(serviceCall.getState().equals(DefaultState.ONGOING)
+                        || serviceCall.getState().equals(DefaultState.PENDING)){
+            if (serviceCall.canTransitionTo(defaultState)){
+                serviceCall.requestTransition(defaultState);
+            }
+        }
     }
 
     @Override

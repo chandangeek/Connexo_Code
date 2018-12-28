@@ -5,6 +5,7 @@
 package com.energyict.mdc.tou.campaign;
 
 import com.elster.jupiter.servicecall.DefaultState;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -21,6 +22,8 @@ public interface TimeOfUseCampaignService {
     String COMPONENT_NAME = "TOU";
 
     Map<TimeOfUseCampaign, DefaultState> getAllCampaigns();
+
+    DeviceConfigurationService getDeviceConfigurationService();
 
     void createToUCampaign(TimeOfUseCampaign timeOfUseCampaign);
 

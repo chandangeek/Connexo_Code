@@ -11,9 +11,10 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.security.Privileges;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -24,11 +25,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/touCampaigns")
 public class TimeOfUseCampaignResource {
@@ -56,19 +58,15 @@ public class TimeOfUseCampaignResource {
             TimeOfUseCampaignInfo info = timeOfUseCampaignInfoFactory.from(campaign);
             info.status = satus.getDefaultFormat();
             info.devices = new ArrayList<>();
-            info.devices.add(new DevicesStatusAndQuantity(DefaultState.SUCCESSFUL.toString(), 0L));
-            info.devices.add(new DevicesStatusAndQuantity(DefaultState.FAILED.toString(), 0L));
-            info.devices.add(new DevicesStatusAndQuantity(DefaultState.REJECTED.toString(), 0L));
-            info.devices.add(new DevicesStatusAndQuantity(DefaultState.ONGOING.toString(), 0L));
-            info.devices.add(new DevicesStatusAndQuantity(DefaultState.PENDING.toString(), 0L));
-            info.devices.add(new DevicesStatusAndQuantity(DefaultState.CANCELLED.toString(), 0L));
-            timeOfUseCampaignService.getChildrenStatusFromCampaign(campaign.getId()).forEach((deviceStatus, quantity) -> {
-                info.devices.stream().filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.equals(deviceStatus.name()))
-                        .findAny().ifPresent(devicesStatusAndQuantity -> {
-                    devicesStatusAndQuantity.status = devicesStatusAndQuantity.getStatus(deviceStatus, thesaurus);
-                    devicesStatusAndQuantity.quantity = quantity;
-                });
-            });
+            info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.SUCCESSFUL, thesaurus), 0L));
+            info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.FAILED, thesaurus), 0L));
+            info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.REJECTED, thesaurus), 0L));
+            info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.ONGOING, thesaurus), 0L));
+            info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.PENDING, thesaurus), 0L));
+            info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.CANCELLED, thesaurus), 0L));
+            timeOfUseCampaignService.getChildrenStatusFromCampaign(campaign.getId()).forEach((deviceStatus, quantity) ->
+                    info.devices.stream().filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.equals(getStatus(deviceStatus, thesaurus)))
+                            .findAny().ifPresent(devicesStatusAndQuantity -> devicesStatusAndQuantity.quantity = quantity));
             touCampaigns.add(info);
         });
         return Response.ok(PagedInfoList.fromPagedList("touCampaigns", touCampaigns, queryParameters)).build();
@@ -138,4 +136,52 @@ public class TimeOfUseCampaignResource {
         return Response.ok(deviceTypes).build();
     }
 
+    @GET
+    @Transactional
+    @Path("/getoptions")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    public Response getSendOptionsForType(@QueryParam("type") Long deviceTypeId) {
+        DeviceTypeAndOptionsInfo deviceTypeAndOptionsInfo = new DeviceTypeAndOptionsInfo();
+        DeviceType deviceType = timeOfUseCampaignService.getDeviceTypesWithCalendars().stream()
+                .filter(deviceType1 -> deviceType1.getId()==deviceTypeId).findAny().get();
+        deviceTypeAndOptionsInfo.deviceType=new IdWithNameInfo(deviceType.getId(),deviceType.getName());
+        deviceTypeAndOptionsInfo.calendars=new ArrayList<>();
+        deviceTypeAndOptionsInfo.fullCalendar=false;
+        deviceTypeAndOptionsInfo.withActivationDate=false;
+        deviceTypeAndOptionsInfo.specialDays=false;
+        deviceType.getAllowedCalendars().forEach(allowedCalendar -> deviceTypeAndOptionsInfo.calendars.add(new IdWithNameInfo(allowedCalendar.getCalendar().get().getId(),allowedCalendar.getName())));
+        timeOfUseCampaignService.getDeviceConfigurationService().findTimeOfUseOptions(deviceType).get().getOptions()
+                .forEach(protocolSupportedCalendarOptions -> {
+                    if(protocolSupportedCalendarOptions.getId().equals("send")){
+                        deviceTypeAndOptionsInfo.fullCalendar=true;
+                    } else if(protocolSupportedCalendarOptions.getId().equals("sendWithDateTime")){
+                        deviceTypeAndOptionsInfo.fullCalendar=true;
+                        deviceTypeAndOptionsInfo.withActivationDate=true;
+                    }else if(protocolSupportedCalendarOptions.getId().equals("sendSpecialDays")){
+                        deviceTypeAndOptionsInfo.specialDays=true;
+                    }
+                });
+        return Response.ok(deviceTypeAndOptionsInfo).build();
+    }
+
+
+
+    private String getStatus(DefaultState defaultState, Thesaurus thesaurus) {
+        switch (defaultState) {
+            case SUCCESSFUL:
+                return thesaurus.getString(MessageSeeds.STATUS_SUCCESSFUL.getKey(), MessageSeeds.STATUS_SUCCESSFUL.getDefaultFormat());
+            case FAILED:
+                return thesaurus.getString(MessageSeeds.STATUS_FAILED.getKey(), MessageSeeds.STATUS_FAILED.getDefaultFormat());
+            case REJECTED:
+                return thesaurus.getString(MessageSeeds.STATUS_CONFIGURATION_ERROR.getKey(), MessageSeeds.STATUS_CONFIGURATION_ERROR.getDefaultFormat());
+            case ONGOING:
+                return thesaurus.getString(MessageSeeds.STATUS_ONGOING.getKey(), MessageSeeds.STATUS_ONGOING.getDefaultFormat());
+            case PENDING:
+                return thesaurus.getString(MessageSeeds.STATUS_PENDING.getKey(), MessageSeeds.STATUS_PENDING.getDefaultFormat());
+            case CANCELLED:
+                return thesaurus.getString(MessageSeeds.STATUS_CANCELED.getKey(), MessageSeeds.STATUS_CANCELED.getDefaultFormat());
+        }
+        return defaultState.getDisplayName(thesaurus);
+    }
 }
