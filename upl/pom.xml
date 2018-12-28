@@ -10,6 +10,7 @@
 		<version>10.6-SNAPSHOT</version>
 	</parent>
 
+	<groupId>com.energyict</groupId>
 	<artifactId>upl</artifactId>
 	<packaging>pom</packaging>
 	<name>[Jupiter Wrapper - UPL] </name>
