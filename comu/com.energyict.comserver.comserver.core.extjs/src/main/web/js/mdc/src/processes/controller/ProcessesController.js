@@ -12,7 +12,8 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
     requires: [
         'Mdc.processes.view.ProcessPreview',
         'Mdc.processes.view.ProcessPreviewForm',
-        'Mdc.processes.view.AllProcessesGrid'
+        'Mdc.processes.view.AllProcessesGrid',
+        'Mdc.processes.controller.ProcGlobalVars'
     ],
     views: [
         'Mdc.processes.view.AllProcesses',
@@ -35,7 +36,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
     refs: [
         {ref: 'processesGrid', selector: '#processesGrid'},
-        {ref: 'processes', selector: 'all-history-processes'},
+        {ref: 'processes', selector: 'all-flow-processes'},
         {ref: 'processPreview', selector: '#processPreview'},
         {ref: 'processPreviewForm', selector: '#processPreviewForm'},
         {ref: 'processStatusPreviewGrid', selector: '#all-process-status-preview #process-nodes-grid'},
@@ -46,9 +47,6 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
     init: function () {
         this.control({
-            'all-history-processes': {
-                initStoresForProcesses: this.initStoresForProcesses
-            },
             '#processesGrid': {
                selectionchange: this.previewProcess
             },
@@ -74,26 +72,25 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         var me = this;
 
         /* Load all information about processes for devices and alarms */
-        me.getStore('Mdc.processes.store.AllProcessesStore').getProxy().setUrl("deviceId,alarmId,issueId");
+        //me.getStore('Mdc.processes.store.AllProcessesStore').getProxy();//.setUrl("deviceId,alarmId,issueId");
         //me.getStore('Mdc.processes.store.AllProcessesStore').load();
     },
 
-   showProcesses: function () {
+    showProcesses: function () {
         var me = this;
         var queryString = Uni.util.QueryString.getQueryStringValues(false);
-        var sort;
 
-        if (!queryString.status){
-            //sort = [{property: 'processId', direction: Uni.component.sort.model.Sort.DESC}];//,
-            //{property: 'creationDate', direction: Uni.component.sort.model.Sort.DESC}];
-
+        /* If queryString is empty and setDefaultParams is true it means that probably it is firs load of page.
+        And we should set default params. After  bulk action is performed parameters should not be set to default params even if filters was cleared.That is why
+        setDefaultParams set to false in ProcBulkAction */
+        if (_.isEmpty(queryString) && Mdc.processes.controller.ProcGlobalVars.setDefaultParams){
             /*First load of page with processes*/
             queryString.status = ['1'];
-            //queryString.sort = Ext.JSON.encode(sort);
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
             /* Set default values for sorting panel */
             me.setDefaultSort();
         }else{
+            Mdc.processes.controller.ProcGlobalVars.setDefaultParams = true;
             var routerToSet = this.getController('Uni.controller.history.Router');
             var widget = Ext.widget('allProcesses',{
                 router: routerToSet
@@ -103,10 +100,6 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
             me.updateSortingToolbar();
         }
-            //queryString.groupingType = 'none';
-            //queryString.sort = ['-priorityTotal'];
-        //window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
-
     },
 
     previewProcess: function (grid, record) {
@@ -364,7 +357,6 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                 property: 'processId',
                 direction: Uni.component.sort.model.Sort.DESC
             });
-            console.log("SET DEFAULT SORTING = ",Ext.JSON.encode(sorting));
             store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
         }
     },

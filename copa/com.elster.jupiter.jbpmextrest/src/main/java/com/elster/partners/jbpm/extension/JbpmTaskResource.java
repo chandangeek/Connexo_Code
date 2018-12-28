@@ -680,13 +680,6 @@ public class JbpmTaskResource {
     @Produces("application/json")
     public ProcessHistoryGenInfos getProcessAll(@Context UriInfo uriInfo){
 
-        String rawVariableId = getQueryValue(uriInfo, "variableid");
-        String variableValue = getQueryValue(uriInfo, "variablevalue");
-
-        System.out.println("HANLE ALL PROCESSES!!!!");
-
-        String variableId = "'"+rawVariableId.replaceAll(",","\',\'")+"'";
-
         Map<String, JsonNode> filterProperties;
         filterProperties = getFilterProperties(getQueryValue(uriInfo,"filter"),"value");
 
@@ -702,35 +695,32 @@ public class JbpmTaskResource {
         }catch (NumberFormatException e){
         }
 
-        if(variableId != null) {
-            EntityManager em = emf.createEntityManager();
-            String queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION , v.VALUE, v.VARIABLEID " +
+        EntityManager em = emf.createEntityManager();
+        String queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION , v.VALUE, v.VARIABLEID " +
                     "from processinstancelog p " +
                     "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
                     "where ( v.VARIABLEID in ('issueId','alarmId') " +
                     "or v.VARIABLEID = 'deviceId' and (select count(*) from VARIABLEINSTANCELOG v1 where v1.PROCESSINSTANCEID = v.PROCESSINSTANCEID and VARIABLEID in ('alarmId', 'issueId'))=0) ";
-            queryString += addFilterToQuery(filterProperties, false);
-            queryString += addSortingToQuery(sortingProperties);
+        queryString += addFilterToQuery(filterProperties, false);
+        queryString += addSortingToQuery(sortingProperties);
 
-            Query query = em.createNativeQuery(queryString);
-            query.setFirstResult(startIndex);
-            query.setMaxResults(endIndex);
-            List<Object[]> list = query.getResultList();
-            ProcessHistoryGenInfos processHistoryInfos = new ProcessHistoryGenInfos(list);
-            for(ProcessHistoryGenInfo info : processHistoryInfos.processHistories){
-                info.tasks = info.processInstanceId == -1 ? null : getTaskForProceessInstance(info.processInstanceId);
-            }
-            if(processHistoryInfos.total == endIndex){
-                int total = startIndex + endIndex;
-                processHistoryInfos.removeLast(total);
-            }else{
-                int total = startIndex + processHistoryInfos.total;
-                processHistoryInfos.setTotal(total);
-            }
-
-            return processHistoryInfos;
+        Query query = em.createNativeQuery(queryString);
+        query.setFirstResult(startIndex);
+        query.setMaxResults(endIndex);
+        List<Object[]> list = query.getResultList();
+        ProcessHistoryGenInfos processHistoryInfos = new ProcessHistoryGenInfos(list);
+        for(ProcessHistoryGenInfo info : processHistoryInfos.processHistories){
+            info.tasks = info.processInstanceId == -1 ? null : getTaskForProceessInstance(info.processInstanceId);
         }
-        return null;
+        if(processHistoryInfos.total == endIndex){
+            int total = startIndex + endIndex;
+            processHistoryInfos.removeLast(total);
+        }else{
+            int total = startIndex + processHistoryInfos.total;
+            processHistoryInfos.setTotal(total);
+        }
+
+        return processHistoryInfos;
     }
 
 

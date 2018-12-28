@@ -5,7 +5,6 @@
 Ext.define('Mdc.processes.store.BulkChangeProcesses', {
     extend: 'Ext.data.Store',
     model: 'Mdc.processes.model.BulkChangeProcesses',
-//    model: 'Isu.model.BulkChangeIssues',
 
     requires: [
         'Ext.data.proxy.SessionStorage'

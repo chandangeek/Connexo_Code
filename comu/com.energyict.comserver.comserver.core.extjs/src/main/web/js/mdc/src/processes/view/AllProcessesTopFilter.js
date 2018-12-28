@@ -45,7 +45,7 @@ Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
                 itemId: 'processes-topfilter-all-processes-type',
                 multiSelect: false,
                 displayField: 'displayType',
-                valueField: 'value',
+                valueField: 'valueType',
                 store: 'Mdc.processes.store.AllProcessTypeStore',
                 listeners: {
                     change: {
@@ -101,8 +101,6 @@ Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
         ];
 
         me.callParent(arguments);
-        //me.down('#processes-topfilter-all-processes-status').setFilterValue([1]);
-
     },
 
     comboSetFilterValue: function (value) {
@@ -138,7 +136,6 @@ Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
 
     comboGetParamValue: function () {
         var me = this;
-        //combovalue = me.getValue()!== null?me.getValue():undefined;
         filterValue = [(Ext.isArray(me.value) && me.value.length > 0 && Ext.isObject(me.value[0]) ? me.value[0].get('id') : me.value)];
 
         if(filterValue !== null && me.value !== null)

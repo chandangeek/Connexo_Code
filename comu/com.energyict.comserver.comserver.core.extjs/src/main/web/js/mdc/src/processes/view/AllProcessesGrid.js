@@ -51,7 +51,6 @@ Ext.define('Mdc.processes.view.AllProcessesGrid', {
 
                 renderer: function (value, b, record) {
                     var result = '';
-                    console.log("RENDER VALUE = ",value);
                     if(record.data.type == 'Device'){
                         if (value && Mdc.privileges.Device.canView()) {
                             var url = me.router.getRoute('devices/device').buildUrl({deviceId: value});

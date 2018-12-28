@@ -310,9 +310,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         wizard.setLoading(true);
 
         if (me.operation === 'startprocess') {
-
-                            console.log("DEPLOYMENT ID = ",me.processValues.deploymentId);
-                            console.log("processJsonData.id =",me.processValues.processId);
             var processJsonData = {
                     deploymentId: me.processValues.deploymentId,
                     id: me.processValues.processId,
@@ -326,8 +323,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
                 processUrl = '/api/bpm/runtime/processcontent/' + processJsonData.deploymentId + '/' + processJsonData.id;
 
-            console.log('processJsonData=',processJsonData);
-
             processJsonData.bulkBusinessObjects = me.validatedForProcessDevices.map(function (mRID) {
                 return {
                     id: 'deviceId',
@@ -335,8 +330,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     value: mRID
                 }
             });
-            console.log("START PROCESSES IN SEARCH !!!!!!!!!!!!!!!!!!!!!");
-            console.log('processJsonData=',processJsonData);
+
             Ext.Ajax.request({
                 url: processUrl,
                 method: 'PUT',
@@ -761,11 +755,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 if(nextCmp.name == 'confirmPage'){
                                     nextCmp.removeAll();
                                     wizard.down('#confirmButton').enable();
-                                    console.log("buildConfirmMessage2!!!!!!!!!");
                                     var message = me.buildConfirmMessage();
-                                    console.log("message=",message);
                                     additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'Changing the device configuration could lead to critical data loss (security settings, connection methods, communication tasks,...).');
-                                    console.log("additionalText=",additionalText);
                                     nextCmp.showStartProcessConfirmation(message.title, message.body, null, additionalText)
                                 }
                                 wizard.setLoading(false);
@@ -813,7 +804,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     if (me.operation == 'startprocess'){
 
                     } else if (me.operation != 'changeconfig') {
-                        console.log("buildConfirmMessage3!!!!!!!!!");
                         nextCmp.showMessage(me.buildConfirmMessage());
                         wizard.down('#confirmButton').setDisabled(me.operation === 'add' && wizard.down('#strategyRadioGroup').getChecked().length === 0);
                         if (me.operation === 'remove') {
@@ -847,7 +837,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 }
                             } else {
                                 wizard.down('#confirmButton').enable();
-                                console.log("buildConfirmMessage1!!!!!!!!!");
                                 var message = me.buildConfirmMessage();
                                 additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'Changing the device configuration could lead to critical data loss (security settings, connection methods, communication tasks,...).');
                                 nextCmp.showChangeDeviceConfigConfirmation(message.title, message.body, null, additionalText)
@@ -1141,7 +1130,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     processComboChange: function(combo){
-        console.log("PROCESS COMBO CHANGE JUST SAVE RECORD!!!",combo.lastSelection[0].data);
         this.processRecord = combo.lastSelection[0].data
     }
 });

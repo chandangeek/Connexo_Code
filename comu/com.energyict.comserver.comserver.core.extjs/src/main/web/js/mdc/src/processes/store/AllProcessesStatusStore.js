@@ -20,7 +20,7 @@ Ext.define('Mdc.processes.store.AllProcessesStatusStore', {
                     },
                     {
                         value: 3,
-                        display: Uni.I18n.translate('mdc.processstatus.aborted', 'MDC', 'Aborted')
+                        display: Uni.I18n.translate('mdc.processstatus.cancelled', 'MDC', 'Cancelled')
                     }
                 ],
                 fields: [

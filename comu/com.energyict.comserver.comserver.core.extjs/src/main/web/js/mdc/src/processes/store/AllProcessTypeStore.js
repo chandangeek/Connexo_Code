@@ -11,21 +11,21 @@ Ext.define('Mdc.processes.store.AllProcessTypeStore', {
         me.callParent([Ext.apply({
                 data: [
                     {
-                        value: ['deviceId'],
+                        valueType: ['deviceId'],
                         displayType: Uni.I18n.translate('mdc.object.device', 'MDC', 'Device')
                     },
                     {
-                        value: ['alarmId'],
+                        valueType: ['alarmId'],
                         displayType: Uni.I18n.translate('mdc.object.alarm', 'MDC', 'Alarm')
                     },
                     {
-                        value: ['issueId'],
+                        valueType: ['issueId'],
                         displayType: Uni.I18n.translate('mdc.object.issue', 'MDC', 'Issue')
                     }
                 ],
                 fields: [
                     {
-                        name: 'value'
+                        name: 'valueType'
                     },
                     {
                         name: 'displayType'

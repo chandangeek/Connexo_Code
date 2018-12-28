@@ -10,6 +10,11 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         'Bpm.startprocess.store.AvailableProcesses'
     ],
 
+    requires: [
+        'Mdc.processes.controller.ProcGlobalVars'
+    ],
+
+
     models: [
         'Bpm.startprocess.model.ProcessContent'
     ],
@@ -168,7 +173,6 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
         /* Set sorting as in main process storage */
         processesStore.getProxy().setExtraParam('sort',sortingFromMainStore);
-        processesStore.getProxy().setUrl("deviceId,alarmId,issueId");
         processesStore.filter(filter);
         processesStore.load();
 
@@ -217,6 +221,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
     },
 
     onWizardCancelledEvent: function () {
+        Mdc.processes.controller.ProcGlobalVars.setDefaultParams = false;
         this.getController('Uni.controller.history.Router').getRoute('workspace/multisenseprocesses').forward(null,Uni.util.QueryString.getQueryStringValues(false));
     },
 
@@ -320,7 +325,6 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
     processNextOnStep2: function (wizard) {
         var me = this;
         var record = this.getBulkRecord(),
-            //step3Panel = wizard.down('bulk-step3'),
             step3Panel = wizard.down('processes-bulk-step3'),
             operation = record.get('operation'),
             view,
@@ -450,7 +454,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
 
    validateProcessesAction: function (wizard, isAllDevices, filter) {
         var me = this,
-            url = '/api/ddr/flowprocesses/validate?variableid=deviceId,alarmId,issueId',
+            url = '/api/ddr/flowprocesses/validate',
             jsonData = {
                 'processHistories': [],
             };
@@ -629,9 +633,8 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         me.setBulkActionListActiveItem(wizard);
     },
 
-
     onBulkActionFinished: function (wizard) {
-        //Possibly we have to save here filter parameters and pass it to main page
+        Mdc.processes.controller.ProcGlobalVars.setDefaultParams = false;
         this.getController('Uni.controller.history.Router').getRoute('workspace/multisenseprocesses').forward(null,Uni.util.QueryString.getQueryStringValues(false));
     },
 

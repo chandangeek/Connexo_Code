@@ -10,14 +10,11 @@ Ext.define('Mdc.processes.store.AllProcessesStore', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/flowprocesses/processes?variableid={variableid}',
+        url: '/api/ddr/flowprocesses/processes',
         timeout: 240000,
         reader: {
             type: 'json',
             root: 'processHistories'
-        },
-        setUrl: function (variableid) {
-            this.url = this.urlTpl.replace('{variableid}', variableid);
         }
     }
 });

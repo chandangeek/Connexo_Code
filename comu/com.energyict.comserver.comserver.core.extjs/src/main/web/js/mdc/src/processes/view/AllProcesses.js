@@ -3,7 +3,7 @@
  */
 
 Ext.define('Mdc.processes.view.AllProcesses', {
-    alias: 'widget.all-history-processes',
+    alias: 'widget.all-flow-processes',
     extend: 'Uni.view.container.ContentContainer',
     xtype: 'allProcesses',
     requires: [
