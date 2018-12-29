@@ -91,11 +91,27 @@ Ext.define('Tou.controller.Overview', {
 
     doCancelCampaign : function(record) {
         var me = this,
-            form = this.getPreview().down('form'),
             store = this.getStore('Tou.store.TouCampaigns');
 
-        store.getProxy().url = '/api/tou/touCampaigns/' + record.id + '/cancel';
-        record.save({
+        //store.getProxy().url = '/api/tou/touCampaigns/' + record.id + '/cancel';
+        //record.getProxy().url = '/api/tou/touCampaigns/' + record.id + '/cancel';
+        //debugger;
+        Ext.Ajax.request({
+        	   	url: '/api/tou/touCampaigns/' + record.data.name + '/cancel',
+        	   	method: 'PUT',
+        	      	params: {
+        			},
+        	   	success: function(transport){
+                    me.getApplication().fireEvent('acknowledge', 'Tou campaign cancelled');
+                    //record.set('status', {id: "CANCELLED", localizedValue: "Cancelled"});
+                    //me.showPreview('', record);
+        	   	},
+        	   	failure: function(transport){
+        	   	    console.log("Tou campaign not cancelled");
+        	   		//record.reject();
+        	   	}
+        });
+       /* record.save({
             isNotEdit: true,
             success: function () {
                 form.loadRecord(record);
@@ -108,7 +124,7 @@ Ext.define('Tou.controller.Overview', {
             failure: function () {
                 record.reject();
             }
-        });
+        });*/
     },
 
     editCampaign: function(campaignIdAsString) {

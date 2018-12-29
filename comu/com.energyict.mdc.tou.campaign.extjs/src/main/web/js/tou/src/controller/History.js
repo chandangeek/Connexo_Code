@@ -31,7 +31,7 @@ Ext.define('Tou.controller.History', {
                         },
                         toucampaign: {
                            title: 'Tou campaign',
-                            route: '{touCampaignId}',
+                            route: '{touCampaignName}',
                             controller: 'Tou.controller.Detail',
                             action: 'showDetail',
                             privileges: Fwc.privileges.FirmwareCampaign.view,
@@ -46,7 +46,7 @@ Ext.define('Tou.controller.History', {
                                 devices: {
                                     title: 'Devices',
                                     route: 'devices',
-                                    controller: 'Fwc.firmwarecampaigns.controller.Devices',
+                                    controller: 'Tou.controller.Devices',
                                     action: 'showDevices',
                                     privileges: Fwc.privileges.FirmwareCampaign.view
                                 }

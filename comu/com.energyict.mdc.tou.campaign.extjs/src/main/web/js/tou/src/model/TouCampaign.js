@@ -15,12 +15,14 @@ Ext.define('Tou.model.TouCampaign', {
         {name: 'deviceGroup', defaultValue: null, convert: function (value, record) {
             return value;
         }},
-        {name: 'activationStart', type: 'date', dateFormat: 'time',type: 'int', useNull: true, defaultValue: 64800},
-        {name: 'activationEnd', type: 'date', dateFormat: 'time',type: 'int',useNull: true, defaultValue: 82800},
+        {name: 'activationStart', type: 'date', dateFormat: 'time',type: 'int', defaultValue: 64.800, convert: function (value, record) {  return value * 1000; }},
+        {name: 'activationEnd', type: 'date', dateFormat: 'time',type: 'int',useNull: true, defaultValue: 82.800, convert: function (value, record) {  return value * 1000; }},
         {name: 'calendar', defaultValue: null},
         {name: 'activationDate'},
         {name: 'updateType',  defaultValue: null},
-        {name: 'timeValidation', type: 'date', dateFormat: 'time', persist: false}
+        {name: 'timeValidation', type: 'date', dateFormat: 'time', persist: false},
+        {name: 'status'},
+        {name: 'devices'}
 
     ],
     associations: [

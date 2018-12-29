@@ -94,13 +94,15 @@ Ext.define('Tou.controller.Add', {
         form.updateRecord();
         page.setLoading();
         var record = form.getRecord();
+        var deviceTypeId  = record.get('deviceType');
+        if (deviceTypeId) record.set('deviceType', {"id" : deviceTypeId});
         var activateCalendarItem = form.down('#activate-calendar');
         if (activateCalendarItem){
             record.set('activationDate', activateCalendarItem.getValue());
         }
         var allowedCalendarItem = form.down('#tou-campaign-allowed-calendar');
         if (allowedCalendarItem){
-              record.set('calendar', allowedCalendarItem.getValue());
+              record.set('calendar', {"id" : allowedCalendarItem.getValue()});
         }
         var timeValidationPeriodItem = form.down('#period-combo');
         var timeValidationValueItem = form.down('#period-number');
@@ -127,7 +129,7 @@ Ext.define('Tou.controller.Add', {
                record.set('timeValidation', null);
              }
         }
-
+        if (record && record.data && record.data["devices"] !== undefined) delete record.data["devices"];
         record.save({
             backUrl: page.returnLink,
             success: function (record, operation) {
