@@ -13,10 +13,10 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.security.Privileges;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
-import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemDomainExtension;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -70,7 +70,6 @@ public class TimeOfUseCampaignResource {
         TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaign(name)
                 .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_TIME_OF_USE_CAMPAIGN_IS_FOUND));
         TimeOfUseCampaignInfo timeOfUseCampaignInfo = getOverviewCampaignInfo(timeOfUseCampaign, timeOfUseCampaignService.findCampaignServiceCall(timeOfUseCampaign.getName()).get().getState());
-
         return Response.ok(timeOfUseCampaignInfo).build();
     }
 
@@ -84,13 +83,15 @@ public class TimeOfUseCampaignResource {
                 .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_TIME_OF_USE_CAMPAIGN_IS_FOUND));
         ServiceCall parent = timeOfUseCampaignService.findCampaignServiceCall(timeOfUseCampaign.getName()).get();
         List<DeviceInCampaignInfo> deviceInCampaignInfo = new ArrayList<>();
-        parent.findChildren().find().forEach(serviceCall -> deviceInCampaignInfo
-                .add(new DeviceInCampaignInfo(serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().getDevice().getmRID(),
-                        getStatus(serviceCall.getState(), thesaurus),
-                        serviceCall.getCreationTime(),
-                        (serviceCall.getState().equals(DefaultState.CANCELLED)
-                                || serviceCall.getState().equals(DefaultState.SUCCESSFUL)) ? serviceCall.getLastModificationTime() : null)));
-        return Response.ok(deviceInCampaignInfo).build();
+        parent.findChildren().stream().forEach(serviceCall -> {
+            Device device = timeOfUseCampaignService.findDeviceByServiceCall(serviceCall);
+            deviceInCampaignInfo.add(new DeviceInCampaignInfo(new IdWithNameInfo(device.getId(), device.getName()),
+                    getStatus(serviceCall.getState(), thesaurus),
+                    serviceCall.getCreationTime(),
+                    (serviceCall.getState().equals(DefaultState.CANCELLED)
+                            || serviceCall.getState().equals(DefaultState.SUCCESSFUL)) ? serviceCall.getLastModificationTime() : null));
+        });
+        return Response.ok(PagedInfoList.fromPagedList("devicesInCampaign", deviceInCampaignInfo, queryParameters)).build();
     }
 
     @POST

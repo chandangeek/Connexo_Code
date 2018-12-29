@@ -48,6 +48,8 @@ public interface TimeOfUseCampaignService {
 
     void cancelCampaign(String campaign);
 
+    Device findDeviceByServiceCall(ServiceCall serviceCall);
+
     void edit(String name, TimeOfUseCampaign timeOfUseCampaign);
 
     Optional<ServiceCall> findCampaignServiceCall(String campaignName);

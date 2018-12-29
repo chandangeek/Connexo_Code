@@ -551,7 +551,8 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .filter(serviceCall1 -> serviceCall1.getExtension(TimeOfUseItemDomainExtension.class).get().getDevice().equals(device));
     }
 
-    private Device findDeviceByServiceCall(ServiceCall serviceCall) {
+    @Override
+    public Device findDeviceByServiceCall(ServiceCall serviceCall) {
         if (serviceCall.getExtension(TimeOfUseItemDomainExtension.class).isPresent()) {
             return deviceService.findDeviceByName(serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().getDevice().getName()).orElse(null);
         } else {
