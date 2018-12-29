@@ -34,6 +34,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -482,7 +483,13 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     private void setCalendarOnDevice(ServiceCall serviceCall) {
         Device device = deviceService.findDeviceByName(serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().getDevice().getName()).get();
         revokeCalendarsCommands(device);
-        dataModel.getInstance(TimeOfUseSendHelper.class).setCalendarOnDevice(device, serviceCall);
+        try {
+            dataModel.getInstance(TimeOfUseSendHelper.class).setCalendarOnDevice(device, serviceCall);
+        } catch (DeviceMessageNotAllowedException e) {
+            changeServiceCallStatus(device, DefaultState.REJECTED);
+            serviceCall.log(e.getLocalizedMessage(), e);
+        }
+
     }
 
     void revokeCalendarsCommands(Device device) {
