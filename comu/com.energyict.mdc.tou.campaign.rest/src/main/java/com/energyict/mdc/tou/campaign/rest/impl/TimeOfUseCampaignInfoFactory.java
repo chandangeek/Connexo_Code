@@ -24,8 +24,8 @@ public class TimeOfUseCampaignInfoFactory {
 
     public TimeOfUseCampaign build(TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
         TimeOfUseCampaignBuilder timeOfUseCampaignBuilder = timeOfUseCampaignService.newToUbuilder(timeOfUseCampaignInfo.name,
-                (long)timeOfUseCampaignInfo.deviceType.id, timeOfUseCampaignInfo.deviceGroup, timeOfUseCampaignInfo.activationStart,
-                timeOfUseCampaignInfo.activationEnd, (long)timeOfUseCampaignInfo.calendar.id, timeOfUseCampaignInfo.activationDate,
+                ((Integer) timeOfUseCampaignInfo.deviceType.id).longValue(), timeOfUseCampaignInfo.deviceGroup, timeOfUseCampaignInfo.activationStart,
+                timeOfUseCampaignInfo.activationEnd,  ((Integer)timeOfUseCampaignInfo.calendar.id).longValue(), timeOfUseCampaignInfo.activationDate,
                 timeOfUseCampaignInfo.updateType, timeOfUseCampaignInfo.timeValidation);
         return timeOfUseCampaignBuilder.create();
     }
@@ -33,11 +33,12 @@ public class TimeOfUseCampaignInfoFactory {
     public TimeOfUseCampaignInfo from(TimeOfUseCampaign campaign) {
         TimeOfUseCampaignInfo timeOfUseCampaignInfo = new TimeOfUseCampaignInfo();
         timeOfUseCampaignInfo.name = campaign.getName();
-        timeOfUseCampaignInfo.deviceType = new IdWithNameInfo(campaign.getDeviceType().getId(),campaign.getDeviceType().getName());
+        timeOfUseCampaignInfo.deviceType = new IdWithNameInfo(campaign.getDeviceType().getId(), campaign.getDeviceType().getName());
         timeOfUseCampaignInfo.deviceGroup = campaign.getDeviceGroup();
         timeOfUseCampaignInfo.activationStart = campaign.getActivationStart();
         timeOfUseCampaignInfo.activationEnd = campaign.getActivationEnd();
-        timeOfUseCampaignInfo.calendar = new IdWithNameInfo(campaign.getCalendar().getId(),campaign.getCalendar().getName()) ;
+        timeOfUseCampaignInfo.timeBoundary = "Between " + campaign.getActivationStart().toString().substring(11, 16) + " and " + campaign.getActivationEnd().toString().substring(11, 16);
+        timeOfUseCampaignInfo.calendar = new IdWithNameInfo(campaign.getCalendar().getId(), campaign.getCalendar().getName());
         timeOfUseCampaignInfo.updateType = campaign.getUpdateType();
         if (((campaign.getActivationDate().equals("Immediately") || (campaign.getActivationDate().equals("Without Activation"))))) {
             timeOfUseCampaignInfo.activationDate = campaign.getActivationDate();

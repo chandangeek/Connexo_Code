@@ -10,11 +10,13 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.security.Privileges;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
+import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemDomainExtension;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -30,7 +32,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Path("/touCampaigns")
 public class TimeOfUseCampaignResource {
@@ -54,20 +55,8 @@ public class TimeOfUseCampaignResource {
     @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
     public Response getToUCampaigns(@BeanParam JsonQueryParameters queryParameters) {
         List<TimeOfUseCampaignInfo> touCampaigns = new ArrayList<>();
-        timeOfUseCampaignService.getAllCampaigns().forEach((campaign, satus) -> {
-            TimeOfUseCampaignInfo info = timeOfUseCampaignInfoFactory.from(campaign);
-            info.status = satus.getDefaultFormat();
-            info.devices = new ArrayList<>();
-            info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.SUCCESSFUL, thesaurus), 0L));
-            info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.FAILED, thesaurus), 0L));
-            info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.REJECTED, thesaurus), 0L));
-            info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.ONGOING, thesaurus), 0L));
-            info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.PENDING, thesaurus), 0L));
-            info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.CANCELLED, thesaurus), 0L));
-            timeOfUseCampaignService.getChildrenStatusFromCampaign(campaign.getId()).forEach((deviceStatus, quantity) ->
-                    info.devices.stream().filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.equals(getStatus(deviceStatus, thesaurus)))
-                            .findAny().ifPresent(devicesStatusAndQuantity -> devicesStatusAndQuantity.quantity = quantity));
-            touCampaigns.add(info);
+        timeOfUseCampaignService.getAllCampaigns().forEach((campaign, status) -> {
+            touCampaigns.add(getOverviewCampaignInfo(campaign, status));
         });
         return Response.ok(PagedInfoList.fromPagedList("touCampaigns", touCampaigns, queryParameters)).build();
     }
@@ -80,8 +69,28 @@ public class TimeOfUseCampaignResource {
     public Response getToUCampaign(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaign(name)
                 .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_TIME_OF_USE_CAMPAIGN_IS_FOUND));
-        TimeOfUseCampaignInfo timeOfUseCampaignInfo = timeOfUseCampaignInfoFactory.from(timeOfUseCampaign);
+        TimeOfUseCampaignInfo timeOfUseCampaignInfo = getOverviewCampaignInfo(timeOfUseCampaign, timeOfUseCampaignService.findCampaignServiceCall(timeOfUseCampaign.getName()).get().getState());
+
         return Response.ok(timeOfUseCampaignInfo).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/{name}/devices")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    public Response getToUCampaignsDevices(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaign(name)
+                .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_TIME_OF_USE_CAMPAIGN_IS_FOUND));
+        ServiceCall parent = timeOfUseCampaignService.findCampaignServiceCall(timeOfUseCampaign.getName()).get();
+        List<DeviceInCampaignInfo> deviceInCampaignInfo = new ArrayList<>();
+        parent.findChildren().find().forEach(serviceCall -> deviceInCampaignInfo
+                .add(new DeviceInCampaignInfo(serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().getDevice().getmRID(),
+                        getStatus(serviceCall.getState(), thesaurus),
+                        serviceCall.getCreationTime(),
+                        (serviceCall.getState().equals(DefaultState.CANCELLED)
+                                || serviceCall.getState().equals(DefaultState.SUCCESSFUL)) ? serviceCall.getLastModificationTime() : null)));
+        return Response.ok(deviceInCampaignInfo).build();
     }
 
     @POST
@@ -144,27 +153,46 @@ public class TimeOfUseCampaignResource {
     public Response getSendOptionsForType(@QueryParam("type") Long deviceTypeId) {
         DeviceTypeAndOptionsInfo deviceTypeAndOptionsInfo = new DeviceTypeAndOptionsInfo();
         DeviceType deviceType = timeOfUseCampaignService.getDeviceTypesWithCalendars().stream()
-                .filter(deviceType1 -> deviceType1.getId()==deviceTypeId).findAny().get();
-        deviceTypeAndOptionsInfo.deviceType=new IdWithNameInfo(deviceType.getId(),deviceType.getName());
-        deviceTypeAndOptionsInfo.calendars=new ArrayList<>();
-        deviceTypeAndOptionsInfo.fullCalendar=false;
-        deviceTypeAndOptionsInfo.withActivationDate=false;
-        deviceTypeAndOptionsInfo.specialDays=false;
-        deviceType.getAllowedCalendars().forEach(allowedCalendar -> deviceTypeAndOptionsInfo.calendars.add(new IdWithNameInfo(allowedCalendar.getCalendar().get().getId(),allowedCalendar.getName())));
+                .filter(deviceType1 -> deviceType1.getId() == deviceTypeId).findAny().get();
+        deviceTypeAndOptionsInfo.deviceType = new IdWithNameInfo(deviceType.getId(), deviceType.getName());
+        deviceTypeAndOptionsInfo.calendars = new ArrayList<>();
+        deviceTypeAndOptionsInfo.fullCalendar = false;
+        deviceTypeAndOptionsInfo.withActivationDate = false;
+        deviceTypeAndOptionsInfo.specialDays = false;
+        deviceType.getAllowedCalendars().forEach(allowedCalendar -> deviceTypeAndOptionsInfo.calendars.add(new IdWithNameInfo(allowedCalendar.getCalendar().get().getId(), allowedCalendar.getName())));
         timeOfUseCampaignService.getDeviceConfigurationService().findTimeOfUseOptions(deviceType).get().getOptions()
                 .forEach(protocolSupportedCalendarOptions -> {
-                    if(protocolSupportedCalendarOptions.getId().equals("send")){
-                        deviceTypeAndOptionsInfo.fullCalendar=true;
-                    } else if(protocolSupportedCalendarOptions.getId().equals("sendWithDateTime")){
-                        deviceTypeAndOptionsInfo.fullCalendar=true;
-                        deviceTypeAndOptionsInfo.withActivationDate=true;
-                    }else if(protocolSupportedCalendarOptions.getId().equals("sendSpecialDays")){
-                        deviceTypeAndOptionsInfo.specialDays=true;
+                    if (protocolSupportedCalendarOptions.getId().equals("send")) {
+                        deviceTypeAndOptionsInfo.fullCalendar = true;
+                    } else if (protocolSupportedCalendarOptions.getId().equals("sendWithDateTime")) {
+                        deviceTypeAndOptionsInfo.fullCalendar = true;
+                        deviceTypeAndOptionsInfo.withActivationDate = true;
+                    } else if (protocolSupportedCalendarOptions.getId().equals("sendSpecialDays")) {
+                        deviceTypeAndOptionsInfo.specialDays = true;
                     }
                 });
         return Response.ok(deviceTypeAndOptionsInfo).build();
     }
 
+    private TimeOfUseCampaignInfo getOverviewCampaignInfo(TimeOfUseCampaign campaign, DefaultState status) {
+        TimeOfUseCampaignInfo info = timeOfUseCampaignInfoFactory.from(campaign);
+        ServiceCall campaignsServiceCall = timeOfUseCampaignService.findCampaignServiceCall(campaign.getName()).get();
+        info.startedOn = campaignsServiceCall.getCreationTime();
+        info.finishedOn = (campaignsServiceCall.getState().equals(DefaultState.CANCELLED)
+                || campaignsServiceCall.getState().equals(DefaultState.SUCCESSFUL)) ? campaignsServiceCall.getLastModificationTime() : null;
+        info.status = status.getDefaultFormat();
+        info.devices = new ArrayList<>();
+        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.SUCCESSFUL, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.FAILED, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.REJECTED, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.ONGOING, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.PENDING, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.CANCELLED, thesaurus), 0L));
+        timeOfUseCampaignService.getChildrenStatusFromCampaign(campaign.getId()).forEach((deviceStatus, quantity) ->
+                info.devices.stream().filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.equals(getStatus(deviceStatus, thesaurus)))
+                        .findAny().ifPresent(devicesStatusAndQuantity -> devicesStatusAndQuantity.quantity = quantity));
+        return info;
+    }
 
 
     private String getStatus(DefaultState defaultState, Thesaurus thesaurus) {

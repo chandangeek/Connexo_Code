@@ -41,6 +41,7 @@ import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.TimeOfUseItem;
 import com.energyict.mdc.tou.campaign.ToUUtil;
@@ -48,7 +49,6 @@ import com.energyict.mdc.tou.campaign.impl.Installer;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 import com.energyict.mdc.tou.campaign.impl.ServiceCallTypes;
 import com.energyict.mdc.tou.campaign.impl.TimeOfUseCampaignBuilderImpl;
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
@@ -452,7 +452,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     @Override
-    public DeviceConfigurationService getDeviceConfigurationService(){
+    public DeviceConfigurationService getDeviceConfigurationService() {
         return deviceConfigurationService;
     }
 
@@ -499,15 +499,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                         || serviceCall1.getParent().get().getState().equals(DefaultState.PENDING)))
                 .filter(serviceCall1 -> serviceCall1.canTransitionTo(defaultState))
                 .findAny().ifPresent(serviceCall1 -> serviceCall1.requestTransition(defaultState));
-    }
-
-    void changeServiceCallStatus(ServiceCall serviceCall, DefaultState defaultState) {
-        if(serviceCall.getState().equals(DefaultState.ONGOING)
-                        || serviceCall.getState().equals(DefaultState.PENDING)){
-            if (serviceCall.canTransitionTo(defaultState)){
-                serviceCall.requestTransition(defaultState);
-            }
-        }
     }
 
     @Override
@@ -605,7 +596,8 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
 
     }
 
-    private Optional<ServiceCall> findCampaignServiceCall(String campaignName) {
+    @Override
+    public Optional<ServiceCall> findCampaignServiceCall(String campaignName) {
         return serviceCallService.getServiceCallFinder().find().stream()
                 .filter(serviceCall1 -> serviceCall1.getExtension(TimeOfUseCampaignDomainExtension.class).isPresent())
                 .filter(serviceCall1 -> serviceCall1.getExtension(TimeOfUseCampaignDomainExtension.class).get().getName().equals(campaignName))

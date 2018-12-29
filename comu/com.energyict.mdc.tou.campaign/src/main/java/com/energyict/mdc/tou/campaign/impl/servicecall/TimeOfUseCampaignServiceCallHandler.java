@@ -56,7 +56,7 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
                 timeOfUseCampaignService.createItemsOnCampaign(serviceCall);
                 break;
             case CANCELLED:
-       //         serviceCall.findChildren().stream().forEach(serviceCall1 -> timeOfUseCampaignService.cancelCalendarSend(serviceCall));
+                //         serviceCall.findChildren().stream().forEach(serviceCall1 -> timeOfUseCampaignService.cancelCalendarSend(serviceCall));
                 break;
             case SUCCESSFUL:
                 serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");
@@ -86,9 +86,9 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
         if (isLastChild(findChildren(parent))) {
             if (parent.getState().equals(DefaultState.ONGOING)) {
                 if (isCancelling(findChildren(parent))) {
-                    timeOfUseCampaignService.changeServiceCallStatus(parent, DefaultState.CANCELLED);
+                    parent.requestTransition(DefaultState.CANCELLED);
                 } else {
-                    timeOfUseCampaignService.changeServiceCallStatus(parent, DefaultState.SUCCESSFUL);
+                    parent.canTransitionTo(DefaultState.SUCCESSFUL);
                 }
             }
         }

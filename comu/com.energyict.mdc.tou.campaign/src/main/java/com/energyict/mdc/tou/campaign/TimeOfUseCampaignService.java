@@ -5,6 +5,7 @@
 package com.energyict.mdc.tou.campaign;
 
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -48,4 +49,6 @@ public interface TimeOfUseCampaignService {
     void cancelCampaign(String campaign);
 
     void edit(String name, TimeOfUseCampaign timeOfUseCampaign);
+
+    Optional<ServiceCall> findCampaignServiceCall(String campaignName);
 }
