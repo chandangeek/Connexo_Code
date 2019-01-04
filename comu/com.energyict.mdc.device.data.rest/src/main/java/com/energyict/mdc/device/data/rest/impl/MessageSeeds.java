@@ -138,7 +138,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CRL_REQUEST_TASK(321, "NoCrlRequestTask", "No CRL request task exist"),
     CRL_REQUEST_TASK_CA_NAME_UNIQUE(322, "CrlRequestTaskCaNameUnique", "The CA name must be unique."),
     NOT_ALL_PROPS_ARE_DEFINDED(323, "notAllPropsAreDefined", "One of the following property is not set, Communication port pool, hostname or port number!"),
-    ZONE_SAVING_FAIL(324, "zone.savingFail", "Failed saving zone.");
+    ZONE_SAVING_FAIL(324, "zone.savingFail", "Failed saving zone."),
+    NO_SUCH_ZONE(325, "noSuchZone", "Zone not found"),
+    NO_SUCH_END_DEVICE_ZONE(326, "noSuchDeviceZone", "Zone not assigned to device");
 
     private final int number;
     private final String key;

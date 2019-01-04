@@ -24,6 +24,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
@@ -33,6 +34,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.metering.zone.EndDeviceZone;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
@@ -453,6 +455,13 @@ public class DeviceInfoFactoryTest {
         when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
         when(firmwareService.imageIdentifierExpectedAtFirmwareUpload(any(DeviceType.class))).thenReturn(false);
         when(firmwareService.isResumeFirmwareUploadEnabled(any(DeviceType.class))).thenReturn(false);
+
+        Finder<EndDeviceZone> endDeviceZoneFinder = mock(Finder.class);
+        doReturn(Stream.of(new EndDeviceZone[]{})).when(endDeviceZoneFinder).stream();
+        when(meteringZoneService.getByEndDevice(any(EndDevice.class))).thenReturn(endDeviceZoneFinder);
+
+        EndDevice endDevice = mock(EndDevice.class);
+        when(meteringService.findEndDeviceByMRID(any(String.class))).thenReturn(Optional.of(endDevice));
     }
 
     private void setupTranslations() {

@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Objects;
 
-//@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.ZONE_NAME_NOT_UNIQUE + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.ZONE_TYPE_NOT_UNIQUE + "}")
 class EndDeviceZoneImpl implements EndDeviceZone {
 
     @SuppressWarnings("unused") // Managed by ORM

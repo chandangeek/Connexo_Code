@@ -216,7 +216,7 @@ public class MeteringZoneServiceImpl implements MeteringZoneService, Translation
     }
 
     @Override
-    public EndDeviceZoneBuilder newEndDeviceZone() {
+    public EndDeviceZoneBuilder newEndDeviceZoneBuilder() {
         return new EndDeviceZoneBuilderImpl(dataModel);
     }
 }
