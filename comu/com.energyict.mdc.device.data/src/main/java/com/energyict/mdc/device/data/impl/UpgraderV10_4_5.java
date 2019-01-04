@@ -39,6 +39,7 @@ public class UpgraderV10_4_5 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModel.useConnectionRequiringTransaction(this::createPartitionedTable);
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 4, 5));
+        createUnsubscriberForMessageQueue();
     }
 
     private void createPartitionedTable(Connection connection) {
