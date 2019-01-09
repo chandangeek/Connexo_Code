@@ -23,7 +23,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.widget.WhatsGoingOn',
-        'Mdc.view.setup.device.DataLoggerSlavesPanel'
+        'Mdc.view.setup.device.DataLoggerSlavesPanel',
+        'Mdc.view.setup.device.DeviceZonesPanel',
     ],
 
     content: [
@@ -292,6 +293,15 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                         router: me.router,
                                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.topologyWidget,
                                         hidden: isDirectlyAddressable && !isGateway
+                                    },
+                                    {
+                                        xtype: 'device-zones-panel',
+                                        title: Uni.I18n.translate('deviceZones.title', 'MDC', 'Zones'),
+                                        privileges: Mdc.privileges.Device.deviceOperator,
+                                        router: me.router,
+                                        store: me.device.get('zones'),
+                                        //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.topologyWidget,
+                                        //hidden: !hasZones
                                     },
                                     {
                                         xtype: 'device-data-validation-panel',

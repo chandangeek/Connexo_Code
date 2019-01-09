@@ -36,6 +36,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
                         maxWidth: 600,
                         hidden: true
                     },
+
                     {
                         xtype: 'panel',
                         //width: ' 100%',
@@ -52,6 +53,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
                             required: true
                         },
                         items:[
+
                             {
                                 itemId: 'zone-type',
                                 xtype: 'combobox',
@@ -156,10 +158,6 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
         if (type) {
             //Ext.suspendLayouts();
             zoneNameCombo.reset();
-            //me.down('#rule-template-info').setInfoTooltip(null);
-            //issueReasonCombo.reset();
-            //me.down('property-form').loadRecord(Ext.create('Isu.model.CreationRuleTemplate'));
-            //me.hideResetButtons();
             Ext.resumeLayouts(true);
             //me.setLoading();
             var zoneTypeIds = [];

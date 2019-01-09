@@ -10,6 +10,8 @@ Ext.define('Mdc.view.setup.devicezones.ZoneEdit', {
         'Uni.util.FormErrorMessage',
     ],
     device: null,
+    deviceZoneId: null,
+    deviceZoneTypeId: null,
 
 
     initComponent: function () {
@@ -112,7 +114,9 @@ Ext.define('Mdc.view.setup.devicezones.ZoneEdit', {
                                 text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                                 ui: 'action',
                                 action: 'add',
-                                deviceId: me.device.get('name')
+                                deviceId: me.device.get('name'),
+                                deviceZoneId: me.deviceZoneId,
+                                deviceZoneTypeId: me.deviceZoneTypeId
                             },
                             {
                                 xtype: 'button',
@@ -153,7 +157,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneEdit', {
         //zoneNameCombo.reset();
         Ext.resumeLayouts(true);
         var zoneTypeIds = [];
-        zoneTypeIds.push(10);
+        zoneTypeIds.push(me.down('#mdc-zone-save-button').deviceZoneTypeId);
         zoneNameStore.getProxy().setExtraParam('filter',
             Ext.encode([
                 {

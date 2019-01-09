@@ -9,7 +9,8 @@ Ext.define('Mdc.model.Device', {
         'Mdc.model.DeviceConnection',
         'Mdc.model.DeviceCommunication',
         'Mdc.model.DataLoggerSlaveDevice',
-        'Mdc.model.G3NodePLCInfo'
+        'Mdc.model.G3NodePLCInfo',
+        'Mdc.model.DeviceZones'
     ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
@@ -54,7 +55,12 @@ Ext.define('Mdc.model.Device', {
         {name: 'estimationStatus', defaultValue: null},
         {name: 'dataLoggerSlaveDevices', type: 'auto', defaultValue: null},
         {name: 'protocolNeedsImageIdentifierForFirmwareUpgrade', type: 'boolean'},
-        {name: 'g3NodePLCInfo', type: 'auto', defaultValue: null, persist: false}
+        {name: 'g3NodePLCInfo', type: 'auto', defaultValue: null, persist: false},
+        {name: 'zones', defaultValue: null},
+        {name: 'zoneTypeName', type: 'string'},
+        {name: 'zoneTypeId', type: 'int'},
+        {name: 'zoneName', type: 'string'},
+        {name: 'zoneId', type: 'id'},
     ],
 
     associations: [
@@ -66,6 +72,17 @@ Ext.define('Mdc.model.Device', {
             foreignKey: 'slaveDevices',
             getTypeDiscriminator: function (node) {
                 return 'Mdc.model.Device';
+            }
+        },
+        {
+            name: 'zones',
+            type: 'hasMany',
+            model: 'Mdc.model.Device',
+            associationKey: 'zones',
+            foreignKey: 'zones',
+            remoteFilter: true,
+            storeConfig: {
+                pageSize: 5
             }
         },
         {
