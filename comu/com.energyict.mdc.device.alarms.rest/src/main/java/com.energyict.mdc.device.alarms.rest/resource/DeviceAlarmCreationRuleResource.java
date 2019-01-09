@@ -125,7 +125,7 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
 
     @GET
     @Path("/haswebservice")
-    //@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     //@RolesAllowed({Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE, Privileges.Constants.VIEW_ALARM_CREATION_RULE})
     public Response alarmRuleHasWebServiceAction(@BeanParam JsonQueryParameters queryParams,@QueryParam("webServiceName") String webServiceName) {
         IssueType alarmType = getIssueService().findIssueType("devicealarm").orElse(null);
