@@ -29,6 +29,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
+import com.energyict.mdc.upl.properties.DeviceGroup;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -53,6 +54,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         NAME("name"),
         STATUS("status"),
         DEVICE_TYPE("deviceType"),
+        DEVICE_GROUP("deviceGroup"),
         MANAGEMENT_OPTION("managementOption"),
         FIRMWARE_TYPE("firmwareType"),
         STARTED_ON("startedOn"),
@@ -351,7 +353,8 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     @SuppressWarnings("unused")
     /** We need this getter for successful event serialization */
-    public EndDeviceGroup getDeviceGroup() {
+    @Override
+    public EndDeviceGroup getDeviceGroup() {   //lori
         return deviceGroup;
     }
 

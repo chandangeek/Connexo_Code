@@ -36,6 +36,15 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 }
             },
             {
+                header: Uni.I18n.translate('general.deviceGroup1', 'FWC', 'Device group11'),   //lori
+                dataIndex: 'deviceGroup',
+                flex: 1,
+                renderer: function (value) {
+                    return value ? Ext.String.htmlEncode(value.localizedValue) : 'T';
+                   // return value ? value.localizedValue : 'U';
+                }
+            },
+            {
                 header: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
                 dataIndex: 'firmwareType',
                 flex: 1,

@@ -64,6 +64,15 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         }
                     },
                     {
+                        itemId: 'device-group-field',    //lori
+                        fieldLabel: Uni.I18n.translate('general.deviceGroup2', 'FWC', 'Device group22'),
+                        name: 'deviceGroup',
+                        renderer: function (value) {
+                            return value ? '<a href="' + me.router.getRoute('administration/devicetypes/view/firmwareversions')
+                                    .buildUrl({deviceGroupId: value.id}) + '">' + Ext.String.htmlEncode(value.localizedValue) + '</a>' : 'M'
+                        }
+                    },
+                    {
                         xtype: 'displayfield',
                         name: 'timeBoundaryAsText',
                         fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary')

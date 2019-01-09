@@ -5,6 +5,8 @@
 package com.energyict.mdc.firmware;
 
 import aQute.bnd.annotation.ProviderType;
+
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -12,6 +14,7 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
+import com.energyict.mdc.upl.properties.DeviceGroup;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,6 +28,8 @@ public interface FirmwareCampaign extends HasId, HasName{
     FirmwareCampaignStatus getStatus();
 
     DeviceType getDeviceType();
+
+    EndDeviceGroup getDeviceGroup();  //lori
 
     FirmwareType getFirmwareType();
 
