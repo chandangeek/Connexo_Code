@@ -2,7 +2,7 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.store.DeviceZones', {
+Ext.define('Mdc.store.DeviceZonesTypes', {
     extend: 'Ext.data.Store',
     autoLoad: false,
     fields: [
@@ -18,10 +18,10 @@ Ext.define('Mdc.store.DeviceZones', {
     proxy: {
         type: 'rest',
         urlTpl: '/api/ddr/devices/{deviceId}/zones/remainingZoneTypes',
-        /*timeout: 250000,
+        timeout: 250000,
         pageParam: undefined,
         startParam: undefined,
-        limitParam: undefined,*/
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'remainingZoneTypes'

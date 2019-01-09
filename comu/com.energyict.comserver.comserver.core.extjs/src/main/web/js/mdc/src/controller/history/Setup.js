@@ -248,6 +248,23 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showAddOverview',
                                     //dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
                                     //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges
+                                },
+                                edit: {
+                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    route: '{zoneId}/edit',
+                                    controller: 'Mdc.controller.setup.DeviceZones',
+                                    //privileges: Mdc.privileges.DeviceCommands.executeCommands,
+                                    action: 'showEditOverview',
+                                    //dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
+                                    //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges
+                                    callback: function (route) {
+                                        this.getApplication().on('loadZonesOnDevice', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
                                 }
                             }
                         },
@@ -495,6 +512,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'loadCustomAttributeVersions',
                                             callback: function (route) {
                                                 this.getApplication().on('loadCustomAttributeSetOnRegister', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('deviceregisterconfiguration.historyCustomAttributes', 'MDC', "'{0}' history", [record.get('name')]));
                                                     route.setTitle(Uni.I18n.translate('deviceregisterconfiguration.historyCustomAttributes', 'MDC', "'{0}' history", [record.get('name')]));
                                                     return true;
                                                 }, {single: true});

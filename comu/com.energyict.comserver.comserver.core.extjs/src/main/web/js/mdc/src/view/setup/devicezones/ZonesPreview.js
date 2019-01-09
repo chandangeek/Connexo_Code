@@ -71,16 +71,17 @@ Ext.define('Mdc.view.setup.devicezones.ZonesPreview', {
                                     align: 'stretch'
                                 },
                                 items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'zoneName',
-                                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
 
-                                    },
                                     {
                                         xtype: 'displayfield',
                                         name: 'zoneTypeName',
-                                        fieldLabel: Uni.I18n.translate('devicezones.zoneType', 'MDC', 'Zone Type'),
+                                        fieldLabel: Uni.I18n.translate('devicezones.zoneType', 'MDC', 'Zone type'),
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'zoneName',
+                                        fieldLabel: Uni.I18n.translate('general.zone', 'MDC', 'Zone'),
+
                                     },
                                 ]
                             },

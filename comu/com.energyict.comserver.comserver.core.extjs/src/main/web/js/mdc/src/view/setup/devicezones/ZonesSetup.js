@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.devicezones.ZonesSetup', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'device-zones-grid',
-                            itemId: 'device-zones-grid',
+                            itemId: 'grd-device-zones',
                             store: 'Mdc.store.DeviceZones',
                             device: me.device
                         },
@@ -33,7 +33,8 @@ Ext.define('Mdc.view.setup.devicezones.ZonesSetup', {
                             xtype: 'no-items-found-panel',
                             title: Uni.I18n.translate('deviceZones.overview.emptyMsg', 'MDC', 'No zone found'),
                             reasons: [
-                                Uni.I18n.translate('deviceZones.overview.emptyReason', 'MDC', 'No zone was linked to the device')
+                                Uni.I18n.translate('deviceZones.overview.emptyReason', 'MDC', 'No zones have been created yet'),
+                                Uni.I18n.translate('deviceZones.overview.emptyReason1', 'MDC', 'No zones have been linked to the device')
                             ],
                             stepItems: [
                                 {
