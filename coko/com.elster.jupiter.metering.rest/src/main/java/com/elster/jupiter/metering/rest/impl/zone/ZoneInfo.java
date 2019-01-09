@@ -17,7 +17,6 @@ public class ZoneInfo {
     public long version;
 
     public ZoneInfo() {
-
     }
 
     public ZoneInfo(long id, String name, String application, long zoneTypeId, String zoneTypeName, long version) {

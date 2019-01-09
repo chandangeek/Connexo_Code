@@ -10,4 +10,15 @@ public class EndDeviceZoneInfo {
     public long zoneTypeId;
     public String zoneName;
     public long zoneId;
+
+    public EndDeviceZoneInfo() {
+    }
+
+    public EndDeviceZoneInfo(String zoneTypeName, String zoneName, long id, long zoneTypeId, long zoneId) {
+        this.zoneTypeName = zoneTypeName;
+        this.zoneName = zoneName;
+        this.id = id;
+        this.zoneTypeId = zoneTypeId;
+        this.zoneId = zoneId;
+    }
 }

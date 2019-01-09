@@ -45,7 +45,7 @@ public interface MeteringZoneService {
     */
     Finder<EndDeviceZone> getByEndDevice(EndDevice endDevice);
 
-    EndDeviceZoneBuilder newEndDeviceZone();
+    EndDeviceZoneBuilder newEndDeviceZoneBuilder();
 
     Optional<EndDeviceZone> getEndDeviceZone(long endDeviceZoneId);
 }

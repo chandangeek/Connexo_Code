@@ -152,7 +152,12 @@ public class MeteringZoneServiceImpl implements MeteringZoneService, Translation
 
     @Override
     public Finder<Zone> getZones(String application, ZoneFilter zoneFilter) {
-        return DefaultFinder.of(Zone.class, where("zoneType.application").isEqualToIgnoreCase(application).and(zoneFilter.toCondition()), dataModel, ZoneType.class);
+        return DefaultFinder.of(Zone.class,
+                where("zoneType.application")
+                        .isEqualToIgnoreCase(application)
+                        .and(zoneFilter.toCondition()), dataModel, ZoneType.class)
+                .sorted("zoneType.typeName", true)
+                .sorted("name", true);
     }
 
     @Override
@@ -211,7 +216,7 @@ public class MeteringZoneServiceImpl implements MeteringZoneService, Translation
     }
 
     @Override
-    public EndDeviceZoneBuilder newEndDeviceZone() {
+    public EndDeviceZoneBuilder newEndDeviceZoneBuilder() {
         return new EndDeviceZoneBuilderImpl(dataModel);
     }
 }
