@@ -40,13 +40,13 @@ Ext.define('Tou.view.Grid', {
                         itemId: 'tou-campaigns-grid-paging-toolbar-top',
                         dock: 'top',
                         store: me.store,
-                        displayMsg: 'Tou campaigns',
-                        displayMoreMsg: 'Tou campaigns',
-                        emptyMsg: 'There are no tou campaigns to display',
+                        displayMsg: 'ToU campaigns',
+                        displayMoreMsg: 'ToU campaigns',
+                        emptyMsg: 'There are no ToU campaigns to display',
                         items: [
                             {
                                 itemId: 'tou-campaigns-add-button',
-                                text: 'Add tou campaign',
+                                text: 'Add ToU campaign',
                                 action: 'addTouCampaign',
                                 href: me.router.getRoute('workspace/toucampaigns/add').buildUrl(),
                                 privileges: Fwc.privileges.FirmwareCampaign.administrate
@@ -58,7 +58,7 @@ Ext.define('Tou.view.Grid', {
                         itemId: 'tou-campaigns-grid-paging-toolbar-bottom',
                         dock: 'bottom',
                         store: me.store,
-                        itemsPerPageMsg: 'Tou campaigns per page'
+                        itemsPerPageMsg: 'ToU campaigns per page'
                     }
                 ];
 

@@ -22,7 +22,8 @@ Ext.define('Tou.model.TouCampaign', {
         {name: 'updateType',  defaultValue: null},
         {name: 'timeValidation', type: 'date', dateFormat: 'time', persist: false},
         {name: 'status'},
-        {name: 'devices'}
+        {name: 'devices'},
+        {name: 'timeBoundary'}
 
     ],
     associations: [

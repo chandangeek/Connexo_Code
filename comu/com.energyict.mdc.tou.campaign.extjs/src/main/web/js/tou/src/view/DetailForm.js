@@ -31,7 +31,7 @@ Ext.define('Tou.view.DetailForm', {
                 itemId: 'tou-campaigns-detail-action-menu-button',
                 menu: {
                     xtype: 'tou-campaigns-action-menu',
-                    itemId: 'tou-campaigns-action-menu',
+                    itemId: 'tou-campaigns-detail-action-menu',
                     returnToCampaignOverview: !me.isPreview
                 }
             }
@@ -60,31 +60,18 @@ Ext.define('Tou.view.DetailForm', {
                         fieldLabel: 'Device type',
                         name: 'deviceType',
                         renderer: function (value) {
-                            var devStore = Ext.getStore('Tou.store.DeviceTypes');
-                            devStore.load();
-                            devStore.on('load',function (store, records, successful, eOpts ){
-                                 //Block of codes
-                                 //var access=records[0].data.access;
-                                 //Block of codes
-                            });
                             return value && value.id ? '<a href="' + me.router.getRoute('administration/devicetypes/view').buildUrl({deviceTypeId: value.id}) + '">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
                         }
                     },
                     {
                         itemId: 'activation-field',
                         xtype: 'displayfield',
-                        name: 'activationStart',
-                        fieldLabel: 'Activation start',
+                        name: 'timeBoundary',
+                        fieldLabel: 'Time boundary',
                         renderer: function (value) {
                             var res = '-';
                             if (value){
-                                var rec = this.up('form').getRecord();
-                                if (rec){
-                                   var data = rec.getRecordData();
-                                   if (data &&  Ext.isObject(data) && data['activationEnd']) {
-                                        res = '<span> Activate between ' + new Date(value) + ' and ' + new Date(data['activationEnd']) + '</span>';
-                                   }
-                                }
+                                res = value;
                             }
                             return res;
                         }
@@ -94,7 +81,21 @@ Ext.define('Tou.view.DetailForm', {
                         fieldLabel: 'Update type',
                         name: 'updateType',
                         renderer: function (value) {
-                            return value ? '<span>' + value + '</span>' : '-'
+                            var res = '-';
+                            if (value){
+                                 switch(value){
+                                    case 'fullCalendar':
+                                       res = 'Full calendar';
+                                       break;
+                                    case 'specialDays':
+                                       res = 'Only special days';
+                                       break;
+                                    default:
+                                       res = value;
+                                       break;
+                                 }
+                            }
+                            return res;
                         }
                     },
                     {

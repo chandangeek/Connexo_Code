@@ -16,21 +16,21 @@ Ext.define('Tou.controller.History', {
             disabled: true,
             items: {
                 toucampaigns: {
-                    title: 'Tou campaigns',
+                    title: 'ToU campaigns',
                     route: 'toucampaigns',
                     controller: 'Tou.controller.Overview',
                     action: 'showOverview',
                     privileges: Fwc.privileges.FirmwareCampaign.view,
                     items: {
                         add: {
-                            title: 'Add tou campaign',
+                            title: 'Add ToU campaign',
                              route: 'add',
                              controller: 'Tou.controller.Add',
                              action: 'showAdd',
                              privileges: Fwc.privileges.FirmwareCampaign.administrate
                         },
                         toucampaign: {
-                           title: 'Tou campaign',
+                           title: 'ToU campaign',
                             route: '{touCampaignName}',
                             controller: 'Tou.controller.Detail',
                             action: 'showDetail',

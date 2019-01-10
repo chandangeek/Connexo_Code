@@ -86,12 +86,6 @@ Ext.define('Tou.view.AddForm', {
                         displayField: 'name',
                         valueField: 'name',
                         width: 325
-                    },
-                    {
-                        xtype: 'displayfield',
-                        margin: '0 0 0 10',
-                        htmlEncode: false,
-                        value: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qwidth="400" data-qtitle="Help - About device group" data-qtip="Only devices that meet the following criteria will be included in the tou campaign:<ul class="ul#uni-panel-no-items-found"><li>Devices with as device type the selected device type</li><li>Devices that are member of the selected device group at the moment the tou campaign is added</li></ul>"></span>'
                     }
                 ]
             },
