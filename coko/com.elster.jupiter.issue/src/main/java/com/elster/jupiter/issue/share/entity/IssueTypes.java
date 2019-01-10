@@ -9,6 +9,7 @@ public enum IssueTypes {
 
     DATA_COLLECTION("DCI", "datacollection"),
     DATA_VALIDATION("DVI", "datavalidation"),
+    DEVICE_LIFECYCLE("DLI","devicelifecycle"),
     USAGEPOINT_DATA_VALIDATION("UVI", "usagepointdatavalidation"),
     DEVICE_ALARM("ALM", "devicealarm"),
     NA ("NA", "notapplicable");
@@ -35,6 +36,7 @@ public enum IssueTypes {
             case "datavalidation" : return IssueTypes.DATA_VALIDATION;
             case "usagepointdatavalidation" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
             case "devicealarm" : return IssueTypes.DEVICE_ALARM;
+            case "devicelifecycle" : return IssueTypes.DEVICE_LIFECYCLE;
             default:return IssueTypes.NA;
         }
     }
@@ -46,6 +48,7 @@ public enum IssueTypes {
             case "DVI" : return IssueTypes.DATA_VALIDATION;
             case "UVI" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
             case "ALM" : return IssueTypes.DEVICE_ALARM;
+            case "DLI" : return IssueTypes.DEVICE_LIFECYCLE;
             default:return IssueTypes.NA;
         }
     }
