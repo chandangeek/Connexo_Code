@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.devicezones.ZonesGrid', {
                         xtype: 'button',
                         //privileges: Mdc.privileges.DeviceCommands.executeCommands,
                         text: Uni.I18n.translate('deviceZones.addCommand','MDC','Add zone'),
-                        itemId: 'deviceAddZoneButton',
+                        itemId: 'device-add-zone-button',
                         deviceId: me.deviceId,
                         //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges
                     }

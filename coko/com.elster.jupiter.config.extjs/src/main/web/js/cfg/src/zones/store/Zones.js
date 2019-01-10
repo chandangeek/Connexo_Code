@@ -13,7 +13,10 @@ Ext.define('Cfg.zones.store.Zones', {
         reader: {
             type: 'json',
             root: 'zones'
-        }
+        },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
     }
 
 });

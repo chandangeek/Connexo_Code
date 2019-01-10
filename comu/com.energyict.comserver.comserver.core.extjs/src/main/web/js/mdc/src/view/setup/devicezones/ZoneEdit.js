@@ -10,7 +10,6 @@ Ext.define('Mdc.view.setup.devicezones.ZoneEdit', {
         'Uni.util.FormErrorMessage',
     ],
     device: null,
-    deviceZoneId: null,
     deviceZoneTypeId: null,
 
 
@@ -115,12 +114,11 @@ Ext.define('Mdc.view.setup.devicezones.ZoneEdit', {
                                 ui: 'action',
                                 action: 'add',
                                 deviceId: me.device.get('name'),
-                                deviceZoneId: me.deviceZoneId,
                                 deviceZoneTypeId: me.deviceZoneTypeId
                             },
                             {
                                 xtype: 'button',
-                                itemId: 'mdc-zone-cancel-button',
+                                itemId: 'mdc-zone-edit-cancel-button',
                                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                 ui: 'link',
                                 action: 'cancel',

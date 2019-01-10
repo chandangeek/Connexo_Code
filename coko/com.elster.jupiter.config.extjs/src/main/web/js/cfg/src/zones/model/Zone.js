@@ -16,6 +16,6 @@ Ext.define('Cfg.zones.model.Zone', {
         url: '/api/mtr/zones',
         reader: {
             type: 'json'
-        }
+        },
     }
 });

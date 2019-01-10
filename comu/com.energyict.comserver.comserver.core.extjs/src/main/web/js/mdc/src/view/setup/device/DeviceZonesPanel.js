@@ -14,8 +14,7 @@ Ext.define('Mdc.view.setup.device.DeviceZonesPanel', {
     deviceId: null,
     device: null,
     ui: 'tile',
-    //title: Uni.I18n.translate('device.Zones', 'MDC', 'Zones'),
-    layout: 'fit',
+
     setRecord: function (device) {
         var me = this,
             zonesStore = device.zones(),
@@ -84,7 +83,7 @@ Ext.define('Mdc.view.setup.device.DeviceZonesPanel', {
         me.add(form);
         if (!Ext.isEmpty(grid)) {
             me.add(grid);
-           me.down('#zones-grid').reconfigure(zonesStore);
+            me.down('#zones-grid').reconfigure(zonesStore);
         }
         me.add(manageZonesLink);
         Ext.resumeLayouts();

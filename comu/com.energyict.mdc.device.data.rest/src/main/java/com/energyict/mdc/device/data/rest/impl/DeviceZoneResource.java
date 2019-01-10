@@ -36,6 +36,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,6 +73,17 @@ public class DeviceZoneResource {
                 .collect(Collectors.toList()), queryParameters);
     }
 
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{deviceZoneId}")
+    @RolesAllowed({Privileges.Constants.VIEW_ZONE,
+            Privileges.Constants.ADMINISTRATE_ZONE})
+    public EndDeviceZoneInfo getZone(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey, @PathParam("deviceZoneId") Long zoneId) {
+        return meteringZoneService.getEndDeviceZone(zoneId)
+                .map(zone -> endDeviceZoneInfoFactory.from(zone))
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_ZONE));
+    }
     @POST
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -127,6 +139,8 @@ public class DeviceZoneResource {
         return Response.ok(meteringZoneService.getZoneTypes(appKey)
                 .stream()
                 .filter(zoneType -> !usedZoneTypes.contains(zoneType.getId()))
+                .filter(zoneType -> meteringZoneService
+                        .getZones(appKey, meteringZoneService.newZoneFilter().setZoneTypes(Collections.singletonList(zoneType.getId()))).stream().count() != 0)
                 .sorted((z1, z2) -> z1.getName().compareToIgnoreCase(z2.getName()))
                 .map(IdWithNameInfo::new)
                 .collect(Collectors.toList())).build();

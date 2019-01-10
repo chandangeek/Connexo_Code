@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
         'Cfg.zones.store.Zones'
     ],
     device: null,
+    disableAction: false,
 
 
     initComponent: function () {
@@ -53,7 +54,14 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
                             required: true
                         },
                         items:[
-
+                            {
+                                itemId: 'zone-type-empty',
+                                xtype: 'displayfield',
+                                value: 'No zone type has been defined',
+                                fieldLabel: Uni.I18n.translate('devicezones.zoneType', 'MDC', 'Zone type'),
+                                //disabled: true,
+                                hidden: !me.disableAction
+                            },
                             {
                                 itemId: 'zone-type',
                                 xtype: 'combobox',
@@ -69,7 +77,8 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
                                     change: {
                                         fn: Ext.bind(me.onZoneTypeChange, me)
                                     }
-                                }
+                                },
+                                hidden: me.disableAction
                             },
                             {
                                 itemId: 'zone-name',
@@ -83,24 +92,11 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
                                 valueField: 'id',
                                 store: 'Cfg.zones.store.Zones',
                                 emptyText: Uni.I18n.translate('devicezones.zoneSelectorPrompt', 'MDC', 'Select a zone...'),
-                                disabled: me.edit
+                                disabled: true,
+                                hidden: me.disableAction
                             }
                         ]
 
-                    },
-                    {
-                        itemId: 'device-zone-add-property-header',
-                        margin: '16 0 0 0'
-                    },
-                    {
-                        itemId: 'device-zone-add-property-form',
-                        xtype: 'property-form',
-                        margin: '16 0 0 0',
-                        defaults: {
-                            labelWidth: 250,
-                            resetButtonHidden: false,
-                            width: 336 // To be aligned with the above
-                        }
                     },
                     {
                         xtype: 'fieldcontainer',
@@ -117,11 +113,12 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
                                 text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                 ui: 'action',
                                 action: 'add',
-                                deviceId: me.device.get('name')
+                                deviceId: me.device.get('name'),
+                                disabled: me.disableAction
                             },
                             {
                                 xtype: 'button',
-                                itemId: 'mdc-zone-cancel-button',
+                                itemId: 'mdc-zone-add-cancel-button',
                                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                 ui: 'link',
                                 action: 'cancel',
@@ -171,11 +168,11 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
                 ]));
 
             zoneNameStore.load({
-                callback: function ()  {
-                    if (zoneNameCombo.store.count() > 0)
-                        me.down('#zone-name').show();
+                callback: function (records, operation, success)  {
+                    if (records.length > 0)
+                        zoneNameCombo.setDisabled(false);
                     else
-                        me.down('#zone-name').hide();
+                        zoneNameCombo.setDisabled(true);
                 }
             });
 

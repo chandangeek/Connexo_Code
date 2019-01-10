@@ -36,7 +36,7 @@ Ext.define('Mdc.controller.setup.Devices', {
     refs: [
         {ref: 'deviceGeneralInformationForm', selector: '#deviceGeneralInformationForm'},
         {ref: 'deviceCommunicationTopologyPanel', selector: '#devicecommicationtopologypanel'},
-        {ref: 'deviceZonePanel', selector: '#deviceZonesPanel'},
+        {ref: 'deviceZonesPanel', selector: '#deviceZonesPanel'},
         {ref: 'dataLoggerSlavesPanel', selector: '#mdc-dataLoggerSlavesPanel'},
         {ref: 'deviceOpenIssuesPanel', selector: '#deviceopenissuespanel'},
         {ref: 'deviceDataValidationPanel', selector: '#deviceDataValidationPanel'},
@@ -303,7 +303,12 @@ Ext.define('Mdc.controller.setup.Devices', {
                             }
                         }
 
-                        me.getDeviceZonePanel().setRecord(device);
+                        if (!Ext.isEmpty(me.getDeviceZonesPanel())) {
+                            if( device.get('zones').length == 0)
+                                me.getDeviceZonesPanel().hide();
+                            else
+                                me.getDeviceZonesPanel().setRecord(device);
+                        }
 
                         if (!Ext.isEmpty(me.getDataLoggerSlavesPanel())) {
                             var dataLoggerSlavesPanel = me.getDataLoggerSlavesPanel();

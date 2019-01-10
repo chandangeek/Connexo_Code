@@ -60,7 +60,7 @@ Ext.define('Mdc.model.Device', {
         {name: 'zoneTypeName', type: 'string'},
         {name: 'zoneTypeId', type: 'int'},
         {name: 'zoneName', type: 'string'},
-        {name: 'zoneId', type: 'id'},
+        {name: 'zoneId', type: 'int'},
     ],
 
     associations: [

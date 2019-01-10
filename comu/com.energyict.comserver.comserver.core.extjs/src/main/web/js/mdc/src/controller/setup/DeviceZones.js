@@ -13,7 +13,6 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
         'Mdc.view.setup.devicezones.ZoneAdd',
         'Mdc.view.setup.devicezones.ZoneEdit',
         'Mdc.model.Device',
-        'Mdc.model.DeviceZone',
         'Mdc.model.DeviceZones',
         'Cfg.zones.model.Zone'
 
@@ -47,10 +46,16 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
                 '#grd-device-zones': {
                     select: this.showDeviceZonePreview
                 },
-                '#grd-device-zones #deviceAddZoneButton': {
+                '#device-add-zone-button': {
                     click: this.navigateAdd
                 },
-                'device-zone-add #mdc-zone-cancel-button': {
+                '#empty_grid_device-add-zone-button' :{
+                    click: this.navigateAdd
+                },
+                'device-zone-add #mdc-zone-add-cancel-button': {
+                    click: this.cancelClick
+                },
+                'device-zone-edit #mdc-zone-edit-cancel-button': {
                     click: this.cancelClick
                 },
                 'device-zone-add #mdc-zone-add-button': {
@@ -59,7 +64,7 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
                 'device-zone-edit #mdc-zone-save-button': {
                     click: this.saveZone
                 },
-                '#device-zones-action-menu': {
+                'device-zones-action-menu': {
                     click: this.chooseAction
                 }
             }
@@ -111,13 +116,13 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
     addZone: function (btn) {
 
         var me = this,
-            propertyForm = this.getAddPropertyForm(),
             zoneForm = this.getAddZoneForm();
 
-        if (propertyForm && propertyForm.isValid()) {
+        zoneForm.getForm().clearInvalid();
+        if (zoneForm && zoneForm.isValid()) {
             zoneForm.down('#form-errors').hide();
-            propertyForm.updateRecord();
-            var newRecord = zoneForm.getRecord() || Ext.create('Mdc.model.DeviceZone');
+            zoneForm.updateRecord();
+            var newRecord = zoneForm.getRecord() || Ext.create('Mdc.model.DeviceZones');
 
             newRecord.beginEdit();
             newRecord.set('zoneId', zoneForm.down('#zone-name').getValue());
@@ -136,7 +141,6 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
                 },
                 failure: function (record, operation) {
                     if (operation && operation.response && operation.response.status === 400) {
-                        me.formMarkInvalid(Ext.decode(operation.response.responseText));
                         zoneForm.down('#form-errors').show();
                         newRecord.set('id', messageSpecification.id);
                     }
@@ -151,29 +155,28 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
     saveZone: function (btn) {
 
         var me = this,
-            propertyForm = this.getEditPropertyForm(),
-            zoneForm = this.getEditZoneForm();
+            zoneForm = this.getEditZoneForm(),
+            router = me.getController('Uni.controller.history.Router');
 
-        if (propertyForm && propertyForm.isValid()) {
+        if (zoneForm && zoneForm.isValid()) {
             zoneForm.down('#form-errors').hide();
-            propertyForm.updateRecord();
+            zoneForm.updateRecord();
 
             var jsonData = {
                 zoneId: zoneForm.down('#zone-name').getValue()
             };
             Ext.Ajax.request({
-                url: '/api/ddr/devices/' + encodeURIComponent(btn.deviceId) + '/zones/' + encodeURIComponent(btn.deviceZoneId) ,
+                url: '/api/ddr/devices/' + encodeURIComponent(router.arguments.deviceId) + '/zones/' + encodeURIComponent(router.arguments.deviceZoneId) ,
                 method: 'PUT',
                 jsonData: Ext.encode(jsonData),
                 success: function (response) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceZone.overview.addSuccess', 'MDC', 'Zone added'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceZone.overview.addSuccess', 'MDC', 'Zone saved'));
                     var router = me.getController('Uni.controller.history.Router');
                     router.getRoute('devices/device/zones').forward();
                 },
                 failure: function (response) {
                     if (response && response.status === 400) {
-                        //me.formMarkInvalid(Ext.decode(response.responseText));
-                        //zoneForm.down('#form-errors').show();
+                         zoneForm.down('#form-errors').show();
                     }
                 }
             });
@@ -185,39 +188,51 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
 
     },
 
-    showEditOverview: function (deviceId, zoneId) {
+    showEditOverview: function (deviceId, deviceZoneId) {
         var me = this,
             deviceTypesStore = me.getStore('Mdc.store.DeviceZonesTypes'),
             zoneModel =  Ext.ModelManager.getModel('Cfg.zones.model.Zone'),
-            zones = this.getDeviceZonesGrid().getSelectionModel().getSelection(),
-            deviceZoneId = zones[0].get('id'),
-            deviceZoneTypeId = zones[0].get('zoneTypeId');
+            deviceZonesModel =   Ext.ModelManager.getModel('Mdc.model.DeviceZones'),
+            zoneId,
+            deviceZoneTypeId;
+
+        deviceZonesModel.getProxy().setExtraParam('deviceId', deviceId);
+        deviceZonesModel.load(deviceZoneId, {
+            success: function (deviceZone) {
+                zoneId = deviceZone.get("zoneId");
+                deviceZoneTypeId = deviceZone.get("zoneTypeId");
+            }
+        });
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 zoneModel.load(zoneId, {
-                    success: function(zone) {
-                        var widget = Ext.widget('device-zone-edit', {
-                            device: device,
-                            deviceZoneId: deviceZoneId,
-                            deviceZoneTypeId: deviceZoneTypeId,
-                            edit: true,
-                            title: Uni.I18n.translate('deviceZone.add.title', 'MDC', "Edit '{0}'", zone.get('name'))
-                        });
-                        if (deviceId) {
-                            deviceTypesStore.getProxy().setUrl(deviceId);
-                            deviceTypesStore.load();
-                        }
-                        widget.down('#device-zone-edit-form').loadRecord(zone);
-                        me.getApplication().fireEvent('loadZonesOnDevice', zone);
-                        me.getApplication().fireEvent('loadDevice', device);
-                        me.getApplication().fireEvent('changecontentevent', widget);
+                    success: function (zone) {
+                        if (zoneId != undefined && deviceZoneTypeId != undefined) {
+                            var widget = Ext.widget('device-zone-edit', {
+                                device: device,
+                                deviceZoneId: deviceZoneId,
+                                deviceZoneTypeId: deviceZoneTypeId,
+                                edit: true,
+                                title: Uni.I18n.translate('deviceZone.add.title', 'MDC', "Edit '{0}'", zone.get('name'))
+                            });
 
+                            if (deviceId) {
+                                deviceTypesStore.getProxy().setUrl(deviceId);
+                                deviceTypesStore.load();
+                            }
+
+                            widget.down('#device-zone-edit-form').loadRecord(zone);
+                            me.getApplication().fireEvent('loadZonesOnDevice', zone);
+                            me.getApplication().fireEvent('loadDevice', device);
+                            me.getApplication().fireEvent('changecontentevent', widget);
+
+                        }
                     }
                 });
-
             }
         });
+
     },
 
     showAddOverview: function (deviceId) {
@@ -227,17 +242,24 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 me.getStore('Mdc.store.DeviceZones').getProxy().setExtraParam('deviceId', device.get('name'));
-                widget = Ext.widget('device-zone-add', {
-                    device: device,
-                    edit: false,
-                    title: Uni.I18n.translate('deviceZone.add.title', 'MDC', 'Add zone')
-                });
                 if (deviceId) {
                     deviceTypesStore.getProxy().setUrl(deviceId);
-                    deviceTypesStore.load();
+                    deviceTypesStore.load({
+                        callback: function (records, operation, success) {
+                            widget = Ext.widget('device-zone-add', {
+                                device: device,
+                                deviceTypesStore: deviceTypesStore,
+                                edit: false,
+                                title: Uni.I18n.translate('deviceZone.add.title', 'MDC', 'Add zone'),
+                                disableAction: !(success && (records.length > 0))
+                            });
+
+                            widget.down('#device-zone-add-form').loadRecord(Ext.create('Mdc.model.DeviceZones'));
+                            me.getApplication().fireEvent('loadDevice', device);
+                            me.getApplication().fireEvent('changecontentevent', widget);
+                        }
+                    });
                 }
-                me.getApplication().fireEvent('loadDevice', device);
-                me.getApplication().fireEvent('changecontentevent', widget);
             }
         });
     },
@@ -284,16 +306,15 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
             router = me.getController('Uni.controller.history.Router'),
             routeParams = router.arguments;
 
-        var zones = this.getDeviceZonesGrid().getSelectionModel().getSelection();
-        routeParams.deviceZoneId = menu.record.get("id");
-        routeParams.zoneId = menu.record.get("zoneId");
-
+        var record = menu.record || me.getDeviceZonesGrid().getSelectionModel().getLastSelected();
+        routeParams.deviceZoneId = record.get("id");
+        //routeParams.id = record.get("id");
         switch (item.action) {
             case 'editZone':
                 router.getRoute('devices/device/zones/edit').forward(routeParams);
                 break;
             case 'deleteZone':
-                me.removeZone(zones[0]);
+                me.removeZone(record);
                 break;
         }
     },

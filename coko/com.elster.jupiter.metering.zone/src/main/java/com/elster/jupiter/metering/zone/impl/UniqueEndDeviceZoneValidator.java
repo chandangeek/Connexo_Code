@@ -40,12 +40,16 @@ public class UniqueEndDeviceZoneValidator implements ConstraintValidator<UniqueN
     }
 
     private boolean checkExisting(EndDeviceZone zone, EndDeviceZone alreadyExisting, ConstraintValidatorContext context) {
-        if (areTheSameZoneType(zone, alreadyExisting)) {
+        if (!areTheSameEndDeviceZone(zone, alreadyExisting) && areTheSameZoneType(zone, alreadyExisting)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(message).addPropertyNode("zone").addConstraintViolation();
             return true;
         }
         return false;
+    }
+
+    private boolean areTheSameEndDeviceZone(EndDeviceZone zone, EndDeviceZone alreadyExisting) {
+        return zone.getId() == alreadyExisting.getId();
     }
 
     private boolean areTheSameZoneType(EndDeviceZone zone, EndDeviceZone alreadyExisting) {

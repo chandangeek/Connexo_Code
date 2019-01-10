@@ -10,10 +10,6 @@ Ext.define('Mdc.store.DeviceZones', {
     proxy: {
         type: 'rest',
         urlTpl: '/api/ddr/devices/{deviceId}/zones',
-        /*timeout: 250000,
-        pageParam: undefined,
-        startParam: undefined,
-        limitParam: undefined,*/
         reader: {
             type: 'json',
             root: 'zones'

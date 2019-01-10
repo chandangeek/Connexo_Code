@@ -300,8 +300,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                         privileges: Mdc.privileges.Device.deviceOperator,
                                         router: me.router,
                                         store: me.device.get('zones'),
-                                        //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.topologyWidget,
-                                        //hidden: !hasZones
+                                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.zonesWidget,
+                                        hidden:  me.device.get('zones').length == 0 ? true: false
                                     },
                                     {
                                         xtype: 'device-data-validation-panel',

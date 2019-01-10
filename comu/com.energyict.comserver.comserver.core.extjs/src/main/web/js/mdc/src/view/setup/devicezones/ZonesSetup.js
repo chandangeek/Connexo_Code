@@ -39,8 +39,8 @@ Ext.define('Mdc.view.setup.devicezones.ZonesSetup', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('deviceZones.overview.emptyStep', 'MDC', 'Add zone'),
-                                    //privileges: Mdc.privileges.DeviceCommands.executeCommands,
-                                    itemId: 'empty_grid_deviceAddZoneButton',
+                                    privileges: Cfg.privileges.Validation.adminZones,
+                                    itemId: 'empty_grid_device-add-zone-button',
                                     deviceId: me.deviceId
                                 }
                             ]
