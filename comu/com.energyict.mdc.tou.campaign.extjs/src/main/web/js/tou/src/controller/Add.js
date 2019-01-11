@@ -130,10 +130,14 @@ Ext.define('Tou.controller.Add', {
              }
         }
         if (record && record.data && record.data["devices"] !== undefined) delete record.data["devices"];
+        if (record && record.data && record.data["timeBoundary"] !== undefined) delete record.data["timeBoundary"];
+        if (record && record.data && record.data["startedOn"] !== undefined) delete record.data["startedOn"];
+        if (record && record.data && record.data["finishedOn"] !== undefined) delete record.data["finishedOn"];
+        if (record && record.data && record.data["status"] !== undefined) delete record.data["status"];
         record.save({
             backUrl: page.returnLink,
             success: function (record, operation) {
-                me.getApplication().fireEvent('acknowledge', 'Tou campaign added');
+                me.getApplication().fireEvent('acknowledge', 'ToU campaign added');
                 if (page.rendered) {
                     window.location.href = page.returnLink;
                 }

@@ -11,7 +11,7 @@ Ext.define('Tou.controller.History', {
 
     routeConfig: {
         workspace: {
-            title: 'Tou campaigns',
+            title: 'Workspace',
             route: 'workspace',
             disabled: true,
             items: {

@@ -85,7 +85,11 @@ Ext.define('Tou.view.AddForm', {
                         queryMode: 'local',
                         displayField: 'name',
                         valueField: 'name',
+                        required: true,
                         width: 325
+                    },
+                    {
+                      // for float text
                     }
                 ]
             },
@@ -145,6 +149,7 @@ Ext.define('Tou.view.AddForm', {
                         xtype: 'numberfield',
                         name: 'recurrenceNumber',
                         allowDecimals: false,
+                        valueField: 'id',
                         minValue: 1,
                         value: 1,
                         width: 65,
@@ -160,7 +165,9 @@ Ext.define('Tou.view.AddForm', {
                         width: 100,
                         listeners: {
                             afterrender: function() {
-                                  this.setValue(this.store.getAt('1').get('displayValue'));
+                                  var defaultVal = this.store.getAt('1').get('name');
+                                  this.setValue(defaultVal);
+                                  this.select(defaultVal, true);
                                 }
                         }
                     }

@@ -13,7 +13,7 @@ Ext.define('Tou.controller.Main', {
 
     controllers: [
         'Tou.controller.History',
-        //'Tou.controller.Overview'
+        'Tou.controller.Detail',
     ],
 
     refs: [
@@ -27,12 +27,12 @@ Ext.define('Tou.controller.Main', {
         var me = this;
           historian = me.getController('Tou.controller.History'); // Forces route registration.
           Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
-                title: 'Tou campains',
+                title: 'ToU campaigns',
                 portal: 'workspace',
                 route: 'toucampaigns',
                 items: [
                     {
-                        text: 'Tou campains',
+                        text: 'ToU campaigns',
                         itemId:'tou-campaigns-link-tou',
                         href: '#/workspace/toucampaigns',
                         route: 'workspace',

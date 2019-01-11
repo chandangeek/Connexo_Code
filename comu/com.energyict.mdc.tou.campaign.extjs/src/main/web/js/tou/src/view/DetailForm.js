@@ -31,7 +31,7 @@ Ext.define('Tou.view.DetailForm', {
                 itemId: 'tou-campaigns-detail-action-menu-button',
                 menu: {
                     xtype: 'tou-campaigns-action-menu',
-                    itemId: 'tou-campaigns-detail-action-menu',
+                    itemId: 'tou-campaigns-action-menu',
                     returnToCampaignOverview: !me.isPreview
                 }
             }
@@ -47,7 +47,7 @@ Ext.define('Tou.view.DetailForm', {
                         renderer: function (value, field) {
                             var result = '';
                             if (me.isPreview) {
-                                result = value ? '<a href="' + me.router.getRoute('workspace/toucampaigns/toucampaign').buildUrl({touCampaignName : value}) + '">' + Ext.String.htmlEncode(value) + '</a>' : '';
+                                result = value ? '<a href="' + me.router.getRoute('workspace/toucampaigns/toucampaign').buildUrl({touCampaignName : value}) + '">' + Ext.String.htmlEncode(value) + '</a>' : '-';
                             } else {
                                 result = Ext.String.htmlEncode(value) || '';
                             }
@@ -106,6 +106,26 @@ Ext.define('Tou.view.DetailForm', {
                                 return value && value.name ? '<span>' + value.name + '</span>' : '-'
                           }
                     },
+                    {
+                          itemId: 'activation-date-field',
+                          fieldLabel: 'Activate calendar',
+                          name: 'activationDate',
+                          renderer: function (value) {
+                                if (value){
+                                    if (!isNaN(value) &&  parseInt(value) == value ) return  Uni.DateTime.formatDateTimeShort(parseInt(value));
+                                    return Ext.String.htmlEncode(value)
+                                }
+                                return '-';
+                          }
+                    },
+                    {
+                          itemId: 'time-validation-field',
+                          fieldLabel: 'Timeout before validation',
+                          name: 'timeValidation',
+                          renderer: function (value) {
+                               return value ? '<span>' + Uni.DateTime.formatTimeShort(new Date(value)) + '</span>' : '-'
+                          }
+                    }
                     ]
              },
             {
@@ -163,6 +183,22 @@ Ext.define('Tou.view.DetailForm', {
                               return result;
                           }
                     },
+                    {
+                          itemId: 'started-on-field',
+                          fieldLabel: 'Started on',
+                          name: 'startedOn',
+                          renderer: function (value) {
+                                return value ? '<span>' + Uni.DateTime.formatDateTimeShort(value) + '</span>' : '-'
+                          }
+                    },
+                    {
+                          itemId: 'finished-on-field',
+                          fieldLabel: 'Finished on',
+                          name: 'finishedOn',
+                          renderer: function (value) {
+                                 return value ? '<span>' + Uni.DateTime.formatDateTimeShort(value) + '</span>' : '-'
+                          }
+                      }
                 ]
             }
         ];

@@ -45,7 +45,7 @@ Ext.define('Tou.controller.Detail', {
                 Ext.resumeLayouts(true);
                 if (widget.down('tou-campaigns-action-menu')) {
                     widget.down('tou-campaigns-action-menu').record = record;
-                    //widget.down('tou-campaigns-detail-form #tou-campaigns-detail-action-menu-button').setDisabled(record.get('status').id !== 'ONGOING');
+                    widget.down('tou-campaigns-detail-form #tou-campaigns-detail-action-menu-button').setDisabled(record.get('status') !== 'Ongoing');
                 }
             },
             callback: function () {

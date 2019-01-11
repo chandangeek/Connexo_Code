@@ -18,7 +18,7 @@ Ext.define('Tou.view.Overview', {
 
         me.content = [
             {
-                title: 'Tou campaigns',
+                title: 'ToU campaigns',
                 ui: 'large',
                 items: [
                     {
@@ -32,14 +32,14 @@ Ext.define('Tou.view.Overview', {
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'tou-empty-component',
-                            title: 'No tou campaigns found',
+                            title: 'No ToU campaigns found',
                             reasons: [
-                                'No tou campaigns have been added yet.'
+                                'No ToU campaigns have been added yet.'
                             ],
                             stepItems: [
                                 {
                                     itemId: 'tou-empty-add-button',
-                                    text: 'Add tou campaign',
+                                    text: 'Add ToU campaign',
                                     action: 'addTouCampaign',
                                     href: me.router.getRoute('workspace/toucampaigns/add').buildUrl(),
                                     privileges: Fwc.privileges.FirmwareCampaign.administrate
