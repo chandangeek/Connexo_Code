@@ -170,7 +170,7 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
                 method: 'PUT',
                 jsonData: Ext.encode(jsonData),
                 success: function (response) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceZone.overview.addSuccess', 'MDC', 'Zone saved'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceZone.overview.savedSuccess', 'MDC', 'Zone saved'));
                     var router = me.getController('Uni.controller.history.Router');
                     router.getRoute('devices/device/zones').forward();
                 },
