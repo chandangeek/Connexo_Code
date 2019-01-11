@@ -1,1 +1,7 @@
 /.project
+.idea
+fullbuild.sh
+copyZipsHere.bat
+*.iml
+**/target/
+com.elster.jupiter.buildtools
