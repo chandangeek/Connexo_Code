@@ -61,7 +61,7 @@ Ext.define('Mdc.view.setup.device.DeviceZonesPanel', {
                 columns: [
                     {
                         itemId: 'deviceZoneTypeName',
-                        header: Uni.I18n.translate('deviceZones.zoneType', 'MDC', 'Zone Type'),
+                        header: Uni.I18n.translate('deviceZones.zoneType', 'MDC', 'Zone type'),
                         dataIndex: 'zoneTypeName',
                         flex: 2,
                         valueField: 'zoneTypeId',
