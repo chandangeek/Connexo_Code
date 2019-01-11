@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.devicezones.ZonesPreview', {
     alias: 'widget.device-zones-preview',
 
     requires: [
-        'Mdc.view.setup.deviceZones.ZonesActionsMenu'
+        'Mdc.view.setup.devicezones.ZonesActionsMenu'
     ],
 
     layout: {
@@ -31,23 +31,6 @@ Ext.define('Mdc.view.setup.devicezones.ZonesPreview', {
             ],
 
             me.items = [
-            /*{
-                xtype: 'panel',
-                border: false,
-                tbar: [
-                    {
-                        xtype: 'component',
-                        html: '<h4>' + Uni.I18n.translate('deviceZones.noZoneSelected', 'MDC', 'No zone selected') + '</h4>'
-                    }
-                ],
-                items: [
-                    {
-                        xtype: 'component',
-                        height: '100px',
-                        html: '<h5>' + Uni.I18n.translate('deviceZones.selectZone', 'MDC', 'Select a zone to see its details') + '</h5>'
-                    }
-                ]
-            },*/
             {
                 xtype: 'form',
                 border: false,

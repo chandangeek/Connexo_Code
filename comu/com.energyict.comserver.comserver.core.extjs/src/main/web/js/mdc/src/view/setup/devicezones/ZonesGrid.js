@@ -57,11 +57,11 @@ Ext.define('Mdc.view.setup.devicezones.ZonesGrid', {
                 items: [
                     {
                         xtype: 'button',
-                        //privileges: Mdc.privileges.DeviceCommands.executeCommands,
+                        privileges: Cfg.privileges.Validation.adminZones,
                         text: Uni.I18n.translate('deviceZones.addCommand','MDC','Add zone'),
                         itemId: 'device-add-zone-button',
                         deviceId: me.deviceId,
-                        //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.zonesActions
                     }
                 ]
             },
@@ -69,7 +69,8 @@ Ext.define('Mdc.view.setup.devicezones.ZonesGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('deviceZones.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Zones per page')
+                itemsPerPageMsg: Uni.I18n.translate('deviceZones.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Zones per page'),
+                deferLoading: true
             }
         ];
 
