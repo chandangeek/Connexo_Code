@@ -17,6 +17,13 @@ public interface TransactionService {
 	 */
 	TransactionContext getContext();
 
+    /*
+    Return the current context created by calling getContext previously
+    */
+    default TransactionContext getCurrentContext() {
+        throw new UnsupportedOperationException();
+    }
+
 	/*
 	 * Standard way of executing a transaction that returns a value. Any exception throw, by transaction.perform() will rollback
 	 * the tx and passed to caller.

@@ -13,6 +13,7 @@ import com.elster.jupiter.util.Pair;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -66,7 +67,8 @@ public class DataMapperWriter<T> {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void persist(T object) throws SQLException {
-        prepare(object, false, getTable().getDataModel().getClock().instant());
+        Instant now = getTable().getDataModel().getClock().instant();
+        prepare(object, false, now);
         try (Connection connection = getConnection(true)) {
             List<IOResource> resources = new ArrayList<>();
             try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().insertSql(false))) {
@@ -107,6 +109,10 @@ public class DataMapperWriter<T> {
                     }
                 }
             }
+        }
+
+        if (getTable().hasAudit() && doJournal(getColumns())) {
+            audit(object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT);
         }
     }
 
@@ -223,6 +229,7 @@ public class DataMapperWriter<T> {
         if (getTable().hasJournal() && doJournal(columns)) {
             journal(object, now);
         }
+
         prepare(object, true, now);
         ColumnImpl[] versionCountColumns = getTable().getVersionColumns();
         List<Pair<ColumnImpl, Long>> versionCounts = new ArrayList<>(versionCountColumns.length);
@@ -271,6 +278,10 @@ public class DataMapperWriter<T> {
             pair.getFirst().setDomainValue(object, pair.getLast() + 1);
         }
         refresh(object, false);
+
+        if (getTable().hasAudit() && doJournal(columns)) {
+            audit(object, now, UnexpectedNumberOfUpdatesException.Operation.UPDATE);
+        }
     }
 
     private boolean doJournal(List<ColumnImpl> columns) {
@@ -419,6 +430,72 @@ public class DataMapperWriter<T> {
             column.setObject(statement, index++, target);
         }
         return index;
+    }
+
+    public boolean isSomethingChanged(T object, T oldObject, List<ColumnImpl> columns) throws SQLException {
+        if (columns.size() == 0) {//for touch
+            return true;
+        }
+        return columns.stream()
+                .filter(ColumnImpl::alwaysJournal)
+                .filter(column -> {
+                    Object newValue = column.domainValue(object);
+                    Object oldValue = column.domainValue(object);
+                    return !(newValue == null ? oldValue == null : column.domainValue(object).equals(column.domainValue(oldObject)));
+                })
+                .count() > 0;
+    }
+
+    private boolean doAudit() {
+        return getTable().getDataModel().getOrmService().getTransactionService().getCurrentContext().getProperty("CONTEXT_AUDITED") == null;
+    }
+
+    private String getCurrentUserName() {
+        Principal principal = getTable().getDataModel().getPrincipal();
+        return principal == null ? null : principal.getName();
+    }
+
+    private void audit(Object object, Instant now, UnexpectedNumberOfUpdatesException.Operation operation) throws SQLException {
+
+        if (doAudit()) {
+            String auditLog = getSqlGenerator().auditSql();
+            try (Connection connection = getConnection(true)) {
+                try (PreparedStatement statement = connection.prepareStatement(auditLog)) {
+                    int index = 1;
+                    Long nextVal = getNext(connection, "ADT_AUDITID");
+                    getTable().getDataModel().getOrmService().getTransactionService().getCurrentContext().setProperty("nextVal", nextVal);
+
+                    statement.setLong(index++, nextVal); // ID
+                    statement.setString(index++, getTable().getTableAudit().getTouchTable().getName()); // table name
+                    statement.setString(index++, getTable().getTableAudit().getObjectReferences(object)); // object references
+                    statement.setString(index++, getTable().getTableAudit().getCategory()); // category
+                    statement.setString(index++, getTable().getTableAudit().getSubCategory()); // category
+                    statement.setLong(index++, operation.ordinal()); // operation
+                    statement.setLong(index++, now.toEpochMilli()); // create time
+                    statement.setString(index++, getCurrentUserName()); //user name
+                    statement.execute();
+                }
+            }
+        }
+
+        String auditLogSql = getSqlGenerator().auditLogSql();
+        try (Connection connection = getConnection(true)) {
+            try (PreparedStatement statement = connection.prepareStatement(auditLogSql)) {
+                int index = 1;
+                long version = 0L;
+                Long nextVal = getNext(connection, "ADT_AUDIT_LOGID");
+                Long auditId = ((Number) getTable().getDataModel().getOrmService().getTransactionService().getCurrentContext().getProperty("nextVal")).longValue();
+
+                statement.setLong(index++, nextVal); // ID
+                statement.setLong(index++, auditId); // audit id
+                statement.setString(index++, getTable().getName()); // table name
+                statement.setString(index++, getTable().getTableAudit().getObjectIndentifier(object)); // object references
+                statement.execute();
+            }
+        }
+
+        getTable().getDataModel().getOrmService().getTransactionService().getCurrentContext().setProperty("CONTEXT_AUDITED", true);
+
     }
 
 }

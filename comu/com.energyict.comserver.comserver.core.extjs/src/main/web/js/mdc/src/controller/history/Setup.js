@@ -2900,6 +2900,13 @@ Ext.define('Mdc.controller.history.Setup', {
                         route: 'regdevices',
                         controller: 'Mdc.registereddevices.controller.RegisteredDevices',
                         action: 'showRegisteredDevices'
+                    },
+                    audit: {
+                        title: Uni.I18n.translate('general.auditTrail', 'MDC', 'Audit trail'),
+                        route: 'audit',
+                        controller: 'Mdc.audit.controller.Audit',
+                        action: 'showOverview'
+                        //privileges: Cfg.privileges.Validation.viewAudit
                     }
                 }
             }

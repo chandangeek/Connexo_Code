@@ -142,7 +142,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.TaskManagement',
         'Mdc.zones.controller.Zones',
         'Mdc.processes.controller.ProcessesController',
-        'Mdc.processes.controller.ProcBulkActions'
+        'Mdc.processes.controller.ProcBulkActions',
+        'Mdc.audit.controller.Audit',
     ],
 
     stores: [
@@ -506,6 +507,30 @@ Ext.define('Mdc.controller.Main', {
                         route: 'multisenseprocesses'
                     }
                 ]
+                })
+            );
+        }
+
+        if (true) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.workspace', 'MDC', 'Workspace'),
+                glyph: 'workspace',
+                portal: 'workspace',
+                index: 30
+            }));
+
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.auditTrail', 'MDC', 'Audit trail'),
+                    portal: 'workspace',
+                    route: 'audit',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('title.auditTrail', 'MDC', 'Audit trail'),
+                            itemId: 'mdc-workspace-audit-trail-link',
+                            href: '#/workspace/audit'
+                        }
+                    ]
                 })
             );
         }

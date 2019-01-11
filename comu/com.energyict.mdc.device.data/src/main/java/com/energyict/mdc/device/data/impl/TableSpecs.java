@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Encrypter;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
@@ -42,11 +43,11 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
-import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertyImpl;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
+import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertyImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.pki.AbstractDeviceSecurityAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
@@ -178,13 +179,17 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEV_PROTOCOL_PROP_JRNL").since(version(10, 2));
             table.primaryKey("PK_DDC_DEVICEPROTOCOLPROP").on(deviceId, propertySpec).add();
-            table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE")
+            ForeignKeyConstraint deviceForeignKey = table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE")
                     .on(deviceId)
                     .references(DDC_DEVICE.name())
                     .map("device")
                     .reverseMap("deviceProperties")
                     .composition()
                     .add();
+            table.audit("").
+                    category("DEVICE").
+                    subCategory("GENERAL_ATTRIBUTES").
+                    references(deviceForeignKey);
         }
     },
 
