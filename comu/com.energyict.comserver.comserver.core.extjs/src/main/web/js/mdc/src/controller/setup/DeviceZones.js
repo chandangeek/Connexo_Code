@@ -214,7 +214,7 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
                                 deviceZoneId: deviceZoneId,
                                 deviceZoneTypeId: deviceZoneTypeId,
                                 edit: true,
-                                title: Uni.I18n.translate('deviceZone.add.title', 'MDC', "Edit '{0}'", zone.get('name'))
+                                title: Uni.I18n.translate('deviceZone.edit.title', 'MDC', "Edit '{0}'", zone.get('name'))
                             });
 
                             if (deviceId) {
