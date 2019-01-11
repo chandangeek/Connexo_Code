@@ -42,6 +42,7 @@ import ch.iec.tc57._2011.schema.message.HeaderType.Verb;
 
 import javax.inject.Inject;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -130,8 +131,9 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
     private MeterConfigResponseMessageType processDevice(Device device, MeterInfo meterInfo, Verb verb,
             TransactionContext context) throws FaultMessage {
-        List<FaultMessage> faults = processCustomAttributeSets(device, meterInfo);
-        processSecurityAttributes(device, meterInfo);
+		List<FaultMessage> faults = new ArrayList<>();
+		faults.addAll(processCustomAttributeSets(device, meterInfo));
+		faults.addAll(processSecurityAttributes(device, meterInfo));
         if (faults.isEmpty()) {
             postProcessDevice(device, meterInfo);
             context.commit();
