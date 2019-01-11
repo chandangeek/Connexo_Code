@@ -422,6 +422,20 @@
 							<fail>true</fail>
 						</configuration>
 					</execution>
+					<execution>
+						<id>check-bundle-version</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<inherited>true</inherited>
+						<configuration>
+							<rules>
+								<enforceBundleVersion
+										implementation="com.elster.jupiter.buildtools.EnforceBundleVersion"/>
+							</rules>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>
