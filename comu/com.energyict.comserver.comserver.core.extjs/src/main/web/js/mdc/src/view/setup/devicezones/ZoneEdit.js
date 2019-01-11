@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneEdit', {
                                 itemId: 'zone-name',
                                 xtype: 'combobox',
                                 hidden: false,
-                                name: 'name',
+                                name: 'zoneId',
                                 fieldLabel: Uni.I18n.translate('general.zone', 'MDC', 'Zone'),
                                 queryMode: 'local',
                                 dataIndex: 'zones',
@@ -79,24 +79,10 @@ Ext.define('Mdc.view.setup.devicezones.ZoneEdit', {
                                 valueField: 'id',
                                 store: 'Cfg.zones.store.Zones',
                                 emptyText: Uni.I18n.translate('devicezones.zoneSelectorPrompt', 'MDC', 'Select a zone...'),
-                                disabled: false
+                                disabled: false,
+                                editable: false
                             }
                         ]
-
-                    },
-                    {
-                        itemId: 'device-zone-edit-property-header',
-                        margin: '16 0 0 0'
-                    },
-                    {
-                        itemId: 'device-zone-edit-property-form',
-                        xtype: 'property-form',
-                        margin: '16 0 0 0',
-                        defaults: {
-                            labelWidth: 250,
-                            resetButtonHidden: false,
-                            width: 336 // To be aligned with the above
-                        }
                     },
                     {
                         xtype: 'fieldcontainer',
@@ -151,8 +137,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneEdit', {
             zoneNameCombo = me.down('#zone-name'),
             zoneNameStore =  zoneNameCombo.getStore();
 
-        var id =me.down('#zone-type').getValue();
-        //zoneNameCombo.reset();
+        zoneNameCombo.reset();
         Ext.resumeLayouts(true);
         var zoneTypeIds = [];
         zoneTypeIds.push(me.down('#mdc-zone-save-button').deviceZoneTypeId);
@@ -169,9 +154,6 @@ Ext.define('Mdc.view.setup.devicezones.ZoneEdit', {
                 me.down('#zone-name]').bindStore(zoneNameStore);
             },
         });
-
-
-
     }
 });
 

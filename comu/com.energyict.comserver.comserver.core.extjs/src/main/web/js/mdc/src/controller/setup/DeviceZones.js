@@ -73,8 +73,10 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
 
     showDeviceZoneView: function (deviceId) {
         var me = this;
-            viewport = Ext.ComponentQuery.query('viewport')[0];
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            zonesStore = me.getStore('Mdc.store.DeviceZones');
 
+        zonesStore.getProxy().setUrl(deviceId);
         viewport.setLoading();
 
 
@@ -179,42 +181,32 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
 
     showEditOverview: function (deviceId, deviceZoneId) {
         var me = this,
-            deviceTypesStore = me.getStore('Mdc.store.DeviceZonesTypes'),
-            zoneModel =  Ext.ModelManager.getModel('Cfg.zones.model.Zone'),
             deviceZonesModel =   Ext.ModelManager.getModel('Mdc.model.DeviceZones'),
             zoneId,
             deviceZoneTypeId;
 
-        deviceZonesModel.getProxy().setExtraParam('deviceId', deviceId);
-        deviceZonesModel.load(deviceZoneId, {
-            success: function (deviceZone) {
-                zoneId = deviceZone.get("zoneId");
-                deviceZoneTypeId = deviceZone.get("zoneTypeId");
-            }
-        });
-
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
-                zoneModel.load(zoneId, {
-                    success: function (zone) {
+                deviceZonesModel.getProxy().setExtraParam('deviceId', deviceId);
+                deviceZonesModel.load(deviceZoneId, {
+                    success: function (deviceZone) {
+                        zoneId = deviceZone.get("zoneId");
+                        deviceZoneTypeId = deviceZone.get("zoneTypeId");
+
                         if (zoneId != undefined && deviceZoneTypeId != undefined) {
                             var widget = Ext.widget('device-zone-edit', {
                                 device: device,
                                 deviceZoneId: deviceZoneId,
                                 deviceZoneTypeId: deviceZoneTypeId,
                                 edit: true,
-                                title: Uni.I18n.translate('deviceZone.edit.title', 'MDC', "Edit '{0}'", zone.get('name'))
+                                title: Uni.I18n.translate('deviceZone.edit.title', 'MDC', "Edit '{0}'", deviceZone.get('zoneName'))
                             });
 
-                            if (deviceId) {
-                                deviceTypesStore.getProxy().setUrl(deviceId);
-                                deviceTypesStore.load();
-                            }
-
-                            widget.down('#device-zone-edit-form').loadRecord(zone);
-                            me.getApplication().fireEvent('loadZonesOnDevice', zone);
+                            widget.down('#device-zone-edit-form').loadRecord(deviceZone);
+                            me.getApplication().fireEvent('loadZonesOnDevice', deviceZone);
                             me.getApplication().fireEvent('loadDevice', device);
                             me.getApplication().fireEvent('changecontentevent', widget);
+
 
                         }
                     }
@@ -295,9 +287,8 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
             router = me.getController('Uni.controller.history.Router'),
             routeParams = router.arguments;
 
-        var record = menu.record || me.getDeviceZonesGrid().getSelectionModel().getLastSelected();
+        var record = menu.record || this.getDeviceZonesGrid().getSelectionModel().getLastSelected();
         routeParams.deviceZoneId = record.get("id");
-        //routeParams.id = record.get("id");
         switch (item.action) {
             case 'editZone':
                 router.getRoute('devices/device/zones/edit').forward(routeParams);

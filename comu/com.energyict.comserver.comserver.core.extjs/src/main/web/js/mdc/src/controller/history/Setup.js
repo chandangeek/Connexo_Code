@@ -259,7 +259,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.zonesActions,
                                     callback: function (route) {
                                         this.getApplication().on('loadZonesOnDevice', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('zoneName'), false));
                                             return true;
                                         }, {single: true});
 
