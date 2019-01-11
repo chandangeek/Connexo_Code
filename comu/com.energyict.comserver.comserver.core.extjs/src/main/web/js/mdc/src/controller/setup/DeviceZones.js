@@ -49,7 +49,7 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
                 '#device-add-zone-button': {
                     click: this.navigateAdd
                 },
-                '#empty_grid_device-add-zone-button' :{
+                '#empty-grid-device-add-zone-button' :{
                     click: this.navigateAdd
                 },
                 'device-zone-add #mdc-zone-add-cancel-button': {
@@ -73,29 +73,18 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
 
     showDeviceZoneView: function (deviceId) {
         var me = this;
-            viewport = Ext.ComponentQuery.query('viewport')[0],
-            zonesStore = me.getStore('Mdc.store.DeviceZones');
+            viewport = Ext.ComponentQuery.query('viewport')[0];
 
-        zonesStore.getProxy().setUrl(deviceId);
         viewport.setLoading();
 
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
-                zonesStore.load({
-                    callback: function (records) {
-
-                        me.getStore('Mdc.store.DeviceZones').getProxy().setExtraParam('deviceId', device.get('name'));
-
-                        var widget = Ext.widget('device-zones-setup', {device: device});
-
-                        me.getApplication().fireEvent('loadDevice', device);
-                        me.getApplication().fireEvent('changecontentevent', widget);
-                        viewport.setLoading(false);
-
-                        //me.getDeviceZonesGrid().getSelectionModel().doSelect(0);
-                    }
-                })
+                me.getStore('Mdc.store.DeviceZones').getProxy().setExtraParam('deviceId', device.get('name'));
+                var widget = Ext.widget('device-zones-setup', {device: device});
+                me.getApplication().fireEvent('loadDevice', device);
+                me.getApplication().fireEvent('changecontentevent', widget);
+                viewport.setLoading(false);
 
             }
         });

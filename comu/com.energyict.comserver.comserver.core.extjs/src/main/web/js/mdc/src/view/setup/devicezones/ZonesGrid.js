@@ -70,7 +70,7 @@ Ext.define('Mdc.view.setup.devicezones.ZonesGrid', {
                 store: me.store,
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('deviceZones.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Zones per page'),
-                deferLoading: true
+                //deferLoading: true
             }
         ];
 

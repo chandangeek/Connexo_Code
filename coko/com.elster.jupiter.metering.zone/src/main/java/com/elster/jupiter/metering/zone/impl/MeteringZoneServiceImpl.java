@@ -208,11 +208,6 @@ public class MeteringZoneServiceImpl implements MeteringZoneService, Translation
                 where("endDeviceId").isEqualTo(endDevice.getId()),
                 this.dataModel, Zone.class, ZoneType.class)
                 .defaultSortColumn("zone.zoneType.typeName", true);
-
-
-
-       // return getDataModel().mapper(TrustStore.class).select(searchCondition, Order.ascending(TrustStoreImpl.Fields.NAME.fieldName()).toUpperCase());
-
     }
 
     @Override
