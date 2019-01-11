@@ -493,7 +493,7 @@ Ext.define('Mdc.controller.Main', {
 
             Uni.store.PortalItems.add(
                 Ext.create('Uni.model.PortalItem', {
-                    title: Uni.I18n.translate('general.zone', 'MDC', 'Zone management'),
+                    title: Uni.I18n.translate('general.zoneManagement', 'MDC', 'Zone management'),
                     portal: 'administration',
                     route: 'zones',
                     items: [
