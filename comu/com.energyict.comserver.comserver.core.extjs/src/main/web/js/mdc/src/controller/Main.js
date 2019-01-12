@@ -140,7 +140,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.crlrequest.controller.TaskManagementCrlRequest',
         'Apr.controller.CustomTask',
         'Mdc.controller.setup.TaskManagement',
-        'Mdc.zones.controller.Zones'
+        'Mdc.zones.controller.Zones',
+        'Mdc.controller.setup.DeviceZones'
     ],
 
     stores: [
