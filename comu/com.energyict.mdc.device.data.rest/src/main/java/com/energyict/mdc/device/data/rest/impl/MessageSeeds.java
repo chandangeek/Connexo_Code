@@ -140,7 +140,8 @@ public enum MessageSeeds implements MessageSeed {
     NOT_ALL_PROPS_ARE_DEFINDED(323, "notAllPropsAreDefined", "One of the following property is not set, Communication port pool, hostname or port number!"),
     ZONE_SAVING_FAIL(324, "zone.savingFail", "Failed saving zone."),
     NO_SUCH_ZONE(325, "noSuchZone", "Zone not found"),
-    NO_SUCH_END_DEVICE_ZONE(326, "noSuchDeviceZone", "Zone not assigned to device");
+    NO_SUCH_END_DEVICE_ZONE(326, "noSuchDeviceZone", "Zone not assigned to device"),
+    NO_SUCH_ZONE_ON_DEVICE(327, "NoSuchZoneOnDevice", "Device {0} has no zone {1}"),;
 
     private final int number;
     private final String key;

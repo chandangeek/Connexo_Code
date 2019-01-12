@@ -79,10 +79,10 @@ public class DeviceZoneResource {
     @Path("/{deviceZoneId}")
     @RolesAllowed({Privileges.Constants.VIEW_ZONE,
             Privileges.Constants.ADMINISTRATE_ZONE})
-    public EndDeviceZoneInfo getZone(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey, @PathParam("deviceZoneId") Long zoneId) {
+    public EndDeviceZoneInfo getZone(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey, @PathParam("name") String name, @PathParam("deviceZoneId") Long zoneId) {
         return meteringZoneService.getEndDeviceZone(zoneId)
                 .map(zone -> endDeviceZoneInfoFactory.from(zone))
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_ZONE));
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_ZONE_ON_DEVICE, name, zoneId));
     }
     @POST
     @Transactional

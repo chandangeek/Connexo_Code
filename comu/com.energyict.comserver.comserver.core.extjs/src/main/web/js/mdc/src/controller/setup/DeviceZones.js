@@ -113,16 +113,10 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
         if (zoneForm && zoneForm.isValid()) {
             zoneForm.down('#form-errors').hide();
             zoneForm.updateRecord();
-            var newRecord = zoneForm.getRecord() || Ext.create('Mdc.model.DeviceZones');
+            var newRecord = zoneForm.getRecord();
 
-            newRecord.beginEdit();
-            newRecord.set('zoneId', zoneForm.down('#zone-name').getValue());
-
-
-            newRecord.endEdit();
             newRecord.save({
                 url: '/api/ddr/devices/' + encodeURIComponent(btn.deviceId) + '/zones',
-                method: 'POST',
                 success: function (record, operation) {
                     if (operation.success) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceZone.overview.addSuccess', 'MDC', 'Zone added'));
@@ -146,20 +140,14 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
     saveZone: function (btn) {
 
         var me = this,
-            zoneForm = this.getEditZoneForm(),
-            router = me.getController('Uni.controller.history.Router');
+            zoneForm = this.getEditZoneForm();
 
         if (zoneForm && zoneForm.isValid()) {
             zoneForm.down('#form-errors').hide();
             zoneForm.updateRecord();
 
-            var jsonData = {
-                zoneId: zoneForm.down('#zone-name').getValue()
-            };
-            Ext.Ajax.request({
-                url: '/api/ddr/devices/' + encodeURIComponent(router.arguments.deviceId) + '/zones/' + encodeURIComponent(router.arguments.deviceZoneId) ,
-                method: 'PUT',
-                jsonData: Ext.encode(jsonData),
+            var record = zoneForm.getRecord();
+            record.save({
                 success: function (response) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceZone.overview.savedSuccess', 'MDC', 'Zone saved'));
                     var router = me.getController('Uni.controller.history.Router');

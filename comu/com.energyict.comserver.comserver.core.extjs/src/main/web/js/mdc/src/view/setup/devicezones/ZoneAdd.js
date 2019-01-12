@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
                                 itemId: 'zone-name',
                                 xtype: 'combobox',
                                 hidden: false,
-                                name: 'zoneName',
+                                name: 'zoneId',
                                 fieldLabel: Uni.I18n.translate('general.zone', 'MDC', 'Zone'),
                                 queryMode: 'local',
                                 dataIndex: 'zones',
@@ -149,7 +149,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
     onZoneTypeChange: function (combo, newValue) {
         var me = this,
             type = combo.findRecordByValue(newValue),
-            zoneNameCombo = me.down('[name=zoneName]'),
+            zoneNameCombo = me.down('#zone-name'),
             zoneNameStore = zoneNameCombo.getStore();
 
         if (type) {
