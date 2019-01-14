@@ -16,13 +16,14 @@
 	<name>[Jupiter Wrapper - Delivery] </name>
 
 	<modules>
+        <module>com.elster.jupiter.subsystem.extra-jars</module>
 		<module>com.elster.jupiter.subsystem.platform</module>
 		<module>com.elster.jupiter.subsystem.third-party</module>
 		<module>com.elster.jupiter.subsystem.kore</module>
 		<module>com.elster.jupiter.subsystem.mdc</module>
 		<module>com.elster.insight.subsystem</module>
 	</modules>
-
+	
 	<build>
         <pluginManagement>
             <plugins>
