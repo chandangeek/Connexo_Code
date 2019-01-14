@@ -26,7 +26,7 @@
 
             <unpack>true</unpack>
             <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
         <dependencySet>
             <outputDirectory>bundles</outputDirectory>
