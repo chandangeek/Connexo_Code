@@ -51,6 +51,7 @@ public class KoreChecklist implements UpgradeCheckList {
                     identifier(application(), "MTG"),
                     identifier(application(), "YFG"),
                     identifier(application(), "VAL"),
+                        identifier(application(), "ADT"),
                     identifier(application(), "ISU"),
                     identifier(application(), "EST"),
                     identifier(application(), "LFC"),

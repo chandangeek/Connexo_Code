@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.audit.rest.impl;
 
 import com.elster.jupiter.audit.AuditFilter;
 import com.elster.jupiter.audit.AuditService;
-import com.elster.jupiter.audit.rest.AuditInfoFactory;
-import com.elster.jupiter.audit.rest.AuditLogInfoFactory;
+import com.elster.jupiter.audit.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionService;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -49,12 +49,12 @@ public class AuditResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    // @RolesAllowed({Privileges.Constants.AUDIT})
+    @RolesAllowed({Privileges.Constants.VIEW_AUDIT_LOG})
     public PagedInfoList getAudit(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         return PagedInfoList.fromPagedList("audit", auditService.getAudit(getAuditFilter(filter))
                 .from(queryParameters)
                 .stream()
-                .map(audit -> auditInfoFactory.from(audit, auditLogInfoFactory))
+                .map(audit -> auditInfoFactory.from(audit, thesaurus))
                 .collect(Collectors.toList()), queryParameters);
     }
 

@@ -27,8 +27,9 @@ public enum TableSpecs {
             table.since(version(10, 6));
             table.column("TABLENAME").varChar(NAME_LENGTH).notNull().map(AuditImpl.Field.TABLENAME.fieldName()).add();
             table.column("REFERENCE").varChar(DESCRIPTION_LENGTH).notNull().map(AuditImpl.Field.REFERENCE.fieldName()).add();
-            table.column("CATEGORY").varChar(NAME_LENGTH).notNull().map(AuditImpl.Field.CATEGORY.fieldName()).add();
-            table.column("SUBCATEGORY").varChar(NAME_LENGTH).notNull().map(AuditImpl.Field.SUBCATEGORY.fieldName()).add();
+            table.column("SREFERENCE").varChar(DESCRIPTION_LENGTH).notNull().map(AuditImpl.Field.SREFERENCE.fieldName()).add();
+            table.column("DOMAIN").varChar(NAME_LENGTH).notNull().map(AuditImpl.Field.DOMAIN.fieldName()).add();
+            table.column("CONTEXT").varChar(NAME_LENGTH).notNull().map(AuditImpl.Field.CONTEXT.fieldName()).add();
             table.column("OPERATION").number().conversion(NUMBER2ENUM).map(AuditImpl.Field.OPERATION.fieldName()).add();
             table.column("CREATETIME").number().conversion(NUMBER2INSTANT).map(AuditImpl.Field.CREATETIME.fieldName()).add();
             table.column("USERNAME").varChar(NAME_LENGTH).notNull().map(AuditImpl.Field.USERNAME.fieldName()).add();

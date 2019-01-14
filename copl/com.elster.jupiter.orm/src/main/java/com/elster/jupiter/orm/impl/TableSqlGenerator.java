@@ -219,8 +219,8 @@ public class TableSqlGenerator {
 
     String auditSql() {
         StringBuilder sb = new StringBuilder("insert into ADT_AUDIT");
-        sb.append(" (ID, TABLENAME, REFERENCE, CATEGORY, SUBCATEGORY, OPERATION, CREATETIME, USERNAME)");
-        sb.append(" values (?, ?, ?, ?, ?, ?, ?, ?)");
+		sb.append(" (ID, TABLENAME, REFERENCE, SREFERENCE, DOMAIN, CONTEXT, OPERATION, CREATETIME, USERNAME)");
+		sb.append(" values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         return sb.toString();
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Mdc.controller.history.Setup', {
@@ -2905,8 +2905,8 @@ Ext.define('Mdc.controller.history.Setup', {
                         title: Uni.I18n.translate('general.auditTrail', 'MDC', 'Audit trail'),
                         route: 'audit',
                         controller: 'Mdc.audit.controller.Audit',
-                        action: 'showOverview'
-                        //privileges: Cfg.privileges.Validation.viewAudit
+                        action: 'showOverview',
+                        privileges: Cfg.privileges.Validation.viewAuditLog
                     }
                 }
             }

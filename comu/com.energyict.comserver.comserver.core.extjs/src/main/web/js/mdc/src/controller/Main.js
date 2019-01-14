@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Mdc.controller.Main', {
@@ -15,6 +15,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.dynamicprivileges.DeviceTypeCapability',
         'Mdc.privileges.RegisteredDevicesKpi',
         'Mdc.privileges.CrlRequest',
+        'Mdc.privileges.Audit',
         'Apr.controller.TaskManagement',
         'Apr.controller.TaskManagementGeneralTask',
         'Mdc.zones.controller.Zones'
@@ -511,7 +512,7 @@ Ext.define('Mdc.controller.Main', {
             );
         }
 
-        if (true) {
+        if (Mdc.privileges.Audit.canViewAuditLog()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.workspace', 'MDC', 'Workspace'),
                 glyph: 'workspace',

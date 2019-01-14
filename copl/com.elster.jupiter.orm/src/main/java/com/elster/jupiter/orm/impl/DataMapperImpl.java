@@ -369,9 +369,9 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 
 	private void update(T object, List<ColumnImpl> columns) {
 		try {
-			if (writer.isSomethingChanged(object, reader.findByPrimaryKey(table.getPrimaryKey(object)).get(), columns)) {
+			//if (writer.isSomethingChanged(object, reader.findByPrimaryKey(table.getPrimaryKey(object)).get(), columns)) {
 				writer.update(object, columns);
-			}
+			//	}
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		} finally {

@@ -13,15 +13,6 @@ Ext.define('Mdc.audit.view.AuditGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('audit.change', 'MDC', 'Change'),
-                dataIndex: 'operation',
-                flex: 1,
-                renderer: function (value, metaData, record) {
-                    return value == 'UPDATE' ? Uni.I18n.translate('audit.operation.update', 'MDC', 'Update') :
-                        value == 'INSERT' ? Uni.I18n.translate('audit.operation.insert', 'MDC', 'Insert') : value;
-                }
-            },
-            {
                 header: Uni.I18n.translate('audit.change', 'MDC', 'Change on'),
                 dataIndex: 'changedOn',
                 flex: 1,
@@ -30,30 +21,35 @@ Ext.define('Mdc.audit.view.AuditGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('audit.category', 'MDC', 'Type'),
-                dataIndex: 'category',
-                flex: 1,
-                renderer: function (value, metaData, record) {
-                    return value == 'DEVICE' ? Uni.I18n.translate('audit.category.device', 'MDC', 'Device') : value;
-                }
-            },
-            {
-                header: Uni.I18n.translate('audit.name', 'MDC', 'Name'),
-                dataIndex: 'name',
+                header: Uni.I18n.translate('audit.category', 'MDC', 'Category'),
+                dataIndex: 'domain',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('audit.entry', 'MDC', 'Entry'),
-                dataIndex: 'subCategory',
+                header: Uni.I18n.translate('audit.name', 'MDC', 'Name'),
+                dataIndex: 'auditReference',
                 flex: 1,
                 renderer: function (value, metaData, record) {
-                    return value == 'GENERAL_ATTRIBUTES' ? Uni.I18n.translate('audit.subCategory.generalAttributes', 'MDC', 'General attributes') : value;
+                    return me.domainConvertorFn.call(me.scope, value, record);
                 }
+            },
+            {
+                header: Uni.I18n.translate('audit.entry', 'MDC', 'Entry'),
+                dataIndex: 'context',
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    return me.contextConvertorFn.call(me.scope, value, record);
+                }
+            },
+            {
+                header: Uni.I18n.translate('audit.change', 'MDC', 'Change'),
+                dataIndex: 'operation',
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('audit.user', 'MDC', 'User'),
                 dataIndex: 'user',
-                flex: 1
+                flex: 0.5
             }
         ];
 

@@ -35,7 +35,7 @@ public class TransactionServiceImpl implements TransactionService {
 	private volatile Publisher publisher;
 	private final ThreadLocal<TransactionState> transactionStateHolder = new ThreadLocal<>();
 	private volatile boolean printSql;
-    private volatile TransactionContext transactionContext;
+	private TransactionContext transactionContext;
 
 	public TransactionServiceImpl() {
 	}

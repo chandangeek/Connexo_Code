@@ -4,18 +4,13 @@
 
 package com.elster.jupiter.audit;
 
-import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
 
-import java.util.List;
-
-@ConsumerType
-public interface AuditDecoder {
+@ProviderType
+public interface AuditReference {
 
     String getName();
 
     Object getReference();
-
-    List<AuditLogChanges> getAuditLogChanges();
-
 }
 

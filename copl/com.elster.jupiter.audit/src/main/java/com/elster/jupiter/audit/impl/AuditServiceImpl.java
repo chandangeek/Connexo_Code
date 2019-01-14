@@ -1,6 +1,8 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
+
+
 
 package com.elster.jupiter.audit.impl;
 
@@ -9,6 +11,7 @@ import com.elster.jupiter.audit.AuditDecoderHandle;
 import com.elster.jupiter.audit.AuditFilter;
 import com.elster.jupiter.audit.AuditLog;
 import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.security.Privileges;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Layer;
@@ -18,11 +21,11 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_6SimpleUpgrader;
+import com.elster.jupiter.users.UserService;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -35,12 +38,11 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static com.elster.jupiter.orm.Version.version;
 
 @Component(
         name = "com.elster.jupiter.audit",
@@ -52,17 +54,22 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
     private volatile Thesaurus thesaurus;
+    private volatile OrmService ormService;
+    private volatile UserService userService;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private final Map<String, AuditDecoderHandle> auditDecoderHandles = new ConcurrentHashMap<>();
 
     public AuditServiceImpl() {
     }
 
     @Inject
-    public AuditServiceImpl(OrmService ormService, NlsService nlsService, UpgradeService upgradeService) {
+    public AuditServiceImpl(OrmService ormService, NlsService nlsService, UpgradeService upgradeService, UserService userService, ThreadPrincipalService threadPrincipalService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
+        setThreadPrincipalService(threadPrincipalService);
+        setUserService(userService);
         activate();
     }
 
@@ -76,15 +83,14 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
                     bind(MessageInterpolator.class).toInstance(thesaurus);
                     bind(AuditService.class).toInstance(AuditServiceImpl.this);
                     bind(DataModel.class).toInstance(dataModel);
+                    bind(UserService.class).toInstance(userService);
 
                 }
             });
             upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME),
                     dataModel,
-                    Installer.class,
-                    ImmutableMap.of(
-                            version(10, 6), V10_6SimpleUpgrader.class
-                    ));
+                    InstallerImpl.class,
+                    Collections.emptyMap());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,7 +115,8 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.addAll(Arrays.asList(MessageSeeds.values()));
+        translationKeys.addAll(Arrays.asList(Privileges.values()));
+
         return translationKeys;
     }
 
@@ -119,6 +126,7 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
 
     @Reference
     public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
         dataModel = ormService.newDataModel(COMPONENTNAME, "Audit");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -135,17 +143,30 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
         this.thesaurus = nlsService.getThesaurus(AuditService.COMPONENTNAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addAuditDecoderHandle(AuditDecoderHandle auditDecoderHandle) {
-        auditDecoderHandles.put(auditDecoderHandle.getIdentifier(), auditDecoderHandle);
+        auditDecoderHandles.put(auditDecoderHandle.getDomain(), auditDecoderHandle);
     }
 
     public void removeAuditDecoderHandle(AuditDecoderHandle auditDecoderHandle) {
-        auditDecoderHandles.remove(auditDecoderHandle.getIdentifier());
+        auditDecoderHandles.remove(auditDecoderHandle.getDomain());
     }
 
-    public Optional<AuditDecoderHandle> getAuditReferenceResolver(String key) {
-        return Optional.of(auditDecoderHandles.get(key));
+    public Optional<AuditDecoderHandle> getAuditDecoderHandles(String key) {
+        return auditDecoderHandles.entrySet().stream()
+                .filter(auditDecoderHandleEntry -> auditDecoderHandleEntry.getKey().compareToIgnoreCase(key) == 0)
+                .findFirst()
+                .map(auditDecoderHandleEntry -> auditDecoderHandleEntry.getValue());
     }
 
     @Override
@@ -155,6 +176,6 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
 
     @Override
     public AuditFilter newAuditFilter() {
-        return new AuditFilterImpl();
+        return new AuditFilterImpl(ormService, threadPrincipalService, this);
     }
 }

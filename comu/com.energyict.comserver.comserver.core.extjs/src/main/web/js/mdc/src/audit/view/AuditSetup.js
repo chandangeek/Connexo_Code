@@ -25,7 +25,9 @@ Ext.define('Mdc.audit.view.AuditSetup', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'auditGrid',
-                            itemId: 'audit-grid'
+                            itemId: 'audit-grid',
+                            domainConvertorFn: me.domainConvertorFn,
+                            contextConvertorFn: me.contextConvertorFn
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',

@@ -12,12 +12,12 @@ Ext.define('Mdc.audit.view.AuditPreviewGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('audit.preview.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('audit.preview.propertyName', 'MDC', 'Property name'),
                 dataIndex: 'name',
                 flex: 1,
             },
             {
-                header: Uni.I18n.translate('audit.preview.value', 'MDC', 'Value'),
+                header: Uni.I18n.translate('audit.preview.newValue', 'MDC', 'New value'),
                 dataIndex: 'value',
                 flex: 1,
                 renderer: function (value, metaData, record) {

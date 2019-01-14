@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.audit.impl;
 
 import com.elster.jupiter.audit.Audit;
@@ -8,10 +12,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
+import aQute.bnd.annotation.ProviderType;
+
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 
+@ProviderType
 public class AuditLogImpl implements AuditLog {
 
     private DataModel dataModel;
@@ -46,14 +53,9 @@ public class AuditLogImpl implements AuditLog {
     }
 
     @Override
-    public String getRecord() {
-        return reference;
-    }
-
-    @Override
     public String getName() {
         return ((AuditServiceImpl) auditService)
-                .getAuditReferenceResolver(this.tableName)
+                .getAuditDecoderHandles(this.tableName)
                 .map(auditReferenceResolver -> auditReferenceResolver.getAuditDecoder(reference).getName())
                 .orElse("");
     }
@@ -61,7 +63,7 @@ public class AuditLogImpl implements AuditLog {
     @Override
     public List<AuditLogChanges> getAuditLogChanges() {
         return ((AuditServiceImpl) auditService)
-                .getAuditReferenceResolver(this.tableName)
+                .getAuditDecoderHandles(this.tableName)
                 .map(auditReferenceResolver -> auditReferenceResolver.getAuditDecoder(reference).getAuditLogChanges())
                 .orElse(Collections.emptyList());
     }

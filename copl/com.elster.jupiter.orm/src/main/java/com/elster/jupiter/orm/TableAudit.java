@@ -1,31 +1,49 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.orm;
 
 import aQute.bnd.annotation.ProviderType;
+
+import java.util.List;
 
 public interface TableAudit {
 
     Table<?> getTable();
 
-    String getCategory();
+    String getDomain();
 
-    String getSubCategory();
+    String getContext();
 
-    ForeignKeyConstraint getForeignKeyConstraint();
+    String getDomainReferences(Object object);
 
-    String getObjectReferences(Object object);
+    Object getDomainShortReference(Object object);
+
+    String getContextReferences(Object object);
+
+    List<String> getReferences(Object object);
 
     String getObjectIndentifier(Object object);
 
-    Table<?> getTouchTable();
+    Table getTouchTable();
 
     @ProviderType
     interface Builder {
 
-        Builder category(String category);
+        Builder domain(String domain);
 
-        Builder subCategory(String category);
+        Builder context(String context);
 
-        TableAudit references(ForeignKeyConstraint foreignKeyConstraint);
+        Builder touchDomain(String domainForeignKey);
+
+        Builder touchContext(String contextForeignKey);
+
+        Builder references(ForeignKeyConstraint foreignKeyConstraint);
+
+        Builder references(String... foreignKeyConstraints);
+
+        TableAudit build();
     }
 
 }

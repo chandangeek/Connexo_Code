@@ -186,10 +186,14 @@ public enum TableSpecs {
                     .reverseMap("deviceProperties")
                     .composition()
                     .add();
-            table.audit("").
-                    category("DEVICE").
-                    subCategory("GENERAL_ATTRIBUTES").
-                    references(deviceForeignKey);
+            table.audit(DDC_DEVICEPROTOCOLPROPERTY.name()).
+                    domain("DEVICE").
+                    context("GENERAL_ATTRIBUTES").
+                    references("FK_DDC_DEVICEPROTPROP_DEVICE", "FK_DDC_DEVICE_ENDDEVICE").
+                    touchDomain("FK_DDC_DEVICE_ENDDEVICE").
+                    touchContext("").
+                    build();
+            //references(deviceForeignKey);
         }
     },
 

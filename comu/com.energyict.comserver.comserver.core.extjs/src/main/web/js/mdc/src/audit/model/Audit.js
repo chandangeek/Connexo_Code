@@ -7,15 +7,20 @@ Ext.define('Mdc.audit.model.Audit', {
     fields: [
         {name: 'id', type: 'auto'},
         {name: 'operation', type: 'auto'},
+        {name: 'operationType', type: 'auto'},
         {name: 'changedOn', type: 'auto'},
-        {name: 'category', type: 'auto'},
-        {name: 'subCategory', type: 'auto'},
-        {name: 'name', type: 'auto'},
+        {name: 'domain', type: 'auto'},
+        {name: 'context', type: 'auto'},
+        {name: 'domainType', type: 'auto'},
+        {name: 'contextType', type: 'auto'},
+        {name: 'auditReference', type: 'auto'},
+        {name: 'user', type: 'auto'},
         {name: 'auditLogs'},
-        {name: 'user', type: 'auto'}
+        {name: 'auditReference'}
     ],
     requires: [
-        'Mdc.audit.model.AuditLog'
+        'Mdc.audit.model.AuditLog',
+        'Mdc.audit.model.AuditReference'
     ],
     associations: [
         {
@@ -23,6 +28,12 @@ Ext.define('Mdc.audit.model.Audit', {
             type: 'hasMany',
             model: 'Mdc.audit.model.AuditLog',
             associationKey: 'auditLogs'
+        },
+        {
+            name: 'auditReference',
+            type: 'hasOne',
+            model: 'Mdc.audit.model.AuditReference',
+            associationKey: 'auditReference'
         }
     ]
 });

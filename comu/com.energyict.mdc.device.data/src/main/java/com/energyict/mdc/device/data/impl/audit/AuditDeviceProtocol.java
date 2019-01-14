@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
+
 package com.energyict.mdc.device.data.impl.audit;
 
 import com.elster.jupiter.audit.AuditDecoder;
@@ -12,6 +13,9 @@ import com.energyict.mdc.device.data.impl.TableSpecs;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Component(
         name = "com.energyict.mdc.device.data.audit.AuditDeviceProtocol",
@@ -40,8 +44,13 @@ public class AuditDeviceProtocol implements AuditDecoderHandle {
     }
 
     @Override
-    public String getIdentifier() {
+    public String getDomain() {
         return TABLE_IDENTIFIER;
+    }
+
+    @Override
+    public List<String> getPrivileges() {
+        return Arrays.asList("privilege.view.device", "privilege.administrate.device", "privilege.administrate.deviceCommunication", "privilege.operate.deviceCommunication");
     }
 
     @Override

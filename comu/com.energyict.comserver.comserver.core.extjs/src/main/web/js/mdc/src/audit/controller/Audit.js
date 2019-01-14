@@ -35,7 +35,9 @@ Ext.define('Mdc.audit.controller.Audit', {
         var me = this,
             timeUnitsStore = me.getStore('Mdc.store.TimeUnits'),
             widget = Ext.widget('auditSetup', {
-                convertorFn: me.convertor,
+                convertorFn: me.valueConvertor,
+                domainConvertorFn: me.domainConvertor,
+                contextConvertorFn: me.contextConvertor,
                 scope: me
             });
 
@@ -55,7 +57,7 @@ Ext.define('Mdc.audit.controller.Audit', {
         Ext.suspendLayouts();
         Ext.each(auditPreviewGrid.columns, function (column) {
             if (column.dataIndex == 'previousValue') {
-                column.setVisible(record[0].get('operation') == 'UPDATE');
+                column.setVisible(record[0].get('operationType') == 'UPDATE');
                 return;
             }
         });
@@ -64,7 +66,7 @@ Ext.define('Mdc.audit.controller.Audit', {
         Ext.resumeLayouts(true);
     },
 
-    convertor: function (value, record) {
+    valueConvertor: function (value, record) {
         var me = this,
             timeUnitsStore = me.getStore('Mdc.store.TimeUnits'),
             propertyType = record.get('type'),
@@ -81,6 +83,36 @@ Ext.define('Mdc.audit.controller.Audit', {
                 break;
         }
         return displayValue;
+    },
+
+    domainConvertor: function (value, record) {
+        var me = this,
+            domainType = record.get('domainType'),
+            rendererLink;
+
+        switch (domainType) {
+            case 'DEVICE':
+                rendererLink = '<a href="#/devices/' + record.get('auditReference').name + '">' + record.get('auditReference').name + '</a>';
+                break;
+            default:
+                rendererLink = record.get('auditReference').name;
+        }
+        return rendererLink;
+    },
+
+    contextConvertor: function (value, record) {
+        var me = this,
+            contextType = record.get('contextType'),
+            rendererLink;
+
+        switch (contextType) {
+            case 'GENERAL_ATTRIBUTES':
+                rendererLink = '<a href="#/devices/' + record.get('auditReference').name + '/generalattributes">' + value + '</a>';
+                break;
+            default:
+                rendererLink = record.get('auditReference').name;
+        }
+        return rendererLink;
     }
 
 });

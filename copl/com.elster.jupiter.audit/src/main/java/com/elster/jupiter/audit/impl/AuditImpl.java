@@ -1,8 +1,17 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.audit.impl;
 
 import com.elster.jupiter.audit.Audit;
+import com.elster.jupiter.audit.AuditDomainContextType;
+import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditLog;
+import com.elster.jupiter.audit.AuditOperationType;
+import com.elster.jupiter.audit.AuditReference;
 import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 
@@ -16,12 +25,14 @@ public class AuditImpl implements Audit {
 
     private DataModel dataModel;
     private AuditService auditService;
+    private Thesaurus thesaurus;
 
     public enum Field {
         TABLENAME("tableName"),
         REFERENCE("reference"),
-        CATEGORY("category"),
-        SUBCATEGORY("subCategory"),
+        SREFERENCE("shortReference"),
+        DOMAIN("domain"),
+        CONTEXT("context"),
         OPERATION("operation"),
         CREATETIME("createTime"),
         USERNAME("userName");
@@ -41,8 +52,9 @@ public class AuditImpl implements Audit {
     private long id;
     private String tableName;
     private String reference;
-    private String category;
-    private String subCategory;
+    private String shortReference;
+    private String domain;
+    private String context;
     private UnexpectedNumberOfUpdatesException.Operation operation;
     private Instant createTime;
     private String userName;
@@ -51,9 +63,10 @@ public class AuditImpl implements Audit {
     private List<AuditLog> auditLogs = new ArrayList<>();
 
     @Inject
-    AuditImpl(DataModel dataModel, AuditService auditService) {
+    AuditImpl(DataModel dataModel, AuditService auditService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.auditService = auditService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -63,7 +76,7 @@ public class AuditImpl implements Audit {
 
     @Override
     public String getOperation() {
-        return operation.name();
+        return AuditOperationType.valueOf(operation.name()).name();
     }
 
     @Override
@@ -72,13 +85,13 @@ public class AuditImpl implements Audit {
     }
 
     @Override
-    public String getCategory() {
-        return category;
+    public AuditDomainType getDomain() {
+        return AuditDomainType.valueOf(domain);
     }
 
     @Override
-    public String getSubCategory() {
-        return subCategory;
+    public AuditDomainContextType getContext() {
+        return AuditDomainContextType.valueOf(context);
     }
 
     @Override
@@ -92,10 +105,11 @@ public class AuditImpl implements Audit {
     }
 
     @Override
-    public String getName() {
+    public AuditReference getTouchDomain() {
         return ((AuditServiceImpl) auditService)
-                .getAuditReferenceResolver(this.tableName)
-                .map(auditReferenceResolver -> auditReferenceResolver.getAuditDecoder(reference).getName())
-                .orElse("");
+                .getAuditDecoderHandles(this.tableName)
+                .map(auditReferenceResolver -> auditReferenceResolver.getAuditDecoder(reference))
+                .map(auditDecoder -> new AuditReferenceImpl(auditDecoder.getName(), auditDecoder.getReference()))
+                .orElse(new AuditReferenceImpl());
     }
 }

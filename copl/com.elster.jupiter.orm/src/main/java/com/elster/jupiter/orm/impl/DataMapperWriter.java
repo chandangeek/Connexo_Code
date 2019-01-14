@@ -439,6 +439,9 @@ public class DataMapperWriter<T> {
         return columns.stream()
                 .filter(ColumnImpl::alwaysJournal)
                 .filter(column -> {
+                    if (column.isMAC()) {
+                        return false;
+                    }
                     Object newValue = column.domainValue(object);
                     Object oldValue = column.domainValue(object);
                     return !(newValue == null ? oldValue == null : column.domainValue(object).equals(column.domainValue(oldObject)));
@@ -467,9 +470,10 @@ public class DataMapperWriter<T> {
 
                     statement.setLong(index++, nextVal); // ID
                     statement.setString(index++, getTable().getTableAudit().getTouchTable().getName()); // table name
-                    statement.setString(index++, getTable().getTableAudit().getObjectReferences(object)); // object references
-                    statement.setString(index++, getTable().getTableAudit().getCategory()); // category
-                    statement.setString(index++, getTable().getTableAudit().getSubCategory()); // category
+                    statement.setString(index++, getTable().getTableAudit().getDomainReferences(object)); // object references
+                    statement.setString(index++, getTable().getTableAudit().getDomainShortReference(object).toString()); // object short references
+                    statement.setString(index++, getTable().getTableAudit().getDomain()); // category
+                    statement.setString(index++, getTable().getTableAudit().getContext()); // category
                     statement.setLong(index++, operation.ordinal()); // operation
                     statement.setLong(index++, now.toEpochMilli()); // create time
                     statement.setString(index++, getCurrentUserName()); //user name
