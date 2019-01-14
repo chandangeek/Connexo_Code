@@ -137,7 +137,16 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CRL_REQUEST_TASK_PROPERTIES(320, "NoCrlRequestTaskProps", "No CRL request task properties exist"),
     NO_SUCH_CRL_REQUEST_TASK(321, "NoCrlRequestTask", "No CRL request task exist"),
     CRL_REQUEST_TASK_CA_NAME_UNIQUE(322, "CrlRequestTaskCaNameUnique", "The CA name must be unique."),
-    NOT_ALL_PROPS_ARE_DEFINDED(323, "notAllPropsAreDefined", "One of the following property is not set, Communication port pool, hostname or port number!")
+    NOT_ALL_PROPS_ARE_DEFINDED(323, "notAllPropsAreDefined", "One of the following property is not set, Communication port pool, hostname or port number!"),
+    CANT_RERUN_NO_PROCESSES(324, "cantRerunNoProcesses", "Can''t run bulk action ''Retry process'', no process is found to retry."),
+    CANT_RERUN_SEVERAL_PROCESSES(325, "cantRerunSeveralProcesses", "Can''t run bulk action ''Retry process'' for a set of different processes."),
+    PROCESS_IS_NOT_ACTIVE(326, "processIsNotActive", "Process ''{0}'' with version ''{1}'' isn''t activated."),
+    PROCESS_OBJECT_TYPE_NOT_FOUND(327, "processObjectTypeNotFound", "Couldn''t find target object type for process ''{0}'' with version ''{1}''."),
+    OBJECTS_FILTERED_TYPE_NOT_COMPATIBLE(328, "objectsFilteredTypeNotCompatible", "The process can''t run on the following objects of incompatible type(s): {0}."),
+    OBJECTS_FILTERED_NOT_CONSISTENT(329, "objectsFilteredNotConsistent", "The process can''t run on the following objects as they don''t match the process requirements: {0}."),
+    OBJECTS_FILTERED_NOT_FOUND(330, "objectsFilteredNotFound", "The following objects aren''t found: {0}."),
+    OBJECTS_FILTERED_ALREADY_RUNNING(331, "objectsFilteredAlreadyRunning", "The process is already running on the following objects: {0}."),
+    OBJECTS_FILTERED_DUPLICATED(332, "objectsFilteredDuplicated", "The following objects are duplicated in the selected process history list: {0}; the process will be started once on each of them."),
     ;
 
     private final int number;

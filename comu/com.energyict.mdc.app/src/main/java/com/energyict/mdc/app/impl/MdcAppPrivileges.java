@@ -7,6 +7,7 @@ package com.energyict.mdc.app.impl;
 import java.util.Arrays;
 import java.util.List;
 
+
 class MdcAppPrivileges {
 
     static List<String> getApplicationPrivileges() {
@@ -222,7 +223,11 @@ class MdcAppPrivileges {
 
                 // security accessors management
                 com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_ACCESSORS,
-                com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_ACCESSORS
+                com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_ACCESSORS,
+
+                // zone
+                com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTRATE_ZONE,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ZONE
         );
     }
 }
