@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>10.4.4-SNAPSHOT</version>
+        <version>10.4.5-Base</version>
     </parent>
 
     <artifactId>mdc</artifactId>

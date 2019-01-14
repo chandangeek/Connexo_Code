@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>10.4.4-SNAPSHOT</version>
+        <version>10.4.5-Base</version>
     </parent>
 
     <artifactId>properties.rest</artifactId>

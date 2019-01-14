@@ -8,12 +8,12 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>upl</artifactId>
-        <version>10.4.4-SNAPSHOT</version>
+        <version>10.4.5-Base</version>
     </parent>
 
     <groupId>com.energyict</groupId>
     <artifactId>mdc.upl</artifactId>
-    <version>10.4.4-SNAPSHOT</version>
+    <version>10.4.5-Base</version>
     <packaging>bundle</packaging>
     <name>[MDC] com.energyict.mdc.upl</name>
     <description>
