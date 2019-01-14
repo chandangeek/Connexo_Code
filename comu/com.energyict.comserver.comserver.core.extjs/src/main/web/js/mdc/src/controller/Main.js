@@ -150,7 +150,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.store.LoadProfilesOfDevice',
         'Mdc.store.DeviceStatePrivileges',
         'Mdc.store.DeviceCommandPrivileges',
-        'Mdc.store.DeviceTypeCapabilities'
+        'Mdc.store.DeviceTypeCapabilities',
+        'Mdc.store.Zones'
     ],
 
     refs: [

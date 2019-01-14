@@ -2,10 +2,16 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Cfg.zones.store.Zones', {
+Ext.define('Mdc.store.Zones', {
     extend: 'Ext.data.Store',
-    model: 'Cfg.zones.model.Zone',
-    autoLoad: false,
+    autoLoad: true,
+
+    fields: [
+       'id',
+        'zoneTypeName',
+        'name',
+        'zoneTypeId',
+    ],
 
     proxy: {
         type: 'rest',
@@ -14,6 +20,8 @@ Ext.define('Cfg.zones.store.Zones', {
             type: 'json',
             root: 'zones'
         },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
     }
-
 });

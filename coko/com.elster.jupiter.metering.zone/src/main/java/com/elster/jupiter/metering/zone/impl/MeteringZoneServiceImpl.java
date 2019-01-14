@@ -216,6 +216,11 @@ public class MeteringZoneServiceImpl implements MeteringZoneService, Translation
     }
 
     @Override
+    public boolean isZoneInUse(long zoneId) {
+        return dataModel.mapper(EndDeviceZone.class).select(where("zoneId").isEqualTo(zoneId)).stream().toArray().length > 0 ? true : false;
+    }
+
+    @Override
     public EndDeviceZoneBuilder newEndDeviceZoneBuilder() {
         return new EndDeviceZoneBuilderImpl(dataModel);
     }

@@ -48,4 +48,6 @@ public interface MeteringZoneService {
     EndDeviceZoneBuilder newEndDeviceZoneBuilder();
 
     Optional<EndDeviceZone> getEndDeviceZone(long endDeviceZoneId);
+
+    boolean isZoneInUse(long zoneId);
 }
