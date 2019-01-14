@@ -177,6 +177,13 @@ public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<Devic
     }
 
     @Override
+    public String getDomainClassDisplayName() {
+
+        return "Device type";//this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME_DEVICE).format();  // CONM-332
+        //return "Device";
+    }
+
+    @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.propertySpecService
