@@ -40,7 +40,7 @@
 
             <unpack>true</unpack>
             <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
         <dependencySet>
             <outputDirectory>bundles</outputDirectory>
@@ -56,7 +56,7 @@
                 ${artifact.groupId}.${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}
             </outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
         <dependencySet>
             <outputDirectory>bundles</outputDirectory>

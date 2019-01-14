@@ -61,7 +61,7 @@
 
             <unpack>true</unpack>
             <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
         <dependencySet>
             <includes>
@@ -73,7 +73,7 @@
                 ${artifact.artifactId}-${artifact.version}.${artifact.extension}
             </outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
         <dependencySet>
             <includes>
@@ -85,7 +85,7 @@
                 ${artifact.artifactId}.${artifact.extension}
             </outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
         <dependencySet>
             <includes>
@@ -99,7 +99,7 @@
                 ${artifact.artifactId}.${artifact.extension}
             </outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
         <dependencySet>
             <includes>
@@ -113,7 +113,7 @@
             </outputFileNameMapping>
             <outputDirectory>partners/flow</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
         <dependencySet>
             <outputDirectory>bundles</outputDirectory>
@@ -132,7 +132,7 @@
             </outputFileNameMapping>
             <useTransitiveDependencies>true</useTransitiveDependencies>
             <useTransitiveFiltering>false</useTransitiveFiltering>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
@@ -145,7 +145,7 @@
                 ${artifact.groupId}.${artifact.artifactId}.${artifact.extension}
             </outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
 
     </dependencySets>
