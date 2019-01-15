@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>10.6.0-SNAPSHOT</version>
+        <version>10.6.0-Base</version>
     </parent>
     <artifactId>hsm</artifactId>
     <name>[Jupiter] com.elster.jupiter.hsm</name>
