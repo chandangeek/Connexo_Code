@@ -342,7 +342,8 @@
 							<goal>baseline</goal>
 						</goals>
 						<configuration>
-							<failOnError>false</failOnError>
+							<failOnError>true</failOnError>
+							<comparisonVersion>10.6.0-Base</comparisonVersion>
 							<artifactRepoIds>
 								<artifactRepoId>eict-public</artifactRepoId>
 							</artifactRepoIds>
