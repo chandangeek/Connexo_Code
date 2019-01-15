@@ -67,7 +67,6 @@ public class FirmwareCampaignInfoFactory {
         String statusTranslationKey = new FirmwareCampaignStatusAdapter().marshal(campaignStatus);
         info.status.localizedValue = thesaurus.getString(statusTranslationKey, statusTranslationKey);
         info.deviceType = IdWithLocalizedValue.from(campaign.getDeviceType());
-        info.deviceGroup =  IdWithLocalizedValue.from(campaign.getDeviceGroup()); // lori
         String managementOptionId = campaign.getFirmwareManagementOption().getId();
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         info.firmwareType = new FirmwareTypeInfo(campaign.getFirmwareType(), thesaurus);

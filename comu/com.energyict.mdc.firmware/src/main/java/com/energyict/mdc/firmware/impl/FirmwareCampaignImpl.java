@@ -54,7 +54,6 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         NAME("name"),
         STATUS("status"),
         DEVICE_TYPE("deviceType"),
-        DEVICE_GROUP("deviceGroup"),
         MANAGEMENT_OPTION("managementOption"),
         FIRMWARE_TYPE("firmwareType"),
         STARTED_ON("startedOn"),
@@ -353,9 +352,8 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     @SuppressWarnings("unused")
     /** We need this getter for successful event serialization */
-    @Override
-    public EndDeviceGroup getDeviceGroup() {   //lori
-        return deviceGroup;
+    public EndDeviceGroup getDeviceGroup() {
+        return this.deviceGroup;
     }
 
     public Instant getModTime() {
