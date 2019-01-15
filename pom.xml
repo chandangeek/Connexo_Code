@@ -9,7 +9,7 @@
 
 	<groupId>com.elster.jupiter</groupId>
 	<artifactId>parent</artifactId>
-	<version>10.4.5-Base</version>
+	<version>10.4.5-Hydra-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>[Jupiter] com.elster.jupiter.parent</name>
 
@@ -342,7 +342,8 @@
 							<goal>baseline</goal>
 						</goals>
 						<configuration>
-							<failOnError>false</failOnError>
+							<comparisonVersion>10.4.5-Base</comparisonVersion>
+							<failOnError>true</failOnError>
 							<artifactRepoIds>
 								<artifactRepoId>eict-public</artifactRepoId>
 							</artifactRepoIds>
