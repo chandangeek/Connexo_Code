@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>mdm.parent</artifactId>
-        <version>10.6.0-Base</version>        
+        <version>10.6.0-Nessus-SNAPSHOT</version>        
     </parent>
 
     <artifactId>mdm.demo.customtask</artifactId>
