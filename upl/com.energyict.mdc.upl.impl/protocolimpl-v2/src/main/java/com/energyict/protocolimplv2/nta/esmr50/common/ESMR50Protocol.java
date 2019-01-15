@@ -183,7 +183,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        if(deviceProtocolCache != null && deviceProtocolCache instanceof ESMR50Cache){
+        if (deviceProtocolCache instanceof ESMR50Cache) {
             esmr50Cache = (ESMR50Cache) deviceProtocolCache;
         }
     }
@@ -305,15 +305,15 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         return registerFactory;
     }
 
-    protected ESMR50Messaging getESMR50Messaging(){
-        if(this.esmr50Messaging == null){
+    protected ESMR50Messaging getESMR50Messaging() {
+        if (this.esmr50Messaging == null) {
             this.esmr50Messaging = new ESMR50Messaging(getMessageExecutor(), this.getPropertySpecService(), this.nlsService, this.converter, this.messageFileExtractor, this.calendarExtractor, this.numberLookupExtractor, this.loadProfileExtractor, this.keyAccessorTypeExtractor);
         }
         return this.esmr50Messaging;
     }
 
-    protected ESMR50MessageExecutor getMessageExecutor(){
-        if(this.esmr50MessageExecutor == null){
+    protected ESMR50MessageExecutor getMessageExecutor() {
+        if (this.esmr50MessageExecutor == null) {
             this.esmr50MessageExecutor = new ESMR50MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.keyAccessorTypeExtractor);
         }
         return this.esmr50MessageExecutor;

@@ -40,7 +40,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
             return Collections.emptyList();
         }
     },
-    CHANGE_GPRS_USER_CREDENTIALS(4003, "Change the GPRS user credentials") {
+    CHANGE_GPRS_USER_CREDENTIALS(4003, "Change the LTE user credentials") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -49,7 +49,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CHANGE_GPRS_APN_CREDENTIALS(4004, "Change the GPRS apn credentials") {
+    CHANGE_GPRS_APN_CREDENTIALS(4004, "Change the LTE apn credentials") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
