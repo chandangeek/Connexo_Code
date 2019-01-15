@@ -389,6 +389,15 @@ public class DeviceTypeResource {
                             .collect(Collectors.toList())
                             .contains(f.getId()))
                     .collect(Collectors.toList());
+            registeredCustomPropertySets.addAll(resourceHelper.findAllCustomPropertySetsByDomain(DeviceType.class)
+                    .stream()
+                    .filter(f -> !deviceType.getCustomPropertySets()
+                            .stream()
+                            .map(RegisteredCustomPropertySet::getId)
+                            .collect(Collectors.toList())
+                            .contains(f.getId()))
+                    .collect(Collectors.toList()));
+
         } else {
             registeredCustomPropertySets = deviceType.getCustomPropertySets();
         }
