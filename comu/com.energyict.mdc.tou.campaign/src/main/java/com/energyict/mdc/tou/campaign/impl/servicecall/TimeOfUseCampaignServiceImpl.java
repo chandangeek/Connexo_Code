@@ -27,7 +27,6 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -51,6 +50,7 @@ import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 import com.energyict.mdc.tou.campaign.impl.ServiceCallTypes;
 import com.energyict.mdc.tou.campaign.impl.TimeOfUseCampaignBuilderImpl;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
+import com.energyict.mdc.tou.campaign.security.Privileges;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import com.google.inject.AbstractModule;
@@ -72,6 +72,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -167,7 +168,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         customPropertySets.add(dataModel.getInstance(TimeOfUseCampaignCustomPropertySet.class));
         customPropertySets.add(dataModel.getInstance(TimeOfUseItemPropertySet.class));
         customPropertySets.forEach(customPropertySetService::addCustomPropertySet);
-        upgradeService.register(InstallIdentifier.identifier(MdcAppService.APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Deactivate
@@ -269,7 +270,12 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        return Stream.of(
+                Stream.of(TranslationKeys.values()),
+                Stream.of(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
+
     }
 
     // for test purposes
@@ -300,7 +306,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         timeOfUseCampaignDomainExtension.setUpdateType(campaign.getUpdateType());
         timeOfUseCampaignDomainExtension.setTimeValidation(campaign.getTimeValidation());
         ServiceCall serviceCall = serviceCallType.newServiceCall()
-                .origin(MdcAppService.APPLICATION_NAME)
+                .origin("MultiSense")
                 .extendedWith(timeOfUseCampaignDomainExtension)
                 .create();
         if (campaign.getActivationOption().equals("Immediately")) {
@@ -531,7 +537,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
 
     @Override
     public void cancelDevice(long id) {
-        cancelCalendarSend(findActiveServiceCallByDevice(deviceService.findDeviceById(id).orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.DEVICE_BY_ID_NOT_FOUND, id))).get());
+        cancelDevice(deviceService.findDeviceById(id).orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.DEVICE_BY_ID_NOT_FOUND, id)));
     }
 
     @Override
@@ -552,7 +558,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     @Override
-    public void retry(long id) {
+    public void retryDevice(long id) {
         findServiceCallsByDevice(deviceService.findDeviceById(id).get())
                 .filter(serviceCall1 -> serviceCall1.getParent().isPresent())
                 .filter(serviceCall1 -> (serviceCall1.getParent().get().getState().equals(DefaultState.ONGOING)

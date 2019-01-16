@@ -258,6 +258,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.tou.campaign.extjs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tou.campaign</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>

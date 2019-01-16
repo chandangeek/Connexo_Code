@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.tou.campaign.impl;
 
+import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -12,9 +13,12 @@ import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -22,11 +26,13 @@ public class Installer implements FullInstaller {
 
     private final CustomPropertySetService customPropertySetService;
     private final ServiceCallService serviceCallService;
+    private final UserService userService;
 
     @Inject
-    public Installer(CustomPropertySetService customPropertySetService, ServiceCallService serviceCallService) {
+    public Installer(CustomPropertySetService customPropertySetService, ServiceCallService serviceCallService, UserService userService) {
         this.customPropertySetService = customPropertySetService;
         this.serviceCallService = serviceCallService;
+        this.userService = userService;
     }
 
     @Override
@@ -36,6 +42,10 @@ public class Installer implements FullInstaller {
                 this::createServiceCallTypes,
                 logger
         );
+        Resource resource = userService.getResource(Privileges.RESOURCE_TOU_CALENDARS.getKey())
+                .orElseThrow(() -> new NoSuchElementException("resource " + Privileges.RESOURCE_TOU_CALENDARS.getKey() + " not found"));
+        resource.createPrivilege(com.energyict.mdc.tou.campaign.security.Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS);
+        resource.createPrivilege(com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS);
     }
 
     private void createServiceCallTypes() {

@@ -9,7 +9,6 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
@@ -133,6 +132,6 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
 
     @Override
     public String application() {
-        return MdcAppService.APPLICATION_NAME;
+        return "MultiSense";
     }
 }

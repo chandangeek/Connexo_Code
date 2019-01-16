@@ -7,9 +7,9 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
+
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -71,6 +71,6 @@ public class TimeOfUseItemPersistenceSupport implements PersistenceSupport<Servi
 
     @Override
     public String application() {
-        return MdcAppService.APPLICATION_NAME;
+        return "MultiSense";
     }
 }

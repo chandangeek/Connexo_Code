@@ -2,4 +2,5 @@
 -dsannotations: *
 
 Private-Package: com.energyict.mdc.tou.campaign.impl.*
-Export-Package: com.energyict.mdc.tou.campaign
+Export-Package: com.energyict.mdc.tou.campaign, \
+com.energyict.mdc.tou.campaign.security

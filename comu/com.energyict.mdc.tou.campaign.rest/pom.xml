@@ -65,32 +65,26 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>calendar</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.upl</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data</artifactId>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

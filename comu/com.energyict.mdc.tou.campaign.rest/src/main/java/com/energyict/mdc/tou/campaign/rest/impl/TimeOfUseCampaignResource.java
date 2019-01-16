@@ -12,12 +12,12 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.security.Privileges;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
+import com.energyict.mdc.tou.campaign.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -54,7 +54,7 @@ public class TimeOfUseCampaignResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS ,Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getToUCampaigns(@BeanParam JsonQueryParameters queryParameters) {
         List<TimeOfUseCampaignInfo> touCampaigns = new ArrayList<>();
         timeOfUseCampaignService.getAllCampaigns().forEach((campaign, status) -> {
@@ -68,7 +68,7 @@ public class TimeOfUseCampaignResource {
     @Transactional
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS ,Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getToUCampaign(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaign(name)
                 .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_TIME_OF_USE_CAMPAIGN_IS_FOUND));
@@ -80,7 +80,7 @@ public class TimeOfUseCampaignResource {
     @Transactional
     @Path("/{name}/devices")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS ,Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getToUCampaignsDevices(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaign(name)
                 .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_TIME_OF_USE_CAMPAIGN_IS_FOUND));
@@ -102,7 +102,7 @@ public class TimeOfUseCampaignResource {
     @Transactional
     @Path("/create")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response createToUCampaign(TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
         timeOfUseCampaignService.createToUCampaign(timeOfUseCampaignInfoFactory.build(timeOfUseCampaignInfo));
         return Response.ok(timeOfUseCampaignInfo).build();
@@ -110,11 +110,11 @@ public class TimeOfUseCampaignResource {
 
     @PUT
     @Transactional
-    @Path("/retry")
+    @Path("/retryDevice")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
-    public Response retry(long id) {
-        timeOfUseCampaignService.retry(id);
+    @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
+    public Response retryDevice(long id) {
+        timeOfUseCampaignService.retryDevice(id);
         return Response.ok().build();
     }
 
@@ -122,7 +122,7 @@ public class TimeOfUseCampaignResource {
     @Transactional
     @Path("/cancelDevice")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response cancelDevice(long id) {
         timeOfUseCampaignService.cancelDevice(id);
         return Response.ok().build();
@@ -132,7 +132,7 @@ public class TimeOfUseCampaignResource {
     @Transactional
     @Path("/{name}/edit")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response edit(@PathParam("name") String name, TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
         timeOfUseCampaignService.edit(name, timeOfUseCampaignInfoFactory.build(timeOfUseCampaignInfo));
         return Response.ok(timeOfUseCampaignInfo).build();
@@ -142,7 +142,7 @@ public class TimeOfUseCampaignResource {
     @Transactional
     @Path("/{name}/cancel")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response cancel(@PathParam("name") String name) {
         timeOfUseCampaignService.cancelCampaign(name);
         return Response.ok().build();
@@ -152,7 +152,7 @@ public class TimeOfUseCampaignResource {
     @Transactional
     @Path("/devicetypes")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS ,Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getDeviceTypesForCalendars(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithNameInfo> deviceTypes = new ArrayList<>();
         timeOfUseCampaignService.getDeviceTypesWithCalendars()
@@ -164,7 +164,7 @@ public class TimeOfUseCampaignResource {
     @Transactional
     @Path("/getoptions")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS ,Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getSendOptionsForType(@QueryParam("type") Long deviceTypeId) {
         DeviceTypeAndOptionsInfo deviceTypeAndOptionsInfo = new DeviceTypeAndOptionsInfo();
         DeviceType deviceType = timeOfUseCampaignService.getDeviceTypesWithCalendars().stream()

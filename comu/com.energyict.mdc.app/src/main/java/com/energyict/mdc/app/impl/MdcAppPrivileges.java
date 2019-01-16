@@ -222,7 +222,11 @@ class MdcAppPrivileges {
 
                 // security accessors management
                 com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_ACCESSORS,
-                com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_ACCESSORS
+                com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_ACCESSORS,
+
+                // time of use campaigns management
+                com.energyict.mdc.tou.campaign.security.Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS,
+                com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS
         );
     }
 }

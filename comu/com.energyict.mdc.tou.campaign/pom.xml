@@ -76,10 +76,6 @@
             <artifactId>mdc.upl</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.app</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>
         </dependency>
