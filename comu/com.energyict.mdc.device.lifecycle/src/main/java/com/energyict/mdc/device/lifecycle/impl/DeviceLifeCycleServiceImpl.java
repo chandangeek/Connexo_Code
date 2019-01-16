@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
@@ -14,6 +15,7 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -90,6 +92,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private volatile LicenseService licenseService;
     private Thesaurus thesaurus;
     private volatile MeteringService meteringService;
+    private volatile EventService eventService;
 
     // For OSGi purposes
     public DeviceLifeCycleServiceImpl() {
@@ -107,7 +110,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                                       UserService userService,
                                       Clock clock,
                                       LicenseService licenseService,
-                                      MeteringService meteringService) {
+                                      MeteringService meteringService, EventService eventService) {
         this();
         this.setNlsService(nlsService);
         this.setThreadPrincipalService(threadPrincipalService);
@@ -170,6 +173,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
 
     @Override
     public String getComponentName() {
@@ -271,10 +280,14 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         if (action.getState().getId() != device.getState().getId()) {
             if (action instanceof AuthorizedTransitionAction) {
                 AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) action;
-                throw new ActionDoesNotRelateToDeviceStateException(transitionAction, device, this.thesaurus, MessageSeeds.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
+                ActionDoesNotRelateToDeviceStateException exception = new ActionDoesNotRelateToDeviceStateException(transitionAction, device, this.thesaurus, MessageSeeds.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
+                postEvent(action, device, exception.getLocalizedMessage());
+                throw exception;
             } else {
                 AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) action;
-                throw new ActionDoesNotRelateToDeviceStateException(businessProcessAction, device, this.thesaurus, MessageSeeds.BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
+                ActionDoesNotRelateToDeviceStateException exception = new ActionDoesNotRelateToDeviceStateException(businessProcessAction, device, this.thesaurus, MessageSeeds.BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
+                postEvent(action, device, exception.getLocalizedMessage());
+                throw exception;
             }
         }
     }
@@ -293,11 +306,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     private void validateTriggerExecution(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         this.validateTriggerExecution(action, device);
-        this.valueAvailableForAllRequiredProperties(action, properties);
+        this.valueAvailableForAllRequiredProperties(action, device, properties);
         this.validateExecutionTimestamp(action, device, effectiveTimestamp);
     }
 
-    private void valueAvailableForAllRequiredProperties(AuthorizedTransitionAction action, List<ExecutableActionProperty> properties) {
+    private void valueAvailableForAllRequiredProperties(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) {
         Set<String> propertySpecNames =
                 properties
                         .stream()
@@ -313,14 +326,16 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 .filter(each -> !propertySpecNames.contains(each))
                 .collect(Collectors.toSet());
         if (!missingRequiredPropertySpecNames.isEmpty()) {
-            throw new RequiredMicroActionPropertiesException(this.thesaurus, MessageSeeds.MISSING_REQUIRED_PROPERTY_VALUES, missingRequiredPropertySpecNames);
+            RequiredMicroActionPropertiesException exception = new RequiredMicroActionPropertiesException(this.thesaurus, MessageSeeds.MISSING_REQUIRED_PROPERTY_VALUES, missingRequiredPropertySpecNames);
+            postEvent(action, device, exception.getLocalizedMessage());
+            throw exception;
         }
     }
 
     private void validateExecutionTimestamp(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp) {
         Optional<Instant> lastStateChangeTimestamp = this.getLastStateChangeTimestamp(device);
-        this.effectiveTimestampAfterLastStateChange(effectiveTimestamp, device, lastStateChangeTimestamp);
-        this.effectiveTimestampIsInRange(effectiveTimestamp, action.getDeviceLifeCycle(), lastStateChangeTimestamp);
+        this.effectiveTimestampAfterLastStateChange(effectiveTimestamp, action, device, lastStateChangeTimestamp);
+        this.effectiveTimestampIsInRange(effectiveTimestamp, device, action, lastStateChangeTimestamp);
     }
 
     private Optional<Instant> getLastStateChangeTimestamp(Device device) {
@@ -337,14 +352,17 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         }
     }
 
-    private void effectiveTimestampAfterLastStateChange(Instant effectiveTimestamp, Device device, Optional<Instant> lastStateChangeTimestamp) {
+    private void effectiveTimestampAfterLastStateChange(Instant effectiveTimestamp, AuthorizedTransitionAction action, Device device, Optional<Instant> lastStateChangeTimestamp) {
         if (lastStateChangeTimestamp.isPresent() && !effectiveTimestamp.isAfter(lastStateChangeTimestamp.get())) {
-            throw new EffectiveTimestampNotAfterLastStateChangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE,
+            EffectiveTimestampNotAfterLastStateChangeException exception = new EffectiveTimestampNotAfterLastStateChangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE,
                     device, effectiveTimestamp, lastStateChangeTimestamp.get(), getLongDateFormatForCurrentUser());
+            postEvent(action, device, exception.getLocalizedMessage());
+            throw exception;
         }
     }
 
-    private void effectiveTimestampIsInRange(Instant effectiveTimestamp, DeviceLifeCycle deviceLifeCycle, Optional<Instant> lastStateChangeTimestamp) {
+    private void effectiveTimestampIsInRange(Instant effectiveTimestamp, Device device, AuthorizedTransitionAction action, Optional<Instant> lastStateChangeTimestamp) {
+        DeviceLifeCycle deviceLifeCycle = action.getDeviceLifeCycle();
         Instant lowerBound = deviceLifeCycle.getMaximumPastEffectiveTimestamp().atZone(this.clock.getZone()).truncatedTo(ChronoUnit.DAYS).toInstant();
         if (lastStateChangeTimestamp.isPresent() && lowerBound.isBefore(lastStateChangeTimestamp.get())) {
             lowerBound = lastStateChangeTimestamp.get();
@@ -352,8 +370,10 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         Instant upperBound = deviceLifeCycle.getMaximumFutureEffectiveTimestamp().atZone(this.clock.getZone()).truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).toInstant();
         Range<Instant> range = Range.closedOpen(lowerBound, upperBound);
         if (!range.contains(effectiveTimestamp)) {
-            throw new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE,
+            EffectiveTimestampNotInRangeException exception = new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE,
                     lowerBound, upperBound, getLongDateFormatForCurrentUser());
+            postEvent(action, device, exception.getLocalizedMessage());
+            throw exception;
         }
     }
 
@@ -410,16 +430,17 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                         .map(microCheck -> this.execute(microCheck, device, effectiveTimestamp))
                         .flatMap(Functions.asStream())
                         .collect(Collectors.toList());
-        if(licenseService.getLicensedApplicationKeys().contains("INS")) {
+        if (licenseService.getLicensedApplicationKeys().contains("INS")) {
             microCheckFactory.from(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
                     .evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
                     .ifPresent(violations::add);
         }
         if (!violations.isEmpty()) {
-            throw new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
+            MultipleMicroCheckViolationsException exception = new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
+            postEvent(action, device, exception.getLocalizedMessage());
+            throw exception;
         }
     }
-
 
 
     /**
@@ -516,5 +537,18 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     private Optional<EndDevice> findEndDevice(AmrSystem amrSystem, Device device) {
         return amrSystem.findMeter(String.valueOf(device.getId())).map(EndDevice.class::cast);
+    }
+
+    private void postEvent(AuthorizedAction action, Device device, String cause) {
+        eventService.postEvent(EventType.TRANSITION_FAILED.topic(),
+                TransitionFailedEventInfo.forFailure(action, device, cause, Instant.now(clock)));
+    }
+
+    public String getLocalizedMessage(MessageSeed seed, String message) {
+        return getFormat(seed).format(message);
+    }
+
+    private NlsMessageFormat getFormat(MessageSeed seed) {
+        return this.thesaurus.getSimpleFormat(seed);
     }
 }

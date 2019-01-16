@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
@@ -149,6 +150,8 @@ public class DeviceLifeCycleServiceImplTest {
     private LicenseService licenseService;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private EventService eventService;
 
     @Before
     public void initializeMocks() {
@@ -881,7 +884,7 @@ public class DeviceLifeCycleServiceImplTest {
 
     private DeviceLifeCycleServiceImpl getTestInstance() {
         return new DeviceLifeCycleServiceImpl(this.nlsService, this.threadPrincipleService, this.propertySpecService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService, this.userService, Clock
-                .systemDefaultZone(), this.licenseService, this.meteringService);
+                .systemDefaultZone(), this.licenseService, this.meteringService, eventService);
     }
 
     public static class NoTranslation implements NlsMessageFormat {

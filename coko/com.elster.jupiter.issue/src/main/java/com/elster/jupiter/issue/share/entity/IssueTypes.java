@@ -9,8 +9,9 @@ public enum IssueTypes {
 
     DATA_COLLECTION("DCI", "datacollection"),
     DATA_VALIDATION("DVI", "datavalidation"),
-    USAGEPOINT_DATA_VALIDATION("UVI", "usagepointdatavalidation"),
     DEVICE_ALARM("ALM", "devicealarm"),
+    DEVICE_LIFECYCLE("DLI", "devicelifecycle"),
+    USAGEPOINT_DATA_VALIDATION("UVI", "usagepointdatavalidation"),
     NA ("NA", "notapplicable");
 
     private final String prefix;
@@ -33,8 +34,9 @@ public enum IssueTypes {
         switch (name){
             case "datacollection" : return IssueTypes.DATA_COLLECTION;
             case "datavalidation" : return IssueTypes.DATA_VALIDATION;
-            case "usagepointdatavalidation" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
             case "devicealarm" : return IssueTypes.DEVICE_ALARM;
+            case "devicelifecycle" : return IssueTypes.DEVICE_LIFECYCLE;
+            case "usagepointdatavalidation" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
             default:return IssueTypes.NA;
         }
     }
@@ -42,10 +44,11 @@ public enum IssueTypes {
 
     public static IssueTypes getByPrefix(String name){
         switch (name){
+            case "ALM" : return IssueTypes.DEVICE_ALARM;
             case "DCI" : return IssueTypes.DATA_COLLECTION;
+            case "DLI" : return IssueTypes.DEVICE_LIFECYCLE;
             case "DVI" : return IssueTypes.DATA_VALIDATION;
             case "UVI" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
-            case "ALM" : return IssueTypes.DEVICE_ALARM;
             default:return IssueTypes.NA;
         }
     }
