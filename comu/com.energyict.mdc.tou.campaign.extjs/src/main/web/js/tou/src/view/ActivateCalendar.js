@@ -50,6 +50,7 @@ Ext.define('Tou.view.ActivateCalendar', {
                     },
                     {
                         itemId: 'ByDate',
+                        id: 'TouByDate',
                         name: me.groupName,
                         boxLabel: 'On',
                         inputValue: 'ByDate',
@@ -105,11 +106,6 @@ Ext.define('Tou.view.ActivateCalendar', {
         me.setValue = function (value) {
         };
 
-        me.markInvalid = function(msg){
-        };
-
-        me.clearInvalid = function(msg){
-        };
 
         me.callParent(arguments);
     }

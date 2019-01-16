@@ -22,7 +22,8 @@ Ext.define('Tou.controller.Add', {
         'Tou.store.DeviceTypes',
         'Fwc.store.DeviceGroups',
         'Tou.store.DaysWeeksMonths',
-        'Tou.store.AllowedCalendars'
+        'Tou.store.AllowedCalendars',
+        'Tou.store.AllowedDeviceTypeOptions'
     ],
 
     refs: [

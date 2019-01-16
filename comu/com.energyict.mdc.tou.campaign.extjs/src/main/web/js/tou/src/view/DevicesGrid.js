@@ -39,27 +39,27 @@ Ext.define('Tou.view.DevicesGrid', {
                     var iconCls = '';
 
                     metaData.tdCls = 'firmware-campaign-status';
-                    switch (value.id) {
-                        case 'failed':
+                    switch (value) {
+                        case 'Failed':
                             iconCls = 'icon-cancel-circle';
                             break;
-                        case 'success':
+                        case 'Success':
                             iconCls = 'icon-checkmark-circle';
                             break;
-                        case 'ongoing':
+                        case 'Ongoing':
                             iconCls = 'icon-spinner3';
                             break;
-                        case 'pending':
+                        case 'Pending':
                             iconCls = 'icon-forward2';
                             break;
-                        case 'configurationError':
+                        case 'Configuration Error':
                             iconCls = 'icon-notification';
                             break;
-                        case 'cancelled':
+                        case 'Cancelled':
                             iconCls = 'icon-blocked';
                             break;
                     }
-                    return value ? '<span class="' + iconCls + '"></span>' + value.name : '-';
+                    return value ? '<span class="' + iconCls + '"></span>' + value : '-';
                 }
             },
             {

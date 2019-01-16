@@ -56,13 +56,34 @@ Ext.define('Tou.view.AddForm', {
                 valueField: 'id',
                 listeners: {
                     change: function(radiogroup, newValue){
-                        me.down('#activate-calendar').show();
+                        var activateCalendarItem = me.down('#activate-calendar');
+                        activateCalendarItem.show();
                         me.down('#tou-update-type').show();
                         me.down('#tou-period-values').show();
-                        me.down('#tou-campaign-allowed-calendar').show();
-                        var calStore = me.down('#tou-campaign-allowed-calendar').getStore();
+                        var cbxCal = me.down('#tou-campaign-allowed-calendar');
+                        cbxCal.show();
+                        var calStore = Ext.create('Tou.store.AllowedDeviceTypeOptions');
                         calStore.getProxy().setUrl(this.getValue());
-                        calStore.load();
+                        calStore.load(function(){
+                             var calParams = calStore.getAt(0);
+                             cbxCal.bindStore(calParams.calendars());
+
+                             if (calParams.get('fullCalendar')) {
+                                Ext.getCmp("fullCalendar").enable();
+                             }else{
+                                Ext.getCmp("fullCalendar").disable();
+                             }
+                             if (calParams.get('specialDays')){
+                                Ext.getCmp("specialDays").enable();
+                             }else{
+                                Ext.getCmp("specialDays").disable();
+                             }
+                             if (calParams.get('withActivationDate')){
+                                Ext.getCmp("TouByDate").enable();
+                             }else{
+                                Ext.getCmp("TouByDate").disable();
+                             }
+                        });
                     }
                 }
             },
@@ -87,9 +108,6 @@ Ext.define('Tou.view.AddForm', {
                         valueField: 'name',
                         required: true,
                         width: 325
-                    },
-                    {
-                      // for float text
                     }
                 ]
             },
@@ -112,6 +130,7 @@ Ext.define('Tou.view.AddForm', {
             {
                 xtype: 'activate-calendar-field',
                 itemId: 'activate-calendar',
+                id: 'tou-activate-calendar',
                 name: 'activationDate',
                 fieldLabel: 'Activate calendar',
                 required: true,
@@ -180,7 +199,7 @@ Ext.define('Tou.view.AddForm', {
                    fieldLabel: 'Tou calendar',
                    required: true,
                    allowBlank: false,
-                   store: 'Tou.store.AllowedCalendars',
+                   //store: 'Tou.store.AllowedCalendar',
                    forceSelection: true,
                    queryMode: 'local',
                    displayField: 'name',

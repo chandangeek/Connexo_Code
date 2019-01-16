@@ -2,9 +2,9 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Tou.view.DevicesStatusFilter', {
+Ext.define('Tou.view.DeviceStatusFilter', {
     extend: 'Uni.grid.FilterPanelTop',
-    xtype: 'tou-view-devicesStatusFilter',
+    xtype: 'tou-view-deviceStatusFilter',
     store: 'Tou.store.Devices',
 
     initComponent: function () {

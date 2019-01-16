@@ -8,9 +8,10 @@ Ext.define('Tou.store.Devices', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: 'api/tou/touCampaigns/{touCampaignName}/devices',
+        urlTpl: '../../api/tou/touCampaigns/{touCampaignName}/devices',
         reader: {
             type: 'json',
+            root: 'devicesInCampaign'
         },
         setUrl: function (touCampaignName) {
             this.url = this.urlTpl.replace('{touCampaignName}', touCampaignName);

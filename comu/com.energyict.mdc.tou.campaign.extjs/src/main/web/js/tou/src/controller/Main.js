@@ -14,6 +14,7 @@ Ext.define('Tou.controller.Main', {
     controllers: [
         'Tou.controller.History',
         'Tou.controller.Detail',
+        'Tou.controller.Devices'
     ],
 
     refs: [

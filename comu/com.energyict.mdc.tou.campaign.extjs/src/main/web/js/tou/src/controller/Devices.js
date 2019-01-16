@@ -45,10 +45,10 @@ Ext.define('Tou.controller.Devices', {
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('tou-campaign-devices', {
                     itemId: 'tou-campaign-devices',
                     router: router,
-                    //deviceType: record.get('deviceType'),
-                    //:record.get('status').id === 'ONGOING'
+                    deviceType: record.get('deviceType'),
+                    campaignIsOngoing:record.get('status') === 'Ongoing'
                 }));
-                me.getSideMenu().setHeader(record.get('device').name);
+                me.getSideMenu().setHeader(record.get('name'));
                 me.getApplication().fireEvent('loadTouCampaign', record);
             },
             callback: function () {

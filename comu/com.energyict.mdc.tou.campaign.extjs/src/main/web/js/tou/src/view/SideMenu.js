@@ -21,7 +21,7 @@ Ext.define('Tou.view.SideMenu', {
             {
                 text: 'Devices',
                 itemId: 'tou-campaign-devices-link',
-                href: me.router.getRoute('/api/imt/devices').buildUrl()
+                href: me.router.getRoute('workspace/toucampaigns/toucampaign/devices').buildUrl()
             }
         ];
 

@@ -9,7 +9,7 @@ Ext.define('Tou.view.Devices', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Tou.view.SideMenu',
         'Tou.view.DevicesGrid',
-        'Tou.view.DevicesStatusFilter'
+        'Tou.view.DeviceStatusFilter'
     ],
     alias: 'widget.tou-campaign-devices',
     router: null,
@@ -40,7 +40,7 @@ Ext.define('Tou.view.Devices', {
                 ui: 'large',
                 items: [
                     {
-                        xtype: 'tou-view-devicesStatusFilter',
+                        xtype: 'tou-view-deviceStatusFilter',
                         itemId: 'tou-campaign-filter'
                     }
                     ,
