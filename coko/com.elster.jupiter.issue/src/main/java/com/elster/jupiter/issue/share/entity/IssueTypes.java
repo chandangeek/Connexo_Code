@@ -49,6 +49,7 @@ public enum IssueTypes {
             case "DLI" : return IssueTypes.DEVICE_LIFECYCLE;
             case "DVI" : return IssueTypes.DATA_VALIDATION;
             case "UVI" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
+
             default:return IssueTypes.NA;
         }
     }
