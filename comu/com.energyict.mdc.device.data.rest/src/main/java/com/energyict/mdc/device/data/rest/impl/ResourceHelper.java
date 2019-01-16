@@ -632,7 +632,8 @@ public class ResourceHelper {
         return device.getDeviceType().getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                .filter(registeredCustomPropertySet->registeredCustomPropertySet.getCustomPropertySet().getDomainClass().getName().equals(Device.class.getName()))
+                .filter(registeredCustomPropertySet -> registeredCustomPropertySet.getCustomPropertySet()
+                        .getDomainClass().equals(Device.class))
                 .map(registeredCustomPropertySet -> this.getDeviceCustomPropertySetInfo(registeredCustomPropertySet, device))
                 .collect(Collectors.toList());
     }
@@ -1297,7 +1298,7 @@ public class ResourceHelper {
 
     private String decodeInput(String input) {
         try {
-            input = URLDecoder.decode(input,"UTF-8");
+            input = URLDecoder.decode(input, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new UnderlyingIOException(e);
         }

@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
@@ -15,6 +15,7 @@ import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -45,12 +46,17 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -68,6 +74,7 @@ public class ResourceHelper {
     private final MeteringService meteringService;
     private final FirmwareService firmwareService;
     private final SecurityManagementService securityManagementService;
+    private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
     public ResourceHelper(ExceptionFactory exceptionFactory,
@@ -80,7 +87,8 @@ public class ResourceHelper {
                           EstimationService estimationService,
                           MeteringService meteringService,
                           FirmwareService firmwareService,
-                          SecurityManagementService securityManagementService) {
+                          SecurityManagementService securityManagementService,
+                          MdcPropertyUtils mdcPropertyUtils) {
         super();
         this.exceptionFactory = exceptionFactory;
         this.masterDataService = masterDataService;
@@ -93,6 +101,7 @@ public class ResourceHelper {
         this.meteringService = meteringService;
         this.firmwareService = firmwareService;
         this.securityManagementService = securityManagementService;
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
     public ChannelType findChannelTypeByIdOrThrowException(long id) {
@@ -140,11 +149,29 @@ public class ResourceHelper {
     }
 
     public List<RegisteredCustomPropertySet> findAllCustomPropertySetsByDomain(Class... domain) {
+        List<Class> domains = Arrays.asList(domain);
         return customPropertySetService.findActiveCustomPropertySets()
                 .stream()
-                .filter(f -> Arrays.asList(domain).contains(f.getCustomPropertySet().getDomainClass()))
-                //.filter(f -> f.getCustomPropertySet().getDomainClass().getName().equals(domain.getName()))
+                .filter(f -> domains.contains(f.getCustomPropertySet().getDomainClass()))
                 .collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<RegisteredCustomPropertySet, List<PropertyInfo>> getDeviceCustomPropertySetInfo(DeviceType deviceType,
+                                                                                               List<RegisteredCustomPropertySet> registeredCustomPropertySets) {
+        Map<RegisteredCustomPropertySet, List<PropertyInfo>> propertyInfos = new HashMap<>();
+        registeredCustomPropertySets.forEach(rcps -> {
+            if (!rcps.getCustomPropertySet().isVersioned() &&
+                    rcps.getCustomPropertySet().getDomainClass().equals(DeviceType.class)) {
+                propertyInfos.put(rcps, mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                        rcps.getCustomPropertySet().getPropertySpecs(),
+                        getCustomProperties(customPropertySetService.getUniqueValuesFor(
+                                rcps.getCustomPropertySet(), deviceType))));
+            } else {
+                propertyInfos.put(rcps, Collections.emptyList());
+            }
+        });
+        return propertyInfos;
     }
 
     public Long getCurrentDeviceTypeVersion(long id) {
@@ -640,5 +667,12 @@ public class ResourceHelper {
 
     public Optional<TimeOfUseOptions> findAndLockTimeOfUseOptionsByIdAndVersion(DeviceType deviceType, long version) {
         return deviceConfigurationService.findAndLockTimeOfUseOptionsByIdAndVersion(deviceType, version);
+    }
+
+    private TypedProperties getCustomProperties(CustomPropertySetValues customPropertySetValues) {
+        TypedProperties typedProperties = TypedProperties.empty();
+        customPropertySetValues.propertyNames().forEach(propertyName ->
+                typedProperties.setProperty(propertyName, customPropertySetValues.getProperty(propertyName)));
+        return typedProperties;
     }
 }
