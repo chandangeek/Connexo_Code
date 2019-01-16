@@ -81,7 +81,7 @@ Ext.define('Tou.controller.Devices', {
             }
         });
     },
-    doRetryDeviceInFirmwareCampaign: function (record) {
+    doRetryDeviceInTouCampaign : function (record) {
         var me = this,
             url = record.retryUrl();
 
@@ -89,7 +89,8 @@ Ext.define('Tou.controller.Devices', {
             url: url,
             method: 'PUT',
             success: function (response) {
-                me.doUpdateRecord(record, response.responseText);
+                debugger;
+                //me.doUpdateRecord(record, response.responseText);
                 me.getApplication().fireEvent('acknowledge', 'Tou upload for device rescheduled');
             }
         });

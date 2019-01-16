@@ -11,13 +11,13 @@ Ext.define('Tou.view.DeviceActionMenu', {
 
     initComponent: function () {
         this.items = [
-            /*{
+            {
                 text: 'Cancel',
                 action: 'cancelDevice',
                 itemId: 'tou-device-action-cancel',
                 privileges: Fwc.privileges.FirmwareCampaign.administrate,
                 section: this.SECTION_ACTION
-            },*/
+            },
             {
                 text: 'Retry',
                 action: 'retryDevice',
@@ -32,12 +32,12 @@ Ext.define('Tou.view.DeviceActionMenu', {
     listeners: {
         beforeshow: function(menu) {
             var currentDeviceStatus = menu.record.get('status'),
-                //cancelAllowed = currentDeviceStatus === 'pending' || currentDeviceStatus === 'ongoing',
-                retryAllowed = currentDeviceStatus === 'cancelled' || currentDeviceStatus === 'failed' || currentDeviceStatus === 'configurationError',
-                //cancelMenuItem = menu.down('#tou-device-action-cancel'),
+                cancelAllowed = currentDeviceStatus === 'Pending' || currentDeviceStatus === 'Ongoing',
+                retryAllowed = currentDeviceStatus === 'Cancelled' || currentDeviceStatus === 'Failed' || currentDeviceStatus === 'Configuration Error',
+                cancelMenuItem = menu.down('#tou-device-action-cancel'),
                 retryMenuItem = menu.down('#tou-device-action-retry');
 
-            //cancelMenuItem.setVisible(cancelAllowed);
+            cancelMenuItem.setVisible(cancelAllowed);
             retryMenuItem.setVisible(retryAllowed);
         }
     }

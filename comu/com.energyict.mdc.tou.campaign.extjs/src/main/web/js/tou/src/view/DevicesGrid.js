@@ -86,13 +86,13 @@ Ext.define('Tou.view.DevicesGrid', {
                     if (!me.campaignIsOngoing) {
                         return true;
                     }
-                    switch (record.get('status').id) { // current device status
-                        case 'pending':
-                        case 'ongoing':
-                            return false; // because the device can be skipped
-                        case 'cancelled':
-                        case 'failed':
-                        case 'configurationError':
+                    switch (record.get('status')) { // current device status
+                        case 'Pending':
+                        case 'Ongoing':
+                            return false;
+                        case 'Cancelled':
+                        case 'Failed':
+                        case 'Configuration Error':
                             return false; // because the device can be retried
                         default:
                             return true;

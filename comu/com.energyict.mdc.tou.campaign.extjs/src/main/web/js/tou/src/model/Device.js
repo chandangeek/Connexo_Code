@@ -11,7 +11,7 @@ Ext.define('Tou.model.Device', {
         {name: 'finishedOn', type: 'date', dateFormat: 'time'}
     ],
     //cancelUrlTpl: '/api/fwc/devices/{deviceId}/firmwares/{campaignId}/cancel',
-    retryUrlTpl:  'api/tou/touCampaigns/{campaignName}/devices/{deviceId}/retry',
+    retryUrlTpl:  'api/tou/touCampaigns/retry/{deviceId}',
     cancelUrl: function () {
         return this.replaceIds(this.cancelUrlTpl);
     },
@@ -19,7 +19,7 @@ Ext.define('Tou.model.Device', {
         return this.replaceIds(this.retryUrlTpl);
     },
     replaceIds: function(tpl){
-        var url = tpl.replace('{campaignName}', this.get('campaignName'));
-        return url.replace('{deviceId}', this.get('deviceId'));
+        //var url = tpl.replace('{campaignName}', this.get('campaignName'));
+        return tpl.replace('{deviceId}', this.get('device').id);
     }
 });
