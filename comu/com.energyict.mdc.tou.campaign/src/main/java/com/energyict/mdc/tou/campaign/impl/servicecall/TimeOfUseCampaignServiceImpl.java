@@ -331,7 +331,8 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 });
             } else {
                 serviceCall.requestTransition(DefaultState.CANCELLED);
-                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICE_BY_METER_ID_NOT_FOUND).format(1,2));//"devices with group " + campaign.getDeviceGroup() + " and type " + campaign.getDeviceType() + " not found");
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICE_BY_METER_ID_NOT_FOUND)
+                        .format(1, 2));//"devices with group " + campaign.getDeviceGroup() + " and type " + campaign.getDeviceType() + " not found");
             }
             numberOfDevices[3] = meteringGroupsService.findEndDeviceGroupByName(campaign.getDeviceGroup())
                     .get()
@@ -529,12 +530,17 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     @Override
+    public void cancelDevice(long id) {
+        cancelCalendarSend(findActiveServiceCallByDevice(deviceService.findDeviceById(id).orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.DEVICE_BY_ID_NOT_FOUND, id))).get());
+    }
+
+    @Override
     public void cancelCampaign(String campaign) {
         findCampaignServiceCall(campaign)
                 .filter(serviceCall -> serviceCall.canTransitionTo(DefaultState.CANCELLED))
                 .ifPresent(serviceCall -> {
                     serviceCall.requestTransition(DefaultState.CANCELLED);
-                    serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.CANCELED_BY_USER.getKey(),MessageSeeds.CANCELED_BY_USER.getDefaultFormat()));
+                    serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.CANCELED_BY_USER.getKey(), MessageSeeds.CANCELED_BY_USER.getDefaultFormat()));
                 });
     }
 
@@ -542,7 +548,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         revokeCalendarsCommands(findDeviceByServiceCall(serviceCall));
         findCalendarsComTaskExecutions(findDeviceByServiceCall(serviceCall)).findAny().ifPresent(comTaskExecution -> comTaskExecution.schedule(null));
         changeServiceCallStatus(findDeviceByServiceCall(serviceCall), DefaultState.CANCELLED);
-        serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.CANCELED_BY_USER.getKey(),MessageSeeds.CANCELED_BY_USER.getDefaultFormat()));
+        serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.CANCELED_BY_USER.getKey(), MessageSeeds.CANCELED_BY_USER.getDefaultFormat()));
     }
 
     @Override
@@ -554,7 +560,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .filter(serviceCall1 -> serviceCall1.canTransitionTo(DefaultState.PENDING)).findAny()
                 .ifPresent(serviceCall1 -> {
                     revokeCalendarsCommands(findDeviceByServiceCall(serviceCall1));
-                    serviceCall1.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.RETRIED_BY_USER.getKey(),MessageSeeds.RETRIED_BY_USER.getDefaultFormat()));
+                    serviceCall1.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.RETRIED_BY_USER.getKey(), MessageSeeds.RETRIED_BY_USER.getDefaultFormat()));
                     dataModel.getInstance(TimeOfUseSendHelper.class)
                             .setCalendarOnDevice(deviceService.findDeviceById(id).get(), serviceCall1);
                 });

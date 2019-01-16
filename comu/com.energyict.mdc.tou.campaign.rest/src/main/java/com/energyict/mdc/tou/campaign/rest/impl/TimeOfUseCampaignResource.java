@@ -120,6 +120,16 @@ public class TimeOfUseCampaignResource {
 
     @PUT
     @Transactional
+    @Path("/cancelDevice")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    public Response cancelDevice(long id) {
+        timeOfUseCampaignService.cancelDevice(id);
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Transactional
     @Path("/{name}/edit")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})

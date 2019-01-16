@@ -14,6 +14,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_NOT_CONTAIN_COMTASK_WITH_ACTIVITY_CALENDAR(5, "DeviceNotContainsComTaskWithActivitycalendar", "Device ''{0}'' NOT CONTAINS communication TASK WITH ACTIVITY CALENDAR"),
     DEVICE_GROUP_NOT_FOUND(1004, "DeviceGroupNotFound", "Device Group ''{0}'' Not Found"),
     DEVICE_BY_METER_ID_NOT_FOUND(1005, "DeviceByMeterIdNotFound", "Device By Meter Id ''{0}'' Not Found"),
+    DEVICE_BY_ID_NOT_FOUND(1005, "DeviceByIdNotFound", "Device By Id ''{0}'' Not Found"),
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2001, "CouldNotFindServiceCallType", "Couldn''t find service call type {0} having version {1}."),
     UNABLE_TO_FIND_CALENDAR(277, "CannotFindCalendar", "Unable to find the given calendar in the system."),
     NO_ALLOWED_CALENDAR_DEVICE_MESSAGE(278, "NoAllowedCalendarMessage", "Unable to find an allowed calendar command with the given information"),

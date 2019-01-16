@@ -46,6 +46,8 @@ public interface TimeOfUseCampaignService {
 
     void cancelDevice(Device device);
 
+    void cancelDevice(long id);
+
     void cancelCampaign(String campaign);
 
     Device findDeviceByServiceCall(ServiceCall serviceCall);
