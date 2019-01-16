@@ -12,7 +12,7 @@ public enum AuditOperationTranslationKeys implements TranslationKey {
 
     INSERT(AuditOperationType.INSERT, "New version"),
     UPDATE(AuditOperationType.UPDATE, "Changed attributes"),
-    DELETE(AuditOperationType.DELETE, "'Remove'");
+    DELETE(AuditOperationType.DELETE, "Remove");
 
     private AuditOperationType key;
     private String defaultFormat;
@@ -21,7 +21,6 @@ public enum AuditOperationTranslationKeys implements TranslationKey {
         this.key = key;
         this.defaultFormat = defaultFormat;
     }
-
 
     @Override
     public String getKey() {
@@ -32,5 +31,4 @@ public enum AuditOperationTranslationKeys implements TranslationKey {
     public String getDefaultFormat() {
         return this.defaultFormat;
     }
-
 }

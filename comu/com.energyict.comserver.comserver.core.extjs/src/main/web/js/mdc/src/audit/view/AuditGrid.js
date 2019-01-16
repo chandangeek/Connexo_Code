@@ -34,7 +34,7 @@ Ext.define('Mdc.audit.view.AuditGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('audit.entry', 'MDC', 'Entry'),
+                header: Uni.I18n.translate('audit.entity', 'MDC', 'Entity'),
                 dataIndex: 'context',
                 flex: 1,
                 renderer: function (value, metaData, record) {
@@ -47,7 +47,7 @@ Ext.define('Mdc.audit.view.AuditGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('audit.user', 'MDC', 'User'),
+                header: Uni.I18n.translate('audit.user', 'MDC', 'Changed by'),
                 dataIndex: 'user',
                 flex: 0.5
             }

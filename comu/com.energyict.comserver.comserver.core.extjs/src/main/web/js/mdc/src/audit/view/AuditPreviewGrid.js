@@ -17,7 +17,7 @@ Ext.define('Mdc.audit.view.AuditPreviewGrid', {
                 flex: 1,
             },
             {
-                header: Uni.I18n.translate('audit.preview.newValue', 'MDC', 'New value'),
+                header: Uni.I18n.translate('audit.preview.changedTo', 'MDC', 'Changed to'),
                 dataIndex: 'value',
                 flex: 1,
                 renderer: function (value, metaData, record) {
@@ -25,7 +25,7 @@ Ext.define('Mdc.audit.view.AuditPreviewGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('audit.preview.previousValue', 'MDC', 'Old value'),
+                header: Uni.I18n.translate('audit.preview.changedFrom', 'MDC', 'Changed from'),
                 dataIndex: 'previousValue',
                 flex: 1,
                 renderer: function (value, metaData, record) {

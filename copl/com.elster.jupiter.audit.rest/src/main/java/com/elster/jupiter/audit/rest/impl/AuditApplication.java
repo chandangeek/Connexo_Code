@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -38,6 +39,7 @@ public class AuditApplication extends Application implements TranslationKeyProvi
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
     private volatile AuditService auditService;
+    private volatile UserService userService;
     private volatile Clock clock;
 
     @Override
@@ -70,6 +72,10 @@ public class AuditApplication extends Application implements TranslationKeyProvi
         this.auditService = auditService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 
     @Reference
     public void setClock(Clock clock) {
@@ -100,6 +106,7 @@ public class AuditApplication extends Application implements TranslationKeyProvi
         protected void configure() {
             bind(thesaurus).to(Thesaurus.class);
             bind(thesaurus).to(MessageInterpolator.class);
+            bind(userService).to(UserService.class);
             bind(transactionService).to(TransactionService.class);
             bind(auditService).to(AuditService.class);
             bind(clock).to(Clock.class);

@@ -78,7 +78,7 @@ public class AuditDeviceProtocolDecoder implements AuditDecoder {
                             .orElse(Collections.emptyList());
 
             // new value
-            Optional<DeviceProtocolProperty> newDeviceProtocolProperty = getDeviceProtocolPropertyByVersion(versionCount)
+            Optional<DeviceProtocolProperty> newDeviceProtocolProperty = getDeviceProtocolPropertyFromHistory(versionCount)
                     .map(Optional::of)
                     .orElse(getDeviceProtocolProperty(versionCount));
 
@@ -100,7 +100,7 @@ public class AuditDeviceProtocolDecoder implements AuditDecoder {
             // old value
             Optional<DeviceProtocolProperty> oldDeviceProtocolProperty = Optional.empty();
             if (isNotFirstVersion(versionCount)) {
-                oldDeviceProtocolProperty = getDeviceProtocolPropertyByVersion(versionCount - 1);
+                oldDeviceProtocolProperty = getDeviceProtocolPropertyFromHistory(versionCount - 1);
             } else if (getValueFromDeviceProtocolProperty(newDeviceProtocolProperty.get()).equals(getDefaultValue(propertySpec))) {
                 return Collections.emptyList();
             }
@@ -158,7 +158,7 @@ public class AuditDeviceProtocolDecoder implements AuditDecoder {
         return propertyValue;
     }
 
-    private Optional<DeviceProtocolProperty> getDeviceProtocolPropertyByVersion(long version) {
+    private Optional<DeviceProtocolProperty> getDeviceProtocolPropertyFromHistory(long version) {
         DataModel dataModel = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME).get();
         return dataModel.mapper(DeviceProtocolProperty.class)
                 .at(Instant.EPOCH)

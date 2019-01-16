@@ -16,12 +16,19 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class AuditFilterImpl implements AuditFilter {
+
+    private Instant changedOnFrom = Instant.EPOCH;
+    private Instant changedOnTo = Instant.EPOCH;
+    private List<String> categories = new ArrayList<>();
+    private List<String> users = new ArrayList<>();
 
     private Condition condition = Condition.TRUE;
 
@@ -31,7 +38,40 @@ public class AuditFilterImpl implements AuditFilter {
 
     @Override
     public Condition toCondition() {
+        Condition condition = Condition.TRUE;
+        if (changedOnFrom != Instant.EPOCH) {
+            condition = condition.and(Where.where(AuditImpl.Field.CREATETIME.fieldName()).isGreaterThan(changedOnFrom));
+        }
+        if (changedOnTo != Instant.EPOCH) {
+            condition = condition.and(Where.where(AuditImpl.Field.CREATETIME.fieldName()).isGreaterThan(changedOnTo));
+        }
+        if (categories.size() > 0) {
+            condition = condition.and(Where.where(AuditImpl.Field.DOMAIN.fieldName()).in(categories));
+        }
+        if (users.size() > 0) {
+            condition = condition.and(Where.where(AuditImpl.Field.USERNAME.fieldName()).in(users));
+        }
         return condition;
+    }
+
+    @Override
+    public void setChangedOnFrom(Instant changedOnFrom) {
+        this.changedOnFrom = changedOnFrom;
+    }
+
+    @Override
+    public void setChangedOnTo(Instant changedOnTo) {
+        this.changedOnTo = changedOnTo;
+    }
+
+    @Override
+    public void setCategories(List<String> categories) {
+        this.categories.addAll(categories);
+    }
+
+    @Override
+    public void setChangedBy(List<String> users) {
+        this.users.addAll(users);
     }
 
     private AuditFilter setContext(OrmService ormService, ThreadPrincipalService threadPrincipalService, AuditService auditService) {

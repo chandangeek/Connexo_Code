@@ -55,7 +55,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>transaction</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties.rest</artifactId>
@@ -64,7 +63,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.util</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>users</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>

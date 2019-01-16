@@ -14,7 +14,6 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Encrypter;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
@@ -179,7 +178,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEV_PROTOCOL_PROP_JRNL").since(version(10, 2));
             table.primaryKey("PK_DDC_DEVICEPROTOCOLPROP").on(deviceId, propertySpec).add();
-            ForeignKeyConstraint deviceForeignKey = table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE")
+            table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE")
                     .on(deviceId)
                     .references(DDC_DEVICE.name())
                     .map("device")
@@ -193,7 +192,6 @@ public enum TableSpecs {
                     touchDomain("FK_DDC_DEVICE_ENDDEVICE").
                     touchContext("").
                     build();
-            //references(deviceForeignKey);
         }
     },
 

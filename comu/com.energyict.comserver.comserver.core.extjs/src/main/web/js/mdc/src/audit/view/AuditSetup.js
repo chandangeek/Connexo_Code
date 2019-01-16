@@ -10,7 +10,8 @@ Ext.define('Mdc.audit.view.AuditSetup', {
         'Mdc.audit.view.AuditGrid',
         'Mdc.audit.view.AuditPreviewGrid',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Mdc.audit.view.AuditFilter'
     ],
 
     initComponent: function () {
@@ -31,10 +32,11 @@ Ext.define('Mdc.audit.view.AuditSetup', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            itemId: 'no-communication-task',
+                            itemId: 'no-audit-trail',
                             title: Uni.I18n.translate('audit.empty.title', 'MDC', 'No audit trails found'),
                             reasons: [
-                                Uni.I18n.translate('audit.empty.list.item1', 'MDC', 'No audit trails have been generated yet.')
+                                Uni.I18n.translate('audit.empty.list.item1', 'MDC', 'There is no audit trails available.'),
+                                Uni.I18n.translate('audit.empty.list.item2', 'MDC', 'No audit trails comply with the filter.')
                             ]
                         },
                         previewComponent: {
@@ -43,6 +45,13 @@ Ext.define('Mdc.audit.view.AuditSetup', {
                             convertorFn: me.convertorFn,
                             scope: me.scope
                         }
+                    }
+                ],
+                dockedItems: [
+                    {
+                        dock: 'top',
+                        xtype: 'auditFilter',
+                        itemId: 'audit-filter'
                     }
                 ]
             }
