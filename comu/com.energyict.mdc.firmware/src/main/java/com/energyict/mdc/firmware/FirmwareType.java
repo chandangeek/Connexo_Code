@@ -7,6 +7,9 @@ package com.energyict.mdc.firmware;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public enum FirmwareType implements TranslationKey {
     COMMUNICATION("communication", "Communication firmware"),
     METER("meter", "Meter firmware"),

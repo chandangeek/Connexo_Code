@@ -11,10 +11,13 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface FirmwareManagementDeviceUtils {
     Device getDevice();
 

@@ -95,10 +95,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -128,7 +127,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private volatile UpgradeService upgradeService;
     private volatile TopologyService topologyService;
 
-    private Map<Class<? extends FirmwareCheck>, FirmwareCheck> firmwareChecks = new ConcurrentHashMap<>();
+    private List<FirmwareCheck> firmwareChecks = new CopyOnWriteArrayList<>();
 
     // For OSGI
     public FirmwareServiceImpl() {
@@ -479,7 +478,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Override
     public boolean cancelFirmwareUploadForDevice(Device device) {
         Optional<ComTaskExecution> fwComTaskExecution = getFirmwareComtaskExecution(device);
-        return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution);
+        return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution.get());
     }
 
     public void resumeFirmwareUploadForDevice(Device device) {
@@ -509,7 +508,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         // As revoking the message leads to canceling the deviceInFirmwareCampaign : see FirmwareCampaignHandler
     }
 
-
     @Override
     public boolean retryFirmwareUploadForDevice(DeviceInFirmwareCampaign deviceInFirmwareCampaign) {
         if (deviceInFirmwareCampaign.getFirmwareCampaign().getStatus() != FirmwareCampaignStatus.ONGOING) {
@@ -535,11 +533,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         }
     }
 
-    private boolean cancelFirmwareUpload(Optional<ComTaskExecution> fwComTaskExecution) {
-        ComTaskExecution comTaskExecution1 = fwComTaskExecution.get();
-        if (comTaskExecution1.getNextExecutionTimestamp() != null) {
-            comTaskExecution1.schedule(null);
-            cancelPendingFirmwareMessages(comTaskExecution1.getDevice());
+    private boolean cancelFirmwareUpload(ComTaskExecution fwComTaskExecution) {
+        if (fwComTaskExecution.getNextExecutionTimestamp() != null) {
+            fwComTaskExecution.schedule(null);
+            cancelPendingFirmwareMessages(fwComTaskExecution.getDevice());
             return true;
         } else {
             return false;
@@ -634,8 +631,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 DeviceMessageId.FIRMWARE_UPGRADE_URL_ACTIVATE_IMMEDIATE,
                 DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE
         )
-                .filter(firmwareDeviceMessage -> firmwareDeviceMessage.equals(deviceDeviceMessage.getDeviceMessageId()))
-                .findAny().isPresent();
+                .anyMatch(firmwareDeviceMessage -> firmwareDeviceMessage.equals(deviceDeviceMessage.getDeviceMessageId()));
     }
 
     @Activate
@@ -669,10 +665,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                             version(10, 4), V10_4SimpleUpgrader.class,
                             version(10, 4, 1), V10_4_1SimpleUpgrader.class
                     ));
+            addFirmwareCheck(dataModel.getInstance(NoGhostFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(MinimumLevelFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(NoDowngradeFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(MasterHasLatestFirmwareCheck.class));
-            addFirmwareCheck(dataModel.getInstance(NoGhostFirmwareCheck.class));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -777,15 +773,15 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addFirmwareCheck(FirmwareCheck firmwareCheck) {
-        firmwareChecks.put(firmwareCheck.getClass(), firmwareCheck);
+        firmwareChecks.add(firmwareCheck);
     }
 
     public void removeFirmwareCheck(FirmwareCheck firmwareCheck) {
-        firmwareChecks.remove(firmwareCheck.getClass());
+        firmwareChecks.remove(firmwareCheck);
     }
 
     @Override
     public Stream<FirmwareCheck> getFirmwareChecks() {
-        return firmwareChecks.values().stream();
+        return firmwareChecks.stream();
     }
 }

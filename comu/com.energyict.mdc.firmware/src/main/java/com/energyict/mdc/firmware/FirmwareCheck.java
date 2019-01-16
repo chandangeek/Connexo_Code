@@ -10,6 +10,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
+
+@ConsumerType
 public interface FirmwareCheck {
     TranslationKey CHECK_PREFIX = new SimpleTranslationKey("checkPrefix", "Check: {0}");
 
@@ -25,6 +29,7 @@ public interface FirmwareCheck {
 
     void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException;
 
+    @ProviderType
     class FirmwareCheckException extends LocalizedException {
         public FirmwareCheckException(Thesaurus thesaurus, MessageSeed messageSeed) {
             super(thesaurus, messageSeed);

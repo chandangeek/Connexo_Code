@@ -7,9 +7,12 @@ package com.energyict.mdc.firmware;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.io.InputStream;
 import java.time.Instant;
 
+@ProviderType
 public interface FirmwareVersion extends BaseFirmwareVersion, Comparable<FirmwareVersion> {
 
     FirmwareType getFirmwareType();
