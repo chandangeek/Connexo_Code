@@ -109,6 +109,14 @@ public class MeteringZoneTypeImplIT extends BaseZoneIT {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.ZONE_TYPE_NAME_NOT_UNIQUE + "}")
+    public void testSaveDuplicate() {
+        createZoneType(meteringZoneService, ZONE_TYPE_NAME_1, APPLICATION_1);
+        createZoneType(meteringZoneService, ZONE_TYPE_NAME_1, APPLICATION_1);
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(property = "typeName", messageId = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     public void testSaveWithEmptyName() {
         createZoneType(meteringZoneService, "", APPLICATION_1);
