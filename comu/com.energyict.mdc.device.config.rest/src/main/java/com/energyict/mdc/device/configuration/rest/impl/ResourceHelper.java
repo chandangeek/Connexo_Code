@@ -49,6 +49,7 @@ import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -130,7 +131,7 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No register type with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public RegisteredCustomPropertySet findDeviceTypeCustomPropertySetByIdOrThrowException(long id, Class domain) {
+    public RegisteredCustomPropertySet findDeviceTypeCustomPropertySetByIdOrThrowException(long id, Class... domain) {
         return findAllCustomPropertySetsByDomain(domain)
                 .stream()
                 .filter(f -> f.getId() == id)
@@ -138,10 +139,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No custom property set with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public List<RegisteredCustomPropertySet> findAllCustomPropertySetsByDomain(Class domain) {
+    public List<RegisteredCustomPropertySet> findAllCustomPropertySetsByDomain(Class... domain) {
         return customPropertySetService.findActiveCustomPropertySets()
                 .stream()
-                .filter(f -> f.getCustomPropertySet().getDomainClass().getName().equals(domain.getName()))
+                .filter(f -> Arrays.asList(domain).contains(f.getCustomPropertySet().getDomainClass()))
+                //.filter(f -> f.getCustomPropertySet().getDomainClass().getName().equals(domain.getName()))
                 .collect(Collectors.toList());
     }
 

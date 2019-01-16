@@ -632,6 +632,7 @@ public class ResourceHelper {
         return device.getDeviceType().getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(registeredCustomPropertySet->registeredCustomPropertySet.getCustomPropertySet().getDomainClass().getName().equals(Device.class.getName()))
                 .map(registeredCustomPropertySet -> this.getDeviceCustomPropertySetInfo(registeredCustomPropertySet, device))
                 .collect(Collectors.toList());
     }

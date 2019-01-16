@@ -378,6 +378,12 @@ public class DeviceTypeResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         boolean isNotLinked = !filter.getBoolean("linked");
+        boolean isSpecific = false;
+        if (filter.hasProperty("specific"))
+        {
+            isSpecific = filter.getBoolean("specific");
+        }
+
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<RegisteredCustomPropertySet> registeredCustomPropertySets;
         if (isNotLinked) {
@@ -399,7 +405,15 @@ public class DeviceTypeResource {
                     .collect(Collectors.toList()));
 
         } else {
-            registeredCustomPropertySets = deviceType.getCustomPropertySets();
+            if (isSpecific){
+                /* Get custom property set only for DeviceType.class domain */
+                registeredCustomPropertySets = deviceType.getCustomPropertySets()
+                    .stream()
+                    .filter(registeredCustomPropertySet->registeredCustomPropertySet.getCustomPropertySet().getDomainClass().getName().equals(DeviceType.class.getName()))
+                    .collect(Collectors.toList());
+            }else{
+                registeredCustomPropertySets = deviceType.getCustomPropertySets();
+            }
         }
         return PagedInfoList.fromPagedList("deviceTypeCustomPropertySets", DeviceTypeCustomPropertySetInfo.from(registeredCustomPropertySets), queryParameters);
     }
@@ -413,7 +427,7 @@ public class DeviceTypeResource {
     public Response addDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, List<DeviceTypeCustomPropertySetInfo> infos) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         infos.forEach(deviceTypeCustomPropertySetInfo ->
-                deviceType.addCustomPropertySet(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(deviceTypeCustomPropertySetInfo.id, Device.class)));
+                deviceType.addCustomPropertySet(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(deviceTypeCustomPropertySetInfo.id, Device.class, DeviceType.class)));
         return Response.ok().build();
     }
 
