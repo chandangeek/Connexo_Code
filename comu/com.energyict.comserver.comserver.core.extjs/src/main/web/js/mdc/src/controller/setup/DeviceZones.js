@@ -245,13 +245,14 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
             form =  this.getDeviceZonesGrid();
 
 
-        form.setLoading(true);
+
         confirmationWindow.show({
             msg: Uni.I18n.translate('devicezone.general.remove.msg', 'MDC', 'The device will be unlinked from this zone.'),
             title: Uni.I18n.translate('devicezone.remove', 'MDC', "Remove from zone '{0}'?", [record.data.zoneName]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
+                    form.setLoading(true);
                     record.destroy({
                         url: '/api/ddr/devices/' + encodeURIComponent(form.deviceId) + '/zones',
                         success: function () {

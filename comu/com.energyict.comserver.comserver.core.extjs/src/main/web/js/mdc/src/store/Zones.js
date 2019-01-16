@@ -4,7 +4,7 @@
 
 Ext.define('Mdc.store.Zones', {
     extend: 'Ext.data.Store',
-    autoLoad: true,
+    autoLoad: false,
 
     fields: [
        'id',

@@ -4,7 +4,7 @@
 
 Ext.define('Cfg.zones.store.ZoneTypes', {
     extend: 'Ext.data.Store',
-    autoLoad: true,
+    autoLoad: false,
 
     fields: [
         'id',
