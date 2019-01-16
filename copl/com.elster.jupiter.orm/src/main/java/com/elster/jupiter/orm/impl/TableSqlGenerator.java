@@ -217,14 +217,14 @@ public class TableSqlGenerator {
 		return sb.toString();
 	}
 
-    String auditSql() {
+    public String auditSql() {
         StringBuilder sb = new StringBuilder("insert into ADT_AUDIT");
 		sb.append(" (ID, TABLENAME, REFERENCE, SREFERENCE, DOMAIN, CONTEXT, OPERATION, CREATETIME, USERNAME)");
 		sb.append(" values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         return sb.toString();
     }
 
-    String auditLogSql() {
+    public String auditLogSql() {
         StringBuilder sb = new StringBuilder("insert into ADT_AUDIT_LOG");
         sb.append(" (ID, AUDITID, TABLENAME, REFERENCE)");
         sb.append(" values (?, ?, ?, ?)");

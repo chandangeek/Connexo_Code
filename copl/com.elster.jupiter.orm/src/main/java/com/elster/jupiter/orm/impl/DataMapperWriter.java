@@ -8,12 +8,12 @@ import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
+import com.elster.jupiter.orm.audit.AuditDataWriter;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Pair;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -111,9 +111,7 @@ public class DataMapperWriter<T> {
             }
         }
 
-        if (getTable().hasAudit() && doJournal(getColumns())) {
-            audit(object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT);
-        }
+        new AuditDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT).audit();
     }
 
     private boolean needsRefreshAfterBatchInsert() {
@@ -279,9 +277,7 @@ public class DataMapperWriter<T> {
         }
         refresh(object, false);
 
-        if (getTable().hasAudit() && doJournal(columns)) {
-            audit(object, now, UnexpectedNumberOfUpdatesException.Operation.UPDATE);
-        }
+        new AuditDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.UPDATE).audit();
     }
 
     private boolean doJournal(List<ColumnImpl> columns) {
@@ -448,58 +444,4 @@ public class DataMapperWriter<T> {
                 })
                 .count() > 0;
     }
-
-    private boolean doAudit() {
-        return getTable().getDataModel().getOrmService().getTransactionService().getCurrentContext().getProperty("CONTEXT_AUDITED") == null;
-    }
-
-    private String getCurrentUserName() {
-        Principal principal = getTable().getDataModel().getPrincipal();
-        return principal == null ? null : principal.getName();
-    }
-
-    private void audit(Object object, Instant now, UnexpectedNumberOfUpdatesException.Operation operation) throws SQLException {
-
-        if (doAudit()) {
-            String auditLog = getSqlGenerator().auditSql();
-            try (Connection connection = getConnection(true)) {
-                try (PreparedStatement statement = connection.prepareStatement(auditLog)) {
-                    int index = 1;
-                    Long nextVal = getNext(connection, "ADT_AUDITID");
-                    getTable().getDataModel().getOrmService().getTransactionService().getCurrentContext().setProperty("nextVal", nextVal);
-
-                    statement.setLong(index++, nextVal); // ID
-                    statement.setString(index++, getTable().getTableAudit().getTouchTable().getName()); // table name
-                    statement.setString(index++, getTable().getTableAudit().getDomainReferences(object)); // object references
-                    statement.setString(index++, getTable().getTableAudit().getDomainShortReference(object).toString()); // object short references
-                    statement.setString(index++, getTable().getTableAudit().getDomain()); // category
-                    statement.setString(index++, getTable().getTableAudit().getContext()); // category
-                    statement.setLong(index++, operation.ordinal()); // operation
-                    statement.setLong(index++, now.toEpochMilli()); // create time
-                    statement.setString(index++, getCurrentUserName()); //user name
-                    statement.execute();
-                }
-            }
-        }
-
-        String auditLogSql = getSqlGenerator().auditLogSql();
-        try (Connection connection = getConnection(true)) {
-            try (PreparedStatement statement = connection.prepareStatement(auditLogSql)) {
-                int index = 1;
-                long version = 0L;
-                Long nextVal = getNext(connection, "ADT_AUDIT_LOGID");
-                Long auditId = ((Number) getTable().getDataModel().getOrmService().getTransactionService().getCurrentContext().getProperty("nextVal")).longValue();
-
-                statement.setLong(index++, nextVal); // ID
-                statement.setLong(index++, auditId); // audit id
-                statement.setString(index++, getTable().getName()); // table name
-                statement.setString(index++, getTable().getTableAudit().getObjectIndentifier(object)); // object references
-                statement.execute();
-            }
-        }
-
-        getTable().getDataModel().getOrmService().getTransactionService().getCurrentContext().setProperty("CONTEXT_AUDITED", true);
-
-    }
-
 }

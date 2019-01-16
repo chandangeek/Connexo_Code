@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.audit;
 
+import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
+
 import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
@@ -14,6 +16,10 @@ public interface AuditDecoder {
     String getName();
 
     Object getReference();
+
+    default UnexpectedNumberOfUpdatesException.Operation getOperation(UnexpectedNumberOfUpdatesException.Operation operation, AuditDomainContextType context) {
+        return operation;
+    }
 
     List<AuditLogChanges> getAuditLogChanges();
 

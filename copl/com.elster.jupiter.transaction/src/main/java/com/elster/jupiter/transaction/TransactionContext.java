@@ -8,12 +8,4 @@ public interface TransactionContext extends AutoCloseable {
 	public void close();
 	public void commit();
 	public TransactionEvent getStats();
-
-    default void setProperty(String name, Object value) {
-        throw new UnsupportedOperationException();
-    }
-
-    default Object getProperty(String name) {
-        throw new UnsupportedOperationException();
-    }
 }

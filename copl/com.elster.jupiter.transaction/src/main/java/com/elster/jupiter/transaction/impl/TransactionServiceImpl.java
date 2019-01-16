@@ -15,6 +15,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionEvent;
+import com.elster.jupiter.transaction.TransactionProperties;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Registration;
 
@@ -34,8 +35,8 @@ public class TransactionServiceImpl implements TransactionService {
 	private volatile DataSource dataSource;
 	private volatile Publisher publisher;
 	private final ThreadLocal<TransactionState> transactionStateHolder = new ThreadLocal<>();
+    private final ThreadLocal<TransactionProperties> transactionPropertiesHolder = new ThreadLocal<>();
 	private volatile boolean printSql;
-	private TransactionContext transactionContext;
 
 	public TransactionServiceImpl() {
 	}
@@ -65,13 +66,8 @@ public class TransactionServiceImpl implements TransactionService {
     	}
     	TransactionState transactionState = new TransactionState(this);
 		transactionStateHolder.set(transactionState);
-        transactionContext = new TransactionContextImpl(this);
-        return transactionContext;
-    }
-
-    @Override
-    public TransactionContext getCurrentContext() {
-        return transactionContext;
+        transactionPropertiesHolder.set(new TransactionPropertiesImpl());
+        return new TransactionContextImpl(this);
     }
 
     @Override
@@ -145,6 +141,11 @@ public class TransactionServiceImpl implements TransactionService {
 	@Override
 	public boolean isInTransaction() {
 		return transactionStateHolder.get() != null;
+    }
+
+    @Override
+    public TransactionProperties getTransactionProperties() {
+        return transactionPropertiesHolder.get();
     }
 
     Registration addThreadSubscriber(Subscriber subscriber) {

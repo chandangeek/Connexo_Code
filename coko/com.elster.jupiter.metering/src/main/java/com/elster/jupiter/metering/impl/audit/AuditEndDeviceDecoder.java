@@ -5,9 +5,11 @@
 package com.elster.jupiter.metering.impl.audit;
 
 import com.elster.jupiter.audit.AuditDecoder;
+import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditLogChanges;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,6 +57,14 @@ public class AuditEndDeviceDecoder implements AuditDecoder {
     @Override
     public List<AuditLogChanges> getAuditLogChanges() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public UnexpectedNumberOfUpdatesException.Operation getOperation(UnexpectedNumberOfUpdatesException.Operation operation, AuditDomainContextType context) {
+        if ((context == AuditDomainContextType.GENERAL_ATTRIBUTES) && (operation.equals(UnexpectedNumberOfUpdatesException.Operation.INSERT))) {
+            return UnexpectedNumberOfUpdatesException.Operation.UPDATE;
+        }
+        return operation;
     }
 
     private void decodeReference() {

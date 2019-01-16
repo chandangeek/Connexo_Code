@@ -335,7 +335,7 @@ public class ColumnImpl implements Column {
         return skipOnUpdate;
     }
 
-    boolean alwaysJournal() {
+    public boolean alwaysJournal() {
         return alwaysJournal;
     }
 

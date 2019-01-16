@@ -5,6 +5,7 @@
 package com.elster.jupiter.audit.impl;
 
 import com.elster.jupiter.audit.Audit;
+import com.elster.jupiter.audit.AuditDecoder;
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditLog;
@@ -20,6 +21,7 @@ import javax.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class AuditImpl implements Audit {
 
@@ -76,7 +78,10 @@ public class AuditImpl implements Audit {
 
     @Override
     public String getOperation() {
-        return AuditOperationType.valueOf(operation.name()).name();
+        return getAuditDecoder()
+                .map(auditDecoder -> auditDecoder.getOperation(operation, getContext()))
+                .map(newOperation -> AuditOperationType.valueOf(newOperation.name()).name())
+                .orElseGet(() -> AuditOperationType.valueOf(operation.name()).name());
     }
 
     @Override
@@ -106,10 +111,14 @@ public class AuditImpl implements Audit {
 
     @Override
     public AuditReference getTouchDomain() {
-        return ((AuditServiceImpl) auditService)
-                .getAuditDecoderHandles(this.tableName)
-                .map(auditReferenceResolver -> auditReferenceResolver.getAuditDecoder(reference))
+        return getAuditDecoder()
                 .map(auditDecoder -> new AuditReferenceImpl(auditDecoder.getName(), auditDecoder.getReference()))
                 .orElse(new AuditReferenceImpl());
+    }
+
+    private Optional<AuditDecoder> getAuditDecoder() {
+        return ((AuditServiceImpl) auditService)
+                .getAuditDecoderHandles(this.tableName)
+                .map(auditReferenceResolver -> auditReferenceResolver.getAuditDecoder(reference));
     }
 }
