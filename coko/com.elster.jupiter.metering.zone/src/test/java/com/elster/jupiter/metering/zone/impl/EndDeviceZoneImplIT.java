@@ -73,12 +73,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EndDeviceZoneImplIT {
-    private static Injector injector;
-
-    private static BundleContext bundleContext = mock(BundleContext.class);
-    private static ServiceRegistration serviceRegistration = mock(ServiceRegistration.class);
-    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+public class EndDeviceZoneImplIT extends BaseZoneIT {
 
     private static final String ZONE_NAME_A = "ZoneNameA";
     private static final String ZONE_NAME_B = "ZoneNameB";
@@ -86,75 +81,10 @@ public class EndDeviceZoneImplIT {
     private static final String ZONE_TYPE_NAME_A = "ZoneTypeA";
     private static final String ZONE_TYPE_NAME_B = "ZoneTypeB";
 
-    @Rule
-    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-    @Rule
-    public TestRule transactionRule = new TransactionalRule(injector.getInstance(TransactionService.class));
     private MeteringZoneService meteringZoneService;
     private EndDevice endDevice;
     private Zone zoneA;
     private Zone zoneB;
-
-    private static class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-            bind(HttpService.class).toInstance(mock(HttpService.class));
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-        }
-    }
-
-    @BeforeClass
-    public static void setUp() {
-        when(bundleContext.registerService(any(Class.class), anyObject(), any(Dictionary.class))).thenReturn(serviceRegistration);
-        try {
-            injector = Guice.createInjector(
-                    new MockModule(),
-                    inMemoryBootstrapModule,
-                    new TransactionModule(),
-                    new InMemoryMessagingModule(),
-                    new ThreadSecurityModule(),
-                    new PubSubModule(),
-                    new MeteringZoneModule(),
-                    new DomainUtilModule(),
-                    new OrmModule(),
-                    new UtilModule(),
-                    new MeteringModule(),
-                    new NlsModule(),
-                    new CalendarModule(),
-                    new CustomPropertySetsModule(),
-                    new EventsModule(),
-                    new FiniteStateMachineModule(),
-                    new IdsModule(),
-                    new PartyModule(),
-                    new BasicPropertiesModule(),
-                    new SearchModule(),
-                    new TimeModule(),
-                    new BpmModule(),
-                    new TaskModule(),
-                    new WebServicesModule(),
-                    new UsagePointLifeCycleConfigurationModule(),
-                    new UserModule(),
-                    new DataVaultModule()
-
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        injector.getInstance(TransactionService.class).execute(() -> {
-                    injector.getInstance(MeteringZoneService.class);
-                    return null;
-                }
-        );
-
-
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        inMemoryBootstrapModule.deactivate();
-    }
 
     @Before
     public void init() {
