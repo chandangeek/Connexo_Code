@@ -8,6 +8,7 @@ import java.util.Map;
 
 public final class CustomPropertySetInfo {
     private String id;
+    private Instant versionId;
     private Instant fromDate;
     private Instant endDate;
     private Map<String, String> attributes;
@@ -42,6 +43,14 @@ public final class CustomPropertySetInfo {
 
     public void setEndDate(Instant endDate) {
         this.endDate = endDate;
+    }
+
+    public Instant getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(Instant versionId) {
+        this.versionId = versionId;
     }
 
 }

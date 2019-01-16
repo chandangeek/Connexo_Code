@@ -34,8 +34,6 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +116,7 @@ public class MeterConfigParser {
             CustomAttributeSet cas) throws FaultMessage {
         CustomPropertySetInfo info = new CustomPropertySetInfo();
         info.setId(extractCpsId(meterName, customPropertySetIndex, cas));
+        info.setVersionId(cas.getVersionId());
         info.setFromDate(cas.getFromDateTime());
         info.setEndDate(cas.getToDateTime());
         Map<String, String> attributes = new HashMap<>();

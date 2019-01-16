@@ -118,7 +118,14 @@ public class CustomPropertySetHelper {
             if (faults.isEmpty()) {
                 if (customPropertySet.isVersioned()) {
                     Range<Instant> range = Ranges.closedOpen(info.getFromDate(), info.getEndDate());
-                    customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range);
+                    if (info.getVersionId() == null) {
+                        // add new
+                        customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range);
+                    } else {
+                        // modify existing
+                        customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range,
+                                info.getVersionId());
+                    }
                 } else {
                     customPropertySetService.setValuesFor(customPropertySet, device, values);
                 }
