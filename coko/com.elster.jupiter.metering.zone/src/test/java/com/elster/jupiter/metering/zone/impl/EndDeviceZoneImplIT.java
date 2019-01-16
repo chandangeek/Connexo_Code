@@ -89,11 +89,6 @@ public class EndDeviceZoneImplIT {
     @Rule
     public TestRule transactionRule = new TransactionalRule(injector.getInstance(TransactionService.class));
 
-    //  @Mock
-    //  protected MeteringService meteringService;
-    //  @Mock
-    //  private EndDevice endDevice;
-
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
@@ -275,7 +270,7 @@ public class EndDeviceZoneImplIT {
     @Test
     @Transactional
     @ExpectedConstraintViolation(property = "zone", messageId = "{" + MessageSeeds.Constants.ZONE_TYPE_NOT_UNIQUE + "}")
-    public void testSaveWithLargeName() {
+    public void testCreateEndDeviceZoneWithSameZoneType() {
         MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         EndDevice endDevice = createDevice();
         ZoneType zoneTypeA = createZoneType(meteringZoneService, ZONE_TYPE_NAME_A);
