@@ -622,7 +622,13 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                                 .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 0)
                                 .filter(deviceMessage -> (deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING)
                                         || (deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING))))
-                                .findAny().ifPresent(deviceMessage -> deviceMessage.setReleaseDate(timeOfUseCampaign.getActivationStart()));
+                                .findAny().ifPresent(deviceMessage -> {
+                            deviceMessage.setReleaseDate(timeOfUseCampaign.getActivationStart());
+                            deviceMessage.save();
+                        });
+                        findCalendarsComTaskExecutions(device)
+                                .filter(comTaskExecution -> comTaskExecution.getNextExecutionTimestamp().equals(oldReleaseDate))
+                                .forEach(comTaskExecution -> comTaskExecution.schedule(null));
                         findCalendarsComTaskExecutions(device)
                                 .findAny().ifPresent(comTaskExecution -> dataModel.getInstance(TimeOfUseSendHelper.class)
                                 .scheduleCampaign(comTaskExecution, timeOfUseCampaign.getActivationStart(), timeOfUseCampaign.getActivationEnd()));
