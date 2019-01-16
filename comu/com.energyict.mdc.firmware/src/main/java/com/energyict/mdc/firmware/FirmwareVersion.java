@@ -10,7 +10,7 @@ import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import java.io.InputStream;
 import java.time.Instant;
 
-public interface FirmwareVersion extends BaseFirmwareVersion {
+public interface FirmwareVersion extends BaseFirmwareVersion, Comparable<FirmwareVersion> {
 
     FirmwareType getFirmwareType();
 
@@ -56,4 +56,16 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
     String getImageIdentifier();
 
     void setImageIdentifier(String imageIdentifier);
+
+    @Override
+    default int compareTo(FirmwareVersion o) {
+        return compare(this, o);
+    }
+
+    static int compare(FirmwareVersion fw1, FirmwareVersion fw2) {
+        if (!fw1.getDeviceType().equals(fw2.getDeviceType())) {
+            throw new IllegalStateException("Can't compare ranks of firmware versions on different device types!");
+        }
+        return Long.compare(fw1.getId(), fw2.getId()); // TODO: ranks, not ids
+    }
 }

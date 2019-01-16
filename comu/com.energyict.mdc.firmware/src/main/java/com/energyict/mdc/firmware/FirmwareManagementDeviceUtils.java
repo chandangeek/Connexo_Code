@@ -5,6 +5,7 @@
 package com.energyict.mdc.firmware;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.tasks.ComTask;
@@ -15,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FirmwareManagementDeviceUtils {
+    Device getDevice();
+
     Optional<DeviceMessage> getUploadMessageForActivationMessage(DeviceMessage activationMessage);
 
     Optional<DeviceMessage> getActivationMessageForUploadMessage(DeviceMessage uploadMessage);
@@ -58,4 +61,6 @@ public interface FirmwareManagementDeviceUtils {
     boolean isPendingMessage(DeviceMessage upgradeMessage);
 
     boolean firmwareTaskIsScheduled();
+
+    boolean isReadOutAfterLastFirmwareUpgrade();
 }

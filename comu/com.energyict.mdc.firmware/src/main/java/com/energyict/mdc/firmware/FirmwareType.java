@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum FirmwareType implements TranslationKey {
@@ -35,5 +36,9 @@ public enum FirmwareType implements TranslationKey {
     @Override
     public String getDefaultFormat() {
         return description;
+    }
+
+    public String getTranslation(Thesaurus thesaurus) {
+        return thesaurus.getFormat(this).format();
     }
 }

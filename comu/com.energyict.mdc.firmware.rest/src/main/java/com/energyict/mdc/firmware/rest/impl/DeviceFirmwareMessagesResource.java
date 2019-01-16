@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -23,6 +24,7 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -106,8 +108,8 @@ public class DeviceFirmwareMessagesResource {
     @Path("/firmwaremessages")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response uploadFirmwareToDevice(@PathParam("name") String name, FirmwareMessageInfo info) {
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response uploadFirmwareToDevice(@PathParam("name") String name, FirmwareMessageInfo info, @QueryParam("force") boolean force) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         checkFirmwareUpgradeOption(device.getDeviceType(), info.uploadOption);
 
@@ -118,12 +120,15 @@ public class DeviceFirmwareMessagesResource {
         FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(firmwareVersionId);
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(device.getDeviceType(), info.uploadOption, firmwareVersion);
         DeviceMessageSpec firmwareMessageSpec = resourceHelper.findFirmwareMessageSpecOrThrowException(firmwareMessageId);
+        if (!force) {
+            performFirmwareRankingChecks(device, firmwareVersion);
+        }
         if (deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(firmwareMessageId) && firmwareVersion.getImageIdentifier() != null) {
             firmwareMessageInfoFactory.initImageIdentifier(info, firmwareVersion.getImageIdentifier());
         }
         firmwareMessageInfoFactory.initResumeProperty(info, false);
         Map<String, Object> convertedProperties = getConvertedProperties(firmwareMessageSpec, info);
-        Instant releaseDate = info.releaseDate == null ? this.clock.instant() : info.releaseDate;
+        Instant releaseDate = info.releaseDate == null ? clock.instant() : info.releaseDate;
 
         prepareCommunicationTask(device, convertedProperties, firmwareMessageSpec);
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(firmwareMessageId).setReleaseDate(releaseDate);
@@ -135,13 +140,26 @@ public class DeviceFirmwareMessagesResource {
         return Response.status(Response.Status.CREATED).build();
     }
 
+    private void performFirmwareRankingChecks(Device device, FirmwareVersion firmwareVersion) {
+        FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
+        RestValidationBuilder validationBuilder = new RestValidationBuilder();
+        firmwareService.getFirmwareChecks()
+                .forEach(check -> {
+                    try {
+                        check.execute(utils, firmwareVersion);
+                    } catch (FirmwareCheck.FirmwareCheckException e) {
+                        validationBuilder.addValidationError(new LocalizedFieldValidationException(e.getMessageSeed(), check.getTitle(thesaurus), e.getMessageArgs()));
+                    }
+                });
+        validationBuilder.validate();
+    }
 
     @PUT
     @Transactional
     @Path("/firmwaremessages/{messageId}/activate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response activateFirmwareOnDevice(@PathParam("name") String name, @PathParam("messageId") Long messageId, FirmwareMessageInfo info) {
         Device device = resourceHelper.getLockedDevice(name, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
@@ -162,16 +180,17 @@ public class DeviceFirmwareMessagesResource {
         deviceMessageBuilder.setTrackingId(String.valueOf(messageId));
         deviceMessageBuilder.setReleaseDate(info.releaseDate);
 
-        DeviceMessageSpec deviceMessageSpec = upgradeMessage.getSpecification();
-        Optional<PropertySpec> activationDatePropertySpec = deviceMessageSpec.getPropertySpecs().stream().filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(Date.class)).findAny();
-        if (activationDatePropertySpec.isPresent()) {
-            deviceMessageBuilder.addProperty(activationDatePropertySpec.get().getName(), info.releaseDate != null ? Date.from(info.releaseDate) : new Date());
-        }
+        upgradeMessage.getSpecification()
+                .getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(Date.class))
+                .findAny()
+                .ifPresent(propertySpec -> deviceMessageBuilder.addProperty(propertySpec.getName(), info.releaseDate != null ? Date.from(info.releaseDate) : new Date()));
         try {
             deviceMessageBuilder.add();
             rescheduleFirmwareUpgradeTask(device);
-        }catch(VerboseConstraintViolationException e){
-           throw exceptionFactory.newException(MessageSeeds.FIRMWARE_CANNOT_BE_ACTIVATED);
+        } catch (VerboseConstraintViolationException e) {
+            throw exceptionFactory.newException(MessageSeeds.FIRMWARE_CANNOT_BE_ACTIVATED);
         }
         return Response.ok().build();
     }
@@ -287,7 +306,6 @@ public class DeviceFirmwareMessagesResource {
         device.runStatusInformationTask(ComTaskExecution::scheduleNow);
         return Response.ok().build();
     }
-
 
     @PUT
     @Transactional

@@ -39,12 +39,14 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
+import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
@@ -76,6 +78,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -91,8 +95,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -120,6 +126,9 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private volatile PropertySpecService propertySpecService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile UpgradeService upgradeService;
+    private volatile TopologyService topologyService;
+
+    private Map<Class<? extends FirmwareCheck>, FirmwareCheck> firmwareChecks = new ConcurrentHashMap<>();
 
     // For OSGI
     public FirmwareServiceImpl() {
@@ -175,6 +184,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -505,7 +519,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         if (!deviceInFirmwareCampaign.getStatus().canTransitToStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING)) {
             throw RetryDeviceInFirmwareCampaignExceptions.transitionToPendingStateImpossible(this.thesaurus, deviceInFirmwareCampaign);
         }
-        ((DeviceInFirmwareCampaignImpl) deviceInFirmwareCampaign).retryFirmwareProces();
+        ((DeviceInFirmwareCampaignImpl) deviceInFirmwareCampaign).retryFirmwareProcess();
         return true;
     }
 
@@ -643,6 +657,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(MessageService.class).toInstance(messageService);
                     bind(UserService.class).toInstance(userService);
                     bind(PropertySpecService.class).toInstance(propertySpecService);
+                    bind(TopologyService.class).toInstance(topologyService);
                 }
             });
             upgradeService.register(
@@ -654,6 +669,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                             version(10, 4), V10_4SimpleUpgrader.class,
                             version(10, 4, 1), V10_4_1SimpleUpgrader.class
                     ));
+            addFirmwareCheck(dataModel.getInstance(MinimumLevelFirmwareCheck.class));
+            addFirmwareCheck(dataModel.getInstance(NoDowngradeFirmwareCheck.class));
+            addFirmwareCheck(dataModel.getInstance(MasterHasLatestFirmwareCheck.class));
+            addFirmwareCheck(dataModel.getInstance(NoGhostFirmwareCheck.class));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -662,6 +681,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Deactivate
     public final void deactivate() {
+        firmwareChecks.clear();
     }
 
     @Reference
@@ -733,7 +753,9 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 Privileges.values(),
                 PropertyTranslationKeys.values(),
                 TranslationKeys.values(),
-                FirmwareType.values()
+                FirmwareType.values(),
+                new TranslationKey[]{FirmwareCheck.CHECK_PREFIX},
+                FirmwareCheckTranslationKeys.values()
         )
                 .flatMap(Arrays::stream)
                 .collect(Collectors.toList());
@@ -753,4 +775,17 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return new DeviceFirmwareHistoryImpl(this, device);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addFirmwareCheck(FirmwareCheck firmwareCheck) {
+        firmwareChecks.put(firmwareCheck.getClass(), firmwareCheck);
+    }
+
+    public void removeFirmwareCheck(FirmwareCheck firmwareCheck) {
+        firmwareChecks.remove(firmwareCheck.getClass());
+    }
+
+    @Override
+    public Stream<FirmwareCheck> getFirmwareChecks() {
+        return firmwareChecks.values().stream();
+    }
 }

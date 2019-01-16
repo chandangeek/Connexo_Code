@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Provides Firmware related services.
@@ -135,4 +136,5 @@ public interface FirmwareService {
 
     DeviceFirmwareHistory getFirmwareHistory(Device device);
 
+    Stream<FirmwareCheck> getFirmwareChecks();
 }

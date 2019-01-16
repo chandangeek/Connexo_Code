@@ -25,8 +25,15 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_IN_FIRMWARE_CAMPAIGN_STATE_INVALID(12, RetryDeviceInFirmwareCampaignExceptions.DEVICE_IN_FIRMWARE_CAMPAIGN_STATE_CHANGE_TO_PENDING_NOT_ALLOWED, "Cannot change status to {0} from current status {1}.", Level.SEVERE),
     FIRMWARE_FILE_IO(13, Keys.FIRMWARE_FILE_IO, "Exception while doing IO on firmware file: {0}", Level.SEVERE),
     FIELD_TOO_LONG(14, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
-    VETO_SECURITY_ACCESSOR_DELETION(15, "securityAccessorStillInUseByDeviceTypes", "The security accessor couldn''t be removed because it is still used for firmware management on the following device type(s):  {0}", Level.SEVERE),
-    SIGNATURE_VALIDATION_FAILED(16, "SignatureValidationFailed", "Signature validation failed", Level.SEVERE);
+    VETO_SECURITY_ACCESSOR_DELETION(15, "securityAccessorStillInUseByDeviceTypes", "The security accessor couldn''t be removed because it is still used for firmware management on the following device type(s): {0}", Level.SEVERE),
+    SIGNATURE_VALIDATION_FAILED(16, "SignatureValidationFailed", "Signature validation failed.", Level.SEVERE),
+    DEVICE_FIRMWARE_NOT_READOUT(17, "DeviceFirmwareNotReadout", "Device firmware hasn''t been read out after last upload.", Level.WARNING),
+    MASTER_FIRMWARE_NOT_READOUT(18, "MasterFirmwareNotReadout", "Master firmware hasn''t been read out after last upload.", Level.WARNING),
+    CURRENT_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(19, "FirmwareRankBelowMinimumSupported", "{0} has its rank below the requested minimum level.", Level.WARNING),
+    UPLOADED_FIRMWARE_RANK_BELOW_CURRENT(20, "UploadedFirmwareRankBelowCurrent", "Uploaded firmware has a lower rank than current.", Level.WARNING),
+    MASTER_FIRMWARE_NOT_LATEST(21, "MasterFirmwareNotLatest", "Master device doesn''t have the latest firmware.", Level.WARNING),
+    CURRENT_FIRMWARE_IS_GHOST(22, "CurrentFirmwareIsGhost", "There is firmware with ghost status on the device.", Level.WARNING)
+    ;
 
     private final int number;
     private final String key;
