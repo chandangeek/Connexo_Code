@@ -57,6 +57,7 @@ import org.osgi.service.http.HttpService;
 import java.util.Dictionary;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -88,6 +89,8 @@ public class EndDeviceZoneImplIT {
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     @Rule
     public TestRule transactionRule = new TransactionalRule(injector.getInstance(TransactionService.class));
+    private MeteringZoneService meteringZoneService;
+    private EndDevice endDevice;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -150,12 +153,16 @@ public class EndDeviceZoneImplIT {
         inMemoryBootstrapModule.deactivate();
     }
 
+    @Before
+    public void init() {
+        meteringZoneService = injector.getInstance(MeteringZoneService.class);
+        endDevice = createDevice();
+    }
+    
     @Test
     @Transactional
     public void testSave() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         Zone zone = createZone(meteringZoneService, ZONE_TYPE_NAME_A, ZONE_NAME_A);
-        EndDevice endDevice = createDevice();
         createEndDeviceZone(meteringZoneService, endDevice, zone);
 
         Finder<EndDeviceZone> finder = meteringZoneService.getByEndDevice(endDevice);
@@ -166,8 +173,6 @@ public class EndDeviceZoneImplIT {
     @Test
     @Transactional
     public void testGetOrderByZoneTypeName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        EndDevice endDevice = createDevice();
         Zone zoneB = createZone(meteringZoneService, ZONE_TYPE_NAME_B, ZONE_NAME_B);
         Zone zoneA = createZone(meteringZoneService, ZONE_TYPE_NAME_A, ZONE_NAME_A);
         createEndDeviceZone(meteringZoneService, endDevice, zoneB);
@@ -184,8 +189,6 @@ public class EndDeviceZoneImplIT {
     @Test
     @Transactional
     public void testGetById() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        EndDevice endDevice = createDevice();
         Zone zone = createZone(meteringZoneService, ZONE_TYPE_NAME_A, ZONE_NAME_A);
         createEndDeviceZone(meteringZoneService, endDevice, zone);
 
@@ -206,8 +209,6 @@ public class EndDeviceZoneImplIT {
     @Test
     @Transactional
     public void testChangeZone() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        EndDevice endDevice = createDevice();
         Zone zoneA = createZone(meteringZoneService, ZONE_TYPE_NAME_A, ZONE_NAME_A);
         Zone zoneB = createZone(meteringZoneService, ZONE_TYPE_NAME_B, ZONE_NAME_B);
         createEndDeviceZone(meteringZoneService, endDevice, zoneA);
@@ -230,8 +231,6 @@ public class EndDeviceZoneImplIT {
     @Test
     @Transactional
     public void testChangeZoneWithSameZoneType() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        EndDevice endDevice = createDevice();
         ZoneType zoneTypeA = createZoneType(meteringZoneService, ZONE_TYPE_NAME_A);
         Zone zoneA = createZone(meteringZoneService, zoneTypeA, ZONE_NAME_A);
         Zone zoneB = createZone(meteringZoneService, zoneTypeA, ZONE_NAME_B);
@@ -255,8 +254,6 @@ public class EndDeviceZoneImplIT {
     @Test
     @Transactional
     public void testDeleteZone() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        EndDevice endDevice = createDevice();
         createEndDeviceZone(meteringZoneService, endDevice, createZone(meteringZoneService, ZONE_TYPE_NAME_A, ZONE_NAME_A));
         createEndDeviceZone(meteringZoneService, endDevice, createZone(meteringZoneService, ZONE_TYPE_NAME_B, ZONE_NAME_B));
 
@@ -271,8 +268,6 @@ public class EndDeviceZoneImplIT {
     @Transactional
     @ExpectedConstraintViolation(property = "zone", messageId = "{" + MessageSeeds.Constants.ZONE_TYPE_NOT_UNIQUE + "}")
     public void testCreateEndDeviceZoneWithSameZoneType() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        EndDevice endDevice = createDevice();
         ZoneType zoneTypeA = createZoneType(meteringZoneService, ZONE_TYPE_NAME_A);
         Zone zoneA = createZone(meteringZoneService, zoneTypeA, ZONE_NAME_A);
         Zone zoneB = createZone(meteringZoneService, zoneTypeA, ZONE_NAME_B);
