@@ -22,7 +22,8 @@ Ext.define('Tou.controller.Add', {
         'Tou.store.DeviceTypes',
         'Fwc.store.DeviceGroups',
         'Tou.store.DaysWeeksMonths',
-        'Tou.store.AllowedCalendars'
+        'Tou.store.AllowedCalendars',
+        'Tou.store.AllowedDeviceTypeOptions'
     ],
 
     refs: [
@@ -94,13 +95,15 @@ Ext.define('Tou.controller.Add', {
         form.updateRecord();
         page.setLoading();
         var record = form.getRecord();
+        var deviceTypeId  = record.get('deviceType');
+        if (deviceTypeId) record.set('deviceType', {"id" : deviceTypeId});
         var activateCalendarItem = form.down('#activate-calendar');
         if (activateCalendarItem){
             record.set('activationDate', activateCalendarItem.getValue());
         }
         var allowedCalendarItem = form.down('#tou-campaign-allowed-calendar');
         if (allowedCalendarItem){
-              record.set('calendar', allowedCalendarItem.getValue());
+              record.set('calendar', {"id" : allowedCalendarItem.getValue()});
         }
         var timeValidationPeriodItem = form.down('#period-combo');
         var timeValidationValueItem = form.down('#period-number');
@@ -127,11 +130,15 @@ Ext.define('Tou.controller.Add', {
                record.set('timeValidation', null);
              }
         }
-
+        if (record && record.data && record.data["devices"] !== undefined) delete record.data["devices"];
+        if (record && record.data && record.data["timeBoundary"] !== undefined) delete record.data["timeBoundary"];
+        if (record && record.data && record.data["startedOn"] !== undefined) delete record.data["startedOn"];
+        if (record && record.data && record.data["finishedOn"] !== undefined) delete record.data["finishedOn"];
+        if (record && record.data && record.data["status"] !== undefined) delete record.data["status"];
         record.save({
             backUrl: page.returnLink,
             success: function (record, operation) {
-                me.getApplication().fireEvent('acknowledge', 'Tou campaign added');
+                me.getApplication().fireEvent('acknowledge', 'ToU campaign added');
                 if (page.rendered) {
                     window.location.href = page.returnLink;
                 }

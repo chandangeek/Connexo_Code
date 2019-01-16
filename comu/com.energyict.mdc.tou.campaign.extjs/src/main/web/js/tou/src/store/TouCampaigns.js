@@ -14,6 +14,7 @@ Ext.define('Tou.store.TouCampaigns', {
              read: '/api/tou/touCampaigns',
              load: '/api/tou/touCampaigns',
              create: '/api/tou/touCampaigns/create',
+             update: '/api/tou/touCampaigns/'
         },
         reader: {
             type: 'json',

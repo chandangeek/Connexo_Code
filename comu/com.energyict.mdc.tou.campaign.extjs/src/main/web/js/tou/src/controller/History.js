@@ -11,27 +11,27 @@ Ext.define('Tou.controller.History', {
 
     routeConfig: {
         workspace: {
-            title: 'Tou campaigns',
+            title: 'Workspace',
             route: 'workspace',
             disabled: true,
             items: {
                 toucampaigns: {
-                    title: 'Tou campaigns',
+                    title: 'ToU campaigns',
                     route: 'toucampaigns',
                     controller: 'Tou.controller.Overview',
                     action: 'showOverview',
                     privileges: Fwc.privileges.FirmwareCampaign.view,
                     items: {
                         add: {
-                            title: 'Add tou campaign',
+                            title: 'Add ToU campaign',
                              route: 'add',
                              controller: 'Tou.controller.Add',
                              action: 'showAdd',
                              privileges: Fwc.privileges.FirmwareCampaign.administrate
                         },
                         toucampaign: {
-                           title: 'Tou campaign',
-                            route: '{touCampaignId}',
+                           title: 'ToU campaign',
+                            route: '{touCampaignName}',
                             controller: 'Tou.controller.Detail',
                             action: 'showDetail',
                             privileges: Fwc.privileges.FirmwareCampaign.view,
@@ -46,7 +46,7 @@ Ext.define('Tou.controller.History', {
                                 devices: {
                                     title: 'Devices',
                                     route: 'devices',
-                                    controller: 'Fwc.firmwarecampaigns.controller.Devices',
+                                    controller: 'Tou.controller.Devices',
                                     action: 'showDevices',
                                     privileges: Fwc.privileges.FirmwareCampaign.view
                                 }

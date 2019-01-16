@@ -18,7 +18,7 @@ Ext.define('Tou.view.Add', {
             {
                 xtype: 'tou-campaigns-add-form',
                 itemId: 'tou-campaigns-add-form',
-                title: 'Add tou campaign',
+                title: 'Add ToU campaign',
                 ui: 'large',
                 returnLink: me.returnLink,
                 action : me.action

@@ -254,6 +254,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pki</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tou.campaign.extjs</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
