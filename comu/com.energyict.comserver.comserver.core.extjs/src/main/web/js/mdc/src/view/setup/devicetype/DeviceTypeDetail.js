@@ -117,12 +117,20 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'canBeDirectlyAddressed',
-                                        fieldLabel: Uni.I18n.translate('devicetype.canBeDirectlyAddressable', 'MDC', 'Device can be directly addressable'),
+                                        fieldLabel: 'DEVICE TYPE CAN BE DIRECTLY ADDRESSABLE 2',//Uni.I18n.translate('devicetype.canBeDirectlyAddressable', 'MDC', 'Device can be directly addressable'),
                                         renderer: function (item) {
                                             return item ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
                                         },
                                         readOnly: true
+                                    },
+                                    {
+                                        xtype: 'custom-attribute-sets-placeholder-form',
+                                        itemId: 'custom-attribute-sets-placeholder-form-id',
+                                        actionMenuXtype: 'device-attributes-action-menu',
+                                        attributeSetType: 'devicetype',
+                                        router: me.router
                                     }
+
                                 ]
                             },
                             {
@@ -206,8 +214,24 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         ]
                                     }
                                 ]
-                            }
-
+                            }/*,
+                            /* HERE WE ADD CUSTOM PROPERTY SET INFORMATION */
+                            /*{
+                                xtype: 'container',
+                                layout: {
+                                type: 'hbox',
+                                align: 'stretch'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'custom-attribute-sets-placeholder-form',
+                                        itemId: 'custom-attribute-sets-placeholder-form-id',
+                                        actionMenuXtype: 'device-attributes-action-menu',
+                                        attributeSetType: 'devicetype',
+                                        router: me.router
+                                    }
+                                ]
+                            }*/
                         ]
                     }
                 ]

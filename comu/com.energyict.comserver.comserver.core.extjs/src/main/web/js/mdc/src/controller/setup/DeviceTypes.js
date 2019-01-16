@@ -241,6 +241,17 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     Ext.resumeLayouts(true);
 
                     me.getApplication().fireEvent('loadDeviceType', deviceType);
+
+                    /* HERE WE ADD LOADING OF CUSTOMPROPERTYSETS */
+                    console.log("LOAD ATTRIBUTE SET STORE!!!!!for deviceTypeId = ",deviceTypeId);
+                    var customAttributesStore = me.getStore('Mdc.store.DeviceTypeCustomAttributesSets');
+                    customAttributesStore.getProxy().setUrl(deviceTypeId);
+
+                    console.log("LOAD CAS FORM!!!!!");
+                    customAttributesStore.load(function () {
+                        widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(this);
+                    });
+
                 }
             });
         });
