@@ -234,6 +234,31 @@ public class EndDeviceZoneImplIT {
 
     @Test
     @Transactional
+    public void testChangeZoneWithSameZoneType() {
+        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
+        EndDevice endDevice = createDevice();
+        ZoneType zoneTypeA = createZoneType(meteringZoneService, ZONE_TYPE_NAME_A);
+        Zone zoneA = createZone(meteringZoneService, zoneTypeA, ZONE_NAME_A);
+        Zone zoneB = createZone(meteringZoneService, zoneTypeA, ZONE_NAME_B);
+        createEndDeviceZone(meteringZoneService, endDevice, zoneA);
+
+        Finder<EndDeviceZone> finder = meteringZoneService.getByEndDevice(endDevice);
+        assertThat(finder.find()).hasSize(1);
+
+        EndDeviceZone endDeviceZone = finder.find().get(0);
+        assertThat(endDeviceZone.getEndDevice()).isEqualTo(endDevice);
+        assertThat(endDeviceZone.getZone()).isEqualTo(zoneA);
+
+        endDeviceZone.setZone(zoneB);
+        endDeviceZone.save();
+
+        finder = meteringZoneService.getByEndDevice(endDevice);
+        assertThat(finder.find().get(0).getEndDevice()).isEqualTo(endDevice);
+        assertThat(finder.find().get(0).getZone()).isEqualTo(zoneB);
+    }
+
+    @Test
+    @Transactional
     public void testDeleteZone() {
         MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         EndDevice endDevice = createDevice();
@@ -289,8 +314,12 @@ public class EndDeviceZoneImplIT {
     }
 
     private EndDevice createDevice() {
+        return createDevice("amrId", "name");
+    }
+
+    private EndDevice createDevice(String id, String name) {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalStateException::new);
-        return amrSystem.createEndDevice("amrId", "name");
+        return amrSystem.createEndDevice(id, name);
     }
 }
