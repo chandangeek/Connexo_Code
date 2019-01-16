@@ -20,10 +20,8 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
-import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
-import com.energyict.mdc.tou.campaign.ToUUtil;
-import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
+import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import javax.inject.Inject;
@@ -70,7 +68,7 @@ public class TimeOfUseSendHelper {
                         .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.SERVICE_CALL_PARENT_NOT_FOUND))
                         .getExtension(TimeOfUseCampaignDomainExtension.class)
                         .orElse(null);
-        if (timeOfUseCampaign.getActivationDate().equals(TranslationKeys.IMMEDIATELY.getKey())) {
+        if (timeOfUseCampaign.getActivationOption().equals("Immediately")) { //todo TranslationKeys.IMMEDIATELY.getKey()
             if (!timeOfUseCampaignService.getActiveVerificationTask(device).isPresent()) {
                 serviceCall.log(LogLevel.SEVERE, "device don't contain verification tasks for calendars or contains only wrong ");
                 timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.REJECTED);
@@ -81,7 +79,8 @@ public class TimeOfUseSendHelper {
         if (comTaskEnablementOptional.isPresent()) {
             SendCalendarInfo sendCalendarInfo = new SendCalendarInfo();
             sendCalendarInfo.allowedCalendarId = timeOfUseCampaign.getCalendar().getId();
-            sendCalendarInfo.activationDate = getActivationDate(timeOfUseCampaign.getActivationDate(), serviceCall);
+            sendCalendarInfo.activationDate = timeOfUseCampaign.getActivationOption()
+                    .equals("Immediately") ? serviceCall.getCreationTime() : timeOfUseCampaign.getActivationDate();//todo TranslationKeys.IMMEDIATELY.getKey()
             sendCalendarInfo.calendarUpdateOption = timeOfUseCampaign.getUpdateType();
             sendCalendarInfo.releaseDate = timeOfUseCampaign.getActivationStart();
             sendCalendarInfo.contract = null;//bigdec
@@ -121,21 +120,6 @@ public class TimeOfUseSendHelper {
             comTaskExecution.schedule(comTaskExecution.getNextExecutionTimestamp());
         }
     }
-
-    private Instant getActivationDate(String activationDate, ServiceCall serviceCall) {
-        Instant instant;
-        try {
-            instant = ToUUtil.parseStringToInstant(activationDate);
-            return instant;
-        } catch (Exception e) {
-            if (activationDate.equals("Immediately")) {
-                return serviceCall.getCreationTime();
-            } else {
-                return null;
-            }
-        }
-    }
-
 
     private Set<ProtocolSupportedCalendarOptions> getAllowedTimeOfUseOptions(Device device, DeviceConfigurationService deviceConfigurationService) {
         Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(device.getDeviceConfiguration().getDeviceType());

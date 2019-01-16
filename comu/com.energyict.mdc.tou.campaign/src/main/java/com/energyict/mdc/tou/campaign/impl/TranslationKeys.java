@@ -9,19 +9,20 @@ public enum TranslationKeys implements TranslationKey {
 
     DOMAIN_NAME("serviceCall", "Service call"),
     NAME_OF_CAMPAIGN("name", "Name"),
-    DEVICE_TYPE("deviceType", "Device Type"),
-    DEVICE_GROUP("deviceGroup", "Device Group"),
-    ACTIVATION_START("activationStart", "Activation Start"),
-    ACTIVATION_END("activationEnd", "Activation End"),
-    CALENDAR("calendar", "Calendar"),
+    DEVICE_TYPE("deviceType", "Device type"),
+    DEVICE_GROUP("deviceGroup", "Device group"),
+    ACTIVATION_START("activationStart", "Time boundary start"),
+    ACTIVATION_END("activationEnd", "Time boundary end"),
+    CALENDAR("calendar", "ToU calendar"),
+    ACTIVATION_OPTION("activationOption", "Activation Option"),
     ACTIVATION_DATE("activationDate", "Activation Date"),
     UPDATE_TYPE("updateType", "Update"),
-    TIME_VALIDATION("timeValidation", "Time Validation(sec)"),
+    TIME_VALIDATION("timeValidation", "Timeout before validation(sec)"),
     DEVICE("device", "Device"),
     FULL_CALENDAR("fullCalendar", "Full Calendar"),
     SPECIAL_DAYS("specialDays", "Special Days"),
-    IMMEDIATELY("immediately","Immediately"),
-    WITHOUT_ACTIVATION("withoutActivation","Without Activation");
+    IMMEDIATELY("immediately", "Immediately"),
+    WITHOUT_ACTIVATION("withoutActivation", "Without Activation");
 
 
     private final String key;

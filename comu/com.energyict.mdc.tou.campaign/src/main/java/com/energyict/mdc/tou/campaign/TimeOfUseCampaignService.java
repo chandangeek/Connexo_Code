@@ -31,8 +31,8 @@ public interface TimeOfUseCampaignService {
     Map<DefaultState, Long> getChildrenStatusFromCampaign(long id);
 
     TimeOfUseCampaignBuilder newToUbuilder(String name, long deviceType, String deviceGroup,
-                                           Instant activationStart, Instant activationEnd,
-                                           long calendar, String activationDate, String updateType, long timeValidation);
+                                           Instant activationStart, Instant activationEnd, long calendar,
+                                           String activationOption, Instant activationDate, String updateType, long timeValidation);
 
     Optional<TimeOfUseCampaign> getCampaign(long id);
 

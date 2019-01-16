@@ -17,7 +17,14 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2001, "CouldNotFindServiceCallType", "Couldn''t find service call type {0} having version {1}."),
     UNABLE_TO_FIND_CALENDAR(277, "CannotFindCalendar", "Unable to find the given calendar in the system."),
     NO_ALLOWED_CALENDAR_DEVICE_MESSAGE(278, "NoAllowedCalendarMessage", "Unable to find an allowed calendar command with the given information"),
-    SERVICE_CALL_PARENT_NOT_FOUND(279, "ServiceCallParentNotFound", "Service Call Parent Not Found");
+    SERVICE_CALL_PARENT_NOT_FOUND(279, "ServiceCallParentNotFound", "Service Call Parent Not Found"),
+
+    CANCELED_BY_USER(3001, "CancelledByUser","Cancelled by user"),
+    RETRIED_BY_USER(3002, "RetriedByUser","Retried By User");
+//    DEVI
+
+
+
 
     private final int number;
     private final String key;

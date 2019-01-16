@@ -23,7 +23,8 @@ public class TimeOfUseCampaignInfo {
     public Instant startedOn;
     public Instant finishedOn;
     public IdWithNameInfo calendar;
-    public String activationDate;
+    public String activationOption;
+    public Instant activationDate;
     public String updateType;
     public long timeValidation;
     public List<PropertyInfo> properties;

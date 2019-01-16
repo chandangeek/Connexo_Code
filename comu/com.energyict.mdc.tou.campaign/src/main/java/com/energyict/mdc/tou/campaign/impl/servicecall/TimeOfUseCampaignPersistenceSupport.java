@@ -101,8 +101,13 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .number()
                 .notNull()
                 .add();
-        table.column(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_DATE.databaseName())
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_OPTION.databaseName())
                 .varChar()
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_OPTION.javaName())
+                .add();
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_DATE.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2INSTANT)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_DATE.javaName())
                 .add();
         table.column(TimeOfUseCampaignDomainExtension.FieldNames.UPDATE_TYPE.databaseName())

@@ -23,7 +23,9 @@ public interface TimeOfUseCampaign {
 
     Calendar getCalendar();
 
-    String getActivationDate();
+    String getActivationOption();
+
+    Instant getActivationDate();
 
     String getUpdateType();
 

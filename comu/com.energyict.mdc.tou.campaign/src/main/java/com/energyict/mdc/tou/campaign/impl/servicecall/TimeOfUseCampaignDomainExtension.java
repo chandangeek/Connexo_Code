@@ -45,6 +45,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         ACTIVATION_START("activationStart", "activation_start"),
         ACTIVATION_END("activationEnd", "activation_end"),
         CALENDAR("calendar", "calendar"),
+        ACTIVATION_OPTION("activationOption", "activation_option"),
         ACTIVATION_DATE("activationDate", "activation_date"),
         UPDATE_TYPE("updateType", "update_type"),
         TIME_VALIDATION("timeValidation", "time_validation");
@@ -80,7 +81,6 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     private Instant activationStart;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Instant activationEnd;
-    //    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @IsPresent
     private Reference<Calendar> calendar = Reference.empty();
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
@@ -88,10 +88,10 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     private String updateType;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String activationDate;
+    private String activationOption;
+    private Instant activationDate;
     private long timeValidation;
 
-    // private Instant processDate;
     @Override
     public String getName() {
         return name;
@@ -147,11 +147,20 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
-    public String getActivationDate() {
+    public String getActivationOption() {
+        return activationOption;
+    }
+
+    public void setActivationOption(String activationOption) {
+        this.activationOption = activationOption;
+    }
+
+    @Override
+    public Instant getActivationDate() {
         return activationDate;
     }
 
-    public void setActivationDate(String activationDate) {
+    public void setActivationDate(Instant activationDate) {
         this.activationDate = activationDate;
     }
 
@@ -187,7 +196,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         this.setActivationStart((Instant) propertyValues.getProperty(FieldNames.ACTIVATION_START.javaName()));
         this.setActivationEnd((Instant) propertyValues.getProperty(FieldNames.ACTIVATION_END.javaName()));
         this.setCalendar((Calendar) propertyValues.getProperty(FieldNames.CALENDAR.javaName()));
-        this.setActivationDate((String) propertyValues.getProperty(FieldNames.ACTIVATION_DATE.javaName()));
+        this.setActivationOption((String) propertyValues.getProperty(FieldNames.ACTIVATION_OPTION.javaName()));
+        this.setActivationDate((Instant) propertyValues.getProperty(FieldNames.ACTIVATION_DATE.javaName()));
         this.setUpdateType((String) propertyValues.getProperty(FieldNames.UPDATE_TYPE.javaName()));
         this.setTimeValidation((long) propertyValues.getProperty(FieldNames.TIME_VALIDATION.javaName()));
     }
@@ -200,6 +210,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.ACTIVATION_START.javaName(), this.getActivationStart());
         propertySetValues.setProperty(FieldNames.ACTIVATION_END.javaName(), this.getActivationEnd());
         propertySetValues.setProperty(FieldNames.CALENDAR.javaName(), this.getCalendar());
+        propertySetValues.setProperty(FieldNames.ACTIVATION_OPTION.javaName(), this.getActivationOption());
         propertySetValues.setProperty(FieldNames.ACTIVATION_DATE.javaName(), this.getActivationDate());
         propertySetValues.setProperty(FieldNames.UPDATE_TYPE.javaName(), this.getUpdateType());
         propertySetValues.setProperty(FieldNames.TIME_VALIDATION.javaName(), this.getTimeValidation());

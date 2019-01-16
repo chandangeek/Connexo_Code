@@ -88,7 +88,7 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
                 if (isCancelling(findChildren(parent))) {
                     parent.requestTransition(DefaultState.CANCELLED);
                 } else {
-                    parent.canTransitionTo(DefaultState.SUCCESSFUL);
+                    parent.requestTransition(DefaultState.SUCCESSFUL);
                 }
             }
         }

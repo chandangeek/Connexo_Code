@@ -7,6 +7,7 @@ package com.energyict.mdc.tou.campaign.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -31,6 +32,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Path("/touCampaigns")
@@ -58,7 +60,8 @@ public class TimeOfUseCampaignResource {
         timeOfUseCampaignService.getAllCampaigns().forEach((campaign, status) -> {
             touCampaigns.add(getOverviewCampaignInfo(campaign, status));
         });
-        return Response.ok(PagedInfoList.fromPagedList("touCampaigns", touCampaigns, queryParameters)).build();
+        touCampaigns.sort(Comparator.comparing(o -> o.startedOn));
+        return Response.ok(PagedInfoList.fromPagedList("touCampaigns", ListPager.of(touCampaigns).from(queryParameters).find(), queryParameters)).build();
     }
 
     @GET
@@ -91,7 +94,8 @@ public class TimeOfUseCampaignResource {
                     (serviceCall.getState().equals(DefaultState.CANCELLED)
                             || serviceCall.getState().equals(DefaultState.SUCCESSFUL)) ? serviceCall.getLastModificationTime() : null));
         });
-        return Response.ok(PagedInfoList.fromPagedList("devicesInCampaign", deviceInCampaignInfo, queryParameters)).build();
+        deviceInCampaignInfo.sort(Comparator.comparing(o -> o.startedOn));
+        return Response.ok(PagedInfoList.fromPagedList("devicesInCampaign", ListPager.of(deviceInCampaignInfo).from(queryParameters).find(), queryParameters)).build();
     }
 
     @POST
@@ -160,7 +164,9 @@ public class TimeOfUseCampaignResource {
         deviceTypeAndOptionsInfo.fullCalendar = false;
         deviceTypeAndOptionsInfo.withActivationDate = false;
         deviceTypeAndOptionsInfo.specialDays = false;
-        deviceType.getAllowedCalendars().forEach(allowedCalendar -> deviceTypeAndOptionsInfo.calendars.add(new IdWithNameInfo(allowedCalendar.getCalendar().get().getId(), allowedCalendar.getName())));
+        deviceType.getAllowedCalendars().stream()
+                .filter(allowedCalendar -> !allowedCalendar.isGhost())
+                .forEach(allowedCalendar -> deviceTypeAndOptionsInfo.calendars.add(new IdWithNameInfo(allowedCalendar.getCalendar().get().getId(), allowedCalendar.getName())));
         timeOfUseCampaignService.getDeviceConfigurationService().findTimeOfUseOptions(deviceType).get().getOptions()
                 .forEach(protocolSupportedCalendarOptions -> {
                     if (protocolSupportedCalendarOptions.getId().equals("send")) {
@@ -181,7 +187,8 @@ public class TimeOfUseCampaignResource {
         info.startedOn = campaignsServiceCall.getCreationTime();
         info.finishedOn = (campaignsServiceCall.getState().equals(DefaultState.CANCELLED)
                 || campaignsServiceCall.getState().equals(DefaultState.SUCCESSFUL)) ? campaignsServiceCall.getLastModificationTime() : null;
-        info.status = status.getDefaultFormat();
+        info.status = status.equals(DefaultState.SUCCESSFUL) ? thesaurus.getString(MessageSeeds.STATUS_COMPLETED.getKey(), MessageSeeds.STATUS_COMPLETED.getDefaultFormat())
+                : thesaurus.getString(status.getKey(), status.getDefaultFormat());
         info.devices = new ArrayList<>();
         info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.SUCCESSFUL, thesaurus), 0L));
         info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.FAILED, thesaurus), 0L));

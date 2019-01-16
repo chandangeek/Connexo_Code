@@ -8,7 +8,6 @@ import com.elster.jupiter.calendar.Calendar;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
-import com.energyict.mdc.tou.campaign.ToUUtil;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignDomainExtension;
 
 import java.time.Instant;
@@ -22,13 +21,14 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     public Instant activationStart;
     public Instant activationEnd;
     public Calendar calendar;
-    public String activationDate;
+    public String activationOption;
+    public Instant activationDate;
     public String updateType;
     public long timeValidation;
 
     public TimeOfUseCampaignBuilderImpl(String name, DeviceType deviceType, String deviceGroup,
-                                        Instant activationStart, Instant activationEnd,
-                                        Calendar calendar, String activationDate, String updateType, long timeValidation) {
+                                        Instant activationStart, Instant activationEnd, Calendar calendar,
+                                        String activationOption, Instant activationDate, String updateType, long timeValidation) {
         this.name = name;
         this.deviceType = deviceType;
         this.deviceGroup = deviceGroup;
@@ -36,6 +36,7 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         this.activationEnd = activationEnd;
         this.calendar = calendar;
         this.activationDate = activationDate;
+        this.activationOption = activationOption;
         this.updateType = updateType;
         this.timeValidation = timeValidation;
     }
@@ -50,10 +51,8 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         timeOfUseCampaign.setActivationEnd(activationEnd);
         timeOfUseCampaign.setCalendar(calendar);
         timeOfUseCampaign.setUpdateType(updateType);
-        if (!((activationDate.equals("Immediately") || (activationDate.equals("Without Activation"))))) {
-            activationDate = ToUUtil.parseNumberToDate(activationDate);
-        }
-        timeOfUseCampaign.setActivationDate(activationDate);
+        timeOfUseCampaign.setActivationOption(activationOption);
+        Optional.ofNullable(activationDate).ifPresent(timeOfUseCampaign::setActivationDate);
         Optional.ofNullable(timeValidation).ifPresent(timeOfUseCampaign::setTimeValidation);
         return timeOfUseCampaign;
     }
