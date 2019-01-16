@@ -51,6 +51,7 @@ import java.util.Dictionary;
 import java.util.List;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -74,7 +75,6 @@ public class MeteringZoneTypeImplIT extends BaseZoneIT {
     @Test
     @Transactional
     public void testSave() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         createZoneType(meteringZoneService, ZONE_TYPE_NAME_1, APPLICATION_1);
         createZoneType(meteringZoneService, ZONE_TYPE_NAME_2, APPLICATION_1);
 
@@ -87,7 +87,6 @@ public class MeteringZoneTypeImplIT extends BaseZoneIT {
     @Test
     @Transactional
     public void testGetOrderByName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         createZoneType(meteringZoneService, ZONE_TYPE_NAME_2, APPLICATION_1);
         createZoneType(meteringZoneService, ZONE_TYPE_NAME_1, APPLICATION_1);
 
@@ -100,7 +99,6 @@ public class MeteringZoneTypeImplIT extends BaseZoneIT {
     @Test
     @Transactional
     public void testGetFilterByAppName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         createZoneType(meteringZoneService, ZONE_TYPE_NAME_1, APPLICATION_1);
         createZoneType(meteringZoneService, ZONE_TYPE_NAME_2, APPLICATION_2);
 
@@ -113,7 +111,6 @@ public class MeteringZoneTypeImplIT extends BaseZoneIT {
     @Transactional
     @ExpectedConstraintViolation(property = "typeName", messageId = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     public void testSaveWithEmptyName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         createZoneType(meteringZoneService, "", APPLICATION_1);
     }
 
@@ -121,7 +118,6 @@ public class MeteringZoneTypeImplIT extends BaseZoneIT {
     @Transactional
     @ExpectedConstraintViolation(property = "typeName", messageId = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     public void testSaveWithLargeName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         createZoneType(meteringZoneService, "123456789012345678901234567890123456789012345678901234567890123456789012345678901", APPLICATION_1);
     }
 
@@ -129,7 +125,6 @@ public class MeteringZoneTypeImplIT extends BaseZoneIT {
     @Transactional
     @ExpectedConstraintViolation(property = "typeName", messageId = "{" + MessageSeeds.Constants.ZONE_TYPE_NAME_REQUIRED + "}")
     public void testSaveWithNULLName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         createZoneType(meteringZoneService, null, APPLICATION_1);
     }
 
@@ -137,7 +132,6 @@ public class MeteringZoneTypeImplIT extends BaseZoneIT {
     @Transactional
     @ExpectedConstraintViolation(property = "application", messageId = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_10 + "}")
     public void testSaveWithEmptyApplication() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         createZoneType(meteringZoneService, ZONE_TYPE_NAME_1, "");
     }
 
@@ -145,7 +139,6 @@ public class MeteringZoneTypeImplIT extends BaseZoneIT {
     @Transactional
     @ExpectedConstraintViolation(property = "application", messageId = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_10 + "}")
     public void testSaveWithLargeApplication() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         createZoneType(meteringZoneService, ZONE_TYPE_NAME_1, "01234567890");
     }
 
@@ -153,7 +146,6 @@ public class MeteringZoneTypeImplIT extends BaseZoneIT {
     @Transactional
     @ExpectedConstraintViolation(property = "application", messageId = "{" + MessageSeeds.Constants.ZONE_TYPE_APP_REQUIRED + "}")
     public void testSaveWithNULLApplication() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
         createZoneType(meteringZoneService, ZONE_TYPE_NAME_1, null);
     }
 

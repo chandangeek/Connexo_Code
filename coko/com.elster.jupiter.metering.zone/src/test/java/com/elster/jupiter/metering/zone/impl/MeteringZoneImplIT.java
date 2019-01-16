@@ -52,6 +52,7 @@ import org.osgi.service.http.HttpService;
 import java.util.Dictionary;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,12 +71,17 @@ public class MeteringZoneImplIT extends BaseZoneIT {
     private static final String ZONE_NAME = "ZoneName";
     private static final String APPLICATION = "APPNAME";
     private static final String ZONE_TYPE_NAME = "ZoneTypeName";
+    private ZoneType zoneType;
+
+    @Before
+    public void init() {
+        super.init();
+        zoneType = createZoneType(meteringZoneService);
+    }
 
     @Test
     @Transactional
     public void testSave() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        ZoneType zoneType = createZoneType(meteringZoneService);
         meteringZoneService.newZoneBuilder()
                 .withName(ZONE_NAME)
                 .withZoneType(zoneType)
@@ -92,8 +98,6 @@ public class MeteringZoneImplIT extends BaseZoneIT {
     @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.ZONE_NAME_NOT_UNIQUE + "}")
     public void testSaveWithDuplicateName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        ZoneType zoneType = createZoneType(meteringZoneService);
         meteringZoneService.newZoneBuilder()
                 .withName(ZONE_NAME)
                 .withZoneType(zoneType)
@@ -108,8 +112,6 @@ public class MeteringZoneImplIT extends BaseZoneIT {
     @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     public void testSaveWithEmptyName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        ZoneType zoneType = createZoneType(meteringZoneService);
         meteringZoneService.newZoneBuilder()
                 .withName("")
                 .withZoneType(zoneType)
@@ -120,8 +122,6 @@ public class MeteringZoneImplIT extends BaseZoneIT {
     @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     public void testSaveWithLargeName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        ZoneType zoneType = createZoneType(meteringZoneService);
         meteringZoneService.newZoneBuilder()
                 .withName("123456789012345678901234567890123456789012345678901234567890123456789012345678901")
                 .withZoneType(zoneType)
@@ -132,8 +132,6 @@ public class MeteringZoneImplIT extends BaseZoneIT {
     @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.ZONE_NAME_REQUIRED + "}")
     public void testSaveWithNULLName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        ZoneType zoneType = createZoneType(meteringZoneService);
         meteringZoneService.newZoneBuilder()
                 .withName(null)
                 .withZoneType(zoneType)

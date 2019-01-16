@@ -43,6 +43,7 @@ import org.osgi.service.http.HttpService;
 import java.util.Dictionary;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
@@ -52,9 +53,6 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by H216758 on 16/01/2019.
- */
 public class BaseZoneIT {
     private static BundleContext bundleContext = mock(BundleContext.class);
 
@@ -67,6 +65,7 @@ public class BaseZoneIT {
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     @Rule
     public TestRule transactionRule = new TransactionalRule(injector.getInstance(TransactionService.class));
+    protected MeteringZoneService meteringZoneService;
 
 
     private static class MockModule extends AbstractModule {
@@ -128,6 +127,11 @@ public class BaseZoneIT {
     @AfterClass
     public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
+    }
+
+    @Before
+    public void init() {
+        meteringZoneService = injector.getInstance(MeteringZoneService.class);
     }
 
 }

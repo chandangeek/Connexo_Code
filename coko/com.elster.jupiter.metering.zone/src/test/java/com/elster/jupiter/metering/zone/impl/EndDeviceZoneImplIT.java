@@ -81,7 +81,6 @@ public class EndDeviceZoneImplIT extends BaseZoneIT {
     private static final String ZONE_TYPE_NAME_A = "ZoneTypeA";
     private static final String ZONE_TYPE_NAME_B = "ZoneTypeB";
 
-    private MeteringZoneService meteringZoneService;
     private EndDevice endDevice;
     private Zone zoneA;
     private Zone zoneB;
