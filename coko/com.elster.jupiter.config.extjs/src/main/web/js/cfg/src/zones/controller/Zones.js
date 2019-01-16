@@ -106,13 +106,14 @@ Ext.define('Cfg.zones.controller.Zones',{
             router = me.getController('Uni.controller.history.Router'),
             form =  this.getZonesOverview();
 
-        form.setLoading(true);
+
         confirmationWindow.show({
             msg: Uni.I18n.translate('zone.general.remove.msg', 'CFG', 'This zone will no longer be available.'),
             title: Uni.I18n.translate('zone.remove', 'CFG', "Remove '{0}'?", [record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
+                    form.setLoading(true);
                     record.destroy({
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('zone.remove.success.msg', 'CFG', 'Zone removed'));
