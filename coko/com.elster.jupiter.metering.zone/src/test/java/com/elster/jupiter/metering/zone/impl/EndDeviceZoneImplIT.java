@@ -55,6 +55,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.http.HttpService;
 
 import java.util.Dictionary;
+import java.util.Optional;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -91,6 +92,8 @@ public class EndDeviceZoneImplIT {
     public TestRule transactionRule = new TransactionalRule(injector.getInstance(TransactionService.class));
     private MeteringZoneService meteringZoneService;
     private EndDevice endDevice;
+    private Zone zoneA;
+    private Zone zoneB;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -157,24 +160,23 @@ public class EndDeviceZoneImplIT {
     public void init() {
         meteringZoneService = injector.getInstance(MeteringZoneService.class);
         endDevice = createDevice();
+        zoneA = createZone(meteringZoneService, ZONE_TYPE_NAME_A, ZONE_NAME_A);
+        zoneB = createZone(meteringZoneService, ZONE_TYPE_NAME_B, ZONE_NAME_B);
     }
     
     @Test
     @Transactional
     public void testSave() {
-        Zone zone = createZone(meteringZoneService, ZONE_TYPE_NAME_A, ZONE_NAME_A);
-        createEndDeviceZone(meteringZoneService, endDevice, zone);
+        createEndDeviceZone(meteringZoneService, endDevice, zoneA);
 
         Finder<EndDeviceZone> finder = meteringZoneService.getByEndDevice(endDevice);
         assertThat(finder.stream().map(EndDeviceZone::getEndDevice).findFirst().get()).isEqualTo(endDevice);
-        assertThat(finder.stream().map(EndDeviceZone::getZone).findFirst().get()).isEqualTo(zone);
+        assertThat(finder.stream().map(EndDeviceZone::getZone).findFirst().get()).isEqualTo(zoneA);
     }
 
     @Test
     @Transactional
     public void testGetOrderByZoneTypeName() {
-        Zone zoneB = createZone(meteringZoneService, ZONE_TYPE_NAME_B, ZONE_NAME_B);
-        Zone zoneA = createZone(meteringZoneService, ZONE_TYPE_NAME_A, ZONE_NAME_A);
         createEndDeviceZone(meteringZoneService, endDevice, zoneB);
         createEndDeviceZone(meteringZoneService, endDevice, zoneA);
 
@@ -189,8 +191,7 @@ public class EndDeviceZoneImplIT {
     @Test
     @Transactional
     public void testGetById() {
-        Zone zone = createZone(meteringZoneService, ZONE_TYPE_NAME_A, ZONE_NAME_A);
-        createEndDeviceZone(meteringZoneService, endDevice, zone);
+        createEndDeviceZone(meteringZoneService, endDevice, zoneA);
 
         Finder<EndDeviceZone> finder = meteringZoneService.getByEndDevice(endDevice);
         long endDeviceZoneId = finder.find().get(0).getId();
@@ -209,8 +210,6 @@ public class EndDeviceZoneImplIT {
     @Test
     @Transactional
     public void testChangeZone() {
-        Zone zoneA = createZone(meteringZoneService, ZONE_TYPE_NAME_A, ZONE_NAME_A);
-        Zone zoneB = createZone(meteringZoneService, ZONE_TYPE_NAME_B, ZONE_NAME_B);
         createEndDeviceZone(meteringZoneService, endDevice, zoneA);
 
         Finder<EndDeviceZone> finder = meteringZoneService.getByEndDevice(endDevice);
@@ -231,9 +230,9 @@ public class EndDeviceZoneImplIT {
     @Test
     @Transactional
     public void testChangeZoneWithSameZoneType() {
-        ZoneType zoneTypeA = createZoneType(meteringZoneService, ZONE_TYPE_NAME_A);
-        Zone zoneA = createZone(meteringZoneService, zoneTypeA, ZONE_NAME_A);
-        Zone zoneB = createZone(meteringZoneService, zoneTypeA, ZONE_NAME_B);
+        Optional<ZoneType> zoneTypeA = meteringZoneService.getZoneType(ZONE_TYPE_NAME_A, APPLICATION);
+        assertThat(zoneTypeA.isPresent());
+        Zone zoneB = createZone(meteringZoneService, zoneTypeA.get(), ZONE_NAME_B);
         createEndDeviceZone(meteringZoneService, endDevice, zoneA);
 
         Finder<EndDeviceZone> finder = meteringZoneService.getByEndDevice(endDevice);
@@ -254,8 +253,8 @@ public class EndDeviceZoneImplIT {
     @Test
     @Transactional
     public void testDeleteZone() {
-        createEndDeviceZone(meteringZoneService, endDevice, createZone(meteringZoneService, ZONE_TYPE_NAME_A, ZONE_NAME_A));
-        createEndDeviceZone(meteringZoneService, endDevice, createZone(meteringZoneService, ZONE_TYPE_NAME_B, ZONE_NAME_B));
+        createEndDeviceZone(meteringZoneService, endDevice, zoneA);
+        createEndDeviceZone(meteringZoneService, endDevice, zoneB);
 
         Finder<EndDeviceZone> finder = meteringZoneService.getByEndDevice(endDevice);
         assertThat(finder.find()).hasSize(2);
@@ -268,9 +267,9 @@ public class EndDeviceZoneImplIT {
     @Transactional
     @ExpectedConstraintViolation(property = "zone", messageId = "{" + MessageSeeds.Constants.ZONE_TYPE_NOT_UNIQUE + "}")
     public void testCreateEndDeviceZoneWithSameZoneType() {
-        ZoneType zoneTypeA = createZoneType(meteringZoneService, ZONE_TYPE_NAME_A);
-        Zone zoneA = createZone(meteringZoneService, zoneTypeA, ZONE_NAME_A);
-        Zone zoneB = createZone(meteringZoneService, zoneTypeA, ZONE_NAME_B);
+        Optional<ZoneType> zoneTypeA = meteringZoneService.getZoneType(ZONE_TYPE_NAME_A, APPLICATION);
+        assertThat(zoneTypeA.isPresent());
+        Zone zoneB = createZone(meteringZoneService, zoneTypeA.get(), ZONE_NAME_B);
 
         createEndDeviceZone(meteringZoneService, endDevice, zoneA);
         createEndDeviceZone(meteringZoneService, endDevice, zoneB);
