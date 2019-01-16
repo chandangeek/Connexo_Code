@@ -96,6 +96,16 @@ public class MeteringZoneImplIT extends BaseZoneIT {
 
     @Test
     @Transactional
+    public void testDelete() {
+        Zone zone = meteringZoneService.newZoneBuilder()
+                .withName(ZONE_NAME)
+                .withZoneType(zoneType)
+                .create();
+        zone.delete();
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.ZONE_NAME_NOT_UNIQUE + "}")
     public void testSaveWithDuplicateName() {
         meteringZoneService.newZoneBuilder()
