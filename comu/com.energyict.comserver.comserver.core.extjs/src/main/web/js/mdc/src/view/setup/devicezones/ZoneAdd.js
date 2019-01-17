@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
         'Uni.util.FormErrorMessage',
         'Mdc.store.DeviceZonesTypes',
         'Mdc.store.DeviceZones',
-        'Cfg.zones.store.Zones'
+        'Mdc.store.Zones'
     ],
     device: null,
     disableAction: false,
@@ -90,7 +90,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneAdd', {
                                 dataIndex: 'zones',
                                 displayField: 'name',
                                 valueField: 'id',
-                                store: 'Cfg.zones.store.Zones',
+                                store: 'Mdc.store.Zones',
                                 emptyText: Uni.I18n.translate('devicezones.zoneSelectorPrompt', 'MDC', 'Select a zone...'),
                                 disabled: true,
                                 hidden: me.disableAction

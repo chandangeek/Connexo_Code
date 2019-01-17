@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
@@ -31,6 +32,7 @@ class ZoneImpl implements Zone {
     private final Reference<ZoneType> zoneType = Reference.empty();
     private final DataModel dataModel;
     private final MeteringZoneService meteringZoneService;
+    private final Thesaurus thesaurus;
 
     @SuppressWarnings("unused") // Managed by ORM
     private long version;
@@ -42,9 +44,10 @@ class ZoneImpl implements Zone {
     private String userName;
 
     @Inject
-    ZoneImpl(DataModel dataModel, MeteringZoneService meteringZoneService) {
+    ZoneImpl(DataModel dataModel, MeteringZoneService meteringZoneService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.meteringZoneService = meteringZoneService;
+        this.thesaurus = thesaurus;
     }
 
     ZoneImpl init(String name, ZoneType zoneType) {
@@ -82,6 +85,9 @@ class ZoneImpl implements Zone {
 
     @Override
     public void delete() {
+        if (meteringZoneService.isZoneInUse(this.id))
+            throw new ZoneInUseLocalizedException(thesaurus, this);
+
         dataModel.mapper(Zone.class).remove(this);
     }
 

@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneEdit', {
     requires: [
         'Uni.property.form.Property',
         'Uni.util.FormErrorMessage',
+        'Mdc.store.Zones'
     ],
     device: null,
     deviceZoneTypeId: null,
@@ -58,7 +59,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneEdit', {
                                 queryMode: 'local',
                                 displayField: 'zoneTypeName',
                                 valueField: 'zoneTypeId',
-                                store:  'Cfg.zones.store.Zones',
+                                store:   'Mdc.store.Zones',
                                 disabled: me.edit,
                                 emptyText: Uni.I18n.translate('devicezones.zoneTypeSelectorPrompt', 'MDC', 'Select a zone type...'),
                                 listeners: {
@@ -77,7 +78,7 @@ Ext.define('Mdc.view.setup.devicezones.ZoneEdit', {
                                 dataIndex: 'zones',
                                 displayField: 'name',
                                 valueField: 'id',
-                                store: 'Cfg.zones.store.Zones',
+                                store:  'Mdc.store.Zones',
                                 emptyText: Uni.I18n.translate('devicezones.zoneSelectorPrompt', 'MDC', 'Select a zone...'),
                                 disabled: false,
                                 editable: false

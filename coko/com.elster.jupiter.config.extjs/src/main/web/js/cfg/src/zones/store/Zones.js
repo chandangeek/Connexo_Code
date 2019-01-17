@@ -14,9 +14,6 @@ Ext.define('Cfg.zones.store.Zones', {
             type: 'json',
             root: 'zones'
         },
-        pageParam: undefined,
-        startParam: undefined,
-        limitParam: undefined,
     }
 
 });

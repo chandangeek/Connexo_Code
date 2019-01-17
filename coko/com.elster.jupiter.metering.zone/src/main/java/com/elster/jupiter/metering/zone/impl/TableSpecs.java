@@ -61,7 +61,7 @@ public enum TableSpecs {
             table.since(version(10, 6));
             table.setJournalTableName("MTZ_ZONETOENDDEVICEJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column zone = table.column("ZONE").number().notNull().conversion(NUMBER2LONG)/*.map("zoneId")*/.add();
+            Column zone = table.column("ZONE").number().notNull().conversion(NUMBER2LONG).map("zoneId").add();
             Column endDevice = table.column("ENDDEVICE").number().notNull().conversion(NUMBER2LONG).map("endDeviceId").add();
             table.addAuditColumns();
             table.primaryKey("MTZ_PK_ZONETOENDDEVICE").on(idColumn).add();
