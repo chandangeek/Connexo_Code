@@ -7,6 +7,7 @@ package com.elster.jupiter.audit.rest.impl;
 import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditFilter;
 import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.AuditTrailFilter;
 import com.elster.jupiter.audit.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -76,6 +77,19 @@ public class AuditResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/trail")
+    @RolesAllowed({Privileges.Constants.VIEW_AUDIT_LOG})
+    public PagedInfoList getAuditTrail(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        return PagedInfoList.fromPagedList("audit", auditService.getAuditTrail(getAuditTrailFilter(filter))
+                .from(queryParameters)
+                .stream()
+                .map(audit -> auditInfoFactory.from(audit, thesaurus))
+                .collect(Collectors.toList()), queryParameters);
+    }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/categories")
     @RolesAllowed({Privileges.Constants.VIEW_AUDIT_LOG})
     public Response getCategories() {
@@ -114,6 +128,23 @@ public class AuditResource {
 
     private AuditFilter getAuditFilter(JsonQueryFilter filter) {
         AuditFilter auditFilter = auditService.newAuditFilter();
+        if (filter.hasProperty("changedOnFrom")) {
+            auditFilter.setChangedOnFrom(filter.getInstant("changedOnFrom"));
+        }
+        if (filter.hasProperty("changedOnTo")) {
+            auditFilter.setChangedOnTo(filter.getInstant("changedOnTo"));
+        }
+        if (filter.hasProperty("categories")) {
+            auditFilter.setCategories(filter.getStringList("categories"));
+        }
+        if (filter.hasProperty("users")) {
+            auditFilter.setChangedBy(filter.getStringList("users"));
+        }
+        return auditFilter;
+    }
+
+    private AuditTrailFilter getAuditTrailFilter(JsonQueryFilter filter) {
+        AuditTrailFilter auditFilter = auditService.newAuditTrailFilter();
         if (filter.hasProperty("changedOnFrom")) {
             auditFilter.setChangedOnFrom(filter.getInstant("changedOnFrom"));
         }

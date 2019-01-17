@@ -62,7 +62,9 @@ Ext.define('Mdc.audit.controller.Audit', {
             }
         });
 
-        auditPreviewGrid.reconfigure(record[0].auditLogsStore);
+
+        // if recordsCount == 0 display a message
+        record[0].auditLogsStore.getCount() > 0 && auditPreviewGrid.reconfigure(record[0].auditLogsStore);
         Ext.resumeLayouts(true);
     },
 

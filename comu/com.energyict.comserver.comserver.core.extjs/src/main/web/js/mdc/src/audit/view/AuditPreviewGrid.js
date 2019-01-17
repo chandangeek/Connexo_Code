@@ -6,7 +6,7 @@ Ext.define('Mdc.audit.view.AuditPreviewGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.auditPreviewGrid',
     scroll: false,
-    requires: [],
+    store: 'ext-empty-store',
 
     initComponent: function () {
         var me = this;

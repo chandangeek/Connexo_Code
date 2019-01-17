@@ -8,6 +8,10 @@ public class DomainContextIdentifier {
     private String reference;
     private int operation;
 
+    private String pkColumn1;
+    private String pkColumn2;
+    private String pkColumn3;
+
     public DomainContextIdentifier setId(Long id) {
         this.id = id;
         return this;
@@ -51,5 +55,32 @@ public class DomainContextIdentifier {
 
     public int getOperation() {
         return operation;
+    }
+
+    public String getPkColumn1() {
+        return pkColumn1;
+    }
+
+    public DomainContextIdentifier setPkColumn1(String pkColumn1) {
+        this.pkColumn1 = pkColumn1;
+        return this;
+    }
+
+    public String getPkColumn2() {
+        return pkColumn2;
+    }
+
+    public DomainContextIdentifier setPkColumn2(String pkColumn2) {
+        this.pkColumn2 = pkColumn2;
+        return this;
+    }
+
+    public String getPkColumn3() {
+        return pkColumn3;
+    }
+
+    public DomainContextIdentifier setPkColumn3(String pkColumn3) {
+        this.pkColumn3 = pkColumn3;
+        return this;
     }
 }

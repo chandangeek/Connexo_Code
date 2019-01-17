@@ -16,6 +16,8 @@ public interface TableAudit {
 
     String getContext();
 
+    List<Object> getPkColumns(Object object);
+
     String getDomainReferences(Object object);
 
     Object getDomainShortReference(Object object);

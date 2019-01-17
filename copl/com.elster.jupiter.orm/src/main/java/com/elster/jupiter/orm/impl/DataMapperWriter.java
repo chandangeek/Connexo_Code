@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.orm.audit.AuditDataWriter;
+import com.elster.jupiter.orm.audit.AuditTrailDataWriter;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Pair;
 
@@ -112,6 +113,8 @@ public class DataMapperWriter<T> {
         }
 
         new AuditDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT).audit();
+        new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT).audit();
+
     }
 
     private boolean needsRefreshAfterBatchInsert() {
@@ -278,6 +281,7 @@ public class DataMapperWriter<T> {
         refresh(object, false);
 
         new AuditDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.UPDATE).audit();
+        new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.UPDATE).audit();
     }
 
     private boolean doJournal(List<ColumnImpl> columns) {

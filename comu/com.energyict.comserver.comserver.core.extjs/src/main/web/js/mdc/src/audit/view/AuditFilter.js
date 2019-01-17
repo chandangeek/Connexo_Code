@@ -42,7 +42,7 @@ Ext.define('Mdc.audit.view.AuditFilter', {
                 dataIndex: 'users',
                 emptyText: Uni.I18n.translate('audit.filter.changedBy', 'MDC', 'Changed by'),
                 displayField: 'name',
-                valueField: 'id',
+                valueField: 'name',
                 itemId: 'audit-filter-changedBy-combo',
                 store: 'Mdc.audit.store.Users',
                 queryMode: 'remote',
@@ -50,8 +50,7 @@ Ext.define('Mdc.audit.view.AuditFilter', {
                 queryParam: 'like',
                 queryCaching: false,
                 minChars: 1,
-                editable: true,
-                typeAhead: true
+                editable: true
             }
         ];
 

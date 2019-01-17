@@ -12,7 +12,7 @@ Ext.define('Mdc.audit.store.Audit', {
 
     proxy: {
         type: 'rest',
-        url: '/api/aud/audit',
+        url: '/api/aud/audit/trail',
         reader: {
             type: 'json',
             root: 'audit'

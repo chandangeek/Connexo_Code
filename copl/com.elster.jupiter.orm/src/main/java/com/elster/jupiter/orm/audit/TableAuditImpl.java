@@ -55,6 +55,28 @@ public class TableAuditImpl implements TableAudit {
     }
 
     @Override
+    public List<Object> getPkColumns(Object object) {
+        String foreignKeyName = domainForeignKey;
+        if ((foreignKeyConstraints.size() == 0) || (foreignKeyName.isEmpty())) {
+            return getPkColumnReference(getTable().getPrimaryKeyColumns(), object);
+        }
+        try {
+            for (ForeignKeyConstraint foreignKeyConstraint : foreignKeyConstraints) {
+                String fieldName = foreignKeyConstraint.getFieldName();
+                object = ((Reference<?>) (((TableImpl) foreignKeyConstraint.getReferencedTable()).getDomainMapper().getField(object.getClass(), fieldName)
+                        .get(object))).getOptional().get();
+
+                if (foreignKeyConstraint.getName().compareToIgnoreCase(foreignKeyName) == 0) {
+                    return getPkColumnReference(foreignKeyConstraint.getReferencedTable().getPrimaryKeyColumns(), object);
+                }
+            }
+            throw new IllegalStateException("");
+        } catch (IllegalAccessException ex) {
+            throw new IllegalStateException("");
+        }
+    }
+
+    @Override
     public List<String> getReferences(Object object) {
         if (foreignKeyConstraints.size() == 0) {
             return Collections.singletonList(getReference(getTable().getPrimaryKeyColumns(), object));
@@ -110,6 +132,13 @@ public class TableAuditImpl implements TableAudit {
                 .findFirst()
                 .map(column -> ((ColumnImpl) column).domainValue(object))
                 .orElseGet(Object::new);
+    }
+
+    private List<Object> getPkColumnReference(List<? extends Column> columns, Object object) {
+        return columns.stream()
+                .sorted((o1, o2) -> ((Column) o1).getName().compareToIgnoreCase(o2.getName()))
+                .map(column -> ((ColumnImpl) column).domainValue(object))
+                .collect(Collectors.toList());
     }
 
     private String getObjectReference(Object object, String foreignKeyName) {

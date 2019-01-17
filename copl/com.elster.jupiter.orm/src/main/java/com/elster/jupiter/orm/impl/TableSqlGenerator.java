@@ -231,5 +231,19 @@ public class TableSqlGenerator {
         return sb.toString();
     }
 
+    public String auditTrailSql() {
+        StringBuilder sb = new StringBuilder("insert into ADT_AUDIT_TRAIL");
+        sb.append(" (ID, DOMAIN, CONTEXT, MODTIMESTART, MODTIMEEND, TABLENAME, PKCOLUMN1, PKCOLUMN2, PKCOLUMN3, OPERATION, CREATETIME, USERNAME)");
+        sb.append(" values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        return sb.toString();
+    }
+
+    public String updateAuditTrailSql() {
+        StringBuilder sb = new StringBuilder("update ADT_AUDIT_TRAIL set");
+        sb.append(" MODTIMEEND = ?");
+        sb.append(" WHERE ID = ?");
+        return sb.toString();
+    }
+
 
 }

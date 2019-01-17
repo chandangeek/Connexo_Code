@@ -16,4 +16,8 @@ public interface AuditService {
 
     AuditFilter newAuditFilter();
 
+    Finder<AuditTrail> getAuditTrail(AuditTrailFilter filter);
+
+    AuditTrailFilter newAuditTrailFilter();
+
 }

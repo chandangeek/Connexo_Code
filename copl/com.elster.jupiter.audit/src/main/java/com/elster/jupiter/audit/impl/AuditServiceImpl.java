@@ -11,6 +11,9 @@ import com.elster.jupiter.audit.AuditDecoderHandle;
 import com.elster.jupiter.audit.AuditFilter;
 import com.elster.jupiter.audit.AuditLog;
 import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.AuditTrail;
+import com.elster.jupiter.audit.AuditTrailDecoderHandle;
+import com.elster.jupiter.audit.AuditTrailFilter;
 import com.elster.jupiter.audit.security.Privileges;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
@@ -58,6 +61,7 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
     private volatile UserService userService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private final Map<String, AuditDecoderHandle> auditDecoderHandles = new ConcurrentHashMap<>();
+    private final List<AuditTrailDecoderHandle> auditTrailDecoderHandles = Collections.synchronizedList(new ArrayList<AuditTrailDecoderHandle>());
 
     public AuditServiceImpl() {
     }
@@ -169,13 +173,40 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
                 .map(auditDecoderHandleEntry -> auditDecoderHandleEntry.getValue());
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addAuditTrailDecoderHandle(AuditTrailDecoderHandle auditTrailDecoderHandle) {
+        auditTrailDecoderHandles.add(auditTrailDecoderHandle);
+    }
+
+    public void removeAuditTrailDecoderHandle(AuditTrailDecoderHandle auditTrailDecoderHandle) {
+        auditTrailDecoderHandles.remove(auditTrailDecoderHandle);
+    }
+
+    public Optional<AuditTrailDecoderHandle> getAuditTrailDecoderHandles(String domain, String context) {
+        return auditTrailDecoderHandles.stream()
+                .filter(auditDecoderHandleEntry ->
+                        (auditDecoderHandleEntry.getDomain().compareToIgnoreCase(domain) == 0) &&
+                                (auditDecoderHandleEntry.getContext().compareToIgnoreCase(context) == 0))
+                .findFirst();
+    }
+
     @Override
     public Finder<Audit> getAudit(AuditFilter filter) {
         return DefaultFinder.of(Audit.class, filter.toCondition(), dataModel, AuditLog.class).defaultSortColumn(AuditImpl.Field.CREATETIME.fieldName(), false);
     }
 
     @Override
+    public Finder<AuditTrail> getAuditTrail(AuditTrailFilter filter) {
+        return DefaultFinder.of(AuditTrail.class, filter.toCondition(), dataModel).defaultSortColumn(AuditImpl.Field.CREATETIME.fieldName(), false);
+    }
+
+    @Override
     public AuditFilter newAuditFilter() {
         return new AuditFilterImpl(ormService, threadPrincipalService, this);
+    }
+
+    @Override
+    public AuditTrailFilter newAuditTrailFilter() {
+        return new AuditTrailFilterImpl(ormService, threadPrincipalService, this);
     }
 }
