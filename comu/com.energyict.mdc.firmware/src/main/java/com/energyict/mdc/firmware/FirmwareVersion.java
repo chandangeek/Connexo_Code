@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.time.Instant;
 
 @ProviderType
-public interface FirmwareVersion extends BaseFirmwareVersion, Comparable<FirmwareVersion> {
+public interface FirmwareVersion extends BaseFirmwareVersion {
 
     FirmwareType getFirmwareType();
 
@@ -60,7 +60,6 @@ public interface FirmwareVersion extends BaseFirmwareVersion, Comparable<Firmwar
 
     void setImageIdentifier(String imageIdentifier);
 
-    @Override
     default int compareTo(FirmwareVersion o) {
         return compare(this, o);
     }
