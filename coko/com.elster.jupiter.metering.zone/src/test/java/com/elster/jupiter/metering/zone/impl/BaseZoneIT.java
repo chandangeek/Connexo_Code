@@ -53,7 +53,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class BaseZoneIT {
+public abstract class BaseZoneIT {
     private static BundleContext bundleContext = mock(BundleContext.class);
 
     private static ServiceRegistration serviceRegistration = mock(ServiceRegistration.class);
