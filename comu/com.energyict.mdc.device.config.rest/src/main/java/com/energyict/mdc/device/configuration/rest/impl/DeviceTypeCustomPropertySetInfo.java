@@ -1,18 +1,19 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -25,6 +26,7 @@ public class DeviceTypeCustomPropertySetInfo {
     public Set<ViewPrivilege> viewPrivileges;
     public Set<EditPrivilege> editPrivileges;
     public List<DeviceTypeCustomPropertySetAttributeInfo> attributes;
+    public List<PropertyInfo> properties;
 
     public DeviceTypeCustomPropertySetInfo() {
     }
@@ -36,21 +38,36 @@ public class DeviceTypeCustomPropertySetInfo {
         this.viewPrivileges = registeredCustomPropertySet.getViewPrivileges();
         this.editPrivileges = registeredCustomPropertySet.getEditPrivileges();
         this.isVersioned = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
-        this.attributes = getAttributes(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs());
     }
 
-    public static List<DeviceTypeCustomPropertySetAttributeInfo> getAttributes(List<PropertySpec> propertySpecs) {
+    public void setAttributes(List<PropertySpec> propertySpecs) {
         List<DeviceTypeCustomPropertySetAttributeInfo> deviceTypeCustomPropertySetAttributeInfos = new ArrayList<>();
         for (PropertySpec propertySpec : propertySpecs) {
             deviceTypeCustomPropertySetAttributeInfos.add(new DeviceTypeCustomPropertySetAttributeInfo(propertySpec));
         }
-        return deviceTypeCustomPropertySetAttributeInfos;
+        this.attributes = deviceTypeCustomPropertySetAttributeInfos;
     }
 
-    public static List<DeviceTypeCustomPropertySetInfo> from(List<RegisteredCustomPropertySet> registeredCustomPropertySets) {
+    public void setProperties(List<PropertyInfo> properties) {
+        this.properties = properties;
+    }
+
+    public static List<DeviceTypeCustomPropertySetInfo> from(List<RegisteredCustomPropertySet> rcpss) {
         List<DeviceTypeCustomPropertySetInfo> deviceTypeCustomPropertySetInfos = new ArrayList<>();
-        for (RegisteredCustomPropertySet registeredCustomPropertySet : registeredCustomPropertySets) {
-            deviceTypeCustomPropertySetInfos.add(new DeviceTypeCustomPropertySetInfo(registeredCustomPropertySet));
+        for (RegisteredCustomPropertySet rcps : rcpss) {
+            DeviceTypeCustomPropertySetInfo deviceTypeCPSInfo = new DeviceTypeCustomPropertySetInfo(rcps);
+            deviceTypeCPSInfo.setAttributes(rcps.getCustomPropertySet().getPropertySpecs());
+            deviceTypeCustomPropertySetInfos.add(deviceTypeCPSInfo);
+        }
+        return deviceTypeCustomPropertySetInfos;
+    }
+
+    public static List<DeviceTypeCustomPropertySetInfo> from(Map<RegisteredCustomPropertySet, List<PropertyInfo>> rcpss) {
+        List<DeviceTypeCustomPropertySetInfo> deviceTypeCustomPropertySetInfos = new ArrayList<>();
+        for (Map.Entry<RegisteredCustomPropertySet, List<PropertyInfo>> rcps : rcpss.entrySet()) {
+            DeviceTypeCustomPropertySetInfo deviceTypeCPSInfo = new DeviceTypeCustomPropertySetInfo(rcps.getKey());
+            deviceTypeCPSInfo.setProperties(rcps.getValue());
+            deviceTypeCustomPropertySetInfos.add(deviceTypeCPSInfo);
         }
         return deviceTypeCustomPropertySetInfos;
     }
