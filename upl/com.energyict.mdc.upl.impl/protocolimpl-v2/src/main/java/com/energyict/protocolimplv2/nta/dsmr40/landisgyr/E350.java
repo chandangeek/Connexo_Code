@@ -2,11 +2,14 @@ package com.energyict.protocolimplv2.nta.dsmr40.landisgyr;
 
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -18,6 +21,7 @@ import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -26,18 +30,31 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
+import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.dsmr40.Dsmr40Properties;
 import com.energyict.protocolimplv2.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
+import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.Dsmr40LogBookFactory;
+import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40Messaging;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
-public class E350 extends AbstractSmartDSMR40NtaProtocol {
+public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumberSupport {
     private Dsmr40Messaging dsmr40Messaging;
     private Dsmr40MessageExecutor dsmr40MessageExecutor;
 
@@ -48,6 +65,8 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol {
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final NumberLookupExtractor numberLookupExtractor;
     private final LoadProfileExtractor loadProfileExtractor;
+    private Dsmr40LogBookFactory dsmr40LogBookFactory;
+
     public E350(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
@@ -74,7 +93,19 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol {
         getLogger().info("LandisGyr E350 protocol init V2");
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
+        HHUSignOnV2 hhuSignOn = null;
+        if (comChannel.getComChannelType() == ComChannelType.SerialComChannel || comChannel.getComChannelType() == ComChannelType.OpticalComChannel) {
+            hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
+        }
+        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
+    }
+
+    private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
+        HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsSessionProperties());
+        hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
+        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
+        hhuSignOn.enableDataReadout(false);
+        return hhuSignOn;
     }
 
     @Override
@@ -125,6 +156,28 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol {
     }
 
     @Override
+    protected LoadProfileBuilder getLoadProfileBuilder(){
+        if(this.loadProfileBuilder == null){
+            loadProfileBuilder = new LGLoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
+            ((LGLoadProfileBuilder) loadProfileBuilder).setCumulativeCaptureTimeChannel(((Dsmr40Properties) getProperties()).getCumulativeCaptureTimeChannel());
+        }
+        return this.loadProfileBuilder;
+    }
+
+    @Override
+    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBookReaders) {
+        return getDsmr40LogBookFactory().getLogBookData(logBookReaders);
+    }
+
+    private Dsmr40LogBookFactory getDsmr40LogBookFactory() {
+        if (dsmr40LogBookFactory == null) {
+            dsmr40LogBookFactory = new Dsmr40LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return dsmr40LogBookFactory;
+    }
+
+
+    @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
 
         return getDSMR40Messaging().getSupportedMessages();
@@ -148,5 +201,20 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol {
     @Override
     public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return Optional.empty();
+    }
+
+    @Override
+    protected void checkCacheObjects(){
+        if (getDeviceCache() == null) {
+            setDeviceCache(new DLMSCache());
+        }
+        if ((getDeviceCache().getObjectList() == null) || ((Dsmr40Properties) getProperties()).getForcedToReadCache()) {
+            getLogger().info(((Dsmr40Properties) getProperties()).getForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
+            readObjectList();
+            getDeviceCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+        } else {
+            getLogger().info("Cache exist, will not be read!");
+            getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
+        }
     }
 }
