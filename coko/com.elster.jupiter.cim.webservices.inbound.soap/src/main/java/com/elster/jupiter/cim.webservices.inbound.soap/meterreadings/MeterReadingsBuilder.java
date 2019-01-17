@@ -198,7 +198,7 @@ class MeterReadingsBuilder {
         } else if (endDevice instanceof Meter) {
             Meter meter = (Meter) endDevice;
             meter.getChannelsContainers().stream()
-                    .filter(emc -> !timePeriods.subRangeSet(emc.getInterval().toOpenClosedRange()).isEmpty())
+                    .filter(cc -> !timePeriods.subRangeSet(cc.getInterval().toOpenClosedRange()).isEmpty())
                     .map(this::fetchReadingsContainer)
                     .forEach(readingsByReadingTypes -> wrapInMeterReading(null, readingsByReadingTypes)
                             .ifPresent(meterReadingsList::add));

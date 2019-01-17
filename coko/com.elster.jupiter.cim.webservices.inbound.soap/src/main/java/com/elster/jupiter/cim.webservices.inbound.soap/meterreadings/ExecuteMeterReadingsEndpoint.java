@@ -8,8 +8,11 @@ import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -42,11 +45,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -77,8 +77,9 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     private final EndPointHelper endPointHelper;
     private final TransactionService transactionService;
     private final Clock clock;
-//    private final EndPointConfigurationService endPointConfigurationService;
-//    private final WebServicesService webServicesService;
+    private final ServiceCallCommands serviceCallCommands;
+    private final EndPointConfigurationService endPointConfigurationService;
+    private final WebServicesService webServicesService;
 
     @Inject
     public ExecuteMeterReadingsEndpoint(Provider<MeterReadingsBuilder> readingBuilderProvider,
@@ -86,24 +87,25 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                                         MeterReadingFaultMessageFactory faultMessageFactory,
                                         EndPointHelper endPointHelper,
                                         TransactionService transactionService,
-                                        Clock clock/*,
+                                        Clock clock,
+                                        ServiceCallCommands serviceCallCommands,
                                         EndPointConfigurationService endPointConfigurationService,
-                                        WebServicesService webServicesService*/) {
+                                        WebServicesService webServicesService) {
         this.readingBuilderProvider = readingBuilderProvider;
         this.replyTypeFactory = replyTypeFactory;
         this.faultMessageFactory = faultMessageFactory;
         this.endPointHelper = endPointHelper;
         this.transactionService = transactionService;
         this.clock = clock;
-//        this.endPointConfigurationService = endPointConfigurationService;
-//        this.webServicesService = webServicesService;
+        this.serviceCallCommands = serviceCallCommands;
+        this.endPointConfigurationService = endPointConfigurationService;
+        this.webServicesService = webServicesService;
     }
 
     @Override
     public MeterReadingsResponseMessageType getMeterReadings(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage) throws FaultMessage {
         endPointHelper.setSecurityContext();
         try (TransactionContext context = transactionService.getContext()) {
-            /// TODO add support of multiple EndDevices
             /// TODO noDevice found WS13005
             /// TODO Reading type(s) haven't been found for device WS13006
             GetMeterReadings getMeterReadings = Optional.ofNullable(getMeterReadingsRequestMessage.getRequest().getGetMeterReadings())
@@ -114,43 +116,45 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
 
             // run async
             if (Boolean.TRUE.equals(getMeterReadingsRequestMessage.getHeader().isAsyncReplyFlag())) {
-                return runAsyncMode(getMeterReadingsRequestMessage, builder);
-            }
+                return runAsyncMode(getMeterReadingsRequestMessage, builder, context);
+            } else {
+                // run sync
+                // -EndDevice
+                List<EndDevice> endDevices = getMeterReadings.getEndDevice();
+                if (endDevices != null && !endDevices.isEmpty()) {
 
-            // run sync
-            // -EndDevice
-            List<EndDevice> endDevices = getMeterReadings.getEndDevice();
-            if (endDevices != null && !endDevices.isEmpty()) {
+                    EndDevice endDevice = endDevices.stream().findFirst()
+                            .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, END_DEVICE_LIST_ITEM));
+                    setEndDeviceInfo(builder, endDevice);
+                    setReadingTypesInfo(builder, getMeterReadings.getReadingType());
+                    MeterReadings meterReadings = builder
+                            .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
+                            .build();
+                    MeterReadingsResponseMessageType meterReadingsResponseMessageType = createMeterReadingsResponseMessageType(meterReadings);
+                    meterReadingsResponseMessageType.setReply(endDevices.size() > 1 ?
+                            replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, END_DEVICE_LIST_ITEM) :
+                            replyTypeFactory.okReplyType());
+                    return meterReadingsResponseMessageType;
+                }
+                // -UsagePoint
+                List<UsagePoint> usagePoints = getMeterReadings.getUsagePoint();
+                UsagePoint usagePoint = usagePoints.stream().findFirst()
+                        .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, USAGE_POINTS_LIST_ITEM));
 
-                EndDevice endDevice = endDevices.stream().findFirst()
-                        .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, END_DEVICE_LIST_ITEM));
-                setEndDeviceInfo(builder, endDevice);
+                setUsagePointInfo(builder, usagePoint);
                 setReadingTypesInfo(builder, getMeterReadings.getReadingType());
                 MeterReadings meterReadings = builder
+                        .fromPurposes(extractNamesWithType(usagePoint.getNames(), UsagePointNameTypeEnum.PURPOSE))
                         .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
                         .build();
+                context.commit();
                 MeterReadingsResponseMessageType meterReadingsResponseMessageType = createMeterReadingsResponseMessageType(meterReadings);
-                meterReadingsResponseMessageType.setReply(endDevices.size() > 1 ?
-                        replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, END_DEVICE_LIST_ITEM) :
+                meterReadingsResponseMessageType.setReply(usagePoints.size() > 1 ?
+                        replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, USAGE_POINTS_LIST_ITEM) :
                         replyTypeFactory.okReplyType());
                 return meterReadingsResponseMessageType;
             }
-            // -UsagePoint
-            List<UsagePoint> usagePoints = getMeterReadings.getUsagePoint();
-            UsagePoint usagePoint = usagePoints.stream().findFirst()
-                    .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, USAGE_POINTS_LIST_ITEM));
 
-            setUsagePointInfo(builder, usagePoint);
-            setReadingTypesInfo(builder, getMeterReadings.getReadingType());
-            MeterReadings meterReadings = builder
-                    .fromPurposes(extractNamesWithType(usagePoint.getNames(), UsagePointNameTypeEnum.PURPOSE))
-                    .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
-                    .build();
-            MeterReadingsResponseMessageType meterReadingsResponseMessageType = createMeterReadingsResponseMessageType(meterReadings);
-            meterReadingsResponseMessageType.setReply(usagePoints.size() > 1 ?
-                    replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, USAGE_POINTS_LIST_ITEM) :
-                    replyTypeFactory.okReplyType());
-            return meterReadingsResponseMessageType;
         } catch (VerboseConstraintViolationException e) {
             throw faultMessageFactory.createMeterReadingFaultMessage(e.getLocalizedMessage());
         } catch (LocalizedException e) {
@@ -159,31 +163,23 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     }
 
 
-    MeterReadingsResponseMessageType runAsyncMode(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage, MeterReadingsBuilder builder) throws FaultMessage {
-//        List<EndDevice> endDevices = getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getEndDevice();
-//        List<Reading> readings = getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getReading();
-//        for (Reading reading: readings) {
-//            checkSource(reading);
-//            String source = reading.getSource();
-//            DateTimeInterval timePeriod = reading.getTimePeriod();
-//            /// TODO add parentServiceCall ('Source', 'Callback URL', 'Time range start', 'Time range end', 'Reading types')
-//
-//            for (EndDevice endDevice: endDevices) {
-//                /// TODO check is regular (Register or Channels) or the both
-//                /// TODO add child ServiceCall (per device)
-//            }
-//            //TODO read values from DB after completion of all communication tasks
-//        }
-//
+    MeterReadingsResponseMessageType runAsyncMode(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage, MeterReadingsBuilder builder, TransactionContext context) throws FaultMessage {
+        List<EndDevice> endDevices = getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getEndDevice();
+        List<Reading> readings = getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getReading();
+        List<ReadingType> readingTypes = getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getReadingType();
         String replyAddress = getReplyAddress(getMeterReadingsRequestMessage.getHeader());
-//        EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(getMeterReadingsRequestMessage.getHeader()));
+        EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(replyAddress);
+        for (Reading reading: readings) {
+            checkSource(reading);
+            String source = reading.getSource();
+            DateTimeInterval timePeriod = reading.getTimePeriod();
 
+            createGetMeterReadingsServiceCallAndTransition(source, replyAddress, timePeriod, readingTypes,  endDevices);
+        }
+        context.commit();
 
-        GetMeterReadings getMeterReadings = getMeterReadingsRequestMessage.getRequest().getGetMeterReadings();
-        List<EndDevice> endDevices = getMeterReadings.getEndDevice();
         builder.fromEndDevicesWithMRIDsAndNames(endDevices);
         String warning = combineNotFoundEndDeviceMessage(endDevices);
-
 
         /// no readings on sync reply! readings must built in parent service call
         MeterReadings meterReadings = null;
@@ -194,22 +190,29 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         return meterReadingsResponseMessageType;
     }
 
-//    private EndPointConfiguration getOutboundEndPointConfiguration(String url) throws FaultMessage {
-//        EndPointConfiguration endPointConfig = endPointConfigurationService.findEndPointConfigurations()
-//                .stream()
-//                .filter(EndPointConfiguration::isActive)
-//                .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
-//                .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
-//                .findFirst()
-//                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_POINT_WITH_URL, url));
-//        if (!webServicesService.isPublished(endPointConfig)) {
-//            webServicesService.publishEndPoint(endPointConfig);
-//        }
-//        if (!webServicesService.isPublished(endPointConfig)) {
-//            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_PUBLISHED_END_POINT_WITH_URL, url).get();
-//        }
-//        return endPointConfig;
-//    }
+    private ServiceCall createGetMeterReadingsServiceCallAndTransition(String source, String replyAddress, DateTimeInterval timePeriod,
+                                                                       List<ReadingType> readingTypes, List<EndDevice> endDevices) throws FaultMessage {
+        ServiceCall serviceCall = serviceCallCommands.createParentGetMeterReadingsServiceCall(source, replyAddress, timePeriod, readingTypes, endDevices);
+        serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
+        return serviceCall;
+    }
+
+    private EndPointConfiguration getOutboundEndPointConfiguration(String url) throws FaultMessage {
+        EndPointConfiguration endPointConfig = endPointConfigurationService.findEndPointConfigurations()
+                .stream()
+                .filter(EndPointConfiguration::isActive)
+                .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
+                .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
+                .findFirst()
+                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_POINT_WITH_URL, url));
+        if (!webServicesService.isPublished(endPointConfig)) {
+            webServicesService.publishEndPoint(endPointConfig);
+        }
+        if (!webServicesService.isPublished(endPointConfig)) {
+            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_PUBLISHED_END_POINT_WITH_URL, url).get();
+        }
+        return endPointConfig;
+    }
 
     private String getReplyAddress(HeaderType header) throws FaultMessage {
         String replyAddress = header.getReplyAddress();
@@ -239,6 +242,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
 
     private void checkSource(Reading reading) throws FaultMessage {
         String source = reading.getSource();
+        /// FIXME https://jira.eict.vpdc/browse/CXO-9423
         if (source != null && !source.equals(ReadingSourceEnum.SYSTEM.getSource())) {
             /// FIXME use WS13004?
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.UNSUPPORTED_VALUE, READING_LIST_ITEM + ".source", source,
@@ -317,6 +321,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         final String READING_ITEM = READING_LIST_ITEM + '[' + index + ']';
         /// TODO extract to separate method and run this check in the beginning of process
         String source = reading.getSource();
+        /// FIXME https://jira.eict.vpdc/browse/CXO-9423
         if (source != null && !source.equals(ReadingSourceEnum.SYSTEM.getSource())) {
             /// FIXME use WS13004?
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.UNSUPPORTED_VALUE, READING_ITEM + ".source", source,
