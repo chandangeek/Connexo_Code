@@ -2902,6 +2902,22 @@ Ext.define('Mdc.controller.history.Setup', {
                 route: 'workspace',
                 disabled: true,
                 items: {
+                    multisenseprocesses: {
+                        title: Uni.I18n.translate('general.allprocesses', 'MDC', 'Processes'),
+                        route: 'multisenseprocesses',
+                        privileges: Bpm.privileges.BpmManagement.viewProcesses,
+                        controller: 'Mdc.processes.controller.ProcessesController',
+                        action: 'showProcesses',
+                        items: {
+                            bulkaction: {
+                                title: Uni.I18n.translate('mdc.process.bulkActions', 'MDC', 'Bulk action'),
+                                route: 'bulkaction',
+                                action: 'showBulkActions',
+                                privileges: Bpm.privileges.BpmManagement.administrateProcesses,
+                                controller: 'Mdc.processes.controller.ProcBulkActions'
+                            }
+                        }
+                    },
                     commands: {
                         title: Uni.I18n.translate('general.commands', 'MDC', 'Commands'),
                         route: 'commands',

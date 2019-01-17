@@ -98,6 +98,9 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
 
     showStartProcessConfirmation: function (title, text, additionalText, type) {
         var widget, bodyText = Ext.String.htmlEncode(text);
+        console.log('title=',title);
+        console.log('tetxt=',text);
+        console.log('additionalText=',additionalText);
         if (additionalText) bodyText += '<br>' + additionalText;
         type = type ? type : 'confirmation';
         widget = {

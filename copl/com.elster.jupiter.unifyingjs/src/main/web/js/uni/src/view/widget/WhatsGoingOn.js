@@ -243,7 +243,6 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         });
 
     },
-
     addLine: function (lines, item) {
         var me = this;
         lines.push({
@@ -336,6 +335,18 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         return html;
     },
 
+    getTaskInfoLink : function(textColor, userTaskInfo){
+        var taskName = userTaskInfo.name.length > 0 ? userTaskInfo.name :
+            Uni.I18n.translate('bpm.process.noTaskName', 'UNI', 'No task name');
+
+        var href = this.router.getRoute('workspace/tasks/task').buildUrl({taskId: userTaskInfo.id});
+        var html = '<a class="a-underline" title="'+Ext.String.htmlEncode(taskName)+'" style="text-overflow: ellipsis; color:' + textColor + ';" href="' + href + '">'
+                + Ext.util.Format.ellipsis(Ext.String.htmlEncode(taskName), 30, true)
+                + '</a>';
+
+        return html;
+
+    },
     createLink: function (textColor, value) {
         var me = this, href, html;
 
@@ -364,6 +375,11 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         }
         html += !!value.dueDate ? ' ' + Uni.I18n.translate('whatsGoingOn.due', 'UNI', '(due {0})', Uni.DateTime.formatDateShort(new Date(value.dueDate))) : '';
         html += '</a>';
+
+        if(value.type === 'process' && value.userTaskInfo){
+            html += ' - ' + me.getTaskInfoLink(textColor, value.userTaskInfo);
+        }
+
         return html;
     },
 

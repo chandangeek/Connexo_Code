@@ -141,7 +141,17 @@ public enum MessageSeeds implements MessageSeed {
     ZONE_SAVING_FAIL(324, "zone.savingFail", "Failed saving zone."),
     NO_SUCH_ZONE(325, "noSuchZone", "Zone not found"),
     NO_SUCH_END_DEVICE_ZONE(326, "noSuchDeviceZone", "Zone not assigned to device"),
-    NO_SUCH_ZONE_ON_DEVICE(327, "NoSuchZoneOnDevice", "Device {0} has no zone {1}"),;
+    NO_SUCH_ZONE_ON_DEVICE(327, "NoSuchZoneOnDevice", "Device {0} has no zone {1}"),
+    CANT_RERUN_NO_PROCESSES(328, "cantRerunNoProcesses", "Can''t run bulk action ''Retry process'', no process is found to retry."),
+    CANT_RERUN_SEVERAL_PROCESSES(329, "cantRerunSeveralProcesses", "Can''t run bulk action ''Retry process'' for a set of different processes."),
+    PROCESS_IS_NOT_ACTIVE(330, "processIsNotActive", "Process ''{0}'' with version ''{1}'' isn''t activated."),
+    PROCESS_OBJECT_TYPE_NOT_FOUND(331, "processObjectTypeNotFound", "Couldn''t find target object type for process ''{0}'' with version ''{1}''."),
+    OBJECTS_FILTERED_TYPE_NOT_COMPATIBLE(332, "objectsFilteredTypeNotCompatible", "The process can''t run on the following objects of incompatible type(s): {0}."),
+    OBJECTS_FILTERED_NOT_CONSISTENT(333, "objectsFilteredNotConsistent", "The process can''t run on the following objects as they don''t match the process requirements: {0}."),
+    OBJECTS_FILTERED_NOT_FOUND(334, "objectsFilteredNotFound", "The following objects aren''t found: {0}."),
+    OBJECTS_FILTERED_ALREADY_RUNNING(335, "objectsFilteredAlreadyRunning", "The process is already running on the following objects: {0}."),
+    OBJECTS_FILTERED_DUPLICATED(336, "objectsFilteredDuplicated", "The following objects are duplicated in the selected process history list: {0}; the process will be started once on each of them."),
+    ;
 
     private final int number;
     private final String key;
