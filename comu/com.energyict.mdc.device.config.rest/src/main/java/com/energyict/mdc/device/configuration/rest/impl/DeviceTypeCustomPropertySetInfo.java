@@ -40,7 +40,7 @@ public class DeviceTypeCustomPropertySetInfo {
         this.isVersioned = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
     }
 
-    public void setAttributes(List<PropertySpec> propertySpecs) {
+    public void addAttributes(List<PropertySpec> propertySpecs) {
         List<DeviceTypeCustomPropertySetAttributeInfo> deviceTypeCustomPropertySetAttributeInfos = new ArrayList<>();
         for (PropertySpec propertySpec : propertySpecs) {
             deviceTypeCustomPropertySetAttributeInfos.add(new DeviceTypeCustomPropertySetAttributeInfo(propertySpec));
@@ -48,7 +48,7 @@ public class DeviceTypeCustomPropertySetInfo {
         this.attributes = deviceTypeCustomPropertySetAttributeInfos;
     }
 
-    public void setProperties(List<PropertyInfo> properties) {
+    public void addProperties(List<PropertyInfo> properties) {
         this.properties = properties;
     }
 
@@ -56,7 +56,7 @@ public class DeviceTypeCustomPropertySetInfo {
         List<DeviceTypeCustomPropertySetInfo> deviceTypeCustomPropertySetInfos = new ArrayList<>();
         for (RegisteredCustomPropertySet rcps : rcpss) {
             DeviceTypeCustomPropertySetInfo deviceTypeCPSInfo = new DeviceTypeCustomPropertySetInfo(rcps);
-            deviceTypeCPSInfo.setAttributes(rcps.getCustomPropertySet().getPropertySpecs());
+            deviceTypeCPSInfo.addAttributes(rcps.getCustomPropertySet().getPropertySpecs());
             deviceTypeCustomPropertySetInfos.add(deviceTypeCPSInfo);
         }
         return deviceTypeCustomPropertySetInfos;
@@ -66,7 +66,7 @@ public class DeviceTypeCustomPropertySetInfo {
         List<DeviceTypeCustomPropertySetInfo> deviceTypeCustomPropertySetInfos = new ArrayList<>();
         for (Map.Entry<RegisteredCustomPropertySet, List<PropertyInfo>> rcps : rcpss.entrySet()) {
             DeviceTypeCustomPropertySetInfo deviceTypeCPSInfo = new DeviceTypeCustomPropertySetInfo(rcps.getKey());
-            deviceTypeCPSInfo.setProperties(rcps.getValue());
+            deviceTypeCPSInfo.addProperties(rcps.getValue());
             deviceTypeCustomPropertySetInfos.add(deviceTypeCPSInfo);
         }
         return deviceTypeCustomPropertySetInfos;

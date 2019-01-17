@@ -53,7 +53,6 @@ import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,17 +159,10 @@ public class ResourceHelper {
     public Map<RegisteredCustomPropertySet, List<PropertyInfo>> getDeviceCustomPropertySetInfo(DeviceType deviceType,
                                                                                                List<RegisteredCustomPropertySet> registeredCustomPropertySets) {
         Map<RegisteredCustomPropertySet, List<PropertyInfo>> propertyInfos = new HashMap<>();
-        registeredCustomPropertySets.forEach(rcps -> {
-            if (!rcps.getCustomPropertySet().isVersioned() &&
-                    rcps.getCustomPropertySet().getDomainClass().equals(DeviceType.class)) {
-                propertyInfos.put(rcps, mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
-                        rcps.getCustomPropertySet().getPropertySpecs(),
+        registeredCustomPropertySets.forEach(rcps -> propertyInfos.put(rcps,
+                mdcPropertyUtils.convertPropertySpecsToPropertyInfos(rcps.getCustomPropertySet().getPropertySpecs(),
                         getCustomProperties(customPropertySetService.getUniqueValuesFor(
-                                rcps.getCustomPropertySet(), deviceType))));
-            } else {
-                propertyInfos.put(rcps, Collections.emptyList());
-            }
-        });
+                                rcps.getCustomPropertySet(), deviceType)))));
         return propertyInfos;
     }
 

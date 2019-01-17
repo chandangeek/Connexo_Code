@@ -380,7 +380,8 @@ public class DeviceTypeResource {
                                                              @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         return PagedInfoList.fromPagedList("deviceTypeCustomPropertySets",
-                getDeviceTypeCustomPropertySetInfos(deviceType, filter.getBoolean("linked")),
+                getDeviceTypeCustomPropertySetInfos(deviceType, filter.getBoolean("linked"),
+                        filter.getBoolean("edit")),
                 queryParameters);
     }
 
@@ -1029,8 +1030,24 @@ public class DeviceTypeResource {
     }
 
     private List<DeviceTypeCustomPropertySetInfo> getDeviceTypeCustomPropertySetInfos(DeviceType deviceType,
-                                                                                      boolean isLinked) {
-        List<RegisteredCustomPropertySet> registeredCustomPropertySets = isLinked ? deviceType.getCustomPropertySets() :
+                                                                                      boolean isLinked,
+                                                                                      boolean isEdit) {
+        return isEdit ? DeviceTypeCustomPropertySetInfo.from(getRegisteredCPSForLinking(deviceType, isLinked)) :
+                DeviceTypeCustomPropertySetInfo.from(resourceHelper.getDeviceCustomPropertySetInfo(deviceType,
+                        getRegisteredCPSForEditing(deviceType)));
+    }
+
+    private List<RegisteredCustomPropertySet> getRegisteredCPSForEditing(DeviceType deviceType) {
+        return deviceType.getCustomPropertySets()
+                .stream()
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(rcps -> !rcps.getCustomPropertySet().isVersioned())
+                .filter(rcps -> rcps.getCustomPropertySet().getDomainClass().equals(DeviceType.class))
+                .collect(Collectors.toList());
+    }
+
+    private List<RegisteredCustomPropertySet> getRegisteredCPSForLinking(DeviceType deviceType, boolean isLinked) {
+        return isLinked ? deviceType.getCustomPropertySets() :
                 resourceHelper.findAllCustomPropertySetsByDomain(Device.class, DeviceType.class)
                         .stream()
                         .filter(f -> !deviceType.getCustomPropertySets()
@@ -1039,7 +1056,5 @@ public class DeviceTypeResource {
                                 .collect(Collectors.toList())
                                 .contains(f.getId()))
                         .collect(Collectors.toList());
-        return DeviceTypeCustomPropertySetInfo.from(resourceHelper.getDeviceCustomPropertySetInfo(deviceType,
-                registeredCustomPropertySets));
     }
 }
