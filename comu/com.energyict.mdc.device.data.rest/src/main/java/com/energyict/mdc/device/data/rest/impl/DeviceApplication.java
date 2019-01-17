@@ -241,7 +241,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 ChannelEstimationResource.class,
                 DeviceMessageSearchResource.class,
                 CrlRequestTaskResource.class,
-                DeviceZoneResource.class
+                DeviceZoneResource.class,
+                ProcessResource.class
         );
     }
 

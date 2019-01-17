@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.bpm.UserTaskInfo;
+
 import java.time.Instant;
 import java.util.Comparator;
 
@@ -20,6 +22,7 @@ public class GoingOnInfo {
     public String issueType;
     public Boolean userAssigneeIsCurrentUser;
     public String status;
+    public UserTaskInfo userTaskInfo;
 
     static Comparator<GoingOnInfo> order() {
 

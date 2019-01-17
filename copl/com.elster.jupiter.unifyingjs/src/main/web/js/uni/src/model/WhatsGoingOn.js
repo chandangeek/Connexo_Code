@@ -61,10 +61,11 @@ Ext.define('Uni.model.WhatsGoingOn', {
                     isMyWorkGroup: record.isMyWorkGroup,
                     workGroupAssignee: record.workGroupAssignee,
                     status: record.status,
-                    userAssigneeIsCurrentUser: record.userAssigneeIsCurrentUser
+                    userAssigneeIsCurrentUser: record.userAssigneeIsCurrentUser,
+                    userTaskInfo : record.userTaskInfo
                 }
             }
-        }
-
+        },
+        'userTaskInfo'
     ]
 });
