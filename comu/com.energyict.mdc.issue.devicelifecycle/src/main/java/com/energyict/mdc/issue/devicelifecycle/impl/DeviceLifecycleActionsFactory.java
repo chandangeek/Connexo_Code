@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.issue.devicelifecycle.impl;
 
-import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
@@ -15,20 +14,29 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.devicelifecycle.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.devicelifecycle.impl.actions.RetryTransitionAction;
-import com.google.inject.*;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.ConfigurationException;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Provider;
+import com.google.inject.ProvisionException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+
 
 @Component(name = "com.energyict.mdc.issue.devicelifecycle.actions.factory", service = IssueActionFactory.class, immediate = true)
 public class DeviceLifecycleActionsFactory implements IssueActionFactory {
@@ -41,7 +49,9 @@ public class DeviceLifecycleActionsFactory implements IssueActionFactory {
     private volatile PropertySpecService propertySpecService;
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile EstimationService estimationService;
+    private volatile DeviceService deviceService;
+    private volatile DeviceLifeCycleService deviceLifecycleService;
+    private volatile Clock clock;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -54,18 +64,22 @@ public class DeviceLifecycleActionsFactory implements IssueActionFactory {
     // For unit testing purposes
     @Inject
     public DeviceLifecycleActionsFactory(OrmService ormService,
-                                        NlsService nlsService,
-                                        IssueService issueService,
-                                        PropertySpecService propertySpecService,
-                                        ThreadPrincipalService threadPrincipalService,
-                                        EstimationService estimationService) {
+                                         NlsService nlsService,
+                                         IssueService issueService,
+                                         PropertySpecService propertySpecService,
+                                         ThreadPrincipalService threadPrincipalService,
+                                         DeviceService deviceService,
+                                         DeviceLifeCycleService deviceLifecycleService,
+                                         Clock clock) {
         this();
         setOrmService(ormService);
         setThesaurus(nlsService);
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
         setThreadPrincipalService(threadPrincipalService);
-        setEstimationService(estimationService);
+        setDeviceService(deviceService);
+        setDeviceLifeCycleService(deviceLifecycleService);
+        setClock(clock);
         activate();
     }
 
@@ -81,7 +95,9 @@ public class DeviceLifecycleActionsFactory implements IssueActionFactory {
                 bind(IssueService.class).toInstance(issueService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
-                bind(EstimationService.class).toInstance(estimationService);
+                bind(DeviceService.class).toInstance(deviceService);
+                bind(DeviceLifeCycleService.class).toInstance(deviceLifecycleService);
+                bind(Clock.class).toInstance(clock);
             }
         });
 
@@ -128,8 +144,18 @@ public class DeviceLifecycleActionsFactory implements IssueActionFactory {
     }
 
     @Reference
-    public void setEstimationService(EstimationService estimationService) {
-        this.estimationService = estimationService;
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifecycleService) {
+        this.deviceLifecycleService = deviceLifecycleService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     private void addDefaultActions() {

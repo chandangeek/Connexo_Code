@@ -21,8 +21,8 @@ public class FailedTransitionImpl implements FailedTransition {
         ISSUE("issue"),
         LIFECYCLE("lifecycle"),
         TRANSITION("transition"),
-        FROM("from"),
-        TO("to"),
+        FROM("fromState"),
+        TO("toState"),
         CAUSE("cause"),
         MODTIME("modTime");
 
@@ -44,10 +44,11 @@ public class FailedTransitionImpl implements FailedTransition {
     private Reference<StateTransition> transition = ValueReference.absent();
 
     @IsPresent
-    private Reference<State> from = Reference.empty();
+    private Reference<State> fromState = Reference.empty();
     @IsPresent
-    private Reference<State> to = Reference.empty();
+    private Reference<State> toState = Reference.empty();
 
+    @NotNull
     private String cause;
 
     @NotNull
@@ -58,8 +59,8 @@ public class FailedTransitionImpl implements FailedTransition {
                               State from, State to, Instant modTime, String cause) {
         this.lifecycle.set(deviceLifeCycle);
         this.transition.set(stateTransition);
-        this.from.set(from);
-        this.to.set(to);
+        this.fromState.set(from);
+        this.toState.set(to);
         this.modTime = modTime;
         this.cause = cause;
         return this;
@@ -79,12 +80,12 @@ public class FailedTransitionImpl implements FailedTransition {
 
     @Override
     public State getFrom() {
-        return from.get();
+        return fromState.get();
     }
 
     @Override
     public State getTo() {
-        return to.get();
+        return toState.get();
     }
 
     @Override

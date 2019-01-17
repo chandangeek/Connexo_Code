@@ -8,30 +8,26 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.issue.devicelifecycle.FailedTransition;
 import com.energyict.mdc.issue.devicelifecycle.HistoricalIssueDeviceLifecycle;
 import com.energyict.mdc.issue.devicelifecycle.HistoricalIssueFailedTransition;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycle;
 import com.energyict.mdc.issue.devicelifecycle.OpenIssueDeviceLifecycle;
 import com.energyict.mdc.issue.devicelifecycle.OpenIssueFailedTransition;
+import com.energyict.mdc.issue.devicelifecycle.impl.entity.FailedTransitionImpl;
 import com.energyict.mdc.issue.devicelifecycle.impl.entity.HistoricalIssueDeviceLifecycleImpl;
 import com.energyict.mdc.issue.devicelifecycle.impl.entity.HistoricalIssueFailedTransitionImpl;
 import com.energyict.mdc.issue.devicelifecycle.impl.entity.IssueDeviceLifecycleImpl;
-import com.energyict.mdc.issue.devicelifecycle.impl.entity.FailedTransitionImpl;
 import com.energyict.mdc.issue.devicelifecycle.impl.entity.OpenIssueDeviceLifecycleImpl;
 import com.energyict.mdc.issue.devicelifecycle.impl.entity.OpenIssueFailedTransitionImpl;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
-import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
@@ -48,11 +44,11 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("IDL_ISSUE_OPEN_PK").on(issueColRef).add();
             table
-                .foreignKey("IDL_ISSUE_OPEN_FK_TO_ISSUE")
-                .on(issueColRef)
-                .references(OpenIssue.class)
-                .map(IssueDeviceLifecycleImpl.Fields.BASEISSUE.fieldName())
-                .add();
+                    .foreignKey("IDL_ISSUE_OPEN_FK_TO_ISSUE")
+                    .on(issueColRef)
+                    .references(OpenIssue.class)
+                    .map(IssueDeviceLifecycleImpl.Fields.BASEISSUE.fieldName())
+                    .add();
         }
     },
 
@@ -68,11 +64,11 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("IDL_ISSUE_HIST_PK").on(issueColRef).add();
             table
-                .foreignKey("IDL_ISSUE_HIST_FK_TO_ISSUE")
-                .on(issueColRef)
-                .references(HistoricalIssue.class)
-                .map(IssueDeviceLifecycleImpl.Fields.BASEISSUE.fieldName())
-                .add();
+                    .foreignKey("IDL_ISSUE_HIST_FK_TO_ISSUE")
+                    .on(issueColRef)
+                    .references(HistoricalIssue.class)
+                    .map(IssueDeviceLifecycleImpl.Fields.BASEISSUE.fieldName())
+                    .add();
         }
     },
 
@@ -88,11 +84,11 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("IDL_ISSUE_PK").on(issueColRef).add();
             table
-                .foreignKey("IDL_ISSUE_FK_TO_ISSUE")
-                .on(issueColRef)
-                .references(IssueService.COMPONENT_NAME, "ISU_ISSUE_ALL")
-                .map(IssueDeviceLifecycleImpl.Fields.BASEISSUE.fieldName())
-                .add();
+                    .foreignKey("IDL_ISSUE_FK_TO_ISSUE")
+                    .on(issueColRef)
+                    .references(IssueService.COMPONENT_NAME, "ISU_ISSUE_ALL")
+                    .map(IssueDeviceLifecycleImpl.Fields.BASEISSUE.fieldName())
+                    .add();
         }
     },
 
@@ -107,11 +103,11 @@ public enum TableSpecs {
             Column transitionRef = table.column(FailedTransitionImpl.Fields.TRANSITION.fieldName()).number().conversion(NUMBER2LONG).notNull().add();
             Column fromRef = table.column(FailedTransitionImpl.Fields.FROM.fieldName()).number().conversion(NUMBER2LONG).notNull().add();
             Column toRef = table.column(FailedTransitionImpl.Fields.TO.fieldName()).number().conversion(NUMBER2LONG).notNull().add();
-            Column cause = table.column(FailedTransitionImpl.Fields.CAUSE.fieldName()).varChar(DESCRIPTION_LENGTH).notNull().add();
-            Column modTime = table.column("TIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(FailedTransitionImpl.Fields.MODTIME.fieldName()).notNull().add();
+            Column cause = table.column(FailedTransitionImpl.Fields.CAUSE.fieldName()).varChar(DESCRIPTION_LENGTH).notNull().map("cause").add();
+            Column modTime = table.column("FAILTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).notNull().map(FailedTransitionImpl.Fields.MODTIME.fieldName()).add();
 
-            table.primaryKey("IDL_FAILEDTRANSITION_PK").on(issueRef, lifecycleRef, transitionRef, fromRef, toRef, modTime, cause).add();
-            table.foreignKey("IDL_FAILEDTRANSITION_FK_ISSUE")
+            table.primaryKey("IDL_FAILEDTRANSITION_PK").on(issueRef, lifecycleRef, transitionRef, fromRef, toRef, cause, modTime).add();
+            table.foreignKey("IDL_FAILTRANS_FK_ISSUE")
                     .on(issueRef)
                     .references(IDL_ISSUE_OPEN.name())
                     .map(FailedTransitionImpl.Fields.ISSUE.fieldName())
@@ -119,25 +115,25 @@ public enum TableSpecs {
                     .composition()
                     .onDelete(DeleteRule.CASCADE)
                     .add();
-            table.foreignKey("IDL_FAILEDTRANSITION_FK_LIFECYLE")
-                    .on()
+            table.foreignKey("IDL_FAILTRANS_FK_LIFECYLE")
+                    .on(lifecycleRef)
                     .references(DeviceLifeCycle.class)
                     .map(FailedTransitionImpl.Fields.LIFECYCLE.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
-            table.foreignKey("IDL_FAILEDTRANSITION_FK_TRANSITION")
+            table.foreignKey("IDL_FAILTRANS_FK_TRANSITION")
                     .on(transitionRef)
                     .references(StateTransition.class)
                     .map(FailedTransitionImpl.Fields.TRANSITION.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
-            table.foreignKey("IDL_FAILEDTRANSITION_FK_FROM")
+            table.foreignKey("IDL_FAILTRANS_FK_FROM")
                     .on(fromRef)
                     .references(StateTransition.class)
                     .map(FailedTransitionImpl.Fields.FROM.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
-            table.foreignKey("IDL_FAILEDTRANSITION_FK_TO")
+            table.foreignKey("IDL_FAILTRANS_FK_TO")
                     .on(toRef)
                     .references(StateTransition.class)
                     .map(FailedTransitionImpl.Fields.TO.fieldName())
@@ -157,11 +153,11 @@ public enum TableSpecs {
             Column transitionRef = table.column(FailedTransitionImpl.Fields.TRANSITION.fieldName()).number().conversion(NUMBER2LONG).notNull().add();
             Column fromRef = table.column(FailedTransitionImpl.Fields.FROM.fieldName()).number().conversion(NUMBER2LONG).notNull().add();
             Column toRef = table.column(FailedTransitionImpl.Fields.TO.fieldName()).number().conversion(NUMBER2LONG).notNull().add();
-            Column cause = table.column(FailedTransitionImpl.Fields.CAUSE.fieldName()).varChar(DESCRIPTION_LENGTH).notNull().add();
-            Column modTime = table.column("TIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(FailedTransitionImpl.Fields.MODTIME.fieldName()).notNull().add();
+            Column cause = table.column(FailedTransitionImpl.Fields.CAUSE.fieldName()).varChar(DESCRIPTION_LENGTH).notNull().map("cause").add();
+            Column modTime = table.column("FAILTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(FailedTransitionImpl.Fields.MODTIME.fieldName()).notNull().add();
 
-            table.primaryKey("IDL_HISTFAILEDTRANSITION_PK").on(issueRef, lifecycleRef, transitionRef, fromRef, toRef, cause).add();
-            table.foreignKey("IDL_HISTFAILEDTRANSITION_FK_ISSUE")
+            table.primaryKey("IDL_HISTFAILEDTRANSITION_PK").on(issueRef, lifecycleRef, transitionRef, fromRef, toRef, cause, modTime).add();
+            table.foreignKey("IDL_HISTFAILTRANS_FK_ISSUE")
                     .on(issueRef)
                     .references(IDL_ISSUE_OPEN.name())
                     .map(FailedTransitionImpl.Fields.ISSUE.fieldName())
@@ -169,33 +165,33 @@ public enum TableSpecs {
                     .composition()
                     .onDelete(DeleteRule.CASCADE)
                     .add();
-            table.foreignKey("IDL_HISTFAILEDTRANSITION_FK_LIFECYLE")
-                    .on()
+            table.foreignKey("IDL_HISTFAILTRANS_FK_LIFECYLE")
+                    .on(lifecycleRef)
                     .references(DeviceLifeCycle.class)
                     .map(FailedTransitionImpl.Fields.LIFECYCLE.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
-            table.foreignKey("IDL_HISTFAILEDTRANSITION_FK_TRANSITION")
+            table.foreignKey("IDL_HISTFAILTRANS_FK_TRANS")
                     .on(transitionRef)
                     .references(StateTransition.class)
                     .map(FailedTransitionImpl.Fields.TRANSITION.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
-            table.foreignKey("IDL_HISTFAILEDTRANSITION_FK_FROM")
+            table.foreignKey("IDL_HISTFAILTRANS_FK_FROM")
                     .on(fromRef)
                     .references(StateTransition.class)
                     .map(FailedTransitionImpl.Fields.FROM.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
-            table.foreignKey("IDL_HISTFAILEDTRANSITION_FK_TO")
+            table.foreignKey("IDL_HISTFAILTRANS_FK_TO")
                     .on(toRef)
                     .references(StateTransition.class)
                     .map(FailedTransitionImpl.Fields.TO.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
         }
-    },
-    ;
+    },;
+
     abstract void addTo(DataModel dataModel);
 
 }
