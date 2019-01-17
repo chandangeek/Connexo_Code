@@ -18,7 +18,7 @@ public interface IssueDeviceLifecycleService {
     String COMPONENT_NAME = "IDL";
     String ISSUE_TYPE_NAME = "devicelifecycle";
     String DEVICE_LIFECYCLE_ISSUE_PREFIX = "DLI";
-    String DATA_VALIDATION_ISSUE_REASON = "reason.device.lifecycle.transition.failure";
+    String DEVICELIFECYCLE_ISSUE_REASON = "reason.device.lifecycle.transition.failure";
 
     Optional<? extends IssueDeviceLifecycle> findIssue(long id);
 

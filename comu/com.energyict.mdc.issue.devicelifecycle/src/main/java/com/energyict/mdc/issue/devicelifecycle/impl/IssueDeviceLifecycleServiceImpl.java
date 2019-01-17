@@ -182,7 +182,7 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(IssueDeviceLifecycleService.COMPONENT_NAME, "Issue Data Validation");
+        dataModel = ormService.newDataModel(IssueDeviceLifecycleService.COMPONENT_NAME, "Issue Device Lifecycle");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }

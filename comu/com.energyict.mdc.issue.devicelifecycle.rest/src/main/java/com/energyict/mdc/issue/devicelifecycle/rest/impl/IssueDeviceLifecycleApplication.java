@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.issue.devicelifecycle.rest", service = {Application.class}, immediate = true, property = {"alias=/idv", "app=MDC", "name=" + IssueDeviceLifecycleApplication.ISSUEDEVICELIFECYCLE_REST_COMPONENT})
+@Component(name = "com.energyict.mdc.issue.devicelifecycle.rest", service = {Application.class}, immediate = true, property = {"alias=/idl", "app=MDC", "name=" + IssueDeviceLifecycleApplication.ISSUEDEVICELIFECYCLE_REST_COMPONENT})
 public class IssueDeviceLifecycleApplication extends Application {
     private static final String APP_KEY = "MDC";
     static final String ISSUEDEVICELIFECYCLE_REST_COMPONENT = "IDL";
