@@ -115,7 +115,6 @@ public class MeteringZoneTypeImplIT extends BaseZoneIT {
         createZoneType(meteringZoneService, ZONE_TYPE_NAME_1, APPLICATION_1);
     }
 
-
     @Test
     @Transactional
     public void testSaveSameZoneType() {
