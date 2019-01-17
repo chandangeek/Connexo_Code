@@ -131,7 +131,7 @@ Ext.define('Tou.view.AddForm', {
                 xtype: 'activate-calendar-field',
                 itemId: 'activate-calendar',
                 id: 'tou-activate-calendar',
-                name: 'activationDate',
+                name: 'activation',
                 fieldLabel: 'Activate calendar',
                 required: true,
                 allowBlank: false,

@@ -6,7 +6,7 @@ Ext.define('Tou.view.ActivateCalendar', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.activate-calendar-field',
     required: true,
-    groupName: 'activationDate',
+    groupName: 'activateCal',
     width: 800,
     labelWidth: 150,
     layout: {
@@ -89,11 +89,11 @@ Ext.define('Tou.view.ActivateCalendar', {
             }
         ];
 
-        me.getValue = function () {
+        me.getOptionValue = function () {
             var radiogroup = me.down('#uploadRadioGroup'),
                 dateField = me.down('#uploadFileDateContainer');
 
-            if (!radiogroup || !dateField) return;
+            if (radiogroup) return radiogroup.getValue()[me.groupName];
 
             var activationDateValue = radiogroup.getValue();
 
@@ -103,7 +103,9 @@ Ext.define('Tou.view.ActivateCalendar', {
             return activationDateValue[me.groupName];
         };
 
-        me.setValue = function (value) {
+        me.getDateValue = function () {
+            var dateField = me.down('#uploadFileDateContainer');
+            return dateField.getValue().getTime().toString();
         };
 
 
