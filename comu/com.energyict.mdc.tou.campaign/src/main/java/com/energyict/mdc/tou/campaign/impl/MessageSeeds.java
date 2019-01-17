@@ -20,12 +20,25 @@ public enum MessageSeeds implements MessageSeed {
     NO_ALLOWED_CALENDAR_DEVICE_MESSAGE(278, "NoAllowedCalendarMessage", "Unable to find an allowed calendar command with the given information"),
     SERVICE_CALL_PARENT_NOT_FOUND(279, "ServiceCallParentNotFound", "Service Call Parent Not Found"),
 
-    CANCELED_BY_USER(3001, "CancelledByUser","Cancelled by user"),
-    RETRIED_BY_USER(3002, "RetriedByUser","Retried By User");
-//    DEVI
+    MISSING_CONNECTION_TASKS(2001, "MissingConnectionTask", "Missing Connection Task"),
+    DEVICE_NOT_CONTAINS_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG(2002, "DeviceNotContainsCommunicationTaskForCalendarsOrContainsOnlyWrong", "Device not contains communication task for calendars or contains only wrong"),
+    DEVICE_NOT_CONTAINS_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG(2003, "DeviceNotContainsVerificationTaskForCalendarsOrContainsOnlyWrong", "Device not contains verification task for calendars or contains only wrong"),
+    DEVICES_NOT_ADDED_BECAUSE_DIFFERENT_TYPE(2004, "DevicesNotAddedBecauseDifferentType", "''{0}'' devices were not added to the campaign because they are of a different type"),
+    DEVICES_NOT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN(2005, "DevicesNotAddedBecausePartOtherCampaign", "''{0}'' devices were not added to the campaign because they are part of other ongoing campaigns"),
+    DEVICES_NOT_ADDED_BECAUSE_HAVE_THIS_CALENDAR(2006, "DevicesNotAddedBecauseHaveThisCalendar", "''{0}'' devices were not added to the campaign because they already have this calendar"),
+    CAMPAIGN_WAS_CANCELED_BECAUSE_DID_NOT_RECEIVE_DEVICES(2007, "CampaignWasCancelledBecauseDidNotReceiveDevices", "Campaign was cancelled because did not receive devices"),
+    DEVICES_WITH_GROUP_AND_TYPE_NOT_FOUND(2008, "DevicesWithGroupAndTypeNotFound", "Devices with group ''{0}'' and type ''{1}'' not found"),
+    CALENDAR_INSTALLATION_STARTED(2009, "CalendarInstallationStarted", "Calendar installation started"),
+    CALENDAR_INSTALLATION_COMPLETED(2010, "CalendarInstallationCompleted", "Calendar installation completed"),
+    CALENDAR_INSTALLATION_FAILED(2011, "CalendarInstallationFailed", "Calendar installation failed"),
+    VERIFICATION_SCHEDULED(2012, "VerificationScheduled", "Verification scheduled"),
+    VERIFICATION_COMPLETED(2013, "VerificationCompleted", "Verification completed"),
+    VERIFICATION_FAILED(2014, "VerificationFailed", "Verification failed"),
+    VERIFICATION_FAILED_WRONG_CALENDAR(2015, "VerificationFailedWrongCalendar", "Verification failed : wrong calendar"),
+    ACTIVE_VERIFICATION_TASK_NOT_FOUND(2016, "ActiveVerificationTaskNotFound", "Active verification task not found"),
 
-
-
+    CANCELED_BY_USER(3001, "CancelledByUser", "Cancelled by user"),
+    RETRIED_BY_USER(3002, "RetriedByUser", "Retried by user");
 
     private final int number;
     private final String key;

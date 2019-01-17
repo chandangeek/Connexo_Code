@@ -31,6 +31,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -60,7 +61,7 @@ public class TimeOfUseCampaignResource {
         timeOfUseCampaignService.getAllCampaigns().forEach((campaign, status) -> {
             touCampaigns.add(getOverviewCampaignInfo(campaign, status));
         });
-        touCampaigns.sort(Comparator.comparing(o -> o.startedOn));
+        touCampaigns.sort(Comparator.<TimeOfUseCampaignInfo, Instant>comparing(o -> o.startedOn).reversed());
         return Response.ok(PagedInfoList.fromPagedList("touCampaigns", ListPager.of(touCampaigns).from(queryParameters).find(), queryParameters)).build();
     }
 
@@ -197,7 +198,7 @@ public class TimeOfUseCampaignResource {
         info.startedOn = campaignsServiceCall.getCreationTime();
         info.finishedOn = (campaignsServiceCall.getState().equals(DefaultState.CANCELLED)
                 || campaignsServiceCall.getState().equals(DefaultState.SUCCESSFUL)) ? campaignsServiceCall.getLastModificationTime() : null;
-        info.status = status.equals(DefaultState.SUCCESSFUL) ? thesaurus.getString(MessageSeeds.STATUS_COMPLETED.getKey(), MessageSeeds.STATUS_COMPLETED.getDefaultFormat())
+        info.status = status.equals(DefaultState.SUCCESSFUL) ? thesaurus.getString(TranslationKeys.STATUS_COMPLETED.getKey(), TranslationKeys.STATUS_COMPLETED.getDefaultFormat())
                 : thesaurus.getString(status.getKey(), status.getDefaultFormat());
         info.devices = new ArrayList<>();
         info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.SUCCESSFUL, thesaurus), 0L));
@@ -216,17 +217,17 @@ public class TimeOfUseCampaignResource {
     private String getStatus(DefaultState defaultState, Thesaurus thesaurus) {
         switch (defaultState) {
             case SUCCESSFUL:
-                return thesaurus.getString(MessageSeeds.STATUS_SUCCESSFUL.getKey(), MessageSeeds.STATUS_SUCCESSFUL.getDefaultFormat());
+                return thesaurus.getString(TranslationKeys.STATUS_SUCCESSFUL.getKey(), TranslationKeys.STATUS_SUCCESSFUL.getDefaultFormat());
             case FAILED:
-                return thesaurus.getString(MessageSeeds.STATUS_FAILED.getKey(), MessageSeeds.STATUS_FAILED.getDefaultFormat());
+                return thesaurus.getString(TranslationKeys.STATUS_FAILED.getKey(), TranslationKeys.STATUS_FAILED.getDefaultFormat());
             case REJECTED:
-                return thesaurus.getString(MessageSeeds.STATUS_CONFIGURATION_ERROR.getKey(), MessageSeeds.STATUS_CONFIGURATION_ERROR.getDefaultFormat());
+                return thesaurus.getString(TranslationKeys.STATUS_CONFIGURATION_ERROR.getKey(), TranslationKeys.STATUS_CONFIGURATION_ERROR.getDefaultFormat());
             case ONGOING:
-                return thesaurus.getString(MessageSeeds.STATUS_ONGOING.getKey(), MessageSeeds.STATUS_ONGOING.getDefaultFormat());
+                return thesaurus.getString(TranslationKeys.STATUS_ONGOING.getKey(), TranslationKeys.STATUS_ONGOING.getDefaultFormat());
             case PENDING:
-                return thesaurus.getString(MessageSeeds.STATUS_PENDING.getKey(), MessageSeeds.STATUS_PENDING.getDefaultFormat());
+                return thesaurus.getString(TranslationKeys.STATUS_PENDING.getKey(), TranslationKeys.STATUS_PENDING.getDefaultFormat());
             case CANCELLED:
-                return thesaurus.getString(MessageSeeds.STATUS_CANCELED.getKey(), MessageSeeds.STATUS_CANCELED.getDefaultFormat());
+                return thesaurus.getString(TranslationKeys.STATUS_CANCELED.getKey(), TranslationKeys.STATUS_CANCELED.getDefaultFormat());
         }
         return defaultState.getDisplayName(thesaurus);
     }

@@ -309,10 +309,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .origin("MultiSense")
                 .extendedWith(timeOfUseCampaignDomainExtension)
                 .create();
-        if (campaign.getActivationOption().equals("Immediately")) {
-            timeOfUseCampaignDomainExtension.setActivationDate(serviceCall.getCreationTime());
-            serviceCall.update(timeOfUseCampaignDomainExtension);
-        }
         serviceCall.requestTransition(DefaultState.ONGOING);
     }
 
@@ -337,27 +333,27 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 });
             } else {
                 serviceCall.requestTransition(DefaultState.CANCELLED);
-                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICE_BY_METER_ID_NOT_FOUND)
-                        .format(1, 2));//"devices with group " + campaign.getDeviceGroup() + " and type " + campaign.getDeviceType() + " not found");
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WITH_GROUP_AND_TYPE_NOT_FOUND).format(campaign.getDeviceGroup(), campaign.getDeviceType()));
             }
             numberOfDevices[3] = meteringGroupsService.findEndDeviceGroupByName(campaign.getDeviceGroup())
                     .get()
                     .getMembers(clock.instant())
                     .size() - getDevices(campaign.getDeviceGroup(), campaign.getDeviceType()).size();
             if (numberOfDevices[3] > 0) {
-                serviceCall.log(LogLevel.INFO, numberOfDevices[3] + " devices were not added to the campaign because they are of a different type");
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_NOT_ADDED_BECAUSE_DIFFERENT_TYPE).format(numberOfDevices[3]));
             }
             if (numberOfDevices[0] > 0) {
-                serviceCall.log(LogLevel.INFO, numberOfDevices[0] + " devices were not added to the campaign because they are part of other ongoing campaigns");
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_NOT_ADDED_BECAUSE_DIFFERENT_TYPE).format(numberOfDevices[0]));
             }
             if (numberOfDevices[1] > 0) {
-                serviceCall.log(LogLevel.INFO, numberOfDevices[1] + " devices were not added to the campaign because they already have this calendar");
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_NOT_ADDED_BECAUSE_HAVE_THIS_CALENDAR).format(numberOfDevices[1]));
             }
             if (numberOfDevices[2] == 0) {
                 if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
                     serviceCall.requestTransition(DefaultState.CANCELLED);
                 }
-                serviceCall.log(LogLevel.INFO, "campaign was cancelled because did not receive devices");
+                serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.CAMPAIGN_WAS_CANCELED_BECAUSE_DID_NOT_RECEIVE_DEVICES.getKey(), MessageSeeds.CAMPAIGN_WAS_CANCELED_BECAUSE_DID_NOT_RECEIVE_DEVICES
+                        .getDefaultFormat()));
             }
         }
     }
@@ -627,9 +623,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                             deviceMessage.save();
                         });
                         findCalendarsComTaskExecutions(device)
-                                .filter(comTaskExecution -> comTaskExecution.getNextExecutionTimestamp().equals(oldReleaseDate))
-                                .forEach(comTaskExecution -> comTaskExecution.schedule(null));
-                        findCalendarsComTaskExecutions(device)
                                 .findAny().ifPresent(comTaskExecution -> dataModel.getInstance(TimeOfUseSendHelper.class)
                                 .scheduleCampaign(comTaskExecution, timeOfUseCampaign.getActivationStart(), timeOfUseCampaign.getActivationEnd()));
                     });
@@ -645,8 +638,8 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .findAny();
     }
 
-    void logInServiceCallByDevice(Device device, String message, LogLevel logLevel) {
-        findActiveServiceCallByDevice(device).ifPresent(serviceCall -> serviceCall.log(logLevel, message));
+    void logInServiceCallByDevice(Device device, MessageSeed message, LogLevel logLevel) {
+        findActiveServiceCallByDevice(device).ifPresent(serviceCall -> serviceCall.log(logLevel, thesaurus.getString(message.getKey(), message.getDefaultFormat())));
     }
 
     ComTaskExecution findComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {

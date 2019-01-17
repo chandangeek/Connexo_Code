@@ -56,7 +56,6 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
                 timeOfUseCampaignService.createItemsOnCampaign(serviceCall);
                 break;
             case CANCELLED:
-                //         serviceCall.findChildren().stream().forEach(serviceCall1 -> timeOfUseCampaignService.cancelCalendarSend(serviceCall));
                 break;
             case SUCCESSFUL:
                 serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");

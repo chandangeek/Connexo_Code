@@ -22,6 +22,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
+import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import javax.inject.Inject;
@@ -68,9 +69,9 @@ public class TimeOfUseSendHelper {
                         .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.SERVICE_CALL_PARENT_NOT_FOUND))
                         .getExtension(TimeOfUseCampaignDomainExtension.class)
                         .orElse(null);
-        if (timeOfUseCampaign.getActivationOption().equals("Immediately")) { //todo TranslationKeys.IMMEDIATELY.getKey()
+        if (timeOfUseCampaign.getActivationOption().equals(TranslationKeys.IMMEDIATELY.getKey())) {
             if (!timeOfUseCampaignService.getActiveVerificationTask(device).isPresent()) {
-                serviceCall.log(LogLevel.SEVERE, "device don't contain verification tasks for calendars or contains only wrong ");
+                serviceCall.log(LogLevel.SEVERE, thesaurus.getString(MessageSeeds.DEVICE_NOT_CONTAINS_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getKey(), MessageSeeds.DEVICE_NOT_CONTAINS_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getDefaultFormat()));
                 timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.REJECTED);
                 return;
             }
@@ -80,7 +81,7 @@ public class TimeOfUseSendHelper {
             SendCalendarInfo sendCalendarInfo = new SendCalendarInfo();
             sendCalendarInfo.allowedCalendarId = timeOfUseCampaign.getCalendar().getId();
             sendCalendarInfo.activationDate = timeOfUseCampaign.getActivationOption()
-                    .equals("Immediately") ? serviceCall.getCreationTime() : timeOfUseCampaign.getActivationDate();//todo TranslationKeys.IMMEDIATELY.getKey()
+                    .equals(TranslationKeys.IMMEDIATELY.getKey()) ? serviceCall.getCreationTime() : timeOfUseCampaign.getActivationDate();
             sendCalendarInfo.calendarUpdateOption = timeOfUseCampaign.getUpdateType();
             sendCalendarInfo.releaseDate = timeOfUseCampaign.getActivationStart();
             sendCalendarInfo.contract = null;//bigdec
@@ -102,11 +103,11 @@ public class TimeOfUseSendHelper {
                 scheduleCampaign(comTaskExecution, timeOfUseCampaign.getActivationStart(), timeOfUseCampaign.getActivationEnd());
                 timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.PENDING);
             } else {
-                serviceCall.log(LogLevel.SEVERE, "missing connection task");
+                serviceCall.log(LogLevel.SEVERE, thesaurus.getString(MessageSeeds.MISSING_CONNECTION_TASKS.getKey(), MessageSeeds.MISSING_CONNECTION_TASKS.getDefaultFormat()));
                 timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.REJECTED);
             }
         } else {
-            serviceCall.log(LogLevel.SEVERE, "device don't contain communication task for calendars or contains only wrong ");
+            serviceCall.log(LogLevel.SEVERE, thesaurus.getString(MessageSeeds.DEVICE_NOT_CONTAINS_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getKey(), MessageSeeds.DEVICE_NOT_CONTAINS_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getDefaultFormat()));
             timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.REJECTED);
         }
     }

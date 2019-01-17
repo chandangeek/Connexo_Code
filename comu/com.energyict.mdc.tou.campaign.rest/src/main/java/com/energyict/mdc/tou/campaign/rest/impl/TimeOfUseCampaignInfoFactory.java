@@ -41,11 +41,6 @@ public class TimeOfUseCampaignInfoFactory {
                 + " and " + campaign.getActivationEnd().atZone(ZoneOffset.systemDefault()).toString().substring(11, 16);
         timeOfUseCampaignInfo.calendar = new IdWithNameInfo(campaign.getCalendar().getId(), campaign.getCalendar().getName());
         timeOfUseCampaignInfo.updateType = campaign.getUpdateType();
-//        if (((campaign.getActivationDate().equals("Immediately") || (campaign.getActivationDate().equals("Without Activation"))))) {
-//            timeOfUseCampaignInfo.activationDate = campaign.getActivationDate();
-//        } else {
-//            timeOfUseCampaignInfo.activationDate = ToUUtil.parseStringToInstant(campaign.getActivationDate()).getEpochSecond() + "000";
-//        }
         timeOfUseCampaignInfo.activationOption = campaign.getActivationOption();
         timeOfUseCampaignInfo.activationDate = campaign.getActivationDate();
         timeOfUseCampaignInfo.timeValidation = campaign.getTimeValidation();

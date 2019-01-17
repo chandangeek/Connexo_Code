@@ -15,6 +15,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
+import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
+import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import org.osgi.service.component.annotations.Component;
@@ -63,7 +65,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                     if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getAllowedCalendar().getId()
                                             == timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getCalendar().getId()) {
                                         timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.ONGOING);
-                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), "Started installation calendar", LogLevel.INFO);
+                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.CALENDAR_INSTALLATION_STARTED, LogLevel.INFO);
                                         planing = false;
                                     }
                                 }
@@ -100,13 +102,13 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                 if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CONFIRMED)) {
                                     if (!withVerification(comTaskExecution)) {
                                         timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.SUCCESSFUL);
-                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), "Completed installation calendar", LogLevel.INFO);
+                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.CALENDAR_INSTALLATION_COMPLETED, LogLevel.INFO);
                                         timeOfUseCampaignService.revokeCalendarsCommands(comTaskExecution.getDevice());
                                         planing = false;
                                     } else {
                                         timeOfUseCampaignService.getCampaignOn(comTaskExecution)
                                                 .ifPresent(timeOfUseCampaign1 -> scheduleVerification(comTaskExecution.getDevice(), timeOfUseCampaign1.getTimeValidation()));
-                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), "verification scheduled", LogLevel.INFO);
+                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_SCHEDULED, LogLevel.INFO);
                                         planing = false;
                                     }
                                 }
@@ -130,10 +132,10 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                     if (comTaskExecution.getDevice().calendars().getActive().get().getAllowedCalendar().getId()
                                             == timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getCalendar().getId()) {
                                         timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.SUCCESSFUL);
-                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), "Verification completed", LogLevel.INFO);
+                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_COMPLETED, LogLevel.INFO);
                                     } else {
                                         timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.FAILED);
-                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), "Verification failed: wrong calendar", LogLevel.INFO);
+                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_FAILED_WRONG_CALENDAR, LogLevel.INFO);
                                     }
                                 }
                             }
@@ -155,7 +157,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                     == timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getCalendar().getId()) {
                                 if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.FAILED)) {
                                     timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.FAILED);
-                                    timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), "Failed installation calendar", LogLevel.INFO);
+                                    timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.CALENDAR_INSTALLATION_FAILED, LogLevel.INFO);
                                     planing = false;
                                 }
                             }
@@ -174,7 +176,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                     .anyMatch(deviceMessage -> deviceMessage.getReleaseDate().equals(timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getActivationStart()))) {
                                 if (withVerification(comTaskExecution)) {
                                     timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.FAILED);
-                                    timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), "Verification failed", LogLevel.INFO);
+                                    timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_FAILED, LogLevel.INFO);
                                 }
                             }
                         }
@@ -212,7 +214,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
             }
             comTaskExecution.schedule(clock.instant().plusSeconds(timeValidation));
         } else {
-            timeOfUseCampaignService.logInServiceCallByDevice(device, "not found active verification task", LogLevel.SEVERE);
+            timeOfUseCampaignService.logInServiceCallByDevice(device, MessageSeeds.ACTIVE_VERIFICATION_TASK_NOT_FOUND, LogLevel.SEVERE);
             timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.FAILED);
         }
     }
@@ -241,7 +243,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
         Optional<TimeOfUseCampaign> timeOfUseCampaign = timeOfUseCampaignService.getCampaignOn(comTaskExecution);
         if (timeOfUseCampaign.isPresent()) {
             if (timeOfUseCampaign.get().getActivationDate() != null) {
-                return timeOfUseCampaign.get().getActivationDate().equals("Immediately");
+                return timeOfUseCampaign.get().getActivationDate().equals(TranslationKeys.IMMEDIATELY.getKey());
             }
         }
         return false;
