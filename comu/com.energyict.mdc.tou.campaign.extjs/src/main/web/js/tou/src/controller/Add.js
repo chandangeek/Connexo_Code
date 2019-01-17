@@ -99,7 +99,10 @@ Ext.define('Tou.controller.Add', {
         if (deviceTypeId) record.set('deviceType', {"id" : deviceTypeId});
         var activateCalendarItem = form.down('#activate-calendar');
         if (activateCalendarItem){
-            record.set('activationDate', activateCalendarItem.getValue());
+            var activationOption, activationDate;
+            activationOption = activateCalendarItem.getOptionValue();
+            if (activationOption) record.set('activationOption',activationOption);
+            if (activationOption == 'ByDate' && activateCalendarItem.getDateValue()) record.set('activationDate',activateCalendarItem.getDateValue());
         }
         var allowedCalendarItem = form.down('#tou-campaign-allowed-calendar');
         if (allowedCalendarItem){
@@ -124,7 +127,7 @@ Ext.define('Tou.controller.Add', {
                 break;
 
             }
-            if (activateCalendarItem && activateCalendarItem.getValue() == "Immediately"){
+            if (activateCalendarItem && activateCalendarItem.getOptionValue() == "Immediately"){
                record.set('timeValidation', timeInSec);
              }else{
                record.set('timeValidation', null);
