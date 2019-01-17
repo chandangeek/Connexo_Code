@@ -23,6 +23,7 @@ public class DeviceTypeCustomPropertySetInfo {
     public String name;
     public String domainName;
     public boolean isVersioned;
+    public boolean isEditable;
     public Set<ViewPrivilege> viewPrivileges;
     public Set<EditPrivilege> editPrivileges;
     public List<DeviceTypeCustomPropertySetAttributeInfo> attributes;
@@ -38,6 +39,7 @@ public class DeviceTypeCustomPropertySetInfo {
         this.viewPrivileges = registeredCustomPropertySet.getViewPrivileges();
         this.editPrivileges = registeredCustomPropertySet.getEditPrivileges();
         this.isVersioned = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
+        this.isEditable = registeredCustomPropertySet.isEditableByCurrentUser();
     }
 
     public void addAttributes(List<PropertySpec> propertySpecs) {
