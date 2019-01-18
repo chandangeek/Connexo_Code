@@ -4,8 +4,8 @@
 
 package com.elster.jupiter.audit.impl;
 
-import com.elster.jupiter.audit.AuditDecoderHandle;
 import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.AuditTrailDecoderHandle;
 import com.elster.jupiter.audit.AuditTrailFilter;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -84,8 +84,8 @@ public class AuditTrailFilterImpl implements AuditTrailFilter {
 
         List<String> domainContexts = tableAudits.stream()
                 .filter(tableAudit ->
-                        hasAtLeastOnePrivileges(((AuditServiceImpl) auditService).getAuditDecoderHandles(tableAudit.getTable().getName())
-                                .map(AuditDecoderHandle::getPrivileges)
+                        hasAtLeastOnePrivileges(((AuditServiceImpl) auditService).getAuditTrailDecoderHandles(tableAudit.getDomain(), tableAudit.getContext())
+                                .map(AuditTrailDecoderHandle::getPrivileges)
                                 .orElse(Collections.emptyList()), threadPrincipalService))
                 .map(TableAudit::getContext)
                 .collect(Collectors.toList());

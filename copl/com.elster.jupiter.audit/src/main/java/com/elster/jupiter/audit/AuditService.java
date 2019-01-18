@@ -12,10 +12,6 @@ import aQute.bnd.annotation.ProviderType;
 public interface AuditService {
     String COMPONENTNAME = "ADT";
 
-    Finder<Audit> getAudit(AuditFilter filter);
-
-    AuditFilter newAuditFilter();
-
     Finder<AuditTrail> getAuditTrail(AuditTrailFilter filter);
 
     AuditTrailFilter newAuditTrailFilter();

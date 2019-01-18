@@ -18,9 +18,7 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
     private Instant modTimeStart;
     private Instant modTimeEnd;
     private String tableName;
-    private String pkcolumn1;
-    private String pkcolumn2;
-    private String pkcolumn3;
+    private long pkcolumn;
     private String operation;
 
 
@@ -33,10 +31,7 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
         atr.setContext(auditTrail.getContext());
         atr.setModTimeStart(auditTrail.getModTimeStart());
         atr.setModTimeEnd(auditTrail.getModTimeEnd());
-        atr.setPkcolumn1(auditTrail.getPkcolumn1());
-        atr.setPkcolumn2(auditTrail.getPkcolumn2());
-        atr.setPkcolumn3(auditTrail.getPkcolumn3());
-        //atr.setOperation(auditTrail.getOperation());
+        atr.setPkcolumn(auditTrail.getPkcolumn());
         return atr;
     }
 
@@ -66,18 +61,8 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
     }
 
     @Override
-    public String getPkcolumn1() {
-        return pkcolumn1;
-    }
-
-    @Override
-    public String getPkcolumn2() {
-        return pkcolumn2;
-    }
-
-    @Override
-    public String getPkcolumn3() {
-        return pkcolumn3;
+    public long getPkcolumn() {
+        return pkcolumn;
     }
 
     @Override
@@ -105,16 +90,8 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
         this.tableName = tableName;
     }
 
-    public void setPkcolumn1(String pkcolumn1) {
-        this.pkcolumn1 = pkcolumn1;
-    }
-
-    public void setPkcolumn2(String pkcolumn2) {
-        this.pkcolumn2 = pkcolumn2;
-    }
-
-    public void setPkcolumn3(String pkcolumn3) {
-        this.pkcolumn3 = pkcolumn3;
+    public void setPkcolumn(long pkcolumn) {
+        this.pkcolumn = pkcolumn;
     }
 
     public void setOperation(String operation) {

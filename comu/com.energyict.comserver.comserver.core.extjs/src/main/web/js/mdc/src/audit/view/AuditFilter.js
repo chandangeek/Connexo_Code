@@ -49,7 +49,7 @@ Ext.define('Mdc.audit.view.AuditFilter', {
                 remoteFilter: true,
                 queryParam: 'like',
                 queryCaching: false,
-                minChars: 1,
+                minChars: 0,
                 editable: true
             }
         ];

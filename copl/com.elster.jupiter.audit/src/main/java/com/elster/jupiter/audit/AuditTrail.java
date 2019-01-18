@@ -29,10 +29,6 @@ public interface AuditTrail {
 
     Instant getModTimeEnd();
 
-    String getPkcolumn1();
-
-    String getPkcolumn2();
-
-    String getPkcolumn3();
+    long getPkcolumn();
 
 }

@@ -5,7 +5,6 @@
 package com.elster.jupiter.audit.rest.impl;
 
 import com.elster.jupiter.audit.AuditDomainType;
-import com.elster.jupiter.audit.AuditFilter;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.AuditTrailFilter;
 import com.elster.jupiter.audit.security.Privileges;
@@ -67,19 +66,6 @@ public class AuditResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_AUDIT_LOG})
-    public PagedInfoList getAudit(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        return PagedInfoList.fromPagedList("audit", auditService.getAudit(getAuditFilter(filter))
-                .from(queryParameters)
-                .stream()
-                .map(audit -> auditInfoFactory.from(audit, thesaurus))
-                .collect(Collectors.toList()), queryParameters);
-    }
-
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("/trail")
-    @RolesAllowed({Privileges.Constants.VIEW_AUDIT_LOG})
     public PagedInfoList getAuditTrail(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         return PagedInfoList.fromPagedList("audit", auditService.getAuditTrail(getAuditTrailFilter(filter))
                 .from(queryParameters)
@@ -126,23 +112,6 @@ public class AuditResource {
                 .map(user -> new IdWithNameInfo(user.getId(), user.getName()))
                 .collect(Collectors.toList());
         return Response.ok(users).build();
-    }
-
-    private AuditFilter getAuditFilter(JsonQueryFilter filter) {
-        AuditFilter auditFilter = auditService.newAuditFilter();
-        if (filter.hasProperty("changedOnFrom")) {
-            auditFilter.setChangedOnFrom(filter.getInstant("changedOnFrom"));
-        }
-        if (filter.hasProperty("changedOnTo")) {
-            auditFilter.setChangedOnTo(filter.getInstant("changedOnTo"));
-        }
-        if (filter.hasProperty("categories")) {
-            auditFilter.setCategories(filter.getStringList("categories"));
-        }
-        if (filter.hasProperty("users")) {
-            auditFilter.setChangedBy(filter.getStringList("users"));
-        }
-        return auditFilter;
     }
 
     private AuditTrailFilter getAuditTrailFilter(JsonQueryFilter filter) {

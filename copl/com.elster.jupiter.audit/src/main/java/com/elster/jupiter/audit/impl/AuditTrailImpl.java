@@ -7,7 +7,6 @@ package com.elster.jupiter.audit.impl;
 import com.elster.jupiter.audit.AuditDecoder;
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditDomainType;
-import com.elster.jupiter.audit.AuditLog;
 import com.elster.jupiter.audit.AuditLogChanges;
 import com.elster.jupiter.audit.AuditOperationType;
 import com.elster.jupiter.audit.AuditReference;
@@ -18,9 +17,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -38,9 +35,7 @@ public class AuditTrailImpl implements AuditTrail {
         DOMAIN("domain"),
         MODTIMESTART("modTimeStart"),
         MODTIMEEND("modTimeEnd"),
-        PKCOLUMN1("pkColumn1"),
-        PKCOLUMN2("pkColumn2"),
-        PKCOLUMN3("pkColumn3"),
+        PKCOLUMN("pkColumn"),
         CONTEXT("context"),
         OPERATION("operation"),
         CREATETIME("createTime"),
@@ -69,12 +64,7 @@ public class AuditTrailImpl implements AuditTrail {
     private String userName;
     private Instant modTimeStart;
     private Instant modTimeEnd;
-    private String pkColumn1;
-    private String pkColumn2;
-    private String pkColumn3;
-
-    @Valid
-    private List<AuditLog> auditLogs = new ArrayList<>();
+    private long pkColumn;
 
     @Inject
     AuditTrailImpl(DataModel dataModel, AuditService auditService, Thesaurus thesaurus) {
@@ -141,18 +131,8 @@ public class AuditTrailImpl implements AuditTrail {
     }
 
     @Override
-    public String getPkcolumn1() {
-        return pkColumn1;
-    }
-
-    @Override
-    public String getPkcolumn2() {
-        return pkColumn2;
-    }
-
-    @Override
-    public String getPkcolumn3() {
-        return pkColumn3;
+    public long getPkcolumn() {
+        return pkColumn;
     }
 
     private Optional<AuditDecoder> getAuditDecoder() {

@@ -6,10 +6,6 @@
 
 package com.elster.jupiter.audit.impl;
 
-import com.elster.jupiter.audit.Audit;
-import com.elster.jupiter.audit.AuditDecoderHandle;
-import com.elster.jupiter.audit.AuditFilter;
-import com.elster.jupiter.audit.AuditLog;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.AuditTrail;
 import com.elster.jupiter.audit.AuditTrailDecoderHandle;
@@ -43,9 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component(
         name = "com.elster.jupiter.audit",
@@ -60,7 +54,6 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
     private volatile OrmService ormService;
     private volatile UserService userService;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private final Map<String, AuditDecoderHandle> auditDecoderHandles = new ConcurrentHashMap<>();
     private final List<AuditTrailDecoderHandle> auditTrailDecoderHandles = Collections.synchronizedList(new ArrayList<AuditTrailDecoderHandle>());
 
     public AuditServiceImpl() {
@@ -158,22 +151,6 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addAuditDecoderHandle(AuditDecoderHandle auditDecoderHandle) {
-        auditDecoderHandles.put(auditDecoderHandle.getDomain(), auditDecoderHandle);
-    }
-
-    public void removeAuditDecoderHandle(AuditDecoderHandle auditDecoderHandle) {
-        auditDecoderHandles.remove(auditDecoderHandle.getDomain());
-    }
-
-    public Optional<AuditDecoderHandle> getAuditDecoderHandles(String key) {
-        return auditDecoderHandles.entrySet().stream()
-                .filter(auditDecoderHandleEntry -> auditDecoderHandleEntry.getKey().compareToIgnoreCase(key) == 0)
-                .findFirst()
-                .map(auditDecoderHandleEntry -> auditDecoderHandleEntry.getValue());
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addAuditTrailDecoderHandle(AuditTrailDecoderHandle auditTrailDecoderHandle) {
         auditTrailDecoderHandles.add(auditTrailDecoderHandle);
     }
@@ -191,18 +168,8 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
     }
 
     @Override
-    public Finder<Audit> getAudit(AuditFilter filter) {
-        return DefaultFinder.of(Audit.class, filter.toCondition(), dataModel, AuditLog.class).defaultSortColumn(AuditImpl.Field.CREATETIME.fieldName(), false);
-    }
-
-    @Override
     public Finder<AuditTrail> getAuditTrail(AuditTrailFilter filter) {
-        return DefaultFinder.of(AuditTrail.class, filter.toCondition(), dataModel).defaultSortColumn(AuditImpl.Field.CREATETIME.fieldName(), false);
-    }
-
-    @Override
-    public AuditFilter newAuditFilter() {
-        return new AuditFilterImpl(ormService, threadPrincipalService, this);
+        return DefaultFinder.of(AuditTrail.class, filter.toCondition(), dataModel).defaultSortColumn(AuditTrailImpl.Field.CREATETIME.fieldName(), false);
     }
 
     @Override

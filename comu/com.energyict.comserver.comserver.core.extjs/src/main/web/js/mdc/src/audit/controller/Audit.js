@@ -21,7 +21,9 @@ Ext.define('Mdc.audit.controller.Audit', {
     ],
 
     refs: [
-        {ref: 'auditPage', selector: 'auditSetup'}
+        {ref: 'auditPreview', selector: 'auditSetup #audit-preview'},
+        {ref: 'auditPreviewGrid', selector: '#audit-preview #audit-preview-grid'},
+        {ref: 'auditPreviewNoItem', selector: '#audit-preview #audit-preview-no-items'}
     ],
 
     init: function () {
@@ -51,10 +53,9 @@ Ext.define('Mdc.audit.controller.Audit', {
 
     showPreview: function (selectionModel, record) {
         var me = this,
-            page = me.getAuditPage(),
-            auditPreview = page.down('#audit-preview'),
-            auditPreviewGrid = page.down('#audit-preview-grid'),
-            auditPreviewNoItems = page.down('#audit-preview-no-items');
+            auditPreview = me.getAuditPreview(),
+            auditPreviewGrid = me.getAuditPreviewGrid(),
+            auditPreviewNoItems = me.getAuditPreviewNoItem();
 
         auditPreview.setLoading(true);
         Ext.each(auditPreviewGrid.columns, function (column) {
@@ -64,14 +65,16 @@ Ext.define('Mdc.audit.controller.Audit', {
             }
         });
 
-        record[0].auditLogsStore.getCount() > 0
-        && auditPreviewGrid.setVisible(true)
-        && auditPreviewGrid.getStore().loadRawData(record[0].raw['auditLogs'])
-        && auditPreviewNoItems.setVisible(false);
-
-        record[0].auditLogsStore.getCount() == 0
-        && auditPreviewGrid.setVisible(false)
-        && auditPreviewNoItems.setVisible(true);
+        if (record[0].auditLogsStore.getCount() > 0) {
+            auditPreviewGrid.setVisible(true);
+            auditPreviewGrid.getStore().loadRawData(record[0].raw['auditLogs']);
+            auditPreviewGrid.getSelectionModel().select(0);
+            auditPreviewNoItems.setVisible(false);
+        }
+        else {
+            auditPreviewGrid.setVisible(false);
+            auditPreviewNoItems.setVisible(true);
+        }
         auditPreview.setLoading(false);
     },
 
@@ -123,5 +126,4 @@ Ext.define('Mdc.audit.controller.Audit', {
         }
         return rendererLink;
     }
-
 });

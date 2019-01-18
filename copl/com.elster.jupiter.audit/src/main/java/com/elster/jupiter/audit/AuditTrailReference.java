@@ -21,11 +21,7 @@ public interface AuditTrailReference {
 
     String getTableName();
 
-    String getPkcolumn1();
-
-    String getPkcolumn2();
-
-    String getPkcolumn3();
+    long getPkcolumn();
 
     String getOperation();
 }

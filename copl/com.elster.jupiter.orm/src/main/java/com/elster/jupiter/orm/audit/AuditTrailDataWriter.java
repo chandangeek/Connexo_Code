@@ -75,9 +75,7 @@ public class AuditTrailDataWriter<T> {
                         return
                                 (contextIdentifierEntry.getDomain().compareToIgnoreCase(tableAudit.getTouchTable().getName()) == 0) &&
                                         (contextIdentifierEntry.getContext().compareToIgnoreCase(tableAudit.getContext()) == 0) &&
-                                        (contextIdentifierEntry.getPkColumn1().compareToIgnoreCase(getPkColumnByIndex(pkColumns, 0)) == 0) &&
-                                        (contextIdentifierEntry.getPkColumn2().compareToIgnoreCase(getPkColumnByIndex(pkColumns, 1)) == 0) &&
-                                        (contextIdentifierEntry.getPkColumn3().compareToIgnoreCase(getPkColumnByIndex(pkColumns, 2)) == 0) &&
+                                        (contextIdentifierEntry.getPkColumn() == getPkColumnByIndex(pkColumns, 0)) &&
                                         (contextIdentifierEntry.getOperation() == operation.ordinal());
                     })
                     .findFirst()
@@ -96,9 +94,7 @@ public class AuditTrailDataWriter<T> {
                             updateContextAuditIdentifiers(new DomainContextIdentifier().setId(nextVal)
                                     .setDomain(tableAudit.getTouchTable().getName())
                                     .setContext(tableAudit.getContext())
-                                    .setPkColumn1(getPkColumnByIndex(pkColumns, 0))
-                                    .setPkColumn2(getPkColumnByIndex(pkColumns, 1))
-                                    .setPkColumn3(getPkColumnByIndex(pkColumns, 2))
+                                    .setPkColumn(getPkColumnByIndex(pkColumns, 0))
                                     .setOperation(operation.ordinal()));
                             persistAuditDomain(object, now, operation, nextVal, pkColumns);
                             return nextVal;
@@ -109,11 +105,11 @@ public class AuditTrailDataWriter<T> {
         }
     }
 
-    private String getPkColumnByIndex(List<Object> pkColumns, int index) {
+    private long getPkColumnByIndex(List<Object> pkColumns, int index) {
         if (pkColumns.size() > index) {
-            return pkColumns.get(index).toString();
+            return Long.parseLong(pkColumns.get(index).toString());
         }
-        return "";
+        return 0;
     }
 
     private void persistAuditDomain(Object object, Instant now, UnexpectedNumberOfUpdatesException.Operation operation, Long nextVal, List<Object> pkColumns) throws SQLException {
@@ -123,7 +119,7 @@ public class AuditTrailDataWriter<T> {
         try (Connection connection = getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(auditLog)) {
 
-                //ID, DOMAIN, CONTEXT, MODTIMESTART, MODTIMEEND, TABLENAME, PKCOLUMN1, PKCOLUMN2, PKCOLUMN3, OPERATION, CREATETIME, USERNAME
+                //ID, DOMAIN, CONTEXT, MODTIMESTART, MODTIMEEND, TABLENAME, PKCOLUMN, OPERATION, CREATETIME, USERNAME
                 int index = 1;
                 statement.setLong(index++, nextVal); // ID
                 statement.setString(index++, tableAudit.getDomain()); // domain
@@ -131,9 +127,7 @@ public class AuditTrailDataWriter<T> {
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMESTART
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMEEND
                 statement.setString(index++, tableAudit.getTouchTable().getName()); // table name
-                statement.setString(index++, getPkColumnByIndex(pkColumns, 0));
-                statement.setString(index++, getPkColumnByIndex(pkColumns, 1));
-                statement.setString(index++, getPkColumnByIndex(pkColumns, 2));
+                statement.setLong(index++, getPkColumnByIndex(pkColumns, 0));
                 statement.setLong(index++, operation.ordinal()); // operation
                 statement.setLong(index++, now.toEpochMilli()); // create time
                 statement.setString(index++, getCurrentUserName()); //user name
