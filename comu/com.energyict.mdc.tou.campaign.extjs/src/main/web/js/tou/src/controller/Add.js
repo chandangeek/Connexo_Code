@@ -102,7 +102,7 @@ Ext.define('Tou.controller.Add', {
             var activationOption, activationDate;
             activationOption = activateCalendarItem.getOptionValue();
             if (activationOption) record.set('activationOption',activationOption);
-            if (activationOption == 'ByDate' && activateCalendarItem.getDateValue()) record.set('activationDate',activateCalendarItem.getDateValue());
+            if (activationOption == 'onDate' && activateCalendarItem.getDateValue()) record.set('activationDate',activateCalendarItem.getDateValue());
         }
         var allowedCalendarItem = form.down('#tou-campaign-allowed-calendar');
         if (allowedCalendarItem){

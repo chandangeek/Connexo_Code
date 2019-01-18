@@ -109,13 +109,28 @@ Ext.define('Tou.view.DetailForm', {
                     {
                           itemId: 'activation-date-field',
                           fieldLabel: 'Activate calendar',
-                          name: 'activationDate',
+                          name: 'activationOption',
                           renderer: function (value) {
+                                var res = '-';
                                 if (value){
-                                    if (!isNaN(value) &&  parseInt(value) == value ) return  Uni.DateTime.formatDateTimeShort(parseInt(value));
-                                    return Ext.String.htmlEncode(value)
+
+                                    switch(value){
+                                        case 'immediately':
+                                             res = 'Immediately';
+                                             break;
+                                        case 'withoutActivation':
+                                             res = 'Without Activation';
+                                             break;
+                                         case 'onDate':
+                                             var dateValue = Ext.StoreManager.lookup('Tou.store.TouCampaigns').getAt(0).get('activationDate');
+                                             res = (!isNaN(dateValue) &&  parseInt(dateValue) == dateValue)?  Uni.DateTime.formatDateTimeShort(parseInt(dateValue)) : '-';
+                                             break;
+                                        default:
+                                             res = Ext.String.htmlEncode(value);
+                                             break;
+                                    }
                                 }
-                                return '-';
+                                return res;
                           }
                     },
                     {

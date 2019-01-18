@@ -69,6 +69,8 @@ Ext.define('Tou.controller.Overview', {
                 break;
             case 'editCampaign':
             case 'editCampaignAndReturnToOverview':
+                this.returnToOverview = item.action === 'editCampaignAndReturnToOverview';
+                location.href = '#/workspace/toucampaigns/' + encodeURIComponent(menu.record.get('name')) + '/edit';
                 break;
         }
     },
@@ -127,7 +129,31 @@ Ext.define('Tou.controller.Overview', {
         });*/
     },
 
-    editCampaign: function(campaignIdAsString) {
+    editCampaign: function(campaignName) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('tou-campaigns-add', {
+                itemId: 'tou-campaigns-edit',
+                action: 'saveTouCampaign',
+                returnLink: me.returnToOverview
+                    ? router.getRoute('workspace/toucampaigns/toucampaign').buildUrl({firmwareCampaignId : campaignIdAsString})
+                    : router.getRoute('workspace/toucampaigns').buildUrl()
+            }),
+            dependencies = ['Tou.store.DeviceTypes'],
+            dependenciesCounter = dependencies.length,
+            onDependenciesLoaded = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    me.loadModelToEditForm(campaignIdAsString, widget);
+                }
+            };
+
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.down('#tou-campaigns-add-form').setLoading(true);
+        widget.down('#btn-add-tou-campaign').setText('Save');
+        Ext.Array.each(dependencies, function (store) {
+            me.getStore(store).load(onDependenciesLoaded);
+        });
     },
 
     loadModelToEditForm: function(campaignIdAsString, widget) {
