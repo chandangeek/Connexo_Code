@@ -13,7 +13,7 @@ Ext.define('Mdc.audit.view.AuditGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('audit.change', 'MDC', 'Change on'),
+                header: Uni.I18n.translate('audit.changeOn', 'MDC', 'Change on'),
                 dataIndex: 'changedOn',
                 flex: 1,
                 renderer: function (value, metaData, record) {
