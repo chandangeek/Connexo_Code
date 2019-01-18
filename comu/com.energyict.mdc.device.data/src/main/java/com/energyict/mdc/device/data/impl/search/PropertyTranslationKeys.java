@@ -104,7 +104,10 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_MODEL_NBR("device.model.nbr", "Model number"),
     DEVICE_MODEL_VERSION("device.model.version", "Model version"),
     DEVICE_ATTRIBUTES("device.attributes", "Device attributes"),
-    DEVICE_MASTER_SEARCH_CRITERION_NAME("device.master.searchcriterion.search", "Has master device")
+    DEVICE_MASTER_SEARCH_CRITERION_NAME("device.master.searchcriterion.search", "Has master device"),
+    ZONE_NAME("device.zoneName", "Zone name"),
+    ZONE_TYPE("device.zoneType","Zone type"),
+    ZONE("device.zone", "Zone")
     ;
 
     private String key;
