@@ -14,7 +14,7 @@ import javax.inject.Inject;
 import java.security.Principal;
 
 public class EndPointHelper {
-    private static final String DEFAULT_USER_NAME = "CIM webservice";
+    private static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
 
     private final ThreadPrincipalService threadPrincipalService;
     private final UserService userService;
@@ -32,14 +32,11 @@ public class EndPointHelper {
     public void setSecurityContext() {
         Principal principal = threadPrincipalService.getPrincipal();
         if (principal == null) {
-            threadPrincipalService.set(() -> DEFAULT_USER_NAME);
-        }
-        if (!(principal instanceof User)) {
             try (TransactionContext context = transactionService.getContext()) {
-                User user = userService.findUser(DEFAULT_USER_NAME, userService.getRealm())
-                        .orElseGet(() -> userService.createUser(DEFAULT_USER_NAME, DEFAULT_USER_NAME));
-                threadPrincipalService.set(user);
-                context.commit();
+                userService.findUser(BATCH_EXECUTOR_USER_NAME, userService.getRealm()).ifPresent(user -> {
+                    threadPrincipalService.set(user);
+                    context.commit();
+                });
             }
         }
     }
