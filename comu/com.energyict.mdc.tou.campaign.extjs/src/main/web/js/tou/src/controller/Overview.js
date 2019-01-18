@@ -95,10 +95,6 @@ Ext.define('Tou.controller.Overview', {
     doCancelCampaign : function(record) {
         var me = this,
             store = this.getStore('Tou.store.TouCampaigns');
-
-        //store.getProxy().url = '/api/tou/touCampaigns/' + record.id + '/cancel';
-        //record.getProxy().url = '/api/tou/touCampaigns/' + record.id + '/cancel';
-        //debugger;
         Ext.Ajax.request({
         	   	url: '/api/tou/touCampaigns/' + record.data.name + '/cancel',
         	   	method: 'PUT',
