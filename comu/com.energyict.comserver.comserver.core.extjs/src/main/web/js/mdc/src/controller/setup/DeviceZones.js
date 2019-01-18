@@ -257,7 +257,7 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
                         url: '/api/ddr/devices/' + encodeURIComponent(form.deviceId) + '/zones',
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicezone.remove.success.msg', 'MDC', "Device removed from zone '{0}'",[record.data.zoneName]));
-                            router.getRoute('devices/device/zones').forward();
+                            form.getStore().load();
                         },
                         callback: function () {
                             form.setLoading(false);
