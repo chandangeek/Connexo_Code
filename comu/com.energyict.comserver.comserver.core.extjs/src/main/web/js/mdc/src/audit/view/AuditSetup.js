@@ -7,10 +7,10 @@ Ext.define('Mdc.audit.view.AuditSetup', {
     alias: 'widget.auditSetup',
 
     requires: [
-        'Mdc.audit.view.AuditGrid',
-        'Mdc.audit.view.AuditPreviewGrid',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
+        'Mdc.audit.view.AuditGrid',
+        'Mdc.audit.view.AuditPreview',
         'Mdc.audit.view.AuditFilter'
     ],
 
@@ -40,8 +40,8 @@ Ext.define('Mdc.audit.view.AuditSetup', {
                             ]
                         },
                         previewComponent: {
-                            xtype: 'auditPreviewGrid',
-                            itemId: 'audit-preview-grid',
+                            xtype: 'auditPreview',
+                            itemId: 'audit-preview',
                             convertorFn: me.convertorFn,
                             scope: me.scope
                         }

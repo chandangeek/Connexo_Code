@@ -31,6 +31,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -121,6 +122,7 @@ public class AuditResource {
         List<IdWithNameInfo> users = userService.getUserQuery()
                 .select(condition, Order.ascending("authenticationName"))
                 .stream()
+                .sorted(Comparator.comparing(user -> user.getName().toUpperCase()))
                 .map(user -> new IdWithNameInfo(user.getId(), user.getName()))
                 .collect(Collectors.toList());
         return Response.ok(users).build();

@@ -16,6 +16,7 @@ Ext.define('Mdc.audit.controller.Audit', {
 
     stores: [
         'Mdc.audit.store.Audit',
+        'Mdc.audit.store.AuditDetails',
         'Mdc.store.TimeUnits'
     ],
 
@@ -46,15 +47,16 @@ Ext.define('Mdc.audit.controller.Audit', {
                 me.getApplication().fireEvent('changecontentevent', widget);
             }
         });
-
     },
 
     showPreview: function (selectionModel, record) {
         var me = this,
             page = me.getAuditPage(),
-            auditPreviewGrid = page.down('#audit-preview-grid');
+            auditPreview = page.down('#audit-preview'),
+            auditPreviewGrid = page.down('#audit-preview-grid'),
+            auditPreviewNoItems = page.down('#audit-preview-no-items');
 
-        Ext.suspendLayouts();
+        auditPreview.setLoading(true);
         Ext.each(auditPreviewGrid.columns, function (column) {
             if (column.dataIndex == 'previousValue') {
                 column.setVisible(record[0].get('operationType') == 'UPDATE');
@@ -62,10 +64,15 @@ Ext.define('Mdc.audit.controller.Audit', {
             }
         });
 
+        record[0].auditLogsStore.getCount() > 0
+        && auditPreviewGrid.setVisible(true)
+        && auditPreviewGrid.getStore().loadRawData(record[0].raw['auditLogs'])
+        && auditPreviewNoItems.setVisible(false);
 
-        // if recordsCount == 0 display a message
-        record[0].auditLogsStore.getCount() > 0 && auditPreviewGrid.reconfigure(record[0].auditLogsStore);
-        Ext.resumeLayouts(true);
+        record[0].auditLogsStore.getCount() == 0
+        && auditPreviewGrid.setVisible(false)
+        && auditPreviewNoItems.setVisible(true);
+        auditPreview.setLoading(false);
     },
 
     valueConvertor: function (value, record) {
