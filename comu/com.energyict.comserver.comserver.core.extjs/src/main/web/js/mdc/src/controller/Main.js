@@ -142,6 +142,7 @@ Ext.define('Mdc.controller.Main', {
         'Apr.controller.CustomTask',
         'Mdc.controller.setup.TaskManagement',
         'Mdc.zones.controller.Zones',
+        'Mdc.controller.setup.DeviceZones',
         'Mdc.processes.controller.ProcessesController',
         'Mdc.processes.controller.ProcBulkActions',
         'Mdc.audit.controller.Audit',
@@ -153,7 +154,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.store.LoadProfilesOfDevice',
         'Mdc.store.DeviceStatePrivileges',
         'Mdc.store.DeviceCommandPrivileges',
-        'Mdc.store.DeviceTypeCapabilities'
+        'Mdc.store.DeviceTypeCapabilities',
+        'Mdc.store.Zones'
     ],
 
     refs: [
@@ -535,7 +537,7 @@ Ext.define('Mdc.controller.Main', {
                 })
             );
         }
-        
+
         if (Cfg.privileges.Validation.canViewZones()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
@@ -546,7 +548,7 @@ Ext.define('Mdc.controller.Main', {
 
             Uni.store.PortalItems.add(
                 Ext.create('Uni.model.PortalItem', {
-                    title: Uni.I18n.translate('general.zone', 'MDC', 'Zone management'),
+                    title: Uni.I18n.translate('general.zoneManagement', 'MDC', 'Zone management'),
                     portal: 'administration',
                     route: 'zones',
                     items: [
@@ -559,7 +561,6 @@ Ext.define('Mdc.controller.Main', {
                 })
             );
         }
-
     },
 
     addTaskManagement: function () {

@@ -22,7 +22,7 @@ Ext.define('Cfg.zones.view.Overview', {
             xtype: 'panel',
             ui: 'large',
             title: Uni.I18n.translate('general.Zones', 'CFG', 'Zones'),
-
+            itemId: 'panel-zones-overview',
             items: [
                 {
                     xtype: 'zones-overview-filter',
@@ -54,7 +54,8 @@ Ext.define('Cfg.zones.view.Overview', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'zonePreview'
+                        xtype: 'zone-preview',
+                        itemId: 'zone-preview',
                     }
                 }
             ]

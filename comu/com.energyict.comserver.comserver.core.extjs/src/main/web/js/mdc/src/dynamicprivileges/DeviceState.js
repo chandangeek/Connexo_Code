@@ -12,6 +12,7 @@ Ext.define('Mdc.dynamicprivileges.DeviceState', {
     issuesWidget: 'devices.widget.issues',
     validationWidget: 'devices.widget.validation',
     topologyWidget: 'devices.widget.communication.topology',
+    zonesWidget:  'devices.widget.zones',
     connectionWidget: 'devices.widget.connection',
     communicationTasksWidget: 'devices.widget.communication.tasks',
     validationActions: 'devices.actions.validation',
@@ -45,6 +46,7 @@ Ext.define('Mdc.dynamicprivileges.DeviceState', {
     activatePassive: 'devices.actions.timeofuse.activatepassive',
     supportsPassive: 'devices.timeofuse.supportspassive',
     supportsSend: 'devices.timeofuse.supportssend',
+    zonesActions:  'devices.actions.zones',
 
     allDeviceCommandPrivileges: ['privilege.command.has.privileges', 'devices.actions.device.commands'],
 

@@ -1,8 +1,7 @@
 Ext.define('Cfg.zones.view.ZonePreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
-    alias: 'widget.zonePreview',
-    itemId: 'zonePreview',
+    alias: 'widget.zone-preview',
     purposeStore: null,
     requires: [
         'Cfg.privileges.Validation'
@@ -30,7 +29,7 @@ Ext.define('Cfg.zones.view.ZonePreview', {
                 {
                 xtype: 'form',
                 border: false,
-                itemId: 'zonePreviewForm',
+                itemId: 'zone-preview-form',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'

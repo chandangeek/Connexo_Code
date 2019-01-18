@@ -33,12 +33,15 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.metering.zone.EndDeviceZone;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
@@ -128,6 +131,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.mockito.Mock;
@@ -279,6 +283,9 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     private CommandRuleService cmdRuleService;
 
+    @Mock
+    MeteringZoneService meteringZoneService;
+
     @Provider
     @Priority(Priorities.AUTHORIZATION)
     private static class SecurityRequestFilter implements ContainerRequestFilter {
@@ -304,6 +311,11 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
         when(multiElementDeviceService.findMultiElementDeviceReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        Finder<EndDeviceZone> endDeviceZoneFinder = mock(Finder.class);
+        doReturn(Stream.of(new EndDeviceZone[]{})).when(endDeviceZoneFinder).stream();
+        when(meteringZoneService.getByEndDevice(any(EndDevice.class))).thenReturn(endDeviceZoneFinder);
+        EndDevice endDevice = mock(EndDevice.class);
+        when(meteringService.findEndDeviceByMRID(any(String.class))).thenReturn(Optional.of(endDevice));
     }
 
     protected void setupTranslations() {
@@ -400,6 +412,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         aliasSearchFilterFactory = new AliasSearchFilterFactoryImpl(securityManagementService);
         application.setAliasSearchFilterFactory(aliasSearchFilterFactory);
         application.setCommandRuleService(cmdRuleService);
+        application.setMeteringZoneService(meteringZoneService);
         return application;
     }
 
