@@ -6,10 +6,10 @@ Ext.define('Tou.view.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.tou-campaigns-action-menu',
     requires:[
-        'Fwc.privileges.FirmwareCampaign'
+        'Tou.privileges.TouCampaign'
     ],
     returnToCampaignOverview: false,
-    privileges: Fwc.privileges.FirmwareCampaign.administrate,
+    privileges: Tou.privileges.TouCampaign.administrate,
 
     initComponent: function () {
         var me = this;

@@ -6,7 +6,7 @@ Ext.define('Tou.view.DeviceActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.tou-campaigns-device-action-menu',
     requires:[
-        'Fwc.privileges.FirmwareCampaign'
+        'Tou.privileges.TouCampaign'
     ],
 
     initComponent: function () {
@@ -15,14 +15,14 @@ Ext.define('Tou.view.DeviceActionMenu', {
                 text: 'Cancel',
                 action: 'cancelDevice',
                 itemId: 'tou-device-action-cancel',
-                privileges: Fwc.privileges.FirmwareCampaign.administrate,
+                privileges: Tou.privileges.TouCampaign.administrate,
                 section: this.SECTION_ACTION
             },
             {
                 text: 'Retry',
                 action: 'retryDevice',
                 itemId: 'tou-device-action-retry',
-                privileges: Fwc.privileges.FirmwareCampaign.administrate,
+                privileges: Tou.privileges.TouCampaign.administrate,
                 section: this.SECTION_ACTION
             }
         ];

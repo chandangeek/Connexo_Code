@@ -27,7 +27,7 @@ Ext.define('Tou.view.DetailForm', {
         me.tools = [
             {
                 xtype: 'uni-button-action',
-                privileges: Fwc.privileges.FirmwareCampaign.administrate,
+                privileges: Tou.privileges.TouCampaign.administrate,
                 itemId: 'tou-campaigns-detail-action-menu-button',
                 menu: {
                     xtype: 'tou-campaigns-action-menu',
@@ -164,7 +164,7 @@ Ext.define('Tou.view.DetailForm', {
                                   return result;
                               }
 
-                              field.addCls('firmware-campaign-status');
+                              field.addCls('tou-campaign-status');
                               Ext.Array.each(value, function (devicesStatus, index) {
                                   var iconCls = '';
 

@@ -8,7 +8,7 @@ Ext.define('Tou.controller.Main', {
     requires: [
         'Uni.controller.Navigation',
         'Uni.store.PortalItems',
-        'Fwc.privileges.FirmwareCampaign',
+        'Tou.privileges.TouCampaign',
     ],
 
     controllers: [
@@ -37,7 +37,7 @@ Ext.define('Tou.controller.Main', {
                         itemId:'tou-campaigns-link-tou',
                         href: '#/workspace/toucampaigns',
                         route: 'workspace',
-                        privileges: Fwc.privileges.FirmwareCampaign.view
+                        privileges: Tou.privileges.TouCampaign.view
                     }
                 ]
           }));

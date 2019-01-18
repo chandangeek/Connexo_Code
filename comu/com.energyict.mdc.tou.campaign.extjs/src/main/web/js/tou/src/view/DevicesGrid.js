@@ -28,7 +28,7 @@ Ext.define('Tou.view.DevicesGrid', {
                 dataIndex: 'device',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? '<a href="' + /*me.router.getRoute('devices/device/firmware').buildUrl({deviceId: value.id})*/ + '1' +'">' + value.name + '</a>' : '';
+                    return value ? '<a href="' + /*me.router.getRoute('devices/device/tou').buildUrl({deviceId: value.id})*/ + '1' +'">' + value.name + '</a>' : '';
                 }
             },
             {
@@ -38,7 +38,7 @@ Ext.define('Tou.view.DevicesGrid', {
                 renderer: function (value, metaData) {
                     var iconCls = '';
 
-                    metaData.tdCls = 'firmware-campaign-status';
+                    metaData.tdCls = 'tou-campaign-status';
                     switch (value) {
                         case 'Failed':
                             iconCls = 'icon-cancel-circle';
@@ -81,7 +81,7 @@ Ext.define('Tou.view.DevicesGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 width: 120,
-                privileges: Fwc.privileges.FirmwareCampaign.administrate,
+                privileges: Tou.privileges.TouCampaign.administrate,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     if (!me.campaignIsOngoing) {
                         return true;

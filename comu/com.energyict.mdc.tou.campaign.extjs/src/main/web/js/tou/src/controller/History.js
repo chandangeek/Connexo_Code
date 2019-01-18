@@ -20,21 +20,21 @@ Ext.define('Tou.controller.History', {
                     route: 'toucampaigns',
                     controller: 'Tou.controller.Overview',
                     action: 'showOverview',
-                    privileges: Fwc.privileges.FirmwareCampaign.view,
+                    privileges: Tou.privileges.TouCampaign.view,
                     items: {
                         add: {
                             title: 'Add ToU campaign',
                              route: 'add',
                              controller: 'Tou.controller.Add',
                              action: 'showAdd',
-                             privileges: Fwc.privileges.FirmwareCampaign.administrate
+                             privileges: Tou.privileges.TouCampaign.administrate
                         },
                         toucampaign: {
                            title: 'ToU campaign',
                             route: '{touCampaignName}',
                             controller: 'Tou.controller.Detail',
                             action: 'showDetail',
-                            privileges: Fwc.privileges.FirmwareCampaign.view,
+                            privileges: Tou.privileges.TouCampaign.view,
                             callback: function (route) {
                                 this.getApplication().on('loadTouCampaign', function (record) {
                                     route.setTitle(record.get('name'));
@@ -48,8 +48,15 @@ Ext.define('Tou.controller.History', {
                                     route: 'devices',
                                     controller: 'Tou.controller.Devices',
                                     action: 'showDevices',
-                                    privileges: Fwc.privileges.FirmwareCampaign.view
-                                }
+                                    privileges: Tou.privileges.TouCampaign.view
+                                },
+                                edit: {
+                                     title: 'Edit',
+                                     route: 'edit',
+                                     controller: 'Tou.controller.Overview',
+                                     action: 'editCampaign',
+                                     privileges: Tou.privileges.TouCampaign.administrate
+                                },
                             }
                         }
                     }

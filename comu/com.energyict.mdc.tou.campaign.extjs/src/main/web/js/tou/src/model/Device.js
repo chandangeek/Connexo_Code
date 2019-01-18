@@ -10,7 +10,6 @@ Ext.define('Tou.model.Device', {
         {name: 'startedOn', type: 'date', dateFormat: 'time'},
         {name: 'finishedOn', type: 'date', dateFormat: 'time'}
     ],
-    //cancelUrlTpl: '/api/fwc/devices/{deviceId}/firmwares/{campaignId}/cancel',
     retryUrlTpl:  'api/tou/touCampaigns/retry/{deviceId}',
     cancelUrl: function () {
         return this.replaceIds(this.cancelUrlTpl);

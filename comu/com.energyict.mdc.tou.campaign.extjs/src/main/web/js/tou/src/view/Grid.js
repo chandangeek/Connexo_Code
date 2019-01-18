@@ -6,7 +6,6 @@ Ext.define('Tou.view.Grid', {
     extend: 'Ext.grid.Panel',
     requires: [
         'Uni.grid.column.Action',
-        //'Fwc.firmwarecampaigns.view.ActionMenu',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.view.panel.FilterToolbar'
@@ -82,7 +81,7 @@ Ext.define('Tou.view.Grid', {
                             return result;
                        }
 
-                       field.tdCls = 'firmware-campaign-status';
+                       field.tdCls = 'tou-campaign-status';
                        Ext.Array.each(value, function (devicesStatus, index) {
                                   var iconCls = '';
 
@@ -126,7 +125,7 @@ Ext.define('Tou.view.Grid', {
         {
             xtype: 'uni-actioncolumn',
             width: 120,
-            privileges: Fwc.privileges.FirmwareCampaign.administrate,
+            privileges: Tou.privileges.TouCampaign.administrate,
             isDisabled: function(view, rowIndex, colIndex, item, record) {
                 return record.get('status') !== 'Ongoing';
             },
@@ -152,7 +151,7 @@ Ext.define('Tou.view.Grid', {
                                 text: 'Add ToU campaign',
                                 action: 'addTouCampaign',
                                 href: me.router.getRoute('workspace/toucampaigns/add').buildUrl(),
-                                privileges: Fwc.privileges.FirmwareCampaign.administrate
+                                privileges: Tou.privileges.TouCampaign.administrate
                             }
                         ]
                     },

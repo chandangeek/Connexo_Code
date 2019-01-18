@@ -20,7 +20,7 @@ Ext.define('Tou.controller.Add', {
 
     stores: [
         'Tou.store.DeviceTypes',
-        'Fwc.store.DeviceGroups',
+        'Tou.store.DeviceGroups',
         'Tou.store.DaysWeeksMonths',
         'Tou.store.AllowedCalendars',
         'Tou.store.AllowedDeviceTypeOptions'
@@ -57,7 +57,7 @@ Ext.define('Tou.controller.Add', {
                 returnLink: router.getRoute('workspace/toucampaigns').buildUrl()
             }),
             touCampaign = Ext.create('Tou.model.TouCampaign'),
-            dependencies = ['Tou.store.DeviceTypes', 'Fwc.store.DeviceGroups'],
+            dependencies = ['Tou.store.DeviceTypes', 'Tou.store.DeviceGroups'],
             dependenciesCounter = dependencies.length,
             onDependenciesLoaded = function () {
                 dependenciesCounter--;

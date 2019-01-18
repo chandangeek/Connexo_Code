@@ -100,7 +100,7 @@ Ext.define('Tou.view.AddForm', {
                         xtype: 'combobox',
                         itemId: 'tou-campaign-device-group',
                         name: 'deviceGroup',
-                        store: 'Fwc.store.DeviceGroups',
+                        store: 'Tou.store.DeviceGroups',
                         forceSelection: true,
                         allowBlank: false,
                         queryMode: 'local',
@@ -233,5 +233,18 @@ Ext.define('Tou.view.AddForm', {
         ];
 
         me.callParent(arguments);
-    }
+    },
+    loadRecordForEdit: function(campaignRecord) {
+            var me = this,
+                taskRunner = new Ext.util.TaskRunner(),
+                deviceTypeCombo = me.down('#tou-campaign-device-type'),
+                //touTypeRadioGroup = me.down('#tou-type'),
+                deviceGroupComboContainer = me.down('#tou-campaign-device-group-field-container'),
+                deviceGroupCombo = me.down('#tou-campaign-device-group'),
+                managementOptionRadioGroup = me.down('#tou-management-option'),
+                periodCombo = me.down('#period-combo'),
+                periodNumber = me.down('#period-number'),
+                periodValues = me.down('#period-values'),
+                deviceTypeId = campaignRecord.get('deviceType').id
+        }
 });
