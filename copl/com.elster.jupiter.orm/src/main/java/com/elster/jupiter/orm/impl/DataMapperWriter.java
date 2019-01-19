@@ -319,8 +319,9 @@ public class DataMapperWriter<T> {
     }
 
     public void remove(T object) throws SQLException {
+        Instant now = getTable().getDataModel().getClock().instant();
         if (getTable().hasJournal()) {
-            journal(object, getTable().getDataModel().getClock().instant());
+            journal(object, now);
         }
         for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
             if (constraint.isComposition()) {
@@ -349,6 +350,8 @@ public class DataMapperWriter<T> {
         if (object instanceof PersistenceAware) {
             ((PersistenceAware)object).postDelete();
         }
+
+        new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.DELETE).audit();
     }
 
     public void remove(List<? extends T> objects) throws SQLException {

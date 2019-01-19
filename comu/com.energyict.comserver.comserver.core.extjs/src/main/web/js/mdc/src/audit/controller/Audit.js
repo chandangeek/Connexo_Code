@@ -21,6 +21,7 @@ Ext.define('Mdc.audit.controller.Audit', {
     ],
 
     refs: [
+        {ref: 'auditGrid', selector: 'auditSetup #audit-grid'},
         {ref: 'auditPreview', selector: 'auditSetup #audit-preview'},
         {ref: 'auditPreviewGrid', selector: '#audit-preview #audit-preview-grid'},
         {ref: 'auditPreviewNoItem', selector: '#audit-preview #audit-preview-no-items'}
@@ -53,6 +54,7 @@ Ext.define('Mdc.audit.controller.Audit', {
 
     showPreview: function (selectionModel, record) {
         var me = this,
+            auditGrid = me.getAuditGrid(),
             auditPreview = me.getAuditPreview(),
             auditPreviewGrid = me.getAuditPreviewGrid(),
             auditPreviewNoItems = me.getAuditPreviewNoItem();
@@ -75,6 +77,7 @@ Ext.define('Mdc.audit.controller.Audit', {
             auditPreviewGrid.setVisible(false);
             auditPreviewNoItems.setVisible(true);
         }
+        auditGrid.getView().focus();
         auditPreview.setLoading(false);
     },
 
@@ -94,7 +97,7 @@ Ext.define('Mdc.audit.controller.Audit', {
                     Uni.I18n.translate('general.no', 'MDC', 'No');
                 break;
         }
-        return displayValue;
+        return ((displayValue != null) && (displayValue.length == 0)) ? "-" : displayValue;
     },
 
     domainConvertor: function (value, record) {

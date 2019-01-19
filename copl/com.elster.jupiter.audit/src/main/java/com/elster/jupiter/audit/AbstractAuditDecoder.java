@@ -2,6 +2,7 @@ package com.elster.jupiter.audit;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -50,8 +51,8 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         List<Comparison> conditionFromJournal = valueMap.entrySet().stream()
                 .map(entry -> Operator.EQUAL.compare(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
-        conditionFromJournal.add(Operator.GREATERTHANOREQUAL.compare("modTime", getAuditTrailReference().getModTimeStart()));
-        conditionFromJournal.add(Operator.LESSTHANOREQUAL.compare("modTime", getAuditTrailReference().getModTimeEnd()));
+        conditionFromJournal.add(Operator.GREATERTHANOREQUAL.compare("journalTime", getAuditTrailReference().getModTimeStart()));
+        conditionFromJournal.add(Operator.LESSTHANOREQUAL.compare("journalTime", getAuditTrailReference().getModTimeEnd()));
 
         List<T> journalEntries = dataMapper
                 .at(Instant.EPOCH)
@@ -63,6 +64,35 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
 
         actualEntries.addAll(journalEntries);
         return new LinkedList<T>(actualEntries);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> getActualEntries(DataMapper<T> dataMapper, Map<String, Object> valueMap) {
+
+        Condition inputCondition = Condition.TRUE;
+        valueMap.entrySet().stream()
+                .forEach(entry -> inputCondition.and(where(entry.getKey()).isEqualTo(entry.getValue())));
+
+        Condition conditionFromCurrent = inputCondition
+                .and(where("modTime").isGreaterThanOrEqual(getAuditTrailReference().getModTimeStart()))
+                .and(where("modTime").isLessThanOrEqual(getAuditTrailReference().getModTimeEnd()));
+        return dataMapper.select(conditionFromCurrent);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> getHistoryEntries(DataMapper<T> dataMapper, Map<Operator, Pair<String, Object>> pair) {
+
+        List<Comparison> conditionFromJournal = pair.entrySet().stream()
+                .map(entry -> entry.getKey().compare(entry.getValue().getFirst(), entry.getValue().getLast()))
+                .collect(Collectors.toList());
+
+        return dataMapper
+                .at(Instant.EPOCH)
+                .find(conditionFromJournal)
+                .stream()
+                .sorted(Comparator.comparing(JournalEntry::getJournalTime))
+                .map(JournalEntry::get)
+                .collect(Collectors.toList());
     }
 
     public <T> Optional<T> getJournalEntry(DataMapper<T> dataMapper, Map<String, Object> valueMap) {

@@ -75,8 +75,8 @@ public class AuditTrailDataWriter<T> {
                         return
                                 (contextIdentifierEntry.getDomain().compareToIgnoreCase(tableAudit.getTouchTable().getName()) == 0) &&
                                         (contextIdentifierEntry.getContext().compareToIgnoreCase(tableAudit.getContext()) == 0) &&
-                                        (contextIdentifierEntry.getPkColumn() == getPkColumnByIndex(pkColumns, 0)) &&
-                                        (contextIdentifierEntry.getOperation() == operation.ordinal());
+                                        (contextIdentifierEntry.getPkColumn() == getPkColumnByIndex(pkColumns, 0)) /*&&
+                                        (contextIdentifierEntry.getOperation() == operation.ordinal())*/;
                     })
                     .findFirst()
                     .map(domainContextIdentifier -> {
