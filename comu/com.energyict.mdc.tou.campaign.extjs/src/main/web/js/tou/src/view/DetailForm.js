@@ -122,7 +122,7 @@ Ext.define('Tou.view.DetailForm', {
                                              res = 'Without Activation';
                                              break;
                                          case 'onDate':
-                                             var dateValue = Ext.StoreManager.lookup('Tou.store.TouCampaigns').getAt(0).get('activationDate');
+                                             var dateValue = this.up('tou-campaigns-detail-form').getRecord().data.activationDate;
                                              res = (!isNaN(dateValue) &&  parseInt(dateValue) == dateValue)?  Uni.DateTime.formatDateTimeShort(parseInt(dateValue)) : '-';
                                              break;
                                         default:
