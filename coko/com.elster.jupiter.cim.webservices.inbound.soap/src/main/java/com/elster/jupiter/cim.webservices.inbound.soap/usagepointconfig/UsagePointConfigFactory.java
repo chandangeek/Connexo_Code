@@ -159,12 +159,12 @@ class UsagePointConfigFactory {
                 if (values.getEffectiveRange().hasLowerBound()) {
                     customAttribute.setFromDateTime(values.getEffectiveRange().lowerEndpoint());
                 } else {
-                    customAttribute.setFromDateTime(Instant.MIN.plusNanos(1));
+                    customAttribute.setFromDateTime(null);
                 }
                 if (values.getEffectiveRange().hasUpperBound()) {
-                    customAttribute.setToDateTime(Instant.ofEpochMilli(Long.MIN_VALUE));
+                    customAttribute.setToDateTime(values.getEffectiveRange().upperEndpoint());
                 } else {
-                    customAttribute.setToDateTime(Instant.ofEpochMilli(Long.MAX_VALUE));
+                    customAttribute.setToDateTime(null);
                 }
             }
         }
