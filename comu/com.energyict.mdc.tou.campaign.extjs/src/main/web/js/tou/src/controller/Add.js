@@ -127,7 +127,7 @@ Ext.define('Tou.controller.Add', {
                 break;
 
             }
-            if (activateCalendarItem && activateCalendarItem.getOptionValue() == "Immediately"){
+            if (activateCalendarItem && activateCalendarItem.getOptionValue() == "immediately"){
                record.set('timeValidation', timeInSec);
              }else{
                record.set('timeValidation', null);
