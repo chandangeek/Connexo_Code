@@ -103,6 +103,7 @@ Ext.define('Tou.controller.Add', {
             activationOption = activateCalendarItem.getOptionValue();
             if (activationOption) record.set('activationOption',activationOption);
             if (activationOption == 'onDate' && activateCalendarItem.getDateValue()) record.set('activationDate',activateCalendarItem.getDateValue());
+            else if (record.data && record.data['activationDate'] !== undefined )  delete record.data["activationDate"];
         }
         var allowedCalendarItem = form.down('#tou-campaign-allowed-calendar');
         if (allowedCalendarItem){
@@ -167,8 +168,8 @@ Ext.define('Tou.controller.Add', {
             page = me.getPage(),
             form = me.getForm(),
             nameField = form.down('#tou-campaign-name'),
-            timeBoundaryStartField = form.down('#timeBoundaryStart'),
-            timeBoundaryEndField = form.down('#timeBoundaryEnd'),
+            timeBoundaryStartField = form.down('#activationStart'),
+            timeBoundaryEndField = form.down('#activationEnd'),
             errorMessage = form.down('uni-form-error-message'),
             baseForm = form.getForm(),
             nameOrTimeBoundaryChanged = false;
@@ -186,12 +187,12 @@ Ext.define('Tou.controller.Add', {
             form.campaignRecordBeingEdited.set('name', nameField.getValue());
             nameOrTimeBoundaryChanged = true;
         }
-        if (form.campaignRecordBeingEdited.get('timeBoundaryStart') != timeBoundaryStartField.getValue()) {
-            form.campaignRecordBeingEdited.set('timeBoundaryStart', timeBoundaryStartField.getValue());
+        if (form.campaignRecordBeingEdited.get('activationStart') != timeBoundaryStartField.getValue()) {
+            form.campaignRecordBeingEdited.set('activationStart', timeBoundaryStartField.getValue());
             nameOrTimeBoundaryChanged = true;
         }
-        if (form.campaignRecordBeingEdited.get('timeBoundaryEnd') != timeBoundaryEndField.getValue()) {
-            form.campaignRecordBeingEdited.set('timeBoundaryEnd', timeBoundaryEndField.getValue());
+        if (form.campaignRecordBeingEdited.get('activationEnd') != timeBoundaryEndField.getValue()) {
+            form.campaignRecordBeingEdited.set('activationEnd', timeBoundaryEndField.getValue());
             nameOrTimeBoundaryChanged = true;
         }
 
