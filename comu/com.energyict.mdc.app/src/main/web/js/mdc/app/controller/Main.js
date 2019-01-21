@@ -42,7 +42,8 @@ Ext.define('MdcApp.controller.Main', {
         'Dal.privileges.Alarm',
         'Mdc.privileges.RegisteredDevicesKpi',
         'Mdc.privileges.TaskManagement',
-        'Mdc.privileges.SecurityAccessor'
+        'Mdc.privileges.SecurityAccessor',
+        'Tou.privileges.TouCampaign'
     ],
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
@@ -77,7 +78,8 @@ Ext.define('MdcApp.controller.Main', {
         Mdc.privileges.CommandLimitationRules.all(),
         Dal.privileges.Alarm.all(),
         Mdc.privileges.RegisteredDevicesKpi.all(),
-        Mdc.privileges.SecurityAccessor.all()
+        Mdc.privileges.SecurityAccessor.all(),
+        Tou.privileges.TouCampaign.all()
     ),
     controllers: [
         'Sam.controller.Main',

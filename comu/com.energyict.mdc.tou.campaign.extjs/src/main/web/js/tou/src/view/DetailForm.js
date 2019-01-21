@@ -27,7 +27,7 @@ Ext.define('Tou.view.DetailForm', {
         me.tools = [
             {
                 xtype: 'uni-button-action',
-                privileges: Fwc.privileges.FirmwareCampaign.administrate,
+                privileges: Tou.privileges.TouCampaign.administrate,
                 itemId: 'tou-campaigns-detail-action-menu-button',
                 menu: {
                     xtype: 'tou-campaigns-action-menu',
@@ -109,13 +109,28 @@ Ext.define('Tou.view.DetailForm', {
                     {
                           itemId: 'activation-date-field',
                           fieldLabel: 'Activate calendar',
-                          name: 'activationDate',
+                          name: 'activationOption',
                           renderer: function (value) {
+                                var res = '-';
                                 if (value){
-                                    if (!isNaN(value) &&  parseInt(value) == value ) return  Uni.DateTime.formatDateTimeShort(parseInt(value));
-                                    return Ext.String.htmlEncode(value)
+
+                                    switch(value){
+                                        case 'immediately':
+                                             res = 'Immediately';
+                                             break;
+                                        case 'withoutActivation':
+                                             res = 'Without Activation';
+                                             break;
+                                         case 'onDate':
+                                             var dateValue = this.up('tou-campaigns-detail-form').getRecord().data.activationDate;
+                                             res = (!isNaN(dateValue) &&  parseInt(dateValue) == dateValue)?  Uni.DateTime.formatDateTimeShort(parseInt(dateValue)) : '-';
+                                             break;
+                                        default:
+                                             res = Ext.String.htmlEncode(value);
+                                             break;
+                                    }
                                 }
-                                return '-';
+                                return res;
                           }
                     },
                     {
@@ -149,7 +164,7 @@ Ext.define('Tou.view.DetailForm', {
                                   return result;
                               }
 
-                              field.addCls('firmware-campaign-status');
+                              field.addCls('tou-campaign-status');
                               Ext.Array.each(value, function (devicesStatus, index) {
                                   var iconCls = '';
 

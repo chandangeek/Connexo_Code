@@ -20,7 +20,7 @@ Ext.define('Tou.controller.Add', {
 
     stores: [
         'Tou.store.DeviceTypes',
-        'Fwc.store.DeviceGroups',
+        'Tou.store.DeviceGroups',
         'Tou.store.DaysWeeksMonths',
         'Tou.store.AllowedCalendars',
         'Tou.store.AllowedDeviceTypeOptions'
@@ -57,7 +57,7 @@ Ext.define('Tou.controller.Add', {
                 returnLink: router.getRoute('workspace/toucampaigns').buildUrl()
             }),
             touCampaign = Ext.create('Tou.model.TouCampaign'),
-            dependencies = ['Tou.store.DeviceTypes', 'Fwc.store.DeviceGroups'],
+            dependencies = ['Tou.store.DeviceTypes', 'Tou.store.DeviceGroups'],
             dependenciesCounter = dependencies.length,
             onDependenciesLoaded = function () {
                 dependenciesCounter--;
@@ -102,7 +102,8 @@ Ext.define('Tou.controller.Add', {
             var activationOption, activationDate;
             activationOption = activateCalendarItem.getOptionValue();
             if (activationOption) record.set('activationOption',activationOption);
-            if (activationOption == 'ByDate' && activateCalendarItem.getDateValue()) record.set('activationDate',activateCalendarItem.getDateValue());
+            if (activationOption == 'onDate' && activateCalendarItem.getDateValue()) record.set('activationDate',activateCalendarItem.getDateValue());
+            else if (record.data && record.data['activationDate'] !== undefined )  delete record.data["activationDate"];
         }
         var allowedCalendarItem = form.down('#tou-campaign-allowed-calendar');
         if (allowedCalendarItem){
@@ -127,7 +128,7 @@ Ext.define('Tou.controller.Add', {
                 break;
 
             }
-            if (activateCalendarItem && activateCalendarItem.getOptionValue() == "Immediately"){
+            if (activateCalendarItem && activateCalendarItem.getOptionValue() == "immediately"){
                record.set('timeValidation', timeInSec);
              }else{
                record.set('timeValidation', null);
@@ -167,8 +168,8 @@ Ext.define('Tou.controller.Add', {
             page = me.getPage(),
             form = me.getForm(),
             nameField = form.down('#tou-campaign-name'),
-            timeBoundaryStartField = form.down('#timeBoundaryStart'),
-            timeBoundaryEndField = form.down('#timeBoundaryEnd'),
+            timeBoundaryStartField = form.down('#activationStart'),
+            timeBoundaryEndField = form.down('#activationEnd'),
             errorMessage = form.down('uni-form-error-message'),
             baseForm = form.getForm(),
             nameOrTimeBoundaryChanged = false;
@@ -186,12 +187,12 @@ Ext.define('Tou.controller.Add', {
             form.campaignRecordBeingEdited.set('name', nameField.getValue());
             nameOrTimeBoundaryChanged = true;
         }
-        if (form.campaignRecordBeingEdited.get('timeBoundaryStart') != timeBoundaryStartField.getValue()) {
-            form.campaignRecordBeingEdited.set('timeBoundaryStart', timeBoundaryStartField.getValue());
+        if (form.campaignRecordBeingEdited.get('activationStart') != timeBoundaryStartField.getValue()) {
+            form.campaignRecordBeingEdited.set('activationStart', timeBoundaryStartField.getValue());
             nameOrTimeBoundaryChanged = true;
         }
-        if (form.campaignRecordBeingEdited.get('timeBoundaryEnd') != timeBoundaryEndField.getValue()) {
-            form.campaignRecordBeingEdited.set('timeBoundaryEnd', timeBoundaryEndField.getValue());
+        if (form.campaignRecordBeingEdited.get('activationEnd') != timeBoundaryEndField.getValue()) {
+            form.campaignRecordBeingEdited.set('activationEnd', timeBoundaryEndField.getValue());
             nameOrTimeBoundaryChanged = true;
         }
 

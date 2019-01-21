@@ -17,14 +17,15 @@ Ext.define('Tou.controller.Overview', {
     stores: [
         'Tou.store.TouCampaigns',
         'Tou.store.DeviceTypes',
-        'Fwc.store.DeviceGroups'
+        'Tou.store.DeviceGroups'
     ],
 
     refs: [
         {
             ref: 'preview',
             selector: 'tou-campaigns-detail-form'
-        }
+        },
+        { ref: 'campaignEdit', selector: '#tou-campaigns-edit' }
     ],
     returnToOverview : false,
 
@@ -69,6 +70,8 @@ Ext.define('Tou.controller.Overview', {
                 break;
             case 'editCampaign':
             case 'editCampaignAndReturnToOverview':
+                this.returnToOverview = item.action === 'editCampaignAndReturnToOverview';
+                location.href = '#/workspace/toucampaigns/' + encodeURIComponent(menu.record.get('name')) + '/edit';
                 break;
         }
     },
@@ -92,10 +95,6 @@ Ext.define('Tou.controller.Overview', {
     doCancelCampaign : function(record) {
         var me = this,
             store = this.getStore('Tou.store.TouCampaigns');
-
-        //store.getProxy().url = '/api/tou/touCampaigns/' + record.id + '/cancel';
-        //record.getProxy().url = '/api/tou/touCampaigns/' + record.id + '/cancel';
-        //debugger;
         Ext.Ajax.request({
         	   	url: '/api/tou/touCampaigns/' + record.data.name + '/cancel',
         	   	method: 'PUT',
@@ -111,27 +110,50 @@ Ext.define('Tou.controller.Overview', {
         	   		//record.reject();
         	   	}
         });
-       /* record.save({
-            isNotEdit: true,
-            success: function () {
-                form.loadRecord(record);
-                me.getApplication().fireEvent('acknowledge', 'Tou campaign cancelled');
-                me.showPreview('', record);
-            },
-            callback: function () {
-                store.getProxy().url = '/api/tou/touCampaigns';
-            },
-            failure: function () {
-                record.reject();
+    },
+
+    editCampaign: function(campaignName) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('tou-campaigns-add', {
+                itemId: 'tou-campaigns-edit',
+                action: 'saveTouCampaign',
+                returnLink: me.returnToOverview
+                    ? router.getRoute('workspace/toucampaigns/toucampaign').buildUrl({touCampaignName : campaignName})
+                    : router.getRoute('workspace/toucampaigns').buildUrl()
+            }),
+            dependencies = ['Tou.store.DeviceTypes'],
+            dependenciesCounter = dependencies.length,
+            onDependenciesLoaded = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    me.loadModelToEditForm(campaignName, widget);
+                }
+            };
+
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.down('#tou-campaigns-add-form').setLoading(true);
+        widget.down('#btn-add-tou-campaign').setText('Save');
+        Ext.Array.each(dependencies, function (store) {
+            me.getStore(store).load(onDependenciesLoaded);
+        });
+    },
+
+    loadModelToEditForm: function(campaignName, widget) {
+        var me = this,
+            editView = me.getCampaignEdit(),
+            model = me.getModel('Tou.model.TouCampaign'),
+            editForm = editView.down('tou-campaigns-add-form');
+
+        model.load(campaignName, {
+            success: function (campaignRecord) {
+                editView.down('tou-campaigns-add-form').setTitle(
+                    'Edit ToU campaign'
+                );
+                me.getApplication().fireEvent('loadTouCampaign', campaignRecord);
+                editForm.loadRecordForEdit(campaignRecord);
             }
-        });*/
-    },
-
-    editCampaign: function(campaignIdAsString) {
-    },
-
-    loadModelToEditForm: function(campaignIdAsString, widget) {
-
+        });
     }
 
 });

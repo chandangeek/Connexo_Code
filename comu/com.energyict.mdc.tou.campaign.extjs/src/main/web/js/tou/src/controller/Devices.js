@@ -89,8 +89,6 @@ Ext.define('Tou.controller.Devices', {
             url: url,
             method: 'PUT',
             success: function (response) {
-                debugger;
-                //me.doUpdateRecord(record, response.responseText);
                 me.getApplication().fireEvent('acknowledge', 'Tou upload for device rescheduled');
             }
         });

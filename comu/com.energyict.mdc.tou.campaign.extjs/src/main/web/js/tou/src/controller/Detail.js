@@ -40,7 +40,6 @@ Ext.define('Tou.controller.Detail', {
                 Ext.suspendLayouts();
                 me.getSideMenu().setHeader(record.get('name'));
                 widget.down('tou-campaigns-detail-form').loadRecord(record);
-                //widget.down('firmware-campaigns-detail-form property-form').loadRecord(record);
                 me.getApplication().fireEvent('loadTouCampaign', record);
                 Ext.resumeLayouts(true);
                 if (widget.down('tou-campaigns-action-menu')) {

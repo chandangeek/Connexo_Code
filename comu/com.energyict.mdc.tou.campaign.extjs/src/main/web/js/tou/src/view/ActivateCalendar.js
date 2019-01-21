@@ -38,14 +38,14 @@ Ext.define('Tou.view.ActivateCalendar', {
                         itemId: 'wActivation',
                         boxLabel: 'Send without activation',
                         name: me.groupName,
-                        inputValue: 'Without Activation',
+                        inputValue: 'withoutActivation',
                         checked: true
                     },
                     {
                          itemId: 'Immediately',
                          boxLabel: 'Immediately',
                          name: me.groupName,
-                         inputValue: 'Immediately',
+                         inputValue: 'immediately',
                          checked: false
                     },
                     {
@@ -53,14 +53,14 @@ Ext.define('Tou.view.ActivateCalendar', {
                         id: 'TouByDate',
                         name: me.groupName,
                         boxLabel: 'On',
-                        inputValue: 'ByDate',
+                        inputValue: 'onDate',
                         margin: '7 0 0 0'
                     }
                 ],
                 listeners: {
                     change: function (field, newValue) {
                         var uploadFileDateContainer = me.down('#uploadFileDateContainer');
-                        if (newValue[me.groupName] == 'Without Activation' || newValue[me.groupName] == 'Immediately') {
+                        if (newValue[me.groupName] == 'withoutActivation' || newValue[me.groupName] == 'immediately') {
                             uploadFileDateContainer.disable();
                             uploadFileDateContainer.setValue(null);
                          } else {

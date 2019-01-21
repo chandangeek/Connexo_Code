@@ -55,35 +55,8 @@ Ext.define('Tou.view.AddForm', {
                 displayField: 'name',
                 valueField: 'id',
                 listeners: {
-                    change: function(radiogroup, newValue){
-                        var activateCalendarItem = me.down('#activate-calendar');
-                        activateCalendarItem.show();
-                        me.down('#tou-update-type').show();
-                        me.down('#tou-period-values').show();
-                        var cbxCal = me.down('#tou-campaign-allowed-calendar');
-                        cbxCal.show();
-                        var calStore = Ext.create('Tou.store.AllowedDeviceTypeOptions');
-                        calStore.getProxy().setUrl(this.getValue());
-                        calStore.load(function(){
-                             var calParams = calStore.getAt(0);
-                             cbxCal.bindStore(calParams.calendars());
-
-                             if (calParams.get('fullCalendar')) {
-                                Ext.getCmp("fullCalendar").enable();
-                             }else{
-                                Ext.getCmp("fullCalendar").disable();
-                             }
-                             if (calParams.get('specialDays')){
-                                Ext.getCmp("specialDays").enable();
-                             }else{
-                                Ext.getCmp("specialDays").disable();
-                             }
-                             if (calParams.get('withActivationDate')){
-                                Ext.getCmp("TouByDate").enable();
-                             }else{
-                                Ext.getCmp("TouByDate").disable();
-                             }
-                        });
+                    change: {
+                         fn: Ext.bind(me.onDeviceTypeChange, me)
                     }
                 }
             },
@@ -100,7 +73,7 @@ Ext.define('Tou.view.AddForm', {
                         xtype: 'combobox',
                         itemId: 'tou-campaign-device-group',
                         name: 'deviceGroup',
-                        store: 'Fwc.store.DeviceGroups',
+                        store: 'Tou.store.DeviceGroups',
                         forceSelection: true,
                         allowBlank: false,
                         queryMode: 'local',
@@ -185,8 +158,11 @@ Ext.define('Tou.view.AddForm', {
                         listeners: {
                             afterrender: function() {
                                   var defaultVal = this.store.getAt('1').get('name');
-                                  this.setValue(defaultVal);
-                                  this.select(defaultVal, true);
+                                  //var periodCombo = this;
+                                  //periodCombo.setRawValue(periodCombo.getStore().findRecord('name',validationTimeout.timeUnit).get('displayValue'));
+                                  //periodNumber.setValue(validationTimeout.id);
+                                  this.setRawValue(defaultVal);
+                                  //this.select(defaultVal, true);
                                 }
                         }
                     }
@@ -233,5 +209,100 @@ Ext.define('Tou.view.AddForm', {
         ];
 
         me.callParent(arguments);
-    }
+    },
+    onDeviceTypeChange: function(radiogroup, newValue){
+         var me = this;
+         var activateCalendarItem = me.down('#activate-calendar');
+         activateCalendarItem.show();
+         me.down('#tou-update-type').show();
+         me.down('#tou-period-values').show();
+         var cbxCal = me.down('#tou-campaign-allowed-calendar');
+         cbxCal.show();
+         var calStore = Ext.create('Tou.store.AllowedDeviceTypeOptions');
+         calStore.getProxy().setUrl(newValue);
+         calStore.load(function(){
+             var calParams = calStore.getAt(0);
+             cbxCal.bindStore(calParams.calendars());
+
+             if (calParams.get('fullCalendar')) {
+                 Ext.getCmp("fullCalendar").enable();
+             }else{
+                 Ext.getCmp("fullCalendar").disable();
+             }
+             if (calParams.get('specialDays')){
+                 Ext.getCmp("specialDays").enable();
+             }else{
+                  Ext.getCmp("specialDays").disable();
+             }
+             if (calParams.get('withActivationDate')){
+                  Ext.getCmp("TouByDate").enable();
+             }else{
+                   Ext.getCmp("TouByDate").disable();
+             }
+             me.fireEvent('tou-deviceTypeChanged');
+        });
+    },
+    loadRecordForEdit: function(campaignRecord) {
+            var me = this,
+                deviceTypeCombo = me.down('#tou-campaign-device-type'),
+                deviceGroupComboContainer = me.down('#tou-campaign-device-group-field-container'),
+                deviceGroupCombo = me.down('#tou-campaign-device-group'),
+                periodCombo = me.down('#period-combo'),
+                periodNumber = me.down('#period-number'),
+                periodValues = me.down('#tou-period-values'),
+                deviceTypeId = campaignRecord.get('deviceType').id,
+                DeviceGroupComboAndSetDeviceType = function() {
+                    deviceGroupCombo.setDisabled(true);
+                    deviceGroupCombo.setRawValue(campaignRecord.get('deviceGroup'));
+                    //deviceGroupComboContainer.allowBlank = true;
+                    //deviceGroupComboContainer.hide();
+                    deviceTypeCombo.setDisabled(true);
+                    deviceTypeCombo.setValue(deviceTypeId);
+                },
+                setTimeoutFld = function(validationTimeout){
+                    if(validationTimeout){
+                        /*periodCombo.setRawValue(periodCombo
+                            .getStore().findRecord('name',validationTimeout.timeUnit).get('displayValue'));*/
+                        var timeUnit = 'minutes';
+                        validationTimeout = validationTimeout/60;
+                        if (validationTimeout % 60){
+                            validationTimeout = validationTimeout/60;
+                            timeUnit = 'hours';
+                        }
+                        if (validationTimeout % 24){
+                            validationTimeout = validationTimeout/24;
+                            timeUnit = 'days';
+                        }
+                        if (validationTimeout % 7){
+                            validationTimeout = validationTimeout/7;
+                            timeUnit = 'weeks';
+                        }
+                        periodNumber.setValue(validationTimeout);
+                        periodCombo.setRawValue(timeUnit);
+                    }else{
+                        periodNumber.setValue(0);
+                        periodCombo.setRawValue('minutes');
+                    }
+                },
+                setOptions = function() {
+                    periodValues.setDisabled(true);
+                    setTimeoutFld(campaignRecord.get('timeValidation'));
+                    var timeStartInSec = new Date(campaignRecord.get('activationStart')/1000);
+                    var timeEndInSec = new Date(campaignRecord.get('activationEndt')/1000);
+                    me.down("#activationStart").setValue(timeStartInSec.getHours() *3600 + timeStartInSec.getMinutes() *60);
+                    me.down("#activationEnd").setValue(timeEndInSec.getHours() *3600 + timeEndInSec.getMinutes() *60);
+                    //me.down("#activate-calendar").setValue({"activationOption" : campaignRecord.get('activationOption'), "activationDate" : campaignRecord.get('activationDate')})
+                    me.down("#activate-calendar").setDisabled(true);
+                    me.down("#tou-campaign-allowed-calendar").setValue(campaignRecord.get('calendar').id);
+                    me.down("#tou-campaign-allowed-calendar").setDisabled(true);
+                    me.down("#tou-update-type").setValue(campaignRecord.get('updateType'));
+                    me.down("#tou-update-type").setDisabled(true);
+
+                };
+                me.setLoading(false);
+                me.campaignRecordBeingEdited = campaignRecord;
+                me.on('tou-deviceTypeChanged', setOptions);
+                me.loadRecord(campaignRecord);
+                DeviceGroupComboAndSetDeviceType();
+        }
 });

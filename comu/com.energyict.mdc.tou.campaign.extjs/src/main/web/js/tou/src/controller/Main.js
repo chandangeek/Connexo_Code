@@ -8,13 +8,15 @@ Ext.define('Tou.controller.Main', {
     requires: [
         'Uni.controller.Navigation',
         'Uni.store.PortalItems',
-        'Fwc.privileges.FirmwareCampaign',
+        'Tou.privileges.TouCampaign',
     ],
 
     controllers: [
         'Tou.controller.History',
         'Tou.controller.Detail',
-        'Tou.controller.Devices'
+        'Tou.controller.Devices',
+        'Tou.controller.Overview',
+        'Tou.controller.Add'
     ],
 
     refs: [
@@ -37,7 +39,7 @@ Ext.define('Tou.controller.Main', {
                         itemId:'tou-campaigns-link-tou',
                         href: '#/workspace/toucampaigns',
                         route: 'workspace',
-                        privileges: Fwc.privileges.FirmwareCampaign.view
+                        privileges: Tou.privileges.TouCampaign.view
                     }
                 ]
           }));

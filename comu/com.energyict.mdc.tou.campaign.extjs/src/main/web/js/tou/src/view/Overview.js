@@ -42,7 +42,7 @@ Ext.define('Tou.view.Overview', {
                                     text: 'Add ToU campaign',
                                     action: 'addTouCampaign',
                                     href: me.router.getRoute('workspace/toucampaigns/add').buildUrl(),
-                                    privileges: Fwc.privileges.FirmwareCampaign.administrate
+                                    privileges: Tou.privileges.TouCampaign.administrate
                                 }
                             ]
                         },
