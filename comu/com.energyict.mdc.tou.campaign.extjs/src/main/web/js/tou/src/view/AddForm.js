@@ -210,7 +210,7 @@ Ext.define('Tou.view.AddForm', {
 
         me.callParent(arguments);
     },
-    onDeviceTypeChange(radiogroup, newValue){
+    onDeviceTypeChange: function(radiogroup, newValue){
          var me = this;
          var activateCalendarItem = me.down('#activate-calendar');
          activateCalendarItem.show();
