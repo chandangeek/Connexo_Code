@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -64,7 +63,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_KEY_ACCESSOR_TYPE(228, "NoSuchKeyAccessorType", "No such security accessor"),
     INVALID_VALUE(229, "InvalidValue", "Invalid value"),
     INVALID_TIME_DURATION(230, "TimeDurationTooLong", "Validity period must be shorter than or equal to 30 years."),
-    DEVICE_TYPE_IN_USE_BY_CREATION_RULE(231, "DeviceTypeInUseByCreationRule",  "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by alarm creation rule ''{2}''")
+    DEVICE_TYPE_IN_USE_BY_CREATION_RULE(231, "DeviceTypeInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by alarm creation rule ''{2}''"),
+    NO_SUCH_CUSTOMPROPERTYSET(232, "noSuchCPS", "No custom property set with ID {0}"),
+
     ;
 
     private final int number;
@@ -105,7 +106,7 @@ public enum MessageSeeds implements MessageSeed {
     private static class Keys {
         public static final String FILE_IO = "file.IO";
         public static final String CALENDAR_OPTION_SEND = ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR.getId();
-        public static final String CALENDAR_OPTION_SEND_WITH_DATE= ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE.getId();
+        public static final String CALENDAR_OPTION_SEND_WITH_DATE = ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE.getId();
         public static final String CALENDAR_OPTION_SEND_WITH_DATE_TYPE = ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE.getId();
         public static final String CALENDAR_OPTION_SEND_WITH_DATE_CONTRACT = ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT.getId();
         public static final String CALENDAR_OPTION_SEND_WITH_DATETIME = ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME.getId();
@@ -119,5 +120,4 @@ public enum MessageSeeds implements MessageSeed {
         public static final String MULTI_ELEMENT_SLAVE_AT_LEAST_ONE_DATASOURCE = "multi.element.submeter.at.least.one.datasource";
         public static final String MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE = "multi.element.enablements.at.least.one.datasource";
     }
-
 }

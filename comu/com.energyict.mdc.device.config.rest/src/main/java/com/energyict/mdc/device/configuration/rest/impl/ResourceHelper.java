@@ -15,6 +15,7 @@ import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -36,6 +37,7 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -155,15 +157,18 @@ public class ResourceHelper {
                 .collect(Collectors.toList());
     }
 
-    @SuppressWarnings("unchecked")
-    public Map<RegisteredCustomPropertySet, List<PropertyInfo>> getDeviceCustomPropertySetInfo(DeviceType deviceType,
-                                                                                               List<RegisteredCustomPropertySet> registeredCustomPropertySets) {
+    public Map<RegisteredCustomPropertySet, List<PropertyInfo>> getDeviceCustomPropertySetInfo(DeviceType deviceType) {
         Map<RegisteredCustomPropertySet, List<PropertyInfo>> propertyInfos = new HashMap<>();
-        registeredCustomPropertySets.forEach(rcps -> propertyInfos.put(rcps,
-                mdcPropertyUtils.convertPropertySpecsToPropertyInfos(rcps.getCustomPropertySet().getPropertySpecs(),
-                        getCustomProperties(customPropertySetService.getUniqueValuesFor(
-                                rcps.getCustomPropertySet(), deviceType)))));
+        getRegisteredCPSForEditing(deviceType).forEach(rcps -> propertyInfos.put(rcps,
+                getPropertyInfos(deviceType, rcps)));
         return propertyInfos;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<PropertyInfo> getPropertyInfos(DeviceType deviceType, RegisteredCustomPropertySet rcps) {
+        return mdcPropertyUtils.convertPropertySpecsToPropertyInfos(rcps.getCustomPropertySet().getPropertySpecs(),
+                getCustomProperties(customPropertySetService.getUniqueValuesFor(rcps.getCustomPropertySet(),
+                        deviceType)));
     }
 
     public Long getCurrentDeviceTypeVersion(long id) {
@@ -661,10 +666,39 @@ public class ResourceHelper {
         return deviceConfigurationService.findAndLockTimeOfUseOptionsByIdAndVersion(deviceType, version);
     }
 
-    private TypedProperties getCustomProperties(CustomPropertySetValues customPropertySetValues) {
+    public TypedProperties getCustomProperties(CustomPropertySetValues customPropertySetValues) {
         TypedProperties typedProperties = TypedProperties.empty();
         customPropertySetValues.propertyNames().forEach(propertyName ->
                 typedProperties.setProperty(propertyName, customPropertySetValues.getProperty(propertyName)));
         return typedProperties;
+    }
+
+    public RegisteredCustomPropertySet getRegisteredCPSForEditingOrThrowException(long id, DeviceType deviceType) {
+        return getRegisteredCPSForEditing(deviceType)
+                .stream()
+                .filter(rcps -> rcps.getId() == id)
+                .findFirst()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, id));
+    }
+
+    public List<RegisteredCustomPropertySet> getRegisteredCPSForEditing(DeviceType deviceType) {
+        return deviceType.getCustomPropertySets()
+                .stream()
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(rcps -> !rcps.getCustomPropertySet().isVersioned())
+                .filter(rcps -> rcps.getCustomPropertySet().getDomainClass().equals(DeviceType.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<RegisteredCustomPropertySet> getRegisteredCPSForLinking(DeviceType deviceType, boolean isLinked) {
+        return isLinked ? deviceType.getCustomPropertySets() :
+                findAllCustomPropertySetsByDomain(Device.class, DeviceType.class)
+                        .stream()
+                        .filter(f -> !deviceType.getCustomPropertySets()
+                                .stream()
+                                .map(RegisteredCustomPropertySet::getId)
+                                .collect(Collectors.toList())
+                                .contains(f.getId()))
+                        .collect(Collectors.toList());
     }
 }

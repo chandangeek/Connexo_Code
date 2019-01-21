@@ -23,7 +23,6 @@ public class DeviceTypeCustomPropertySetInfo {
     public String name;
     public String domainName;
     public boolean isVersioned;
-    //public boolean isEditable;
     public boolean editable;
     public Set<ViewPrivilege> viewPrivileges;
     public Set<EditPrivilege> editPrivileges;
@@ -65,12 +64,18 @@ public class DeviceTypeCustomPropertySetInfo {
         return deviceTypeCustomPropertySetInfos;
     }
 
-    public static List<DeviceTypeCustomPropertySetInfo> from(Map<RegisteredCustomPropertySet, List<PropertyInfo>> rcpss) {
+    public static DeviceTypeCustomPropertySetInfo from(RegisteredCustomPropertySet rcps,
+                                                       List<PropertyInfo> properties) {
+        DeviceTypeCustomPropertySetInfo deviceTypeCPSInfo = new DeviceTypeCustomPropertySetInfo(rcps);
+        deviceTypeCPSInfo.addProperties(properties);
+        return deviceTypeCPSInfo;
+    }
+
+    public static List<DeviceTypeCustomPropertySetInfo> from(Map<RegisteredCustomPropertySet,
+            List<PropertyInfo>> rcpss) {
         List<DeviceTypeCustomPropertySetInfo> deviceTypeCustomPropertySetInfos = new ArrayList<>();
         for (Map.Entry<RegisteredCustomPropertySet, List<PropertyInfo>> rcps : rcpss.entrySet()) {
-            DeviceTypeCustomPropertySetInfo deviceTypeCPSInfo = new DeviceTypeCustomPropertySetInfo(rcps.getKey());
-            deviceTypeCPSInfo.addProperties(rcps.getValue());
-            deviceTypeCustomPropertySetInfos.add(deviceTypeCPSInfo);
+            deviceTypeCustomPropertySetInfos.add(from(rcps.getKey(), rcps.getValue()));
         }
         return deviceTypeCustomPropertySetInfos;
     }
