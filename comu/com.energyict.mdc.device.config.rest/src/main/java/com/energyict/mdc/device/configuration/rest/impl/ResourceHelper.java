@@ -157,15 +157,33 @@ public class ResourceHelper {
                 .collect(Collectors.toList());
     }
 
-    public Map<RegisteredCustomPropertySet, List<PropertyInfo>> getDeviceCustomPropertySetInfo(DeviceType deviceType) {
+    public Map<RegisteredCustomPropertySet, List<PropertyInfo>> getDeviceTypeCustomPropertySetInfo(DeviceType deviceType) {
         Map<RegisteredCustomPropertySet, List<PropertyInfo>> propertyInfos = new HashMap<>();
         getRegisteredCPSForEditing(deviceType).forEach(rcps -> propertyInfos.put(rcps,
-                getPropertyInfos(deviceType, rcps)));
+                getCustomPropertySetValues(deviceType, rcps)));
         return propertyInfos;
     }
 
     @SuppressWarnings("unchecked")
-    public List<PropertyInfo> getPropertyInfos(DeviceType deviceType, RegisteredCustomPropertySet rcps) {
+    public void setDeviceTypeCustomPropertySetInfo(DeviceType deviceType, long cpsId,
+                                                   DeviceTypeCustomPropertySetInfo info) {
+        RegisteredCustomPropertySet rcps = getRegisteredCPSForEditingOrThrowException(cpsId, deviceType);
+        customPropertySetService.setValuesFor(rcps.getCustomPropertySet(), deviceType,
+                getCustomPropertySetValues(rcps.getCustomPropertySet().getPropertySpecs(), info));
+        deviceType.update();
+    }
+
+    private CustomPropertySetValues getCustomPropertySetValues(List<PropertySpec> propertySpecs,
+                                                               DeviceTypeCustomPropertySetInfo info) {
+        CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
+        propertySpecs.forEach(propertySpec ->
+                customPropertySetValues.setProperty(propertySpec.getName(),
+                        mdcPropertyUtils.findPropertyValue(propertySpec, info.properties)));
+        return customPropertySetValues;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<PropertyInfo> getCustomPropertySetValues(DeviceType deviceType, RegisteredCustomPropertySet rcps) {
         return mdcPropertyUtils.convertPropertySpecsToPropertyInfos(rcps.getCustomPropertySet().getPropertySpecs(),
                 getCustomProperties(customPropertySetService.getUniqueValuesFor(rcps.getCustomPropertySet(),
                         deviceType)));
@@ -677,6 +695,7 @@ public class ResourceHelper {
         return getRegisteredCPSForEditing(deviceType)
                 .stream()
                 .filter(rcps -> rcps.getId() == id)
+                .filter(RegisteredCustomPropertySet::isEditableByCurrentUser)
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, id));
     }

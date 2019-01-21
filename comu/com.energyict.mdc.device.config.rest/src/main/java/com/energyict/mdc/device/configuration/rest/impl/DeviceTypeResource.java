@@ -393,8 +393,23 @@ public class DeviceTypeResource {
     public DeviceTypeCustomPropertySetInfo getDeviceTypeCustomPropertySetUsage(@PathParam("id") long id,
                                                                                @PathParam("cpsId") long cpsId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        RegisteredCustomPropertySet rcps = resourceHelper.getRegisteredCPSForEditingOrThrowException(id, deviceType);
-        return DeviceTypeCustomPropertySetInfo.from(rcps, resourceHelper.getPropertyInfos(deviceType, rcps));
+        RegisteredCustomPropertySet rcps = resourceHelper.getRegisteredCPSForEditingOrThrowException(cpsId, deviceType);
+        return DeviceTypeCustomPropertySetInfo.from(deviceType, rcps,
+                resourceHelper.getCustomPropertySetValues(deviceType, rcps));
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{id}/customproperties/{cpsId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response editDeviceCustomAttribute(@PathParam("id") long id,
+                                              @PathParam("cpsId") long cpsId,
+                                              DeviceTypeCustomPropertySetInfo info) {
+        DeviceType lockedDeviceType = resourceHelper.lockDeviceTypeOrThrowException(id, info.deviceTypeVersion,
+                info.deviceTypeName);
+        resourceHelper.setDeviceTypeCustomPropertySetInfo(lockedDeviceType, cpsId, info);
+        return Response.ok().build();
     }
 
     @PUT
@@ -1045,7 +1060,7 @@ public class DeviceTypeResource {
                                                                                       boolean isLinked,
                                                                                       boolean isEdit) {
         return !isEdit ?
-                DeviceTypeCustomPropertySetInfo.from(resourceHelper.getRegisteredCPSForLinking(deviceType, isLinked)) :
-                DeviceTypeCustomPropertySetInfo.from(resourceHelper.getDeviceCustomPropertySetInfo(deviceType));
+                DeviceTypeCustomPropertySetInfo.from(deviceType, resourceHelper.getRegisteredCPSForLinking(deviceType, isLinked)) :
+                DeviceTypeCustomPropertySetInfo.from(deviceType, resourceHelper.getDeviceTypeCustomPropertySetInfo(deviceType));
     }
 }

@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 
+import com.energyict.mdc.device.config.DeviceType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
@@ -21,7 +22,9 @@ public class DeviceTypeCustomPropertySetInfo {
 
     public long id;
     public String name;
+    public String deviceTypeName;
     public String domainName;
+    public long deviceTypeVersion;
     public boolean isVersioned;
     public boolean editable;
     public Set<ViewPrivilege> viewPrivileges;
@@ -54,6 +57,11 @@ public class DeviceTypeCustomPropertySetInfo {
         this.properties = properties;
     }
 
+    public void addVersion(DeviceType deviceType) {
+        this.deviceTypeName = deviceType.getName();
+        this.deviceTypeVersion = deviceType.getVersion();
+    }
+
     public static List<DeviceTypeCustomPropertySetInfo> from(List<RegisteredCustomPropertySet> rcpss) {
         List<DeviceTypeCustomPropertySetInfo> deviceTypeCustomPropertySetInfos = new ArrayList<>();
         for (RegisteredCustomPropertySet rcps : rcpss) {
@@ -64,18 +72,27 @@ public class DeviceTypeCustomPropertySetInfo {
         return deviceTypeCustomPropertySetInfos;
     }
 
-    public static DeviceTypeCustomPropertySetInfo from(RegisteredCustomPropertySet rcps,
+    public static List<DeviceTypeCustomPropertySetInfo> from(DeviceType deviceType,
+                                                             List<RegisteredCustomPropertySet> rcpss) {
+        List<DeviceTypeCustomPropertySetInfo> deviceTypeCPSInfos = from(rcpss);
+        deviceTypeCPSInfos.forEach(deviceTypeCPSInfo -> deviceTypeCPSInfo.addVersion(deviceType));
+        return deviceTypeCPSInfos;
+    }
+
+    public static DeviceTypeCustomPropertySetInfo from(DeviceType deviceType,
+                                                       RegisteredCustomPropertySet rcps,
                                                        List<PropertyInfo> properties) {
         DeviceTypeCustomPropertySetInfo deviceTypeCPSInfo = new DeviceTypeCustomPropertySetInfo(rcps);
         deviceTypeCPSInfo.addProperties(properties);
+        deviceTypeCPSInfo.addVersion(deviceType);
         return deviceTypeCPSInfo;
     }
 
-    public static List<DeviceTypeCustomPropertySetInfo> from(Map<RegisteredCustomPropertySet,
-            List<PropertyInfo>> rcpss) {
+    public static List<DeviceTypeCustomPropertySetInfo> from(DeviceType deviceType,
+                                                             Map<RegisteredCustomPropertySet, List<PropertyInfo>> rcpss) {
         List<DeviceTypeCustomPropertySetInfo> deviceTypeCustomPropertySetInfos = new ArrayList<>();
         for (Map.Entry<RegisteredCustomPropertySet, List<PropertyInfo>> rcps : rcpss.entrySet()) {
-            deviceTypeCustomPropertySetInfos.add(from(rcps.getKey(), rcps.getValue()));
+            deviceTypeCustomPropertySetInfos.add(from(deviceType, rcps.getKey(), rcps.getValue()));
         }
         return deviceTypeCustomPropertySetInfos;
     }
