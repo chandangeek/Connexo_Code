@@ -1032,7 +1032,7 @@ public class DeviceTypeResource {
     private List<DeviceTypeCustomPropertySetInfo> getDeviceTypeCustomPropertySetInfos(DeviceType deviceType,
                                                                                       boolean isLinked,
                                                                                       boolean isEdit) {
-        return isEdit ? DeviceTypeCustomPropertySetInfo.from(getRegisteredCPSForLinking(deviceType, isLinked)) :
+        return !isEdit ? DeviceTypeCustomPropertySetInfo.from(getRegisteredCPSForLinking(deviceType, isLinked)) :
                 DeviceTypeCustomPropertySetInfo.from(resourceHelper.getDeviceCustomPropertySetInfo(deviceType,
                         getRegisteredCPSForEditing(deviceType)));
     }
