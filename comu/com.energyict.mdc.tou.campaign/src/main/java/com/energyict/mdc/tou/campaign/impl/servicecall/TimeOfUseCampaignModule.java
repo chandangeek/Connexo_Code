@@ -38,7 +38,7 @@ public class TimeOfUseCampaignModule extends AbstractModule {
         requireBinding(PropertySpecService.class);
         requireBinding(ServiceCallService.class);
         requireBinding(CustomPropertySetService.class);
-        requireBinding(MeteringGroupsService.class);
+//        requireBinding(MeteringGroupsService.class);
         requireBinding(Clock.class);
         requireBinding(DeviceService.class);
         requireBinding(CalendarService.class);

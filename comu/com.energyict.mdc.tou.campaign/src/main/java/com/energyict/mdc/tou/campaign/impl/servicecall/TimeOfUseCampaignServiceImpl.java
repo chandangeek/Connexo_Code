@@ -361,9 +361,11 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     private byte createChildServiceCall(ServiceCall parent, TimeOfUseItem timeOfUseItem) {
         Optional<ActiveEffectiveCalendar> calendar = deviceService.findDeviceByName(timeOfUseItem.getDevice().getName()).get().calendars().getActive();
         if (calendar.isPresent()) {
-            if (calendar.get().getAllowedCalendar().getId()
-                    == parent.getExtension(TimeOfUseCampaignDomainExtension.class).get().getCalendar().getId()) {
-                return 0;
+            if (calendar.get().getAllowedCalendar().getCalendar().isPresent()) {
+                if (calendar.get().getAllowedCalendar().getCalendar().get().getId()
+                        == parent.getExtension(TimeOfUseCampaignDomainExtension.class).get().getCalendar().getId()) {
+                    return 0;
+                }
             }
         }
         if (findServiceCallsByDevice(timeOfUseItem.getDevice())

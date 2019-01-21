@@ -48,141 +48,159 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
     protected void onEvent(LocalEvent event, Object... eventDetails) {
         if (event.getType().getTopic().equals(EventType.COMTASKEXECUTION_STARTED.topic())
                 || event.getType().getTopic().equals(EventType.SCHEDULED_COMTASKEXECUTION_STARTED.topic())) {
-            Object source = event.getSource();
-            if (source instanceof ComTaskExecution) {
-                ComTaskExecution comTaskExecution = (ComTaskExecution) source;
-                if (forCalendar(comTaskExecution)) {
-                    boolean planing = false;
-                    if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
-                        planing = true;
+            processEvent(event, this::onComTaskStarted);
+        } else if (event.getType().getTopic().equals(EventType.COMTASKEXECUTION_COMPLETED.topic())
+                || event.getType().getTopic().equals(EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED.topic())) {
+            processEvent(event, this::onComTaskCompleted);
+        } else if (event.getType().getTopic().equals(EventType.COMTASKEXECUTION_FAILED.topic())
+                || event.getType().getTopic().equals(EventType.SCHEDULED_COMTASKEXECUTION_FAILED.topic())) {
+            processEvent(event, this::onComTaskFailed);
+        }
+    }
+
+    private void onComTaskFailed(ComTaskExecution comTaskExecution) {
+        if (forCalendar(comTaskExecution)) {
+            boolean planning = false;
+            if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
+                planning = true;
+                if (plannedCalendarIsOnCampaign(comTaskExecution)) {
+                    if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.FAILED)) {
+                        timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.FAILED);
+                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.CALENDAR_INSTALLATION_FAILED, LogLevel.INFO);
+                        planning = false;
+                    }
+                }
+            }
+            if (planning) {
+                comTaskExecution.schedule(timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getActivationStart());
+            }
+        } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
+                .anyMatch(StatusInformationTask.class::isInstance)) {
+            if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
+                if (withVerification(comTaskExecution)) {
+                    if (comTaskExecution.getDevice().getMessages().stream()
+                            .filter(deviceMessage -> deviceMessage.getStatus().equals(DeviceMessageStatus.CONFIRMED))
+                            .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 0)
+                            .anyMatch(deviceMessage -> deviceMessage.getReleaseDate().equals(timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getActivationStart()))) {
+                        if (withVerification(comTaskExecution)) {
+                            timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.FAILED);
+                            timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_FAILED, LogLevel.INFO);
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    private void onComTaskCompleted(ComTaskExecution comTaskExecution) {
+        if (forCalendar(comTaskExecution)) {
+            boolean planning = false;
+            if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
+                planning = true;
+                if (plannedCalendarIsOnCampaign(comTaskExecution)) {
+                    if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CONFIRMED)) {
+                        if (!withVerification(comTaskExecution)) {
+                            timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.SUCCESSFUL);
+                            timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.CALENDAR_INSTALLATION_COMPLETED, LogLevel.INFO);
+                            timeOfUseCampaignService.revokeCalendarsCommands(comTaskExecution.getDevice());
+                            planning = false;
+                        } else {
+                            timeOfUseCampaignService.getCampaignOn(comTaskExecution)
+                                    .ifPresent(timeOfUseCampaign1 -> scheduleVerification(comTaskExecution.getDevice(), timeOfUseCampaign1.getTimeValidation()));
+                            timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_SCHEDULED, LogLevel.INFO);
+                            planning = false;
+                        }
+                    }
+                }
+            }
+            if (planning) {
+                comTaskExecution.schedule(timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getActivationStart());
+            }
+        } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
+                .anyMatch(StatusInformationTask.class::isInstance)) {
+            if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
+                if (withVerification(comTaskExecution)) {
+                    if (comTaskExecution.getDevice().calendars().getActive().isPresent()) {
                         if (comTaskExecution.getDevice().getMessages().stream()
                                 .filter(deviceMessage -> (deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING)
                                         || deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING)))
                                 .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 0)
-                                .anyMatch(deviceMessage -> !deviceMessage.getReleaseDate().isAfter(clock.instant()))) {
-                            if (comTaskExecution.getDevice().calendars().getPlannedPassive().isPresent()) {
-                                if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
-                                    if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getAllowedCalendar().getId()
-                                            == timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getCalendar().getId()) {
-                                        timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.ONGOING);
-                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.CALENDAR_INSTALLATION_STARTED, LogLevel.INFO);
-                                        planing = false;
-                                    }
-                                }
+                                .noneMatch(deviceMessage -> deviceMessage.getReleaseDate()
+                                        .equals(timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getActivationStart()))) {
+                            if ((comTaskExecution.getDevice().calendars().getActive().get().getAllowedCalendar().getCalendar().isPresent())
+                                    && (comTaskExecution.getDevice().calendars().getActive().get().getAllowedCalendar().getCalendar().get().getId()
+                                    == timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getCalendar().getId())) {
+                                timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.SUCCESSFUL);
+                                timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_COMPLETED, LogLevel.INFO);
+                            } else {
+                                timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.FAILED);
+                                timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_FAILED_WRONG_CALENDAR, LogLevel.INFO);
                             }
-                        } else if (comTaskExecution.getDevice().calendars().getPlannedPassive().isPresent()) {
-                            if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getDeviceMessage().isPresent()) {
-                                if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CANCELED)) {
-                                    timeOfUseCampaignService.cancelDevice(comTaskExecution.getDevice());
-                                    planing = false;
-                                }
-                            }
-                        } else {
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void onComTaskStarted(ComTaskExecution comTaskExecution) {
+        if (forCalendar(comTaskExecution)) {
+            boolean planning = false;
+            if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
+                planning = true;
+                if (shouldCalendarBeInstalled(comTaskExecution)) {
+                    if (plannedCalendarIsOnCampaign(comTaskExecution)) {
+                        timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.ONGOING);
+                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.CALENDAR_INSTALLATION_STARTED, LogLevel.INFO);
+                        planning = false;
+                    }
+                } else if (comTaskExecution.getDevice().calendars().getPlannedPassive().isPresent()) {
+                    if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getDeviceMessage().isPresent()) {
+                        if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CANCELED)) {
                             timeOfUseCampaignService.cancelDevice(comTaskExecution.getDevice());
-                            planing = false;
+                            planning = false;
                         }
                     }
-                    if (planing) {
-                        comTaskExecution.schedule(timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getActivationStart());
-                    }
+                } else {
+                    timeOfUseCampaignService.cancelDevice(comTaskExecution.getDevice());
+                    planning = false;
                 }
             }
-        } else if (event.getType().getTopic().equals(EventType.COMTASKEXECUTION_COMPLETED.topic())
-                || event.getType().getTopic().equals(EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED.topic())) {
-            Object source = event.getSource();
-            if (source instanceof ComTaskExecution) {
-                ComTaskExecution comTaskExecution = (ComTaskExecution) source;
-                if (forCalendar(comTaskExecution)) {
-                    boolean planing = false;
-                    if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
-                        planing = true;
-                        if (comTaskExecution.getDevice().calendars().getPlannedPassive().isPresent()) {
-                            if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getAllowedCalendar().getId()
-                                    == timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getCalendar().getId()) {
-                                if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CONFIRMED)) {
-                                    if (!withVerification(comTaskExecution)) {
-                                        timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.SUCCESSFUL);
-                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.CALENDAR_INSTALLATION_COMPLETED, LogLevel.INFO);
-                                        timeOfUseCampaignService.revokeCalendarsCommands(comTaskExecution.getDevice());
-                                        planing = false;
-                                    } else {
-                                        timeOfUseCampaignService.getCampaignOn(comTaskExecution)
-                                                .ifPresent(timeOfUseCampaign1 -> scheduleVerification(comTaskExecution.getDevice(), timeOfUseCampaign1.getTimeValidation()));
-                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_SCHEDULED, LogLevel.INFO);
-                                        planing = false;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (planing) {
-                        comTaskExecution.schedule(timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getActivationStart());
-                    }
-                } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
-                        .anyMatch(StatusInformationTask.class::isInstance)) {
-                    if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
-                        if (withVerification(comTaskExecution)) {
-                            if (comTaskExecution.getDevice().calendars().getActive().isPresent()) {
-                                if (comTaskExecution.getDevice().getMessages().stream()
-                                        .filter(deviceMessage -> (deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING)
-                                                || deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING)))
-                                        .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 0)
-                                        .noneMatch(deviceMessage -> deviceMessage.getReleaseDate()
-                                                .equals(timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getActivationStart()))) {
-                                    if (comTaskExecution.getDevice().calendars().getActive().get().getAllowedCalendar().getId()
-                                            == timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getCalendar().getId()) {
-                                        timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.SUCCESSFUL);
-                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_COMPLETED, LogLevel.INFO);
-                                    } else {
-                                        timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.FAILED);
-                                        timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_FAILED_WRONG_CALENDAR, LogLevel.INFO);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            if (planning) {
+                comTaskExecution.schedule(timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getActivationStart());
             }
-        } else if (event.getType().getTopic().equals(EventType.COMTASKEXECUTION_FAILED.topic())
-                || event.getType().getTopic().equals(EventType.SCHEDULED_COMTASKEXECUTION_FAILED.topic())) {
-            Object source = event.getSource();
-            if (source instanceof ComTaskExecution) {
-                ComTaskExecution comTaskExecution = (ComTaskExecution) source;
-                if (forCalendar(comTaskExecution)) {
-                    boolean planing = false;
-                    if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
-                        planing = true;
-                        if (comTaskExecution.getDevice().calendars().getPlannedPassive().isPresent()) {
-                            if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getAllowedCalendar().getId()
-                                    == timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getCalendar().getId()) {
-                                if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.FAILED)) {
-                                    timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.FAILED);
-                                    timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.CALENDAR_INSTALLATION_FAILED, LogLevel.INFO);
-                                    planing = false;
-                                }
-                            }
-                        }
-                    }
-                    if (planing) {
-                        comTaskExecution.schedule(timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getActivationStart());
-                    }
-                } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
-                        .anyMatch(StatusInformationTask.class::isInstance)) {
-                    if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
-                        if (withVerification(comTaskExecution)) {
-                            if (comTaskExecution.getDevice().getMessages().stream()
-                                    .filter(deviceMessage -> deviceMessage.getStatus().equals(DeviceMessageStatus.CONFIRMED))
-                                    .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 0)
-                                    .anyMatch(deviceMessage -> deviceMessage.getReleaseDate().equals(timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getActivationStart()))) {
-                                if (withVerification(comTaskExecution)) {
-                                    timeOfUseCampaignService.changeServiceCallStatus(comTaskExecution.getDevice(), DefaultState.FAILED);
-                                    timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_FAILED, LogLevel.INFO);
-                                }
-                            }
-                        }
-                    }
-                }
+        }
+
+    }
+
+    private boolean plannedCalendarIsOnCampaign(ComTaskExecution comTaskExecution) {
+        if (comTaskExecution.getDevice().calendars().getPlannedPassive().isPresent()) {
+            if (comTaskExecution.getDevice().calendars().getPlannedPassive().get().getAllowedCalendar().getCalendar().isPresent()) {
+                return comTaskExecution.getDevice().calendars().getPlannedPassive().get().getAllowedCalendar().getCalendar().get().getId()
+                        == timeOfUseCampaignService.getCampaignOn(comTaskExecution).get().getCalendar().getId();
             }
+        }
+        return false;
+    }
+
+    private boolean shouldCalendarBeInstalled(ComTaskExecution comTaskExecution) {
+        return comTaskExecution.getDevice().getMessages().stream()
+                .filter(deviceMessage -> (deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING)
+                        || deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING)))
+                .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 0)
+                .anyMatch(deviceMessage -> !deviceMessage.getReleaseDate().isAfter(clock.instant()));
+    }
+
+    private interface EventProcessor {
+        void process(ComTaskExecution source);
+    }
+
+    private void processEvent(LocalEvent event, EventProcessor processor) {
+        Object source = event.getSource();
+        if (source instanceof ComTaskExecution) {
+            ComTaskExecution comTaskExecution = (ComTaskExecution) source;
+            processor.process(comTaskExecution);
         }
     }
 
@@ -242,8 +260,8 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
     private boolean withVerification(ComTaskExecution comTaskExecution) {
         Optional<TimeOfUseCampaign> timeOfUseCampaign = timeOfUseCampaignService.getCampaignOn(comTaskExecution);
         if (timeOfUseCampaign.isPresent()) {
-            if (timeOfUseCampaign.get().getActivationDate() != null) {
-                return timeOfUseCampaign.get().getActivationDate().equals(TranslationKeys.IMMEDIATELY.getKey());
+            if (timeOfUseCampaign.get().getActivationOption() != null) {
+                return timeOfUseCampaign.get().getActivationOption().equals(TranslationKeys.IMMEDIATELY.getKey());
             }
         }
         return false;
