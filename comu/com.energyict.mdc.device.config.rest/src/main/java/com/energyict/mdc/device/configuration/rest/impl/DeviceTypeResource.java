@@ -400,7 +400,7 @@ public class DeviceTypeResource {
 
     @PUT
     @Transactional
-    @Path("/{id}/customproperties/{cpsId}")
+    @Path("/{id}/custompropertysets/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response editDeviceCustomAttribute(@PathParam("id") long id,
