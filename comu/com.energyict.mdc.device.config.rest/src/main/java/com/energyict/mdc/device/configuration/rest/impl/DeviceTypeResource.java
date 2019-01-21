@@ -402,7 +402,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response editDeviceCustomAttribute(@PathParam("id") long id,
                                               @PathParam("cpsId") long cpsId,
                                               DeviceTypeCustomPropertySetInfo info) {
