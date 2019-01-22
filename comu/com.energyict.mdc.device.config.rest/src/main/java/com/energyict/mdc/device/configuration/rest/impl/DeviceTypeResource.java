@@ -434,7 +434,7 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteDeviceTypeCustomPropertySetUsage(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("customPropertySetId") long customPropertySetId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        deviceType.removeCustomPropertySet(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId, Device.class));
+        deviceType.removeCustomPropertySet(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId, Device.class,DeviceType.class));
         return Response.ok().build();
     }
 
