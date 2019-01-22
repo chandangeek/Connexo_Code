@@ -154,7 +154,7 @@ public class Kaifa extends E350 {
     @Override
     public DlmsProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new Dsmr40Properties();
+            this.properties = new KaifaProperties();
         }
         return this.properties;
     }
