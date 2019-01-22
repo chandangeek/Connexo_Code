@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
     ],
     deviceTypeId: null,
     purposeStore: null,
+    router: null,
 
     initComponent: function () {
         var me = this;
@@ -37,7 +38,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                         itemId: 'device-type-detail-action-menu',
                         privileges: Mdc.privileges.DeviceType.admin,
                         menu: {
-                            xtype: 'device-type-action-menu'
+                            xtype: 'device-type-action-menu',
+                            router: me.router
+                            //router: me.getController('Uni.controller.history.Router')
                         }
                     }
                 ]
@@ -126,8 +129,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     {
                                         xtype: 'custom-attribute-sets-placeholder-form',
                                         itemId: 'custom-attribute-sets-placeholder-form-id',
-                                        actionMenuXtype: 'device-attributes-action-menu',
+                                        actionMenuXtype: 'device-type-action-menu',
+                                        //actionMenuXtype: 'device-attributes-action-menu',
                                         attributeSetType: 'devicetype',
+                                        //router: me.getController('Uni.controller.history.Router')
                                         router: me.router
                                     }
 
