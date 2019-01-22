@@ -343,7 +343,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_NOT_ADDED_BECAUSE_DIFFERENT_TYPE).format(numberOfDevices[3]));
             }
             if (numberOfDevices[0] > 0) {
-                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_NOT_ADDED_BECAUSE_DIFFERENT_TYPE).format(numberOfDevices[0]));
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_NOT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN).format(numberOfDevices[0]));
             }
             if (numberOfDevices[1] > 0) {
                 serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_NOT_ADDED_BECAUSE_HAVE_THIS_CALENDAR).format(numberOfDevices[1]));
