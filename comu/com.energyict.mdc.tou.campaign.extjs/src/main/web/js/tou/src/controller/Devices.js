@@ -59,9 +59,9 @@ Ext.define('Tou.controller.Devices', {
 
     onActionMenuClicked: function (menu, item) {
         switch (item.action) {
-            /*case 'cancelDevice':
+            case 'cancelDevice':
                 this.doCancelDeviceInTouCampaign(menu.record);
-                break;*/
+                break;
             case 'retryDevice':
                 this.doRetryDeviceInTouCampaign(menu.record);
                 break;
@@ -74,9 +74,10 @@ Ext.define('Tou.controller.Devices', {
 
         Ext.Ajax.request({
             url: url,
+            jsonData : {"id" : record.get('device').id},
             method: 'PUT',
             success: function (response) {
-                me.doUpdateRecord(record, response.responseText);
+                //me.doUpdateRecord(record, response.responseText);
                 me.getApplication().fireEvent('acknowledge', 'Tou upload for device cancelled');
             }
         });
@@ -87,6 +88,7 @@ Ext.define('Tou.controller.Devices', {
 
         Ext.Ajax.request({
             url: url,
+            jsonData : {"id" : record.get('device').id},
             method: 'PUT',
             success: function (response) {
                 me.getApplication().fireEvent('acknowledge', 'Tou upload for device rescheduled');

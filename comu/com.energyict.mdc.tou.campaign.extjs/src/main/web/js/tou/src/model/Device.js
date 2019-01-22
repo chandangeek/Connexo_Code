@@ -10,12 +10,13 @@ Ext.define('Tou.model.Device', {
         {name: 'startedOn', type: 'date', dateFormat: 'time'},
         {name: 'finishedOn', type: 'date', dateFormat: 'time'}
     ],
-    retryUrlTpl:  'api/tou/touCampaigns/retry/{deviceId}',
+    retryUrlTpl:  '../../api/tou/touCampaigns/retryDevice',
+    cancelUrlTpl:  '../../api/tou/touCampaigns/cancelDevice',
     cancelUrl: function () {
-        return this.replaceIds(this.cancelUrlTpl);
+        return this.cancelUrlTpl;
     },
     retryUrl: function () {
-        return this.replaceIds(this.retryUrlTpl);
+        return this.retryUrlTpl;
     },
     replaceIds: function(tpl){
         //var url = tpl.replace('{campaignName}', this.get('campaignName'));

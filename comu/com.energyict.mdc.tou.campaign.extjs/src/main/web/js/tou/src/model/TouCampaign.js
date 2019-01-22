@@ -43,10 +43,14 @@ Ext.define('Tou.model.TouCampaign', {
         api: {
              read: '/api/tou/touCampaigns',
              create: '/api/tou/touCampaigns/create',
-             update: '/api/tou/touCampaigns'
+             update: '/api/tou/touCampaigns/{touCampaignName}/edit'
         },
         reader: {
             type: 'json'
+        },
+        setUpdateUrl: function(value){
+            this.api.update = this.api.update.replace('{touCampaignName}', value);
+            return this.api.update;
         }
     },
     convertObjectField: function (value) {

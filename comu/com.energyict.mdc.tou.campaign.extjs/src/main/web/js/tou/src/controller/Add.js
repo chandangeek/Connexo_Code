@@ -74,7 +74,66 @@ Ext.define('Tou.controller.Add', {
             me.getStore(store).load(onDependenciesLoaded);
         });
     },
+    processRecord(form, record, justUpdated){
+            var deviceTypeId  = record.get('deviceType');
+            var activationStartItem = form.down('#activationStart');
+            var activationEndItem = form.down('#activationEnd');
+            /*if (activationStartItem){
+                var activationStart = activationStartItem.getValue();
+                activationStart = activationStart * 1000 + new Date().getTimezoneOffset() * 60 * 1000;
+                record.set('activationStart', activationStart);
+            }
+            if (activationEndItem){
+                var activationEnd = activationEndItem.getValue();
+                activationEnd = activationEnd  * 1000 + new Date().getTimezoneOffset() * 60 * 1000;
+                record.set('activationEnd', activationEnd);
+            }*/
+            if (!justUpdated){
+            if (deviceTypeId) record.set('deviceType', {"id" : deviceTypeId});
+            var activateCalendarItem = form.down('#activate-calendar');
+            if (activateCalendarItem){
+                var activationOption, activationDate;
+                activationOption = activateCalendarItem.getOptionValue();
+                if (activationOption) record.set('activationOption',activationOption);
+                if (activationOption == 'onDate' && activateCalendarItem.getDateValue()) record.set('activationDate',activateCalendarItem.getDateValue());
+                else if (record.data && record.data['activationDate'] !== undefined )  delete record.data["activationDate"];
+            }
+            var allowedCalendarItem = form.down('#tou-campaign-allowed-calendar');
+            if (allowedCalendarItem){
+                  record.set('calendar', {"id" : allowedCalendarItem.getValue()});
+            }
+            var timeValidationPeriodItem = form.down('#period-combo');
+            var timeValidationValueItem = form.down('#period-number');
+            if (timeValidationPeriodItem && timeValidationValueItem){
+                var timeInSec = timeValidationValueItem.getValue();
+                var timeValidationPeriod = timeValidationPeriodItem.findRecordByDisplay(timeValidationPeriodItem.getRawValue()).get('name');
+                switch(timeValidationPeriod){
+                    case "weeks":
+                       timeInSec *= 7;
+                    case "days":
+                        timeInSec *= 24;
+                    case "hours":
+                         timeInSec *= 60;
+                    case "minutes":
+                         timeInSec *= 60;
+                    break;
+                    default:
+                    break;
 
+                }
+                if (activateCalendarItem && activateCalendarItem.getOptionValue() == "immediately"){
+                   record.set('timeValidation', timeInSec);
+                 }else{
+                   record.set('timeValidation', null);
+                 }
+            }
+            }
+            if (record && record.data && record.data["devices"] !== undefined) delete record.data["devices"];
+            if (record && record.data && record.data["timeBoundary"] !== undefined) delete record.data["timeBoundary"];
+            if (record && record.data && record.data["startedOn"] !== undefined) delete record.data["startedOn"];
+            if (record && record.data && record.data["finishedOn"] !== undefined) delete record.data["finishedOn"];
+            if (record && record.data && record.data["status"] !== undefined) delete record.data["status"];
+    },
     addTouCampaign: function () {
         var me = this,
             page = me.getPage(),
@@ -94,51 +153,8 @@ Ext.define('Tou.controller.Add', {
         Ext.resumeLayouts(true);
         form.updateRecord();
         page.setLoading();
-        var record = form.getRecord();
-        var deviceTypeId  = record.get('deviceType');
-        if (deviceTypeId) record.set('deviceType', {"id" : deviceTypeId});
-        var activateCalendarItem = form.down('#activate-calendar');
-        if (activateCalendarItem){
-            var activationOption, activationDate;
-            activationOption = activateCalendarItem.getOptionValue();
-            if (activationOption) record.set('activationOption',activationOption);
-            if (activationOption == 'onDate' && activateCalendarItem.getDateValue()) record.set('activationDate',activateCalendarItem.getDateValue());
-            else if (record.data && record.data['activationDate'] !== undefined )  delete record.data["activationDate"];
-        }
-        var allowedCalendarItem = form.down('#tou-campaign-allowed-calendar');
-        if (allowedCalendarItem){
-              record.set('calendar', {"id" : allowedCalendarItem.getValue()});
-        }
-        var timeValidationPeriodItem = form.down('#period-combo');
-        var timeValidationValueItem = form.down('#period-number');
-        if (timeValidationPeriodItem && timeValidationValueItem){
-            var timeInSec = timeValidationValueItem.getValue();
-            var timeValidationPeriod = timeValidationPeriodItem.getValue();
-            switch(timeValidationPeriod){
-                case "weeks":
-                   timeInSec *= 7;
-                case "days":
-                    timeInSec *= 24;
-                case "hours":
-                     timeInSec *= 60;
-                case "minutes":
-                     timeInSec *= 60;
-                break;
-                default:
-                break;
-
-            }
-            if (activateCalendarItem && activateCalendarItem.getOptionValue() == "immediately"){
-               record.set('timeValidation', timeInSec);
-             }else{
-               record.set('timeValidation', null);
-             }
-        }
-        if (record && record.data && record.data["devices"] !== undefined) delete record.data["devices"];
-        if (record && record.data && record.data["timeBoundary"] !== undefined) delete record.data["timeBoundary"];
-        if (record && record.data && record.data["startedOn"] !== undefined) delete record.data["startedOn"];
-        if (record && record.data && record.data["finishedOn"] !== undefined) delete record.data["finishedOn"];
-        if (record && record.data && record.data["status"] !== undefined) delete record.data["status"];
+        var record = form.getRecord()
+        me.processRecord(form, form.getRecord());
         record.save({
             backUrl: page.returnLink,
             success: function (record, operation) {
@@ -195,8 +211,35 @@ Ext.define('Tou.controller.Add', {
             form.campaignRecordBeingEdited.set('activationEnd', timeBoundaryEndField.getValue());
             nameOrTimeBoundaryChanged = true;
         }
+        var touCampaignName = form.campaignRecordBeingEdited.get('name');
+        var url = form.campaignRecordBeingEdited.getProxy().setUpdateUrl(touCampaignName);
+        me.processRecord(form, form.campaignRecordBeingEdited, true);
+        Ext.Ajax.request({
+            url: url,
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            jsonData: form.campaignRecordBeingEdited.data, // can be any object or JSON string
+            success: function(response, opts) {
+                me.getApplication().fireEvent('acknowledge', 'Tou campaign saved');
+                if (page.rendered) {
+                      window.location.href = page.returnLink;
+                }
+            },
+            failure: function (record, operation) {
+                 var responseText = Ext.decode(record.responseText, true);
 
-        form.campaignRecordBeingEdited.save({
+                 if (page.rendered && responseText && responseText.errors) {
+                        Ext.suspendLayouts();
+                        baseForm.markInvalid(responseText.errors);
+                        errorMessage.show();
+                        Ext.resumeLayouts(true);
+                 }
+            },
+            callback: function () {
+                  page.setLoading(false);
+            }
+        });
+        /*form.campaignRecordBeingEdited.save({
             backUrl: page.returnLink,
             success: function (record, operation) {
                 me.getApplication().fireEvent('acknowledge', 'Tou campaign saved');
@@ -217,6 +260,6 @@ Ext.define('Tou.controller.Add', {
             callback: function () {
                 page.setLoading(false);
             }
-        });
+        });*/
     }
 });

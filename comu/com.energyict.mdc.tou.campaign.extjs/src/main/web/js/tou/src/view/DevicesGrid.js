@@ -90,7 +90,7 @@ Ext.define('Tou.view.DevicesGrid', {
                         case 'Pending':
                         case 'Ongoing':
                             return false;
-                        case 'Cancelled':
+                        case 'Canceled':
                         case 'Failed':
                         case 'Configuration Error':
                             return false; // because the device can be retried

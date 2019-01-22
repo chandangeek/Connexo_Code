@@ -137,8 +137,26 @@ Ext.define('Tou.view.DetailForm', {
                           itemId: 'time-validation-field',
                           fieldLabel: 'Timeout before validation',
                           name: 'timeValidation',
-                          renderer: function (value) {
-                               return value ? '<span>' + Uni.DateTime.formatTimeShort(new Date(value)) + '</span>' : '-'
+                          renderer: function (validationTimeout) {
+                               var res = "-";
+                               if(validationTimeout){
+                                    var timeUnit = 'minutes';
+                                    validationTimeout = validationTimeout/60;
+                                    if (validationTimeout % 60 === 0 ){
+                                        validationTimeout = validationTimeout/60;
+                                        timeUnit = 'hours';
+                                        if (validationTimeout % 24 === 0 ){
+                                            validationTimeout = validationTimeout/24;
+                                            timeUnit = 'days';
+                                            if (validationTimeout % 7 === 0) {
+                                                  validationTimeout = validationTimeout/7;
+                                                  timeUnit = 'weeks';
+                                            }
+                                        }
+                                    }
+                                    res = Ext.String.format('{0} {1}', validationTimeout, timeUnit);
+                               }
+                               return res;
                           }
                     }
                     ]

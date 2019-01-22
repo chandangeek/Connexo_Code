@@ -33,7 +33,7 @@ Ext.define('Tou.view.DeviceActionMenu', {
         beforeshow: function(menu) {
             var currentDeviceStatus = menu.record.get('status'),
                 cancelAllowed = currentDeviceStatus === 'Pending' || currentDeviceStatus === 'Ongoing',
-                retryAllowed = currentDeviceStatus === 'Cancelled' || currentDeviceStatus === 'Failed' || currentDeviceStatus === 'Configuration Error',
+                retryAllowed = currentDeviceStatus === 'Canceled' || currentDeviceStatus === 'Failed' || currentDeviceStatus === 'Configuration Error',
                 cancelMenuItem = menu.down('#tou-device-action-cancel'),
                 retryMenuItem = menu.down('#tou-device-action-retry');
 

@@ -128,6 +128,7 @@ Ext.define('Tou.view.AddForm', {
             },
             {
                 itemId: 'tou-period-values',
+                id: 'tou-period-values',
                 xtype: 'fieldcontainer',
                 name: 'timeValidation',
                 fieldLabel: 'Timeout before validation',
@@ -157,11 +158,11 @@ Ext.define('Tou.view.AddForm', {
                         width: 100,
                         listeners: {
                             afterrender: function() {
-                                  var defaultVal = this.store.getAt('1').get('name');
+                                  var defaultVal = this.store.getAt('1');
                                   //var periodCombo = this;
                                   //periodCombo.setRawValue(periodCombo.getStore().findRecord('name',validationTimeout.timeUnit).get('displayValue'));
                                   //periodNumber.setValue(validationTimeout.id);
-                                  this.setRawValue(defaultVal);
+                                  this.setValue(defaultVal);
                                   //this.select(defaultVal, true);
                                 }
                         }
@@ -180,6 +181,7 @@ Ext.define('Tou.view.AddForm', {
                    queryMode: 'local',
                    displayField: 'name',
                    valueField: 'id',
+                   margin: '30 0 10 0',
                    hidden: true
             },
             {
@@ -212,16 +214,18 @@ Ext.define('Tou.view.AddForm', {
     },
     onDeviceTypeChange: function(radiogroup, newValue){
          var me = this;
+         if (!radiogroup.findRecordByValue(newValue)) return;
          var activateCalendarItem = me.down('#activate-calendar');
          activateCalendarItem.show();
          me.down('#tou-update-type').show();
-         me.down('#tou-period-values').show();
+         //me.down('#tou-period-values').show();
          var cbxCal = me.down('#tou-campaign-allowed-calendar');
          cbxCal.show();
          var calStore = Ext.create('Tou.store.AllowedDeviceTypeOptions');
          calStore.getProxy().setUrl(newValue);
          calStore.load(function(){
              var calParams = calStore.getAt(0);
+             if (!calParams) return;
              cbxCal.bindStore(calParams.calendars());
 
              if (calParams.get('fullCalendar')) {
@@ -254,15 +258,11 @@ Ext.define('Tou.view.AddForm', {
                 DeviceGroupComboAndSetDeviceType = function() {
                     deviceGroupCombo.setDisabled(true);
                     deviceGroupCombo.setRawValue(campaignRecord.get('deviceGroup'));
-                    //deviceGroupComboContainer.allowBlank = true;
-                    //deviceGroupComboContainer.hide();
                     deviceTypeCombo.setDisabled(true);
                     deviceTypeCombo.setValue(deviceTypeId);
                 },
                 setTimeoutFld = function(validationTimeout){
                     if(validationTimeout){
-                        /*periodCombo.setRawValue(periodCombo
-                            .getStore().findRecord('name',validationTimeout.timeUnit).get('displayValue'));*/
                         var timeUnit = 'minutes';
                         validationTimeout = validationTimeout/60;
                         if (validationTimeout % 60){
@@ -288,10 +288,9 @@ Ext.define('Tou.view.AddForm', {
                     periodValues.setDisabled(true);
                     setTimeoutFld(campaignRecord.get('timeValidation'));
                     var timeStartInSec = new Date(campaignRecord.get('activationStart')/1000);
-                    var timeEndInSec = new Date(campaignRecord.get('activationEndt')/1000);
+                    var timeEndInSec = new Date(campaignRecord.get('activationEnd')/1000);
                     me.down("#activationStart").setValue(timeStartInSec.getHours() *3600 + timeStartInSec.getMinutes() *60);
                     me.down("#activationEnd").setValue(timeEndInSec.getHours() *3600 + timeEndInSec.getMinutes() *60);
-                    //me.down("#activate-calendar").setValue({"activationOption" : campaignRecord.get('activationOption'), "activationDate" : campaignRecord.get('activationDate')})
                     me.down("#activate-calendar").setDisabled(true);
                     me.down("#tou-campaign-allowed-calendar").setValue(campaignRecord.get('calendar').id);
                     me.down("#tou-campaign-allowed-calendar").setDisabled(true);

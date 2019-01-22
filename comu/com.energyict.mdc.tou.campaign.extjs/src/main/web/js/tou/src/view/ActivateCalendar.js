@@ -59,6 +59,7 @@ Ext.define('Tou.view.ActivateCalendar', {
                 ],
                 listeners: {
                     change: function (field, newValue) {
+                        var timeoutFld = Ext.getCmp('tou-period-values');
                         var uploadFileDateContainer = me.down('#uploadFileDateContainer');
                         if (newValue[me.groupName] == 'withoutActivation' || newValue[me.groupName] == 'immediately') {
                             uploadFileDateContainer.disable();
@@ -66,6 +67,11 @@ Ext.define('Tou.view.ActivateCalendar', {
                          } else {
                              uploadFileDateContainer.enable();
                              uploadFileDateContainer.setValue(moment().startOf('day').add('days', 1));
+                         }
+                         if (newValue[me.groupName] == 'immediately'){
+                             timeoutFld.show();
+                         }else{
+                             timeoutFld.hide();
                          }
 
                     }
