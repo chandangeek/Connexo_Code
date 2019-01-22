@@ -149,12 +149,12 @@ public class GetMeterConfigFactoryImpl implements GetMeterConfigFactory {
                 if (values.getEffectiveRange().hasLowerBound()) {
                     customAttribute.setFromDateTime(values.getEffectiveRange().lowerEndpoint());
                 } else {
-                    customAttribute.setFromDateTime(Instant.ofEpochMilli(Long.MIN_VALUE));
+                    customAttribute.setFromDateTime(null);
                 }
                 if (values.getEffectiveRange().hasUpperBound()) {
                     customAttribute.setToDateTime(values.getEffectiveRange().upperEndpoint());
                 } else {
-                    customAttribute.setToDateTime(Instant.ofEpochMilli(Long.MAX_VALUE));
+                    customAttribute.setToDateTime(null);
                 }
             }
         }
