@@ -80,7 +80,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
 
     @Override
     public String getVersion() {
-        return "Enexis first protocol integration version 16.01.2019";
+        return "E350 protocol integration version 16.01.2019";
     }
 
     @Override
