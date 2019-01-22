@@ -133,7 +133,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
 
@@ -269,6 +268,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Optional<DeviceType> findAndLockDeviceType(long id, long version) {
         return this.getDataModel().mapper(DeviceType.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<DeviceType> findAndLockDeviceType(long id) {
+        return Optional.ofNullable(dataModel.mapper(DeviceType.class).lock(id));
     }
 
     @Override

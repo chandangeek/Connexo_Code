@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import java.util.Collections;
@@ -30,6 +31,8 @@ public class FirmwareVersionEqualityTest extends EqualsContractTest {
     private EventService eventService;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
 
     FirmwareVersionImpl setId(FirmwareVersionImpl entity, long id) {
         field("id").ofType(Long.TYPE).in(entity).set(id);
@@ -39,19 +42,19 @@ public class FirmwareVersionEqualityTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (firmwareInstance == null) {
-            firmwareInstance = setId(new FirmwareVersionImpl(dataModel, eventService, thesaurus), fimwareVersionInstanceId);
+            firmwareInstance = setId(new FirmwareVersionImpl(dataModel, eventService, thesaurus, deviceConfigurationService), fimwareVersionInstanceId);
         }
         return firmwareInstance;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return setId(new FirmwareVersionImpl(dataModel, eventService, thesaurus), fimwareVersionInstanceId);
+        return setId(new FirmwareVersionImpl(dataModel, eventService, thesaurus, deviceConfigurationService), fimwareVersionInstanceId);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return Collections.singletonList(setId(new FirmwareVersionImpl(dataModel, eventService, thesaurus), fimwareVersionInstanceId+1));
+        return Collections.singletonList(setId(new FirmwareVersionImpl(dataModel, eventService, thesaurus, deviceConfigurationService), fimwareVersionInstanceId+1));
     }
 
     @Override

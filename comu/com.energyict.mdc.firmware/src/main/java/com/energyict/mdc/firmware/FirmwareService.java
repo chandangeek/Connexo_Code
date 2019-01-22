@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -137,4 +138,8 @@ public interface FirmwareService {
     DeviceFirmwareHistory getFirmwareHistory(Device device);
 
     Stream<FirmwareCheck> getFirmwareChecks();
+
+    List<? extends FirmwareVersion> getOrderedFirmwareVersions(DeviceType deviceType);
+
+    void reorderFirmwareVersions(DeviceType deviceType, KPermutation kPermutation);
 }

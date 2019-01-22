@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -41,9 +42,16 @@ public enum TableSpecs {
             table.column("FIRMWAREFILE").blob().map(FirmwareVersionImpl.Fields.FIRMWAREFILE.fieldName()).add();
             table.column("IMAGEIDENTIFIER").varChar(80).map(FirmwareVersionImpl.Fields.IMAGEIDENTIFIER.fieldName()).add().since(version(10, 4));
             table.addAuditColumns();
+            table.column(FirmwareVersionImpl.Fields.RANK.name())
+                    .number()
+                    .notNull()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map(FirmwareVersionImpl.Fields.RANK.fieldName())
+                    .since(Version.version(10, 6))
+                    .installValue("0")
+                    .add();
             table.primaryKey("FWC_PK_FIRMWARE").on(idColumn).add();
-            table
-                    .foreignKey("FWC_FK_DEVICETYPE")
+            table.foreignKey("FWC_FK_DEVICETYPE")
                     .on(deviceTypeColumn)
                     .references(DeviceType.class)
                     .map(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName())

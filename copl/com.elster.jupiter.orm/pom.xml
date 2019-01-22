@@ -12,7 +12,7 @@
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>orm</artifactId>
-    <version>4.2.5${revision}</version>
+    <version>4.3.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.orm</name>
 

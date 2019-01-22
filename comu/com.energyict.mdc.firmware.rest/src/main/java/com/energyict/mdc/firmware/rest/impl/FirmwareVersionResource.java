@@ -10,6 +10,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.collections.KPermutation;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -18,7 +19,6 @@ import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
-
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -132,6 +132,26 @@ public class FirmwareVersionResource {
         setFirmwareFile(version, firmwareFile);
 
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/reorder")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    public Response reorderFirmwareVersions(@PathParam("deviceTypeId") long deviceTypeId, List<FirmwareVersionInfo> firmwareVersionInfoList) {
+        if (firmwareVersionInfoList != null && !firmwareVersionInfoList.isEmpty()) {
+            DeviceType deviceType = resourceHelper.findAndLockDeviceTypeOrThrowException(deviceTypeId);
+            List<? extends FirmwareVersion> sortedFirmwareVersions = firmwareService.getOrderedFirmwareVersions(deviceType);
+            long[] current = sortedFirmwareVersions.stream().mapToLong(FirmwareVersion::getId).toArray();
+            long[] target = firmwareVersionInfoList.stream().mapToLong(firmwareInfo -> firmwareInfo.id).toArray();
+            KPermutation kPermutation = KPermutation.of(current, target);
+            if (!kPermutation.isNeutral(sortedFirmwareVersions)) {
+                firmwareService.reorderFirmwareVersions(deviceType, kPermutation);
+            }
+        }
+        return Response.ok().build();
     }
 
     @PUT
@@ -320,16 +340,8 @@ public class FirmwareVersionResource {
         return null;
     }
 
-    private FirmwareVersionBuilder getFirmwareVersionBuilder(DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType, String imageIdentifier)
-    {
-        FirmwareVersionBuilder firmwareVersionBuilder;
-        if (FirmwareType.CA_CONFIG_IMAGE.equals(firmwareType)) {
-            firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType, firmwareVersion);
-        }
-       else {
-            firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType, imageIdentifier);
-        }
-        return firmwareVersionBuilder;
+    private FirmwareVersionBuilder getFirmwareVersionBuilder(DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType, String imageIdentifier) {
+        return firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType,
+                FirmwareType.CA_CONFIG_IMAGE.equals(firmwareType) ? firmwareVersion : imageIdentifier);
     }
-
 }

@@ -10,12 +10,15 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Blob;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.SimpleBlob;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
@@ -31,17 +34,22 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Instant;
 
+@LiteralSql
 @UniqueFirmwareVersionByType(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 @IsValidStatusTransfer(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.STATE_TRANSFER_NOT_ALLOWED + "}")
 @IsFileRequired(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @IsStatusRequired(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 public final class FirmwareVersionImpl implements FirmwareVersion {
-
     private final Thesaurus thesaurus;
     private final DataModel dataModel;
     private final EventService eventService;
+    private final DeviceConfigurationService deviceConfigurationService;
+
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH + "}")
@@ -59,6 +67,7 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String imageIdentifier;
+    private int rank;
     @SuppressWarnings("unused")
     private Instant createTime;
     private Instant modTime;
@@ -69,10 +78,11 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     private FirmwareStatus oldFirmwareStatus;
 
     @Inject
-    public FirmwareVersionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    public FirmwareVersionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
         this.thesaurus = thesaurus;
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     public void save() {
@@ -199,7 +209,8 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
 
     @Override
     public void validate() {
-        Save.CREATE.validate(dataModel, this);
+        (id == 0 ? Save.CREATE : Save.UPDATE)
+                .validate(dataModel, this);
     }
 
     @Override
@@ -277,21 +288,24 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     }
 
     @Override
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    @Override
     public int hashCode() {
         return (int) (id ^ (id >>> 32));
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        } else if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        FirmwareVersionImpl that = (FirmwareVersionImpl) o;
-        return id == that.id;
-
+        return this == o
+                || o != null && getClass() == o.getClass()
+                && id == ((FirmwareVersionImpl) o).id;
     }
 
     enum Fields {
@@ -300,7 +314,8 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         FIRMWARETYPE("firmwareType"),
         FIRMWARESTATUS("firmwareStatus"),
         FIRMWAREFILE("firmwareFile"),
-        IMAGEIDENTIFIER("imageIdentifier");
+        IMAGEIDENTIFIER("imageIdentifier"),
+        RANK("rank");
 
         private final String javaFieldName;
 
@@ -341,6 +356,9 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
 
         @Override
         public FirmwareVersion create() {
+            DeviceType deviceType = underConstruction.getDeviceType();
+            underConstruction.deviceConfigurationService.findAndLockDeviceType(deviceType.getId())
+                    .ifPresent(this::setRank);
             underConstruction.save();
             return underConstruction;
         }
@@ -348,6 +366,24 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         @Override
         public void validate() {
             underConstruction.validate();
+        }
+
+        private void setRank(DeviceType deviceType) {
+            underConstruction.dataModel.useConnectionNotRequiringTransaction(connection -> {
+                String maxRankStatement = "select nvl(max(" + FirmwareVersionImpl.Fields.RANK.name() + "), 0)"
+                        + " from " + TableSpecs.FWC_FIRMWAREVERSION.name()
+                        + " where " + FirmwareVersionImpl.Fields.DEVICETYPE.name() + " = " + deviceType.getId();
+                try (Statement statement = connection.createStatement();
+                     ResultSet resultSet = statement.executeQuery(maxRankStatement)) {
+                    if (resultSet.next()) {
+                        underConstruction.rank = resultSet.getInt(1) + 1;
+                    } else {
+                        underConstruction.rank = 1;
+                    }
+                } catch (SQLException e) {
+                    throw new UnderlyingSQLFailedException(e);
+                }
+            });
         }
     }
 }

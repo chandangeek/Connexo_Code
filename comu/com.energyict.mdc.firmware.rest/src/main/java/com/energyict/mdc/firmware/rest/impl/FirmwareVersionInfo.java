@@ -16,4 +16,5 @@ public class FirmwareVersionInfo {
     public Boolean isInUse;
     public long version;
     public String imageIdentifier;
+    public int rank;
 }

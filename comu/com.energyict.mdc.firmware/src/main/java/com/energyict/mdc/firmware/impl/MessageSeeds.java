@@ -32,7 +32,8 @@ public enum MessageSeeds implements MessageSeed {
     CURRENT_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(19, "FirmwareRankBelowMinimumSupported", "{0} has its rank below the requested minimum level.", Level.WARNING),
     UPLOADED_FIRMWARE_RANK_BELOW_CURRENT(20, "UploadedFirmwareRankBelowCurrent", "Uploaded firmware has a lower rank than current.", Level.WARNING),
     MASTER_FIRMWARE_NOT_LATEST(21, "MasterFirmwareNotLatest", "Master device doesn''t have the latest firmware.", Level.WARNING),
-    CURRENT_FIRMWARE_IS_GHOST(22, "CurrentFirmwareIsGhost", "There is firmware with ghost status on the device.", Level.WARNING)
+    CURRENT_FIRMWARE_IS_GHOST(22, "CurrentFirmwareIsGhost", "There is firmware with ghost status on the device.", Level.WARNING),
+    INVALID_FIRMWARE_VERSIONS_PERMUTATION(23, "InvalidFirmwareVersionsPermutation", "The permutation of firmware versions isn''t valid. Their list may have changed since the page was last updated.", Level.SEVERE)
     ;
 
     private final int number;

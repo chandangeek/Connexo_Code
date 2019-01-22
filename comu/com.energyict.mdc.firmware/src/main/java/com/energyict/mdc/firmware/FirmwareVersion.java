@@ -60,6 +60,8 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
 
     void setImageIdentifier(String imageIdentifier);
 
+    int getRank();
+
     default int compareTo(FirmwareVersion o) {
         return compare(this, o);
     }
@@ -68,6 +70,6 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
         if (!fw1.getDeviceType().equals(fw2.getDeviceType())) {
             throw new IllegalStateException("Can't compare ranks of firmware versions on different device types!");
         }
-        return Long.compare(fw1.getId(), fw2.getId()); // TODO: ranks, not ids
+        return Integer.compare(fw1.getRank(), fw2.getRank());
     }
 }

@@ -22,24 +22,25 @@ public class FirmwareVersionInfoFactory {
         this.firmwareService = firmwareService;
     }
 
-    public List<FirmwareVersionInfo> from(List<FirmwareVersion> firmwareVersions){
+    public List<FirmwareVersionInfo> from(List<FirmwareVersion> firmwareVersions) {
         return firmwareVersions.stream().map(this::from).collect(Collectors.toList());
     }
 
-    public FirmwareVersionInfo from(FirmwareVersion firmwareVersion){
+    public FirmwareVersionInfo from(FirmwareVersion firmwareVersion) {
         FirmwareVersionInfo info = new FirmwareVersionInfo();
         info.id = firmwareVersion.getId();
         info.firmwareVersion = firmwareVersion.getFirmwareVersion();
         info.firmwareStatus = new FirmwareStatusInfo(firmwareVersion.getFirmwareStatus(), thesaurus);
         info.firmwareType = new FirmwareTypeInfo(firmwareVersion.getFirmwareType(), thesaurus);
         info.version = firmwareVersion.getVersion();
-        if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(firmwareVersion.getDeviceType())){
+        if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(firmwareVersion.getDeviceType())) {
             info.imageIdentifier = firmwareVersion.getImageIdentifier();
         }
+        info.rank = firmwareVersion.getRank();
         return info;
     }
 
-    public FirmwareVersionInfo fullInfo(FirmwareVersion firmwareVersion){
+    public FirmwareVersionInfo fullInfo(FirmwareVersion firmwareVersion) {
         FirmwareVersionInfo info = from(firmwareVersion);
         info.isInUse = firmwareService.isFirmwareVersionInUse(firmwareVersion.getId());
         return info;

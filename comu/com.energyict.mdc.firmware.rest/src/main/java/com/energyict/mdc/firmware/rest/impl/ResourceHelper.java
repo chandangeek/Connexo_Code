@@ -65,6 +65,11 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId));
     }
 
+    public DeviceType findAndLockDeviceTypeOrThrowException(long deviceTypeId) {
+        return deviceConfigurationService.findAndLockDeviceType(deviceTypeId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId));
+    }
+
     public Device findDeviceByNameOrThrowException(String deviceName) {
         return deviceService.findDeviceByName(deviceName)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEVICE_NOT_FOUND, deviceName));
