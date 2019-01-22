@@ -189,8 +189,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND));
         supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME));
 // TODO: check if these messages are still valid as they include also special days, as in 8.11 spec days and calendar are separate msgs[COMMUNICATION-2766]
-//        supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_SEND));
-//        supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME));
+        supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_SEND));
+        supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME));
         supportedMessages.add(this.get(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND));
         supportedMessages.add(this.get(ClockDeviceMessage.SET_TIME));
         supportedMessages.add(this.get(AdvancedTestMessage.XML_CONFIG));

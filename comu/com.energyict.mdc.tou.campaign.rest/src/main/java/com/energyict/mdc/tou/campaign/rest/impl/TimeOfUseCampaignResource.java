@@ -114,8 +114,8 @@ public class TimeOfUseCampaignResource {
     @Path("/retryDevice")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
-    public Response retryDevice(long id) {
-        timeOfUseCampaignService.retryDevice(id);
+    public Response retryDevice(IdWithNameInfo id) {
+        timeOfUseCampaignService.retryDevice(((Integer)id.id).longValue());
         return Response.ok().build();
     }
 
@@ -124,8 +124,8 @@ public class TimeOfUseCampaignResource {
     @Path("/cancelDevice")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
-    public Response cancelDevice(long id) {
-        timeOfUseCampaignService.cancelDevice(id);
+    public Response cancelDevice(IdWithNameInfo id) {
+        timeOfUseCampaignService.cancelDevice(((Integer)id.id).longValue());
         return Response.ok().build();
     }
 
