@@ -74,7 +74,7 @@ Ext.define('Tou.controller.Add', {
             me.getStore(store).load(onDependenciesLoaded);
         });
     },
-    processRecord(form, record, justUpdated){
+    processRecord: function((form, record, justUpdated){
             var deviceTypeId  = record.get('deviceType');
             var activationStartItem = form.down('#activationStart');
             var activationEndItem = form.down('#activationEnd');
