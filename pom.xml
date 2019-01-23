@@ -9,7 +9,7 @@
 
 	<groupId>com.elster.jupiter</groupId>
 	<artifactId>parent</artifactId>
-	<version>10.4.5-Hydra-SNAPSHOT</version>
+	<version>0.0.1-Hydra-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>[Jupiter] com.elster.jupiter.parent</name>
 
@@ -317,7 +317,7 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-			<plugin>
+			<!--plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
@@ -350,7 +350,7 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin-->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
@@ -397,7 +397,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
+			<!--plugin>
 				<groupId>com.elster.plugin</groupId>
 				<artifactId>bundle-version-maven-plugin</artifactId>
 				<version>1.0-SNAPSHOT</version>				
@@ -412,7 +412,7 @@
 					</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin-->
 		</plugins>
 	</build>
 
