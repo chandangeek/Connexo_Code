@@ -190,6 +190,7 @@ Ext.define('Tou.controller.Add', {
         Ext.resumeLayouts(true);
 
         var touCampaignOldName = form.campaignRecordBeingEdited.get('name');
+        var touCampaignNewName = nameField.getValue();
 
         if (form.campaignRecordBeingEdited.get('name') != nameField.getValue()) {
             form.campaignRecordBeingEdited.set('name', nameField.getValue());
@@ -205,6 +206,7 @@ Ext.define('Tou.controller.Add', {
         }
         me.processRecord(form, form.campaignRecordBeingEdited, true);
         var url = form.campaignRecordBeingEdited.getProxy().setUpdateUrl(touCampaignOldName);
+        page.returnLink = page.returnLink.replace(touCampaignOldName, touCampaignNewName);
         Ext.Ajax.request({
             url: url,
             method: 'PUT',
@@ -231,27 +233,5 @@ Ext.define('Tou.controller.Add', {
                   form.campaignRecordBeingEdited.getProxy().resetUpdateUrl();
             }
         });
-        /*form.campaignRecordBeingEdited.save({
-            backUrl: page.returnLink,
-            success: function (record, operation) {
-                me.getApplication().fireEvent('acknowledge', 'Tou campaign saved');
-                if (page.rendered) {
-                    window.location.href = page.returnLink;
-                }
-            },
-            failure: function (record, operation) {
-                var responseText = Ext.decode(operation.response.responseText, true);
-
-                if (page.rendered && responseText && responseText.errors) {
-                    Ext.suspendLayouts();
-                    baseForm.markInvalid(responseText.errors);
-                    errorMessage.show();
-                    Ext.resumeLayouts(true);
-                }
-            },
-            callback: function () {
-                page.setLoading(false);
-            }
-        });*/
     }
 });

@@ -46,7 +46,8 @@ Ext.define('Tou.controller.Devices', {
                     itemId: 'tou-campaign-devices',
                     router: router,
                     deviceType: record.get('deviceType'),
-                    campaignIsOngoing:record.get('status') === 'Ongoing'
+                    campaignIsOngoing:record.get('status') === 'Ongoing',
+                    returnLink: router.getRoute('workspace/toucampaigns/toucampaign/devices').buildUrl()
                 }));
                 me.getSideMenu().setHeader(record.get('name'));
                 me.getApplication().fireEvent('loadTouCampaign', record);
@@ -70,7 +71,9 @@ Ext.define('Tou.controller.Devices', {
 
     doCancelDeviceInTouCampaign: function (record) {
         var me = this,
-            url = record.cancelUrl();
+            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            url = record.cancelUrl(),
+            devicesWidget = pageView.down("#tou-campaign-devices");
 
         Ext.Ajax.request({
             url: url,
@@ -78,20 +81,28 @@ Ext.define('Tou.controller.Devices', {
             method: 'PUT',
             success: function (response) {
                 //me.doUpdateRecord(record, response.responseText);
-                me.getApplication().fireEvent('acknowledge', 'Tou upload for device cancelled');
+                me.getApplication().fireEvent('acknowledge', ' Time of use upload for device cancelled');
+                if (pageView.rendered) {
+                   window.location.href = devicesWidget.returnLink;
+                }
             }
         });
     },
     doRetryDeviceInTouCampaign : function (record) {
         var me = this,
-            url = record.retryUrl();
+            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            url = record.retryUrl(),
+            devicesWidget = pageView.down("#tou-campaign-devices");
 
         Ext.Ajax.request({
             url: url,
             jsonData : {"id" : record.get('device').id},
             method: 'PUT',
             success: function (response) {
-                me.getApplication().fireEvent('acknowledge', 'Tou upload for device rescheduled');
+                me.getApplication().fireEvent('acknowledge', ' Time of use upload for device rescheduled');
+                if (pageView.rendered) {
+                    window.location.href = devicesWidget.returnLink;
+                }
             }
         });
     },
