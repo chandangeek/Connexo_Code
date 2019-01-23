@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.rest.impl.zone.ZoneInfo;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneBuilder;
 import com.elster.jupiter.metering.zone.ZoneType;
+import com.elster.jupiter.metering.zone.ZoneTypeBuilder;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -50,6 +51,8 @@ public class ZoneResourceTest extends MeteringApplicationJerseyTest {
 
     @Mock
     private ZoneBuilder zoneBuilder;
+    @Mock
+    private ZoneTypeBuilder zoneTypeBuilder;
 
     @Before
     public void setUp1() {
@@ -74,6 +77,10 @@ public class ZoneResourceTest extends MeteringApplicationJerseyTest {
         when(zoneBuilder.withZoneType(any(ZoneType.class))).thenReturn(zoneBuilder);
         when(zoneBuilder.create()).thenReturn(newZone);
         when(meteringZoneService.getZoneType(any(), any())).thenReturn(Optional.of(zoneType1));
+
+        when(meteringZoneService.newZoneTypeBuilder()).thenReturn(zoneTypeBuilder);
+        when(zoneTypeBuilder.withName(any(String.class))).thenReturn(zoneTypeBuilder);
+        when(zoneTypeBuilder.withApplication(any(String.class))).thenReturn(zoneTypeBuilder);
 
         Zone updateZone = mockZone(ZONE_ID, ZONE_NAME, APPLICATION, VERSION, ZONE_TYPE_ID, ZONE_TYPE_NAME);
         when(meteringZoneService.getAndLockZone(ZONE_ID, VERSION)).thenReturn(Optional.of(updateZone));
@@ -172,6 +179,16 @@ public class ZoneResourceTest extends MeteringApplicationJerseyTest {
         assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
         assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("name");
         assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("This field is required");
+    }
+
+    @Test
+    public void testCreateZoneWithInexistentTypeName() throws Exception {
+        when(meteringZoneService.getZoneType(any(), any())).thenReturn(Optional.empty());
+        ZoneInfo info = new ZoneInfo(0L, ZONE_NAME, APPLICATION, ZONE_TYPE_ID, "inexistentType", VERSION);
+
+        Entity<ZoneInfo> json = Entity.json(info);
+        Response response = target("/zones").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
     @Test

@@ -158,6 +158,7 @@ public class DeviceResource {
     private final Provider<DeviceHistoryResource> deviceHistoryResourceProvider;
     private final Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider;
     private final Provider<GoingOnResource> goingOnResourceProvider;
+    private final Provider<DeviceZoneResource> deviceResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
     private final LocationInfoFactory locationInfoFactory;
@@ -206,6 +207,7 @@ public class DeviceResource {
             Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
             Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider,
             Provider<GoingOnResource> goingOnResourceProvider,
+            Provider<DeviceZoneResource> deviceResourceProvider,
             DeviceInfoFactory deviceInfoFactory,
             DeviceAttributesInfoFactory deviceAttributesInfoFactory,
             LocationInfoFactory locationInfoFactory,
@@ -252,6 +254,7 @@ public class DeviceResource {
         this.deviceHistoryResourceProvider = deviceHistoryResourceProvider;
         this.deviceLifeCycleActionResourceProvider = deviceLifeCycleActionResourceProvider;
         this.goingOnResourceProvider = goingOnResourceProvider;
+        this.deviceResourceProvider = deviceResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
         this.locationInfoFactory = locationInfoFactory;
@@ -947,6 +950,11 @@ public class DeviceResource {
     @Path("/{name}/transitions")
     public DeviceLifeCycleActionResource getDeviceLifeCycleActionsResource() {
         return deviceLifeCycleActionResourceProvider.get();
+    }
+
+    @Path("/{name}/zones")
+    public DeviceZoneResource getDeviceZoneResourceResource() {
+        return deviceResourceProvider.get();
     }
 
     @GET

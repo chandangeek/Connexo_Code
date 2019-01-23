@@ -6,6 +6,10 @@ package com.elster.jupiter.metering.zone.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.zone.EndDeviceZone;
+import com.elster.jupiter.metering.zone.EndDeviceZoneBuilder;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneBuilder;
@@ -51,16 +55,18 @@ public class MeteringZoneServiceImpl implements MeteringZoneService, Translation
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
     private volatile Thesaurus thesaurus;
+    private volatile MeteringService meteringService;
 
     public MeteringZoneServiceImpl() {
     }
 
     @Inject
-    public MeteringZoneServiceImpl(OrmService ormService, NlsService nlsService, UpgradeService upgradeService) {
+    public MeteringZoneServiceImpl(OrmService ormService, NlsService nlsService, UpgradeService upgradeService, MeteringService meteringService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
+        setMeteringService(meteringService);
         activate();
     }
 
@@ -74,7 +80,7 @@ public class MeteringZoneServiceImpl implements MeteringZoneService, Translation
                     bind(MessageInterpolator.class).toInstance(thesaurus);
                     bind(MeteringZoneService.class).toInstance(MeteringZoneServiceImpl.this);
                     bind(DataModel.class).toInstance(dataModel);
-
+                    bind(MeteringService.class).toInstance(meteringService);
                 }
             });
             upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME),
@@ -130,6 +136,11 @@ public class MeteringZoneServiceImpl implements MeteringZoneService, Translation
     }
 
     @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(MeteringZoneService.COMPONENTNAME, Layer.DOMAIN);
     }
@@ -141,7 +152,12 @@ public class MeteringZoneServiceImpl implements MeteringZoneService, Translation
 
     @Override
     public Finder<Zone> getZones(String application, ZoneFilter zoneFilter) {
-        return DefaultFinder.of(Zone.class, where("zoneType.application").isEqualToIgnoreCase(application).and(zoneFilter.toCondition()), dataModel, ZoneType.class);
+        return DefaultFinder.of(Zone.class,
+                where("zoneType.application")
+                        .isEqualToIgnoreCase(application)
+                        .and(zoneFilter.toCondition()), dataModel, ZoneType.class)
+                .sorted("zoneType.typeName", true)
+                .sorted("name", true);
     }
 
     @Override
@@ -184,5 +200,28 @@ public class MeteringZoneServiceImpl implements MeteringZoneService, Translation
         return dataModel.query(Zone.class, ZoneType.class).select(where("name").isEqualToIgnoreCase(name)
                 .and(where("zoneType.typeName").isEqualToIgnoreCase(typeName))
                 .and(where("zoneType.application").isEqualToIgnoreCase(application))).stream().findFirst();
+    }
+
+    @Override
+    public Finder<EndDeviceZone> getByEndDevice(EndDevice endDevice) {
+        return DefaultFinder.of(EndDeviceZone.class,
+                where("endDeviceId").isEqualTo(endDevice.getId()),
+                this.dataModel, Zone.class, ZoneType.class)
+                .defaultSortColumn("zone.zoneType.typeName", true);
+    }
+
+    @Override
+    public Optional<EndDeviceZone> getEndDeviceZone(long endDeviceZoneId) {
+        return dataModel.mapper(EndDeviceZone.class).select(where("id").isEqualTo(endDeviceZoneId)).stream().findFirst();
+    }
+
+    @Override
+    public boolean isZoneInUse(long zoneId) {
+        return dataModel.mapper(EndDeviceZone.class).select(where("zoneId").isEqualTo(zoneId)).stream().toArray().length > 0 ? true : false;
+    }
+
+    @Override
+    public EndDeviceZoneBuilder newEndDeviceZoneBuilder() {
+        return new EndDeviceZoneBuilderImpl(dataModel);
     }
 }
