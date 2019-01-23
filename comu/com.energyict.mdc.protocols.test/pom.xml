@@ -39,7 +39,7 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolcommon</artifactId>
-            <version>${protocols.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
