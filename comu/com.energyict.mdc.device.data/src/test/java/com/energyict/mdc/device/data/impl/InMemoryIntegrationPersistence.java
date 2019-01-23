@@ -38,6 +38,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -228,6 +229,7 @@ public class InMemoryIntegrationPersistence {
     private CronExpressionParser cronExpressionParser;
     private SecurityManagementService securityManagementService;
     private HsmEnergyService hsmEnergyService;
+    private MeteringZoneService meteringZoneService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -242,6 +244,7 @@ public class InMemoryIntegrationPersistence {
         when(licensedProtocolService.isValidJavaClassName(anyString(), eq(license))).thenReturn(true);
         connectionTypeService = mock(ConnectionTypeService.class);
         hsmEnergyService = mock(HsmEnergyService.class);
+        meteringZoneService = mock(MeteringZoneService.class);
         when(connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
         when(connectionTypeService.createConnectionType(InboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new InboundNoParamsConnectionTypeImpl());
         when(connectionTypeService.createConnectionType(ModemNoParamsConnectionTypeImpl.class.getName())).thenReturn(new ModemNoParamsConnectionTypeImpl());
@@ -709,6 +712,7 @@ public class InMemoryIntegrationPersistence {
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
             bind(HsmEnergyService.class).toInstance(hsmEnergyService);
+            bind(MeteringZoneService.class).toInstance(meteringZoneService);
         }
     }
 

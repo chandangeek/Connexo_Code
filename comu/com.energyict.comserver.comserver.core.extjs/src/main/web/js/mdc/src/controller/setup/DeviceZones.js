@@ -250,7 +250,7 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
                 if (state === 'confirm') {
                     gridZones.setLoading(true);
                     record.destroy({
-                        url: '/api/ddr/devices/' + encodeURIComponent(gridZones.deviceId) + '/zones/zone/',
+                        url: '/api/ddr/devices/' + encodeURIComponent(gridZones.deviceId) + '/zones',
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicezone.remove.success.msg', 'MDC', "Device removed from zone '{0}'",[record.data.zoneName]));
                             gridZones.getStore().load();

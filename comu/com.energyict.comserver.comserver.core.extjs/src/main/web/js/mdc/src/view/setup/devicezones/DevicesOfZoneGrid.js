@@ -32,17 +32,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
     searchLink: null,
 
     initComponent: function () {
-        var me = this
-            searchCriteria = me.service;
-            /*srouter = me.getController('Uni.controller.history.Router');
-            allDevicesInSearchLink = {
-                xtype: 'container',
-                margin: '0 0 4 7',
-                html: Ext.String.format('<a href="{0}">{1}</a>',
-                    router.getRoute('devices/device/zones').buildUrl(),
-                    Uni.I18n.translate('deviceZones.viewAllDevicesInSearch', 'MDC', 'View all devices in search')
-                )
-            }*/;
+        var me = this;
 
         this.columns = [
             {
@@ -90,16 +80,16 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
                 displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
                 emptyMsg: Uni.I18n.translate('devices.pagingtoolbartop.emptyMsg', 'MDC', 'There are no devices to display'),
-                items: [
+                /*items: [
                     {
                         xtype: 'button',
                         ui: 'link',
                         itemId: 'view-all-devices-in-search',
                         text: Uni.I18n.translate('deviceZones.Search', 'MDC', 'View all devices in search'),
-                        //privileges: Mdc.privileges.DeviceType.admin,
+                        //privileges:,
                         href: me.searchLink
                     }
-                ]
+                ]*/
             },
             {
                 xtype: 'pagingtoolbarbottom',

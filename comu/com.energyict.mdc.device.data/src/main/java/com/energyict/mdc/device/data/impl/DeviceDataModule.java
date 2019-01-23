@@ -7,7 +7,6 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
-import com.elster.jupiter.metering.zone.impl.MeteringZoneServiceImpl;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -68,6 +67,7 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(NlsService.class);
         requireBinding(ServiceCallService.class);
         requireBinding(LockService.class);
+        requireBinding(MeteringZoneService.class);
 
         bind(DeviceDataModelService.class).to(DeviceDataModelServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceService.class).to(DeviceServiceImpl.class).in(Scopes.SINGLETON);
@@ -86,6 +86,5 @@ public class DeviceDataModule extends AbstractModule {
         bind(KeyRenewalService.class).to(KeyRenewalHandlerFactory.class).in(Scopes.SINGLETON);
         bind(CrlRequestTaskPropertiesService.class).to(CrlRequestTaskPropertiesServiceImpl.class).in(Scopes.SINGLETON);
         bind(CrlRequestService.class).to(CrlRequestHandlerFactory.class).in(Scopes.SINGLETON);
-        bind(MeteringZoneService.class).to(MeteringZoneServiceImpl.class).in(Scopes.SINGLETON);
     }
 }
