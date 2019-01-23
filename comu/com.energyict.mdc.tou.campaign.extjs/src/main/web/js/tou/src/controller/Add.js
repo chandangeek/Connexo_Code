@@ -78,16 +78,6 @@ Ext.define('Tou.controller.Add', {
             var deviceTypeId  = record.get('deviceType');
             var activationStartItem = form.down('#activationStart');
             var activationEndItem = form.down('#activationEnd');
-            /*if (activationStartItem){
-                var activationStart = activationStartItem.getValue();
-                activationStart = activationStart * 1000 + new Date().getTimezoneOffset() * 60 * 1000;
-                record.set('activationStart', activationStart);
-            }
-            if (activationEndItem){
-                var activationEnd = activationEndItem.getValue();
-                activationEnd = activationEnd  * 1000 + new Date().getTimezoneOffset() * 60 * 1000;
-                record.set('activationEnd', activationEnd);
-            }*/
             if (!justUpdated){
             if (deviceTypeId) record.set('deviceType', {"id" : deviceTypeId});
             var activateCalendarItem = form.down('#activate-calendar');
@@ -199,6 +189,8 @@ Ext.define('Tou.controller.Add', {
         errorMessage.hide();
         Ext.resumeLayouts(true);
 
+        var touCampaignOldName = form.campaignRecordBeingEdited.get('name');
+
         if (form.campaignRecordBeingEdited.get('name') != nameField.getValue()) {
             form.campaignRecordBeingEdited.set('name', nameField.getValue());
             nameOrTimeBoundaryChanged = true;
@@ -211,9 +203,8 @@ Ext.define('Tou.controller.Add', {
             form.campaignRecordBeingEdited.set('activationEnd', timeBoundaryEndField.getValue());
             nameOrTimeBoundaryChanged = true;
         }
-        var touCampaignName = form.campaignRecordBeingEdited.get('name');
-        var url = form.campaignRecordBeingEdited.getProxy().setUpdateUrl(touCampaignName);
         me.processRecord(form, form.campaignRecordBeingEdited, true);
+        var url = form.campaignRecordBeingEdited.getProxy().setUpdateUrl(touCampaignOldName);
         Ext.Ajax.request({
             url: url,
             method: 'PUT',
@@ -237,6 +228,7 @@ Ext.define('Tou.controller.Add', {
             },
             callback: function () {
                   page.setLoading(false);
+                  form.campaignRecordBeingEdited.getProxy().resetUpdateUrl();
             }
         });
         /*form.campaignRecordBeingEdited.save({

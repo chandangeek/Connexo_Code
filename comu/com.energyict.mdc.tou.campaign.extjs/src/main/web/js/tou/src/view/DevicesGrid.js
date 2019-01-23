@@ -28,7 +28,7 @@ Ext.define('Tou.view.DevicesGrid', {
                 dataIndex: 'device',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? '<a href="' + /*me.router.getRoute('devices/device/tou').buildUrl({deviceId: value.id})*/ + '1' +'">' + value.name + '</a>' : '';
+                    return value && value.name ? value.name : '';
                 }
             },
             {

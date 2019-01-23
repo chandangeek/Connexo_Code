@@ -51,6 +51,9 @@ Ext.define('Tou.model.TouCampaign', {
         setUpdateUrl: function(value){
             this.api.update = this.api.update.replace('{touCampaignName}', value);
             return this.api.update;
+        },
+        resetUpdateUrl: function(){
+           this.api.update = '/api/tou/touCampaigns/{touCampaignName}/edit';
         }
     },
     convertObjectField: function (value) {
