@@ -12,5 +12,5 @@ public class RegisteredCustomPropertySetInfo extends LinkInfo<Long> {
 
     public String name;
 
-    List<PropertyInfo> customAttributes;
+    public List<PropertyInfo> customAttributes;
 }
