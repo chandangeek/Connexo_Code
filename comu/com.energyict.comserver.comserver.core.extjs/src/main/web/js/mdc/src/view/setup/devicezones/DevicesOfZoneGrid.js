@@ -57,7 +57,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('general.deviceType', 'MDC', 'Device Type'),
+                header: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                 dataIndex: 'deviceTypeName',
                 sortable: false,
                 hideable: false,
@@ -65,7 +65,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device Configuration'),
+                header: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                 dataIndex: 'deviceConfigurationName',
                 sortable: false,
                 hideable: false,

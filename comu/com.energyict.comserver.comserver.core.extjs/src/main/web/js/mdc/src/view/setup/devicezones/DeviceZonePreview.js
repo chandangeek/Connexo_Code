@@ -62,12 +62,12 @@ Ext.define('Mdc.view.setup.devicezones.DeviceZonePreview', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'deviceTypeName',
-                                        fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device Type'),
+                                        fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                                     },
                                     {
                                         xtype: 'displayfield',
                                         name: 'deviceConfigurationName',
-                                        fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device Configuration'),
+                                        fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                                     },
                                 ]
                             },
