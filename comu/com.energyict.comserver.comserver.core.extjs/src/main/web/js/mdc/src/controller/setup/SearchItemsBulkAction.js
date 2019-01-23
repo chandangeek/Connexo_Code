@@ -318,7 +318,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     versionDB: me.processRecord.versionDB,
                     properties: me.processValues.properties
                 },
+
+
+
                 processUrl = '/api/bpm/runtime/processcontent/' + processJsonData.deploymentId + '/' + processJsonData.id;
+
             processJsonData.bulkBusinessObjects = me.validatedForProcessDevices.map(function (mRID) {
                 return {
                     id: 'deviceId',
@@ -326,6 +330,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     value: mRID
                 }
             });
+
             Ext.Ajax.request({
                 url: processUrl,
                 method: 'PUT',

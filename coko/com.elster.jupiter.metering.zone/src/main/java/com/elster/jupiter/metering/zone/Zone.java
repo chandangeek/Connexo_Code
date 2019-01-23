@@ -5,12 +5,13 @@
 package com.elster.jupiter.metering.zone;
 
 import com.elster.jupiter.orm.HasAuditInfo;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
-public interface Zone extends HasName, HasAuditInfo {
+public interface Zone extends HasName, HasId, HasAuditInfo {
 
     long getId();
 

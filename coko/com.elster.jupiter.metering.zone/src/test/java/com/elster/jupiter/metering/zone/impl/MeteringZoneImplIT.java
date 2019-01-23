@@ -4,146 +4,90 @@
 
 package com.elster.jupiter.metering.zone.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneType;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.impl.UpgradeModule;
-import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.http.HttpService;
+import java.time.Instant;
 
-import java.util.Dictionary;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MeteringZoneImplIT {
+public class MeteringZoneImplIT extends BaseZoneIT {
+    private static final String ZONE_NAME = "ZoneName";
+    private static final String APPLICATION = "APPNAME";
+    private static final String ZONE_TYPE_NAME = "ZoneTypeName";
+    private ZoneType zoneType;
 
-    private static Injector injector;
-
-    private static BundleContext bundleContext = mock(BundleContext.class);
-    private static ServiceRegistration serviceRegistration = mock(ServiceRegistration.class);
-    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-    private static final String ZONE_NAME_1 = "ZoneName1";
-    private static final String ZONE_NAME_2 = "ZoneName2";
-    private static final long ZONE_ID = 1L;
-    private static final String APPLICATION_1 = "APPNAME1";
-    private static final String APPLICATION_2 = "APPNAME2";
-    private static final String ZONE_TYPE_NAME_1 = "ZoneTypeName1";
-    private static final String ZONE_TYPE_NAME_2 = "ZoneTypeName2";
-    private static final long ZONE_TYPE_ID = 10L;
-    private static final long VERSION = 1L;
-
-    @Rule
-    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-    @Rule
-    public TestRule transactionRule = new TransactionalRule(injector.getInstance(TransactionService.class));
-
-
-    private static class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-            bind(HttpService.class).toInstance(mock(HttpService.class));
-        }
-    }
-
-    @BeforeClass
-    public static void setUp() {
-        when(bundleContext.registerService(any(Class.class), anyObject(), any(Dictionary.class))).thenReturn(serviceRegistration);
-        try {
-            injector = Guice.createInjector(
-                    new MockModule(),
-                    inMemoryBootstrapModule,
-                    new TransactionModule(),
-                    new InMemoryMessagingModule(),
-                    new ThreadSecurityModule(),
-                    new PubSubModule(),
-                    new MeteringZoneModule(),
-                    new DomainUtilModule(),
-                    new OrmModule(),
-                    new UtilModule(),
-                    new NlsModule()
-
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        injector.getInstance(TransactionService.class).execute(() -> {
-                    injector.getInstance(MeteringZoneService.class);
-                    return null;
-                }
-        );
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        inMemoryBootstrapModule.deactivate();
+    @Before
+    public void init() {
+        super.init();
+        zoneType = createZoneType(meteringZoneService);
     }
 
     @Test
     @Transactional
     public void testSave() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        ZoneType zoneType = createZoneType(meteringZoneService);
         meteringZoneService.newZoneBuilder()
-                .withName(ZONE_NAME_1)
+                .withName(ZONE_NAME)
                 .withZoneType(zoneType)
                 .create();
 
-        Finder<Zone> finder = meteringZoneService.getZones(APPLICATION_1, meteringZoneService.newZoneFilter());
+        Finder<Zone> finder = meteringZoneService.getZones(APPLICATION, meteringZoneService.newZoneFilter());
 
-        assertThat(finder.stream().map(Zone::getName).findFirst().get()).isEqualTo(ZONE_NAME_1);
-        assertThat(finder.stream().map(Zone::getApplication).findFirst().get()).isEqualTo(APPLICATION_1);
-        assertThat(finder.stream().map(zone -> zone.getZoneType().getName()).findFirst().get()).isEqualTo(ZONE_TYPE_NAME_1);
+        assertThat(finder.stream().map(Zone::getName).findFirst().get()).isEqualTo(ZONE_NAME);
+        assertThat(finder.stream().map(Zone::getApplication).findFirst().get()).isEqualTo(APPLICATION);
+        assertThat(finder.stream().map(zone -> zone.getZoneType().getName()).findFirst().get()).isEqualTo(ZONE_TYPE_NAME);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdate() {
+        Zone zone = meteringZoneService.newZoneBuilder()
+                .withName(ZONE_NAME)
+                .withZoneType(zoneType)
+                .create();
+        zone.setName(ZONE_NAME + " modified");
+        zone.save();
+        assertThat(zone.getId()).isGreaterThan(0);
+        assertThat(zone.getName()).isEqualTo(ZONE_NAME + " modified");
+        assertThat(zone.getVersion()).isEqualTo(2);
+        assertThat(zone.getUserName()).isNotEmpty();
+        Instant now = Instant.now();
+        assertThat(zone.getCreateTime()).isLessThanOrEqualTo(now);
+        assertThat(zone.getModTime()).isLessThanOrEqualTo(now);
+    }
+
+    @Test
+    @Transactional
+    public void testDelete() {
+        Zone zone = meteringZoneService.newZoneBuilder()
+                .withName(ZONE_NAME)
+                .withZoneType(zoneType)
+                .create();
+        zone.delete();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.ZONE_NAME_NOT_UNIQUE + "}")
     public void testSaveWithDuplicateName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        ZoneType zoneType = createZoneType(meteringZoneService);
         meteringZoneService.newZoneBuilder()
-                .withName(ZONE_NAME_1)
+                .withName(ZONE_NAME)
                 .withZoneType(zoneType)
                 .create();
         meteringZoneService.newZoneBuilder()
-                .withName(ZONE_NAME_1)
+                .withName(ZONE_NAME)
                 .withZoneType(zoneType)
                 .create();
     }
@@ -152,8 +96,6 @@ public class MeteringZoneImplIT {
     @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     public void testSaveWithEmptyName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        ZoneType zoneType = createZoneType(meteringZoneService);
         meteringZoneService.newZoneBuilder()
                 .withName("")
                 .withZoneType(zoneType)
@@ -164,8 +106,6 @@ public class MeteringZoneImplIT {
     @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     public void testSaveWithLargeName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        ZoneType zoneType = createZoneType(meteringZoneService);
         meteringZoneService.newZoneBuilder()
                 .withName("123456789012345678901234567890123456789012345678901234567890123456789012345678901")
                 .withZoneType(zoneType)
@@ -176,19 +116,25 @@ public class MeteringZoneImplIT {
     @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.ZONE_NAME_REQUIRED + "}")
     public void testSaveWithNULLName() {
-        MeteringZoneService meteringZoneService = injector.getInstance(MeteringZoneService.class);
-        ZoneType zoneType = createZoneType(meteringZoneService);
         meteringZoneService.newZoneBuilder()
                 .withName(null)
                 .withZoneType(zoneType)
                 .create();
     }
 
+    @Test
+    @Transactional
+    public void testMeteringServiceProperties() {
+        assertThat(MeteringZoneService.COMPONENTNAME).isEqualTo(((TranslationKeyProvider) meteringZoneService).getComponentName());
+        assertThat(Layer.DOMAIN).isEqualTo(((TranslationKeyProvider) meteringZoneService).getLayer());
+        assertThat(((TranslationKeyProvider) meteringZoneService).getKeys().isEmpty()).isFalse();
+    }
+
     private ZoneType createZoneType(MeteringZoneService meteringZoneService) {
         return meteringZoneService
                 .newZoneTypeBuilder()
-                .withName(ZONE_TYPE_NAME_1)
-                .withApplication(APPLICATION_1)
+                .withName(ZONE_TYPE_NAME)
+                .withApplication(APPLICATION)
                 .create();
     }
 }

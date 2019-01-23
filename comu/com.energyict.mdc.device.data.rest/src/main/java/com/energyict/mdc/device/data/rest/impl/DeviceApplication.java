@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -147,6 +148,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
     private volatile MeteringService meteringService;
+    private volatile MeteringZoneService meteringZoneService;
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile LocationService locationService;
     private volatile MeteringGroupsService meteringGroupsService;
@@ -238,7 +240,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 ChannelValidationResource.class,
                 ChannelEstimationResource.class,
                 DeviceMessageSearchResource.class,
-                CrlRequestTaskResource.class
+                CrlRequestTaskResource.class,
+                DeviceZoneResource.class,
+                ProcessResource.class
         );
     }
 
@@ -533,6 +537,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setMeteringZoneService(MeteringZoneService meteringZoneService) {
+        this.meteringZoneService = meteringZoneService;
+    }
+
+    @Reference
     public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
         this.meteringTranslationService = meteringTranslationService;
     }
@@ -661,6 +670,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(validationService).to(ValidationService.class);
             bind(estimationService).to(EstimationService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(meteringZoneService).to(MeteringZoneService.class);
             bind(meteringTranslationService).to(MeteringTranslationService.class);
             bind(locationService).to(LocationService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
@@ -751,6 +761,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(crlRequestTaskPropertiesService).to(CrlRequestTaskPropertiesService.class);
             bind(CrlRequestTaskPropertyInfo.class).to(CrlRequestTaskPropertyInfo.class);
             bind(crlRequestService).to(CrlRequestService.class);
+            bind(EndDeviceZoneInfoFactory.class).to(EndDeviceZoneInfoFactory.class);
+            bind(DeviceZoneResource.class).to(DeviceZoneResource.class);
 
         }
     }
