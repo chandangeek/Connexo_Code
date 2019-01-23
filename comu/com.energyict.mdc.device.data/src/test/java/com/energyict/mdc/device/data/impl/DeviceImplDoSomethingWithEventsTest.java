@@ -480,7 +480,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
                 bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
                 bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
-            }
+                bind(MeteringZoneService.class).toInstance(mock(MeteringZoneService.class));}
         }
 
         public static class SpyEventService implements EventService {
