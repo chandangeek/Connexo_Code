@@ -37,6 +37,7 @@ public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<Devic
 /*XROMVYU */
     public static final String TABLE_NAME = "RVK_CPS_DEVICE_TYPE";
     public static final String FK_CPS_DEVICE_TYPE = "FK_CPS_DEVICE_TYPE";
+    public static final String PREFIX = "DTT";
 
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceConfigurationService deviceConfigurationService;
@@ -61,7 +62,6 @@ public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<Devic
 
     public DeviceTypeTypeCustomPropertySet() {
         super();
-        System.out.println("CREATE DeviceTypeTypeCustomPropertySet!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 
     @Inject
@@ -173,14 +173,13 @@ public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<Devic
 
     @Override
     public String getName() {
-        return DeviceTypeTypeCustomPropertySet.class.getSimpleName();
+        return this.thesaurus.getFormat(TranslationKeys.DTT_NAME).format();
     }
 
     @Override
     public String getDomainClassDisplayName() {
 
-        return "Device type";//this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME_DEVICE).format();  // CONM-332
-        //return "Device";
+        return this.thesaurus.getFormat(TranslationKeys.DTT_DOMAIN_NAME).format();
     }
 
     @Override
@@ -188,15 +187,14 @@ public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<Devic
         return Arrays.asList(
                 this.propertySpecService
                         .bigDecimalSpec()
-                        .named(DeviceTypeTypeDomainExtension.FieldNames.MANUFACT_ID_NUMBER.javaName(), DeviceTypeTypeDomainExtension.FieldNames.MANUFACT_ID_NUMBER.javaName())
-                        .describedAs("manufacturerId")
-                        .setDefaultValue(BigDecimal.ZERO)
+                        .named(DeviceTypeTypeDomainExtension.FieldNames.MANUFACT_ID_NUMBER.javaName(), TranslationKeys.DTT_MANUFACTURER_ID)
+                        .fromThesaurus(this.thesaurus)
                         .markRequired()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(DeviceTypeTypeDomainExtension.FieldNames.MANUFACT_NAME_STRING.javaName(), DeviceTypeTypeDomainExtension.FieldNames.MANUFACT_NAME_STRING.javaName())
-                        .describedAs("manufacturerName")
+                        .named(DeviceTypeTypeDomainExtension.FieldNames.MANUFACT_NAME_STRING.javaName(), TranslationKeys.DTT_MANUFACTURER_NAME)
+                        .fromThesaurus(this.thesaurus)
                         .markRequired()
                         .finish());
     }

@@ -39,7 +39,6 @@ public class DeviceTypeTypeDomainExtension extends AbstractPersistentDomainExten
 
     private Reference<DeviceType> deviceType = Reference.empty();
 
-
     @NotNull(message = "{" + MessageSeeds.Keys.REQUIRED_FIELD + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong"/*"{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}"*/)
     private String manufacturerName;
@@ -68,7 +67,7 @@ public class DeviceTypeTypeDomainExtension extends AbstractPersistentDomainExten
     @Override
     public void copyFrom(DeviceType deviceType, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.deviceType.set(deviceType);
-        this.setManufacturerId(new BigDecimal(propertyValues.getProperty(FieldNames.MANUFACT_ID_NUMBER.javaName()).toString()));
+        this.setManufacturerId((BigDecimal) propertyValues.getProperty(FieldNames.MANUFACT_ID_NUMBER.javaName()));
         this.setManufacturerName((String) propertyValues.getProperty(FieldNames.MANUFACT_NAME_STRING.javaName()));
     }
 
