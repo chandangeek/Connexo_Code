@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceZoneImplIT extends BaseZoneIT {
@@ -143,6 +144,16 @@ public class EndDeviceZoneImplIT extends BaseZoneIT {
         finder.find().get(0).delete();
         finder = meteringZoneService.getByEndDevice(endDevice);
         assertThat(finder.find()).hasSize(1);
+    }
+
+    @Test
+    @Transactional
+    public void testDeleteZoneInUse() {
+        createEndDeviceZone(meteringZoneService, endDevice, zoneA);
+        try {
+            zoneA.delete();
+            failBecauseExceptionWasNotThrown(ZoneInUseLocalizedException.class);
+        } catch (ZoneInUseLocalizedException e) {}
     }
 
     @Test

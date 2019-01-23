@@ -13,6 +13,8 @@ import com.elster.jupiter.metering.zone.ZoneType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 
+import java.time.Instant;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +48,24 @@ public class MeteringZoneImplIT extends BaseZoneIT {
         assertThat(finder.stream().map(Zone::getName).findFirst().get()).isEqualTo(ZONE_NAME);
         assertThat(finder.stream().map(Zone::getApplication).findFirst().get()).isEqualTo(APPLICATION);
         assertThat(finder.stream().map(zone -> zone.getZoneType().getName()).findFirst().get()).isEqualTo(ZONE_TYPE_NAME);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdate() {
+        Zone zone = meteringZoneService.newZoneBuilder()
+                .withName(ZONE_NAME)
+                .withZoneType(zoneType)
+                .create();
+        zone.setName(ZONE_NAME + " modified");
+        zone.save();
+        assertThat(zone.getId()).isGreaterThan(0);
+        assertThat(zone.getName()).isEqualTo(ZONE_NAME + " modified");
+        assertThat(zone.getVersion()).isEqualTo(2);
+        assertThat(zone.getUserName()).isNotEmpty();
+        Instant now = Instant.now();
+        assertThat(zone.getCreateTime()).isLessThanOrEqualTo(now);
+        assertThat(zone.getModTime()).isLessThanOrEqualTo(now);
     }
 
     @Test
