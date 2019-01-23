@@ -178,14 +178,14 @@ Ext.define('Mdc.zones.controller.Zones',{
             router = me.getController('Uni.controller.history.Router');
 
         confirmationWindow.show({
-            msg: Uni.I18n.translate('zone.general.remove.msg', 'CFG', 'This zone will no longer be available.'),
-            title: Uni.I18n.translate('zone.remove', 'CFG', "Remove '{0}'?", [record.data.name]),
+            msg: Uni.I18n.translate('zone.general.remove.msg', 'MDC', 'This zone will no longer be available.'),
+            title: Uni.I18n.translate('zone.remove', 'MDC', "Remove '{0}'?", [record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
                     record.destroy({
                         success: function () {
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('zone.remove.success.msg', 'CFG', 'Zone removed'));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('zone.remove.success.msg', 'MDC', 'Zone removed'));
                             router.getRoute('administration/zones').forward();
                         },
                         callback: function () {
