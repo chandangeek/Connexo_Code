@@ -28,7 +28,7 @@ Ext.define('Tou.view.DevicesGrid', {
                 dataIndex: 'device',
                 flex: 2,
                 renderer: function (value) {
-                    return value && value.name ? value.name : '';
+                    return value && value.name ? '<a href=#/devices/' + value.name.replace(" ", "%20") + '/timeofuse>' + value.name + '</a>' : '';
                 }
             },
             {

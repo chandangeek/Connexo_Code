@@ -213,7 +213,7 @@ Ext.define('Tou.controller.Add', {
             headers: { 'Content-Type': 'application/json' },
             jsonData: form.campaignRecordBeingEdited.data, // can be any object or JSON string
             success: function(response, opts) {
-                me.getApplication().fireEvent('acknowledge', 'Tou campaign saved');
+                me.getApplication().fireEvent('acknowledge', 'Time of use campaign saved');
                 if (page.rendered) {
                       window.location.href = page.returnLink;
                 }
