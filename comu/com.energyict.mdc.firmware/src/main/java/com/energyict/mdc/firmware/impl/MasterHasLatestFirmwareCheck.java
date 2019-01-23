@@ -5,24 +5,26 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
-import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
+import java.util.Optional;
 
 public class MasterHasLatestFirmwareCheck implements FirmwareCheck {
-    private final FirmwareService firmwareService;
+    private final FirmwareServiceImpl firmwareService;
     private final TopologyService topologyService;
     private final Thesaurus thesaurus;
 
     @Inject
-    MasterHasLatestFirmwareCheck(FirmwareService firmwareService, TopologyService topologyService, Thesaurus thesaurus) {
+    MasterHasLatestFirmwareCheck(FirmwareServiceImpl firmwareService, TopologyService topologyService, Thesaurus thesaurus) {
         this.firmwareService = firmwareService;
         this.topologyService = topologyService;
         this.thesaurus = thesaurus;
@@ -41,15 +43,19 @@ public class MasterHasLatestFirmwareCheck implements FirmwareCheck {
                     if (!masterDeviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
                         throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_FIRMWARE_NOT_READOUT);
                     }
-                    EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION).forEach(firmwareType -> {
-                        FirmwareVersion maximumFirmwareVersion = firmwareVersion; // TODO: get maximum of type from master device
-                        if (!firmwareService.getActiveFirmwareVersion(masterDeviceUtils.getDevice(), firmwareType)
-                                .map(ActivatedFirmwareVersion::getFirmwareVersion)
-                                .filter(maximumFirmwareVersion::equals)
-                                .isPresent()) {
-                            throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_FIRMWARE_NOT_LATEST);
-                        }
-                    });
+                    Device master = masterDeviceUtils.getDevice();
+                    DeviceType masterDeviceType = master.getDeviceType();
+                    EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION).stream()
+                            .filter(firmwareType -> firmwareService.isFirmwareTypeSupported(masterDeviceType, firmwareType))
+                            .forEach(firmwareType -> {
+                                Optional<FirmwareVersion> maximum = firmwareService.getMaximumFirmware(masterDeviceType, EnumSet.of(firmwareType));
+                                if (!maximum.isPresent() || !firmwareService.getActiveFirmwareVersion(master, firmwareType)
+                                        .map(ActivatedFirmwareVersion::getFirmwareVersion)
+                                        .filter(maximum.get()::equals)
+                                        .isPresent()) {
+                                    throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_FIRMWARE_NOT_LATEST);
+                                }
+                            });
                 });
     }
 }

@@ -97,6 +97,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -205,6 +206,32 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                         .map(Optional::get)
                         .collect(Collectors.toSet()))
                 .orElse(Collections.emptySet());
+    }
+
+    public boolean isFirmwareTypeSupported(DeviceType deviceType, FirmwareType firmwareType) {
+        switch (firmwareType) {
+            case METER:
+                return true;
+            case COMMUNICATION:
+                return deviceType.getDeviceProtocolPluggableClass()
+                        .map(DeviceProtocolPluggableClass::getDeviceProtocol)
+                        .filter(DeviceProtocol::supportsCommunicationFirmwareVersion)
+                        .isPresent();
+            case CA_CONFIG_IMAGE:
+                return deviceType.getDeviceProtocolPluggableClass()
+                        .map(DeviceProtocolPluggableClass::getDeviceProtocol)
+                        .filter(DeviceProtocol::supportsCaConfigImageVersion)
+                        .isPresent();
+            default:
+                throw new IllegalArgumentException("Unknown firmware type");
+        }
+    }
+
+    @Override
+    public EnumSet<FirmwareType> getSupportedFirmwareTypes(DeviceType deviceType) {
+        return Arrays.stream(FirmwareType.values())
+                .filter(firmwareType -> isFirmwareTypeSupported(deviceType, firmwareType))
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(FirmwareType.class)));
     }
 
     @Override

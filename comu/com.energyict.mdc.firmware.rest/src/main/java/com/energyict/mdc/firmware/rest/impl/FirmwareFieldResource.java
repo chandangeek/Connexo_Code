@@ -40,9 +40,10 @@ public class FirmwareFieldResource extends FieldResource {
         this.firmwareMessageInfoFactory = firmwareMessageInfoFactory;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/firmwareStatuses")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Object getFirmwareStatuses() {
         return asJsonArrayObjectWithTranslation("firmwareStatuses", "id", firmwareStatusesClientSideValues());
@@ -52,13 +53,17 @@ public class FirmwareFieldResource extends FieldResource {
         return Stream.of(FirmwareStatusTranslationKeys.values()).map(FirmwareStatusTranslationKeys::getKey).collect(Collectors.toList());
     }
 
-    @GET @Transactional
+    /**
+     * TODO: how is this method used? Is it needed and up-to-date? (see similar {@link FirmwareTypesResource#getSupportedFirmwareTypes(long)})
+     */
+    @GET
+    @Transactional
     @Path("/firmwareTypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Object getFirmwareTypes(@QueryParam("deviceType") Long deviceTypeId) {
         List<String> firmwareTypes = new FirmwareTypeFieldAdapter().getClientSideValues();
-        if (deviceTypeId != null){
+        if (deviceTypeId != null) {
             DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
             if (deviceType.getDeviceProtocolPluggableClass().isPresent() && !deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
                 firmwareTypes.remove(FirmwareType.COMMUNICATION.getType());
@@ -67,9 +72,10 @@ public class FirmwareFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("firmwareTypes", "id", firmwareTypes);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/devicetypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getDeviceTypesWhichSupportFirmwareUpgrade() {
         List<IdWithLocalizedValue> deviceTypes = firmwareService.getDeviceTypesWhichSupportFirmwareManagement()
@@ -79,9 +85,10 @@ public class FirmwareFieldResource extends FieldResource {
         return Response.ok(deviceTypes).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/devicetypes/{deviceTypeId}/{firmwareOption}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getUploadOptionSpecForDeviceType(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("firmwareOption") String firmwareOption, @QueryParam("firmwareType") String firmwareType) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);

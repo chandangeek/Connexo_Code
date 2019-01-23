@@ -19,6 +19,7 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import aQute.bnd.annotation.ProviderType;
 
 import java.io.File;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -56,6 +57,7 @@ public interface FirmwareService {
      * Provides a set of ProtocolSupportedFirmwareOptions for the given DeviceType
      */
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
+    EnumSet<FirmwareType> getSupportedFirmwareTypes(DeviceType deviceType);
     boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType);
     boolean isResumeFirmwareUploadEnabled(DeviceType deviceType);
     Optional<com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec> defaultFirmwareVersionSpec();

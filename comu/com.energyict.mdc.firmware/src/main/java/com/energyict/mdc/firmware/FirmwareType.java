@@ -11,8 +11,8 @@ import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public enum FirmwareType implements TranslationKey {
-    COMMUNICATION("communication", "Communication firmware"),
     METER("meter", "Meter firmware"),
+    COMMUNICATION("communication", "Communication firmware"),
     CA_CONFIG_IMAGE("caConfigImage", "Image");
 
     private String type;
