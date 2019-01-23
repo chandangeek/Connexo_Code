@@ -1536,13 +1536,20 @@ Ext.define('Mdc.controller.history.Setup', {
                                         controller: 'Mdc.controller.setup.DeviceTypes',
                                         action: 'showDeviceTypeEditView'
                                     },
-                                    /*xromvyu*/
                                     editcustomattributes: {
                                         title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                         route: '{customAttributeSetId}/edit',
                                         privileges: Mdc.privileges.DeviceType.admin,
                                         controller: 'Mdc.controller.setup.DeviceTypes',
-                                        action: 'showDeviceTypeCustomAttributesEditView'
+                                        action: 'showDeviceTypeCustomAttributesEditView',
+                                        callback: function (route) {
+                                            this.getApplication().on('loadCustomAttributeSetOnDeviceType', function (record) {
+                                                route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                return true;
+                                                }, {single: true});
+
+                                                return this;
+                                        }
                                     },
                                     logbooktypes: {
                                         title: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),

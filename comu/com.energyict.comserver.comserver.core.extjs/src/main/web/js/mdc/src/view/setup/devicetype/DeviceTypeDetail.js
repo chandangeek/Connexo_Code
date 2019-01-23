@@ -120,7 +120,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'canBeDirectlyAddressed',
-                                        fieldLabel: 'DEVICE TYPE CAN BE DIRECTLY ADDRESSABLE 2',//Uni.I18n.translate('devicetype.canBeDirectlyAddressable', 'MDC', 'Device can be directly addressable'),
+                                        fieldLabel: Uni.I18n.translate('devicetype.canBeDirectlyAddressable', 'MDC', 'Device can be directly addressable'),
                                         renderer: function (item) {
                                             return item ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
                                         },
@@ -130,12 +130,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         xtype: 'custom-attribute-sets-placeholder-form',
                                         itemId: 'custom-attribute-sets-placeholder-form-id',
                                         actionMenuXtype: 'device-type-action-menu',
-                                        //actionMenuXtype: 'device-attributes-action-menu',
                                         attributeSetType: 'devicetype',
-                                        //router: me.getController('Uni.controller.history.Router')
                                         router: me.router
                                     }
-
                                 ]
                             },
                             {

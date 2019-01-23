@@ -4,22 +4,8 @@
 
 Ext.define('Mdc.store.DeviceTypeCustomAttributesSets', {
     extend: 'Ext.data.Store',
-    requires: [
-        'Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject'
-    ],
-    model: 'Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject',
+    model: 'Mdc.model.AttributeSetOnDeviceType',
 
-    /*proxy: {
-        type: 'rest',
-        url: '/api/ddr/devices/{deviceId}/customproperties',
-        reader: {
-            type: 'json',
-            root: 'customproperties'
-        },
-        pageParam: false,
-        startParam: false,
-        limitParam: false
-    }*/
     autoLoad: false,
 
     proxy: {
@@ -32,7 +18,7 @@ Ext.define('Mdc.store.DeviceTypeCustomAttributesSets', {
         },
 
         extraParams: {
-            filter: '[{"property":"linked","value":true},{"property":"specific","value":true}]'
+            filter: '[{"property":"linked","value":true},{"property":"edit","value":true}]'
         },
         pageParam: false,
         startParam: false,

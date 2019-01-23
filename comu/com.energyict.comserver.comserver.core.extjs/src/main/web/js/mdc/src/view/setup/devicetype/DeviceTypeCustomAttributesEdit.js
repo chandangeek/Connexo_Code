@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeCustomAttributesEdit', {
                     },
                     {
                         xtype: 'button',
-                        text: 'RESTORE TO DEFAULTS MY',//Uni.I18n.translate('general.restoretodefaults', 'MDC', 'Restore to defaults'),
+                        text: Uni.I18n.translate('general.restoretodefaults', 'MDC', 'Restore to defaults'),
                         iconCls: 'icon-rotate-ccw3',
                         itemId: 'device-type-custom-attributes-restore-default-btn'
                     },
@@ -83,25 +83,4 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeCustomAttributesEdit', {
 
         me.callParent(arguments);
     }
-    /*,
-
-    initComponent: function () {
-        var me = this;
-
-        me.side = [
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'deviceMenu',
-                        itemId: 'stepsMenu',
-                        device: me.device
-                    }
-                ]
-            }
-        ];
-
-        me.callParent(arguments);
-    }*/
 });

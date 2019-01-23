@@ -262,12 +262,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
                     me.getApplication().fireEvent('loadDeviceType', deviceType);
 
-                    /* HERE WE ADD LOADING OF CUSTOMPROPERTYSETS */
-                    console.log("LOAD ATTRIBUTE SET STORE!!!!!for deviceTypeId = ",deviceTypeId);
+                    /* Load custom property sets  */
                     var customAttributesStore = me.getStore('Mdc.store.DeviceTypeCustomAttributesSets');
                     customAttributesStore.getProxy().setUrl(deviceTypeId);
 
-                    console.log("LOAD CAS FORM!!!!!");
                     customAttributesStore.load(function () {
                         widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(this);
                     });
@@ -331,7 +329,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     ? router.getRoute('administration/devicetypes/view').buildUrl()
                     : router.getRoute('administration/devicetypes').buildUrl()
             });
-        console.log("showDeviceTypeEditView!!!!!!!!!!!!!!!!!!!!!!!",router.queryParams);
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
@@ -376,59 +373,31 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
     },
 
-    /*XROMVYU*/
     showDeviceTypeCustomAttributesEditView: function (deviceTypeId, customAttributeSetId) {
 
             var me = this,
             router = me.getController('Uni.controller.history.Router'),
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            //model = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnDevice'),
             model = Ext.ModelManager.getModel('Mdc.model.AttributeSetOnDeviceType'),
             widget;
 
-            console.log("showEditCustomAttributeSetsView!!!!!!!!!!!!!",deviceTypeId,customAttributeSetId);
-            var casStore = me.getStore('Mdc.store.DeviceTypeCustomAttributesSets');
-            console.log("MODEL FOR DEVICE TYPE ATTR = ",model);
-
             model.getProxy().setUrl(deviceTypeId);
-
-            //widget = Ext.widget('device-type-custom-attributes-edit', {deviceTypeId: deviceTypeId});
-            //me.getApplication().fireEvent('loadDevice', device);
-            //me.getApplication().fireEvent('changecontentevent', widget);
-            //console.log("SET TITLE");
-            //widget.down('#custom-attribute-set-edit-panel').setTitle('Name'/*Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')])*/);
-            //widget.down('#device-type-custom-attributes-property-form').loadRecord(record);
-
-/*            console.log("casStore = ",casStore);
-            casStore.each(function(record,id){
-                         console.info("RECORD OF STORE = ",record);
-                     });*/
             viewport.setLoading();
-            //model.getProxy().setExtraParam('deviceId', deviceId);
-            /*Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-                success: function (deviceType) {*/
-                    console.log("CREATE WIDGET FOR DEVICE TYPE CAS!!!!!!!!!!");
-                    //widget = Ext.widget('device-custom-attributes-edit', {device: device});
-                    widget = Ext.widget('device-type-custom-attributes-edit', {deviceTypeId: deviceTypeId});
-                    //me.getApplication().fireEvent('loadDevice', device);
-                    me.getApplication().fireEvent('changecontentevent', widget);
 
-                    model.load(customAttributeSetId, {
-                        success: function (record) {
-                            //me.getApplication().fireEvent('loadCustomAttributeSetOnDevice', record);
-                            //widget.down('#custom-attribute-set-edit-panel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
-                            //widget.down('#device-custom-attributes-property-form').loadRecord(record);
-                            widget.down('#custom-attribute-set-edit-panel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
-                            widget.down('#device-type-custom-attributes-property-form').loadRecord(record);
-                        },
-                        callback: function () {
-                            viewport.setLoading(false);
-                        }
-                    })
+            widget = Ext.widget('device-type-custom-attributes-edit', {deviceTypeId: deviceTypeId});
 
-                //}
-            //});
+            me.getApplication().fireEvent('changecontentevent', widget);
 
+            model.load(customAttributeSetId, {
+                success: function (record) {
+                    me.getApplication().fireEvent('loadCustomAttributeSetOnDeviceType', record);
+                    widget.down('#custom-attribute-set-edit-panel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                    widget.down('#device-type-custom-attributes-property-form').loadRecord(record);
+                },
+                callback: function () {
+                    viewport.setLoading(false);
+                }
+            })
     },
 
     modifyEditView: function (widget, store) {
@@ -883,8 +852,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         Ext.resumeLayouts(true);
         form.updateRecord();
 
-        console.log("RECORD AFTER UPDATE =",form.getRecord());
-
         form.getRecord().save({
             backUrl: me.getLandingUrl(),
             success: function (record) {
@@ -908,7 +875,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     restoreDefaultCustomAttributes: function () {
-        console.log("RESTORE DEFAULTS!!!!");
         this.getEditCustomAttributePropertyForm().restoreAll();
     },
 
@@ -917,8 +883,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     goToAttributesLandingFromCas: function () {
-        console.log("CANCEL BUTTON");
-        this.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view'/*'devices/device/attributes'*/).forward(/*{deviceId: this.getDeviceCustomAttributesEditView().device.get('name')}*/);
+        this.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view').forward();
     }
 })
 ;

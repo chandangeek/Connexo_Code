@@ -79,7 +79,7 @@ Ext.define('Mdc.devicetypecustomattributes.view.AttributeSetsGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 dock: 'bottom',
-                itemsPerPageMsg: 'Custom attribute sets per page 1!!!!'//Uni.I18n.translate('customattributesets.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Custom attribute sets per page')
+                itemsPerPageMsg: Uni.I18n.translate('customattributesets.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Custom attribute sets per page')
             }
         ];
 
