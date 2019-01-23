@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.when;
 public class DeviceProtocolDeviceDescriptionAndLicenceSupportTest {
 
     @Test
+    @Ignore
     public void testEveryDeviceProtocolHasUniqueProtocolDescription() throws Exception {
         Reflections reflections = new Reflections("com.energyict");
         List<Class<? extends DeviceDescriptionSupport>> classes = reflections.getSubTypesOf(DeviceDescriptionSupport.class)
@@ -86,6 +88,7 @@ public class DeviceProtocolDeviceDescriptionAndLicenceSupportTest {
     }
 
     @Test
+    @Ignore
     public void testEveryDeviceProtocolHasLicenseId() throws Exception {
         Reflections reflections = new Reflections("com.energyict");
         List<Class<? extends DeviceDescriptionSupport>> classes = reflections.getSubTypesOf(DeviceDescriptionSupport.class)

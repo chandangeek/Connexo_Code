@@ -231,6 +231,43 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         },
+
+                        zones: {
+                            title: Uni.I18n.translate('general.zones', 'MDC', 'Zones'),
+                            route: 'zones',
+                            controller: 'Mdc.controller.setup.DeviceZones',
+                            privileges: Cfg.privileges.Validation.viewZones,
+                            action: 'showDeviceZoneView',
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
+                            items: {
+                                add: {
+                                    title: Uni.I18n.translate('general.addZone', 'MDC', 'Add zone'),
+                                    route: 'add',
+                                    controller: 'Mdc.controller.setup.DeviceZones',
+                                    privileges: Cfg.privileges.Validation.adminZones,
+                                    action: 'showAddOverview',
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.zonesActions
+                                },
+                                edit: {
+                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    route: '{deviceZoneId}/edit',
+                                    controller: 'Mdc.controller.setup.DeviceZones',
+                                    privileges: Cfg.privileges.Validation.adminZones,
+                                    action: 'showEditOverview',
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.zonesActions,
+                                    callback: function (route) {
+                                        this.getApplication().on('loadZonesOnDevice', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('zoneName'), false));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
+                                }
+                            }
+                        },
                         //protocol dialects routes
                         protocols: {
                             title: Uni.I18n.translate('general.protocolDialects', 'MDC', 'Protocol dialects'),
@@ -1406,6 +1443,30 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 }
                             }
+                        }
+                    }
+                },
+
+                zones: {
+                    title: Uni.I18n.translate('general.zones', 'MDC', 'Zones'),
+                    route: 'zones',
+                    controller: 'Mdc.zones.controller.Zones',
+                    action: 'showOverview',
+                    privileges: Cfg.privileges.Validation.viewZones,
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('zones.addZone', 'MDC', 'Add zone'),
+                            route: 'add',
+                            controller: 'Mdc.zones.controller.Zones',
+                            action: 'showAddZone',
+                            privileges: Cfg.privileges.Validation.adminZones,
+                        },
+                        edit: {
+                            title: Uni.I18n.translate('zones.editZone', 'MDC', 'Edit zone'),
+                            route: '{zoneId}/edit',
+                            controller: 'Mdc.zones.controller.Zones',
+                            action: 'editZone',
+                            privileges: Cfg.privileges.Validation.adminZones,
                         }
                     }
                 }
@@ -2841,6 +2902,22 @@ Ext.define('Mdc.controller.history.Setup', {
                 route: 'workspace',
                 disabled: true,
                 items: {
+                    multisenseprocesses: {
+                        title: Uni.I18n.translate('general.allprocesses', 'MDC', 'Processes'),
+                        route: 'multisenseprocesses',
+                        privileges: Bpm.privileges.BpmManagement.viewProcesses,
+                        controller: 'Mdc.processes.controller.ProcessesController',
+                        action: 'showProcesses',
+                        items: {
+                            bulkaction: {
+                                title: Uni.I18n.translate('mdc.process.bulkActions', 'MDC', 'Bulk action'),
+                                route: 'bulkaction',
+                                action: 'showBulkActions',
+                                privileges: Bpm.privileges.BpmManagement.administrateProcesses,
+                                controller: 'Mdc.processes.controller.ProcBulkActions'
+                            }
+                        }
+                    },
                     commands: {
                         title: Uni.I18n.translate('general.commands', 'MDC', 'Commands'),
                         route: 'commands',

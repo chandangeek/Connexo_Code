@@ -127,7 +127,7 @@ import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_
 public class DeviceResource {
     private static final int RECENTLY_ADDED_COUNT = 5;
     private static final String DEVICE_ASSOCIATION = "device";
-    private static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
+    static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
     private final DeviceService deviceService;
     private final TopologyService topologyService;
     private final MultiElementDeviceService multiElementDeviceService;
@@ -158,6 +158,7 @@ public class DeviceResource {
     private final Provider<DeviceHistoryResource> deviceHistoryResourceProvider;
     private final Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider;
     private final Provider<GoingOnResource> goingOnResourceProvider;
+    private final Provider<DeviceZoneResource> deviceResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
     private final LocationInfoFactory locationInfoFactory;
@@ -206,6 +207,7 @@ public class DeviceResource {
             Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
             Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider,
             Provider<GoingOnResource> goingOnResourceProvider,
+            Provider<DeviceZoneResource> deviceResourceProvider,
             DeviceInfoFactory deviceInfoFactory,
             DeviceAttributesInfoFactory deviceAttributesInfoFactory,
             LocationInfoFactory locationInfoFactory,
@@ -252,6 +254,7 @@ public class DeviceResource {
         this.deviceHistoryResourceProvider = deviceHistoryResourceProvider;
         this.deviceLifeCycleActionResourceProvider = deviceLifeCycleActionResourceProvider;
         this.goingOnResourceProvider = goingOnResourceProvider;
+        this.deviceResourceProvider = deviceResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
         this.locationInfoFactory = locationInfoFactory;
@@ -360,7 +363,7 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
-    public Response validateDevices(BulkRequestInfo request, @BeanParam JsonQueryFilter queryFilter, @Context SecurityContext securityContext) {
+    public Response validateDevices(BulkRequestInfo request) {
         if (request.action == null || (!"ValidateDevices".equalsIgnoreCase(request.action))) {
             throw new LocalizedFieldValidationException(MessageSeeds.BAD_ACTION, "action");
         }
@@ -947,6 +950,11 @@ public class DeviceResource {
     @Path("/{name}/transitions")
     public DeviceLifeCycleActionResource getDeviceLifeCycleActionsResource() {
         return deviceLifeCycleActionResourceProvider.get();
+    }
+
+    @Path("/{name}/zones")
+    public DeviceZoneResource getDeviceZoneResourceResource() {
+        return deviceResourceProvider.get();
     }
 
     @GET

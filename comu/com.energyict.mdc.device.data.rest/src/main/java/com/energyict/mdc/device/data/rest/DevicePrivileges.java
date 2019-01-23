@@ -35,6 +35,7 @@ public final class DevicePrivileges {
     public static final String DEVICES_WIDGET_COMMUNICATION_TOPOLOGY = "devices.widget.communication.topology";
     public static final String DEVICES_WIDGET_CONNECTION = "devices.widget.connection";
     public static final String DEVICES_WIDGET_COMMUNICATION_TASKS = "devices.widget.communication.tasks";
+    public static final String DEVICES_WIDGET_ZONES = "devices.widget.zones";
     public static final String DEVICES_ACTIONS_VALIDATION = "devices.actions.validation";
     public static final String DEVICES_ACTIONS_ESTIMATION = "devices.actions.estimation";
     public static final String DEVICES_ACTIONS_VALIDATION_RULE_SETS = "devices.actions.validation.rulesets";
@@ -52,6 +53,7 @@ public final class DevicePrivileges {
     public static final String DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION = "devices.actions.change.device.configuration";
     public static final String DEVICES_PAGES_COMMUNICATION_PLANNING = "devices.pages.communication.planning";
     public static final String DEVICES_TIME_OF_USE_ALLOWED = "devices.pages.timeofuseallowed";
+    public static final String DEVICES_ACTIONS_ZONES = "devices.actions.zones";
     private static Map<ProtocolSupportedCalendarOptions, String> option2Privilege = createAllPrivilegesMap();
 
     public static List<String> getPrivilegesFor(Device device, User user) {
@@ -158,6 +160,7 @@ public final class DevicePrivileges {
                     DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
                     DevicePrivileges.DEVICES_WIDGET_CONNECTION,
                     DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TASKS,
+                    DevicePrivileges.DEVICES_WIDGET_ZONES,
                     DevicePrivileges.DEVICES_ACTIONS_VALIDATION,
                     DevicePrivileges.DEVICES_ACTIONS_ESTIMATION,
                     DevicePrivileges.DEVICES_ACTIONS_VALIDATION_RULE_SETS,
@@ -173,7 +176,8 @@ public final class DevicePrivileges {
                     DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
                     DevicePrivileges.DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION,
                     DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
-                    DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
+                    DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING,
+                    DevicePrivileges.DEVICES_ACTIONS_ZONES
             );
         }
 
