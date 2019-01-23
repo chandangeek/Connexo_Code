@@ -1,7 +1,10 @@
 package com.elster.jupiter.audit;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
@@ -20,6 +23,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     private AuditTrailReference reference;
+    private volatile Thesaurus thesaurus;
 
     public AbstractAuditDecoder init(AuditTrailReference reference) {
         this.reference = reference;
@@ -36,6 +40,9 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         return new Object();
     }
 
+    public void setThesaurus(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
     @SuppressWarnings("unchecked")
     public <T> List<T> getAffected(DataMapper<T> dataMapper, Map<String, Object> valueMap) {
 
@@ -95,6 +102,7 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
                 .collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unchecked")
     public <T> Optional<T> getJournalEntry(DataMapper<T> dataMapper, Map<String, Object> valueMap) {
         if (valueMap.containsKey("VERSIONCOUNT") && (Long.parseLong(valueMap.get("VERSIONCOUNT").toString()) == 0)) {
             return Optional.empty();
@@ -112,4 +120,46 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     }
 
     protected abstract void decodeReference();
+
+
+    public Optional<AuditLogChange> getAuditLogChangeForString(String from, String to, TranslationKey translationKey) {
+        if (to.compareTo(from) != 0) {
+            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setType(SimplePropertyType.TEXT.name());
+            auditLogChange.setValue(to);
+            auditLogChange.setPreviousValue(from);
+            return Optional.of(auditLogChange);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<AuditLogChange> getAuditLogChangeForInteger(Integer from, Integer to, TranslationKey translationKey) {
+        if (to.compareTo(from) != 0) {
+            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setType(SimplePropertyType.INTEGER.name());
+            auditLogChange.setValue(to);
+            auditLogChange.setPreviousValue(from);
+            return Optional.of(auditLogChange);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<AuditLogChange> getAuditLogChangeForOptional(Optional from, Optional to, TranslationKey translationKey) {
+        if (to.equals(from) == false) {
+            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setType(SimplePropertyType.TEXT.name());
+            auditLogChange.setValue(to.get());
+            auditLogChange.setPreviousValue(from.get());
+            return Optional.of(auditLogChange);
+        }
+        return Optional.empty();
+    }
+
+
+    public String getDisplayName(TranslationKey key) {
+        return this.thesaurus.getFormat(key).format();
+    }
 }

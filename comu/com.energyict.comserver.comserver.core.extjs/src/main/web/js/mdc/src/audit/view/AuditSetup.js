@@ -28,7 +28,8 @@ Ext.define('Mdc.audit.view.AuditSetup', {
                             xtype: 'auditGrid',
                             itemId: 'audit-grid',
                             domainConvertorFn: me.domainConvertorFn,
-                            contextConvertorFn: me.contextConvertorFn
+                            contextConvertorFn: me.contextConvertorFn,
+                            scopeFn: me.scopeFn
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -43,7 +44,7 @@ Ext.define('Mdc.audit.view.AuditSetup', {
                             xtype: 'auditPreview',
                             itemId: 'audit-preview',
                             convertorFn: me.convertorFn,
-                            scope: me.scope
+                            scopeFn: me.scopeFn
                         }
                     }
                 ],

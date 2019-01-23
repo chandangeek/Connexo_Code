@@ -7,7 +7,7 @@ package com.elster.jupiter.audit.impl;
 import com.elster.jupiter.audit.AuditDecoder;
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditDomainType;
-import com.elster.jupiter.audit.AuditLogChanges;
+import com.elster.jupiter.audit.AuditLogChange;
 import com.elster.jupiter.audit.AuditOperationType;
 import com.elster.jupiter.audit.AuditReference;
 import com.elster.jupiter.audit.AuditService;
@@ -18,9 +18,9 @@ import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AuditTrailImpl implements AuditTrail {
 
@@ -81,6 +81,8 @@ public class AuditTrailImpl implements AuditTrail {
     @Override
     public String getOperation() {
         return getAuditDecoder()
+                .stream()
+                .findFirst()
                 .map(auditDecoder -> auditDecoder.getOperation(operation, getContext()))
                 .map(newOperation -> AuditOperationType.valueOf(newOperation.name()).name())
                 .orElseGet(() -> AuditOperationType.valueOf(operation.name()).name());
@@ -98,7 +100,12 @@ public class AuditTrailImpl implements AuditTrail {
 
     @Override
     public AuditDomainContextType getContext() {
-        return AuditDomainContextType.valueOf(context);
+        try {
+            return AuditDomainContextType.valueOf(context);
+        } catch (Exception e) {
+            return AuditDomainContextType.UNKNOWN;
+        }
+
     }
 
     @Override
@@ -107,15 +114,19 @@ public class AuditTrailImpl implements AuditTrail {
     }
 
     @Override
-    public List<AuditLogChanges> getLogs() {
+    public List<AuditLogChange> getLogs() {
         return getAuditDecoder()
+                .stream()
                 .map(auditDecoder -> auditDecoder.getAuditLogChanges())
-                .orElse(Collections.emptyList());
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     @Override
     public AuditReference getTouchDomain() {
         return getAuditDecoder()
+                .stream()
+                .findFirst()
                 .map(auditDecoder -> new AuditReferenceImpl(auditDecoder.getName(), auditDecoder.getReference()))
                 .orElse(new AuditReferenceImpl());
     }
@@ -135,9 +146,11 @@ public class AuditTrailImpl implements AuditTrail {
         return pkColumn;
     }
 
-    private Optional<AuditDecoder> getAuditDecoder() {
+    private List<AuditDecoder> getAuditDecoder() {
         return ((AuditServiceImpl) auditService)
                 .getAuditTrailDecoderHandles(this.domain, this.context)
-                .map(auditReferenceResolver -> auditReferenceResolver.getAuditDecoder(new AuditTrailReferenceImpl().from(this)));
+                .stream()
+                .map(auditReferenceResolver -> auditReferenceResolver.getAuditDecoder(new AuditTrailReferenceImpl().from(this)))
+                .collect(Collectors.toList());
     }
 }

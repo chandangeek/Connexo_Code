@@ -42,7 +42,7 @@ Ext.define('Mdc.audit.controller.Audit', {
                 convertorFn: me.valueConvertor,
                 domainConvertorFn: me.domainConvertor,
                 contextConvertorFn: me.contextConvertor,
-                scope: me
+                scopeFn: me
             });
 
         timeUnitsStore.load({
@@ -58,14 +58,6 @@ Ext.define('Mdc.audit.controller.Audit', {
             auditPreview = me.getAuditPreview(),
             auditPreviewGrid = me.getAuditPreviewGrid(),
             auditPreviewNoItems = me.getAuditPreviewNoItem();
-
-        auditPreview.setLoading(true);
-        Ext.each(auditPreviewGrid.columns, function (column) {
-            if (column.dataIndex == 'previousValue') {
-                column.setVisible(record[0].get('operationType') == 'UPDATE');
-                return;
-            }
-        });
 
         if (record[0].auditLogsStore.getCount() > 0) {
             auditPreviewGrid.setVisible(true);
@@ -91,13 +83,16 @@ Ext.define('Mdc.audit.controller.Audit', {
             case 'DURATION':
                 displayValue = value.split(':')[1] + ' ' + timeUnitsStore.findRecord('timeUnit', value.split(':')[0]).get('localizedValue');
                 break;
+            case 'LOCATION':
+                displayValue = Ext.isEmpty(value) == false ? Ext.String.htmlEncode(value).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>') : '-';
+                break;
             case 'BOOLEAN':
                 displayValue = value ?
                     Uni.I18n.translate('general.yes', 'MDC', 'Yes') :
                     Uni.I18n.translate('general.no', 'MDC', 'No');
                 break;
         }
-        return ((displayValue != null) && (displayValue.length == 0)) ? "-" : displayValue;
+        return ((displayValue != null) && (displayValue.length == 0)) ? '-' : displayValue;
     },
 
     domainConvertor: function (value, record) {
@@ -123,6 +118,9 @@ Ext.define('Mdc.audit.controller.Audit', {
         switch (contextType) {
             case 'GENERAL_ATTRIBUTES':
                 rendererLink = '<a href="#/devices/' + record.get('auditReference').name + '/generalattributes">' + value + '</a>';
+                break;
+            case 'DEVICE_ATTRIBUTES':
+                rendererLink = '<a href="#/devices/' + record.get('auditReference').name + '/attributes">' + value + '</a>';
                 break;
             default:
                 rendererLink = record.get('auditReference').name;

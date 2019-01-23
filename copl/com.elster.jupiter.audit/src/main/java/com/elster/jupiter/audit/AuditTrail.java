@@ -21,7 +21,7 @@ public interface AuditTrail {
 
     String getUser();
 
-    List<AuditLogChanges> getLogs();
+    List<AuditLogChange> getLogs();
 
     AuditReference getTouchDomain();
 

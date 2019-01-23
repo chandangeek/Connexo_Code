@@ -7,7 +7,6 @@ Private-Package: com.elster.jupiter.metering.impl,\
 	com.elster.jupiter.metering.impl.search,\
 	com.elster.jupiter.metering.impl.search.enddevice,\
     com.elster.jupiter.metering.impl.upgraders,\
-    com.elster.jupiter.metering.impl.audit,\
     com.elster.jupiter.metering.impl.slp
 
 Export-Package: com.elster.jupiter.metering,\

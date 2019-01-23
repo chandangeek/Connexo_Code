@@ -2,11 +2,13 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.data.impl.audit;
+package com.energyict.mdc.device.data.impl.audit.deviceProtocol;
 
 import com.elster.jupiter.audit.AbstractAuditDecoder;
 import com.elster.jupiter.audit.AuditDomainContextType;
-import com.elster.jupiter.audit.AuditLogChanges;
+import com.elster.jupiter.audit.AuditLogChange;
+import com.elster.jupiter.audit.AuditLogChangeBuilder;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -42,14 +44,16 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
 
     private volatile OrmService ormService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MeteringService meteringService;
     private volatile DeviceService deviceService;
 
     private Long deviceId;
     private Optional<Device> device;
 
-    AuditTrailDeviceProtocolDecoder(OrmService ormService, DeviceService deviceService, PropertyValueInfoService propertyValueInfoService) {
+    AuditTrailDeviceProtocolDecoder(OrmService ormService, MeteringService meteringService, DeviceService deviceService, PropertyValueInfoService propertyValueInfoService) {
         this.ormService = ormService;
         this.propertyValueInfoService = propertyValueInfoService;
+        this.meteringService = meteringService;
         this.deviceService = deviceService;
     }
 
@@ -67,21 +71,24 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
 
     @Override
     protected void decodeReference() {
-        deviceId = getAuditTrailReference().getPkcolumn();
-        device = deviceService.findDeviceById(deviceId);
+        meteringService.findEndDeviceById(getAuditTrailReference().getPkcolumn())
+                .ifPresent(endDevice -> {
+                    deviceId = Long.parseLong(endDevice.getAmrId());
+                    device = deviceService.findDeviceById(deviceId);
+                });
     }
 
     @Override
-    public List<AuditLogChanges> getAuditLogChanges() {
+    public List<AuditLogChange> getAuditLogChanges() {
         try {
-            List<AuditLogChanges> auditLogChanges = new ArrayList<>();
+            List<AuditLogChange> auditLogChanges = new ArrayList<>();
 
             List<PropertySpec> deviceProtocolPropertySpecs = getDeviceProtocolPropertySpecs();
             DataModel dataModel = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME).get();
             DataMapper<DeviceProtocolProperty> dataMapper = dataModel.mapper(DeviceProtocolProperty.class);
 
             List<DeviceProtocolProperty> actualEntries = getActualEntries(dataMapper, getActualClauses());
-            List<DeviceProtocolProperty> historyByModTimeEntries = getHistoryEntries(dataMapper, gethistoryByModTimeClauses());
+            List<DeviceProtocolProperty> historyByModTimeEntries = getHistoryEntries(dataMapper, getHistoryByModTimeClauses());
             List<DeviceProtocolProperty> historyByJournalTimeEntries = getHistoryEntries(dataMapper, getHistoryByJournalClauses());
 
             for (PropertySpec propertySpec : deviceProtocolPropertySpecs) {
@@ -101,21 +108,6 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
                     getAuditLogChange(deviceProtocolPropertySpecs, inHistoryByJournalTimeEntries, Optional.empty()).ifPresent(auditLogChanges::add);
                 }
             }
-            /*Map<String, List<DeviceProtocolProperty>> affectedDeviceProtocolProperties =
-                    getAffected(dataModel.mapper(DeviceProtocolProperty.class), ImmutableMap.of("DEVICEID", deviceId)).stream()
-                            .collect(Collectors.groupingBy(dpp -> dpp.getName()));
-
-            for (Map.Entry<String, List<DeviceProtocolProperty>> entry : affectedDeviceProtocolProperties.entrySet()) {
-                Optional<DeviceProtocolProperty> newDeviceProtocolProperty = entry.getValue().stream().findFirst();
-                Optional<DeviceProtocolProperty> oldDeviceProtocolProperty = entry.getValue().stream()
-                        .skip(1).findFirst().map(Optional::of)
-                        .orElseGet(() -> getJournalEntry(dataModel.mapper(DeviceProtocolProperty.class),
-                                ImmutableMap.of("DEVICEID", deviceId,
-                                        "PROPERTYSPEC", newDeviceProtocolProperty.get().getName(),
-                                        "VERSIONCOUNT", newDeviceProtocolProperty.get()
-                                                .getVesion() - 1)));//getDeviceProtocolPropertyFromHistory(newDeviceProtocolProperty.get().getVesion() - 1, newDeviceProtocolProperty.get().getName()));
-                getAuditLogChange(deviceProtocolPropertySpecs, oldDeviceProtocolProperty, newDeviceProtocolProperty).ifPresent(auditLogChanges::add);
-            }*/
             return auditLogChanges;
         } catch (Exception e) {
         }
@@ -126,7 +118,7 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
         return ImmutableMap.of("DEVICEID", deviceId);
     }
 
-    private Map<Operator, Pair<String, Object>> gethistoryByModTimeClauses() {
+    private Map<Operator, Pair<String, Object>> getHistoryByModTimeClauses() {
         return ImmutableMap.of(Operator.EQUAL, Pair.of("DEVICEID", deviceId),
                 Operator.GREATERTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));
@@ -138,7 +130,7 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
                 Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
     }
 
-    private Optional<AuditLogChangesImpl> getAuditLogChange(List<PropertySpec> deviceProtocolPropertySpecs, Optional<DeviceProtocolProperty> oldDeviceProtocolProperty, Optional<DeviceProtocolProperty> newDeviceProtocolProperty) {
+    private Optional<AuditLogChange> getAuditLogChange(List<PropertySpec> deviceProtocolPropertySpecs, Optional<DeviceProtocolProperty> oldDeviceProtocolProperty, Optional<DeviceProtocolProperty> newDeviceProtocolProperty) {
 
         String propertyName = Optional.of(newDeviceProtocolProperty.orElseGet(() -> oldDeviceProtocolProperty.get()))
                 .map(dpp -> dpp.getName())
@@ -171,11 +163,11 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
                 .map(value -> encodeValue(propertyType, propertyValueConverter, propertySpec, value))
                 .orElseGet(() -> encodeValue(propertyType, propertyValueConverter, propertySpec, getDefaultValue(propertySpec)));
 
-        AuditLogChangesImpl auditLogChanges = new AuditLogChangesImpl();
-        auditLogChanges.setName(displayPropertyName);
-        auditLogChanges.setValue(newPropertyValue);
-        auditLogChanges.setPreviousValue(oldPropertyValue);
-        auditLogChanges.setType(propertyTypeName);
+        AuditLogChange auditLogChanges = new AuditLogChangeBuilder()
+                .setName(displayPropertyName)
+                .setValue(newPropertyValue)
+                .setPreviousValue(oldPropertyValue)
+                .setType(propertyTypeName);
         return Optional.of(auditLogChanges);
     }
 

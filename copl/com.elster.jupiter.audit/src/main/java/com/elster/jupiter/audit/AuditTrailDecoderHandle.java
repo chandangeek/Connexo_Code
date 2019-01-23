@@ -18,4 +18,6 @@ public interface AuditTrailDecoderHandle {
     List<String> getPrivileges();
 
     AuditDecoder getAuditDecoder(AuditTrailReference reference);
+
+
 }

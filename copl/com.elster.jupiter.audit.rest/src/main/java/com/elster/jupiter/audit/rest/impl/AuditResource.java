@@ -82,6 +82,7 @@ public class AuditResource {
     public Response getCategories() {
         List<IdWithNameInfo> operationInfos =
                 Arrays.stream(AuditDomainType.values())
+                        .filter(auditDomainType -> auditDomainType != AuditDomainType.UNKNOWN)
                         .map(auditDomainType ->
                                 Arrays.stream(AuditDomainTranslationKeys.values())
                                         .filter(keys -> keys.getKey().compareToIgnoreCase(auditDomainType.type()) == 0)

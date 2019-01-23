@@ -73,7 +73,7 @@ public class AuditTrailDataWriter<T> {
                     .filter(contextIdentifierEntry -> {
                         List<Object> pkColumns = tableAudit.getPkColumns(object);
                         return
-                                (contextIdentifierEntry.getDomain().compareToIgnoreCase(tableAudit.getTouchTable().getName()) == 0) &&
+                                (contextIdentifierEntry.getDomain().compareToIgnoreCase(tableAudit.getDomain()) == 0) &&
                                         (contextIdentifierEntry.getContext().compareToIgnoreCase(tableAudit.getContext()) == 0) &&
                                         (contextIdentifierEntry.getPkColumn() == getPkColumnByIndex(pkColumns, 0)) /*&&
                                         (contextIdentifierEntry.getOperation() == operation.ordinal())*/;
@@ -92,7 +92,7 @@ public class AuditTrailDataWriter<T> {
                             Long nextVal = getNext(connection, "ADT_AUDIT_TRAILID");
                             List<Object> pkColumns = tableAudit.getPkColumns(object);
                             updateContextAuditIdentifiers(new DomainContextIdentifier().setId(nextVal)
-                                    .setDomain(tableAudit.getTouchTable().getName())
+                                    .setDomain(tableAudit.getDomain())
                                     .setContext(tableAudit.getContext())
                                     .setPkColumn(getPkColumnByIndex(pkColumns, 0))
                                     .setOperation(operation.ordinal()));

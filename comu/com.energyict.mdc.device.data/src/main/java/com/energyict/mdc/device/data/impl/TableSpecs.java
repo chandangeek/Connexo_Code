@@ -164,6 +164,10 @@ public enum TableSpecs {
             table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
             table.unique("UK_DDC_DEVICE_NAME").on(name).since(version(10, 2, 1)).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
+            table.audit(DDC_DEVICE.name())
+                    .domain("DEVICE")
+                    .context("DEVICE_ATTRIBUTES")
+                    .build();
         }
     },
 
@@ -185,13 +189,13 @@ public enum TableSpecs {
                     .reverseMap("deviceProperties")
                     .composition()
                     .add();
-            table.audit(DDC_DEVICEPROTOCOLPROPERTY.name()).
-                    domain("DEVICE").
-                    context("GENERAL_ATTRIBUTES").
-                    references("FK_DDC_DEVICEPROTPROP_DEVICE", "FK_DDC_DEVICE_ENDDEVICE").
-                    touchDomain("FK_DDC_DEVICE_ENDDEVICE").
-                    touchContext("").
-                    build();
+            table.audit(DDC_DEVICEPROTOCOLPROPERTY.name())
+                    .domain("DEVICE")
+                    .context("GENERAL_ATTRIBUTES")
+                    .references("FK_DDC_DEVICEPROTPROP_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
+                    .touchDomain("FK_DDC_DEVICE_ENDDEVICE")
+                    .touchContext("")
+                    .build();
         }
     },
 

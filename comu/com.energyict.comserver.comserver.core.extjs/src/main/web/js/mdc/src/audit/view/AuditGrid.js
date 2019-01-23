@@ -6,7 +6,6 @@ Ext.define('Mdc.audit.view.AuditGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.auditGrid',
     store: 'Mdc.audit.store.Audit',
-    scroll: false,
     requires: [],
 
     initComponent: function () {
@@ -38,7 +37,7 @@ Ext.define('Mdc.audit.view.AuditGrid', {
                 dataIndex: 'context',
                 flex: 1,
                 renderer: function (value, metaData, record) {
-                    return me.contextConvertorFn.call(me.scope, value, record);
+                    return me.contextConvertorFn.call(me.scopeFn, value, record);
                 }
             },
             {

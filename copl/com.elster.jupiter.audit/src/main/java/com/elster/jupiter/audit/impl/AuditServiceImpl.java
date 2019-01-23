@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component(
         name = "com.elster.jupiter.audit",
@@ -159,12 +159,12 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
         auditTrailDecoderHandles.remove(auditTrailDecoderHandle);
     }
 
-    public Optional<AuditTrailDecoderHandle> getAuditTrailDecoderHandles(String domain, String context) {
+    public List<AuditTrailDecoderHandle> getAuditTrailDecoderHandles(String domain, String context) {
         return auditTrailDecoderHandles.stream()
                 .filter(auditDecoderHandleEntry ->
                         (auditDecoderHandleEntry.getDomain().compareToIgnoreCase(domain) == 0) &&
                                 (auditDecoderHandleEntry.getContext().compareToIgnoreCase(context) == 0))
-                .findFirst();
+                .collect(Collectors.toList());
     }
 
     @Override

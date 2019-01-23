@@ -19,7 +19,6 @@ import com.elster.jupiter.util.conditions.Where;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +37,6 @@ public class AuditTrailFilterImpl implements AuditTrailFilter {
 
     @Override
     public Condition toCondition() {
-        Condition condition = Condition.TRUE;
         if (changedOnFrom != Instant.EPOCH) {
             condition = condition.and(Where.where(AuditTrailImpl.Field.CREATETIME.fieldName()).isGreaterThanOrEqual(changedOnFrom));
         }
@@ -85,8 +83,10 @@ public class AuditTrailFilterImpl implements AuditTrailFilter {
         List<String> domainContexts = tableAudits.stream()
                 .filter(tableAudit ->
                         hasAtLeastOnePrivileges(((AuditServiceImpl) auditService).getAuditTrailDecoderHandles(tableAudit.getDomain(), tableAudit.getContext())
+                                .stream()
                                 .map(AuditTrailDecoderHandle::getPrivileges)
-                                .orElse(Collections.emptyList()), threadPrincipalService))
+                                .flatMap(Collection::stream)
+                                .collect(Collectors.toList()), threadPrincipalService))
                 .map(TableAudit::getContext)
                 .collect(Collectors.toList());
         condition = condition.and(Where.where(AuditTrailImpl.Field.CONTEXT.fieldName()).in(domainContexts));

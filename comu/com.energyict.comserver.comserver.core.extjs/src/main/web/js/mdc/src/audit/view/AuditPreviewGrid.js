@@ -5,7 +5,6 @@
 Ext.define('Mdc.audit.view.AuditPreviewGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.auditPreviewGrid',
-    scroll: false,
     requires: [
         'Mdc.audit.store.AuditDetails'
     ],
@@ -17,14 +16,14 @@ Ext.define('Mdc.audit.view.AuditPreviewGrid', {
             {
                 header: Uni.I18n.translate('audit.preview.propertyName', 'MDC', 'Property name'),
                 dataIndex: 'name',
-                flex: 1,
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('audit.preview.changedTo', 'MDC', 'Changed to'),
                 dataIndex: 'value',
                 flex: 1,
                 renderer: function (value, metaData, record) {
-                    return me.convertorFn.call(me.scope, value, record);
+                    return me.convertorFn.call(me.scopeFn, value, record);
                 }
             },
             {
@@ -32,10 +31,15 @@ Ext.define('Mdc.audit.view.AuditPreviewGrid', {
                 dataIndex: 'previousValue',
                 flex: 1,
                 renderer: function (value, metaData, record) {
-                    return me.convertorFn.call(me.scope, value, record);
+                    return me.convertorFn.call(me.scopeFn, value, record);
                 }
             }
         ];
+
+        me.on('refresh', function () {
+        });
+        me.on('datachanged', function () {
+        });
 
         me.callParent(arguments);
     }

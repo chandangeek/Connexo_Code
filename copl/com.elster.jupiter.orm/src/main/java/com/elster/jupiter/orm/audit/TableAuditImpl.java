@@ -26,8 +26,8 @@ public class TableAuditImpl implements TableAudit {
     List<ForeignKeyConstraint> foreignKeyConstraints = new ArrayList<ForeignKeyConstraint>();
     private String domain;
     private String context;
-    private String domainForeignKey;
-    private String contextForeignKey;
+    private Optional<String> domainForeignKey = Optional.empty();
+    private Optional<String> contextForeignKey = Optional.empty();
     private final Reference<TableImpl<?>> table = ValueReference.absent();
 
     TableAuditImpl init(TableImpl<?> table, String name) {
@@ -56,8 +56,8 @@ public class TableAuditImpl implements TableAudit {
 
     @Override
     public List<Object> getPkColumns(Object object) {
-        String foreignKeyName = domainForeignKey;
-        if ((foreignKeyConstraints.size() == 0) || (foreignKeyName.isEmpty())) {
+        Optional<String> foreignKeyName = domainForeignKey;
+        if ((foreignKeyConstraints.size() == 0) || (!foreignKeyName.isPresent()) || (foreignKeyName.isPresent() && foreignKeyName.get().isEmpty())) {
             return getPkColumnReference(getTable().getPrimaryKeyColumns(), object);
         }
         try {
@@ -66,7 +66,7 @@ public class TableAuditImpl implements TableAudit {
                 object = ((Reference<?>) (((TableImpl) foreignKeyConstraint.getReferencedTable()).getDomainMapper().getField(object.getClass(), fieldName)
                         .get(object))).getOptional().get();
 
-                if (foreignKeyConstraint.getName().compareToIgnoreCase(foreignKeyName) == 0) {
+                if (foreignKeyConstraint.getName().compareToIgnoreCase(foreignKeyName.get()) == 0) {
                     return getPkColumnReference(foreignKeyConstraint.getReferencedTable().getPrimaryKeyColumns(), object);
                 }
             }
@@ -141,8 +141,8 @@ public class TableAuditImpl implements TableAudit {
                 .collect(Collectors.toList());
     }
 
-    private String getObjectReference(Object object, String foreignKeyName) {
-        if ((foreignKeyConstraints.size() == 0) || (foreignKeyName.isEmpty())) {
+    private String getObjectReference(Object object, Optional<String> foreignKeyName) {
+        if ((foreignKeyConstraints.size() == 0) || (!foreignKeyName.isPresent()) || (foreignKeyName.isPresent() && foreignKeyName.get().isEmpty())) {
             return getReference(getTable().getPrimaryKeyColumns(), object);
         }
         try {
@@ -151,7 +151,7 @@ public class TableAuditImpl implements TableAudit {
                 object = ((Reference<?>) (((TableImpl) foreignKeyConstraint.getReferencedTable()).getDomainMapper().getField(object.getClass(), fieldName)
                         .get(object))).getOptional().get();
 
-                if (foreignKeyConstraint.getName().compareToIgnoreCase(foreignKeyName) == 0) {
+                if (foreignKeyConstraint.getName().compareToIgnoreCase(foreignKeyName.get()) == 0) {
                     return getReference(foreignKeyConstraint.getReferencedTable().getPrimaryKeyColumns(), object);
                 }
             }
@@ -161,8 +161,8 @@ public class TableAuditImpl implements TableAudit {
         }
     }
 
-    private Object getDomainShortReference(Object object, String foreignKeyName) {
-        if ((foreignKeyConstraints.size() == 0) || (foreignKeyName.isEmpty())) {
+    private Object getDomainShortReference(Object object, Optional<String> foreignKeyName) {
+        if ((foreignKeyConstraints.size() == 0) || (!foreignKeyName.isPresent()) || (foreignKeyName.isPresent() && foreignKeyName.get().isEmpty())) {
             return getDomainShortReference(getTable().getPrimaryKeyColumns(), object);
         }
         try {
@@ -171,7 +171,7 @@ public class TableAuditImpl implements TableAudit {
                 object = ((Reference<?>) (((TableImpl) foreignKeyConstraint.getReferencedTable()).getDomainMapper().getField(object.getClass(), fieldName)
                         .get(object))).getOptional().get();
 
-                if (foreignKeyConstraint.getName().compareToIgnoreCase(foreignKeyName) == 0) {
+                if (foreignKeyConstraint.getName().compareToIgnoreCase(foreignKeyName.get()) == 0) {
                     return getDomainShortReference(foreignKeyConstraint.getReferencedTable().getPrimaryKeyColumns(), object);
                 }
             }
@@ -183,8 +183,8 @@ public class TableAuditImpl implements TableAudit {
 
     @Override
     public Table<?> getTouchTable() {
-        if (!domainForeignKey.isEmpty()) {
-            return getForeignKeyConstraintsByName(domainForeignKey).map(foreignKeyConstraint -> (TableImpl) foreignKeyConstraint.getReferencedTable()).orElse(getTable());
+        if (domainForeignKey.isPresent() && !domainForeignKey.get().isEmpty()) {
+            return getForeignKeyConstraintsByName(domainForeignKey.get()).map(foreignKeyConstraint -> (TableImpl) foreignKeyConstraint.getReferencedTable()).orElse(getTable());
         }
 
         if (foreignKeyConstraints.size() > 0) {
@@ -215,10 +215,11 @@ public class TableAuditImpl implements TableAudit {
         public Builder references(String... foreignKeyConstraintList) {
             Table<?> table = tableAudit.getTable();
             for (String foreignKeyConstraint : foreignKeyConstraintList) {
+                String tableName = table.getName();
                 ForeignKeyConstraint fkc = table.getForeignKeyConstraints().stream()
                         .filter(f -> f.getName().compareToIgnoreCase(foreignKeyConstraint) == 0)
                         .findFirst()
-                        .orElseThrow(IllegalArgumentException::new);
+                        .orElseThrow(() -> new IllegalArgumentException("Cannot locate " + foreignKeyConstraint + " foreign key constraint in " + tableName + " table"));
                 tableAudit.foreignKeyConstraints.add(fkc);
                 table = fkc.getReferencedTable();
             }
@@ -244,13 +245,13 @@ public class TableAuditImpl implements TableAudit {
 
         @Override
         public TableAudit.Builder touchDomain(String domainForeignKey) {
-            tableAudit.domainForeignKey = domainForeignKey;
+            tableAudit.domainForeignKey = Optional.of(domainForeignKey);
             return this;
         }
 
         @Override
         public TableAudit.Builder touchContext(String contextForeignKey) {
-            tableAudit.contextForeignKey = contextForeignKey;
+            tableAudit.contextForeignKey = Optional.of(contextForeignKey);
             return this;
         }
 

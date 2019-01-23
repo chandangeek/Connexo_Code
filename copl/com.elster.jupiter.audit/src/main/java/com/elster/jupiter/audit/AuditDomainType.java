@@ -6,6 +6,7 @@ package com.elster.jupiter.audit;
 
 public enum AuditDomainType {
 
+    UNKNOWN("UNKNOWN"),
     DEVICE("DEVICE");
 
     private final String auditDomainType;

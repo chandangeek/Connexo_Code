@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.audit.rest.impl;
 
-import com.elster.jupiter.audit.AuditLogChanges;
+import com.elster.jupiter.audit.AuditLogChange;
 import com.elster.jupiter.audit.rest.AuditLogInfo;
 
 import javax.inject.Inject;
@@ -15,7 +15,7 @@ public class AuditLogInfoFactory {
     public AuditLogInfoFactory() {
     }
 
-    public AuditLogInfo from(AuditLogChanges auditLogChanges) {
+    public AuditLogInfo from(AuditLogChange auditLogChanges) {
         AuditLogInfo auditLogInfo = new AuditLogInfo();
         auditLogInfo.setName(auditLogChanges.getName());
         auditLogInfo.setValue(auditLogChanges.getValue());

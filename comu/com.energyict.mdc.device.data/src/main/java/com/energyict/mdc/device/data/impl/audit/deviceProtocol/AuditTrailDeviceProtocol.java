@@ -2,17 +2,17 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.data.impl.audit;
+package com.energyict.mdc.device.data.impl.audit.deviceProtocol;
 
 import com.elster.jupiter.audit.AuditDecoder;
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditTrailDecoderHandle;
 import com.elster.jupiter.audit.AuditTrailReference;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.TableSpecs;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -21,14 +21,14 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component(
-        name = "com.energyict.mdc.device.data.audit.AuditTrailDeviceProtocol",
+        name = "com.energyict.mdc.device.data.audit.deviceProtocol",
         service = {AuditTrailDecoderHandle.class},
         immediate = true)
 public class AuditTrailDeviceProtocol implements AuditTrailDecoderHandle {
 
-    public static final String TABLE_IDENTIFIER = TableSpecs.DDC_DEVICEPROTOCOLPROPERTY.name();
     private volatile OrmService ormService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MeteringService meteringService;
     private volatile DeviceService deviceService;
 
     @Reference
@@ -44,6 +44,11 @@ public class AuditTrailDeviceProtocol implements AuditTrailDecoderHandle {
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -63,6 +68,6 @@ public class AuditTrailDeviceProtocol implements AuditTrailDecoderHandle {
 
     @Override
     public AuditDecoder getAuditDecoder(AuditTrailReference reference) {
-        return new AuditTrailDeviceProtocolDecoder(ormService, deviceService, propertyValueInfoService).init(reference);
+        return new AuditTrailDeviceProtocolDecoder(ormService, meteringService, deviceService, propertyValueInfoService).init(reference);
     }
 }

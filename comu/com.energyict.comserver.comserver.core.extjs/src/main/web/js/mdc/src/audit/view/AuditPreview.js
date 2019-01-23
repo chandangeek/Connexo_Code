@@ -16,7 +16,7 @@ Ext.define('Mdc.audit.view.AuditPreview', {
                 xtype: 'auditPreviewGrid',
                 itemId: 'audit-preview-grid',
                 convertorFn: me.convertorFn,
-                scope: me.scope
+                scopeFn: me.scopeFn
             },
             {
                 xtype: 'no-items-found-panel',

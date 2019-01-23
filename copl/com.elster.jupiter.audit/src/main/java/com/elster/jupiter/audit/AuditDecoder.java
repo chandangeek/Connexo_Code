@@ -21,7 +21,7 @@ public interface AuditDecoder {
         return operation;
     }
 
-    List<AuditLogChanges> getAuditLogChanges();
+    List<AuditLogChange> getAuditLogChanges();
 
 }
 
