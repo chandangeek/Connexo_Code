@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.security.Privileges;
 
@@ -30,18 +31,20 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-/**
- * Created by bvn on 4/22/15.
- */
 @Path("/devicetypes")
 public class DeviceTypeResource {
 
+    private final RegisteredCustomPropertySetInfoFactory registeredCustomPropertySetInfoFactory;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceTypeInfoFactory deviceTypeInfoFactory;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceTypeResource(DeviceConfigurationService deviceConfigurationService, DeviceTypeInfoFactory deviceTypeInfoFactory, ExceptionFactory exceptionFactory) {
+    public DeviceTypeResource(RegisteredCustomPropertySetInfoFactory registeredCustomPropertySetInfoFactory,
+                              DeviceConfigurationService deviceConfigurationService,
+                              DeviceTypeInfoFactory deviceTypeInfoFactory,
+                              ExceptionFactory exceptionFactory) {
+        this.registeredCustomPropertySetInfoFactory = registeredCustomPropertySetInfoFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceTypeInfoFactory = deviceTypeInfoFactory;
         this.exceptionFactory = exceptionFactory;
@@ -53,14 +56,14 @@ public class DeviceTypeResource {
      * Each physical device is an instance referring to
      * a specific DeviceType.
      *
-     * @summary Fetch device type
-     *
-     * @param id Id of the device type
+     * @param id      Id of the device type
      * @param uriInfo uriInfo
-     * @param fields fields
-     * @return Uniquely identofied device type
+     * @param fields  fields
+     * @return Uniquely identified device type
+     * @summary Fetch device type
      */
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{deviceTypeId}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
@@ -76,15 +79,15 @@ public class DeviceTypeResource {
      * Each physical device is an instance referring to
      * a specific DeviceType.
      *
-     * @summary Fetch a set of device types
-     * @param uriInfo uriInfo
+     * @param uriInfo         uriInfo
      * @param queryParameters queryParameters
-     * @param fields fields
-     *
+     * @param fields          fields
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
+     * @summary Fetch a set of device types
      */
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<DeviceTypeInfo> getHypermediaDeviceTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fields,
@@ -93,6 +96,42 @@ public class DeviceTypeResource {
 
         UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class);
         return PagedInfoList.from(infos, queryParameters, uri, uriInfo);
+    }
+
+    /**
+     * DeviceType defines custom attribute set of a
+     * physical (or virtual) device type.
+     * Each physical device is an instance referring to
+     * a specific DeviceType.
+     *
+     * @param id      Id of the device type
+     * @param cpsId   Id of the custom attribute set
+     * @param uriInfo uriInfo
+     * @param fields  fields
+     * @return Uniquely identified device type
+     * @summary Fetch device type
+     */
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{deviceTypeId}/custompropertysets/{cpsId}")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public RegisteredCustomPropertySetInfo getDeviceTypeCustomPropertySet(@PathParam("deviceTypeId") long id,
+                                                                          @PathParam("cpsId") long cpsId,
+                                                                          @BeanParam FieldSelection fields,
+                                                                          @Context UriInfo uriInfo) {
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND,
+                        MessageSeeds.NO_SUCH_DEVICE_TYPE));
+        RegisteredCustomPropertySetTypeInfo registeredCustomPropertySetTypeInfo =
+                deviceTypeInfoFactory.getRegisteredCustomPropertySetTypeInfos(deviceType)
+                        .stream()
+                        .filter(rcpsInfo -> rcpsInfo.getRegisteredCustomPropertySet().getId() == cpsId)
+                        .findFirst()
+                        .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND,
+                                MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET));
+        return registeredCustomPropertySetInfoFactory
+                .from(registeredCustomPropertySetTypeInfo, uriInfo, fields.getFields());
     }
 
     /**
@@ -109,16 +148,13 @@ public class DeviceTypeResource {
      * <br> The call above will return only the requested fields of the entity. In the absence of a field list, all fields
      * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
      *
-     * @summary List the fields available on this type of entity
      * @return A list of field names that can be requested as parameter in the GET method on this entity type
+     * @summary List the fields available on this type of entity
      */
     @PROPFIND
-    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return deviceTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
-
-
 }
-
