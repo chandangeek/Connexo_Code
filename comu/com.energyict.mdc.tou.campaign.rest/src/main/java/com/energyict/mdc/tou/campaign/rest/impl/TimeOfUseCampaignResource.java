@@ -6,12 +6,14 @@ package com.energyict.mdc.tou.campaign.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
@@ -55,7 +57,7 @@ public class TimeOfUseCampaignResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS ,Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
+    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getToUCampaigns(@BeanParam JsonQueryParameters queryParameters) {
         List<TimeOfUseCampaignInfo> touCampaigns = new ArrayList<>();
         timeOfUseCampaignService.getAllCampaigns().forEach((campaign, status) -> {
@@ -69,7 +71,7 @@ public class TimeOfUseCampaignResource {
     @Transactional
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS ,Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
+    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getToUCampaign(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaign(name)
                 .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_TIME_OF_USE_CAMPAIGN_IS_FOUND));
@@ -81,13 +83,15 @@ public class TimeOfUseCampaignResource {
     @Transactional
     @Path("/{name}/devices")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS ,Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
-    public Response getToUCampaignsDevices(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
+    public Response getToUCampaignsDevices(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaign(name)
                 .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_TIME_OF_USE_CAMPAIGN_IS_FOUND));
         ServiceCall parent = timeOfUseCampaignService.findCampaignServiceCall(timeOfUseCampaign.getName()).get();
         List<DeviceInCampaignInfo> deviceInCampaignInfo = new ArrayList<>();
-        parent.findChildren().stream().forEach(serviceCall -> {
+        ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
+        serviceCallFilter.states = filter.getStringList("status");
+        parent.findChildren(serviceCallFilter).from(queryParameters).stream().forEach(serviceCall -> {
             Device device = timeOfUseCampaignService.findDeviceByServiceCall(serviceCall);
             deviceInCampaignInfo.add(new DeviceInCampaignInfo(new IdWithNameInfo(device.getId(), device.getName()),
                     getStatus(serviceCall.getState(), thesaurus),
@@ -95,7 +99,7 @@ public class TimeOfUseCampaignResource {
                     (serviceCall.getState().equals(DefaultState.CANCELLED)
                             || serviceCall.getState().equals(DefaultState.SUCCESSFUL)) ? serviceCall.getLastModificationTime() : null));
         });
-        deviceInCampaignInfo.sort(Comparator.comparing(o -> o.startedOn));
+        deviceInCampaignInfo.sort(Comparator.comparing(o -> o.device.name));
         return Response.ok(PagedInfoList.fromPagedList("devicesInCampaign", ListPager.of(deviceInCampaignInfo).from(queryParameters).find(), queryParameters)).build();
     }
 
@@ -115,7 +119,7 @@ public class TimeOfUseCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response retryDevice(IdWithNameInfo id) {
-        timeOfUseCampaignService.retryDevice(((Integer)id.id).longValue());
+        timeOfUseCampaignService.retryDevice(((Integer) id.id).longValue());
         return Response.ok().build();
     }
 
@@ -125,7 +129,7 @@ public class TimeOfUseCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response cancelDevice(IdWithNameInfo id) {
-        timeOfUseCampaignService.cancelDevice(((Integer)id.id).longValue());
+        timeOfUseCampaignService.cancelDevice(((Integer) id.id).longValue());
         return Response.ok().build();
     }
 
@@ -153,7 +157,7 @@ public class TimeOfUseCampaignResource {
     @Transactional
     @Path("/devicetypes")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS ,Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
+    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getDeviceTypesForCalendars(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithNameInfo> deviceTypes = new ArrayList<>();
         timeOfUseCampaignService.getDeviceTypesWithCalendars()
@@ -165,7 +169,7 @@ public class TimeOfUseCampaignResource {
     @Transactional
     @Path("/getoptions")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS ,Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
+    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getSendOptionsForType(@QueryParam("type") Long deviceTypeId) {
         DeviceTypeAndOptionsInfo deviceTypeAndOptionsInfo = new DeviceTypeAndOptionsInfo();
         DeviceType deviceType = timeOfUseCampaignService.getDeviceTypesWithCalendars().stream()
