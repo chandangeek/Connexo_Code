@@ -148,16 +148,20 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
                         .named(ParentGetMeterReadingsDomainExtension.FieldNames.READING_TYPES.javaName(), TranslationKeys.READING_TYPES)
                         .describedAs(TranslationKeys.READING_TYPES)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(ParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICES.javaName(), TranslationKeys.END_DEVICES)
+                        .describedAs(TranslationKeys.END_DEVICES)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
 
     private class ParentGetMeterReadingsCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, ParentGetMeterReadingsDomainExtension> {
-        /// TODO check table name and FK
         private final String TABLE_NAME = "GMP_SCS_CNT";
         private final String FK = "FK_GMP_SCS_CNT";
 
-        /// TODO check component name
         @Override
         public String componentName() {
             return "HZP";
@@ -218,6 +222,11 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
             table.column(ParentGetMeterReadingsDomainExtension.FieldNames.READING_TYPES.databaseName())
                     .varChar()
                     .map(ParentGetMeterReadingsDomainExtension.FieldNames.READING_TYPES.javaName())
+                    .notNull()
+                    .add();
+            table.column(ParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICES.databaseName())
+                    .varChar()
+                    .map(ParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICES.javaName())
                     .notNull()
                     .add();
         }

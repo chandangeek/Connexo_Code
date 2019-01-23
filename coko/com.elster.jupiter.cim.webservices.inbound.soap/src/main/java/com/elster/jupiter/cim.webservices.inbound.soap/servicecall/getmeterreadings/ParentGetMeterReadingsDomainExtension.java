@@ -21,7 +21,8 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         CALLBACK_URL("callbackUrl", "callback_url"),
         TIME_PERIOD_START("timePeriodStart", "time_period_start"),
         TIME_PERIOD_END("timePeriodEnd", "time_period_end"),
-        READING_TYPES("readingTypes", "reading_types");
+        READING_TYPES("readingTypes", "reading_types"),
+        END_DEVICES("endDevices", "end_devices");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -55,6 +56,9 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String readingTypes;
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String endDevices;
 
 
     public ParentGetMeterReadingsDomainExtension() {
@@ -109,6 +113,14 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         this.readingTypes = readingTypes;
     }
 
+    public String getEndDevices() {
+        return endDevices;
+    }
+
+    public void setEndDevices(String endDevices) {
+        this.endDevices = endDevices;
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
@@ -117,6 +129,7 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         this.setTimePeriodStart((Instant) propertyValues.getProperty(FieldNames.TIME_PERIOD_START.javaName()));
         this.setTimePeriodEnd((Instant) propertyValues.getProperty(FieldNames.TIME_PERIOD_END.javaName()));
         this.setReadingTypes((String) propertyValues.getProperty(FieldNames.READING_TYPES.javaName()));
+        this.setEndDevices((String) propertyValues.getProperty(FieldNames.END_DEVICES.javaName()));
     }
 
     @Override
@@ -126,9 +139,11 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         propertySetValues.setProperty(FieldNames.TIME_PERIOD_START.javaName(), this.getTimePeriodStart());
         propertySetValues.setProperty(FieldNames.TIME_PERIOD_END.javaName(), this.getTimePeriodEnd());
         propertySetValues.setProperty(FieldNames.READING_TYPES.javaName(), this.getReadingTypes());
+        propertySetValues.setProperty(FieldNames.END_DEVICES.javaName(), this.getEndDevices());
     }
 
     @Override
     public void validateDelete() {
+        // do nothing
     }
 }

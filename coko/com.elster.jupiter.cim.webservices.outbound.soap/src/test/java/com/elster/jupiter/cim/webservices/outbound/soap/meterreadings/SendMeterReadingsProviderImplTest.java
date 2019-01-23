@@ -12,6 +12,9 @@ import ch.iec.tc57._2011.sendmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.sendmeterreadings.MeterReadingsPort;
 import com.google.common.collect.Range;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +49,9 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         mockIntervalReadings();
 
         SendMeterReadingsProviderImpl provider = new SendMeterReadingsProviderImpl();
-        provider.addMeterReadingsPortService(meterReadingsPort);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("url", "some_url");
+        provider.addMeterReadingsPorts(meterReadingsPort, properties);
 
         provider.call(listReadingInfo, HeaderType.Verb.CREATED);
 

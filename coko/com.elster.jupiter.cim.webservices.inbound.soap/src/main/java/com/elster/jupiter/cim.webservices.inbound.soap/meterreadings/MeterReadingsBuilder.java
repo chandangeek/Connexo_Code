@@ -55,7 +55,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,17 +64,13 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-class MeterReadingsBuilder {
+public class MeterReadingsBuilder {
 
     private final MeteringService meteringService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeterReadingFaultMessageFactory faultMessageFactory;
 
     private UsagePoint usagePoint;
-    /// TODO throw away endDevice, as special case of List<EndDevice> endDevices
-    private EndDevice endDevice;
     private List<EndDevice> endDevices;
     private Set<MetrologyPurpose> purposes;
     private Set<String> readingTypeMRIDs;
@@ -86,7 +81,7 @@ class MeterReadingsBuilder {
     private Set<ReadingQualityType> referencedReadingQualityTypes;
 
     @Inject
-    MeterReadingsBuilder(MeteringService meteringService,
+    public MeterReadingsBuilder(MeteringService meteringService,
                          MetrologyConfigurationService metrologyConfigurationService,
                          MeterReadingFaultMessageFactory faultMessageFactory) {
         this.meteringService = meteringService;
@@ -94,49 +89,22 @@ class MeterReadingsBuilder {
         this.faultMessageFactory = faultMessageFactory;
     }
 
-    MeterReadingsBuilder fromEndDevicesWithMRIDsAndNames(List<ch.iec.tc57._2011.getmeterreadings.EndDevice> sourceDevices) throws FaultMessage {
-        List<String> mRIDs = sourceDevices.stream().map(dev -> dev.getMRID()).filter(element -> element != null).collect(Collectors.toList());
-        List<String> names = sourceDevices.stream().map(dev -> dev.getNames()
-                .stream().findFirst().map(n -> n.getName()).orElse(null)).filter(element -> element != null).collect(Collectors.toList());
-
-        endDevices = meteringService.getEndDeviceQuery().select(where("MRID").in(mRIDs).or(where("NAME").in(names)));
-        if (endDevices == null || endDevices.isEmpty()) {
-            /// TODO check message '{0}' devices have not been found.
-            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.END_DEVICES_NOT_FOUND).get();
-        }
-
-        // iterator is used to avoid ConcurentModificationException for sourceDevices.remove(sourceDevice)
-        for (Iterator<ch.iec.tc57._2011.getmeterreadings.EndDevice> iterator = sourceDevices.iterator(); iterator.hasNext(); ) {
-            ch.iec.tc57._2011.getmeterreadings.EndDevice sourceDevice = iterator.next();
-            for (EndDevice resultDevice: endDevices) {
-                if (resultDevice.getName().equals(sourceDevice.getNames().stream().findFirst().map(n -> n.getName()).orElse(null))
-                        || resultDevice.getMRID().equals(sourceDevice.getMRID())) {
-                    iterator.remove();
-                }
-            }
-        }
-        return this;
-    }
-
-    MeterReadingsBuilder fromEndDevicesWithMRIDsAndNames(List<String> mRIDs, List<String> names) {
-        endDevices = meteringService.getEndDeviceQuery().select(where("MRID").in(mRIDs).or(where("NAME").in(names)));
-        /// TODO check whether collections: mRIDs and names copy is required
-        for (EndDevice device: endDevices) {
-            mRIDs.remove(device.getMRID());
-            names.remove(device.getName());
-        }
-        return this;
-    }
-
     MeterReadingsBuilder fromEndDeviceWithMRID(String mRID) throws FaultMessage {
-        endDevice = meteringService.findEndDeviceByMRID(mRID)
-                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_DEVICE_WITH_MRID, mRID));
+        endDevices = new ArrayList<>();
+        endDevices.add(meteringService.findEndDeviceByMRID(mRID)
+                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_DEVICE_WITH_MRID, mRID)));
         return this;
     }
 
      MeterReadingsBuilder fromEndDeviceWithName(String name) throws FaultMessage {
-        endDevice = meteringService.findEndDeviceByName(name)
-                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_DEVICE_WITH_NAME, name));
+        endDevices = new ArrayList<>();
+        endDevices.add(meteringService.findEndDeviceByName(name)
+                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_DEVICE_WITH_NAME, name)));
+        return this;
+    }
+
+    public MeterReadingsBuilder withEndDevices(List<EndDevice> endDevices) {
+        this.endDevices = endDevices;
         return this;
     }
 
@@ -165,22 +133,22 @@ class MeterReadingsBuilder {
         return this;
     }
 
-    MeterReadingsBuilder ofReadingTypesWithMRIDs(Set<String> mRIDs) throws FaultMessage {
+    public MeterReadingsBuilder ofReadingTypesWithMRIDs(Set<String> mRIDs) {
         this.readingTypeMRIDs = mRIDs;
         return this;
     }
 
-    MeterReadingsBuilder ofReadingTypesWithFullAliasNames(Set<String> names) throws FaultMessage {
+    public MeterReadingsBuilder ofReadingTypesWithFullAliasNames(Set<String> names) {
         this.readingTypeFullAliasNames = names;
         return this;
     }
 
-    MeterReadingsBuilder inTimeIntervals(RangeSet<Instant> timePeriods) {
+    public MeterReadingsBuilder inTimeIntervals(RangeSet<Instant> timePeriods) {
         this.timePeriods = timePeriods;
         return this;
     }
 
-    MeterReadings build() throws FaultMessage {
+    public MeterReadings build() throws FaultMessage {
         MeterReadings meterReadings = new MeterReadings();
         List<MeterReading> meterReadingsList = meterReadings.getMeterReading();
         List<ch.iec.tc57._2011.meterreadings.ReadingType> readingTypeList = meterReadings.getReadingType();
@@ -188,20 +156,24 @@ class MeterReadingsBuilder {
         referencedReadingTypes = new HashSet<>();
         referencedReadingQualityTypes = new HashSet<>();
 
-        if(endDevice == null) {
+        if (endDevices == null || endDevices.isEmpty()) {
             usagePoint.getEffectiveMetrologyConfigurations().stream()
                     .filter(emc -> !timePeriods.subRangeSet(emc.getInterval().toOpenClosedRange()).isEmpty())
                     .flatMap(this::fetchReadingsFromEffectiveConfiguration)
                     .collect(Collectors.toMap(Pair::getFirst, Pair::getLast, MeterReadingsBuilder::mergeMaps))
-                    .forEach((purposeName, readingsByReadingTypes) -> wrapInMeterReading(purposeName, readingsByReadingTypes)
+                    .forEach((purposeName, readingsByReadingTypes) -> wrapInMeterReading(purposeName, null, readingsByReadingTypes)
                             .ifPresent(meterReadingsList::add));
-        } else if (endDevice instanceof Meter) {
-            Meter meter = (Meter) endDevice;
-            meter.getChannelsContainers().stream()
-                    .filter(cc -> !timePeriods.subRangeSet(cc.getInterval().toOpenClosedRange()).isEmpty())
-                    .map(this::fetchReadingsContainer)
-                    .forEach(readingsByReadingTypes -> wrapInMeterReading(null, readingsByReadingTypes)
-                            .ifPresent(meterReadingsList::add));
+        } else if (endDevices.stream().anyMatch(ed -> ed instanceof Meter)) {
+                endDevices.stream()
+                        .filter(ed -> ed instanceof Meter)
+                        .forEach(ed -> {
+                                Meter meter = (Meter) ed;
+                                meter.getChannelsContainers().stream()
+                                .filter(cc -> !timePeriods.subRangeSet(cc.getInterval().toOpenClosedRange()).isEmpty())
+                                .map(this::fetchReadingsContainer)
+                                .forEach(readingsByReadingTypes -> wrapInMeterReading(null, ed, readingsByReadingTypes)
+                                        .ifPresent(meterReadingsList::add));
+                });
         }
 
         // filled in in scope of wrapInMeterReading
@@ -344,7 +316,7 @@ class MeterReadingsBuilder {
         return readingsMap.values();
     }
 
-    private Optional<MeterReading> wrapInMeterReading(String purpose, Map<ReadingType, List<ReadingWithQualities>> readingsByReadingTypes) {
+    private Optional<MeterReading> wrapInMeterReading(String purpose, EndDevice endDevice, Map<ReadingType, List<ReadingWithQualities>> readingsByReadingTypes) {
         MeterReading meterReading = new MeterReading();
         List<IntervalBlock> intervalBlocks = meterReading.getIntervalBlocks();
         List<Reading> registerReadings = meterReading.getReadings();
@@ -366,12 +338,12 @@ class MeterReadingsBuilder {
             meterReading.setUsagePoint(createUsagePointPurpose(purpose));
         }
         if (endDevice != null) {
-            meterReading.setMeter(createMeter());
+            meterReading.setMeter(createMeter(endDevice));
         }
         return Optional.of(meterReading);
     }
 
-    private ch.iec.tc57._2011.meterreadings.Meter createMeter() {
+    private ch.iec.tc57._2011.meterreadings.Meter createMeter(EndDevice endDevice) {
         ch.iec.tc57._2011.meterreadings.Meter meter = new ch.iec.tc57._2011.meterreadings.Meter();
         meter.setMRID(endDevice.getMRID());
         meter.getNames().add(createName(endDevice.getName()));
@@ -466,8 +438,7 @@ class MeterReadingsBuilder {
     }
 
     private ReadingQuality.ReadingQualityType reference(ReadingQualityType readingQualityType) {
-        ReadingQuality.ReadingQualityType reference
-                = new ReadingQuality.ReadingQualityType();
+        ReadingQuality.ReadingQualityType reference = new ReadingQuality.ReadingQualityType();
         reference.setRef(readingQualityType.getCode());
         referencedReadingQualityTypes.add(readingQualityType);
         return reference;

@@ -2,10 +2,18 @@ package com.elster.jupiter.cim.webservices.inbound.soap.servicecall;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.meterreadings.MeterReadingFaultMessageFactory;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.GetMeterReadingsDomainExtension;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.GetMeterReadingsServiceCallHandler;
+import com.elster.jupiter.cim.webservices.inbound.soap.meterreadings.ReadingSourceEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsServiceCallHandler;
+import com.elster.jupiter.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ami.CompletionOptions;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -13,35 +21,39 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
-import ch.iec.tc57._2011.getmeterreadings.EndDevice;
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
-import ch.iec.tc57._2011.getmeterreadings.Name;
-import ch.iec.tc57._2011.getmeterreadings.ReadingType;
 
 import javax.inject.Inject;
-import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ServiceCallCommands {
 
-    private final MeterReadingFaultMessageFactory meterReadingFaultMessageFactory;
+    private final MeterReadingFaultMessageFactory faultMessageFactory;
     private final ServiceCallService serviceCallService;
+    private final MessageService messageService;
     private final Thesaurus thesaurus;
 
+
     @Inject
-    public ServiceCallCommands(MeterReadingFaultMessageFactory meterReadingFaultMessageFactory, ServiceCallService serviceCallService, Thesaurus thesaurus) {
-        this.meterReadingFaultMessageFactory = meterReadingFaultMessageFactory;
+    public ServiceCallCommands(MeterReadingFaultMessageFactory faultMessageFactory,
+                               ServiceCallService serviceCallService, MessageService messageService,
+                               Thesaurus thesaurus) {
+        this.faultMessageFactory = faultMessageFactory;
         this.serviceCallService = serviceCallService;
+        this.messageService = messageService;
         this.thesaurus = thesaurus;
     }
 
     @TransactionRequired
-    public ServiceCall createParentGetMeterReadingsServiceCall(String source, String replyAddress, DateTimeInterval timePeriod,
-                                                                      List<ReadingType> readingTypes, List<EndDevice> endDevices) throws FaultMessage {
+    public ServiceCall createParentGetMeterReadingsServiceCall(String source, String replyAddress,
+                                                               DateTimeInterval timePeriod,
+                                                               List<EndDevice> existedEndDevices,
+                                                               List<ReadingType> existedReadingTypes) throws FaultMessage {
         ServiceCallType serviceCallType = getServiceCallType(ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
                                                              ParentGetMeterReadingsServiceCallHandler.VERSION);
         ParentGetMeterReadingsDomainExtension parentGetMeterReadingsDomainExtension = new ParentGetMeterReadingsDomainExtension();
@@ -49,52 +61,81 @@ public class ServiceCallCommands {
         parentGetMeterReadingsDomainExtension.setCallbackUrl(replyAddress);
         parentGetMeterReadingsDomainExtension.setTimePeriodStart(timePeriod.getStart());
         parentGetMeterReadingsDomainExtension.setTimePeriodEnd(timePeriod.getEnd());
-        parentGetMeterReadingsDomainExtension.setReadingTypes(getReadingTypes(readingTypes));
+        parentGetMeterReadingsDomainExtension.setReadingTypes(getReadingTypesString(existedReadingTypes));
+        parentGetMeterReadingsDomainExtension.setEndDevices(getEndDevicesString(existedEndDevices));
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
                 .origin("MultiSense")
                 .extendedWith(parentGetMeterReadingsDomainExtension);
         ServiceCall parentServiceCall = serviceCallBuilder.create();
-
-        for (EndDevice endDevice: endDevices) {
-            /// TODO crete child service call according to available communication tasks
-            createGetMeterReadingsServiceCall(parentServiceCall, endDevice);
+        parentServiceCall.requestTransition(DefaultState.PENDING);
+        parentServiceCall.requestTransition(DefaultState.ONGOING);
+        if (ReadingSourceEnum.SYSTEM.getSource().equals(source)) {
+            initiateReading(parentServiceCall);
+            return parentServiceCall;
         }
-
+        for (EndDevice endDevice: existedEndDevices) {
+            if (endDevice instanceof Meter) {
+                Meter meter = (Meter)endDevice;
+                if (ReadingSourceEnum.HYBRID.getSource().equals(source) &&
+                        !isMeterReadingRequired(meter, existedReadingTypes, timePeriod.getEnd())) {
+                    initiateReading(parentServiceCall);
+                    return parentServiceCall;
+                }
+                readMeter(parentServiceCall, meter, existedReadingTypes);
+            }
+        }
+        parentServiceCall.requestTransition(DefaultState.WAITING);
         return parentServiceCall;
     }
 
-    @TransactionRequired
-    public void requestTransition(ServiceCall serviceCall, DefaultState newState) {
-        serviceCall.requestTransition(newState);
+    private void initiateReading(ServiceCall serviceCall) {
+        serviceCall.requestTransition(DefaultState.PAUSED);
+        serviceCall.requestTransition(DefaultState.ONGOING);
     }
 
-    private ServiceCall createGetMeterReadingsServiceCall(ServiceCall parent, EndDevice endDevice) {
-        ServiceCallType serviceCallType = getServiceCallType(GetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
-                                                             GetMeterReadingsServiceCallHandler.VERSION);
-        GetMeterReadingsDomainExtension getMeterReadingsDomainExtension = new GetMeterReadingsDomainExtension();
-        getMeterReadingsDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
-        getMeterReadingsDomainExtension.setEndDeviceMRID(endDevice.getMRID());
-        getMeterReadingsDomainExtension.setEndeDeviceName(endDevice.getNames().stream().map(Name::getName).findFirst().get());
-        getMeterReadingsDomainExtension.setRegisters(getRegisters(endDevice));
-        getMeterReadingsDomainExtension.setChannels(getChannels(endDevice));
-        ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
-                .extendedWith(getMeterReadingsDomainExtension);
-        return serviceCallBuilder.create();
+    private void readMeter(ServiceCall parentServiceCall, Meter meter, List<ReadingType> readingTypes) throws FaultMessage {
+        HeadEndInterface headEndInterface = meter.getHeadEndInterface()
+                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                        MessageSeeds.NO_HEAD_END_INTERFACE_FOUND, meter.getMRID())
+                );
+        CompletionOptions completionOptions = headEndInterface.readMeter(meter, readingTypes, parentServiceCall);
+        messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION)
+                .ifPresent(destinationSpec ->
+                        completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(parentServiceCall.getId()),
+                        destinationSpec));
     }
 
-    private String getReadingTypes(List<ReadingType> readingTypes) {
-        return readingTypes.stream().map(reading -> reading.getMRID()).collect(Collectors.joining(";"));
+    private boolean isMeterReadingRequired(Meter meter, List<ReadingType> readingTypes, Instant endTime) {
+        return meter.getChannelsContainers().stream().
+                anyMatch(container -> !isChannelContainerPresent(container, readingTypes,endTime));
     }
 
-    private String getRegisters(EndDevice endDevice) {
-        /// TODO
-        return "nothing";
+    private boolean isChannelContainerPresent(ChannelsContainer channelsContainer, List<ReadingType> readingTypes, Instant endTime) {
+        List<String> readingTypeMRIDs = readingTypes.stream().map(ert -> ert.getMRID()).collect(Collectors.toList());
+        for (Channel channel: channelsContainer.getChannels()) {
+            for (ReadingType readingType: channel.getReadingTypes()) {
+                if (readingTypeMRIDs.contains(readingType.getMRID())) {
+                    if (!channel.isRegular()) {
+                        return false;
+                    }
+                    Instant instant =  channel.getLastDateTime();
+                    instant = instant.plus(channel.getIntervalLength().get());
+                    if (endTime.isAfter(instant)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
-    private String getChannels(EndDevice endDevice) {
-        /// TODO
-        return "nothing";
+    private String getReadingTypesString(List<ReadingType> existedReadingTypes) {
+        return existedReadingTypes.stream().map(ert -> ert.getMRID()).collect(Collectors.joining(";"));
+    }
+
+    private String getEndDevicesString(List<EndDevice> existedEndDevices) {
+        return existedEndDevices.stream().map(eed -> eed.getMRID()).collect(Collectors.joining(";"));
     }
 
     private ServiceCallType getServiceCallType(String handlerName, String version) {
@@ -102,5 +143,4 @@ public class ServiceCallCommands {
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
                         .format(handlerName, version)));
     }
-
 }
