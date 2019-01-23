@@ -2,12 +2,13 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.view.setup.devicezones.ZonesPreview', {
+Ext.define('Mdc.view.setup.devicezones.DeviceZonePreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
-    alias: 'widget.device-zones-preview',
+    alias: 'widget.device-zone-preview',
+
     requires: [
-        'Mdc.view.setup.devicezones.ZonesActionsMenu'
+        'Mdc.view.setup.devicezones.DeviceZoneActionMenu'
     ],
 
     layout: {
@@ -19,21 +20,21 @@ Ext.define('Mdc.view.setup.devicezones.ZonesPreview', {
 
     initComponent: function () {
         var me = this;
-            me.tools = [
-                {
-                    xtype: 'uni-button-action',
-                    itemId: 'actionsPreviewBtn',
-                    menu: {
-                        xtype: 'device-zones-action-menu'
-                    }
+        me.tools = [
+            {
+                xtype: 'uni-button-action',
+                itemId: 'actionsDeviceZonePreviewBtn',
+                menu: {
+                    xtype: 'device-of-zone-action-menu'
                 }
-            ],
+            }
+        ],
 
-            me.items = [
+        me.items = [
             {
                 xtype: 'form',
                 border: false,
-                itemId: 'device-zones-preview-form',
+                itemId: 'device-zone-preview-form',
                 layout: {
                     type: 'vbox'
                 },
@@ -53,17 +54,20 @@ Ext.define('Mdc.view.setup.devicezones.ZonesPreview', {
                                     align: 'stretch'
                                 },
                                 items: [
-
                                     {
                                         xtype: 'displayfield',
-                                        name: 'zoneTypeName',
-                                        fieldLabel: Uni.I18n.translate('devicezones.zoneType', 'MDC', 'Zone type'),
+                                        name: 'name',
+                                        fieldLabel: Uni.I18n.translate('general.device', 'MDC', 'Device'),
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        name: 'zoneName',
-                                        fieldLabel: Uni.I18n.translate('general.zone', 'MDC', 'Zone'),
-
+                                        name: 'deviceTypeName',
+                                        fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device Type'),
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        name: 'deviceConfigurationName',
+                                        fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device Configuration'),
                                     },
                                 ]
                             },
@@ -72,6 +76,7 @@ Ext.define('Mdc.view.setup.devicezones.ZonesPreview', {
                 ]
             }
         ],
+
         this.callParent(arguments);
     }
 });
