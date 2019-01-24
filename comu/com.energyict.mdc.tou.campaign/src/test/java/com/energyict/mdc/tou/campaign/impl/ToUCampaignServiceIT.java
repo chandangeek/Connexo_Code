@@ -227,7 +227,7 @@ public class ToUCampaignServiceIT{
         Instant activationStart = Instant.ofEpochSecond(70000);
         Instant activationEnd = Instant.ofEpochSecond(75000);
         long calendar = calendar1.getId();
-        String activationDate = "Immediately";
+        String activationOption = "immediately";
         String updateType = "fullCalendar";
         long timeValidation = 120;
 //        TimeOfUseCampaign timeOfUseCampaign1 = timeOfUseCampaignService.newToUbuilder(name, deviceType, deviceGroup, activationStart, activationEnd, calendar, activationDate, updateType, timeValidation)
@@ -360,7 +360,29 @@ public class ToUCampaignServiceIT{
     }
 
 
-    private Calendar makeCalendar(String name){
+    private TimeOfUseCampaignDomainExtension makeDefaultCampaign() {
+        return makeCampaign(null, 0, 0, null, null, null, null, null, null, 0);
+    }
+
+    private TimeOfUseCampaignDomainExtension makeCampaign(String name, long activationStart, long activationEnd, Calendar calendar,
+                                                          String group, DeviceType deviceType, String updateType,
+                                                          String activationOption, Instant activationDate, long timeValidation) {
+        TimeOfUseCampaignDomainExtension timeOfUseCampaign = new TimeOfUseCampaignDomainExtension();
+        timeOfUseCampaign.setName(name == null ? "tou-c-1" : name);
+        timeOfUseCampaign.setActivationStart(Instant.ofEpochSecond(activationStart == 0 ? 1544400000 : activationStart));
+        timeOfUseCampaign.setActivationEnd(Instant.ofEpochSecond(activationEnd == 0 ? 1544410000 : activationEnd));
+        timeOfUseCampaign.setCalendar(calendar == null ? makeCalendar("Re-Cu-01", "1") : calendar);
+        timeOfUseCampaign.setDeviceGroup(group == null ? "group1" : group);
+        timeOfUseCampaign.setDeviceType(deviceType == null ? deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass) : deviceType);
+        timeOfUseCampaign.setUpdateType(updateType == null ? "fullCalendar" : updateType);
+        timeOfUseCampaign.setActivationOption(activationOption == null ? "immediately" : activationOption);
+        timeOfUseCampaign.setActivationDate(activationDate == null ? clock.instant() : activationDate);
+        timeOfUseCampaign.setTimeValidation(timeValidation == 0 ? 120 : timeValidation);
+        timeOfUseCampaignService.createToUCampaign(timeOfUseCampaign);
+        return timeOfUseCampaign;
+    }
+
+    private Calendar makeCalendar(String name, String mrId) {
         EventSet eventSet = calendarService.newEventSet("eventSet")
                 .addEvent("On peak").withCode(3)
                 .addEvent("Off peak").withCode(5)
