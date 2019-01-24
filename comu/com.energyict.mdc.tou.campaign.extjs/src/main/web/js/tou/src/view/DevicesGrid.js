@@ -55,7 +55,7 @@ Ext.define('Tou.view.DevicesGrid', {
                         case 'Configuration Error':
                             iconCls = 'icon-notification';
                             break;
-                        case 'Cancelled':
+                        case 'Canceled':
                             iconCls = 'icon-blocked';
                             break;
                     }
