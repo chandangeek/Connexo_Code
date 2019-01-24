@@ -148,7 +148,7 @@ Ext.define('Tou.controller.Overview', {
         model.load(campaignName, {
             success: function (campaignRecord) {
                 editView.down('tou-campaigns-add-form').setTitle(
-                    'Edit ToU campaign'
+                    'Edit time of use campaign'
                 );
                 me.getApplication().fireEvent('loadTouCampaign', campaignRecord);
                 editForm.loadRecordForEdit(campaignRecord);

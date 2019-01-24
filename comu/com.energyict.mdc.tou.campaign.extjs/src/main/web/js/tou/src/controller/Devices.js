@@ -85,7 +85,7 @@ Ext.define('Tou.controller.Devices', {
             method: 'PUT',
             success: function (response) {
                 me.doUpdateRecord(me.currentRecord, response.responseText);
-                me.getApplication().fireEvent('acknowledge', ' Time of use upload for device cancelled');
+                me.getApplication().fireEvent('acknowledge', ' Time of use calendar upload for device cancelled');
             }
         });
     },
@@ -103,7 +103,7 @@ Ext.define('Tou.controller.Devices', {
             method: 'PUT',
             success: function (response) {
                 me.doUpdateRecord(me.currentRecord, response.responseText);
-                me.getApplication().fireEvent('acknowledge', ' Time of use upload for device rescheduled');
+                me.getApplication().fireEvent('acknowledge', ' Time of use calendar upload for device rescheduled');
             }
         });
     },
