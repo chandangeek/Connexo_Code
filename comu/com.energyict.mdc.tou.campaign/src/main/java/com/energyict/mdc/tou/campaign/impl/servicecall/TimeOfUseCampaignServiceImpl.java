@@ -552,11 +552,11 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     Pair<Device, ServiceCall> cancelCalendarSend(ServiceCall serviceCall) {
         Pair<Device, ServiceCall> pair = new Pair<>();
         pair.o1 = findDeviceByServiceCall(serviceCall);
-        pair.o2 = serviceCall;
         revokeCalendarsCommands(findDeviceByServiceCall(serviceCall));
         findCalendarsComTaskExecutions(pair.o1).findAny().ifPresent(comTaskExecution -> comTaskExecution.schedule(null));
         changeServiceCallStatus(findDeviceByServiceCall(serviceCall), DefaultState.CANCELLED);
         serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.CANCELED_BY_USER.getKey(), MessageSeeds.CANCELED_BY_USER.getDefaultFormat()));
+        pair.o2 = serviceCallService.getServiceCall(serviceCall.getId()).get(); //for getting current state
         return pair;
     }
 
@@ -575,7 +575,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                     serviceCall1.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.RETRIED_BY_USER.getKey(), MessageSeeds.RETRIED_BY_USER.getDefaultFormat()));
                     dataModel.getInstance(TimeOfUseSendHelper.class)
                             .setCalendarOnDevice(device, serviceCall1);
-                    pair.o2 = serviceCall1;
+                    pair.o2 = serviceCallService.getServiceCall(serviceCall1.getId()).get();
                 });
         return pair;
     }
