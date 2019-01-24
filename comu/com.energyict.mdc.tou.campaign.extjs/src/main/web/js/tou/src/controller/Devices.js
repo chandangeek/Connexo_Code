@@ -32,6 +32,8 @@ Ext.define('Tou.controller.Devices', {
         });
     },
 
+    currentRecord: null,
+
     showDevices: function (touCampaignName) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -75,16 +77,15 @@ Ext.define('Tou.controller.Devices', {
             url = record.cancelUrl(),
             devicesWidget = pageView.down("#tou-campaign-devices");
 
+        me.currentRecord = record;
+
         Ext.Ajax.request({
             url: url,
             jsonData : {"id" : record.get('device').id},
             method: 'PUT',
             success: function (response) {
-                //me.doUpdateRecord(record, response.responseText);
+                me.doUpdateRecord(me.currentRecord, response.responseText);
                 me.getApplication().fireEvent('acknowledge', ' Time of use upload for device cancelled');
-                if (pageView.rendered) {
-                   window.location.href = devicesWidget.returnLink;
-                }
             }
         });
     },
@@ -94,15 +95,15 @@ Ext.define('Tou.controller.Devices', {
             url = record.retryUrl(),
             devicesWidget = pageView.down("#tou-campaign-devices");
 
+        me.currentRecord = record;
+
         Ext.Ajax.request({
             url: url,
             jsonData : {"id" : record.get('device').id},
             method: 'PUT',
             success: function (response) {
+                me.doUpdateRecord(me.currentRecord, response.responseText);
                 me.getApplication().fireEvent('acknowledge', ' Time of use upload for device rescheduled');
-                if (pageView.rendered) {
-                    window.location.href = devicesWidget.returnLink;
-                }
             }
         });
     },
