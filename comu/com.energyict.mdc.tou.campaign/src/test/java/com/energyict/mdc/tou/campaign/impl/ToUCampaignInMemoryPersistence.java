@@ -62,6 +62,7 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
@@ -98,6 +99,7 @@ public class ToUCampaignInMemoryPersistence {
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+        //    bind(MeteringGroupsService.class).toInstance(mock(MeteringGroupsService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
@@ -107,6 +109,7 @@ public class ToUCampaignInMemoryPersistence {
             bind(KnowledgeBuilderFactoryService.class).to(KnowledgeBuilderFactoryServiceImpl.class);
             bind(Thesaurus.class).toInstance(NlsModule.FakeThesaurus.INSTANCE);
             bind(StateTransitionPropertiesProvider.class).toInstance(mock(StateTransitionPropertiesProvider.class));
+            bind(ProtocolPluggableService.class).toInstance(mock(ProtocolPluggableService.class));
         }
     }
 
@@ -149,7 +152,7 @@ public class ToUCampaignInMemoryPersistence {
                 new MasterDataModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new PluggableModule(),
-                new ProtocolPluggableModule(),
+//                new ProtocolPluggableModule(),
                 new PkiModule(),
                 new WebServicesModule(),
                 new ValidationModule(),
@@ -162,7 +165,7 @@ public class ToUCampaignInMemoryPersistence {
                 new FileImportModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            injector.getInstance(MeteringGroupsService.class);
+//            injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(CommandCustomPropertySet.class);
             injector.getInstance(CompletionOptionsCustomPropertySet.class);
