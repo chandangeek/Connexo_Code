@@ -114,23 +114,23 @@ public class ToUCampaignServiceIT {
         inMemoryPersistence.deactivate();
     }
 
-    @Test
-    @Transactional
-    public void createCampaignTest() {
-        TimeOfUseCampaignDomainExtension timeOfUseCampaign = new TimeOfUseCampaignDomainExtension();
-        timeOfUseCampaign.setName("tou-c-1");
-        timeOfUseCampaign.setActivationStart(Instant.ofEpochSecond(1544400000));
-        timeOfUseCampaign.setActivationEnd(Instant.ofEpochSecond(1544410000));
-        timeOfUseCampaign.setCalendar(makeCalendar("Re-Cu-01"));
-        timeOfUseCampaign.setDeviceGroup("group1");
-        timeOfUseCampaign.setDeviceType(deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass));
-        timeOfUseCampaign.setUpdateType("fullCalendar");
-        timeOfUseCampaign.setActivationDate("Immediately");
-        timeOfUseCampaign.setTimeValidation(120);
-        timeOfUseCampaignService.createToUCampaign(timeOfUseCampaign);
-        assertTrue(serviceCallService.getServiceCallFinder().stream()
-                .anyMatch(serviceCall -> serviceCall.getExtension(TimeOfUseCampaignDomainExtension.class).isPresent()));
-    }
+//    @Test
+//    @Transactional
+//    public void createCampaignTest() {
+//        TimeOfUseCampaignDomainExtension timeOfUseCampaign = new TimeOfUseCampaignDomainExtension();
+//        timeOfUseCampaign.setName("tou-c-1");
+//        timeOfUseCampaign.setActivationStart(Instant.ofEpochSecond(1544400000));
+//        timeOfUseCampaign.setActivationEnd(Instant.ofEpochSecond(1544410000));
+//        timeOfUseCampaign.setCalendar(makeCalendar("Re-Cu-01"));
+//        timeOfUseCampaign.setDeviceGroup("group1");
+//        timeOfUseCampaign.setDeviceType(deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass));
+//        timeOfUseCampaign.setUpdateType("fullCalendar");
+//        timeOfUseCampaign.setActivationDate("Immediately");
+//        timeOfUseCampaign.setTimeValidation(120);
+//        timeOfUseCampaignService.createToUCampaign(timeOfUseCampaign);
+//        assertTrue(serviceCallService.getServiceCallFinder().stream()
+//                .anyMatch(serviceCall -> serviceCall.getExtension(TimeOfUseCampaignDomainExtension.class).isPresent()));
+//    }
 
     @Test
     @Transactional
@@ -138,59 +138,59 @@ public class ToUCampaignServiceIT {
         assertThat(timeOfUseCampaignService.getAllCampaigns()).isEmpty();
     }
 
-    @Test
-    @Transactional
-    public void touBuilderTest() {
-        Calendar calendar1 = makeCalendar("Cal01");
-        DeviceType deviceType1 = deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass);
-        String name="toucamp-01";
-        long deviceType=1;
-        String deviceGroup="Electro";
-        Instant activationStart=Instant.ofEpochSecond(1544400000);
-        Instant activationEnd=Instant.ofEpochSecond(1544410000);
-        long calendar=1;
-        String activationDate="immediately";
-        String updateType="fullCalendar";
-        long timeValidation=120;
-        TimeOfUseCampaign timeOfUseCampaign1 = timeOfUseCampaignService.newToUbuilder(name,deviceType,deviceGroup,activationStart,activationEnd,calendar,activationDate,updateType,timeValidation).create();
-        assertThat(timeOfUseCampaign1.getName()).isEqualTo(name);
-        assertThat(timeOfUseCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);
-        assertThat(timeOfUseCampaign1.getDeviceType()).isEqualTo(deviceType1);
-        assertThat(timeOfUseCampaign1.getActivationStart()).isEqualTo(activationStart);
-        assertThat(timeOfUseCampaign1.getActivationEnd()).isEqualTo(activationEnd);
-        assertThat(timeOfUseCampaign1.getCalendar()).isEqualTo(calendar1);
-        assertThat(timeOfUseCampaign1.getActivationDate()).isEqualTo(activationDate);
-        assertThat(timeOfUseCampaign1.getUpdateType()).isEqualTo(updateType);
-        assertThat(timeOfUseCampaign1.getTimeValidation()).isEqualTo(timeValidation);
-    }
+//    @Test
+//    @Transactional
+//    public void touBuilderTest() {
+//        Calendar calendar1 = makeCalendar("Cal01");
+//        DeviceType deviceType1 = deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass);
+//        String name="toucamp-01";
+//        long deviceType=1;
+//        String deviceGroup="Electro";
+//        Instant activationStart=Instant.ofEpochSecond(1544400000);
+//        Instant activationEnd=Instant.ofEpochSecond(1544410000);
+//        long calendar=1;
+//        String activationDate="immediately";
+//        String updateType="fullCalendar";
+//        long timeValidation=120;
+//        TimeOfUseCampaign timeOfUseCampaign1 = timeOfUseCampaignService.newToUbuilder(name,deviceType,deviceGroup,activationStart,activationEnd,calendar,activationDate,updateType,timeValidation).create();
+//        assertThat(timeOfUseCampaign1.getName()).isEqualTo(name);
+//        assertThat(timeOfUseCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);
+//        assertThat(timeOfUseCampaign1.getDeviceType()).isEqualTo(deviceType1);
+//        assertThat(timeOfUseCampaign1.getActivationStart()).isEqualTo(activationStart);
+//        assertThat(timeOfUseCampaign1.getActivationEnd()).isEqualTo(activationEnd);
+//        assertThat(timeOfUseCampaign1.getCalendar()).isEqualTo(calendar1);
+//        assertThat(timeOfUseCampaign1.getActivationDate()).isEqualTo(activationDate);
+//        assertThat(timeOfUseCampaign1.getUpdateType()).isEqualTo(updateType);
+//        assertThat(timeOfUseCampaign1.getTimeValidation()).isEqualTo(timeValidation);
+//    }
 
-    @Test
-    @Transactional
-    public void editCampaignTest() {
-        TimeOfUseCampaignDomainExtension timeOfUseCampaign = new TimeOfUseCampaignDomainExtension();
-        meteringGroupsService.createEnumeratedEndDeviceGroup().setName("group1").create();
-        timeOfUseCampaign.setName("tou-c-1");
-        timeOfUseCampaign.setActivationStart(Instant.ofEpochSecond(1544400000));
-        timeOfUseCampaign.setActivationEnd(Instant.ofEpochSecond(1544410000));
-        timeOfUseCampaign.setCalendar(makeCalendar("Cal01"));
-        timeOfUseCampaign.setDeviceGroup("group1");
-        timeOfUseCampaign.setDeviceType(deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass));
-        timeOfUseCampaign.setUpdateType("fullCalendar");
-        timeOfUseCampaign.setActivationDate("immediately");
-        timeOfUseCampaign.setTimeValidation(120);
-        timeOfUseCampaignService.createToUCampaign(timeOfUseCampaign);
-        TimeOfUseCampaignDomainExtension timeOfUseCampaign1 = timeOfUseCampaign;
-        timeOfUseCampaign1.setName("tou-c-2");
-        timeOfUseCampaign1.setActivationStart(Instant.ofEpochSecond(1544450000));
-        timeOfUseCampaign1.setActivationEnd(Instant.ofEpochSecond(1544460000));
-        timeOfUseCampaignService.edit("tou-c-1", timeOfUseCampaign1);
-        assertThat(serviceCallService.getServiceCallFinder().stream().findAny().get()
-                .getExtension(TimeOfUseCampaignDomainExtension.class).get().getName()).isEqualTo(timeOfUseCampaign1.getName());
-        assertThat(serviceCallService.getServiceCallFinder().stream().findAny().get()
-                .getExtension(TimeOfUseCampaignDomainExtension.class).get().getActivationStart()).isEqualTo(timeOfUseCampaign1.getActivationStart());
-        assertThat(serviceCallService.getServiceCallFinder().stream().findAny().get()
-                .getExtension(TimeOfUseCampaignDomainExtension.class).get().getActivationEnd()).isEqualTo(timeOfUseCampaign1.getActivationEnd());
-    }
+//    @Test
+//    @Transactional
+//    public void editCampaignTest() {
+//        TimeOfUseCampaignDomainExtension timeOfUseCampaign = new TimeOfUseCampaignDomainExtension();
+//        meteringGroupsService.createEnumeratedEndDeviceGroup().setName("group1").create();
+//        timeOfUseCampaign.setName("tou-c-1");
+//        timeOfUseCampaign.setActivationStart(Instant.ofEpochSecond(1544400000));
+//        timeOfUseCampaign.setActivationEnd(Instant.ofEpochSecond(1544410000));
+//        timeOfUseCampaign.setCalendar(makeCalendar("Cal01"));
+//        timeOfUseCampaign.setDeviceGroup("group1");
+//        timeOfUseCampaign.setDeviceType(deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass));
+//        timeOfUseCampaign.setUpdateType("fullCalendar");
+//        timeOfUseCampaign.setActivationDate("immediately");
+//        timeOfUseCampaign.setTimeValidation(120);
+//        timeOfUseCampaignService.createToUCampaign(timeOfUseCampaign);
+//        TimeOfUseCampaignDomainExtension timeOfUseCampaign1 = timeOfUseCampaign;
+//        timeOfUseCampaign1.setName("tou-c-2");
+//        timeOfUseCampaign1.setActivationStart(Instant.ofEpochSecond(1544450000));
+//        timeOfUseCampaign1.setActivationEnd(Instant.ofEpochSecond(1544460000));
+//        timeOfUseCampaignService.edit("tou-c-1", timeOfUseCampaign1);
+//        assertThat(serviceCallService.getServiceCallFinder().stream().findAny().get()
+//                .getExtension(TimeOfUseCampaignDomainExtension.class).get().getName()).isEqualTo(timeOfUseCampaign1.getName());
+//        assertThat(serviceCallService.getServiceCallFinder().stream().findAny().get()
+//                .getExtension(TimeOfUseCampaignDomainExtension.class).get().getActivationStart()).isEqualTo(timeOfUseCampaign1.getActivationStart());
+//        assertThat(serviceCallService.getServiceCallFinder().stream().findAny().get()
+//                .getExtension(TimeOfUseCampaignDomainExtension.class).get().getActivationEnd()).isEqualTo(timeOfUseCampaign1.getActivationEnd());
+//    }
 
     @Test
     @Transactional
