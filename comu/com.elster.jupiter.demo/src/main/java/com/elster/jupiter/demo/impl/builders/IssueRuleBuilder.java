@@ -19,6 +19,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
@@ -31,6 +32,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
+import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,8 +56,10 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     public static final String BASIC_DATA_VALIDATION_RULE_TEMPLATE = "DataValidationIssueCreationRuleTemplate";
     public static final String USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE = "UsagePointDataValidationIssueCreationRuleTemplate";
     public static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
+    public static final String DEVICELIFECYCLE_ISSUE_RULE_TEMPLATE = "DeviceLifecycleIssueCreationRuleTemplate";
 
     private static final String SEPARATOR = ":";
+    private static final String DASH_SEPARATOR = "-";
     private static final String WILDCARD = "*";
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
@@ -63,6 +67,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final TimeService timeService;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final Thesaurus thesaurus;
 
     private String type;
     private String reason;
@@ -73,7 +78,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private boolean active;
 
     @Inject
-    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, MetrologyConfigurationService metrologyConfigurationService) {
+    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus) {
         super(IssueRuleBuilder.class);
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
@@ -81,6 +86,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.timeService = timeService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.thesaurus = thesaurus;
     }
 
     public IssueRuleBuilder withType(String type) {
@@ -222,6 +228,15 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             if (!deviceConfigurations.isEmpty()) {
                 properties.put(BASIC_DATA_VALIDATION_RULE_TEMPLATE + ".deviceConfigurations", deviceConfigurations);
             }
+        } else if (template.getName().equals(DEVICELIFECYCLE_ISSUE_RULE_TEMPLATE)) {
+            List<HasIdAndName> deviceLifecycleProps = new ArrayList<>();
+            properties.put(
+                    DeviceLifecycleIssueCreationRuleTemplate.AUTORESOLUTION,
+                    template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).get().getValueFactory().fromStringValue("0"));
+            properties.put(
+                    BasicDataCollectionRuleTemplate.RADIOGROUP,
+                    getOnReccurrenceProps());
+            properties.put(DEVICELIFECYCLE_ISSUE_RULE_TEMPLATE + ".deviceLifecycleTransitionProps", getDeviceLifecycleTransitionProps());
         } else if (template.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE)) {
             properties.put(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getTamperingCode(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
             properties.put(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getTamperingCode(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
@@ -368,6 +383,53 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             @Override
             public String getName() {
                 return "Increase urgency(+1)";
+            }
+        };
+    }
+
+    private List<HasIdAndName> getDeviceLifecycleTransitionProps() {
+        List<HasIdAndName> list = new ArrayList<>();
+        deviceConfigurationService.findAllDeviceTypes()
+                .find().stream()
+                .sorted(Comparator.comparing(DeviceType::getId))
+                .forEach(deviceType -> deviceType.getDeviceLifeCycle().getFiniteStateMachine().getTransitions().forEach(stateTransition ->
+                        list.add(new HasIdAndName() {
+                                     @Override
+                                     public String getId() {
+                                         return deviceType.getId() + SEPARATOR + deviceType.getDeviceLifeCycle().getId() + SEPARATOR + stateTransition.getId() + SEPARATOR + stateTransition.getFrom()
+                                                 .getId() + DASH_SEPARATOR + stateTransition.getFrom().getId();
+                                     }
+
+                                     @Override
+                                     public String getName() {
+                                         try {
+                                             JSONObject jsonObj = new JSONObject();
+                                             jsonObj.put("deviceTypeName", deviceType.getName());
+                                             jsonObj.put("deviceLifeCycleName", deviceType.getDeviceLifeCycle().getName());
+                                             jsonObj.put("stateTransitionName", stateTransition.getName(thesaurus));
+                                             jsonObj.put("fromStateName", stateTransition.getFrom().getName());
+                                             jsonObj.put("toStateName", stateTransition.getTo().getName());
+                                             return jsonObj.toString();
+                                         } catch (JSONException e) {
+                                             e.printStackTrace();
+                                         }
+                                         return "";
+                                     }
+                                 }
+                        )));
+        return list;
+    }
+
+    private HasIdAndName getOnReccurrenceProps() {
+        return new HasIdAndName() {
+            @Override
+            public Long getId() {
+                return 1L;
+            }
+
+            @Override
+            public String getName() {
+                return "Create new issue";
             }
         };
     }

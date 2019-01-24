@@ -35,7 +35,8 @@ import com.energyict.mdc.issue.devicelifecycle.OpenIssueDeviceLifecycle;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import net.minidev.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -50,6 +51,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component(name = "com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate",
@@ -181,7 +183,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
                                         stateTransition,
                                         stateTransition.getFrom(),
                                         stateTransition.getTo(),
-                                        deviceLifeCycleConfigurationService)))
+                                        deviceLifeCycleConfigurationService, thesaurus)))
                 );
 
     }
@@ -408,7 +410,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
             }
 
 
-            return new DeviceLifeCycleTransitionPropsInfo(deviceType, deviceLifecycle, stateTransition, fromState, toState, deviceLifeCycleConfigurationService);
+            return new DeviceLifeCycleTransitionPropsInfo(deviceType, deviceLifecycle, stateTransition, fromState, toState, deviceLifeCycleConfigurationService, thesaurus);
         }
 
         @Override
@@ -458,15 +460,17 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         private State fromState;
         private State toState;
         private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+        private Thesaurus thesaurus;
 
         DeviceLifeCycleTransitionPropsInfo(DeviceType deviceType, DeviceLifeCycle deviceLifeCycle, StateTransition stateTransition, State from, State to,
-                                           DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+                                           DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, Thesaurus thesaurus) {
             this.deviceType = deviceType;
             this.deviceLifeCycle = deviceLifeCycle;
             this.stateTransition = stateTransition;
             this.fromState = from;
             this.toState = to;
             this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+            this.thesaurus = thesaurus;
         }
 
 
@@ -477,13 +481,19 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
 
         @Override
         public String getName() {
-            JSONObject jsonObj = new JSONObject();
-            jsonObj.put("deviceTypeName", deviceType.getName());
-            jsonObj.put("deviceLifeCycleName", deviceLifeCycle.getName());
-            jsonObj.put("stateTransitionName", stateTransition.getName());
-            jsonObj.put("fromStateName", getStateName(fromState));
-            jsonObj.put("toStateName", getStateName(toState));
-            return jsonObj.toString();
+            try {
+
+                JSONObject jsonObj = new JSONObject();
+                jsonObj.put("deviceTypeName", deviceType.getName());
+                jsonObj.put("deviceLifeCycleName", deviceLifeCycle.getName());
+                jsonObj.put("stateTransitionName", stateTransition.getName(thesaurus));
+                jsonObj.put("fromStateName", getStateName(fromState));
+                jsonObj.put("toStateName", getStateName(toState));
+                return jsonObj.toString();
+            } catch (JSONException e) {
+                LOG.log(Level.SEVERE, e.getMessage(), e);
+            }
+            return "";
         }
 
         protected DeviceType getDeviceType() {
