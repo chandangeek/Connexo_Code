@@ -890,40 +890,43 @@ class UsagePointBuilder {
 
 
     private void validateCreateOrUpdateVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, List<CustomAttributeSet> data, Object additionalObject) throws FaultMessage {
-        Optional versionId = data
+        List<Instant> versionIds = data
                 .stream()
                 .filter(e -> e.getId().equalsIgnoreCase(customPropertySet.getId()))
                 .filter(e -> e.getVersionId() != null || Instant.EPOCH.equals(e.getVersionId()))
                 .map(e -> e.getVersionId())
-                .findFirst();
+                .collect(Collectors.toList());
         CustomPropertySetValues values = null;
-        if (versionId.isPresent()) {
-            if (additionalObject != null) {
-                values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, (Instant) versionId.get(), additionalObject);
-            } else {
-                values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, (Instant) versionId.get());
-            }
+        if (versionIds != null) {
+            for (Instant versionId : versionIds) {
+                if (additionalObject != null) {
+                    values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId, additionalObject);
+                } else {
+                    values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId);
+                }
 
-            if (values == null) {
-                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(((Instant) versionId.get()).atZone(clock.getZone()))).get();
+                if (values == null) {
+                    throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                            MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(versionId.atZone(clock.getZone()))).get();
+                }
+                validateCreateOrUpdateCustomAttributeValues(customPropertySet, data, values, versionId);
             }
         } else {
             values = CustomPropertySetValues.empty();
+            validateCreateOrUpdateCustomAttributeValues(customPropertySet, data, values, null);
         }
-        validateCreateOrUpdateCustomAttributeValues(customPropertySet, data, values);
     }
 
 
     private void validateCreateOrUpdateNonVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, List<CustomAttributeSet> data, Object additionalObject) throws FaultMessage {
         CustomPropertySetValues values = getValues(businessObject, customPropertySet, data, additionalObject);
-        validateCreateOrUpdateCustomAttributeValues(customPropertySet, data, values);
+        validateCreateOrUpdateCustomAttributeValues(customPropertySet, data, values, null);
     }
 
-    private void validateCreateOrUpdateCustomAttributeValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, List<CustomAttributeSet> data, CustomPropertySetValues values) throws FaultMessage {
+    private void validateCreateOrUpdateCustomAttributeValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, List<CustomAttributeSet> data, CustomPropertySetValues values, Instant versionId) throws FaultMessage {
         if (values != null) {
             customPropertySet.getPropertySpecs().forEach(spec ->
-                    findCustomAttributeKey(customPropertySet, data, spec).ifPresent(k -> values.setProperty(spec.getName(), findValue(customPropertySet, spec.getName(), data))));
+                    findCustomAttributeKey(customPropertySet, data, spec).ifPresent(k -> values.setProperty(spec.getName(), findVersionedValue(customPropertySet, spec.getName(), versionId, data))));
             validateMandatoryCustomProperties(customPropertySet, values, data);
             validatePossibleValues(customPropertySet, values, data);
             customPropertySetService.validateCustomPropertySetValues(customPropertySet, values);
@@ -952,7 +955,25 @@ class UsagePointBuilder {
         customPropertySet.getPropertySpecs().forEach(spec ->
                 findCustomAttributeKey(customPropertySet, data, spec).ifPresent(k -> values.setProperty(spec.getName(), findValue(customPropertySet, spec.getName(), data))));
         return values;
+    }
 
+    private CustomPropertySetValues updateVersionedValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, Instant versionId, List<CustomAttributeSet> data, CustomPropertySetValues values) {
+        customPropertySet.getPropertySpecs().forEach(spec ->
+                findCustomAttributeKey(customPropertySet, data, spec).ifPresent(k -> values.setProperty(spec.getName(), findVersionedValue(customPropertySet, spec.getName(), versionId, data))));
+        return values;
+    }
+
+    private Object findVersionedValue(CustomPropertySet<Object,? extends PersistentDomainExtension> customPropertySet, String name, Instant versionId, List<CustomAttributeSet> data) {
+        for (CustomAttributeSet cas: data) {
+            if (cas.getId().equalsIgnoreCase(customPropertySet.getId()) && versionId != null && versionId.equals(cas.getVersionId())) {
+                for (Attribute attr : cas.getAttribute()) {
+                    if (attr.getName().equalsIgnoreCase(name)) {
+                        return attr.getValue();
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private Object findValue(CustomPropertySet<Object,? extends PersistentDomainExtension> customPropertySet, String name, List<CustomAttributeSet> data) {
@@ -1011,44 +1032,60 @@ class UsagePointBuilder {
                 .map(e -> e.getToDateTime())
                 .findFirst()
                 .map(Instant.class::cast);
-        Optional<Instant> versionId = data
+        List<Instant> versionIds = data
                 .stream()
                 .filter(e -> e.getId().equalsIgnoreCase(customPropertySet.getId()))
                 .filter(e -> e.getVersionId() != null || Instant.EPOCH.equals(e.getVersionId()))
                 .map(e -> e.getVersionId())
-                .findFirst()
-                .map(Instant.class::cast);
+                .collect(Collectors.toList());
         checkInterval(startTime, endTime, customPropertySet, data);
-        if (versionId.isPresent()) {
-            CustomPropertySetValues values = getValuesVersion(businessObject, customPropertySet, data, versionId.get(), additionalPrimaryKeyObject);
-            if (!values.isEmpty()) {
-                values = updateValues(customPropertySet, data, values);
-                if(!endTime.isPresent() && data.stream().anyMatch(e -> e.getId().equalsIgnoreCase(customPropertySet.getId() + ".endTime"))){
-                    endTime = Optional.of(Instant.EPOCH);
-                }
-                Range<Instant> range = getRangeToUpdate(startTime, endTime, values.getEffectiveRange());
-                OverlapCalculatorBuilder overlapCalculatorBuilder;
-                if (additionalPrimaryKeyObject != null) {
-                    overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject, additionalPrimaryKeyObject);
-                } else {
-                    overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject);
-                }
-                for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenUpdating(versionId.get(), range)) {
-                    if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
-                        range = getRangeToUpdate(Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()), endTime, values.getEffectiveRange());
+        if (versionIds != null) {
+            for (Instant versionId: versionIds) {
+                startTime = data
+                        .stream()
+                        .filter(e -> e.getId().equalsIgnoreCase(customPropertySet.getId()) && versionId.equals(e.getVersionId()))
+                        .filter(e -> e.getFromDateTime() != null)
+                        .map(e -> e.getFromDateTime())
+                        .findFirst()
+                        .map(Instant.class::cast);
+                endTime = data
+                        .stream()
+                        .filter(e -> e.getId().equalsIgnoreCase(customPropertySet.getId()) && versionId.equals(e.getVersionId()))
+                        .filter(e -> e.getToDateTime() != null)
+                        .map(e -> e.getToDateTime())
+                        .findFirst()
+                        .map(Instant.class::cast);
+
+                CustomPropertySetValues values = getValuesVersion(businessObject, customPropertySet, data, versionId, additionalPrimaryKeyObject);
+                if (!values.isEmpty()) {
+                    values = updateVersionedValues(customPropertySet, versionId, data, values);
+                    if (!endTime.isPresent() && data.stream().anyMatch(e -> e.getId().equalsIgnoreCase(customPropertySet.getId()))) {
+                        endTime = Optional.of(Instant.EPOCH);
                     }
-                    if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
-                        range = getRangeToUpdate(startTime, Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()), values.getEffectiveRange());
+                    Range<Instant> range = getRangeToUpdate(startTime, endTime, values.getEffectiveRange());
+                    OverlapCalculatorBuilder overlapCalculatorBuilder;
+                    if (additionalPrimaryKeyObject != null) {
+                        overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject, additionalPrimaryKeyObject);
+                    } else {
+                        overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject);
                     }
-                }
-                if (additionalPrimaryKeyObject != null) {
-                    customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, values, range, versionId.get(), additionalPrimaryKeyObject);
+                    for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenUpdating(versionId, range)) {
+                        if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
+                            range = getRangeToUpdate(Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()), endTime, values.getEffectiveRange());
+                        }
+                        if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
+                            range = getRangeToUpdate(startTime, Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()), values.getEffectiveRange());
+                        }
+                    }
+                    if (additionalPrimaryKeyObject != null) {
+                        customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, values, range, versionId, additionalPrimaryKeyObject);
+                    } else {
+                        customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, values, range, versionId);
+                    }
                 } else {
-                    customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, values, range, versionId.get());
+                    throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                            MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(versionId.atZone(clock.getZone()))).get();
                 }
-            } else {
-                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(versionId.get().atZone(clock.getZone()))).get();
             }
         } else {
             if(!startTime.isPresent()){
