@@ -12,27 +12,27 @@ Ext.define('Tou.view.DeviceStatusFilter', {
             statusOptions = [
                 {
                     display: 'Successful',
-                    value: 'Successful'
+                    value: 'SUCCESSFUL'
                 },
                 {
                     display: 'Failed',
-                    value: 'Failed'
+                    value: 'FAILED'
                 },
                 {
                     display: 'Configuration Error',
-                    value: 'Configuration Error'
+                    value: 'REJECTED'
                 },
                 {
                     display: 'Ongoing',
-                    value: 'Ongoing'
+                    value: 'ONGOING'
                 },
                 {
                     display: 'Pending',
-                    value: 'Pending'
+                    value: 'PENDING'
                 },
                 {
                     display: 'Cancelled',
-                    value: 'Canceled'
+                    value: 'CANCELLED'
                 }
             ];
 

@@ -8,6 +8,9 @@ import com.elster.jupiter.nls.TranslationKey;
 
 import java.util.Arrays;
 
+import static com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTRATE_ZONE;
+import static com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ZONE;
+
 public enum Privileges implements TranslationKey {
     //Resources
     RESOURCE_DEVICES("device.devices", "Devices"),
@@ -24,6 +27,8 @@ public enum Privileges implements TranslationKey {
     RESOURCE_DATA_COLLECTION_KPI_DESCRIPTION("dataCollectionKpi.dataCollectionKpis.description", "Manage data collection KPI"),
     RESOURCE_CRL_REQUEST("crlRequest.crlRequests", "CRL request"),
     RESOURCE_CRL_REQUEST_DESCRIPTION("crlRequest.crlRequests.description", "Manage CRL request"),
+    RESOURCE_DEVICE_ZONES("deviceZone.deviceZones", "Device zones"),
+    RESOURCE_DEVICE_ZONES_DESCRIPTION("deviceZone.deviceZones.description", "Manage device zones"),
 
     //Privileges
     ADMINISTRATE_DEVICE(Constants.ADMINISTRATE_DEVICE, "Administrate"),
@@ -47,7 +52,9 @@ public enum Privileges implements TranslationKey {
     ESTIMATE_WITH_RULE(Constants.ESTIMATE_WITH_RULE, "Estimate with rule"),
     EDIT_WITH_ESTIMATOR(Constants.EDIT_WITH_ESTIMATOR, "Edit with estimator"),
     ADMINISTER_VALIDATION_CONFIGURATION(Constants.ADMINISTER_VALIDATION_CONFIGURATION, "Administer validation configuration"),
-    ADMINISTER_ESTIMATION_CONFIGURATION(Constants.ADMINISTER_ESTIMATION_CONFIGURATION, "Administer estimation configuration")
+    ADMINISTER_ESTIMATION_CONFIGURATION(Constants.ADMINISTER_ESTIMATION_CONFIGURATION, "Administer estimation configuration"),
+    ADMINISTRATE_DEVICE_ZONE(ADMINISTRATE_ZONE, "Administrate"),
+    VIEW_DEVICE_ZONE(VIEW_ZONE, "View"),
     ;
 
     private final String key;
@@ -111,5 +118,7 @@ public enum Privileges implements TranslationKey {
 
         String ADMINISTER_VALIDATION_CONFIGURATION = "privilege.administer.device.validationConfiguration";
         String ADMINISTER_ESTIMATION_CONFIGURATION = "privilege.administer.device.estimationConfiguration";
+
+
     }
 }

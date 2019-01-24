@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.bpm.UserTaskInfo;
+
 import java.time.Instant;
 import java.util.Comparator;
 
@@ -17,6 +19,9 @@ public class GoingOnInfo {
     public String assignee;
     public Boolean assigneeIsCurrentUser;
     public String status;
+    public UserTaskInfo userTaskInfo;
+
+
 
     static Comparator<GoingOnInfo> order() {
 

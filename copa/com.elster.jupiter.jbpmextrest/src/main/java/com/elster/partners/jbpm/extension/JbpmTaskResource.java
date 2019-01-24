@@ -75,6 +75,7 @@ import java.util.stream.Collectors;
 public class JbpmTaskResource {
 
     private static final String PROPERTY = "property";
+    private static final String DEFAULT_SORTING = " order by p.START_DATE";
 
     @Inject
     @PersistenceUnit(unitName = "org.jbpm.domain")
@@ -519,6 +520,7 @@ public class JbpmTaskResource {
             endIndex++;
         }catch (NumberFormatException e){
         }
+
         if(variableId != null && variableValue != null) {
             EntityManager em = emf.createEntityManager();
             String queryString = "select DISTINCT p.STATUS, p.PROCESSID, p.PROCESSNAME, p.PROCESSVERSION, " +
@@ -641,13 +643,17 @@ public class JbpmTaskResource {
             endIndex++;
         }catch (NumberFormatException e){
         }
+
         if(variableId != null && variableValue != null) {
             EntityManager em = emf.createEntityManager();
             String queryString = "select DISTINCT p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION " +
                     "from processinstancelog p " +
                     "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
                     "where UPPER (v.VARIABLEID) = UPPER (:variableid) and UPPER (v.VALUE) = UPPER (:variablevalue) ";
-            queryString += addFilterToQuery(filterProperties);
+
+            queryString += addFilterToQuery(filterProperties, true);
+            queryString += DEFAULT_SORTING;
+
             Query query = em.createNativeQuery(queryString);
             query.setParameter("variableid", variableId);
             query.setParameter("variablevalue", variableValue);
@@ -662,10 +668,61 @@ public class JbpmTaskResource {
                 int total = startIndex + processHistoryInfos.total;
                 processHistoryInfos.setTotal(total);
             }
+
             return processHistoryInfos;
         }
+
         return null;
     }
+
+    @GET
+    @Path("/process/allprocesses")
+    @Produces("application/json")
+    public ProcessHistoryGenInfos getProcessAll(@Context UriInfo uriInfo){
+
+        Map<String, JsonNode> filterProperties;
+        filterProperties = getFilterProperties(getQueryValue(uriInfo,"filter"),"value");
+
+        Map<String, JsonNode> sortingProperties;
+        sortingProperties = getFilterProperties(getQueryValue(uriInfo,"sort"),"direction");
+
+        int startIndex = 0;
+        int endIndex = Integer.MAX_VALUE;
+        try {
+            startIndex = Integer.valueOf(getQueryValue(uriInfo, "start"));
+            endIndex = Integer.valueOf(getQueryValue(uriInfo, "limit"));
+            endIndex++;
+        }catch (NumberFormatException e){
+        }
+
+        EntityManager em = emf.createEntityManager();
+        String queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION , v.VALUE, v.VARIABLEID " +
+                    "from processinstancelog p " +
+                    "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
+                    "where ( v.VARIABLEID in ('issueId','alarmId') " +
+                    "or v.VARIABLEID = 'deviceId' and (select count(*) from VARIABLEINSTANCELOG v1 where v1.PROCESSINSTANCEID = v.PROCESSINSTANCEID and VARIABLEID in ('alarmId', 'issueId'))=0) ";
+        queryString += addFilterToQuery(filterProperties, false);
+        queryString += addSortingToQuery(sortingProperties);
+
+        Query query = em.createNativeQuery(queryString);
+        query.setFirstResult(startIndex);
+        query.setMaxResults(endIndex);
+        List<Object[]> list = query.getResultList();
+        ProcessHistoryGenInfos processHistoryInfos = new ProcessHistoryGenInfos(list);
+        for(ProcessHistoryGenInfo info : processHistoryInfos.processHistories){
+            info.tasks = info.processInstanceId == -1 ? null : getTaskForProceessInstance(info.processInstanceId);
+        }
+        if(processHistoryInfos.total == endIndex){
+            int total = startIndex + endIndex;
+            processHistoryInfos.removeLast(total);
+        }else{
+            int total = startIndex + processHistoryInfos.total;
+            processHistoryInfos.setTotal(total);
+        }
+
+        return processHistoryInfos;
+    }
+
 
     @GET
     @Produces("application/json")
@@ -1149,17 +1206,40 @@ public class JbpmTaskResource {
         return filterProperties;
     }
 
+    private Map<String, JsonNode> getSortingProperties(String source, String value){
+        LinkedHashMap<String, JsonNode> filterProperties = new LinkedHashMap<String, JsonNode>();
+        try {
+            if (source != null) {
+                JsonNode node = new ObjectMapper().readValue(new ByteArrayInputStream(source.getBytes()), JsonNode.class);
+                if (node != null && node.isArray()) {
+                    for (JsonNode singleFilter : node) {
+                        JsonNode property = singleFilter.get(PROPERTY);
+                        if (property != null && property.getTextValue() != null)
+                            filterProperties.put(property.getTextValue(), singleFilter.get(value));
+                    }
+                }
+            }
+        }catch (Exception e){
+
+        }
+        return filterProperties;
+    }
+
+
+
+
     private String getQueryValue(UriInfo uriInfo,String key){
         return uriInfo.getQueryParameters().getFirst(key);
     }
 
-    private String addFilterToQuery(Map<String, JsonNode> filterProperties){
+    private String addFilterToQuery(Map<String, JsonNode> filterProperties, Boolean onlyHistoryProcesses){
         String process = "";
         String startedOnFrom = "";
         String startedOnTo = "";
         String status = "";
         String startedBy = "";
-        String order = " order by p.START_DATE";
+        String variableId = "";
+        String variableValue = "";
         String filter = "";
         Iterator<String> it = filterProperties.keySet().iterator();
         while(it.hasNext()) {
@@ -1211,6 +1291,25 @@ public class JbpmTaskResource {
             if (theKey.equals("startedOnTo")) {
                 startedOnTo = "AND (p.START_DATE < FROM_TZ(timestamp '1970-01-01 00:00:00' + numtodsinterval(" + filterProperties.get("startedOnTo").toString() +"/1000, 'second'),'UTC') AT TIME ZONE SESSIONTIMEZONE)";
             }
+            if (theKey.equals("value")) {
+                for(int i=0;i<filterProperties.get("value").size();i++) {
+                    if(variableValue.equals("")) {
+                        variableValue += "v.VALUE = " + filterProperties.get("value").get(i).toString().replace("\"","'");
+                    }else{
+                        variableValue+= " OR v.VALUE = " + filterProperties.get("value").get(i).toString().replace("\"", "'");;
+                    }
+                }
+            }
+            if (theKey.equals("variableId")) {
+                for(int i=0;i<filterProperties.get("variableId").size();i++) {
+                    if(variableId.equals("")) {
+                        variableId += "v.VARIABLEID = " + filterProperties.get("variableId").get(i).toString().replace("\"","'");
+                    }else{
+                        variableId += " OR v.VARIABLEID = " + filterProperties.get("variableId").get(i).toString().replace("\"", "'");;
+                    }
+                }
+            }
+
         }
 
 
@@ -1219,11 +1318,19 @@ public class JbpmTaskResource {
         }
         if(!status.equals("")){
             filter += "AND ( " + status + ")";
-        }else{
+        }else if (onlyHistoryProcesses){
             filter += "AND(p.STATUS = 2 OR p.STATUS = 3 )";
+        }else{
+            filter += "AND(p.STATUS = 1 OR p.STATUS = 2 OR p.STATUS = 3 )";
         }
         if(!startedBy.equals("")){
             filter += "AND ( " + startedBy + ")";
+        }
+        if(!variableId.equals("")){
+            filter += "AND ( " + variableId + ")";
+        }
+        if(!variableValue.equals("")){
+            filter += "AND ( " + variableValue+ ")";
         }
         if(!startedOnFrom.equals("")){
             filter += startedOnFrom;
@@ -1231,9 +1338,52 @@ public class JbpmTaskResource {
         if(!startedOnTo.equals("")){
             filter += startedOnTo;
         }
-        filter += order;
+        //filter += order;
         return filter;
     }
+
+    private String addSortingToQuery(Map<String, JsonNode> sortProperties){
+        String order = "";
+        Iterator<String> it = sortProperties.keySet().iterator();
+        ArrayList<String> orders = new ArrayList<>();
+        while(it.hasNext()) {
+            String theKey = (String) it.next();
+            if (theKey.equals("processId")) {
+                String sortOrder = sortProperties.get("processId").toString().replace("\"", "");
+
+                if (sortOrder.equals("desc")) {
+                    orders.add(" p.PROCESSINSTANCEID DESC");
+                } else if (sortOrder.equals("asc")) {
+                    orders.add(" p.PROCESSINSTANCEID ");
+                }
+            }
+            if (theKey.equals("startDate")) {
+                String sortOrder = sortProperties.get("startDate").toString().replace("\"", "");
+
+                if (sortOrder.equals("desc")) {
+                    orders.add(" p.START_DATE DESC");
+                } else if (sortOrder.equals("asc")) {
+                    orders.add(" p.START_DATE ");
+                }
+            }
+        }
+
+        if(orders.size() != 0)
+        {
+            order += "order by";
+            order += orders.get(0);
+            if (orders.size() > 1){
+                for (int i = 1; i < orders.size(); i++){
+                    order += ", ";
+                    order += orders.get(i);
+                }
+            }
+        }else{
+            order += "order by p.PROCESSINSTANCEID DESC";
+        }
+        return order;
+    }
+
 
     protected String getTaskFormName(Task task) {
         String formName = ((InternalTask) task).getFormName();
