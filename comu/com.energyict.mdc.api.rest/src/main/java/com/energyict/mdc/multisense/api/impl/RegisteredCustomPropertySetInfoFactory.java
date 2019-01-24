@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -43,8 +44,7 @@ public class RegisteredCustomPropertySetInfoFactory
     public RegisteredCustomPropertySetInfo asLink(RegisteredCustomPropertySetTypeInfo registeredCustomPropertySetTypeInfo,
                                                   Relation relation, UriInfo uriInfo) {
         RegisteredCustomPropertySetInfo info = new RegisteredCustomPropertySetInfo();
-        info.id = registeredCustomPropertySetTypeInfo.getRegisteredCustomPropertySet().getId();
-        info.version = registeredCustomPropertySetTypeInfo.getVersion();
+        copySelectedFields(info, registeredCustomPropertySetTypeInfo, uriInfo, Arrays.asList("id", "version"));
         info.link = link(registeredCustomPropertySetTypeInfo, relation, uriInfo);
         return info;
     }
@@ -87,10 +87,10 @@ public class RegisteredCustomPropertySetInfoFactory
         Map<String, PropertyCopier<RegisteredCustomPropertySetInfo, RegisteredCustomPropertySetTypeInfo>> map =
                 new HashMap<>();
         map.put("id", (info, rcpsInfo, uriInfo) -> info.id = rcpsInfo.getRegisteredCustomPropertySet().getId());
+        map.put("link", (info, rcpsInfo, uriInfo) -> info.link = link(rcpsInfo, Relation.REF_SELF, uriInfo));
+        map.put("version", (info, rcpsInfo, uriInfo) -> info.version = rcpsInfo.getVersion());
         map.put("name", (info, rcpsInfo, uriInfo) -> info.name =
                 rcpsInfo.getRegisteredCustomPropertySet().getCustomPropertySet().getName());
-        map.put("version", (info, rcpsInfo, uriInfo) -> info.version = rcpsInfo.getVersion());
-        map.put("link", (info, rcpsInfo, uriInfo) -> info.link = link(rcpsInfo, Relation.REF_SELF, uriInfo));
         map.put("customAttributes", (info, rcpsInfo, uriInfo) -> info.customAttributes =
                 getCustomPropertySetValues(rcpsInfo.getParent(), rcpsInfo.getRegisteredCustomPropertySet()));
         return map;
