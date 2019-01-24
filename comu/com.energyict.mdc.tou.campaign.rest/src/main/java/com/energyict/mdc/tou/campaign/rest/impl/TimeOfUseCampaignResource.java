@@ -16,6 +16,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.tou.campaign.Pair;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
@@ -119,8 +120,13 @@ public class TimeOfUseCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response retryDevice(IdWithNameInfo id) {
-        timeOfUseCampaignService.retryDevice(((Integer) id.id).longValue());
-        return Response.ok().build();
+        Pair<Device, ServiceCall> pair = timeOfUseCampaignService.retryDevice(((Integer) id.id).longValue());
+        DeviceInCampaignInfo deviceInCampaignInfo = new DeviceInCampaignInfo(new IdWithNameInfo(pair.o1.getId(), pair.o1.getName()),
+                getStatus(pair.o2.getState(), thesaurus),
+                pair.o2.getCreationTime(),
+                (pair.o2.getState().equals(DefaultState.CANCELLED)
+                        || pair.o2.getState().equals(DefaultState.SUCCESSFUL)) ? pair.o2.getLastModificationTime() : null);
+        return Response.ok(deviceInCampaignInfo).build();
     }
 
     @PUT
@@ -129,8 +135,13 @@ public class TimeOfUseCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response cancelDevice(IdWithNameInfo id) {
-        timeOfUseCampaignService.cancelDevice(((Integer) id.id).longValue());
-        return Response.ok().build();
+        Pair<Device, ServiceCall> pair = timeOfUseCampaignService.cancelDevice(((Integer) id.id).longValue());
+        DeviceInCampaignInfo deviceInCampaignInfo = new DeviceInCampaignInfo(new IdWithNameInfo(pair.o1.getId(), pair.o1.getName()),
+                getStatus(pair.o2.getState(), thesaurus),
+                pair.o2.getCreationTime(),
+                (pair.o2.getState().equals(DefaultState.CANCELLED)
+                        || pair.o2.getState().equals(DefaultState.SUCCESSFUL)) ? pair.o2.getLastModificationTime() : null);
+        return Response.ok(deviceInCampaignInfo).build();
     }
 
     @PUT

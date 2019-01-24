@@ -40,6 +40,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tou.campaign.Pair;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
@@ -529,13 +530,13 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     @Override
-    public void cancelDevice(Device device) {
-        cancelCalendarSend(findActiveServiceCallByDevice(device).get());
+    public Pair<Device, ServiceCall> cancelDevice(Device device) {
+        return cancelCalendarSend(findActiveServiceCallByDevice(device).get());
     }
 
     @Override
-    public void cancelDevice(long id) {
-        cancelDevice(deviceService.findDeviceById(id).orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.DEVICE_BY_ID_NOT_FOUND, id)));
+    public Pair<Device, ServiceCall> cancelDevice(long id) {
+        return cancelDevice(deviceService.findDeviceById(id).orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.DEVICE_BY_ID_NOT_FOUND, id)));
     }
 
     @Override
@@ -548,16 +549,23 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 });
     }
 
-    void cancelCalendarSend(ServiceCall serviceCall) {
+    Pair<Device, ServiceCall> cancelCalendarSend(ServiceCall serviceCall) {
+        Pair<Device, ServiceCall> pair = new Pair<>();
+        pair.o1 = findDeviceByServiceCall(serviceCall);
+        pair.o2 = serviceCall;
         revokeCalendarsCommands(findDeviceByServiceCall(serviceCall));
-        findCalendarsComTaskExecutions(findDeviceByServiceCall(serviceCall)).findAny().ifPresent(comTaskExecution -> comTaskExecution.schedule(null));
+        findCalendarsComTaskExecutions(pair.o1).findAny().ifPresent(comTaskExecution -> comTaskExecution.schedule(null));
         changeServiceCallStatus(findDeviceByServiceCall(serviceCall), DefaultState.CANCELLED);
         serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.CANCELED_BY_USER.getKey(), MessageSeeds.CANCELED_BY_USER.getDefaultFormat()));
+        return pair;
     }
 
     @Override
-    public void retryDevice(long id) {
-        findServiceCallsByDevice(deviceService.findDeviceById(id).get())
+    public Pair<Device, ServiceCall> retryDevice(long id) {
+        Pair<Device, ServiceCall> pair = new Pair();
+        Device device = deviceService.findDeviceById(id).get();
+        pair.o1 = device;
+        findServiceCallsByDevice(device)
                 .filter(serviceCall1 -> serviceCall1.getParent().isPresent())
                 .filter(serviceCall1 -> (serviceCall1.getParent().get().getState().equals(DefaultState.ONGOING)
                         || serviceCall1.getParent().get().getState().equals(DefaultState.PENDING)))
@@ -566,8 +574,10 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                     revokeCalendarsCommands(findDeviceByServiceCall(serviceCall1));
                     serviceCall1.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.RETRIED_BY_USER.getKey(), MessageSeeds.RETRIED_BY_USER.getDefaultFormat()));
                     dataModel.getInstance(TimeOfUseSendHelper.class)
-                            .setCalendarOnDevice(deviceService.findDeviceById(id).get(), serviceCall1);
+                            .setCalendarOnDevice(device, serviceCall1);
+                    pair.o2 = serviceCall1;
                 });
+        return pair;
     }
 
     private Optional<ServiceCall> findActiveServiceCallByDevice(Device device) {

@@ -42,11 +42,11 @@ public interface TimeOfUseCampaignService {
 
     List<DeviceType> getDeviceTypesWithCalendars();
 
-    void retryDevice(long id);
+    Pair<Device, ServiceCall> retryDevice(long id);
 
-    void cancelDevice(Device device);
+    Pair<Device, ServiceCall> cancelDevice(Device device);
 
-    void cancelDevice(long id);
+    Pair<Device, ServiceCall> cancelDevice(long id);
 
     void cancelCampaign(String campaign);
 
