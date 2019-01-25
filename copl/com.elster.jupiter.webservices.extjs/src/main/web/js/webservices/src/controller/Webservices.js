@@ -243,11 +243,12 @@ Ext.define('Wss.controller.Webservices', {
     removeEndpoint: function (record) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
-            store = me.getStore('Wss.store.Endpoints');
+            store = me.getStore('Wss.store.Endpoints'),
+            webServiceName = record.get('name');
 
         confirmationWindow.show(
             {
-                title: Uni.I18n.translate('general.removeX', 'WSS', "Remove '{0}'?", [record.get('name')]),
+                title: Uni.I18n.translate('general.removeX', 'WSS', "Remove '{0}'?", [webServiceName]),
                 msg: Uni.I18n.translate('webservices.remove.msg', 'WSS', 'This web service endpoint will be removed and no longer be available.'),
                 fn: function (state) {
                     if (state === 'confirm') {
@@ -255,10 +256,23 @@ Ext.define('Wss.controller.Webservices', {
                             record.setGroup(null);
                             record.set('group', null);
                         }
-                        record.destroy({
-                            success: function () {
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('webservices.endpoint.removed', 'WSS', 'Web service endpoint removed'));
-                                me.showWebservicesOverview();
+
+                        Ext.Ajax.request({
+                            url: '/api/dal/creationrules/haswebservice/?webServiceName=' +  webServiceName,
+                            method: 'GET',
+                            timeout: 60000,
+                            success: function (response) {
+                                var okToDelete = response.responseText == "false";
+
+                                if (okToDelete) {   // the web service will be deleted
+                                    record.destroy({
+                                        success: function () {
+                                            me.getApplication().fireEvent('acknowledge',
+                                                Uni.I18n.translate('webservices.endpoint.removed', 'WSS', 'Web service endpoint removed'));
+                                            me.showWebservicesOverview();
+                                        }
+                                    });
+                                }
                             }
                         });
                     }

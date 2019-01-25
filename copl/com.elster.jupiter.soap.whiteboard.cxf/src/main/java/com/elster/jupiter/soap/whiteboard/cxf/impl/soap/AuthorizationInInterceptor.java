@@ -34,10 +34,8 @@ import java.util.logging.Logger;
  */
 public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    static final String USER_NAME = "userName";
-    static final String PASSWORD = "password";
+    static final String USERPRINCIPAL = "com.elster.jupiter.userprincipal";
 
-    public static final String ANONYMOUS_USER = "anonymous";
     private final UserService userService;
     private InboundEndPointConfiguration endPointConfiguration;
     private final TransactionService transactionService;
@@ -81,12 +79,8 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
                 }
             }
 
-            if (newSession) {
-                httpSession.setAttribute(USER_NAME, userName);
-                if (password != null) {
-                    httpSession.setAttribute(PASSWORD, password);
-                }
-            }
+           request.setAttribute(USERPRINCIPAL, user.get());
+
         } catch (
                 Fault e)
 

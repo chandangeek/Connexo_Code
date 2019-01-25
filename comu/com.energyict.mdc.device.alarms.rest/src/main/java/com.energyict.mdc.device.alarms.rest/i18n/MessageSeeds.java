@@ -17,7 +17,8 @@ public enum MessageSeeds implements MessageSeed {
     ALARM_DOES_NOT_EXIST(2, "AlarmDoesNotExist", "Alarm doesn't exist", Level.SEVERE),
     INVALID_VALUE(5, "InvalidValue", "Invalid value", Level.SEVERE),
     ACTION_ALARM_PRIORITY_WAS_CHANGED(1000, "action.alarm.priority.was.changed", "Alarm priority has been changed" , Level.INFO),
-    SNOOZE_TIME_BEFORE_CURRENT_TIME(0005, "InvalidTime", "Snooze date should be after current date.", Level.WARNING)
+    SNOOZE_TIME_BEFORE_CURRENT_TIME(0005, "InvalidTime", "Snooze date should be after current date.", Level.WARNING),
+    ALARM_RULE_STILL_HAS_ACTIVE_WEB_SERVICE(003, "AlarmRuleWithWebService", "The alarm rule has an web service active action", Level.SEVERE)
     ;
 
     private final int number;

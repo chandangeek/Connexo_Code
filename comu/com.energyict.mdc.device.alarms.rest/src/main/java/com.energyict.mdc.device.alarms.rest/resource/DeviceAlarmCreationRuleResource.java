@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleActionBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
@@ -31,6 +32,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
+import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.security.Privileges;
 
 import com.google.common.collect.Range;
@@ -46,6 +48,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -118,6 +121,35 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
                         .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return
                 Response.ok(ruleInfoFactory.asInfo(rule)).build();
+    }
+
+    @GET
+    @Path("/haswebservice")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    //@RolesAllowed({Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE, Privileges.Constants.VIEW_ALARM_CREATION_RULE})
+    public Response alarmRuleHasWebServiceAction(@BeanParam JsonQueryParameters queryParams,@QueryParam("webServiceName") String webServiceName) {
+        IssueType alarmType = getIssueService().findIssueType("devicealarm").orElse(null);
+        List<IssueReason> alarmReasons = getIssueService().query(IssueReason.class)
+                .select(where(ISSUE_TYPE).isEqualTo(alarmType))
+                .stream()
+                .collect(Collectors.toList());
+
+        Query<CreationRule> query =
+                getIssueService().getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
+        List<CreationRule> rules;
+        Condition conditionIssue = where("reason").in(alarmReasons);
+        rules = query.select(conditionIssue, Order.ascending("name"));
+        boolean webServiceIsPresent = rules
+                .stream().map(ruleInfoFactory::asInfo)
+                .flatMap(x -> x.actions.stream())
+                .anyMatch(a -> a.description.equals(webServiceName));
+
+        if (webServiceIsPresent)
+        {
+            throw CannotDeleteBecauseStillInUseException.webServiceStillInUseException(this.getThesaurus(),
+                    MessageSeeds.ALARM_RULE_STILL_HAS_ACTIVE_WEB_SERVICE);
+        }
+        return Response.ok(webServiceIsPresent).build();
     }
 
     @DELETE
