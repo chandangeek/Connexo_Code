@@ -96,15 +96,13 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(getDlmsSessionProperties().getDeviceId());
         getLogger().info("Initialize communication with device identified by device ID: " + getDlmsSessionProperties().getDeviceId());
-        if(testCachedFrameCounter(comChannel)){
-            DlmsSession dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
-            dlmsSession.getAso().getSecurityContext().setFrameCounter(getDeviceCache().getFrameCounter());
-            setDlmsSession(dlmsSession);
-        } else {
+        if(!testCachedFrameCounter(comChannel)){
             readFrameCounter(comChannel);
             DlmsSession dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
             dlmsSession.getAso().getSecurityContext().setFrameCounter(getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter());
             setDlmsSession(dlmsSession);
+        } else {
+            //Framecounter was validated and DLMSSession set so go on
         }
         getLogger().info("Initialization phase has ended.");
 
@@ -121,11 +119,12 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
             dlmsSession.getDlmsV2Connection().connectMAC();
             dlmsSession.createAssociation();
             if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
-                dlmsSession.disconnect();
+//                dlmsSession.disconnect();
                 long frameCounter = dlmsSession.getAso().getSecurityContext().getFrameCounter();
                 getLogger().info("This FrameCounter was validated: " + frameCounter);
                 getDeviceCache().setFrameCounter(frameCounter);
                 validCachedFrameCounter = true;
+                setDlmsSession(dlmsSession);
             }
         } catch (CommunicationException ex) {
             getLogger().info("Association using cached frame counter has failed.");
@@ -184,7 +183,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        if(deviceProtocolCache != null && deviceProtocolCache instanceof ESMR50Cache){
+        if (deviceProtocolCache instanceof ESMR50Cache) {
             esmr50Cache = (ESMR50Cache) deviceProtocolCache;
         }
     }
@@ -306,15 +305,15 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         return registerFactory;
     }
 
-    protected ESMR50Messaging getESMR50Messaging(){
-        if(this.esmr50Messaging == null){
+    protected ESMR50Messaging getESMR50Messaging() {
+        if (this.esmr50Messaging == null) {
             this.esmr50Messaging = new ESMR50Messaging(getMessageExecutor(), this.getPropertySpecService(), this.nlsService, this.converter, this.messageFileExtractor, this.calendarExtractor, this.numberLookupExtractor, this.loadProfileExtractor, this.keyAccessorTypeExtractor);
         }
         return this.esmr50Messaging;
     }
 
-    protected ESMR50MessageExecutor getMessageExecutor(){
-        if(this.esmr50MessageExecutor == null){
+    protected ESMR50MessageExecutor getMessageExecutor() {
+        if (this.esmr50MessageExecutor == null) {
             this.esmr50MessageExecutor = new ESMR50MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.keyAccessorTypeExtractor);
         }
         return this.esmr50MessageExecutor;

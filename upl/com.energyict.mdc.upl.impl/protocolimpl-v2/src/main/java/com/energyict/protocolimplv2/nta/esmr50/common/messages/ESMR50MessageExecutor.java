@@ -63,7 +63,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
         }
 
         List<OfflineDeviceMessage> notExecutedDeviceMessages = new ArrayList<>();
-        for (OfflineDeviceMessage pendingMessage : masterMessages) {
+         for (OfflineDeviceMessage pendingMessage : masterMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
@@ -261,7 +261,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
     }
 
     public void setLTEFWLocation(OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] fileAsOctetString = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, "Download_location_user_file"), ""); //TODO create device message with this attribute
+        byte[] fileAsOctetString = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.LTEModemFirmwareUgradeDownloadFileAttributeName), "");
         getProtocol().getLogger().info(" > file content (hex): " + ProtocolTools.getHexStringFromBytes(fileAsOctetString));
         if(fileAsOctetString != null) {
             getProtocol().getLogger().info(" > converting to OctetString and writing to "+ESMR50RegisterFactory.LTE_FW_LOCATION.toString());
@@ -275,7 +275,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
     }
 
     public void setLTEFWDownloadTime(OfflineDeviceMessage pendingMessage) throws IOException {
-        int lteFWDownloadTime = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, "Download_Timeout")); //TODO create device message attribute
+        int lteFWDownloadTime = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.LTEModemFirmwareUgradeDownloadTimeoutAttributeName));
         getProtocol().getLogger().info("Setting LTE Firmware download time to " + lteFWDownloadTime + " seconds.");
         getCosemObjectFactory().getData(ESMR50RegisterFactory.LTE_FW_DOWNLOAD_TIME).setValueAttr(new Unsigned32(lteFWDownloadTime));
     }

@@ -164,6 +164,19 @@ public final class DeviceMessageConstants {
     public static final String FW_UPGRADE_IMAGE_SIZE = "FirmwareDeviceMessage.ImageSize";
     public static final String FW_UPGRADE_IMAGE_SIZE_DEFAULT_TRANSLATION = "Image size";
 
+    /**
+     * Attribute containing the location of user file for LTE modem firmware upgrade
+     */
+    public static final String LTEModemFirmwareUgradeDownloadFileAttributeName = "FirmwareDeviceMessage.Download_location";
+    public static final String LTEModemFirmwareUgradeDownloadFileAttributeNameDefaultTranslation = "Download file location";
+
+    /**
+     * Attribute containing the location of user file for LTE modem firmware upgrade
+     */
+    public static final String LTEModemFirmwareUgradeDownloadTimeoutAttributeName = "FirmwareDeviceMessage.Download_Timeout";
+    public static final String LTEModemFirmwareUgradeDownloadTimeoutAttributeNameDefaultTranslation  = "Download timeout";
+
+
     public static final String contractAttributeName = "contract";
     public static final String contractAttributeDefaultTranslation = "Contract";
     public static final String defaultTariffCodeAttrributeName = "ActivityCalendarDeviceMessage.default.tariff";

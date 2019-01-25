@@ -71,6 +71,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import org.xml.sax.SAXException;
 
@@ -89,6 +90,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.AdministrativeStatusAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DefaultResetWindowAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientDeviceType;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber;
@@ -202,9 +204,9 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
                     changeAuthLevel(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
-                    changeEncryptionKey(pendingMessage, 0);
+                    changeAuthenticationOrEncryptionKey(pendingMessage, 0);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
-                    changeAuthenticationKey(pendingMessage, 2);
+                    changeAuthenticationOrEncryptionKey(pendingMessage, 2);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY)) {
                     changeHLSSecretUsingServiceKey(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY)) {
@@ -298,9 +300,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeAdministrativeStatus(OfflineDeviceMessage pendingMessage) throws IOException {
-//TODO: COMMUNICATION-2766. where is the functionality from 8.11 implemented in connexo?
-//        int status = messageHandler.getAdministrativeStatus();
-//        getCosemObjectFactory().getData(DSMR40RegisterFactory.AdministrativeStatusObisCode).setValueAttr(new TypeEnum(status));
+        int status = Integer.valueOf(getDeviceMessageAttributeValue(pendingMessage, AdministrativeStatusAttributeName));
+        getCosemObjectFactory().getData(Dsmr40RegisterFactory.AdministrativeStatusObisCode).setValueAttr(new TypeEnum(status));
     }
 
     private void resetAlarmRegister() throws IOException {
@@ -526,30 +527,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void changeEncryptionKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
-        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
-
+    private void changeAuthenticationOrEncryptionKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
-        globalKeyArray.addDataType(keyData);
-
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-        ss.transferGlobalKey(globalKeyArray);
-    }
-
-    private void changeAuthenticationKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
-        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
-
-        Array globalKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
+        keyData.addDataType(OctetString.fromByteArray(getProtocol().getDlmsSession().getProperties().getSecurityProvider().getAuthenticationKey()));
         globalKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
