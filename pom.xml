@@ -39,6 +39,7 @@
              will be set to false by the release profile for releases -->
 		<include.source>true</include.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<baseline>0.0.1-Elatus</baseline>
 	</properties>
 
 	<!-- Repositories specification. -->
@@ -226,7 +227,6 @@
 		</resources>
 		<pluginManagement>
 			<plugins>
-
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
@@ -254,9 +254,9 @@
 					<version>1.3</version>
 				</plugin>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>1.4</version>
+					<groupId>com.elster.plugin</groupId>
+					<artifactId>bundle-version-maven-plugin</artifactId>
+					<version>1.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -397,44 +397,21 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<dependencies>
-					<dependency>
-						<groupId>com.elster.jupiter</groupId>
-						<artifactId>buildtools</artifactId>
-						<version>1.0.2</version>
-					</dependency>
-				</dependencies>
+				<groupId>com.elster.plugin</groupId>
+				<artifactId>bundle-version-maven-plugin</artifactId>
+				<configuration>
+					<acceptedPackages>
+						<param>com.elster</param>
+						<param>com.energyict</param>
+					</acceptedPackages>
+					<releasedVersion>${baseline}</releasedVersion>
+				</configuration>
 				<executions>
 					<execution>
-						<id>enforce-no-snapshots</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<requireReleaseDeps>
-									<message>No Snapshots Allowed during release</message>
-									<onlyWhenRelease>true</onlyWhenRelease>
-								</requireReleaseDeps>
-							</rules>
-							<fail>true</fail>
-						</configuration>
-					</execution>
-					<execution>
-						<id>check-bundle-version</id>
 						<phase>verify</phase>
 						<goals>
 							<goal>enforce</goal>
 						</goals>
-						<inherited>true</inherited>
-						<configuration>
-							<rules>
-								<enforceBundleVersion
-										implementation="com.elster.jupiter.buildtools.EnforceBundleVersion"/>
-							</rules>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
