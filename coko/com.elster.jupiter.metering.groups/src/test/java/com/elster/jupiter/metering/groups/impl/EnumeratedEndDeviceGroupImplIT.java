@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -125,11 +127,13 @@ public class EnumeratedEndDeviceGroupImplIT {
                 new DataVaultModule(),
                 new TaskModule(),
                 new CustomPropertySetsModule(),
-                new WebServicesModule()
+                new WebServicesModule(),
+                new AuditServiceModule()
         );
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
+            injector.getInstance(AuditService.class);
             clock = injector.getInstance(Clock.class);
             return null;
         });
