@@ -292,6 +292,7 @@
                         </executions>
 
                         <configuration>
+                            <attach>false</attach>
                             <archiverConfig>
                                 <duplicateBehavior>skip</duplicateBehavior>
                             </archiverConfig>
