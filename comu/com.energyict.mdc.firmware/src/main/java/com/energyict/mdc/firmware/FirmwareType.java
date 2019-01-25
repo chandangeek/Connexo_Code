@@ -11,6 +11,7 @@ import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public enum FirmwareType implements TranslationKey {
+    // The order defines how firmware types are displayed in UI
     METER("meter", "Meter firmware"),
     COMMUNICATION("communication", "Communication firmware"),
     CA_CONFIG_IMAGE("caConfigImage", "Image");

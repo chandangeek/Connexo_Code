@@ -67,17 +67,41 @@ public enum TableSpecs {
             Table<FirmwareManagementOptions> table = dataModel.addTable(name(), FirmwareManagementOptions.class);
             table.map(FirmwareManagementOptionsImpl.class);
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
-            table.column("INSTALL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareManagementOptionsImpl.Fields.INSTALL.fieldName()).add();
-            table.column("ACTIVATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareManagementOptionsImpl.Fields.ACTIVATE.fieldName()).add();
-            table.column("ACTIVATEONDATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareManagementOptionsImpl.Fields.ACTIVATEONDATE.fieldName()).add();
+            table.column(FirmwareManagementOptionsImpl.Fields.INSTALL.name())
+                    .type("char(1)")
+                    .conversion(ColumnConversion.CHAR2BOOLEAN)
+                    .map(FirmwareManagementOptionsImpl.Fields.INSTALL.fieldName())
+                    .add();
+            table.column(FirmwareManagementOptionsImpl.Fields.ACTIVATE.name())
+                    .type("char(1)")
+                    .conversion(ColumnConversion.CHAR2BOOLEAN)
+                    .map(FirmwareManagementOptionsImpl.Fields.ACTIVATE.fieldName())
+                    .add();
+            table.column(FirmwareManagementOptionsImpl.Fields.ACTIVATEONDATE.name())
+                    .type("char(1)")
+                    .conversion(ColumnConversion.CHAR2BOOLEAN)
+                    .map(FirmwareManagementOptionsImpl.Fields.ACTIVATEONDATE.fieldName())
+                    .add();
             table.setJournalTableName("FWC_FIRMWAREMNGMNTOPTIONSJRNL").since(version(10, 2));
             table.addAuditColumns();
+            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_CURRENT_FW_FOR_FINAL);
+            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_CURRENT_FW_FOR_TEST);
+            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_MASTER_FW_FOR_FINAL);
+            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_MASTER_FW_FOR_TEST);
             table.primaryKey("FWC_PK_FIRMWAREMGTOPTIONS").on(deviceTypeColumn).add();
-            table
-                    .foreignKey("FWC_OPTIONS_FK_DEVICETYPE")
+            table.foreignKey("FWC_OPTIONS_FK_DEVICETYPE")
                     .on(deviceTypeColumn)
                     .references(DeviceType.class)
                     .map(FirmwareManagementOptionsImpl.Fields.DEVICETYPE.fieldName())
+                    .add();
+        }
+
+        private Column addCheckConfigurationColumnFor10_6(Table<FirmwareManagementOptions> table, FirmwareManagementOptionsImpl.Fields descriptor) {
+            return table.column(descriptor.name())
+                    .bool()
+                    .map(descriptor.fieldName())
+                    .since(Version.version(10, 6))
+                    .installValue("'N'")
                     .add();
         }
     },
