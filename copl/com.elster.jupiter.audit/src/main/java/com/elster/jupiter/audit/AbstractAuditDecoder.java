@@ -151,12 +151,27 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
+            to.ifPresent(dt -> auditLogChange.setValue(dt));
+            from.ifPresent(dt -> auditLogChange.setPreviousValue(dt));
             auditLogChange.setValue(to.get());
             auditLogChange.setPreviousValue(from.get());
             return Optional.of(auditLogChange);
         }
         return Optional.empty();
     }
+
+    public Optional<AuditLogChange> getAuditLogChangeForOptional(Optional from, Optional to, TranslationKey translationKey, SimplePropertyType simplePropertyType) {
+        if (to.equals(from) == false) {
+            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setType(simplePropertyType.name());
+            to.ifPresent(dt -> auditLogChange.setValue(dt));
+            from.ifPresent(dt -> auditLogChange.setPreviousValue(dt));
+            return Optional.of(auditLogChange);
+        }
+        return Optional.empty();
+    }
+
 
 
     public String getDisplayName(TranslationKey key) {

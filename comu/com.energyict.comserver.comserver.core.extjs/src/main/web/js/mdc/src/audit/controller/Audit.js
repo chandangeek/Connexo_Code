@@ -84,7 +84,10 @@ Ext.define('Mdc.audit.controller.Audit', {
                 displayValue = value.split(':')[1] + ' ' + timeUnitsStore.findRecord('timeUnit', value.split(':')[0]).get('localizedValue');
                 break;
             case 'LOCATION':
-                displayValue = Ext.isEmpty(value) == false ? Ext.String.htmlEncode(value).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>') : '-';
+                displayValue = Ext.isEmpty(value) == false ? Ext.String.htmlEncode(value).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>') : '';
+                break;
+            case 'TIMESTAMP':
+                displayValue = value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 break;
             case 'BOOLEAN':
                 displayValue = value ?

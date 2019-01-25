@@ -88,7 +88,10 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
 
             auditLogChanges.addAll(getAuditLogChangesFromDevice());
             auditLogChanges.addAll(getAuditLogChangesFromEndDevice());
-            return auditLogChanges;
+            return auditLogChanges
+                    .stream()
+                    .distinct()
+                    .collect(Collectors.toList());
 
         } catch (Exception e) {
         }
@@ -100,10 +103,15 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
             List<AuditLogChange> auditLogChanges = new ArrayList<>();
             DataMapper<Device> dataMapper = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME).get().mapper(Device.class);
 
-            getHistoryEntries(dataMapper, getHistoryByJournalClauses())
+            List<Device> historyEntries = getHistoryEntries(dataMapper, getHistoryByJournalClauses());
+            historyEntries
                     .stream()
                     .forEach(from -> {
-                        getToDeviceEntry(from, dataMapper)
+                        historyEntries.stream()
+                                .filter(ed -> ed.getVersion() == from.getVersion() + 1)
+                                .findFirst()
+                                .map(Optional::of)
+                                .orElseGet(() -> getToDeviceEntry(from, from.getVersion() + 1, dataMapper))
                                 .ifPresent(to -> {
                                     getAuditLogChangeForBatch(from, to).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForInteger(from.getYearOfCertification(), to.getYearOfCertification(), PropertyTranslationKeys.DEVICE_CERT_YEAR).ifPresent(auditLogChanges::add);
@@ -121,48 +129,54 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
             List<AuditLogChange> auditLogChanges = new ArrayList<>();
             DataMapper<EndDevice> dataMapper = ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(EndDevice.class);
 
-            getHistoryEntries(dataMapper, getHistoryByJournalClauses())
+            List<EndDevice> historyEntries = getHistoryEntries(dataMapper, getHistoryByJournalClauses());
+            historyEntries
                     .stream()
                     .forEach(from -> {
-                        getToEndDeviceEntry(from, dataMapper)
+                        historyEntries.stream()
+                                .filter(ed -> ed.getVersion() == from.getVersion() + 1)
+                                .findFirst()
+                                .map(Optional::of)
+                                .orElseGet(() -> getToEndDeviceEntry(from, from.getVersion() + 1, dataMapper))
                                 .ifPresent(to -> {
                                     getAuditLogChangeForString(from.getName(), to.getName(), PropertyTranslationKeys.DEVICE_NAME).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForString(from.getSerialNumber(), to.getSerialNumber(), PropertyTranslationKeys.DEVICE_SERIAL_NUMBER).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForString(from.getManufacturer(), to.getManufacturer(), PropertyTranslationKeys.DEVICE_MANUFACTURER).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForString(from.getModelNumber(), to.getModelNumber(), PropertyTranslationKeys.DEVICE_MODEL_NBR).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForString(from.getModelVersion(), to.getModelVersion(), PropertyTranslationKeys.DEVICE_MODEL_VERSION).ifPresent(auditLogChanges::add);
-                                    getAuditLogChangeForOptional(from.getLifecycleDates().getInstalledDate(), from.getLifecycleDates()
-                                            .getInstalledDate(), PropertyTranslationKeys.TRANSITION_INSTALLATION).ifPresent(auditLogChanges::add);
+                                    getAuditLogChangeForOptional(from.getLifecycleDates().getInstalledDate(), to.getLifecycleDates()
+                                            .getInstalledDate(), PropertyTranslationKeys.TRANSITION_INSTALLATION, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForLocation(from, to, PropertyTranslationKeys.DEVICE_LOCATION).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForCoordinates(from, to, PropertyTranslationKeys.DEVICE_COORDINATES).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForMultiplier(from, to, PropertyTranslationKeys.MULTIPLIER).ifPresent(auditLogChanges::add);
 
                                 });
                     });
-            return auditLogChanges
-                    .stream()
-                    .distinct()
-                    .collect(Collectors.toList());
+            return auditLogChanges;
 
         } catch (Exception e) {
         }
         return Collections.emptyList();
     }
 
-    private Optional<Device> getToDeviceEntry(Device from, DataMapper<Device> dataMapper) {
-        if (from.getVersion() + 1 == device.get().getVersion()) {
+    private Optional<Device> getToDeviceEntry(Device from, long version, DataMapper<Device> dataMapper) {
+        if (version >= device.get().getVersion()) {
             return device;
         }
         return getJournalEntry(dataMapper, ImmutableMap.of("ID", from.getId(),
-                "VERSIONCOUNT", from.getVersion() + 1));
+                "VERSIONCOUNT", version))
+                .map(Optional::of)
+                .orElseGet(() -> getToDeviceEntry(from, version + 1, dataMapper));
     }
 
-    private Optional<EndDevice> getToEndDeviceEntry(EndDevice from, DataMapper<EndDevice> dataMapper) {
-        if (from.getVersion() + 1 == endDevice.get().getVersion()) {
+    private Optional<EndDevice> getToEndDeviceEntry(EndDevice from, long version, DataMapper<EndDevice> dataMapper) {
+        if (version >= endDevice.get().getVersion()) {
             return endDevice;
         }
         return getJournalEntry(dataMapper, ImmutableMap.of("ID", from.getId(),
-                "VERSIONCOUNT", from.getVersion() + 1));
+                "VERSIONCOUNT", version))
+                .map(Optional::of)
+                .orElseGet(() -> getToEndDeviceEntry(from, version + 1, dataMapper));
     }
 
     private Map<Operator, Pair<String, Object>> getHistoryByJournalClauses() {
