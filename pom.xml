@@ -388,6 +388,7 @@
 							<goal>baseline</goal>
 						</goals>
 						<configuration>
+							<comparisonVersion>${baseline}</comparisonVersion>
 							<failOnError>true</failOnError>
 							<artifactRepoIds>
 								<artifactRepoId>eict-public</artifactRepoId>
