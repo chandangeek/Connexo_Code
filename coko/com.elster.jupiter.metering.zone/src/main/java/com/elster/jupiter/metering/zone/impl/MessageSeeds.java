@@ -18,7 +18,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ZONE_NAME_NOT_UNIQUE(4, Constants.ZONE_NAME_NOT_UNIQUE, "Zone name must be unique", Level.SEVERE),
     ZONE_NAME_REQUIRED(5, Constants.ZONE_NAME_REQUIRED, "Zone name is required", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_80(6, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "This field''s text length should be between 1 and 80 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_10(7, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "This field''s text length should be between 1 and 10 symbols", Level.SEVERE),;
+    FIELD_SIZE_BETWEEN_1_AND_10(7, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "This field''s text length should be between 1 and 10 symbols", Level.SEVERE),
+    ZONE_TYPE_NOT_UNIQUE(8, Constants.ZONE_TYPE_NOT_UNIQUE, "Zone type must be unique", Level.SEVERE),
+    ZONE_IN_USE(9, Constants.ZONE_IN_USE, "Zone ''{0}'' is still in use by at least one device", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -67,5 +69,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String ZONE_NAME_REQUIRED = "zoneNameCanNotBeEmpty";
         public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "fieldSizeBetween80";
         public static final String FIELD_SIZE_BETWEEN_1_AND_10 = "fieldSizeBetween10";
+
+        public static final String ZONE_TYPE_NOT_UNIQUE = "zoneTypeNotUnique";
+        public static final String ZONE_IN_USE = "zoneInUse";
     }
 }

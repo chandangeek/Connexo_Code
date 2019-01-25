@@ -13,6 +13,16 @@ public class DeviceTypeInfo extends LinkInfo<Long> {
 
     public String description;
 
+    public String type;
+
+    public String communicationProtocol;
+
+    public String deviceLifeCycle;
+
+    public boolean deviceCanBeGateway;
+
+    public boolean deviceCanBeDirectlyAddressable;
+
     public List<LinkInfo> customAttributeSets;
 
     public List<LinkInfo> deviceConfigurations;

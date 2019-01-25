@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.config.DeviceType;
 
 import javax.inject.Inject;
@@ -20,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -76,6 +78,15 @@ public class DeviceTypeInfoFactory extends SelectableFieldFactory<DeviceTypeInfo
         map.put("name", (deviceTypeInfo, deviceType, uriInfo) -> deviceTypeInfo.name = deviceType.getName());
         map.put("link", (deviceTypeInfo, deviceType, uriInfo) -> deviceTypeInfo.link = link(deviceType, Relation.REF_SELF, uriInfo));
         map.put("description", (deviceTypeInfo, deviceType, uriInfo) -> deviceTypeInfo.description = deviceType.getDescription());
+        map.put("type", (deviceTypeInfo, deviceType, uriInfo) -> deviceTypeInfo.type = "Standard device type");
+        map.put("communicationProtocol", (deviceTypeInfo, deviceType, uriInfo) -> deviceTypeInfo.communicationProtocol =
+                deviceType.getDeviceProtocolPluggableClass().map(HasName::getName).orElse(null));
+        map.put("deviceLifeCycle", (deviceTypeInfo, deviceType, uriInfo) -> deviceTypeInfo.deviceLifeCycle =
+                Optional.ofNullable(deviceType.getDeviceLifeCycle()).map(HasName::getName).orElse(null));
+        map.put("deviceCanBeGateway", (deviceTypeInfo, deviceType, uriInfo) ->
+                deviceTypeInfo.deviceCanBeGateway = deviceType.canActAsGateway());
+        map.put("deviceCanBeDirectlyAddressable", (deviceTypeInfo, deviceType, uriInfo) ->
+                deviceTypeInfo.deviceCanBeDirectlyAddressable = deviceType.isDirectlyAddressable());
         map.put("customAttributeSets", (deviceTypeInfo, deviceType, uriInfo) ->
                 deviceTypeInfo.customAttributeSets = registeredCustomPropertySetInfoFactoryProvider.get()
                         .asLink(getRegisteredCustomPropertySetTypeInfos(deviceType), Relation.REF_RELATION, uriInfo));

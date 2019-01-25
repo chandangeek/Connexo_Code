@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.zone;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.EndDevice;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -16,11 +17,18 @@ public interface MeteringZoneService {
 
     String COMPONENTNAME = "MTZ";
 
+    /*
+    Zone type section
+    */
     List<ZoneType> getZoneTypes(String application);
 
     Optional<ZoneType> getZoneType(String name, String application);
 
     ZoneTypeBuilder newZoneTypeBuilder();
+
+    /*
+    Zone section
+    */
 
     Finder<Zone> getZones(String application, ZoneFilter zoneFilter);
 
@@ -32,5 +40,14 @@ public interface MeteringZoneService {
 
     ZoneFilter newZoneFilter();
 
+    /*
+    End device zone
+    */
+    Finder<EndDeviceZone> getByEndDevice(EndDevice endDevice);
 
+    EndDeviceZoneBuilder newEndDeviceZoneBuilder();
+
+    Optional<EndDeviceZone> getEndDeviceZone(long endDeviceZoneId);
+
+    boolean isZoneInUse(long zoneId);
 }
