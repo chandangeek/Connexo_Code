@@ -43,7 +43,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -160,7 +159,6 @@ public class RunningComServerChangesTest {
         verify(scheduledComPort, times(1)).start();
     }
 
-    @Ignore
     @Test(timeout = 20000)
     public void testAddOutboundComPortThatShouldBeIgnored() throws InterruptedException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();

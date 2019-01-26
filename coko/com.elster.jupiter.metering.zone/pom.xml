@@ -187,6 +187,5 @@
             <artifactId>audit</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 </project>
