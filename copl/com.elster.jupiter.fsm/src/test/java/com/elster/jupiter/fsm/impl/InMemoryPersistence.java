@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -95,6 +96,7 @@ public class InMemoryPersistence {
                 new DomainUtilModule(),
                 new NlsModule(),
                 new DataVaultModule(),
+                new AuditServiceModule(),
                 new WebServicesModule()
         );
     }

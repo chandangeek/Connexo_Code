@@ -25,8 +25,8 @@ public class AuditInfoFactory {
         auditInfo.domainType = audit.getDomain();
         auditInfo.contextType = audit.getContext();
         auditInfo.changedOn = audit.getChangedOn();
-        auditInfo.operation = thesaurus.getString(audit.getOperation(), audit.getOperation());
-        auditInfo.operationType = audit.getOperation();
+        auditInfo.operation = thesaurus.getString(audit.getOperation().name(), audit.getOperation().name());
+        auditInfo.operationType = audit.getOperation().name();
         auditInfo.user = audit.getUser();
         auditInfo.auditReference = new AuditReferenceFactory().from(audit.getTouchDomain());
         auditInfo.auditLogs = audit.getLogs()

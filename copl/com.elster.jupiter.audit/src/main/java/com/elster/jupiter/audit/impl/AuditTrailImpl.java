@@ -79,13 +79,13 @@ public class AuditTrailImpl implements AuditTrail {
     }
 
     @Override
-    public String getOperation() {
+    public AuditOperationType getOperation() {
         return getAuditDecoder()
                 .stream()
                 .findFirst()
                 .map(auditDecoder -> auditDecoder.getOperation(operation, getContext()))
-                .map(newOperation -> AuditOperationType.valueOf(newOperation.name()).name())
-                .orElseGet(() -> AuditOperationType.valueOf(operation.name()).name());
+                .map(newOperation -> AuditOperationType.valueOf(newOperation.name()))
+                .orElseGet(() -> AuditOperationType.valueOf(operation.name()));
     }
 
     @Override

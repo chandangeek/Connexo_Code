@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -257,6 +258,7 @@ public class DataCollectionKpiImplTest {
                 new CalendarModule(),
                 new MdcDynamicModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new FileImportModule()
         );
         transactionService = injector.getInstance(TransactionService.class);

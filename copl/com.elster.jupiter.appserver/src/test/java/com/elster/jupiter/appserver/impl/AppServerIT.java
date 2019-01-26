@@ -10,6 +10,7 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.Expects;
@@ -139,13 +140,13 @@ public class AppServerIT {
                     new TransactionModule(),
                     new NlsModule(),
                     new WebServicesModule(),
+                    new AuditServiceModule(),
                     new AppServiceModule(),
                     new FileImportModule(),
                     new TaskModule(),
                     new EventsModule(),
                     new DataVaultModule(),
-                    new UserModule(),
-                    new WebServicesModule()
+                    new UserModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

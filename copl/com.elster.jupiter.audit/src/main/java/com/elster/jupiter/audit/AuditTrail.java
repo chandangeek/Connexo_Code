@@ -11,7 +11,7 @@ public interface AuditTrail {
 
     Long getId();
 
-    String getOperation();
+    AuditOperationType getOperation();
 
     Instant getChangedOn();
 

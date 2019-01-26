@@ -7,10 +7,6 @@ package com.elster.jupiter.audit.impl;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.AuditTrailDecoderHandle;
 import com.elster.jupiter.audit.AuditTrailFilter;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.TableAudit;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
@@ -18,7 +14,6 @@ import com.elster.jupiter.util.conditions.Where;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,8 +26,8 @@ public class AuditTrailFilterImpl implements AuditTrailFilter {
 
     private Condition condition = Condition.TRUE;
 
-    AuditTrailFilterImpl(OrmService ormService, ThreadPrincipalService threadPrincipalService, AuditService auditService) {
-        setContext(ormService, threadPrincipalService, auditService);
+    public AuditTrailFilterImpl(ThreadPrincipalService threadPrincipalService, AuditService auditService) {
+        setContext(threadPrincipalService, auditService);
     }
 
     @Override
@@ -72,22 +67,12 @@ public class AuditTrailFilterImpl implements AuditTrailFilter {
         this.users.addAll(users);
     }
 
-    private AuditTrailFilter setContext(OrmService ormService, ThreadPrincipalService threadPrincipalService, AuditService auditService) {
-        List<TableAudit> tableAudits = ormService.getDataModels().stream()
-                .map(DataModel::getTables)
-                .flatMap(Collection::stream)
-                .filter(Table::hasAudit)
-                .map(Table::getTableAudit)
-                .collect(Collectors.toList());
+    private AuditTrailFilter setContext(ThreadPrincipalService threadPrincipalService, AuditService auditService) {
 
-        List<String> domainContexts = tableAudits.stream()
-                .filter(tableAudit ->
-                        hasAtLeastOnePrivileges(((AuditServiceImpl) auditService).getAuditTrailDecoderHandles(tableAudit.getDomain(), tableAudit.getContext())
-                                .stream()
-                                .map(AuditTrailDecoderHandle::getPrivileges)
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toList()), threadPrincipalService))
-                .map(TableAudit::getContext)
+        List<String> domainContexts = ((AuditServiceImpl) auditService).getAuditTrailDecoderHandles().stream()
+                .filter(auditTrailDecoderHandle ->
+                        hasAtLeastOnePrivileges(auditTrailDecoderHandle.getPrivileges(), threadPrincipalService))
+                .map(AuditTrailDecoderHandle::getContext)
                 .collect(Collectors.toList());
         condition = condition.and(Where.where(AuditTrailImpl.Field.CONTEXT.fieldName()).in(domainContexts));
         return this;

@@ -167,6 +167,10 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
                 .collect(Collectors.toList());
     }
 
+    public List<AuditTrailDecoderHandle> getAuditTrailDecoderHandles() {
+        return auditTrailDecoderHandles;
+    }
+
     @Override
     public Finder<AuditTrail> getAuditTrail(AuditTrailFilter filter) {
         return DefaultFinder.of(AuditTrail.class, filter.toCondition(), dataModel).defaultSortColumn(AuditTrailImpl.Field.CREATETIME.fieldName(), false);
@@ -174,6 +178,6 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
 
     @Override
     public AuditTrailFilter newAuditTrailFilter() {
-        return new AuditTrailFilterImpl(ormService, threadPrincipalService, this);
+        return new AuditTrailFilterImpl(threadPrincipalService, this);
     }
 }

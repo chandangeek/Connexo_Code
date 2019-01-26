@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -111,6 +112,7 @@ public class MinimalDeviceTypeInMemoryBootstrapModule {
                 new DeviceConfigurationModule(),
                 new CalendarModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new FileImportModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {

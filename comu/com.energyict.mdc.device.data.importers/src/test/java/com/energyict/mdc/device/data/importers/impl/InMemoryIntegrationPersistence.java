@@ -5,6 +5,8 @@
 package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -124,6 +126,7 @@ public class InMemoryIntegrationPersistence {
                 new BpmModule(),
                 new FileImportModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new AppServiceModule(),
                 new MeteringGroupsModule(),
                 new SearchModule(),
@@ -154,6 +157,7 @@ public class InMemoryIntegrationPersistence {
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(ServiceCallService.class);
+            injector.getInstance(AuditService.class);
             injector.getInstance(CustomPropertySetService.class);
             initializeCustomPropertySets();
             injector.getInstance(FiniteStateMachineService.class);

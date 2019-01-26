@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -55,6 +56,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -125,6 +127,7 @@ public class InMemoryPersistence {
                 new TaskModule(),// TaskService from c.e.j.tasks
                 new SchedulingModule(),
                 new CustomPropertySetsModule(),
+                new AuditServiceModule(),
                 new WebServicesModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);

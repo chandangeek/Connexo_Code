@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -151,6 +152,7 @@ public class EstimationRuleSetIT {
                     new NlsModule(),
                     new DataVaultModule(),
                     new CustomPropertySetsModule(),
+                    new AuditServiceModule(),
                     new WebServicesModule()
             );
         } catch (Exception e) {
