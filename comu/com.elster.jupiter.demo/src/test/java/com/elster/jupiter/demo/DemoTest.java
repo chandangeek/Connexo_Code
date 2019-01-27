@@ -5,6 +5,7 @@
 package com.elster.jupiter.demo;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
+import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -813,6 +814,7 @@ public class DemoTest {
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(DataVaultServiceImpl.class);
             injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(AuditService.class);
             injector.getInstance(UsagePointLifeCycleService.class); // install default usage point life cycle
             initializeCustomPropertySets();
             createRequiredProtocols();
