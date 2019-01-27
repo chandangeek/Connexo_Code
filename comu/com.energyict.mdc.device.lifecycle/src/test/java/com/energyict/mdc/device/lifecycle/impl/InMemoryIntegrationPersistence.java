@@ -6,6 +6,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
+import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
@@ -222,6 +223,7 @@ public class InMemoryIntegrationPersistence {
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.transactionService = this.injector.getInstance(TransactionService.class);
             this.injector.getInstance(FiniteStateMachineService.class);
+            this.injector.getInstance(AuditService.class);
             ProtocolPluggableServiceImpl protocolPluggableService = (ProtocolPluggableServiceImpl) this.injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addLicensedProtocolService(licensedProtocolService);
             this.injector.getInstance(SchedulingService.class);
