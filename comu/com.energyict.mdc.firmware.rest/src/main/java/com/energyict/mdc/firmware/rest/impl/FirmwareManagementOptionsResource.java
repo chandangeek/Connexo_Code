@@ -119,7 +119,7 @@ public class FirmwareManagementOptionsResource {
             FirmwareManagementOptions options = firmwareManagementOptions.orElseGet(() -> firmwareService.newFirmwareManagementOptions(deviceType));
             options.setOptions(newAllowedOptions);
             CHECKS_WITH_APPLICABILITIES.forEach((checkManagementOption, deviceTypePredicate) ->
-                    options.activateFirmwareCheck(checkManagementOption,
+                    options.activateFirmwareCheckWithStatuses(checkManagementOption,
                             Optional.ofNullable(info.checkOptions.get(checkManagementOption))
                                     .filter(checkOptions -> deviceTypePredicate.test(deviceType))
                                     .map(CheckManagementOptionInfo::getActivatedFor)

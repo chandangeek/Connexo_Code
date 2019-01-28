@@ -157,7 +157,7 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
     }
 
     @Override
-    public void activateFirmwareCheck(FirmwareCheckManagementOption checkManagementOption, Set<FirmwareStatus> firmwareStatuses) {
+    public void activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption checkManagementOption, Set<FirmwareStatus> firmwareStatuses) {
         switch (checkManagementOption) {
             case CURRENT_FIRMWARE_CHECK:
                 checkCurrentFirmwareForFinalFirmwareUpload = firmwareStatuses.contains(FirmwareStatus.FINAL);
