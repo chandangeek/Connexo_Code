@@ -63,7 +63,7 @@ Ext.define('Tou.view.Grid', {
               }
         },
         {
-            header: Uni.I18n.translate('general.status', 'TOU', 'Calendar'),
+            header: Uni.I18n.translate('general.status', 'TOU', 'Status'),
             dataIndex: 'status',
             flex: 1,
             renderer: function (value) {
