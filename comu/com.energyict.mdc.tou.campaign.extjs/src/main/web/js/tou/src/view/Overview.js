@@ -18,7 +18,7 @@ Ext.define('Tou.view.Overview', {
 
         me.content = [
             {
-                title: 'ToU campaigns',
+                title: Uni.I18n.translate('tou.campaigns.touCampaigns', 'TOU', 'ToU campaigns'),
                 ui: 'large',
                 items: [
                     {
@@ -32,14 +32,14 @@ Ext.define('Tou.view.Overview', {
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'tou-empty-component',
-                            title: 'No ToU campaigns found',
+                            title: Uni.I18n.translate('tou.campaigns.empty.title', 'TOU', 'No ToU campaigns found'),
                             reasons: [
-                                'No ToU campaigns have been added yet.'
+                                 Uni.I18n.translate('tou.campaigns.empty.list.item1', 'TOU', 'No ToU campaigns have been added yet.')
                             ],
                             stepItems: [
                                 {
                                     itemId: 'tou-empty-add-button',
-                                    text: 'Add ToU campaign',
+                                    text: Uni.I18n.translate('tou.campaigns.addFirmwareCampaign', 'TOU', 'Add ToU campaign'),
                                     action: 'addTouCampaign',
                                     href: me.router.getRoute('workspace/toucampaigns/add').buildUrl(),
                                     privileges: Tou.privileges.TouCampaign.administrate

@@ -12,14 +12,14 @@ Ext.define('Tou.view.DeviceActionMenu', {
     initComponent: function () {
         this.items = [
             {
-                text: 'Cancel',
+                text:  Uni.I18n.translate('general.cancel', 'TOU', 'Cancel'),
                 action: 'cancelDevice',
                 itemId: 'tou-device-action-cancel',
                 privileges: Tou.privileges.TouCampaign.administrate,
                 section: this.SECTION_ACTION
             },
             {
-                text: 'Retry',
+                text:  Uni.I18n.translate('general.retry', 'TOU', 'Retry'),
                 action: 'retryDevice',
                 itemId: 'tou-device-action-retry',
                 privileges: Tou.privileges.TouCampaign.administrate,

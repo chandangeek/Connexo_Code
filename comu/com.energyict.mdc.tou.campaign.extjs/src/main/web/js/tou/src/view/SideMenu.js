@@ -14,12 +14,12 @@ Ext.define('Tou.view.SideMenu', {
 
         me.menuItems = [
             {
-                text: 'Details',
+                text: Uni.I18n.translate('tou.campaigns.details', 'TOU', 'Details'),
                 itemId: 'tou-campaign-link',
                 href: me.router.getRoute('workspace/toucampaigns/toucampaign').buildUrl()
             },
             {
-                text: 'Devices',
+                text: Uni.I18n.translate('tou.campaigns.devices', 'TOU', 'Devices'),
                 itemId: 'tou-campaign-devices-link',
                 href: me.router.getRoute('workspace/toucampaigns/toucampaign/devices').buildUrl()
             }

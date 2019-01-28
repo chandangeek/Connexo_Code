@@ -16,12 +16,12 @@ Ext.define('Tou.view.ActionMenu', {
 
         me.items = [
             {
-                 text: 'Edit campaign',
+                 text: Uni.I18n.translate('tou.campaigns.editCampaign', 'TOU', 'Edit campaign'),
                  action: me.returnToCampaignOverview ? 'editCampaignAndReturnToOverview' : 'editCampaign',
                  section: this.SECTION_EDIT
             },
             {
-                text: 'Cancel campaign',
+                text: Uni.I18n.translate('tou.campaigns.cancelCampaign', 'TOU', 'Cancel campaign'),
                 action: 'cancelCampaign',
                 section: this.SECTION_ACTION
             }

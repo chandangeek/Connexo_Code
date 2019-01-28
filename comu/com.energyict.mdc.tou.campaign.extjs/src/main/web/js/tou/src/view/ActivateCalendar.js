@@ -36,14 +36,14 @@ Ext.define('Tou.view.ActivateCalendar', {
                 items: [
                     {
                         itemId: 'wActivation',
-                        boxLabel: 'Send without activation',
+                        boxLabel: Uni.I18n.translate('tou.campaigns.activate.calendar.wActivationLbl', 'TOU', 'Send without activation'),
                         name: me.groupName,
                         inputValue: 'withoutActivation',
                         checked: true
                     },
                     {
                          itemId: 'Immediately',
-                         boxLabel: 'Immediately',
+                         boxLabel: Uni.I18n.translate('tou.campaigns.activate.calendar.immediatelyLbl', 'TOU', 'Immediately'),
                          name: me.groupName,
                          inputValue: 'immediately',
                          checked: false
@@ -52,7 +52,7 @@ Ext.define('Tou.view.ActivateCalendar', {
                         itemId: 'ByDate',
                         id: 'TouByDate',
                         name: me.groupName,
-                        boxLabel: 'On',
+                        boxLabel: Uni.I18n.translate('tou.campaigns.activate.calendar.byDateLbl', 'TOU', 'On'),
                         inputValue: 'onDate',
                         margin: '7 0 0 0'
                     }
@@ -100,13 +100,6 @@ Ext.define('Tou.view.ActivateCalendar', {
                 dateField = me.down('#uploadFileDateContainer');
 
             if (radiogroup) return radiogroup.getValue()[me.groupName];
-
-            var activationDateValue = radiogroup.getValue();
-
-            if (activationDateValue && activationDateValue[me.groupName] == 'ByDate') {
-                return dateField.getValue().getTime().toString();
-            }
-            return activationDateValue[me.groupName];
         };
 
         me.getDateValue = function () {

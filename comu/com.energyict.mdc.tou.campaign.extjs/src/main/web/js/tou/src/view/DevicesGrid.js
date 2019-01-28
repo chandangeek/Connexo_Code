@@ -24,7 +24,7 @@ Ext.define('Tou.view.DevicesGrid', {
 
         me.columns = [
             {
-                header: 'Name',
+                header: Uni.I18n.translate('general.name', 'TOU', 'Name'),
                 dataIndex: 'device',
                 flex: 2,
                 renderer: function (value) {
@@ -32,7 +32,7 @@ Ext.define('Tou.view.DevicesGrid', {
                 }
             },
             {
-                header: 'Status',
+                header: Uni.I18n.translate('general.status', 'TOU', 'Status'),
                 dataIndex: 'status',
                 flex: 1,
                 renderer: function (value, metaData) {
@@ -63,7 +63,7 @@ Ext.define('Tou.view.DevicesGrid', {
                 }
             },
             {
-                header: 'Started on',
+                header: Uni.I18n.translate('general.startedOn', 'TOU', 'Started on'),
                 dataIndex: 'startedOn',
                 flex: 1,
                 renderer: function (value) {
@@ -71,7 +71,7 @@ Ext.define('Tou.view.DevicesGrid', {
                 }
             },
             {
-                header: 'Finished on',
+                header: Uni.I18n.translate('general.finishedOn', 'TOU', 'Finished on'),
                 dataIndex: 'finishedOn',
                 flex: 1,
                 renderer: function (value) {
@@ -111,16 +111,16 @@ Ext.define('Tou.view.DevicesGrid', {
                 itemId: 'tou-campaigns-devices-grid-paging-toolbar-top',
                 dock: 'top',
                 store: me.store,
-                displayMsg: '{0} - {1} of {2} devices',
-                displayMoreMsg: '{0} - {1} of more than {2} devices',
-                emptyMsg: 'There are no devices to display'
+                displayMsg: Uni.I18n.translate('tou.campaigns.devices.pagingtoolbartop.displayMsg', 'FWC', '{0} - {1} of {2} devices'),
+                displayMoreMsg: Uni.I18n.translate('tou.campaigns.devices.pagingtoolbartop.displayMoreMsg', 'FWC', '{0} - {1} of more than {2} devices'),
+                emptyMsg: Uni.I18n.translate('tou.campaigns.devices.pagingtoolbartop.emptyMsg', 'FWC', 'There are no devices to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 itemId: 'tou-campaigns-devices-grid-paging-toolbar-bottom',
                 dock: 'bottom',
                 store: me.store,
-                itemsPerPageMsg: 'Devices per page'
+               itemsPerPageMsg: Uni.I18n.translate('tou.campaigns.devices.pagingtoolbarbottom.itemsPerPage', 'FWC', 'Devices per page')
             }
         ];
 

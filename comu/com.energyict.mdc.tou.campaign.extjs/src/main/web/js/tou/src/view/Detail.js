@@ -32,7 +32,7 @@ Ext.define('Tou.view.Detail', {
             {
                 xtype: 'tou-campaigns-detail-form',
                 itemId: 'tou-detail-form',
-                title: 'Details',
+                title: Uni.I18n.translate('general.details', 'TOU', 'Details'),
                 ui: 'large',
                 router: me.router
             }

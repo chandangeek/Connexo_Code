@@ -11,26 +11,26 @@ Ext.define('Tou.controller.History', {
 
     routeConfig: {
         workspace: {
-            title: 'Workspace',
+            title: Uni.I18n.translate('general.workspace', 'TOU', 'Workspace'),
             route: 'workspace',
             disabled: true,
             items: {
                 toucampaigns: {
-                    title: 'ToU campaigns',
+                    title: Uni.I18n.translate('tou.campaigns.touCampaigns', 'TOU', 'ToU campaigns'),
                     route: 'toucampaigns',
                     controller: 'Tou.controller.Overview',
                     action: 'showOverview',
                     privileges: Tou.privileges.TouCampaign.view,
                     items: {
                         add: {
-                            title: 'Add ToU campaign',
+                            title: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU campaign'),
                              route: 'add',
                              controller: 'Tou.controller.Add',
                              action: 'showAdd',
                              privileges: Tou.privileges.TouCampaign.administrate
                         },
                         toucampaign: {
-                           title: 'ToU campaign',
+                           title: Uni.I18n.translate('tou.campaigns.touCampaign', 'TOU', 'ToU campaign'),
                             route: '{touCampaignName}',
                             controller: 'Tou.controller.Detail',
                             action: 'showDetail',
@@ -44,14 +44,14 @@ Ext.define('Tou.controller.History', {
                             },
                             items: {
                                 devices: {
-                                    title: 'Devices',
+                                    title: Uni.I18n.translate('general.devices', 'TOU', 'Devices'),
                                     route: 'devices',
                                     controller: 'Tou.controller.Devices',
                                     action: 'showDevices',
                                     privileges: Tou.privileges.TouCampaign.view
                                 },
                                 edit: {
-                                     title: 'Edit',
+                                     title: Uni.I18n.translate('general.edit', 'TOU', 'Edit'),
                                      route: 'edit',
                                      controller: 'Tou.controller.Overview',
                                      action: 'editCampaign',

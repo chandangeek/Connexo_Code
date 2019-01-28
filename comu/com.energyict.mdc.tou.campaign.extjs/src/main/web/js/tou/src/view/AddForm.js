@@ -38,7 +38,7 @@ Ext.define('Tou.view.AddForm', {
                 xtype: 'textfield',
                 itemId: 'tou-campaign-name',
                 name: 'name',
-                fieldLabel: 'Name',
+                fieldLabel: Uni.I18n.translate('general.name', 'TOU', 'Name'),
                 required: true,
                 allowBlank: false
             },
@@ -46,7 +46,7 @@ Ext.define('Tou.view.AddForm', {
                 xtype: 'combobox',
                 itemId: 'tou-campaign-device-type',
                 name: 'deviceType',
-                fieldLabel: 'Device type',
+                fieldLabel: Uni.I18n.translate('general.deviceType', 'TOU', 'Device type'),
                 required: true,
                 allowBlank: false,
                 store: 'Tou.store.DeviceTypes',
@@ -62,7 +62,7 @@ Ext.define('Tou.view.AddForm', {
             },
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: 'Device group',
+                fieldLabel: Uni.I18n.translate('general.deviceGroup', 'TOU', 'Device group'),
                 itemId: 'tou-campaign-device-group-field-container',
                 required: true,
                 allowBlank: false,
@@ -86,7 +86,7 @@ Ext.define('Tou.view.AddForm', {
             },
             {
                 xtype: 'timeInHoursAndMinutes',
-                fieldLabel: 'Time boundary start',
+                fieldLabel: Uni.I18n.translate('general.timeBoundaryStart', 'TOU', 'Time boundary start'),
                 name: 'activationStart',
                 itemId: 'activationStart',
                 required: true,
@@ -94,7 +94,7 @@ Ext.define('Tou.view.AddForm', {
             },
             {
                 xtype: 'timeInHoursAndMinutes',
-                fieldLabel: 'Time boundary end',
+                fieldLabel: Uni.I18n.translate('general.timeBoundaryEnd', 'TOU', 'Time boundary end'),
                 name: 'activationEnd',
                 itemId: 'activationEnd',
                 required: true,
@@ -105,7 +105,7 @@ Ext.define('Tou.view.AddForm', {
                 itemId: 'activate-calendar',
                 id: 'tou-activate-calendar',
                 name: 'activation',
-                fieldLabel: 'Activate calendar',
+                fieldLabel: Uni.I18n.translate('general.activateCalendar', 'TOU', 'Activate calendar'),
                 required: true,
                 allowBlank: false,
                 hidden: true,
@@ -114,15 +114,15 @@ Ext.define('Tou.view.AddForm', {
                 xtype: 'radiogroup',
                 itemId: 'tou-update-type',
                 name: 'updateOption',
-                fieldLabel: 'Update',
+                fieldLabel: Uni.I18n.translate('general.updateOption', 'TOU', 'Update'),
                 required: true,
                 hidden: true,
                 vertical: true,
                 columns: 1,
                 renderTo: Ext.getBody(),
                 items: [
-                   {id : 'fullCalendar', boxLabel : 'Full calendar', inputValue: 'fullCalendar', checked: true, name : 'updateType'},
-                   {id : 'specialDays', boxLabel : 'Only special days', inputValue: 'specialDays', name : 'updateType'}
+                   {id : 'fullCalendar', boxLabel : Uni.I18n.translate('general.fullCalendar', 'TOU', 'Full calendar'), inputValue: 'fullCalendar', checked: true, name : 'updateType'},
+                   {id : 'specialDays', boxLabel : Uni.I18n.translate('general.specialDays', 'TOU', 'Only special days'), inputValue: 'specialDays', name : 'updateType'}
                 ],
                 width: 1000
             },
@@ -131,7 +131,7 @@ Ext.define('Tou.view.AddForm', {
                 id: 'tou-period-values',
                 xtype: 'fieldcontainer',
                 name: 'timeValidation',
-                fieldLabel: 'Timeout before validation',
+                fieldLabel: Uni.I18n.translate('general.touTimeout', 'TOU', 'Timeout before validation'),
                 margin: '30 0 10 0',
                 required: true,
                 layout: 'hbox',
@@ -159,11 +159,7 @@ Ext.define('Tou.view.AddForm', {
                         listeners: {
                             afterrender: function() {
                                   var defaultVal = this.store.getAt('1');
-                                  //var periodCombo = this;
-                                  //periodCombo.setRawValue(periodCombo.getStore().findRecord('name',validationTimeout.timeUnit).get('displayValue'));
-                                  //periodNumber.setValue(validationTimeout.id);
                                   this.setValue(defaultVal);
-                                  //this.select(defaultVal, true);
                                 }
                         }
                     }
@@ -173,10 +169,9 @@ Ext.define('Tou.view.AddForm', {
                    xtype: 'combobox',
                    itemId: 'tou-campaign-allowed-calendar',
                    name: 'сalendar',
-                   fieldLabel: 'Tou calendar',
+                   fieldLabel: Uni.I18n.translate('general.touCalendar', 'TOU', 'Tou calendar'),
                    required: true,
                    allowBlank: false,
-                   //store: 'Tou.store.AllowedCalendar',
                    forceSelection: true,
                    queryMode: 'local',
                    displayField: 'name',
@@ -194,14 +189,14 @@ Ext.define('Tou.view.AddForm', {
                     {
                         xtype: 'button',
                         itemId: 'btn-add-tou-campaign',
-                        text: 'Add',
+                        text: Uni.I18n.translate('general.add', 'TOU', 'Add'),
                         ui: 'action',
                         action: me.action
                     },
                     {
                         xtype: 'button',
                         itemId: 'btn-cancel-add-tou-campaign',
-                        text: 'Cancel',
+                        text: Uni.I18n.translate('general.cancel', 'TOU', 'Cancel'),
                         ui: 'link',
                         action: 'cancel',
                         href: me.returnLink

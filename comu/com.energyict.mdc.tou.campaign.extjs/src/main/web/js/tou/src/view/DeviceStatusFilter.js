@@ -11,27 +11,27 @@ Ext.define('Tou.view.DeviceStatusFilter', {
         var me = this,
             statusOptions = [
                 {
-                    display: 'Successful',
+                    display: Uni.I18n.translate('touManagementDeviceStatus.successful', 'TOU', 'Successful'),
                     value: 'SUCCESSFUL'
                 },
                 {
-                    display: 'Failed',
+                    display: Uni.I18n.translate('touManagementDeviceStatus.failed', 'TOU', 'Failed'),
                     value: 'FAILED'
                 },
                 {
-                    display: 'Configuration Error',
+                    display: Uni.I18n.translate('touManagementDeviceStatus.rejected', 'TOU', 'Configuration Error'),
                     value: 'REJECTED'
                 },
                 {
-                    display: 'Ongoing',
+                    display: Uni.I18n.translate('touManagementDeviceStatus.ongoing', 'TOU', 'Ongoing'),
                     value: 'ONGOING'
                 },
                 {
-                    display: 'Pending',
+                    display: Uni.I18n.translate('touManagementDeviceStatus.pending', 'TOU', 'Pending'),
                     value: 'PENDING'
                 },
                 {
-                    display: 'Cancelled',
+                    display: Uni.I18n.translate('touManagementDeviceStatus.cancelled', 'TOU', 'Cancelled'),
                     value: 'CANCELLED'
                 }
             ];
@@ -43,7 +43,7 @@ Ext.define('Tou.view.DeviceStatusFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'status',
-                emptyText: 'Status',
+                emptyText: Uni.I18n.translate('general.status', 'TOU', 'Status'),
                 itemId: 'status-filter',
                 multiSelect: true,
                 options: statusOptions

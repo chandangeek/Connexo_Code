@@ -42,7 +42,7 @@ Ext.define('Tou.view.DetailForm', {
                 items: [
                     {
                         itemId: 'name-field',
-                        fieldLabel: 'Name',
+                        fieldLabel: Uni.I18n.translate('general.name', 'TOU', 'Name'),
                         name: 'name',
                         renderer: function (value, field) {
                             var result = '';
@@ -57,7 +57,7 @@ Ext.define('Tou.view.DetailForm', {
                     },
                     {
                         itemId: 'device-type-field',
-                        fieldLabel: 'Device type',
+                        fieldLabel:  Uni.I18n.translate('general.deviceType', 'TOU', 'Device type'),
                         name: 'deviceType',
                         renderer: function (value) {
                             return value && value.id ? '<a href="' + me.router.getRoute('administration/devicetypes/view').buildUrl({deviceTypeId: value.id}) + '">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
@@ -67,7 +67,7 @@ Ext.define('Tou.view.DetailForm', {
                         itemId: 'activation-field',
                         xtype: 'displayfield',
                         name: 'timeBoundary',
-                        fieldLabel: 'Time boundary',
+                        fieldLabel: Uni.I18n.translate('general.timeBoundary', 'TOU', 'Time boundary'),
                         renderer: function (value) {
                             var res = '-';
                             if (value){
@@ -78,7 +78,7 @@ Ext.define('Tou.view.DetailForm', {
                     },
                     {
                         itemId: 'update-type-field',
-                        fieldLabel: 'Update type',
+                        fieldLabel: Uni.I18n.translate('general.updateType', 'TOU', 'Update type'),
                         name: 'updateType',
                         renderer: function (value) {
                             var res = '-';
@@ -100,7 +100,7 @@ Ext.define('Tou.view.DetailForm', {
                     },
                     {
                           itemId: 'calendar-field',
-                          fieldLabel: 'Calendar',
+                          fieldLabel: Uni.I18n.translate('general.calendar', 'TOU', 'Calendar'),
                           name: 'calendar',
                           renderer: function (value) {
                                 return value && value.name ? '<span>' + value.name + '</span>' : '-'
@@ -108,7 +108,7 @@ Ext.define('Tou.view.DetailForm', {
                     },
                     {
                           itemId: 'activation-date-field',
-                          fieldLabel: 'Activate calendar',
+                          fieldLabel: Uni.I18n.translate('general.activateCalendar', 'TOU', 'Activate calendar'),
                           name: 'activationOption',
                           renderer: function (value) {
                                 var res = '-';
@@ -135,7 +135,7 @@ Ext.define('Tou.view.DetailForm', {
                     },
                     {
                           itemId: 'time-validation-field',
-                          fieldLabel: 'Timeout before validation',
+                          fieldLabel: Uni.I18n.translate('general.touTimeout', 'TOU', 'Timeout before validation'),
                           name: 'timeValidation',
                           renderer: function (validationTimeout) {
                                var res = "-";
@@ -165,7 +165,7 @@ Ext.define('Tou.view.DetailForm', {
                 items: [
                     {
                         itemId: 'status-field',
-                        fieldLabel: 'Status',
+                        fieldLabel: Uni.I18n.translate('general.status', 'TOU', 'Status'),
                         name: 'status',
                         renderer: function (value) {
                             return value ? value : '-';
@@ -173,7 +173,7 @@ Ext.define('Tou.view.DetailForm', {
                     },
                     {
                           itemId: 'devices-field',
-                          fieldLabel: 'Devices',
+                          fieldLabel: Uni.I18n.translate('general.devices', 'TOU', 'Devices'),
                           name: 'devices',
                           renderer: function (value, field) {
                               var result = '';
@@ -219,7 +219,7 @@ Ext.define('Tou.view.DetailForm', {
                     {
                           itemId: 'started-on-field',
                           fieldLabel: 'Started on',
-                          name: 'startedOn',
+                          name: Uni.I18n.translate('general.startedOn', 'TOU', 'startedOn'),
                           renderer: function (value) {
                                 return value ? '<span>' + Uni.DateTime.formatDateTimeShort(value) + '</span>' : '-'
                           }
@@ -227,7 +227,7 @@ Ext.define('Tou.view.DetailForm', {
                     {
                           itemId: 'finished-on-field',
                           fieldLabel: 'Finished on',
-                          name: 'finishedOn',
+                          name: Uni.I18n.translate('general.finishedOn', 'TOU', 'finishedOn'),
                           renderer: function (value) {
                                  return value ? '<span>' + Uni.DateTime.formatDateTimeShort(value) + '</span>' : '-'
                           }

@@ -148,7 +148,7 @@ Ext.define('Tou.controller.Add', {
         record.save({
             backUrl: page.returnLink,
             success: function (record, operation) {
-                me.getApplication().fireEvent('acknowledge', 'ToU campaign added');
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.campaigns.addSuccess', 'TOU', 'Time of use campaign added'));
                 if (page.rendered) {
                     window.location.href = page.returnLink;
                 }
@@ -213,7 +213,7 @@ Ext.define('Tou.controller.Add', {
             headers: { 'Content-Type': 'application/json' },
             jsonData: form.campaignRecordBeingEdited.data, // can be any object or JSON string
             success: function(response, opts) {
-                me.getApplication().fireEvent('acknowledge', 'Time of use campaign saved');
+                me.getApplication().fireEvent('acknowledge',  Uni.I18n.translate('tou.campaigns.saveSuccess', 'TOU', 'Time of use campaign saved'));
                 if (page.rendered) {
                       window.location.href = page.returnLink;
                 }

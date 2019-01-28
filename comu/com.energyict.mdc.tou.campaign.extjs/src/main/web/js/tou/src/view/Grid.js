@@ -17,7 +17,7 @@ Ext.define('Tou.view.Grid', {
     initComponent: function () {
         var me = this;
         me.columns = [{
-            header: 'Name',
+            header: Uni.I18n.translate('general.name', 'TOU', 'Name'),
             dataIndex: 'name',
             flex: 2,
             renderer: function (value, metaData, record) {
@@ -25,7 +25,7 @@ Ext.define('Tou.view.Grid', {
             }
         },
         {
-             header: 'Device type',
+             header: Uni.I18n.translate('general.deviceType', 'TOU', 'Device type'),
              dataIndex: 'deviceType',
              flex: 2,
              renderer: function (value) {
@@ -33,7 +33,7 @@ Ext.define('Tou.view.Grid', {
              }
         },
         {
-              header: 'Update type',
+              header: Uni.I18n.translate('general.updateType', 'TOU', 'Update type'),
               dataIndex: 'updateType',
               flex: 1,
               renderer: function (value) {
@@ -55,7 +55,7 @@ Ext.define('Tou.view.Grid', {
               }
         },
         {
-              header: 'Сalendar',
+              header: Uni.I18n.translate('general.calendar', 'TOU', 'Calendar'),
               dataIndex: 'calendar',
               flex: 1,
               renderer: function (value) {
@@ -63,7 +63,7 @@ Ext.define('Tou.view.Grid', {
               }
         },
         {
-            header: 'Status',
+            header: Uni.I18n.translate('general.status', 'TOU', 'Calendar'),
             dataIndex: 'status',
             flex: 1,
             renderer: function (value) {
@@ -71,7 +71,7 @@ Ext.define('Tou.view.Grid', {
             }
         },
         {
-              header: 'Devices',
+              header: Uni.I18n.translate('general.devices', 'TOU', 'Devices'),
               dataIndex: 'devices',
               flex: 2,
               renderer: function (value, field) {
@@ -115,7 +115,7 @@ Ext.define('Tou.view.Grid', {
                        return result;
               }
         },{
-            header: 'Started on',
+            header: Uni.I18n.translate('general.startedOn', 'TOU', 'startedOn'),
             dataIndex: 'startedOn',
             flex: 2,
             renderer: function (value) {
@@ -142,13 +142,13 @@ Ext.define('Tou.view.Grid', {
                         itemId: 'tou-campaigns-grid-paging-toolbar-top',
                         dock: 'top',
                         store: me.store,
-                        displayMsg: 'ToU campaigns',
-                        displayMoreMsg: 'ToU campaigns',
-                        emptyMsg: 'There are no ToU campaigns to display',
+                        displayMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.displayMsg', 'TOU', '{0} - {1} of {2} firmware campaigns'),
+                        displayMoreMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.displayMoreMsg', 'TOU', '{0} - {1} of more than {2} firmware campaigns'),
+                        emptyMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.emptyMsg', 'TOU', 'There are no firmware campaigns to display'),
                         items: [
                             {
                                 itemId: 'tou-campaigns-add-button',
-                                text: 'Add ToU campaign',
+                                text: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU campaign'),
                                 action: 'addTouCampaign',
                                 href: me.router.getRoute('workspace/toucampaigns/add').buildUrl(),
                                 privileges: Tou.privileges.TouCampaign.administrate
@@ -160,7 +160,7 @@ Ext.define('Tou.view.Grid', {
                         itemId: 'tou-campaigns-grid-paging-toolbar-bottom',
                         dock: 'bottom',
                         store: me.store,
-                        itemsPerPageMsg: 'ToU campaigns per page'
+                        itemsPerPageMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbarbottom.itemsPerPage', 'TOU', 'ToU campaigns per page')
                     }
                 ];
 

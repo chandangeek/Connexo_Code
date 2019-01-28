@@ -79,7 +79,7 @@ Ext.define('Tou.controller.Overview', {
     onCancelCampaign : function(record) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
-                confirmText: 'Cancel campaign',
+                confirmText: Uni.I18n.translate('tou.campaigns.cancelCampaign', 'TOU', 'Cancel campaign'),
                 confirmation: function () {
                     me.doCancelCampaign(record);
                     this.close();
@@ -87,8 +87,8 @@ Ext.define('Tou.controller.Overview', {
             });
 
         confirmationWindow.show({
-            msg: 'Cancel time of use calendar upload for all scheduled devices. Ongoing uploads will not be terminated and successful uploads will not be reversed.',
-            title: 'Cancel ToU campaign?'
+            msg: Uni.I18n.translate('tou.campaigns.cancel.msg', 'TOU', 'Cancel time of use calendar upload for all scheduled devices. Ongoing uploads will not be terminated and successful uploads will not be reversed.'),
+            title: Uni.I18n.translate('tou.campaigns.cancel.title', 'TOU', 'Cancel ToU campaign "{0}"?', record.get('name'))
         });
     },
 
@@ -101,7 +101,7 @@ Ext.define('Tou.controller.Overview', {
         	      	params: {
         			},
         	   	success: function(transport){
-                    me.getApplication().fireEvent('acknowledge', 'Cancelling of the campaign has started and will continue in the background');
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.campaigns.cancelled', 'TOU', 'Cancelling of the campaign has started and will continue in the background'));
                     //record.set('status', {id: "CANCELLED", localizedValue: "Cancelled"});
                     //me.showPreview('', record);
         	   	},
@@ -133,7 +133,7 @@ Ext.define('Tou.controller.Overview', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.down('#tou-campaigns-add-form').setLoading(true);
-        widget.down('#btn-add-tou-campaign').setText('Save');
+        widget.down('#btn-add-tou-campaign').setText(Uni.I18n.translate('general.save', 'TOU', 'Save'));
         Ext.Array.each(dependencies, function (store) {
             me.getStore(store).load(onDependenciesLoaded);
         });
@@ -148,7 +148,7 @@ Ext.define('Tou.controller.Overview', {
         model.load(campaignName, {
             success: function (campaignRecord) {
                 editView.down('tou-campaigns-add-form').setTitle(
-                    'Edit time of use campaign'
+                    Uni.I18n.translate('tou.campaigns.editFirmwareCampaign', 'TOU', 'Edit time of use campaign')
                 );
                 me.getApplication().fireEvent('loadTouCampaign', campaignRecord);
                 editForm.loadRecordForEdit(campaignRecord);
