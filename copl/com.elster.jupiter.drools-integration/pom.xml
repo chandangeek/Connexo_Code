@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>10.6.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Nessus</version>
     </parent>
 
     <artifactId>drools-integration</artifactId>
