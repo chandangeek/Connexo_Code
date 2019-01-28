@@ -50,14 +50,12 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
 
                 for (PropertySpec propertySpec : deviceMessageSpec.get().getPropertySpecs()) {
                     if (queueMessage.properties.containsKey(propertySpec.getName())) {
-                        String stringValue = queueMessage.properties.get(propertySpec.getName());
-                        Object convertedValue = null;
+                        Object value = queueMessage.properties.get(propertySpec.getName());
                         try {
-                            convertedValue = propertySpec.getValueFactory().fromStringValue(stringValue);
-                            deviceMessageBuilder.addProperty(propertySpec.getName(), convertedValue);
-                            LOGGER.info(String.format("Set property '%s' on device command '%s' to value '%s'", propertySpec.getName(), queueMessage.deviceMessageId, convertedValue));
+                            deviceMessageBuilder.addProperty(propertySpec.getName(), value);
+                            LOGGER.info(String.format("Set property '%s' on device command '%s' to value '%s'", propertySpec.getName(), queueMessage.deviceMessageId, value));
                         } catch (Exception e) {
-                            LOGGER.log(Level.SEVERE, String.format("Failed to set property '%s' on device command '%s': value '%s' was refused: %s", propertySpec.getName(), queueMessage.deviceMessageId, convertedValue, e.getMessage()));
+                            LOGGER.log(Level.SEVERE, String.format("Failed to set property '%s' on device command '%s': value '%s' was refused: %s", propertySpec.getName(), queueMessage.deviceMessageId, value, e.getMessage()));
                         }
                     }
                 }

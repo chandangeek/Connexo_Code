@@ -76,7 +76,7 @@ sub dircopy {
 	my @dirlist=($_[0]);
 	my @dircopy=($_[1]);
 	until (scalar(@dirlist)==0) {
-		mkdir "$dircopy[0]";
+		make_path("$dircopy[0]");
 		opendir my($dh),$dirlist[0];
 		my @filelist=grep {!/^\.\.?$/} readdir $dh;
 		for my $i (0..scalar(@filelist)-1) {
@@ -965,11 +965,7 @@ sub start_tomcat {
 			}
 
 			chdir "$CONNEXO_DIR";
-			if ("$ACTIVATE_SSO" eq "yes") {
-                system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
-            } else {
-                system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
-            }
+			system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
 			unlink("$CONNEXO_DIR/datasource.xml");
 		}
 
@@ -1018,6 +1014,7 @@ sub start_tomcat {
 
             print "\nDeploy INSIGHT processes...\n";
             dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
+            change_owner();
             my $insightfile = "$CONNEXO_DIR/partners/flow/insight/processes.csv";
             if(-e $insightfile){
                 open(INPUT, $insightfile);

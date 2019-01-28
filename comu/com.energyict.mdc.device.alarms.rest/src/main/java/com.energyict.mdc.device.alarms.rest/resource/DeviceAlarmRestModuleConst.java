@@ -20,7 +20,9 @@ public class DeviceAlarmRestModuleConst {
     public static final String METER = "meter";
     public static final String DUE_DATE = "dueDate";
     public static final String CLEARED = "cleared";
-    public static final String START_INTERVAL = "startIntervalFrom";
-    public static final String END_INTERVAL = "startIntervalTo";
+    public static final String
+            START_INTERVAL_FROM_TO = "startInterval";
+    public static final String START_INTERVAL_FROM = "startIntervalFrom";
+    public static final String START_INTERVAL_TO = "startIntervalTo";
 
 }

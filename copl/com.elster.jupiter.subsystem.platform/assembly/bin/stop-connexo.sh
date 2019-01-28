@@ -1,4 +1,2 @@
 #!/bin/sh
-PID=`ps auxw|pgrep start-connexo`
-pkill -P $PID
-
+killall start-connexo.sh
