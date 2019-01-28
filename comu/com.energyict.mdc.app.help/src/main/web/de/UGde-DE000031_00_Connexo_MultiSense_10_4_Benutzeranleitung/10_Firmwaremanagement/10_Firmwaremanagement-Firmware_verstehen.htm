@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Firmware verstehen</title>
+
+ <link rel="stylesheet" href="10_Firmwaremanagement.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "11.0_2";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/10_Firmwaremanagement/10_Firmwaremanagement-.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/10_Firmwaremanagement/10_Firmwaremanagement-Firmwaremanagement_konfigurieren.htm">
+ <meta name="topic-breadcrumbs" content="10 Firmwaremanagement" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H2Section">Firmware verstehen</p>
+  <p dir="ltr" class="FM_H4Topic">Was ist Firmware </p>
+  <p dir="ltr" class="FM_Body">Firmware ist die Software des Geräts. Es gibt verschiedene Arten Firmware. Zwei Exemplare sind die Messgerätefirmware und Kommunikationsfirmware. Die Messgerätfirmware enthält alle Messwerte. Die Kommunikationsfirmware enthält alle Funktionen, die benötigt werden, um die Kommunikation zwischen dem Gerät und dem Messwert-Datenerfassungssystem zu ermöglichen. </p>
+  <p dir="ltr" class="FM_Body">Firmware muss aktualisiert werden, wenn neue Versionen mit neuen Funktionen oder Fehlerkorrekturen verfügbar sind. Manchmal kann Firmware auch herabgestuft werden, wenn die aktuelle Version Fehler enthält.</p>
+  <p dir="ltr" class="FM_H4Topic"><a name="XREF_73116_How_is_firmware"></a>Wie wird Firmware verwaltet in <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span></p>
+  <p dir="ltr" class="FM_Body">In <span data-name="MDC_App" data-val="MultiSense" data-showval="TRUE" data-format="MDC_App">MultiSense</span>&#160;besteht Firmwaremanagement aus verschiedenen Funktionen, die auf verschiedenen Ebenen konfiguriert werden. Die erste Funktion, die bei der Bestimmung der Firmwaremanagement-Optionen hilft, ist das <span class="FM_Bold">Kommunikationsprotokoll</span><span style="font-weight : normal; ">, das vom Gerätetyp verwendet wird. Das Kommunikationsprotokoll definiert, wie Kommunikationsserver und Gerät kommunizieren und darum, ob es möglich ist Firmware hochzuladen und welche Optionen verfügbar sind.</span></p>
+  <p dir="ltr" class="FM_Body">Das Kommunikationsprotokoll ist dann mit einem <span class="FM_Bold">Gerätetyp</span><span style="font-weight : normal; ">&#160;verbunden. Ein Gerätetyp bestimmt Funktionalitäten, die für alle Geräte, die diesen Gerätetyp nutzen, gleich sind. Im Gerätetypen können Sie Firmwaremanagement-Optionen konfigurieren. Zuerst selektieren Sie, ob es möglich ist Firmware zu einem Gerät hochzuladen und zweitens selektieren Sie, welche Optionen verfügbar sind, um die Firmwareversion zu aktivieren. Diese Optionen sind: Später aktivieren, sofort aktivieren oder Verwendung eines Aktivierungsdatums. Für weitere Informationen, siehe </span><a href="10_Firmwaremanagement-Firmware-Optionen_verwalten.htm#XREF_63564_Understand"><span style="font-weight : normal; "></span><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">Firmwaremanagement-Optionen verstehen”</span></a>.</p>
+  <p dir="ltr" class="FM_Body">Im nächsten Schritt müssen Sie die <span class="FM_Bold">Firmwarespezifischen Kommunikationsaufgaben</span><span style="font-weight : normal; ">&#160;konfigurieren. Die Konfiguration der Firmwarekommunikationsaufgaben ist standardmäßig verfügbar und enthält den Upload der Firmware. Diese Kommunikationsaufgabe muss noch immer in der </span><span class="FM_UIRef">Gerätekonfiguration</span><span style="font-weight : normal; ">&#160;weiter konfiguriert werden. &#160;Es ist wichtig die </span><span class="FM_Bold">Verbindung</span><span style="font-weight : normal; ">&#160;und den </span><span class="FM_Bold">Protokolldialekt</span><span style="font-weight : normal; ">&#160;sowie die </span><span class="FM_Bold">Sicherheitseinstellungen</span><span style="font-weight : normal; ">&#160;zu konfigurieren, da Firmwareaufgaben eine große Dateigröße haben und sehr sicher sein müssen. </span></p>
+  <p dir="ltr" class="FM_Body">Neben der Kommunikationsaufgabe für den Firmware-Upload gibt es auch eine Handlung, um die Version der Firmware zu prüfen. Diese Handlung “Statusinformation” kann zu einer Kommunikationsaufgabe gefügt werden und muss später in der Gerätekonfiguration konfiguriert werden.</p>
+  <p dir="ltr" class="FM_Body">Am <span class="FM_Bold">Gerät</span><span class="FM_Bold" style="font-weight : normal; ">&#160;</span><span style="font-weight : normal; ">&#160;selber können Sie das Kommando zum Hochladen der Firmware aktivieren. Die verfügbaren Optionen werden vom Kommunikationsprotokoll und den Firmwaremanagement-Optionen am Gerätetypen bestimmt, wie oben beschrieben.</span></p>
+  <p dir="ltr" class="FM_Body">Die Firmware-Engine behandelt all diese Aktionen und schickt die Befehle an das Gerät.</p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+   <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Abbildung: Wie Firmwaremanagement in Connexo konfiguriert wird</caption>
+   <tr class="tr102">
+   <td class="td6">
+   <p dir="ltr" class="FM_CGraphicCell"><img alt="Firmware_management_v2.png" id="image226" src="../../assets/Firmware_management_v2.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+  </table>
+ </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,4 @@
+(function() {
+var toc =  [{"type":"item","name":"24 Suchen","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/24_Suchen/24_Suchen-.htm"},{"type":"item","name":"Suche Connexo","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/24_Suchen/24_Suchen-Suche_Connexo.htm"},{"type":"item","name":"Weiterführende Suche","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/24_Suchen/24_Suchen-Weiterfhrende_Suche-cbc.htm"},{"type":"item","name":"Sammelaktionen bei Suchergebnissen","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/24_Suchen/24_Suchen-Sammelaktionen_bei_Suchergebnissen.htm"},{"type":"item","name":"Sammelaktionen bei Suchergebnissen für Geräte ausführen","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/24_Suchen/24_Suchen-Sammelaktionen_bei_Suchergebnissen_fr_Gerte_ausfhren-vme40kna.htm"}];
+window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, { sync:true });
+})();

@@ -1,0 +1,1 @@
+gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"17 Rechtshinweise\"><item name=\"17 Rechtshinweise\" url=\"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/17_Rechtshinweise/17_Rechtshinweise.htm\" /></data>";

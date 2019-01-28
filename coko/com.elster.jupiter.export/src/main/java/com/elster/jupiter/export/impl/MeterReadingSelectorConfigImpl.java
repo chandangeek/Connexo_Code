@@ -64,7 +64,7 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
 
     @Override
     public EndDeviceGroup getEndDeviceGroup() {
-          return findEndDeviceGroupById();    //lori - aici nu gaseste groupId-ul
+          return findEndDeviceGroupById();
     }
 
     @Override

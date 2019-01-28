@@ -1,0 +1,4 @@
+(function() {
+var toc =  [{"type":"item","name":"20 Datenimport","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/20_Datenimport/20_Datenimport-.htm"},{"type":"item","name":"Datenimport verstehen","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/20_Datenimport/20_Datenimport-Datenimport_verstehen.htm"},{"type":"item","name":"Dateien importieren","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/20_Datenimport/20_Datenimport-Dateien_importieren.htm"},{"type":"item","name":"Datenimport überwachen","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/20_Datenimport/20_Datenimport-Datenimport_berwachen-kic.htm"}];
+window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, { sync:true });
+})();

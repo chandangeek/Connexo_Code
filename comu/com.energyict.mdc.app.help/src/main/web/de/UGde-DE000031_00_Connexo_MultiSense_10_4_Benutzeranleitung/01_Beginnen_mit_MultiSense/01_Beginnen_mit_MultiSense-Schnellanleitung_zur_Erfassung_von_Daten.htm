@@ -1,0 +1,151 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Schnellanleitung zur Erfassung von Daten</title>
+
+ <link rel="stylesheet" href="01_Beginnen_mit_MultiSense.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "2.0_6";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/01_Beginnen_mit_MultiSense/01_Beginnen_mit_MultiSense-Einfhrung_in_MultiSense-fpc.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/01_Beginnen_mit_MultiSense/01_Beginnen_mit_MultiSense-Das_Instrumentenbrett.htm">
+ <meta name="topic-breadcrumbs" content="01 Beginnen mit MultiSense" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H2Section"><a name="XREF_71612_1_4_Quick_guide_to"></a>Schnellanleitung zur Erfassung von Daten</p>
+  <p dir="ltr" class="FM_H4Topic">Einleitung</p>
+  <p dir="ltr" class="FM_Body"><span data-name="Product_name" data-val="Connexo MultiSense" data-showval="TRUE" data-format="Product_name">Connexo MultiSense</span>&#160;wurde so entwickelt, das es einen logischen Arbeitsablauf von der Einstellung und Konfiguration der Geräte bis zur letztendlichen Erfassung von Daten und Analyse des Datenerfassungsprozesses mit den erfassten Daten ermöglicht. Viele Eigenschaften sind in einer höheren Ebene definiert, die so genannten Gerätetypen. Damit können Sie Einstellungen für mehrere Geräte wiederverwenden. Gerätespezifische Funktionen werden dann in der Konfiguration des Geräts selbst angegeben.</p>
+  <p dir="ltr" class="FM_BodyGrey"><span style="font-family : Lato; font-weight : bold; color   : #686868; "></span>Ein <span class="FM_Bold_midgrey">Gerät</span>&#160;repräsentiert ein physikalisches Element (im Raster). Das kann z.B. ein Messgerät, ein Konzentrator, ein Gateway, ein Home Display usw. sein.</p>
+  <p dir="ltr" class="FM_BodyGrey">Ein <span class="FM_Bold_midgrey">Gerätetyp</span>&#160;definiert die Möglichkeiten eines physikalischen Geräts. &#160;Jedes Gerät hat genau einen Gerätetypen, der definiert, welche Daten (wie Register, Belastungsprofile und Logbücher) gelesen werden können und welche Kommunikationsprotokolle zum Lesen verwendet werden. Ein Gerätetyp kartiert ein einziges physikalisches Gerätemodell, aber Geräte dieses Modells können verschiedene Möglichkeiten haben. Das wird über Gerätekonfigurationen erreicht.</p>
+  <p dir="ltr" class="FM_H4Topic" style="margin-top  : 19.000pt; margin-bottom : 4.000pt; font-size  : 11.0pt;">&nbsp;</p>
+  <p dir="ltr" class="FM_H4Topic">Arbeitsablauf für die dezentrale Datenerfassung<span style="font-weight : normal; "></span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table9" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto">
+   <tr class="tr10">
+   <td class="td11" colspan="2">
+   <p dir="ltr" class="FM_CellBody"><img alt="Workflow_10.1.png" id="image9" src="../../assets/Workflow_10.1.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+   <tr class="tr12">
+   <td class="td13" colspan="2">
+   <p dir="ltr" class="FM_CellBody">Der erste Schritt ist die Konfiguration der &#160;<span class="FM_Bold">Datenquellen</span><span style="font-weight : normal; ">, das ist die Basis für die Erstellung von Gerätetypen. Ein Gerätetyp definiert die physikalischen Möglichkeiten des Geräts, welche Daten gelesen werden können und welches Kommunikationsprotokoll verwendet wird. </span></p>
+</td>
+</tr>
+   <tr class="tr14">
+   <td class="td11" colspan="2">
+   <p dir="ltr" class="FM_CellBody" style="text-align  : center;"><img alt="Blue_arrow.png" id="image10" src="../../assets/Blue_arrow.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+   <tr class="tr12">
+   <td class="td13" colspan="2">
+   <p dir="ltr" class="FM_CellBody">Im nächsten Schritt wird die <span class="FM_Bold">Kommunikations</span><span style="font-weight : normal; ">-Infrastruktur eingestellt, was die Verbindung und Kommunikation mit anderen Geräten ermöglicht. Konfigurieren Sie die Kommunikationsserver und Ports sowie Aufgaben wie Lesen der Register und Programme, wann diese Aufgaben durchgeführt werden. </span></p>
+</td>
+</tr>
+   <tr class="tr14">
+   <td class="td11" colspan="2">
+   <p dir="ltr" class="FM_CellBody" style="text-align  : center;"><img alt="Blue_arrow_1.png" id="image11" src="../../assets/Blue_arrow_1.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+   <tr class="tr15">
+   <td class="td13" colspan="2">
+   <p dir="ltr" class="FM_CellBody">Anschließend wird der <span class="FM_Bold">Gerätetyp konfiguriert</span><span style="font-weight : normal; ">. Das beginnt beim Definieren des Gerätelebenszyklus. Der Gerätetyp folgt. Dann fügen Sie Datenquellen zum Gerätetypen hinzu. Dann konfigurieren Sie die Firmware-Managementoptionen und laden Sie Firmwareversionen hoch. Zum Schluss können mehrere Konfigurationen zu einem Gerätetypen gefügt werden. </span></p>
+</td>
+</tr>
+   <tr class="tr14">
+   <td class="td11" colspan="2">
+   <p dir="ltr" class="FM_CellBody" style="text-align  : center;"><img alt="Blue_arrow_2.png" id="image12" src="../../assets/Blue_arrow_2.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+   <tr class="tr15">
+   <td class="td13" colspan="2">
+   <p dir="ltr" class="FM_CellBody">Zur benutzerdefinierten Anpassung der Funktionalität des Gerätetypen entsprechend dieser bestimmten Gerätekonfiguration wird eine <span class="FM_Bold">Gerätekonfiguration </span><span style="font-weight : normal; ">verwendet. Register, Belastungsprofile, Kanäle und Protokolle werden weiterhin konfiguriert. Die Verbindung und Kommunikationen werden speziell für diese Konfiguration konfiguriert sowie die Validierungs- und Schätzungsregeln.</span></p>
+</td>
+</tr>
+   <tr class="tr14">
+   <td class="td11" colspan="2">
+   <p dir="ltr" class="FM_CellBody" style="text-align  : center;"><img alt="Blue_arrow_3.png" id="image13" src="../../assets/Blue_arrow_3.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+   <tr class="tr12">
+   <td class="td13" colspan="2">
+   <p dir="ltr" class="FM_CellBody">Dann wird das <span class="FM_Bold">Gerät </span><span style="font-weight : normal; "> selbst hinzugefügt. Das kann manuell erfolgen oder aus einer CSV-Datei oder anderen z.B. Webservices importiert werden. Um die Konfiguration dieser Geräte auszuführen, müssen gerätespezifische Parameter angegeben werden (z.B. Verbindungsmethoden, Protokolldialekte, Verbindungsdetails und Sicherheitsdetails).</span></p>
+</td>
+</tr>
+   <tr class="tr14">
+   <td class="td11" colspan="2">
+   <p dir="ltr" class="FM_CellBody" style="text-align  : center;"><img alt="Blue_arrow_4.png" id="image14" src="../../assets/Blue_arrow_4.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+   <tr class="tr15">
+   <td class="td13" colspan="2">
+   <p dir="ltr" class="FM_CellBody">Konfigurieren Sie außerdem Regeln für die <span class="FM_Bold">Validierung</span><span style="font-weight : normal; ">, </span><span class="FM_Bold">Schätzung</span><span style="font-weight : normal; ">&#160;und Erstellung von </span><span class="FM_Bold">Problemen</span><span style="font-weight : normal; ">&#160;und </span><span class="FM_UIRef">Alarmen</span><span style="font-weight : normal; ">&#160;für den Datenerfassungsprozess, die erfassten Daten und die Datenvalidierung. &#160;Die Validierung erfolgt zur Prüfung der Qualität der erfassten Daten. Probleme werden verwendet um Prozesse zu überwachen, aufzuzeichnen, was nicht korrekt verlaufen ist, und das Problem zu beseitigen.</span></p>
+</td>
+</tr>
+   <tr class="tr14">
+   <td class="td11" colspan="2">
+   <p dir="ltr" class="FM_CellBody" style="text-align  : center;"><img alt="Blue_arrow_5.png" id="image15" src="../../assets/Blue_arrow_5.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+   <tr class="tr3">
+   <td class="td13" colspan="2">
+   <p dir="ltr" class="FM_CellBody" style="text-align  : center; font-family : Lato; font-weight : bold;"><span class="FM_Bold">Erfasste Daten anzeigen!</span></p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_H4Topic"><span style="font-weight : normal; "></span></p>
+  </div>
+</body>
+</html>

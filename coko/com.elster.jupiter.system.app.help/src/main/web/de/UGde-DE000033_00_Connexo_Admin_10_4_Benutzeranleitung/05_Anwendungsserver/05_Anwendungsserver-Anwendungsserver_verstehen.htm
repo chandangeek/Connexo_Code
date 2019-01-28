@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Anwendungsserver verstehen</title>
+
+ <link rel="stylesheet" href="05_Anwendungsserver.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "6.0_2";
+</script>
+ <meta name="brsprev" value="UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/05_Anwendungsserver/05_Anwendungsserver-.htm">
+ <meta name="brsnext" value="UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/05_Anwendungsserver/05_Anwendungsserver-Anwendungsserver_berwachen-f0c.htm">
+ <meta name="topic-breadcrumbs" content="05 Anwendungsserver" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H2Section"><span style="font-family : 'Lato Medium'; font-style : italic; font-weight : normal; font-size  : 11.0pt; color   : #1f7e9e; "></span>Anwendungsserver verstehen</p>
+  <p dir="ltr" class="FM_H4Topic">Was sind Anwendungsserver</p>
+  <p dir="ltr" class="FM_Body">Ein Anwendungsserver ist ein Server, der verschiedene Dienste im Hintergrund laufen lässt, die Prozessen ermöglichen, die einen längeren Zeitraum laufen, ohne den Anwender zu behindern. Beispiele für solche Prozesse sind Datenexport und -import und die Berechnung von KPIs.</p>
+  <p dir="ltr" class="FM_Body">Die Dienste, die am Anwendungsserver laufen, werden Nachrichtendienste genannt, da der Server Nachrichten behandelt. Diese Nachrichtenservices können konfiguriert werden, um die Belastung des Systems zu reduzieren. Das kann erreicht werden, indem verschiedene Anwendungsserver für verschiedene Dienste erstellt werden. Beispielsweise können zwei Anwendungsserver für Datenexport erstellt und konfiguriert werden. Das verteilt die Exportnachrichten über die zwei Server, sodass sie gleichzeitig ausgeführt werden können. </p>
+  <p dir="ltr" class="FM_Body">Sie können auch die Threads eines Anwendungsservers anpassen, indem Sie die Anzahl der Threads des Nachrichtendienstes erhöhen. Das bestimmt die Anzahl der Dienste wie Exportaufgaben, die parallel an einem einzigen Server ausgeführt werden können.</p>
+  <p dir="ltr" class="FM_Body">Die Verwendung mehrerer Server sorgt auch für ein stabileres System, da der zweite Server übernehmen kann, wenn ein Server aufgrund von Fehler oder Wartung ausfällt.</p>
+  <p dir="ltr" class="FM_H4Topic">Anwendungsserver in Connexo </p>
+  <p dir="ltr" class="FM_Body">Anwendungsserver in Connexo können unter Verwendung der <span data-name="SystemAdmin_App" data-val="Admin:" data-showval="TRUE" data-format="SystemAdmin_App">Admin:</span>-Anwendung einfach hinzugefügt und verwaltet werden. Wenn Sie einen neuen Anwendungsserver hinzufügen, müssen drei Parameter definiert werden: Ein eindeutiger Name, der Export- und Importpfad und die Nachrichten- und Importdienste.</p>
+  <p dir="ltr" class="FM_Body">Der Exportpfad stellt den Standardpfad ein, in den Dateien und Daten exportiert werden. Dieser Pfad kann jedoch überschrieben werden, wenn Sie eine Exportaufgabe konfigurieren. Achten Sie darauf, wenn Sie mehrere Anwendungsserver für Datenexportaufgaben erstellen, die zusammen gehören, dann ist der Exportpfad der verschiedenen Anwendungsserver derselbe. Ansonsten werden Ihre Daten über verschiedene Standorte verstreut. Dasselbe gilt für Importdienste. </p>
+  <p dir="ltr" class="FM_Body">Standardmäßig werden alle Nachrichtendienste und Importdienste zum Anwendungsserver gefügt, aber diese können einfach gelöscht werden, sodass der Anwendungsserver Ihren Anforderungen entspricht.</p>
+  </div>
+</body>
+</html>

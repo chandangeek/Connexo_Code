@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Einführung</title>
+
+ <link rel="stylesheet" href="07_Sicherheit.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "8.0_2";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/07_Sicherheit/07_Sicherheit-.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/07_Sicherheit/07_Sicherheit-Sicherheitszugangsberechtigte_verwalten.htm">
+ <meta name="topic-breadcrumbs" content="07 Sicherheit" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H2Section">Einführung</p>
+  
+  <p dir="ltr" class="FM_H3SectionTopic">Sicherheit in <span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE" data-format="MDC_App">Connexo MultiSense</span> verstehen</p>
+  <p dir="ltr" class="FM_Body">Für die Kommunikation ist eine Vertrauenskette notwendig, um den Anwender eines Zertifikats zu validieren. Die Vertrauenskette einer Zertifikatkette ist eine geordnete Liste von Zertifikaten, die ein Endverbraucher-Abonnementzertifikat und Zwischenzertifikate enthält. Damit kann der Empfänger verifizieren, dass der Sender und alle Zwischenzertifikate vertrauenswürdig sind. Wenn die Vertrauenskette nicht vollständig ist, wird die Kommunikation abgelehnt.</p>
+  <p dir="ltr" class="FM_Body">Zum Ver- und Entschlüsseln von Inhalten werden Schlüssel verwendet. Je nach Art der Sicherheit stehen verschiedene Schlüsseltypen zur Verfügung.</p>
+  <p dir="ltr" class="FM_Body">Zertifikate und Trust Stores werden in <span data-name="SystemAdmin_App" data-val="Connexo Admin" data-showval="TRUE" data-format="SystemAdmin_App">Connexo Admin</span>&#160;verwaltet. Weitere Informationen entnehmen Sie bitte Kapitel 7 Sicherheit in der <span data-name="SystemAdmin_App" data-val="Connexo Admin" data-showval="TRUE" data-format="SystemAdmin_App">Connexo Admin</span>&#160;Gebrauchsanweisung. In <span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE" data-format="MDC_App">Connexo MultiSense</span>, sind Trust Stores und Zertifikate mit Gerätetypen verbunden. Diese Objekte können dann später bei protokollbezogenen Funktionen wie Verbindungsmethode an der Gerätekonfiguration spezifiziert werden. Am Gerät selbst können Sie die Schlüsselwerte definieren. Die nachfolgende Abbildung zeigt eine Übersicht der Sicherheit in <span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE" data-format="MDC_App">Connexo MultiSense</span>. Nachfolgend finden Sie detailliertere Informationen.</p>
+  <p dir="ltr" class="FM_Body">Für die E<span class="FM_change_bar" style="font-weight : normal; ">instellung der Sicherheitskonfiguration in Connexo, wo Connexo als Kunde dient, während das Gerä</span><span style="font-weight : normal; ">t als Server gesehen wird, wird die Sicherheitskonfiguration wie folgt eingerichtet:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+   <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Abbildung: Gerätesicherheit in <span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE" data-format="MDC_App">Connexo MultiSense</span>. Geben<span class="FM_change_bar">&#160;Sie am Gerätetypen an, welcher Sicherheitszugriffsberechtigter von den verschiedenen Gerätekonfigurationen verwendet wird. An der Gerätekonfiguration verbinden Sie den Zugriffsberechtigen mit der relevanten protokollbezogenen Funktion. An Geräten mit diesen Gerätekonfigurationen können sie die Werte der Schlüssel konfigurieren und die bestimmten Zertifikate selektieren. Die Sicherheitszugangsberechtigten werden vorher in Connexo MultiSense &gt;&#160;Verwaltung &gt; Sicherheit &gt; Sicherheitszugangs</span>berechtigte erstellt.</caption>
+   <tr class="tr82">
+   <td class="td6">
+   <p dir="ltr" class="FM_CGraphicCell"><img alt="Device_security.png" id="image167" src="../../assets/Device_security.png" style="max-width: 100% ;height: auto" />&nbsp;</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body"><span style="font-weight : normal; "></span></p>
+  </div>
+</body>
+</html>

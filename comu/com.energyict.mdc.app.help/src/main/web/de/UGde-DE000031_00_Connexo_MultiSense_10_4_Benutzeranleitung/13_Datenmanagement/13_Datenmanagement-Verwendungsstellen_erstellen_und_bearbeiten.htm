@@ -1,0 +1,265 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Verwendungsstellen erstellen und bearbeiten</title>
+
+ <link rel="stylesheet" href="13_Datenmanagement.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "14.0_4";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/13_Datenmanagement/13_Datenmanagement-berwachung_der_Verwendungspunkte-0qc.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/13_Datenmanagement/13_Datenmanagement-Gerte_mit_Verwendungspunkten_verbinden-sgd.htm">
+ <meta name="topic-breadcrumbs" content="13 Datenmanagement" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H3SectionTopic"><span class="FM_change_bar" style="font-weight : normal; ">Verwendungsstellen erstellen und bearbeiten</span></p>
+  <p dir="ltr" class="FM_H4Topic"><span class="FM_change_bar">Erstellen und Aktualisieren von Verwendungspunkten mithilfe von Dateiimport</span></p>
+  <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-weight : normal; ">Verwenden Sie den Importrahmen im mehrere Verwendungspunkte von einer csv-Datei hinzuzufügen oder zu aktualisieren. Weitere Informationen zu Importdiensten finden Sie in </span><a><span class="FM_change_bar" style="font-weight : normal; "></span><span class="FM_blue_crossreference">“Data import”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar"></span><span class="FM_change_bar" style="font-weight : normal; ">. Für die Konfiguration siehe Importdienste im Kapitel Systemkonfiguration in der <span data-name="SystemAdmin_App" data-val="Admin:" data-showval="TRUE" data-format="SystemAdmin_App">Admin:</span>&#160;Gebrauchsanweisung. </span></p>
+  <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+  <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Wichtig</span></p>
+  <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-weight : normal; ">Voraussetzungen:</span></p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar" style="font-weight : normal; ">Der Standardimportservice </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Verwendungspunkt-Importer</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;muss korrekt konfiguriert und aktiviert werden. </span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar" style="font-weight : normal; ">Die entsprechenden Verzeichnisse für die Importdatei muss auf dem Connexo-Server verfügbar sein. </span></p>
+</li>
+   <li>
+   <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar" style="font-weight : normal; ">Der Importservice des Verwendungspunkts muss auf einem Anwendungsserver gespeichert werden. </span></p>
+</li>
+  </ul>
+  <p dir="ltr" class="FM_PImportant2" style="font-family : 'Lato Light'; font-weight : normal; color   : #686868;"><span class="FM_Bold">Wichtig</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Parameter</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Erforderlich</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Datentyp</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Beschreibung</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar" style="font-weight : normal; ">/Name</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">MIRD oder Name des Verwendungspunkts. Der Importer kontrolliert die , wenn das nicht übereinstimmt, verwendet er den Namen.</p>
+   <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+   <p dir="ltr" class="FM_CellBody"><span style="font-weight : bold; ">{1}Wichtig{2}:</span><span style="font-weight : normal; "> Wenn das Feld /Name einen bereits bestehenden Verwendungspunkt /Name enthält, wird der bestehende Verwendungspunkt geändert anstatt ein neuer hinzugefügt.</span></p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Service <span class="FM_change_bar" style="font-weight : normal; ">Kategor</span><span style="font-weight : normal; ">ie</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Die gemessenen Waren.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Er<span class="FM_change_bar" style="font-weight : normal; ">stell</span><span style="font-weight : normal; ">en</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ja</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Datum</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Datum der tatsächlichen Erstellung des Verwendungspunkts. Das Format ist TT/MM/JJJJ HH:mm</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Messtechnische Konfiguration</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">String</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Name der messtechnischen Konfiguration. Nur anwendbar für die Erstellung neuer Verwendungspunkte. Der Wert wird übersprungen, wenn die Zeile einen bestehenden Verwendungspunkt aktualisieren soll. Es ist nicht möglich, die messtechnische Konfiguration der bestehenden Verwendungspunkte zu aktualisieren.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Start der messtechnischen Konfiguration</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Nein</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Datum</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Anfangsdatum der messtechnischen Konfigurationsversion am Verwendungspunkt. Nur anwendbar für die Erstellung neuer Verwendungspunkte. Der Wert wird übersprungen, wenn die Zeile einen bestehenden Verwendungspunkt aktualisieren soll.</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_PImportant2" style="font-family : 'Lato Light'; font-weight : normal; color   : #686868;"><span class="FM_change_bar" style="font-weight : normal; ">Die Daten des Verwendungspunkts müssen in einer CSV-Datei verfügbar sein. Die erste Zeile in dieser Datei muss die Spaltentitel enthalten und die Felder müssen mit einem Semikolon oder einem Komma getrennt sein. Die folgenden Felder werden in der Importdatei des Verwendungspunkts erwartet.</span><span class="FM_change_bar"></span></p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet1"></p>
+</li>
+  </ul>
+  <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+  <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Anmerkung</span></p>
+  <p dir="ltr" class="FM_BodyGrey"><span class="FM_change_bar" style="font-weight : normal; ">Die messtechnischen Konfigurationszeilen gelten nur für die Erstellung neuer Verwendungspunkte. Der Wert wird übersprungen, wenn die Zeile einen bestehenden Verwendungspunkt aktualisieren soll. Es ist nicht möglich die messtechnische Konfiguration bestehender Verwendungspunkte zu aktualisieren, da ein Verwendungspunkt mehrere messtechnische Konfigurationspunkte haben kann. Es wäre nicht deutlich, welche Version aktualisiert werden muss.</span></p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar" style="font-weight : normal; ">Speichern Sie die CSV-Datei mit den Verwendungspunkten im Importverzeichnis.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Der Anwendungsserver holt sich die Importdatei für weitere Verarbeitung. Zu diesem Zeitpunkt wird die Importdatei in das Verzeichnis </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">laufend</span><span class="FM_change_bar" style="font-weight : normal; ">verschoben.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Nach Beendigung des Imports, wird die Importdatei entweder in das Verzeichnis</span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Erfolgreich</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;oder das Verzeichnis </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Fehler</span><span class="FM_change_bar" style="font-weight : normal; ">verschoben. </span></p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar" style="font-weight : normal; ">&#160;Prüfen Sie die erstellten Verwendungspunkte mit der Suchfunktion. &#160;Siehe </span><a><span class="FM_change_bar" style="font-weight : normal; "></span><span class="FM_blue_crossreference">“Advanced search”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar"></span><span class="FM_change_bar" style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">5. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Wenn es ein Problem gab, können Sie das Problem beseitigen, indem Sie im Log in der Vergangenheit des Importservice suchen. Siehe </span><a><span class="FM_change_bar" style="font-weight : normal; "></span><span class="FM_blue_crossreference">“Monitor data import”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar"></span><span class="FM_change_bar" style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic"><span class="FM_change_bar">Einen Verwendungspunkt manuell hinzufügen</span></p>
+  <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-weight : normal; ">Neben dem gleichzeitigen Import einiger Verwendungspunkte mithilfe eines Dateiimporters, können Sie einen Verwendungspunkt in Connexo MultiSense auch erstellen, indem Sie die Daten manuell in ein Formular eingeben. Wenn der Verwendungspunkt erstellt wurde, können Sie Geräte damit verbinden.</span></p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar" style="font-weight : normal; ">Öffnen Sie </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Verwendungspunkte</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Einen Verwendungspunkt erstellen</span><span class="FM_change_bar" style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Füllen Sie die Felder im Bildschirm aus. Alle Felder – außer </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Name</span><span class="FM_change_bar" style="font-weight : normal; "> – sind Pflichtfelder.</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Parameter</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Beschreibung</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Einzigartiger Name für den Verwendungspunkt. Dieses Feld ist einzigartig für jeden Verwendungspunkt. Wenn der Verwendungspunkt erstellt wird, erzeugt Connexo automatisch einen konformen CIM.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Dienstkategorie</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Dropdown mit allen aktiven Dienstkategorien im System.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Erstellt</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Datum der tatsächlichen Erstellung des Verwendungspunkts. Der Standardwert ist <span class="FM_UIRef">Nun</span><span style="font-weight : normal; ">.</span></p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Koordinaten</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Definieren Sie die genauen Koordinaten des Verwendungspunkts in Grad, Minuten und Sekunden.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Standort</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Beginnen Sie die Adresse des Verwendungspunkts einzugeben oder selektieren Sie <span class="FM_UIRef">Input location</span><span style="font-weight : normal; ">&#160;um alle Adressdaten zu definieren.</span></p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_ListNumber1"><span class="FM_change_bar" style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Klicken Sie auf </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Hinzufügen</span><span class="FM_change_bar" style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-weight : normal; ">Sie werden zur Zielseite des Verwendungspunkts, den Sie soeben erstellt haben, weitergeleitet.</span></p>
+  <p dir="ltr" class="FM_H4Topic"><span class="FM_change_bar">Einen Verwendungspunkt bearbeiten</span></p>
+  <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-weight : normal; ">Bestehende Verwendungspunkte können in Connexo MultiSense bearbeitet werden, um die bei der Erstellung eventuell gemachten Fehler zu korrigieren.</span></p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar" style="font-weight : normal; ">Einen Verwendungspunkt suchen, wie in </span><a><span class="FM_change_bar" style="font-weight : normal; "></span><span class="FM_blue_crossreference">“Search for usage points”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar"></span><span class="FM_change_bar" style="font-weight : normal; ">beschrieben.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Klicken Sie auf den Verwendungspunkt, um seine Zielseite zu öffnen.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Selektieren Sie</span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Bearbeiten</span><span class="FM_change_bar" style="font-weight : normal; ">&#160;aus der Schaltfläche </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Handlungen</span><span class="FM_change_bar" style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Bearbeiten Sie die relevanten Felder.</span></p>
+  <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">&#160;</span><span class="FM_change_bar" style="font-weight : normal; ">und </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Dienstkategorie</span><span class="FM_change_bar" style="font-weight : normal; "> können nicht bearbeitet werden.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">5. &#160; <span class="FM_change_bar" style="font-weight : normal; ">Klicken Sie </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Speichern</span><span class="FM_change_bar" style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" style="text-indent : 14.173pt;"><span class="FM_change_bar" style="font-weight : normal; ">Sie werden wieder zur Zielseite des Verwendungspunkts geleitet, die die angepassten Daten anzeigt.</span></p>
+  </div>
+</body>
+</html>

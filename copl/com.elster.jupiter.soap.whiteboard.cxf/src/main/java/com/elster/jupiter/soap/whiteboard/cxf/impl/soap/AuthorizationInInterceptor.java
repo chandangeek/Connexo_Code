@@ -78,13 +78,22 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
                     fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
                 }
             }
-            request.setAttribute(USERPRINCIPAL, user.get());
-        } catch (Fault e) {
+
+           request.setAttribute(USERPRINCIPAL, user.get());
+
+        } catch (
+                Fault e)
+
+        {
             throw e;
-        } catch (Exception e) {
+        } catch (
+                Exception e)
+
+        {
             logInTransaction("Exception while logging in " + userName + ":", e);
             fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
         }
+
     }
 
     private void fail(String message, int statusCode) {

@@ -1,0 +1,200 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Kommunikationsserver konfigurieren</title>
+
+ <link rel="stylesheet" href="02_Kommunikationsinfrastruktur.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "3.0_4";
+</script>
+ <meta name="brsprev" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/02_Kommunikationsinfrastruktur/02_Kommunikationsinfrastruktur-Kommunikationsprotokolle_konfigurieren.htm">
+ <meta name="brsnext" value="UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/02_Kommunikationsinfrastruktur/02_Kommunikationsinfrastruktur-Kommunikationsports_konfigurieren.htm">
+ <meta name="topic-breadcrumbs" content="02 Kommunikationsinfrastruktur" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H3SectionTopic"><a name="XREF_40776_Configure"></a>Kommunikationsserver konfigurieren</p>
+  <p dir="ltr" class="FM_H4Topic"><a name="XREF_64120_Add_an_online"></a>Einen Online-Kommunikationsserver hinzufügen<span style="font-weight : normal; ">&#160;</span></p>
+  <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+  <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Wichtig</span></p>
+  <p dir="ltr" class="FM_Body">Wenn Sie einen Kommunikationsserver erstellen, müssen Sie das Connexo-Gerät, das diesen Kommunikationsserver ausführt, ausschalten und neustarten.</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte &#160;</span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätekommunikation</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Kommunikationsserver</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf <span class="FM_UIRef">Online-Kommunikationsserver hinzufügen</span><span style="font-weight : normal; ">. Füllen Sie die folgenden Felder aus:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Parameter</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Beschreibung</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Name</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Einmaliger Name für den Server</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Protokollierungsebene des Servers</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Allgemeine Protokollierungsebene für die Ereignisse des Kommunikationsservers, die in der Datenbank gespeichert werden (Fehler, Warnmeldung, Information, Debug oder Trace). Es wird empfohlen die Protokollierungsebene “Warnmeldung” zu verwenden.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Kommunikations-Protokollierebene</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Protokollierebene für die Kommunikationssitzungen (Fehler, Warnmeldung, Information, Debug oder Trace). Es wird empfohlen die Protokollierungsebene “Warnmeldung” zu verwenden.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Ändert die Inter-Poll-Verzögerung</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Erneuerungshäufigkeit für die Eigenschaften des Kommunikationsservers, wenn beispielsweise zusätzliche Ports hinzugefügt werden. Die Änderung wird nach der Frist, die von diesem Parameter angegeben ist, übernommen.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Inter-Poll-Verzögerung wird geplant</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Erneuert ausstehende Aufgaben und übernimmt neue Aufgaben auf der Grundlage des definierten Intervalls.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Task-Queue-Größe speichern</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Die Anzahl der Aufgaben, die vom Kommunikationsserver bearbeitet werden kann, bevor die Daten an die Datenbank geschickt werden.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Task-Thread-Zählung speichern</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Die Anzahl der Mitarbeiter, die Daten von der Anfrage zum Speichern in der Datenbank erhalten.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody">Task-Warteschlange-Priorität speichern</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Java VM Priorität gegenüber anderen Java-Anwendungen, die im OS laufen. Je höher der Wert, desto höher die Priorität. </p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_ListNumber1"><span style="font-weight : normal; ">&#160;</span></p>
+  <p dir="ltr" class="FM_Body">Die <span class="FM_change_bar" style="font-weight : normal; ">folgenden Felder sind notwendig um den Monitor des Kommunikationsservers nutzen zu können. &#160;Siehe </span><a href="02_Kommunikationsinfrastruktur-Kommunikationsserver_berwachen-pfd.htm#XREF_19695_Monitor_a"><span class="FM_change_bar" style="font-weight : normal; "></span><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference"></span><span class="FM_change_bar">Einen Kommunikationsserver überwachen</span><span class="FM_blue_crossreference">”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar"></span><span class="FM_change_bar" style="font-weight : normal; ">. &#160;Sie enthalten die Informationen, die für die Einrichtung der URL zum Kommunikationsserver-Monitor benötigt werden, und die aus Servername, Port und Pfad zur Anwendung bestehen. Beispiel: http://server015:8080/apps/comservermonitor/index.html</span><span class="FM_change_bar" style="font-family : 'Times New Roman'; font-size  : 12.0pt; color   : #000000; ">&#160;</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar" style="font-weight : normal; ">Servername</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Name des Geräts, auf dem der Kommunikationsserver läuft.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar" style="font-weight : normal; ">Ereignisregistrierungs-Port</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Port, an dem der Kommunikationsserver-Monitor auf die veröffentlichten Ereignisse hören muss, um die ununterbrochene Protokollierung am <span class="FM_UIRef">Protokollier</span><span style="font-weight : normal; ">-Karteireiter im Kommunikationsserver-Monitor auszuführen.</span></p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_Body"><span class="FM_change_bar" style="font-family : 'Times New Roman'; font-size  : 12.0pt; color   : #000000; "></span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf <span class="FM_UIRef">Einfügen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">4. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_3.png" id="image31" src="../../assets/masterActions_3.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Aktivieren</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+  <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Anmerkung</span></p>
+  <p dir="ltr" class="FM_BodyGrey">Je höher die selektierte Protokollierebene z.B. Debug ist, desto mehr Speicherplatz nehmen diese Daten in der Datenbank ein. &#160;Sie sollten sich dessen bewusst sein, wenn Sie die Protokollierebene des Kommunikationsservers erhöhen.</p>
+  <p dir="ltr" class="FM_H4Topic">Kommunikationsserver bearbeiten</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte &#160;</span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätekommunikation</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Kommunikationsserver</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_4.png" id="image32" src="../../assets/masterActions_4.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Bearbeiten</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Ändern Sie die Parameter des Kommunikationsservers.</p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; Klicken Sie auf <span class="FM_UIRef">Speichern</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Kommunikationsserver löschen</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte &#160;</span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Gerätekommunikation</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Kommunikationsserver</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf das Aktionssymbol <img alt="masterActions_5.png" id="image33" src="../../assets/masterActions_5.png" style="max-width: 100% ;height: auto" />&#160;und selektieren Sie <span class="FM_UIRef">Löschen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf <span class="FM_UIRef">Löschen</span><span style="font-weight : normal; ">.</span></p>
+  <ul type="disc" dir="ltr">
+   <li>
+   <p dir="ltr" class="FM_ListBullet2"></p>
+</li>
+  </ul>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+gXMLBuffer="<?xml version=\"1.0\" encoding=\"UTF-8\"?><cki><ck fm=\"00 Titelseite\" to=\"Importdienste überwachen\" num=\"35\"/><ck fm=\"07 Web services\" to=\"15 Anhänge\" num=\"33\"/><ck fm=\"Privileges\" to=\"17 Rechtshinweise\" num=\"3\"/></cki>";

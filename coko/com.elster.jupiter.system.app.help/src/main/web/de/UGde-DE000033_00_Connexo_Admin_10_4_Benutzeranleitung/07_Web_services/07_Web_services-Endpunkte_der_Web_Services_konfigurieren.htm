@@ -1,0 +1,185 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Endpunkte der Web Services konfigurieren</title>
+
+ <link rel="stylesheet" href="07_Web_services.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css" />
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+ <meta name="generator" content="Adobe FrameMaker 2017" />
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "8.0_4";
+</script>
+ <meta name="brsprev" value="UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/07_Web_services/07_Web_services-Endpunkte_der_Web_Services_berwachen-40d.htm">
+ <meta name="brsnext" value="UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/07_Web_services/07_Web_services-Verwaltung_der_Web_Service_Endpunkte_am_Anwendungsserver.htm">
+ <meta name="topic-breadcrumbs" content="07 Web services" />
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+ <div dir="ltr">
+  <p dir="ltr" class="FM_H2Section">Endpunkte der Web Services konfigurieren</p>
+  
+  <p dir="ltr" class="FM_H3SectionTopic">Web Service Endpunkte verwalten</p>
+  <p dir="ltr" class="FM_H4Topic">Endpunkte der Web Services hinzufügen</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Web Services</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Web Services-Endpunkte</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">2. &#160; Klicken Sie auf <span class="FM_UIRef">Web Service Endpunkt hinzufügen</span><span style="font-weight : normal; ">. Füllen Sie die folgenden Felder aus:</span></p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table11 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+   <tr class="t1st">
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Parameter</p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellHeading">Beschreibung</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Name</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Geben Sie einen eindeutigen Namen ein.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Web Service</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Selektieren Sie einen Web Service. Abhängig von dieser Auswahl müssen verschiedene Parameter definiert werden.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">URL Pfad</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Erforderlich für eingehende Web Services. Bietet einen eindeutigen Pfad für die URL des nachfolgenden Formats https://&lt;host&gt;:&lt;port&gt;/<span class="FM_Bold">&lt;path&gt;</span><span style="font-weight : normal; ">.</span></p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">URL</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Erforderlich für ausgehende Web Services. Bietet eine eindeutige URL im folgenden Format &#160;https://&lt;host&gt;:&lt;port&gt;/&lt;path&gt;.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Log Level</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Selektieren Sie die Log Ebene des Endpunkts. Wenn Sie eine hohe Log Ebene selektiert haben, führt das zu einem detaillierten Protokoll mit hoher Datenbanknutzung.</p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Suchanfrage</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Wenn Sie diese Option selektieren, erzeugt Connexo eine Datei mit dem Namen, die Sie angegeben haben, mit allen Suchdetails.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">HTTP Kompression</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Komprimiert ausgehende http-Daten und akzeptiert eingehende komprimierte http-Daten. </p>
+</td>
+</tr>
+   <tr class="t1Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Validierung des Schemas</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Validieren Sie die XML-Schemata.</p>
+</td>
+</tr>
+   <tr class="t2Row">
+   <td>
+   <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Bestätigung</span></p>
+</td>
+   <td>
+   <p dir="ltr" class="FM_CellBody">Fügen Sie eine Bestätigungsebene ein. Wenn Sie die Basisbestätigung selektieren, müssen Sie den Nutzernamen und das Passwort angeben. Bei eingehenden Services können Sie eine Nutzerrolle angeben.</p>
+</td>
+</tr>
+  </table>
+ </div>
+  <p dir="ltr" class="FM_ListNumber1"><span style="font-weight : normal; "></span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Klicken Sie auf <span class="FM_UIRef">Einfügen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Web Service Endpunkte aktivieren/deaktivieren</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Web Services</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Web Services-Endpunkte</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Klicken Sie auf das Aktionssymbol <span class="FM_change_bar" style="font-weight : normal; "><img alt="masterActions_35.png" id="image54" src="../../assets/masterActions_35.png" style="max-width: 100% ;height: auto" /></span><span style="font-weight : normal; "> neben dem Endpunkt, den Sie aktivieren/deaktivieren möchten.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Selektieren Sie <span class="FM_UIRef">Aktivieren</span><span style="font-weight : normal; ">/</span><span class="FM_UIRef">Deaktivieren</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Endpunkte der Web Services bearbeiten</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Web Services</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Web Services-Endpunkte</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Klicken Sie auf das Aktionssymbol <span class="FM_change_bar" style="font-weight : normal; "><img alt="masterActions_36.png" id="image55" src="../../assets/masterActions_36.png" style="max-width: 100% ;height: auto" /></span><span style="font-weight : normal; ">&#160;neben dem Endpunkt, den Sie bearbeiten möchten und selektieren Sie </span><span class="FM_UIRef">Bearbeiten</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Die Parameter des Web Service Endpunkts ändern. &#160;Beachten Sie, dass nicht alle Parameter bearbeitet werden können, wenn der Endpunkt aktiv ist.</p>
+  <p dir="ltr" class="FM_ListNumber1">4. &#160; Klicken Sie auf <span class="FM_UIRef">Speichern</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_H4Topic">Endpunkte der Web Services löschen</p>
+  <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+  <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Schritte </span></p>
+  <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Öffnen Sie <span class="FM_UIRef">Verwaltung</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Web Services</span><span style="font-weight : normal; ">&#160;&gt; </span><span class="FM_UIRef">Web Services-Endpunkte</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Klicken Sie auf das Aktionssymbol <span class="FM_change_bar" style="font-weight : normal; "><img alt="masterActions_37.png" id="image56" src="../../assets/masterActions_37.png" style="max-width: 100% ;height: auto" /></span><span style="font-weight : normal; ">&#160;neben dem Endpunkt, den Sie löschen möchten und selektieren Sie </span><span class="FM_UIRef">Löschen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_ListNumber1">3. &#160; Bestätigen Sie und klicken Sie auf <span class="FM_UIRef">Löschen</span><span style="font-weight : normal; ">.</span></p>
+  <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+  <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Anmerkung</span></p>
+  <p dir="ltr" class="FM_BodyGrey">Anfragen, die während des Löschens des Endpunkts ausgeführt werden, werden mit den Einstellungen des Endpunkts zum Zeitpunkt der Anfrage finalisiert. Anfragen nach Löschung des Endpunkts, ergeben eine Fehlermeldung.</p>
+  </div>
+</body>
+</html>

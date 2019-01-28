@@ -1,0 +1,5 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Device life cycle management\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceLifecycle/000017_UMNL_DeviceLifecycle.htm\"><item name=\"Understand the device life cycle management\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceLifecycle/Understand_the_device_life_cycle_management.htm\" /><book name=\"Default device life cycle management\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceLifecycle/Default_device_life_cycle_management.htm\" src=\"toc44.js\" /><book name=\"Configure device life cycle\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceLifecycle/Configure_device_life_cycle.htm\" src=\"toc45.js\" /><book name=\"Monitor device life cycles\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceLifecycle/Monitor_device_life_cycles.htm\" src=\"toc46.js\" /><book name=\"Transition devices\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceLifecycle/Transition_devices.htm\" src=\"toc47.js\" /></data>";

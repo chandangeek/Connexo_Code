@@ -1,0 +1,4 @@
+(function() {
+var toc =  [{"type":"item","name":"08 Kalender","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/08_Kalender/08_Kalender-.htm"},{"type":"item","name":"Gebrauchszeit-Kalender","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/08_Kalender/08_Kalender-Gebrauchszeit-Kalender.htm"},{"type":"item","name":"Gebrauchszeit-Kalender erstellen","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/08_Kalender/08_Kalender-Gebrauchszeit-Kalender_erstellen.htm"},{"type":"item","name":"Gebrauchszeit-Kalender aktualisieren","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/08_Kalender/08_Kalender-Gebrauchszeit-Kalender_aktualisieren.htm"},{"type":"item","name":"Gebrauchszeit-Kalender verwalten","url":"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/08_Kalender/08_Kalender-Gebrauchszeit-Kalender_verwalten.htm"}];
+window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, { sync:true });
+})();
