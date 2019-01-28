@@ -157,8 +157,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         if (!Ext.isEmpty(devices.deviceNames)) {
 
             titleWarning = Uni.I18n.translatePlural('searchItems.bulk.WarningDeviceLinkedToSameZoneType', devices.total, 'MDC',
-                '{0} device already have another zone with the same zone type defined',
-                '{0} device already have another zone with the same zone type defined',
+                '{0} device already has another zone with the same zone type defined',
+                '{0} device already has another zone with the same zone type defined',
                 '{0} devices already have another zone with the same zone type defined', devices.total);
 
             me.down('#device-zones-error-msg').setText(titleWarning);
