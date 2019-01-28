@@ -111,16 +111,16 @@ Ext.define('Tou.view.DevicesGrid', {
                 itemId: 'tou-campaigns-devices-grid-paging-toolbar-top',
                 dock: 'top',
                 store: me.store,
-                displayMsg: Uni.I18n.translate('tou.campaigns.devices.pagingtoolbartop.displayMsg', 'FWC', '{0} - {1} of {2} devices'),
-                displayMoreMsg: Uni.I18n.translate('tou.campaigns.devices.pagingtoolbartop.displayMoreMsg', 'FWC', '{0} - {1} of more than {2} devices'),
-                emptyMsg: Uni.I18n.translate('tou.campaigns.devices.pagingtoolbartop.emptyMsg', 'FWC', 'There are no devices to display')
+                displayMsg: Uni.I18n.translate('tou.campaigns.devices.pagingtoolbartop.displayMsg', 'TOU', '{0} - {1} of {2} devices'),
+                displayMoreMsg: Uni.I18n.translate('tou.campaigns.devices.pagingtoolbartop.displayMoreMsg', 'TOU', '{0} - {1} of more than {2} devices'),
+                emptyMsg: Uni.I18n.translate('tou.campaigns.devices.pagingtoolbartop.emptyMsg', 'TOU', 'There are no devices to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 itemId: 'tou-campaigns-devices-grid-paging-toolbar-bottom',
                 dock: 'bottom',
                 store: me.store,
-               itemsPerPageMsg: Uni.I18n.translate('tou.campaigns.devices.pagingtoolbarbottom.itemsPerPage', 'FWC', 'Devices per page')
+               itemsPerPageMsg: Uni.I18n.translate('tou.campaigns.devices.pagingtoolbarbottom.itemsPerPage', 'TOU', 'Devices per page')
             }
         ];
 
