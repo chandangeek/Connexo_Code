@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.ZoneAction;
@@ -23,6 +24,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.ZoneOnDeviceQueueMessage;
 import com.energyict.mdc.device.data.ZoneOnDevicesFilterSpecification;
+import com.energyict.mdc.device.data.exceptions.InvalidSearchDomain;
 import com.energyict.mdc.device.data.security.Privileges;
 
 
@@ -59,6 +61,8 @@ public class BulkZoneResource {
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
 
+    private final static int LIMIT_DEVICES_ALREADY_LINKD_TO_ZONE_TYPE = 10;
+
     @Inject
     public BulkZoneResource(ExceptionFactory exceptionFactory, AppServerHelper appServerHelper,
                                 JsonService jsonService, MessageService messageService, SearchService searchService, MeteringZoneService meteringZoneService,
@@ -88,22 +92,17 @@ public class BulkZoneResource {
         }
         ZoneAction zoneAction =  request.action.equalsIgnoreCase("addToZone") ? ZoneAction.Add : ZoneAction.Remove;
         ZoneOnDevicesFilterSpecification zoneFilter = new ZoneOnDevicesFilterSpecification();
+        Stream<Device> deviceStream;
+
         if (request.filter != null) {
             JsonQueryFilter filter = new JsonQueryFilter(request.filter);
             Optional<SearchDomain> deviceSearchDomain = searchService.findDomain(Device.class.getName());
-            if (filter.hasFilters() && deviceSearchDomain.isPresent()) {
-                deviceSearchDomain.get().getPropertiesValues(searchableProperty -> SearchablePropertyValueConverter.convert(searchableProperty, filter))
-                        .stream()
-                        .forEach(propertyValue -> {
-                            zoneFilter.properties.put(propertyValue.getProperty().getName(), propertyValue.getValueBean());
-                        });
-            }
-        }
-        Stream<Device> deviceStream;
-        if (request.filter != null) {
+            setZoneFilterProperties(filter, deviceSearchDomain, zoneFilter);
+
             SearchBuilder<Object> searchBuilder = getObjectSearchBuilder(zoneFilter);
             deviceStream = searchBuilder.toFinder().stream().map(Device.class::cast);
-        } else {
+        }
+        else {
             deviceStream = request.deviceIds.stream().map(deviceService::findDeviceById).filter(Optional::isPresent).map(Optional::get);
         }
 
@@ -111,6 +110,8 @@ public class BulkZoneResource {
         if(destinationSpec.isPresent()) {
             deviceStream.forEach(
                     device -> processMessagePost(new ZoneOnDeviceQueueMessage(device.getId(), request.zoneId, request.zoneTypeId, zoneAction), destinationSpec.get()));
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
         }
 
         return Response.ok().entity("{\"success\":\"true\"}").build();
@@ -129,33 +130,33 @@ public class BulkZoneResource {
         if (filter != null && filter.hasFilters()) {
             Optional<SearchDomain> deviceSearchDomain = searchService.findDomain(Device.class.getName());
             ZoneOnDevicesFilterSpecification zoneFilter = new ZoneOnDevicesFilterSpecification();
-            if (filter.hasFilters() && deviceSearchDomain.isPresent()) {
-                deviceSearchDomain.get().getPropertiesValues(searchableProperty -> SearchablePropertyValueConverter.convert(searchableProperty, filter))
-                        .stream()
-                        .forEach(propertyValue -> {
-                            zoneFilter.properties.put(propertyValue.getProperty().getName(), propertyValue.getValueBean());
-                        });
-            }
-            SearchBuilder<Object> searchBuilder = getObjectSearchBuilder(zoneFilter);
-            deviceStream = searchBuilder.toFinder()
-                            .stream()
-                            .map(Device.class::cast);
+            setZoneFilterProperties(filter, deviceSearchDomain, zoneFilter);
 
+            SearchBuilder<Object> searchBuilder = getObjectSearchBuilder(zoneFilter);
+            deviceStream = searchBuilder.toFinder().stream().map(Device.class::cast);
         } else {
-            List<Long> deviceIds = parameters.get("deviceIds")
-                                    .stream()
-                                    .map(d -> Long.parseLong(d))
+            List<Long> deviceIds = parameters.get("deviceIds").stream().map(deviceId -> Long.parseLong(deviceId))
                                     .collect(Collectors.toList());
             deviceStream = deviceIds.stream().map(deviceService::findDeviceById).filter(Optional::isPresent).map(Optional::get);
         }
 
-        List<String> deviceList = getDevicesLinkedToDifferentZoneFromZoneType(deviceStream.collect(Collectors.toList()), zoneTypeId, zoneId)
-                                    .stream()
-                                    .map(d->d.getName())
-                                    .collect(Collectors.toList());
+        List<Device> deviceList = getDevicesLinkedToDifferentZoneFromZoneType(deviceStream.collect(Collectors.toList()), zoneTypeId, zoneId);
 
-        return Response.ok(deviceList).build();
+        return Response.ok(DeviceZoneInfo.from(deviceList.size(),deviceList .stream()
+                .limit(LIMIT_DEVICES_ALREADY_LINKD_TO_ZONE_TYPE)
+                .map(device->device.getName())
+                .collect(Collectors.toList()))).build();
 
+    }
+
+    private void setZoneFilterProperties(@BeanParam JsonQueryFilter filter, Optional<SearchDomain> deviceSearchDomain, ZoneOnDevicesFilterSpecification zoneFilter) {
+        if (filter.hasFilters() && deviceSearchDomain.isPresent()) {
+            deviceSearchDomain.get().getPropertiesValues(searchableProperty -> SearchablePropertyValueConverter.convert(searchableProperty, filter))
+                    .stream()
+                    .forEach(propertyValue -> {
+                        zoneFilter.properties.put(propertyValue.getProperty().getName(), propertyValue.getValueBean());
+                    });
+        }
     }
 
     private Function<SearchableProperty, SearchablePropertyValue> getPropertyMapper(ZoneOnDevicesFilterSpecification filter) {
@@ -170,28 +171,39 @@ public class BulkZoneResource {
 
     public List<Device> getDevicesLinkedToDifferentZoneFromZoneType(List<Device> devices, long zoneTypeId, long zoneId){
         List<Device> filteredDevices = new ArrayList<>();
-        devices.forEach(device-> {
-                    meteringZoneService.getByEndDevice(meteringService.findEndDeviceByName(device.getName()).get())
+        try {
+            devices.forEach(device -> {
+                Optional<EndDevice> endDevice = meteringService.findEndDeviceByName(device.getName());
+                if (endDevice.isPresent()) {
+                    meteringZoneService.getByEndDevice(endDevice.get())
                             .stream()
                             .filter(endDeviceZone -> endDeviceZone.getZone().getZoneType().getId() == zoneTypeId
-                                                  && endDeviceZone.getZone().getId() != zoneId)
-                            .findFirst().ifPresent(addDevice->filteredDevices.add(device));
+                                    && endDeviceZone.getZone().getId() != zoneId)
+                            .findFirst().ifPresent(addDevice -> filteredDevices.add(device));
                 }
-        );
-
+            });
+        } catch(Exception ex) {
+            throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
+        }
         return filteredDevices;
     }
 
     private SearchBuilder<Object> getObjectSearchBuilder(ZoneOnDevicesFilterSpecification filter) {
         Optional<SearchDomain> searchDomain = searchService.findDomain(Device.class.getName());
-        SearchBuilder<Object> searchBuilder = searchService.search(searchDomain.get());
-        for (SearchablePropertyValue propertyValue : searchDomain.get().getPropertiesValues(getPropertyMapper(filter))) {
-            try {
-                propertyValue.addAsCondition(searchBuilder);
-            } catch (InvalidValueException e) {
-                //LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        if(searchDomain.isPresent()) {
+            SearchBuilder<Object> searchBuilder = searchService.search(searchDomain.get());
+            for (SearchablePropertyValue propertyValue : searchDomain.get().getPropertiesValues(getPropertyMapper(filter))) {
+                try {
+                    propertyValue.addAsCondition(searchBuilder);
+                } catch (InvalidValueException e) {
+                    throw new RuntimeException(e);
+                }
             }
+
+            return searchBuilder;
         }
-        return searchBuilder;
+        else
+            throw new InvalidSearchDomain(thesaurus, Device.class.getName());
+
     }
 }

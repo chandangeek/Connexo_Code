@@ -335,6 +335,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             filter = store.getProxy().encodeFilters(store.filters.getRange());
         }
 
+        wizard.setLoading(true);
         Ext.Ajax.request({
             url: urlZones,
             method: 'GET',
@@ -347,12 +348,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             timeout: 180000,
             success: function (response) {
                 var deviceList = Ext.JSON.decode(response.responseText);
-                if(deviceList.length > 0)
+                if(deviceList.total > 0)
                     me.getStep4().showWarningZoneTypeAlreadyLinkedToDevice(deviceList);
-                wizard.setLoading(false);
             },
 
             failure: function () {
+            },
+            callback: function () {
                 wizard.setLoading(false);
             }
         });
@@ -385,8 +387,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 },
 
 
-
-                processUrl = '/api/bpm/runtime/processcontent/' + processJsonData.deploymentId + '/' + processJsonData.id;
+            processUrl = '/api/bpm/runtime/processcontent/' + processJsonData.deploymentId + '/' + processJsonData.id;
 
             processJsonData.bulkBusinessObjects = me.validatedForProcessDevices.map(function (mRID) {
                 return {
@@ -615,7 +616,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     );
 
                 finalMessage = Uni.I18n.translate('searchItems.bulk.addZoneToDevices.baseSuccessMsg', 'MDC',
-                    "Successfully added zone {0} {1}", [me.zoneName, message]);
+                    "Successfully added zone '{0}' {1}", [me.zoneName, message]);
                 break;
             case 'removeFromZone':
                 message = Ext.isEmpty(me.devices)
@@ -627,7 +628,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     );
 
                 finalMessage = Uni.I18n.translate('searchItems.bulk.removeZoneToDevices.baseSuccessMsg1', 'MDC',
-                    "Successfully removed zone {0} {1}", [me.zoneName, message]);
+                    "Successfully removed zone '{0}' {1}", [me.zoneName, message]);
                 break;
         }
 
@@ -936,7 +937,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         me.validation = true;
                         me.zoneName = me.getDeviceZoneForm().down("#zone-name").getRawValue();
                         me.zoneTypeName = me.getDeviceZoneForm().down("#zone-type").getRawValue();
-                        if (me.operation == 'addToZone')
+                        if (me.operation == 'addToZone' && nextCmp.name == 'confirmPage')//to avoid sending the rest when click on back button
                             me.devicesWithZoneTypeAlreadyDefined();
                     } else {
                         formErrorsPanelZone.show();
@@ -1199,12 +1200,22 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     break;
 
                 case 'addToZone':
-                    pattern = Uni.I18n.translate('searchItems.bulk.addToZone.confirmMsg', 'MDC', 'Link {0}  of {0} devices to zone "{1}"?');
-                    titleText = Ext.String.format(pattern, me.devices.length, me.zoneName, false);
+                    pattern = Uni.I18n.translatePlural('searchItems.bulk.addDevicesToZone.confirmMsg', me.devices.length, 'MDC',
+                        'Link {0}  of {0} device',
+                        'Link {0}  of {0} device',
+                        'Link {0}  of {0} devices');
+
+                    titleText = Uni.I18n.translate('searchItems.bulk.removeZoneToDevices.confirmMsg1', 'MDC', "{0} to zone \"{1}\"?", [pattern, me.zoneName]);
+
+
                     break;
                 case 'removeFromZone':
-                    pattern = Uni.I18n.translate('searchItems.bulk.removeFromZone.confirmMsg', 'MDC', 'Unlink {0} devices from zone "{1}" (if linked)?');
-                    titleText = Ext.String.format(pattern, me.devices.length, me.zoneName, false);
+                    pattern = Uni.I18n.translatePlural('searchItems.bulk.removeDeviceFromZone.confirmMsg', me.devices.length, 'MDC',
+                        'Unlink {0}  of {0} device',
+                        'Unlink {0}  of {0} device',
+                        'Unlink {0}  of {0} devices');
+
+                    titleText = Uni.I18n.translate('searchItems.bulk.removeZoneToDevices.confirmMsg1', 'MDC', "{0} from zone '{1}'?", [pattern, me.zoneName]);
                     break;
             }
         }
@@ -1233,10 +1244,24 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
                 break;
             case 'addToZone':
-                bodyText = Uni.I18n.translate('searchItems.bulk.addToZoneMsg', 'MDC', 'The selected devices will be linked to the chosen zone');
+                if (me.allDevices) {
+                    bodyText = Uni.I18n.translate('searchItems.bulk.addToZoneMsg', 'MDC', 'The selected devices will be linked to the chosen zone');
+                } else {
+                    bodyText = Uni.I18n.translatePlural('searchItems.bulk.addDeviceToZoneMsg', me.devices.length, 'MDC',
+                        'The selected device will be linked to the chosen zone',
+                        'The selected device will be linked to the chosen zone',
+                        'The selected devices will be linked to the chosen zone');
+                }
                 break;
             case 'removeFromZone':
-                bodyText = Uni.I18n.translate('searchItems.bulk.removeFromZoneMsg', 'MDC', 'The selected devices will be unlinked from the chosen zone');
+                if (me.allDevices) {
+                    bodyText = Uni.I18n.translate('searchItems.bulk.removeFromZoneMsg', 'MDC', 'The selected devices will be unlinked from the chosen zone');
+                } else {
+                    bodyText = Uni.I18n.translatePlural('searchItems.bulk.removeDeviceFromZoneMsg', me.devices.length, 'MDC',
+                        'The selected device will be unlinked from the chosen zone',
+                        'The selected device will be unlinked from the chosen zone',
+                        'The selected devices will be unlinked from the chosen zone');
+                }
                 break;
         }
 

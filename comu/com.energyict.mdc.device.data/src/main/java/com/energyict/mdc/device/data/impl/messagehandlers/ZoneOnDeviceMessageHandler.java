@@ -5,14 +5,9 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.zone.EndDeviceZone;
-import com.elster.jupiter.metering.zone.EndDeviceZoneBuilder;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.Zone;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.transaction.CommitException;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.Device;
@@ -20,13 +15,9 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.ZoneOnDeviceQueueMessage;
 
-
-import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
 
 public class ZoneOnDeviceMessageHandler implements MessageHandler {
     private static final Logger LOGGER = Logger.getLogger(ZoneOnDeviceMessageHandler.class.getSimpleName());
@@ -82,19 +73,20 @@ public class ZoneOnDeviceMessageHandler implements MessageHandler {
     private void addZone(Zone zone, Device device, ZoneOnDeviceQueueMessage queueMessage) {
 
         Optional<EndDeviceZone> endDeviceZone = endDeviceZoneByZoneType(zone, device);
-        if (!endDeviceZone.isPresent()) {
-            try {
+        try {
+            if (!endDeviceZone.isPresent()) {
                 meteringZoneService.newEndDeviceZoneBuilder()
                         .withEndDevice(meteringService
                                 .findEndDeviceByName(device.getName()).get())
                         .withZone(zone)
                         .create();
-            } catch(Exception e){
-                LOGGER.log(Level.WARNING, e.getLocalizedMessage());
+
+            } else {
+                endDeviceZone.get().setZone(zone);
+                endDeviceZone.get().save();
             }
-        } else {
-            endDeviceZone.get().setZone(zone);
-            endDeviceZone.get().save(); // don't touch zonetype
+        } catch(Exception e){
+            LOGGER.log(Level.WARNING, e.getLocalizedMessage());
         }
     }
 
@@ -112,9 +104,14 @@ public class ZoneOnDeviceMessageHandler implements MessageHandler {
     }
 
     public Optional<EndDeviceZone> endDeviceZoneByZoneType(Zone zone, Device device){
-        return  meteringZoneService.getByEndDevice(meteringService.findEndDeviceByName(device.getName()).get())
-                .stream()
-                .filter(endDeviceZone->endDeviceZone.getZone().getZoneType().getId() == zone.getZoneType().getId())
-                .findFirst();
+        Optional<EndDevice> endDevice = meteringService.findEndDeviceByName(device.getName());
+        if(endDevice.isPresent()) {
+            return meteringZoneService.getByEndDevice(endDevice.get())
+                    .stream()
+                    .filter(endDeviceZone -> endDeviceZone.getZone().getZoneType().getId() == zone.getZoneType().getId())
+                    .findFirst();
+        }
+
+        return Optional.empty();
     }
 }

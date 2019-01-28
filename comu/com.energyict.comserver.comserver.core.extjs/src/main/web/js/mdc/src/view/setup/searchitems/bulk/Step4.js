@@ -127,11 +127,25 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
 
     showWarningZoneTypeAlreadyLinkedToDevice: function (devices) {
         var me = this,
+            titleWarning,
             devicesPanel = {
                 xtype: 'panel',
                 itemId: 'warning-device-zones-panel',
                 ui: 'tile',
                 width: 600,
+                items: [
+                    {
+                        xtype: 'uni-form-info-message',
+                        style: 'border: 0px;',
+                        margin: '7 0 17 0',
+                        itemId: 'device-zones-error-msg',
+                        iconCmp: {
+                            xtype: 'component',
+                            style: 'font-size: 28px; color: #eb5642; margin: 0px -22px 0px 0px;',
+                            cls: 'icon-warning'
+                        },
+                    }
+                ]
             },
             zonesContainer = {
                 itemId: 'warning-device-zones',
@@ -140,9 +154,15 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
 
         me.add(devicesPanel);
         me.down('#warning-device-zones-panel').add(zonesContainer);
-        if (!Ext.isEmpty(devices)) {
-            me.down('#warning-device-zones-panel').setTitle(Uni.I18n.translate('searchItems.bulk.WarningDevicesLinkedToSameZoneType', 'MDC', '{0} devices already have another zone with the same zone type defined', devices.length));
-            Ext.Array.each(devices, function (device) {
+        if (!Ext.isEmpty(devices.deviceNames)) {
+
+            titleWarning = Uni.I18n.translatePlural('searchItems.bulk.WarningDeviceLinkedToSameZoneType', devices.total, 'MDC',
+                '{0} device already have another zone with the same zone type defined',
+                '{0} device already have another zone with the same zone type defined',
+                '{0} devices already have another zone with the same zone type defined', devices.total);
+
+            me.down('#device-zones-error-msg').setText(titleWarning);
+            Ext.Array.each(devices.deviceNames, function (device) {
                 me.down('#warning-device-zones-panel').down('#warning-device-zones').add({
                         xtype: 'displayfield',
                         labelWidth: 120,
