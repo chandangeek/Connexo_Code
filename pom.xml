@@ -572,7 +572,8 @@
 		<profile>
 			<id>sencha-build</id>
 			<properties>
-				<sencha.ext.dir>${project.basedir}/copl/com.elster.jupiter.extjs/src/main/web/js/ext</sencha.ext.dir>
+				<!-- This is ugly but will work as long as we keep 3 nodes deep FE modules -->
+				<sencha.ext.dir>../../copl/com.elster.jupiter.extjs/src/main/web/js/ext</sencha.ext.dir>
 			</properties>
 			<build>
 				<plugins>
