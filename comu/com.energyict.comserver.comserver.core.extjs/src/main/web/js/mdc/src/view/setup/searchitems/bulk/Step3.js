@@ -14,7 +14,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.util.FormErrorMessage',
         'Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid',
-        'Bpm.startprocess.view.StartProcess'
+        'Bpm.startprocess.view.StartProcess',
+        'Mdc.view.setup.searchitems.bulk.ZoneSelectionPanel'
     ],
 
     title: Uni.I18n.translate('searchItems.bulk.step3title', 'MDC', 'Step 3: Action details'),
@@ -183,6 +184,10 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                     additionalReasons: [Uni.I18n.translate('startProcess.empty.list.item', 'MDC', 'No processes are available for the current device state.')],
                 }
 
+            },
+            {
+                xtype: 'add-to-zone-panel',
+                itemId: 'device-zone-add-panel',
             }
         ];
         me.callParent(arguments);

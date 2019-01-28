@@ -35,6 +35,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -78,6 +79,8 @@ public class ZoneResource {
             Privileges.Constants.ADMINISTRATE_ZONE})
     public PagedInfoList getZoneTypes(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey, @BeanParam JsonQueryParameters queryParameters) {
         return PagedInfoList.fromPagedList("types", meteringZoneService.getZoneTypes(appKey).stream()
+                .filter(zoneType -> meteringZoneService
+                        .getZones(appKey, meteringZoneService.newZoneFilter().setZoneTypes(Collections.singletonList(zoneType.getId()))).stream().count() != 0)
                 .sorted((zoneType1, zoneType2) -> zoneType1.getName().compareToIgnoreCase(zoneType2.getName()))
                 .map(zoneTypes -> zoneTypeInfoFactory.from(zoneTypes))
                 .collect(Collectors.toList()), queryParameters);

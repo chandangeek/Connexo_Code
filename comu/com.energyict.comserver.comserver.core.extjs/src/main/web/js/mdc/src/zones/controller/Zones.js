@@ -26,7 +26,6 @@ Ext.define('Mdc.zones.controller.Zones',{
         {ref: 'deviceZonePreviewForm', selector: '#device-zone-preview-form'},
         {ref: 'editDeviceZoneMenuItem', selector: '#edit-device-zone'},
         {ref: 'deviceZoneDetails', selector: '#deviceZoneDetailsForm'},
-        //{ref: 'countButton', selector: 'group-details button[action=countDevicesOfZone]'}
     ],
 
     init: function () {

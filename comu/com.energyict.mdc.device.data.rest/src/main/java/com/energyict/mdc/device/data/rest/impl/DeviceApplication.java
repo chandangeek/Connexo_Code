@@ -213,6 +213,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceValidationResource.class,
                 LoadProfileResource.class,
                 BulkScheduleResource.class,
+                BulkZoneResource.class,
                 DeviceScheduleResource.class,
                 DeviceSharedScheduleResource.class,
                 DeviceComTaskResource.class,

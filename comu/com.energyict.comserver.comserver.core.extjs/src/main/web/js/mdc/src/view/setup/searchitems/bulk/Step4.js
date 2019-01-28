@@ -71,6 +71,10 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         this.down('#strategyform').hide();
     },
 
+    showStrategyForm: function () {
+        this.down('#strategyform').show();
+    },
+
 
     showChangeDeviceConfigConfirmation: function (title, text, solveLink, additionalText, type) {
         var bodyText, widget,
@@ -119,6 +123,38 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         this.removeAll();
         this.add(widget);
         Ext.resumeLayouts(true);
-    }
+    },
+
+    showWarningZoneTypeAlreadyLinkedToDevice: function (devices) {
+        var me = this,
+            devicesPanel = {
+                xtype: 'panel',
+                itemId: 'warning-device-zones-panel',
+                ui: 'tile',
+                width: 600,
+            },
+            zonesContainer = {
+                itemId: 'warning-device-zones',
+                xtype: 'fieldcontainer'
+            };
+
+        me.add(devicesPanel);
+        me.down('#warning-device-zones-panel').add(zonesContainer);
+        if (!Ext.isEmpty(devices)) {
+            me.down('#warning-device-zones-panel').setTitle(Uni.I18n.translate('searchItems.bulk.WarningDevicesLinkedToSameZoneType', 'MDC', '{0} devices already have another zone with the same zone type defined', devices.length));
+            Ext.Array.each(devices, function (device) {
+                me.down('#warning-device-zones-panel').down('#warning-device-zones').add({
+                        xtype: 'displayfield',
+                        labelWidth: 120,
+                        value: device,
+                        margin: '0 0 0 15',
+                        renderer: function (value) {
+                            return '<a href="#/devices/' + encodeURIComponent(value) + '">' + Ext.String.htmlEncode(value) + '</a>';
+                        },
+                    });
+            });
+        }
+    },
+
 
 });
