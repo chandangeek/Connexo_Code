@@ -334,6 +334,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>tasks</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.zone</artifactId>
+        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>

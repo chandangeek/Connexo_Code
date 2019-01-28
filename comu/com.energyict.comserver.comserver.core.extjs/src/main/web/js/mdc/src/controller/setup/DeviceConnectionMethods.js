@@ -123,6 +123,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         });
     },
 
+
     showDeviceConnectionMethods: function (deviceId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],

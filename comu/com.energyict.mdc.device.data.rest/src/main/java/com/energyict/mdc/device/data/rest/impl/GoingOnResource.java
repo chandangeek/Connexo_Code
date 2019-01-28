@@ -250,16 +250,19 @@ public class GoingOnResource {
             goingOnInfo.id = processInstanceInfo.processId;
             goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
+            goingOnInfo.status = processInstanceInfo.status;
             goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).filter(not(String::isEmpty)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);
             goingOnInfo.severity = severity(goingOnInfo.dueDate);
             goingOnInfo.userAssignee = userTaskInfo.flatMap(info -> Optional.ofNullable(info.actualOwner)).orElse(null);
             goingOnInfo.userAssigneeIsCurrentUser = userTaskInfo.flatMap(info -> Optional.ofNullable(info.isAssignedToCurrentUser)).orElse(false);
             goingOnInfo.workGroupAssignee = userTaskInfo.flatMap(info -> Optional.ofNullable(info.workgroup)).orElse(null);
+            goingOnInfo.userTaskInfo = userTaskInfo.orElse(null);
+
             Optional<WorkGroup> workGroup = goingOnInfo.workGroupAssignee != null ? userService.getWorkGroup(goingOnInfo.workGroupAssignee) : Optional.empty();
             if(workGroup.isPresent()){
                 goingOnInfo.isMyWorkGroup = workGroup.get().getUsersInWorkGroup().contains(currentUser);
             }
-            goingOnInfo.status = processInstanceInfo.status;
+
             if(goingOnInfo.status != null){
                 switch (goingOnInfo.status) {
                     case "0":

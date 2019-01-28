@@ -28,6 +28,12 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         href: '#/devices/' + encodeURIComponent(deviceId) + '/attributes'
                     },
                     {
+                        text: Uni.I18n.translate('devicemenu.zones', 'MDC', 'Zones'),
+                        privileges: Mdc.privileges.Device.viewOrAdministrateDeviceData,
+                        itemId: 'device-zones-link',
+                        href: '#/devices/' + encodeURIComponent(deviceId) + '/zones'
+                    },
+                    {
                         text: Uni.I18n.translate('general.history', 'MDC', 'History'),
                         privileges: Mdc.privileges.Device.viewDeviceData,
                         itemId: 'device-history-link',
