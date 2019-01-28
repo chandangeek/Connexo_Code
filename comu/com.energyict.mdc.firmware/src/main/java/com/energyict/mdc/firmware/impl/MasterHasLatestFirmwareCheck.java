@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCheck;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -37,25 +38,28 @@ public class MasterHasLatestFirmwareCheck implements FirmwareCheck {
 
     @Override
     public void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
-        topologyService.getPhysicalGateway(deviceUtils.getDevice())
-                .map(firmwareService::getFirmwareManagementDeviceUtilsFor)
-                .ifPresent(masterDeviceUtils -> { // TODO: and if check is enabled
-                    if (!masterDeviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
-                        throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_FIRMWARE_NOT_READOUT);
-                    }
-                    Device master = masterDeviceUtils.getDevice();
-                    DeviceType masterDeviceType = master.getDeviceType();
-                    EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION).stream()
-                            .filter(firmwareType -> firmwareService.isFirmwareTypeSupported(masterDeviceType, firmwareType))
-                            .forEach(firmwareType -> {
-                                Optional<FirmwareVersion> maximum = firmwareService.getMaximumFirmware(masterDeviceType, EnumSet.of(firmwareType));
-                                if (!maximum.isPresent() || !firmwareService.getActiveFirmwareVersion(master, firmwareType)
-                                        .map(ActivatedFirmwareVersion::getFirmwareVersion)
-                                        .filter(maximum.get()::equals)
-                                        .isPresent()) {
-                                    throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_FIRMWARE_NOT_LATEST);
-                                }
-                            });
-                });
+        Device device = deviceUtils.getDevice();
+        if (firmwareService.isFirmwareCheckActivatedForStatus(device.getDeviceType(), FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK, firmwareVersion.getFirmwareStatus())) {
+            topologyService.getPhysicalGateway(device)
+                    .map(firmwareService::getFirmwareManagementDeviceUtilsFor)
+                    .ifPresent(masterDeviceUtils -> {
+                        if (!masterDeviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
+                            throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_FIRMWARE_NOT_READOUT);
+                        }
+                        Device master = masterDeviceUtils.getDevice();
+                        DeviceType masterDeviceType = master.getDeviceType();
+                        EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION).stream()
+                                .filter(firmwareType -> firmwareService.isFirmwareTypeSupported(masterDeviceType, firmwareType))
+                                .forEach(firmwareType -> {
+                                    Optional<FirmwareVersion> maximum = firmwareService.getMaximumFirmware(masterDeviceType, EnumSet.of(firmwareType));
+                                    if (!maximum.isPresent() || !firmwareService.getActiveFirmwareVersion(master, firmwareType)
+                                            .map(ActivatedFirmwareVersion::getFirmwareVersion)
+                                            .filter(maximum.get()::equals)
+                                            .isPresent()) {
+                                        throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_FIRMWARE_NOT_LATEST);
+                                    }
+                                });
+                    });
+        }
     }
 }

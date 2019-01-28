@@ -5,20 +5,21 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCheck;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
-import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
 
 public class NoDowngradeFirmwareCheck implements FirmwareCheck {
-    private final FirmwareService firmwareService;
+    private final FirmwareServiceImpl firmwareService;
     private final Thesaurus thesaurus;
 
     @Inject
-    NoDowngradeFirmwareCheck(FirmwareService firmwareService, Thesaurus thesaurus) {
+    NoDowngradeFirmwareCheck(FirmwareServiceImpl firmwareService, Thesaurus thesaurus) {
         this.firmwareService = firmwareService;
         this.thesaurus = thesaurus;
     }
@@ -30,15 +31,17 @@ public class NoDowngradeFirmwareCheck implements FirmwareCheck {
 
     @Override
     public void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
-        // TODO if check is enabled
-        if (!deviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
-            throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_FIRMWARE_NOT_READOUT);
-        }
-        if (firmwareService.getActiveFirmwareVersion(deviceUtils.getDevice(), firmwareVersion.getFirmwareType())
-                .map(ActivatedFirmwareVersion::getFirmwareVersion)
-                .filter(current -> current.compareTo(firmwareVersion) > 0)
-                .isPresent()) {
-            throw new FirmwareCheckException(thesaurus, MessageSeeds.UPLOADED_FIRMWARE_RANK_BELOW_CURRENT);
+        Device device = deviceUtils.getDevice();
+        if (firmwareService.isFirmwareCheckActivatedForStatus(device.getDeviceType(), FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK, firmwareVersion.getFirmwareStatus())) {
+            if (!deviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
+                throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_FIRMWARE_NOT_READOUT);
+            }
+            if (firmwareService.getActiveFirmwareVersion(device, firmwareVersion.getFirmwareType())
+                    .map(ActivatedFirmwareVersion::getFirmwareVersion)
+                    .filter(current -> current.compareTo(firmwareVersion) > 0)
+                    .isPresent()) {
+                throw new FirmwareCheckException(thesaurus, MessageSeeds.UPLOADED_FIRMWARE_RANK_BELOW_CURRENT);
+            }
         }
     }
 }

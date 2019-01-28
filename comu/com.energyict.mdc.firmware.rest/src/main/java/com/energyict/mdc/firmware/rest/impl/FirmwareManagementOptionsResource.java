@@ -67,7 +67,7 @@ public class FirmwareManagementOptionsResource {
         return getFirmwareManagementOptions(deviceType);
     }
 
-    public FirmwareManagementOptionsInfo getFirmwareManagementOptions(DeviceType deviceType) {
+    private FirmwareManagementOptionsInfo getFirmwareManagementOptions(DeviceType deviceType) {
         FirmwareManagementOptionsInfo firmwareManagementOptionsInfo = new FirmwareManagementOptionsInfo();
         Set<ProtocolSupportedFirmwareOptions> supportedFirmwareMgtOptions = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
         Optional<FirmwareManagementOptions> firmwareMgtOptions = firmwareService.findFirmwareManagementOptions(deviceType);
@@ -100,7 +100,7 @@ public class FirmwareManagementOptionsResource {
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
-    public FirmwareManagementOptionsInfo editFirmwareManagementOptions(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareManagementOptionsInfo info) {
+    public FirmwareManagementOptionsInfo editFirmwareManagementOptions(@PathParam("deviceTypeId") long deviceTypeId, FirmwareManagementOptionsInfo info) {
         DeviceType deviceType = findDeviceTypeOrElseThrowException(deviceTypeId);
         Optional<FirmwareManagementOptions> firmwareManagementOptions = firmwareService.findAndLockFirmwareManagementOptionsByIdAndVersion(deviceType, info.version);
         if (!firmwareManagementOptions.isPresent() && firmwareService.findFirmwareManagementOptions(deviceType).isPresent()) {

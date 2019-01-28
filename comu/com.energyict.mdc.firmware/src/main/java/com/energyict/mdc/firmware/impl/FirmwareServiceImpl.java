@@ -49,6 +49,7 @@ import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
 import com.energyict.mdc.firmware.FirmwareCheck;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
@@ -206,6 +207,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                         .map(Optional::get)
                         .collect(Collectors.toSet()))
                 .orElse(Collections.emptySet());
+    }
+
+    public boolean isFirmwareCheckActivatedForStatus(DeviceType deviceType, FirmwareCheckManagementOption checkManagementOption, FirmwareStatus firmwareStatus) {
+        return findFirmwareManagementOptions(deviceType)
+                .map(firmwareManagementOptions -> firmwareManagementOptions.getTargetFirmwareStatuses(checkManagementOption))
+                .filter(statuses -> statuses.contains(firmwareStatus))
+                .isPresent();
     }
 
     public boolean isFirmwareTypeSupported(DeviceType deviceType, FirmwareType firmwareType) {
