@@ -1,5 +1,0 @@
--classpath: target/classes
--dsannotations: *
-Private-Package: com.energyict.mdc.app.help
-Export-Package: !com.energyict.mdc.app.help
-Include-Resource: src/main/web

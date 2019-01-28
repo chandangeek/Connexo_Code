@@ -1,5 +1,0 @@
--classpath: target/classes
--dsannotations: *
-Private-Package: com.elster.jupiter.system.app.help
-Export-Package: !com.elster.jupiter.system.app.help
-Include-Resource: src/main/web
