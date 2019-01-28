@@ -218,8 +218,8 @@ Ext.define('Tou.view.DetailForm', {
                     },
                     {
                           itemId: 'started-on-field',
-                          fieldLabel: 'Started on',
-                          name: Uni.I18n.translate('general.startedOn', 'TOU', 'startedOn'),
+                          fieldLabel:  Uni.I18n.translate('general.startedOn', 'TOU', 'Started on'),
+                          name:'startedOn',
                           renderer: function (value) {
                                 return value ? '<span>' + Uni.DateTime.formatDateTimeShort(value) + '</span>' : '-'
                           }

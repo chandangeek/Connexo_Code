@@ -115,7 +115,7 @@ Ext.define('Tou.view.Grid', {
                        return result;
               }
         },{
-            header: Uni.I18n.translate('general.startedOn', 'TOU', 'startedOn'),
+            header: Uni.I18n.translate('general.startedOn', 'TOU', 'Started on'),
             dataIndex: 'startedOn',
             flex: 2,
             renderer: function (value) {
