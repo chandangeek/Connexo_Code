@@ -37,6 +37,7 @@ public class MinimumLevelFirmwareCheck implements FirmwareCheck {
                 throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_FIRMWARE_NOT_READOUT);
             }
             // TODO implement check
+            // TODO: only supported firmware types
             throw new FirmwareCheckException(thesaurus, MessageSeeds.CURRENT_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED, FirmwareType.CA_CONFIG_IMAGE.getTranslation(thesaurus)); // TODO insert appropriate fw type
         }
     }

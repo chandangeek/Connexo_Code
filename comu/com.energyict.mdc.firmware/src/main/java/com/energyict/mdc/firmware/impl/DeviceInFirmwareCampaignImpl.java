@@ -166,6 +166,9 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     }
 
     private boolean doesAnyFirmwareRankingCheckFail(Device device, FirmwareVersion firmwareVersion) {
+        if (firmwareVersion.getFirmwareType() == FirmwareType.CA_CONFIG_IMAGE) {
+            return false;
+        }
         FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         return firmwareService.getFirmwareChecks()
                 .map(check -> {

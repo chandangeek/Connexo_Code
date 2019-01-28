@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -141,17 +142,19 @@ public class DeviceFirmwareMessagesResource {
     }
 
     private void performFirmwareRankingChecks(Device device, FirmwareVersion firmwareVersion) {
-        FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
-        RestValidationBuilder validationBuilder = new RestValidationBuilder();
-        firmwareService.getFirmwareChecks()
-                .forEach(check -> {
-                    try {
-                        check.execute(utils, firmwareVersion);
-                    } catch (FirmwareCheck.FirmwareCheckException e) {
-                        validationBuilder.addValidationError(new LocalizedFieldValidationException(e.getMessageSeed(), check.getTitle(thesaurus), e.getMessageArgs()));
-                    }
-                });
-        validationBuilder.validate();
+        if (firmwareVersion.getFirmwareType() != FirmwareType.CA_CONFIG_IMAGE) {
+            FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
+            RestValidationBuilder validationBuilder = new RestValidationBuilder();
+            firmwareService.getFirmwareChecks()
+                    .forEach(check -> {
+                        try {
+                            check.execute(utils, firmwareVersion);
+                        } catch (FirmwareCheck.FirmwareCheckException e) {
+                            validationBuilder.addValidationError(new LocalizedFieldValidationException(e.getMessageSeed(), check.getTitle(thesaurus), e.getMessageArgs()));
+                        }
+                    });
+            validationBuilder.validate();
+        }
     }
 
     @PUT
