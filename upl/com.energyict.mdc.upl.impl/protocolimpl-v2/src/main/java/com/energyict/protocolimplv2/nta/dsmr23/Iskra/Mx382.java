@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class Mx382 extends AbstractSmartNtaProtocol {
+    protected Mx382RegisterFactory registerFactory;
     private Dsmr23Messaging dsmr23Messaging;
     private Dsmr23MessageExecutor dsmr23MessageExecutor;
 
@@ -139,7 +140,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
         return this.dsmr23MessageExecutor;
     }
 
-    protected Dsmr23Messaging getDsmr23Messaging() {
+    private Dsmr23Messaging getDsmr23Messaging() {
         if (this.dsmr23Messaging== null) {
             this.dsmr23Messaging= new Dsmr23Messaging(getMessageExecutor(), this.getPropertySpecService(),
                     this.nlsService, this.converter, this.messageFileExtractor, this.calendarExtractor,

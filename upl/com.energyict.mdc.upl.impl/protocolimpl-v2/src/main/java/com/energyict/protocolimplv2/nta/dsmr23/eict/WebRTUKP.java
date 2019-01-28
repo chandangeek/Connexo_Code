@@ -37,6 +37,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
@@ -324,4 +325,48 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
     public ManufacturerInformation getManufacturerInformation() {
         return null;
     }
+
+    /**
+     * Return a B-Field corrected ObisCode.
+     *
+     * @param obisCode     the ObisCode to correct
+     * @param serialNumber the serialNumber of the device for which this ObisCode must be corrected
+     * @return the corrected ObisCode
+     */
+    @Override
+    public ObisCode getPhysicalAddressCorrectedObisCode(final ObisCode obisCode, final String serialNumber) {
+        int address;
+
+        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equalsIgnoreBChannel(monthlyObisCode)) {
+            address = 0;
+        } else {
+            address = getPhysicalAddressFromSerialNumber(serialNumber);
+        }
+
+        if ((address == 0 && obisCode.getB() != -1 && obisCode.getB() != 128)) { // then don't correct the obisCode
+            return obisCode;
+        }
+
+        if (address != -1) {
+            return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) address);
+        }
+        return null;
+    }
+
+//    public ObisCode getPhysicalAddressCorrectedObisCode(final ObisCode obisCode, final String serialNumber) {
+//        int address;
+//
+//        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equalsIgnoreBChannel(monthlyObisCode)) {
+//            address = 0;
+//        } else {
+//            address = getPhysicalAddressFromSerialNumber(serialNumber);
+//        }
+//        if ((address == 0 && obisCode.getB() != -1) || obisCode.getB() == 128) { // then don't correct the obisCode
+//            return obisCode;
+//        }
+//        if (address != -1) {
+//            return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) address);
+//        }
+//        return null;
+//    }
 }
