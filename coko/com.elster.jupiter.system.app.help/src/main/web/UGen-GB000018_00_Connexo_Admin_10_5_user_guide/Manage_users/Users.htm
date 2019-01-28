@@ -1,0 +1,220 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Users</title>
+
+    <link rel="stylesheet" href="Manage_users.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "4.0_3";
+    </script>
+    <meta name="brsprev" value="UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Manage_users/Understand_user_management.htm">
+    <meta name="brsnext" value="UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Manage_users/Configure_users.htm">
+    <meta name="topic-breadcrumbs" content="Manage users"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H2Section">Users</p>
+
+    <p dir="ltr" class="FM_H3SectionTopic">Manage user directories</p>
+    <p dir="ltr" class="FM_H4Topic">Understand user directories</p>
+    <p dir="ltr" class="FM_Body">A user directory is a place where you store information about users. User information includes a person's full name, user name, password, email address and other
+        personal information. </p>
+    <p dir="ltr" class="FM_Body">Using the <span data-name="SystemAdmin_App" data-val="Connexo Admin" data-showval="TRUE" data-format="SystemAdmin_App">Connexo Admin</span>&#160;application you can
+        connect to external user directories such as for example your company’s LDAP. The local directory stores internal user and group information (e.g. admin, batch executor) in the Connexo
+        database, but should not be used to add external users. </p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_70966_Add_user_directory"></a>Add user directory</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span><span class="FM_UIRef">&#160;</span>&gt; <span class="FM_UIRef">User management &gt; User directories</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Add user directory</span> and complete the following fields:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Name</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Unique name for the user directory.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">URL</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The URL of the user directory.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Back-up URL</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The back-up URL, if available.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Security protocol</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Defines the security encryption protocol for the connection between Connexo and the active directory. Depending on the selection in this field,
+                        further configuration fields appear.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Source</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">This field appears when the TLS or SSL encryption protocol is selected in </span><span class="FM_change_bar"
+                                                                                                                                                                        style="font-family : Lato; font-weight : bold; ">Security protocol</span><span
+                            class="FM_change_bar">. The source can be a certificate or a trust store.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Certificate alias</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">This field appears when the TLS or SSL encryption protocol is selected in </span><span class="FM_change_bar"
+                                                                                                                                                                        style="font-family : Lato; font-weight : bold; ">Security protocol</span><span
+                            class="FM_change_bar">&#160;and </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Certificates</span><span class="FM_change_bar">&#160;is selected as the source. Select the needed certificate from the list of available certificates.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Trust store</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">This field appears when the TLS or SSL encryption protocol is selected in </span><span class="FM_change_bar"
+                                                                                                                                                                        style="font-family : Lato; font-weight : bold; ">Security protocol</span><span
+                            class="FM_change_bar">&#160;and </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Trust stores</span><span class="FM_change_bar">&#160;is selected as the source. Select the needed trust store from the list of available trust stores.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Type</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Type of directory can be <span class="FM_UIRef">LDAP</span>&#160;or <span class="FM_UIRef">Active directory</span>.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">User</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">An LDAP user name with sufficient privileges to view the sections of the directory that contain the information for LDAP users.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Password</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The password of the user entered above.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">User base DN</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The location of the user database on the user directory.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Set as default</span>&#160;if you want this user directory to be the default one upon login. For the not default user
+        directory you first have to specify the directory name before the username e.g. Local/admin.</p>
+    <p dir="ltr" class="FM_H4Topic">Edit user directories</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span><span class="FM_UIRef">&#160;</span>&gt; <span class="FM_UIRef">User management &gt; User directories</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions.png" id="image7" src="../../assets/masterActions.png" style="max-width: 100% ;height: auto"/>&#160;and
+        select <span class="FM_UIRef">Edit</span>.</p>
+    <p dir="ltr" class="FM_BodyProcedure">Name and type can no longer be edited.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Save</span>.</p>
+    <p dir="ltr" class="FM_H4Topic">Remove user directory</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span><span class="FM_UIRef">&#160;</span>&gt; <span class="FM_UIRef">User management &gt; User directories</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions_1.png" id="image8" src="../../assets/masterActions_1.png" style="max-width: 100% ;height: auto"/>&#160;and
+        select <span class="FM_UIRef">Remove</span>. This option is only possible when the user directory is not the default directory.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Remove</span>.</p>
+</div>
+</body>
+</html>
