@@ -1,4 +1,0 @@
-(function() {
-var toc =  [{"type":"item","name":"19 Topologie","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/19_Topologie/19_Topologie-.htm"},{"type":"item","name":"Kommunikationstopologie","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/19_Topologie/19_Topologie-Kommunikationstopologie.htm"},{"type":"item","name":"Kommunikationstopologie überwachen","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/19_Topologie/19_Topologie-Kommunikationstopologie_berwachen-fqd.htm"},{"type":"item","name":"Kommunikationstopologie konfigurieren","url":"UGde-DE000031_00_Connexo_MultiSense_10_4_Benutzeranleitung/19_Topologie/19_Topologie-Kommunikationstopologie_konfigurieren.htm"}];
-window.rh.model.publish(rh.consts('KEY_TEMP_DATA'), toc, { sync:true });
-})();

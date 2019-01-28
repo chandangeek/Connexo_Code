@@ -1,1 +1,0 @@
-gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"15 Anhänge\"><item name=\"15 Anhänge\" url=\"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/15_Anhnge-02a/15_Anhnge-02a-.htm\" /><item name=\"Privileges\" url=\"UGde-DE000033_00_Connexo_Admin_10_4_Benutzeranleitung/15_Anhnge-02a/15_Anhnge-02a-Privileges.htm\" /></data>";
