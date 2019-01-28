@@ -39,6 +39,7 @@
              will be set to false by the release profile for releases -->
 		<include.source>true</include.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<baseline>0.0.1-Nessus</baseline>
 	</properties>
 
 	<!-- Repositories specification. -->
@@ -318,40 +319,6 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Bundle-Vendor>Elster</Bundle-Vendor>
-						<Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
-						<Git-SHA-1>${buildNumber}</Git-SHA-1>
-						<Git-branch>${scmBranch}</Git-branch>
-						<Build-timestamp>${timestamp}</Build-timestamp>
-						<_sources>${include.source}</_sources>
-						<_include>bnd.bnd</_include>
-					</instructions>
-					<supportedProjectTypes>
-						<supportedProjectType>bundle</supportedProjectType>
-					</supportedProjectTypes>
-					<obrRepository>none</obrRepository>
-				</configuration>
-				<executions>
-					<execution>
-						<id>baseline</id>
-						<goals>
-							<goal>baseline</goal>
-						</goals>
-						<configuration>
-							<failOnError>true</failOnError>
-							<comparisonVersion>10.6.0-Base</comparisonVersion>
-							<artifactRepoIds>
-								<artifactRepoId>eict-public</artifactRepoId>
-							</artifactRepoIds>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
 				<configuration>
@@ -397,12 +364,46 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!--plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Bundle-Vendor>Elster</Bundle-Vendor>
+						<Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
+						<Git-SHA-1>${buildNumber}</Git-SHA-1>
+						<Git-branch>${scmBranch}</Git-branch>
+						<Build-timestamp>${timestamp}</Build-timestamp>
+						<_sources>${include.source}</_sources>
+						<_include>bnd.bnd</_include>
+					</instructions>
+					<supportedProjectTypes>
+						<supportedProjectType>bundle</supportedProjectType>
+					</supportedProjectTypes>
+					<obrRepository>none</obrRepository>
+				</configuration>
+				<executions>
+					<execution>
+						<id>baseline</id>
+						<goals>
+							<goal>baseline</goal>
+						</goals>
+						<configuration>
+							<failOnError>true</failOnError>
+							<comparisonVersion>${baseline}</comparisonVersion>
+							<artifactRepoIds>
+								<artifactRepoId>eict-public</artifactRepoId>
+							</artifactRepoIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>com.elster.plugin</groupId>
 				<artifactId>bundle-version-maven-plugin</artifactId>
-				<version>1.0-SNAPSHOT</version>				
-				<configuration>				  
-				  <releasedVersion>10.4.5-Base</releasedVersion>
+				<version>1.1</version>
+				<configuration>
+				  <releasedVersion>${baseline}</releasedVersion>
 				</configuration>
 				<executions>
 					<execution>
@@ -412,7 +413,7 @@
 					</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin-->
 		</plugins>
 	</build>
 
