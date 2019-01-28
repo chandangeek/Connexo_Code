@@ -538,6 +538,11 @@
 		</profile>
 		<profile>
 			<id>sencha-deploy</id>
+            <activation>
+                <property>
+                    <name>sencha.ext.dir</name>
+                </property>
+            </activation>
 			<build>
 				<plugins>
 					<plugin>
@@ -575,9 +580,11 @@
 		</profile>
 		<profile>
 			<id>sencha-build</id>
-			<properties>
-				<sencha.ext.dir>${project.basedir}/copl/com.elster.jupiter.extjs/src/main/web/js/ext</sencha.ext.dir>
-			</properties>
+            <activation>
+                <property>
+                    <name>sencha.ext.dir</name>
+                </property>
+            </activation>
 			<build>
 				<plugins>
 					<plugin>
