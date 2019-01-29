@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
@@ -217,6 +218,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     AppService appService;
     @Mock
+    AppServerHelper appServerHelper;
+    @Mock
     MessageService messageService;
     @Mock
     LoadProfileService loadProfileService;
@@ -375,6 +378,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setFirmwareService(firmwareService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);
         application.setAppService(appService);
+        application.setAppServerHelper(appServerHelper);
         application.setMessageService(messageService);
         application.setSearchService(searchService);
         application.setLoadProfileService(loadProfileService);
