@@ -140,6 +140,28 @@ public class PacketBuilder {
         return ((getVersion() & CONFIG_FILE_MODE_BIT_MASK) == CONFIG_FILE_MODE_BIT_MASK);
     }
 
+    private void printAttributesInfo() {
+        this.logger.info("Version  = " + this.version);
+        this.logger.info("DeviceId = " + this.deviceIdentifier.toString());
+        this.logger.info("Records  = " + this.nrOfRecords);
+        this.logger.info("IP       = " + this.ipAddress);
+        this.logger.info("Sequence = " + this.seq);
+        this.logger.info("Mask     = " + Long.toHexString(this.mask));
+        if (this.nrOfAcceptedMessages == null) {
+            this.logger.info("Xmlctr   = ?");
+        } else {
+            this.logger.info("Xmlctr   = " + this.nrOfAcceptedMessages.intValue());
+        }
+
+        this.logger.info("DataLen  = " + this.contentLength);
+
+        StringBuilder dataStringBuilder = new StringBuilder();
+        for (int i = 0; i < this.data.length; i++) {
+            dataStringBuilder.append(Integer.toHexString(this.data[i] & LOWER_BYTE_BIT_MASK)).append(" ");
+        }
+        this.logger.info("Data = " + limitToVarchar2Length(dataStringBuilder));
+    }
+
     private void printAttributes() {
         this.logger.finest("Version  = " + this.version);
         this.logger.finest("DeviceId = " + this.deviceIdentifier.toString());
@@ -174,6 +196,19 @@ public class PacketBuilder {
         } else {
             version = VERSION_32BITS_3;
         } // always interprete the value as a 32 bit value
+
+        logger.info(
+                "ID: " + id +
+                "Seq: " + seq +
+                "Utc: " + utc +
+                "Code: " + code +
+                "StateBits: " + statebits +
+                "Mask: " + mask +
+                "Value: " + value +
+                "Ip: " + ip +
+                "SN: " + sn +
+                "XMLCtr: " + xmlctr
+        );
 
         getAdditionalInfo().append("Device ID: ").append(id).append(SEPARATOR);
         getAdditionalInfo().append("Serial number: ").append(sn).append(SEPARATOR);
@@ -378,6 +413,8 @@ public class PacketBuilder {
 
         // retrieve data
         data = this.getDecryptedData(in);
+
+        printAttributesInfo();
 
         if (this.logger.isLoggable(Level.FINE)) {
             this.printAttributes();

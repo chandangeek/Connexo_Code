@@ -132,6 +132,8 @@ public class InboundCommunicationHandler {
             this.publishDiscoveryResult(discoverResultType, inboundDeviceProtocol);
             findDeviceAndHandleCollectedData(inboundDeviceProtocol, context, discoverResultType);
         } catch (Exception e) {
+            Logger.getAnonymousLogger().info(e.getMessage());
+            e.printStackTrace();
             //In case we have already prepared some collected data and we have device cache among them then try to store it
             if (!inboundDeviceProtocol.getCollectedData().isEmpty()) {
                 try {
@@ -721,13 +723,13 @@ public class InboundCommunicationHandler {
         }
 
         @Override
-        public void deviceIdentified(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
-            this.loggers.forEach(each -> each.deviceIdentified(deviceIdentifier, comPort));
+        public void collectedDataWasFiltered(String dataType, DeviceIdentifier deviceIdentifier, ComPort comPort) {
+            this.loggers.forEach(each -> each.collectedDataWasFiltered(dataType, deviceIdentifier, comPort));
         }
 
         @Override
-        public void collectedDataWasFiltered(String dataType, DeviceIdentifier deviceIdentifier, ComPort comPort) {
-            this.loggers.forEach(each -> each.collectedDataWasFiltered(dataType, deviceIdentifier, comPort));
+        public void deviceIdentified(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+            this.loggers.forEach(each -> each.deviceIdentified(deviceIdentifier, comPort));
         }
 
     }
