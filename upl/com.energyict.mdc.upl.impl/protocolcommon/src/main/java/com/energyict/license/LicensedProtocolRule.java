@@ -345,6 +345,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SAGEMCOM_T210(296, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.T210", FamilyRule.DSMR_NTA),
     SAGEMCOM_XS210(296, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.XS210", FamilyRule.DSMR_NTA),
 
+    AM122 (296, "com.energyict.protocolimplv2.dlms.idis.am122.AM122"),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),

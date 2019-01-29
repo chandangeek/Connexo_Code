@@ -7,13 +7,12 @@
 
     <groupId>com.elster.partners</groupId>
     <artifactId>connexo.filter</artifactId>
-    <version>1.4.1${revision}</version>
     <name>[Partners] Connexo SSO servlet filter</name>
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>parent</artifactId>
-        <version>1.2.0</version>
+        <artifactId>copa</artifactId>
+        <version>0.0.2-Hydra-SNAPSHOT</version>
     </parent>
 
     <properties>

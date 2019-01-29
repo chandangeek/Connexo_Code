@@ -8,12 +8,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>0.0.2-Hydra-SNAPSHOT</version>
+
     </parent>
 
     <artifactId>mdc.protocols</artifactId>
-    <version>2.2.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.protocols [init PR1]</name>
     <description>
@@ -229,42 +228,42 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>dlms</artifactId>
-            <version>${protocols.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolcommon</artifactId>
-            <version>${protocols.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolimpl</artifactId>
-            <version>${protocols.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolimpl-v2</artifactId>
-            <version>${protocols.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolimpl-us</artifactId>
-            <version>${protocols.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolimpl-elster</artifactId>
-            <version>${protocols.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>connectiontypes</artifactId>
-            <version>${protocols.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>cryptoprotocols</artifactId>
-            <version>${protocols.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
