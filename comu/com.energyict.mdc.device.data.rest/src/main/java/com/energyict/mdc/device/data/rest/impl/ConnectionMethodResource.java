@@ -23,6 +23,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.ports.ComPortType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -121,8 +122,16 @@ public class ConnectionMethodResource {
         //if the connection is inbound don't check the props: host name and portPool
         if (InboundConnectionTask.class.isAssignableFrom(task.getClass()))
             return true;
+
+        if(Objects.isNull(task.getComPortPool()))
+            return false;
+
+        if (task.getComPortPool().getComPortType().equals(ComPortType.SERIAL))
+            return true;
+
+
         List<ConnectionTaskProperty> props = task.getProperties();
-        return (Objects.nonNull(task.getComPortPool()) && getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent());
+        return  (getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent());
     }
 
     private Optional<ConnectionTaskProperty> getConnnectionTaskProperty(List<ConnectionTaskProperty> properties, String name) {
