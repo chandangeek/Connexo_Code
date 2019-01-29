@@ -8,13 +8,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>0.0.2-Elatus-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.gogo</artifactId>
     <packaging>bundle</packaging>
-    <version>1.5.1${revision}</version>
     <name>[MDC] mdc.gogo</name>
 
     <dependencies>

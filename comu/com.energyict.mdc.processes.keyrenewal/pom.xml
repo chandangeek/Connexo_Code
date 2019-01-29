@@ -9,12 +9,10 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>0.0.2-Elatus-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.processes.keyrenewal.rest</artifactId>
-    <version>2.1.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.process.keyRenewal.rest</name>
     <description>

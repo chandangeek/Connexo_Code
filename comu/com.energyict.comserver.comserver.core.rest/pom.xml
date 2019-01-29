@@ -8,12 +8,10 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>0.0.2-Elatus-SNAPSHOT</version>
     </parent>
 
     <artifactId>comserver.core.rest</artifactId>
-    <version>1.5.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.comserver.core.rest [init CCR]</name>
     <description>

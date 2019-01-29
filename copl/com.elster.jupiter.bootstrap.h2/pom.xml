@@ -8,33 +8,12 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.5.5${revision}</version>
-        <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
+        <version>0.0.2-Elatus-SNAPSHOT</version>
     </parent>
     <artifactId>bootstrap.h2</artifactId>
-    <version>1.5.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.bootstrap.h2</name>
 
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <!--<_include>bnd.bnd</_include>-->
-                        <Export-Package>com.elster.jupiter.appserver</Export-Package>
-                        <Private-Package>com.elster.jupiter.appserver.impl</Private-Package>
-                        <_classpath>target/classes</_classpath>
-                        <_dsannotations>*</_dsannotations>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>
