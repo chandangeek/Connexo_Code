@@ -47,7 +47,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -112,6 +112,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile InboundCIMWebServiceExtensionFactory webServiceExtensionFactory = new InboundCIMWebServiceExtensionFactory();
     private volatile HsmEnergyService hsmEnergyService;
     private volatile SecurityManagementService securityManagementService;
+	private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -130,7 +131,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          EndPointConfigurationService endPointConfigurationService, ServiceCallService serviceCallService,
                                          JsonService jsonService, CustomPropertySetService customPropertySetService,
                                          WebServicesService webServicesService, InboundCIMWebServiceExtension webServiceExtensionFactory,
-                                         HsmEnergyService hsmEnergyService, SecurityManagementService securityManagementService) {
+                                         HsmEnergyService hsmEnergyService, SecurityManagementService securityManagementService,
+                                         DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -155,6 +157,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         activate(bundleContext);
         setHsmEnergyService(hsmEnergyService);
         setSecurityManagementService(securityManagementService);
+		setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
     }
 
     private Module getModule() {
@@ -186,6 +189,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(InboundCIMWebServiceExtensionFactory.class).toInstance(webServiceExtensionFactory);
                 bind(HsmEnergyService.class).toInstance(hsmEnergyService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
+				bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
             }
         };
     }
@@ -365,6 +369,12 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         this.securityManagementService = securityManagementService;
     }
 
+	@Reference
+	public void setDeviceLifeCycleConfigurationService(
+			DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+		this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+	}
+    
     @Override
     public Layer getLayer() {
         return Layer.SOAP;

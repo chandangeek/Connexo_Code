@@ -33,6 +33,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
@@ -70,6 +71,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 	private volatile CustomPropertySetService customPropertySetService;
 	private volatile SecurityManagementService securityManagementService;
 	private volatile HsmEnergyService hsmEnergyService;
+	private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
 	private ReplyTypeFactory replyTypeFactory;
 	private MeterConfigFaultMessageFactory messageFactory;
@@ -86,7 +88,8 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 	public MeterConfigServiceCallHandler(Thesaurus thesaurus, Clock clock, BatchService batchService,
 			DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
 			DeviceService deviceService, JsonService jsonService, CustomPropertySetService customPropertySetService,
-			SecurityManagementService securityManagementService, HsmEnergyService hsmEnergyService) {
+			SecurityManagementService securityManagementService, HsmEnergyService hsmEnergyService,
+			DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
 		this.batchService = batchService;
 		this.deviceLifeCycleService = deviceLifeCycleService;
 		this.clock = clock;
@@ -97,6 +100,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 		this.customPropertySetService = customPropertySetService;
 		this.securityManagementService = securityManagementService;
 		this.hsmEnergyService = hsmEnergyService;
+		this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
 	}
 
 	@Override
@@ -260,6 +264,12 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 		this.hsmEnergyService = hsmEnergyService;
 	}
 
+	@Reference
+	public void setDeviceLifeCycleConfigurationService(
+			DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+		this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+	}
+	
 	private void postProcessDevice(Device device, MeterInfo meterInfo) {
 		webServiceExtension.ifPresent(
 				inboundCIMWebServiceExtension -> inboundCIMWebServiceExtension.extendMeterInfo(device, meterInfo));
@@ -268,7 +278,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 	private DeviceBuilder getDeviceBuilder() {
 		if (deviceBuilder == null) {
 			deviceBuilder = new DeviceBuilder(batchService, clock, deviceLifeCycleService, deviceConfigurationService,
-					deviceService, getMessageFactory());
+					deviceService, getMessageFactory(), deviceLifeCycleConfigurationService);
 		}
 		return deviceBuilder;
 	}

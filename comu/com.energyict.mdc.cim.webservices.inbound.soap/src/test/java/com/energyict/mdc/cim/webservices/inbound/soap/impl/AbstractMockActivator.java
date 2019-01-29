@@ -37,6 +37,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import org.osgi.framework.BundleContext;
 
@@ -114,6 +115,8 @@ public abstract class AbstractMockActivator {
     private ServiceCallType serviceCallType;
     @Mock
     protected WebServicesService webServicesService;
+    @Mock
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -156,6 +159,7 @@ public abstract class AbstractMockActivator {
         activator.setSecurityManagementService(securityManagementService);
         activator.setServiceCallService(serviceCallService);
         activator.setWebServicesService(webServicesService);
+        activator.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         activator.activate(mock(BundleContext.class));
     }
 
