@@ -132,7 +132,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
 public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     public static final String SEPARATOR = ";";
-    private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
+    protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     public static final int REMOTE_DISCONNECT = 1;
     public static final int REMOTE_RECONNECT = 2;
 
@@ -330,7 +330,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         mbusClient.installSlave(primaryAddress);
     }
 
-    private void mbusReset(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void mbusReset(OfflineDeviceMessage pendingMessage) throws IOException {
         MBusClient mbusClient = getMBusClient(pendingMessage.getDeviceSerialNumber());
         mbusClient.setIdentificationNumber(new Unsigned32(0));
         mbusClient.setManufacturerID(new Unsigned16(0));

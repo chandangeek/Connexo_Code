@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.elster.jupiter</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.0.2-Hydra-SNAPSHOT</version>
+		<version>0.0.2-Elatus-SNAPSHOT</version>
 	</parent>
 
 	<groupId>com.elster.jupiter</groupId>
@@ -93,6 +93,18 @@
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.issue.datavalidation</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.issue.datavalidation.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
 			<!-- Other deps-->
 			<dependency>
 				<groupId>org.json</groupId>
@@ -118,9 +130,11 @@
 				<module>com.elster.insight.usagepoint.config.rest</module>
 				<module>com.elster.insight.usagepoint.data</module>
 				<module>com.elster.insight.usagepoint.data.rest</module>
+				<module>com.elster.insight.issue.datavalidation</module>
+				<module>com.elster.insight.issue.datavalidation.rest</module>
 				<module>com.elster.jupiter.mdm.bpm.event</module>
 				<module>com.elster.jupiter.mdm.dataquality</module>
-				<module>com.elster.jupiter.mdm.dataquality.rest</module>				
+				<module>com.elster.jupiter.mdm.dataquality.rest</module>
 			</modules>
 		</profile>
 
@@ -131,6 +145,7 @@
 			</activation>
 			<modules>
 				<module>com.elster.jupiter.mdm.test.api.rest</module>
+				<module>com.elster.jupiter.mdm.demo.customtask</module>
 			</modules>
 		</profile>
 	</profiles>

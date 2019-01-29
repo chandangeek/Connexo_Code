@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>0.0.2-Hydra-SNAPSHOT</version>
+        <version>0.0.2-Elatus-SNAPSHOT</version>
     </parent>
 
     <artifactId>demo</artifactId>
@@ -323,6 +323,10 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.topology.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.issue.datavalidation</artifactId>
         </dependency>
         <!-- TESTS -->
         <dependency>

@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.elster.jupiter</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.0.2-Hydra-SNAPSHOT</version>
+		<version>0.0.2-Elatus-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>platform</artifactId>
@@ -1196,7 +1196,7 @@
 				<module>com.elster.jupiter.webservices.rest</module>
 				<module>com.elster.jupiter.yellowfin</module>
 				<module>com.elster.jupiter.yellowfin.app</module>
-				<module>com.elster.jupiter.yellowfin.installer</module>				
+				<module>com.elster.jupiter.yellowfin.installer</module>
 				<module>com.elster.jupiter.drools-integration</module>
 			</modules>
 		</profile>

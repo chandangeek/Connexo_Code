@@ -8,10 +8,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>0.0.2-Hydra-SNAPSHOT</version>
+        <version>0.0.2-Elatus-SNAPSHOT</version>
     </parent>
     <artifactId>hsm</artifactId>
-    <name>[Jupiter] com.elster.jupiter.hsm</name>
+    <name>[HSM] com.elster.jupiter.hsm</name>
     <packaging>bundle</packaging>
 
     <properties>

@@ -8,8 +8,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>0.0.2-Hydra-SNAPSHOT</version>
-
+        <version>0.0.2-Elatus-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.protocols</artifactId>
@@ -65,6 +64,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -171,11 +174,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>metering</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
