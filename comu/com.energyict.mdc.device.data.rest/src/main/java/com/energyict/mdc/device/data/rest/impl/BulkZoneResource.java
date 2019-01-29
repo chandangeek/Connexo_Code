@@ -27,7 +27,6 @@ import com.energyict.mdc.device.data.ZoneOnDevicesFilterSpecification;
 import com.energyict.mdc.device.data.exceptions.InvalidSearchDomain;
 import com.energyict.mdc.device.data.security.Privileges;
 
-
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -65,7 +64,7 @@ public class BulkZoneResource {
 
     @Inject
     public BulkZoneResource(ExceptionFactory exceptionFactory, AppServerHelper appServerHelper,
-                                JsonService jsonService, MessageService messageService, SearchService searchService, MeteringZoneService meteringZoneService,
+                            JsonService jsonService, MessageService messageService, SearchService searchService, MeteringZoneService meteringZoneService,
                             DeviceService deviceService, MeteringService meteringService, Thesaurus thesaurus) {
         this.exceptionFactory = exceptionFactory;
         this.appServerHelper = appServerHelper;
@@ -90,7 +89,7 @@ public class BulkZoneResource {
         if (request.action == null || (!request.action.equalsIgnoreCase("addToZone") && !request.action.equalsIgnoreCase("removeFromZone"))) {
             throw exceptionFactory.newException(MessageSeeds.BAD_ACTION);
         }
-        ZoneAction zoneAction =  request.action.equalsIgnoreCase("addToZone") ? ZoneAction.Add : ZoneAction.Remove;
+        ZoneAction zoneAction = request.action.equalsIgnoreCase("addToZone") ? ZoneAction.Add : ZoneAction.Remove;
         ZoneOnDevicesFilterSpecification zoneFilter = new ZoneOnDevicesFilterSpecification();
         Stream<Device> deviceStream;
 
@@ -101,13 +100,12 @@ public class BulkZoneResource {
 
             SearchBuilder<Object> searchBuilder = getObjectSearchBuilder(zoneFilter);
             deviceStream = searchBuilder.toFinder().stream().map(Device.class::cast);
-        }
-        else {
+        } else {
             deviceStream = request.deviceIds.stream().map(deviceService::findDeviceById).filter(Optional::isPresent).map(Optional::get);
         }
 
         Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION);
-        if(destinationSpec.isPresent()) {
+        if (destinationSpec.isPresent()) {
             deviceStream.forEach(
                     device -> processMessagePost(new ZoneOnDeviceQueueMessage(device.getId(), request.zoneId, request.zoneTypeId, zoneAction), destinationSpec.get()));
         } else {
@@ -123,7 +121,7 @@ public class BulkZoneResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ZONE)
-    public Response getDevicesOnZoneType (@Context UriInfo uriInfo, @QueryParam("zoneTypeId") long zoneTypeId, @QueryParam("zoneId") long zoneId, @BeanParam JsonQueryFilter filter) {
+    public Response getDevicesOnZoneType(@Context UriInfo uriInfo, @QueryParam("zoneTypeId") long zoneTypeId, @QueryParam("zoneId") long zoneId, @BeanParam JsonQueryFilter filter) {
         MultivaluedMap<String, String> parameters = uriInfo.getQueryParameters();
 
         Stream<Device> deviceStream;
@@ -136,15 +134,15 @@ public class BulkZoneResource {
             deviceStream = searchBuilder.toFinder().stream().map(Device.class::cast);
         } else {
             List<Long> deviceIds = parameters.get("deviceIds").stream().map(deviceId -> Long.parseLong(deviceId))
-                                    .collect(Collectors.toList());
+                    .collect(Collectors.toList());
             deviceStream = deviceIds.stream().map(deviceService::findDeviceById).filter(Optional::isPresent).map(Optional::get);
         }
 
         List<Device> deviceList = getDevicesLinkedToDifferentZoneFromZoneType(deviceStream.collect(Collectors.toList()), zoneTypeId, zoneId);
 
-        return Response.ok(DeviceZoneInfo.from(deviceList.size(),deviceList .stream()
+        return Response.ok(DeviceZoneInfo.from(deviceList.size(), deviceList.stream()
                 .limit(LIMIT_DEVICES_ALREADY_LINKD_TO_ZONE_TYPE)
-                .map(device->device.getName())
+                .map(device -> device.getName())
                 .collect(Collectors.toList()))).build();
 
     }
@@ -169,7 +167,7 @@ public class BulkZoneResource {
         destinationSpec.message(json).send();
     }
 
-    public List<Device> getDevicesLinkedToDifferentZoneFromZoneType(List<Device> devices, long zoneTypeId, long zoneId){
+    public List<Device> getDevicesLinkedToDifferentZoneFromZoneType(List<Device> devices, long zoneTypeId, long zoneId) {
         List<Device> filteredDevices = new ArrayList<>();
         try {
             devices.forEach(device -> {
@@ -182,7 +180,7 @@ public class BulkZoneResource {
                             .findFirst().ifPresent(addDevice -> filteredDevices.add(device));
                 }
             });
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
         }
         return filteredDevices;
@@ -190,7 +188,7 @@ public class BulkZoneResource {
 
     private SearchBuilder<Object> getObjectSearchBuilder(ZoneOnDevicesFilterSpecification filter) {
         Optional<SearchDomain> searchDomain = searchService.findDomain(Device.class.getName());
-        if(searchDomain.isPresent()) {
+        if (searchDomain.isPresent()) {
             SearchBuilder<Object> searchBuilder = searchService.search(searchDomain.get());
             for (SearchablePropertyValue propertyValue : searchDomain.get().getPropertiesValues(getPropertyMapper(filter))) {
                 try {
@@ -201,9 +199,9 @@ public class BulkZoneResource {
             }
 
             return searchBuilder;
-        }
-        else
+        } else {
             throw new InvalidSearchDomain(thesaurus, Device.class.getName());
+        }
 
     }
 }
