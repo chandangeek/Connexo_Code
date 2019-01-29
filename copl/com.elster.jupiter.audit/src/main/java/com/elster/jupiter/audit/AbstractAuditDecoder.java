@@ -23,6 +23,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     private AuditTrailReference reference;
+    protected boolean isRemoved = false;
     private volatile Thesaurus thesaurus;
 
     public AbstractAuditDecoder init(AuditTrailReference reference) {
@@ -38,6 +39,11 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     @Override
     public Object getReference() {
         return new Object();
+    }
+
+    @Override
+    public boolean isRemoved() {
+        return isRemoved;
     }
 
     public void setThesaurus(Thesaurus thesaurus) {
@@ -171,8 +177,6 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         }
         return Optional.empty();
     }
-
-
 
     public String getDisplayName(TranslationKey key) {
         return this.thesaurus.getFormat(key).format();

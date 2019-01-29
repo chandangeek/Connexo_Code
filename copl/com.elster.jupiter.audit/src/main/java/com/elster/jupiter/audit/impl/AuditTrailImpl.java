@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class AuditTrailImpl implements AuditTrail {
     private DataModel dataModel;
     private AuditService auditService;
     private Thesaurus thesaurus;
+    private List<AuditDecoder> auditDecoders = new ArrayList<>();
 
     public enum Field {
         TABLENAME("tableName"),
@@ -80,7 +82,7 @@ public class AuditTrailImpl implements AuditTrail {
 
     @Override
     public AuditOperationType getOperation() {
-        return getAuditDecoder()
+        return getAuditDecoders()
                 .stream()
                 .findFirst()
                 .map(auditDecoder -> auditDecoder.getOperation(operation, getContext()))
@@ -115,7 +117,7 @@ public class AuditTrailImpl implements AuditTrail {
 
     @Override
     public List<AuditLogChange> getLogs() {
-        return getAuditDecoder()
+        return getAuditDecoders()
                 .stream()
                 .map(auditDecoder -> auditDecoder.getAuditLogChanges())
                 .flatMap(Collection::stream)
@@ -124,10 +126,10 @@ public class AuditTrailImpl implements AuditTrail {
 
     @Override
     public AuditReference getTouchDomain() {
-        return getAuditDecoder()
+        return getAuditDecoders()
                 .stream()
                 .findFirst()
-                .map(auditDecoder -> new AuditReferenceImpl(auditDecoder.getName(), auditDecoder.getReference()))
+                .map(auditDecoder -> new AuditReferenceImpl().from(auditDecoder))
                 .orElse(new AuditReferenceImpl());
     }
 
@@ -146,11 +148,14 @@ public class AuditTrailImpl implements AuditTrail {
         return pkColumn;
     }
 
-    private List<AuditDecoder> getAuditDecoder() {
-        return ((AuditServiceImpl) auditService)
-                .getAuditTrailDecoderHandles(this.domain, this.context)
-                .stream()
-                .map(auditReferenceResolver -> auditReferenceResolver.getAuditDecoder(new AuditTrailReferenceImpl().from(this)))
-                .collect(Collectors.toList());
+    private List<AuditDecoder> getAuditDecoders() {
+        if (auditDecoders.size() == 0) {
+            auditDecoders = ((AuditServiceImpl) auditService)
+                    .getAuditTrailDecoderHandles(this.domain, this.context)
+                    .stream()
+                    .map(auditReferenceResolver -> auditReferenceResolver.getAuditDecoder(new AuditTrailReferenceImpl().from(this)))
+                    .collect(Collectors.toList());
+        }
+        return auditDecoders;
     }
 }

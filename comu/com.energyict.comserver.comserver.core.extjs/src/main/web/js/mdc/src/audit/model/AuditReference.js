@@ -7,6 +7,7 @@ Ext.define('Mdc.audit.model.AuditReference', {
 
     fields: [
         {name: 'name', type: 'auto'},
-        {name: 'reference', type: 'auto'}
+        {name: 'reference', type: 'auto'},
+        {name: 'removed', type: 'auto'}
     ]
 });

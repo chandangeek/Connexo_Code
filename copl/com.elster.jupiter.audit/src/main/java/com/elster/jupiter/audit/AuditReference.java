@@ -12,5 +12,7 @@ public interface AuditReference {
     String getName();
 
     Object getReference();
+
+    boolean isRemoved();
 }
 

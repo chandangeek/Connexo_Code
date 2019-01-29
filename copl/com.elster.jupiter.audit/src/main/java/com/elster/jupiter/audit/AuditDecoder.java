@@ -17,6 +17,8 @@ public interface AuditDecoder {
 
     Object getReference();
 
+    boolean isRemoved();
+
     default UnexpectedNumberOfUpdatesException.Operation getOperation(UnexpectedNumberOfUpdatesException.Operation operation, AuditDomainContextType context) {
         return operation;
     }

@@ -14,6 +14,7 @@ public class AuditReferenceInfo {
 
     private String name;
     private Object reference;
+    private boolean removed;
 
     public String getName() {
         return name;
@@ -29,5 +30,13 @@ public class AuditReferenceInfo {
 
     public void setReference(Object reference) {
         this.reference = reference;
+    }
+
+    public boolean getRemoved() {
+        return removed;
+    }
+
+    public void setRemoved(boolean removed) {
+        this.removed = removed;
     }
 }

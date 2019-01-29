@@ -37,16 +37,16 @@ Ext.define('Mdc.audit.controller.Audit', {
 
     showOverview: function () {
         var me = this,
-            timeUnitsStore = me.getStore('Mdc.store.TimeUnits'),
-            widget = Ext.widget('auditSetup', {
-                convertorFn: me.valueConvertor,
-                domainConvertorFn: me.domainConvertor,
-                contextConvertorFn: me.contextConvertor,
-                scopeFn: me
-            });
+            timeUnitsStore = me.getStore('Mdc.store.TimeUnits');
 
         timeUnitsStore.load({
             callback: function () {
+                var widget = Ext.widget('auditSetup', {
+                    convertorFn: me.valueConvertor,
+                    domainConvertorFn: me.domainConvertor,
+                    contextConvertorFn: me.contextConvertor,
+                    scopeFn: me
+                });
                 me.getApplication().fireEvent('changecontentevent', widget);
             }
         });
@@ -101,11 +101,12 @@ Ext.define('Mdc.audit.controller.Audit', {
     domainConvertor: function (value, record) {
         var me = this,
             domainType = record.get('domainType'),
+            isRemoved = record.get('auditReference').removed,
             rendererLink;
 
         switch (domainType) {
             case 'DEVICE':
-                rendererLink = '<a href="#/devices/' + record.get('auditReference').name + '">' + record.get('auditReference').name + '</a>';
+                rendererLink = isRemoved == true ? record.get('auditReference').name : '<a href="#/devices/' + record.get('auditReference').name + '">' + record.get('auditReference').name + '</a>';
                 break;
             default:
                 rendererLink = record.get('auditReference').name;
@@ -116,14 +117,15 @@ Ext.define('Mdc.audit.controller.Audit', {
     contextConvertor: function (value, record) {
         var me = this,
             contextType = record.get('contextType'),
+            isRemoved = record.get('auditReference').removed,
             rendererLink;
 
         switch (contextType) {
             case 'GENERAL_ATTRIBUTES':
-                rendererLink = '<a href="#/devices/' + record.get('auditReference').name + '/generalattributes">' + value + '</a>';
+                rendererLink = isRemoved == true ? value : '<a href="#/devices/' + record.get('auditReference').name + '/generalattributes">' + value + '</a>';
                 break;
             case 'DEVICE_ATTRIBUTES':
-                rendererLink = '<a href="#/devices/' + record.get('auditReference').name + '/attributes">' + value + '</a>';
+                rendererLink = isRemoved == true ? value : '<a href="#/devices/' + record.get('auditReference').name + '/attributes">' + value + '</a>';
                 break;
             default:
                 rendererLink = record.get('auditReference').name;

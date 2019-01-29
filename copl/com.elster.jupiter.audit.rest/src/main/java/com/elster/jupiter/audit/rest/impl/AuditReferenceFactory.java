@@ -16,6 +16,7 @@ public class AuditReferenceFactory {
         AuditReferenceInfo auditReferenceInfo = new AuditReferenceInfo();
         auditReferenceInfo.setName(auditReference.getName());
         auditReferenceInfo.setReference(auditReference.getReference());
+        auditReferenceInfo.setRemoved(auditReference.isRemoved());
         return auditReferenceInfo;
     }
 }

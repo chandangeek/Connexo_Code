@@ -74,7 +74,12 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
         meteringService.findEndDeviceById(getAuditTrailReference().getPkcolumn())
                 .ifPresent(endDevice -> {
                     deviceId = Long.parseLong(endDevice.getAmrId());
-                    device = deviceService.findDeviceById(deviceId);
+                    device = deviceService.findDeviceById(Long.parseLong(endDevice.getAmrId()))
+                            .map(Optional::of)
+                            .orElseGet(() -> {
+                                isRemoved = true;
+                                return getDeviceFromHistory(Long.parseLong(endDevice.getAmrId()));
+                            });
                 });
     }
 
@@ -138,28 +143,36 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
         String displayPropertyName = deviceProtocolPropertySpecs.stream()
                 .filter(ps -> ps.getName().compareToIgnoreCase(propertyName) == 0)
                 .map(PropertySpec::getDisplayName).findFirst().orElse(propertyName);
-        PropertySpec propertySpec = Optional.of(newDeviceProtocolProperty.orElseGet(() -> oldDeviceProtocolProperty.get()))
+        /*PropertySpec propertySpec = Optional.of(newDeviceProtocolProperty.orElseGet(() -> oldDeviceProtocolProperty.get()))
                 .map(dpp -> ((DeviceProtocolPropertyImpl) dpp)
                         .getPropertySpec())
+                .orElseThrow(() -> new IllegalStateException("Cannot found propertySpec"));*/
+        PropertySpec propertySpec = device.get()
+                .getDeviceType().getDeviceProtocolPluggableClass().get()
+                .getDeviceProtocol()
+                .getPropertySpecs()
+                .stream()
+                .filter(ps -> ps.getName().compareToIgnoreCase(propertyName) == 0)
+                .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Cannot found propertySpec"));
 
         PropertyValueConverter propertyValueConverter = propertyValueInfoService.getConverter(propertySpec);
         PropertyType propertyType = propertyValueConverter.getPropertyType(propertySpec);
         String propertyTypeName = propertyValueConverter.getPropertyType(propertySpec).toString();
 
-        if (!oldDeviceProtocolProperty.isPresent() && getValueFromDeviceProtocolProperty(newDeviceProtocolProperty.get()).equals(getDefaultValue(propertySpec))) {
+        if (!oldDeviceProtocolProperty.isPresent() && getValueFromDeviceProtocolProperty(newDeviceProtocolProperty.get(), propertySpec).equals(getDefaultValue(propertySpec))) {
             return Optional.empty();
-        } else if (!newDeviceProtocolProperty.isPresent() && getValueFromDeviceProtocolProperty(oldDeviceProtocolProperty.get()).equals(getDefaultValue(propertySpec))) {
+        } else if (!newDeviceProtocolProperty.isPresent() && getValueFromDeviceProtocolProperty(oldDeviceProtocolProperty.get(), propertySpec).equals(getDefaultValue(propertySpec))) {
             return Optional.empty();
         }
 
         Object newPropertyValue = newDeviceProtocolProperty
-                .map(dpp -> getValueFromDeviceProtocolProperty(dpp))
+                .map(dpp -> getValueFromDeviceProtocolProperty(dpp, propertySpec))
                 .map(value -> encodeValue(propertyType, propertyValueConverter, propertySpec, value))
                 .orElseGet(String::new);
 
         Object oldPropertyValue = oldDeviceProtocolProperty
-                .map(dpp -> getValueFromDeviceProtocolProperty(dpp))
+                .map(dpp -> getValueFromDeviceProtocolProperty(dpp, propertySpec))
                 .map(value -> encodeValue(propertyType, propertyValueConverter, propertySpec, value))
                 .orElseGet(() -> encodeValue(propertyType, propertyValueConverter, propertySpec, getDefaultValue(propertySpec)));
 
@@ -178,10 +191,15 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
     private Object getValueFromDeviceProtocolProperty(Object value, PropertySpec propertySpec) {
         Object propertyValue;
         ValueFactory valueFactory = propertySpec.getValueFactory();
-        if (valueFactory instanceof BigDecimalFactory || valueFactory instanceof BooleanFactory) {
-            propertyValue = (Integer.parseInt(value.toString()));
+        /*if (valueFactory instanceof BigDecimalFactory || valueFactory instanceof BooleanFactory) {
+            propertyValue = (Integer.parseInt( ((DeviceProtocolPropertyImpl) value).getPropertyValue()));
         } else {
-            propertyValue = propertySpec.getValueFactory().valueFromDatabase(value);
+            propertyValue =  ((DeviceProtocolPropertyImpl) value).getPropertyValue();
+        }*/
+        if (valueFactory instanceof BigDecimalFactory || valueFactory instanceof BooleanFactory) {
+            propertyValue = (Integer.parseInt(((DeviceProtocolPropertyImpl) value).getPropertyValue()));
+        } else {
+            propertyValue = propertySpec.getValueFactory().valueFromDatabase(((DeviceProtocolPropertyImpl) value).getPropertyValue());
         }
         return propertyValue;
     }
@@ -217,9 +235,22 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
     }
 
     private List<PropertySpec> getDeviceProtocolPropertySpecs() {
-        return deviceService.findDeviceById(deviceId).map(device ->
+        return deviceService.findDeviceById(deviceId)
+                .map(Optional::of)
+                .orElseGet(() -> getDeviceFromHistory(deviceId))
+                .map(device ->
                 device.getDeviceType().getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass ->
                         deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs()).orElse(Collections.emptyList()))
                 .orElse(Collections.emptyList());
+    }
+
+    private Optional<Device> getDeviceFromHistory(long id) {
+        DataMapper<Device> dataMapper = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME).get().mapper(Device.class);
+        Map<Operator, Pair<String, Object>> historyClause = ImmutableMap.of(Operator.EQUAL, Pair.of("ID", id),
+                Operator.GREATERTHANOREQUAL, Pair.of("journaltime", getAuditTrailReference().getModTimeStart()));
+
+        return getHistoryEntries(dataMapper, historyClause)
+                .stream()
+                .findFirst();
     }
 }

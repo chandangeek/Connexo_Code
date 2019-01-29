@@ -4,36 +4,31 @@
 
 package com.elster.jupiter.audit.impl;
 
+import com.elster.jupiter.audit.AuditDecoder;
 import com.elster.jupiter.audit.AuditReference;
 
 public class AuditReferenceImpl implements AuditReference {
 
-    private String name;
-    private Object reference;
+    private AuditDecoder auditDecoder;
 
-    AuditReferenceImpl() {
-    }
-
-    AuditReferenceImpl(String name, Object reference) {
-        this.name = name;
-        this.reference = reference;
+    public AuditReferenceImpl from(AuditDecoder auditDecoder) {
+        this.auditDecoder = auditDecoder;
+        return this;
     }
 
     @Override
     public String getName() {
-        return name;
+        return auditDecoder.getName();
     }
 
     @Override
     public Object getReference() {
-        return reference;
+        return auditDecoder.getReference();
     }
 
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public boolean isRemoved() {
+        return auditDecoder.isRemoved();
     }
 
-    public void setReference(Object value) {
-        this.reference = value;
-    }
 }
