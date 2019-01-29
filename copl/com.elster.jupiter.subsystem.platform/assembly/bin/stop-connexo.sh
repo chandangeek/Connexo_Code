@@ -1,2 +1,6 @@
 #!/bin/sh
-killall start-connexo.sh
+PID=`ps auxw | pgrep start-connexo`
+for p in $PID
+do
+	pkill -P $p
+done

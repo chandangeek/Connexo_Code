@@ -8,13 +8,12 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.4.5${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>0.0.2-Hydra-SNAPSHOT</version>
+
     </parent>
 
     <artifactId>mdc.app</artifactId>
     <packaging>bundle</packaging>
-    <version>1.4.5${revision}</version>
     <name>[MDC] mdc.app</name>
     <description>
         Contains ExtJS code for the MDC app

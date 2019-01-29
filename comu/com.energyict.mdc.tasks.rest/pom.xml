@@ -8,12 +8,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.4.5${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>0.0.2-Hydra-SNAPSHOT</version>
+
     </parent>
 
     <artifactId>mdc.tasks.rest</artifactId>
-    <version>1.4.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.tasks.rest</name>
     <description>

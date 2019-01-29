@@ -5,10 +5,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>copa</artifactId>
+        <version>0.0.2-Hydra-SNAPSHOT</version>
+    </parent>
 
     <groupId>com.energyict</groupId>
     <artifactId>prepayment</artifactId>
-    <version>1.3.5${revision}</version>
+    <version>0.0.2-Hydra-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[MDC] redknee</name>
     <description>
@@ -20,4 +26,16 @@
         <module>simulator</module>
         <module>api</module>
     </modules>
+	
+	<dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.parent</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement	>
 </project>

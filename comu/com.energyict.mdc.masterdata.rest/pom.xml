@@ -8,12 +8,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.4.5${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>0.0.2-Hydra-SNAPSHOT</version>
+
     </parent>
 
     <artifactId>mdc.masterdata.rest</artifactId>
-    <version>4.1.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.masterdata.rest [init MDR]</name>
     <description>
@@ -215,6 +214,16 @@
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

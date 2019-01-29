@@ -8,11 +8,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.4.5${revision}</version>
-        <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
+        <version>0.0.2-Hydra-SNAPSHOT</version>
+
     </parent>
     <artifactId>appserver.rest</artifactId>
-    <version>1.4.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.appserver.rest</name>
 
@@ -93,6 +92,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>tasks</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>soap.whiteboard.cxf</artifactId>
         </dependency>
         <dependency>
@@ -115,7 +118,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>export</artifactId>
         </dependency>
-
 
         <!-- TEST -->
         <dependency>
