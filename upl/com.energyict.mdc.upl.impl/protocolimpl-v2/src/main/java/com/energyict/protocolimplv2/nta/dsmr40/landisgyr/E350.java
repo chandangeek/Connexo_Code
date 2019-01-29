@@ -133,7 +133,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
 
     @Override
     public String getProtocolDescription() {
-        return "Landis+Gyr E350 XEMEX DLMS (NTA DSMR4.0)";
+        return "Landis+Gyr E350 XEMEX DLMS V2 (NTA DSMR4.0)";
     }
 
     @Override
