@@ -1205,7 +1205,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         'Link {0}  of {0} device',
                         'Link {0}  of {0} devices');
 
-                    titleText = Uni.I18n.translate('searchItems.bulk.removeZoneToDevices.confirmMsg1', 'MDC', "{0} to zone \"{1}\"?", [pattern, me.zoneName]);
+                    titleText = Uni.I18n.translate('searchItems.bulk.addDevicesToZone.confirmMsg1', 'MDC', "{0} to zone \"{1}\"?", [pattern, me.zoneName]);
 
 
                     break;
