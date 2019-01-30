@@ -327,6 +327,24 @@
 			</dependency>
 			<dependency>
 				<groupId>com.energyict</groupId>
+				<artifactId>mdc.issue.devicelifecycle</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
+				<artifactId>mdc.issue.devicelifecycle.extjs</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
+				<artifactId>mdc.issue.devicelifecycle.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
 				<artifactId>mdc.issues</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
@@ -675,6 +693,9 @@
 				<module>com.energyict.mdc.issue.datavalidation</module>
 				<module>com.energyict.mdc.issue.datavalidation.extjs</module>
 				<module>com.energyict.mdc.issue.datavalidation.rest</module>
+				<module>com.energyict.mdc.issue.devicelifecycle</module>
+				<module>com.energyict.mdc.issue.devicelifecycle.extjs</module>
+				<module>com.energyict.mdc.issue.devicelifecycle.rest</module>
 				<module>com.energyict.mdc.issues</module>
 				<module>com.energyict.mdc.masterdata</module>
 				<module>com.energyict.mdc.masterdata.rest</module>

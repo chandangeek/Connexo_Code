@@ -9,7 +9,6 @@
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
         <version>1.0.0-Nessus-SNAPSHOT</version>
-
     </parent>
 
     <artifactId>mdc.app</artifactId>
@@ -176,6 +175,10 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.issue.datavalidation.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.issue.devicelifecycle.extjs</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>

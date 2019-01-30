@@ -8,11 +8,9 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>1.0.0-Nessus-SNAPSHOT</version>
     </parent>
     <artifactId>mdc.issue.devicelifecycle.extjs</artifactId>
-    <version>1.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.issue.devicelifecycle.extjs</name>
 
@@ -40,7 +38,7 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.data.validation.extjs</artifactId>
+            <artifactId>mdc.device.lifecycle.extjs</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

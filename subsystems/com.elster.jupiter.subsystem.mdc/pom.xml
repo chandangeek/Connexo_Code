@@ -262,10 +262,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.issue.devicelifecycle.rest</artifactId>
         </dependency>
-        <!--<dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.issue.devicelifecycle.extjs</artifactId>
-        </dependency> -->
+        </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.sap.soap.webservices</artifactId>

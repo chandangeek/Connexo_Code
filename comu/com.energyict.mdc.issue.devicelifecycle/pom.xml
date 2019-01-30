@@ -2,23 +2,22 @@
 <!--
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>com.energyict</groupId>
-    <artifactId>mdc.parent</artifactId>
-    <version>1.5.1${revision}</version>
-    <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
-  </parent>
+    <parent>
+        <groupId>com.energyict</groupId>
+        <artifactId>mdc.parent</artifactId>
+        <version>1.0.0-Nessus-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>mdc.issue.devicelifecycle</artifactId>
-  <version>1.0.0${revision}</version>
-  <packaging>bundle</packaging>
-  <name>[MDC] mdc.issue.devicelifecycle [init IDL]</name>
-  <description>
-    Contains MDC device lifecycle issue templates
-  </description>
+    <artifactId>mdc.issue.devicelifecycle</artifactId>
+    <packaging>bundle</packaging>
+    <name>[MDC] mdc.issue.devicelifecycle [init IDL]</name>
+    <description>
+        Contains MDC device lifecycle issue templates
+    </description>
 
     <dependencies>
         <dependency>
