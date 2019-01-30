@@ -76,7 +76,7 @@ public class LanguagesTest {
 
         languages.addTranslationsTo(nlsKey);
 
-        Optional<String> translation = nlsKey.translate(Locale.GERMAN);
+        String translation = nlsKey.translate(Locale.GERMAN).get();
 
         assertThat(translation).contains("{0} Ablesetyp hinzufügen?");
     }
