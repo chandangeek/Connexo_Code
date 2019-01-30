@@ -179,7 +179,7 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.DeviceLifecycl
         Ext.Array.each(propertyPossibleValues, function (propertyPossibleValue) {
             var item,
             jsonPossibleValue = Ext.decode(propertyPossibleValue.name);
-            //jsonPossibleValue.stateTransitionName = 'STATE'; // remove it
+            jsonPossibleValue.stateTransitionName = 'STATE'; // remove it
 
             item = me.findInByProperty(me.possibleValues, jsonPossibleValue.deviceTypeName);
             item = me.findInByProperty(item.values, jsonPossibleValue.deviceLifeCycleName);
@@ -191,7 +191,14 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.DeviceLifecycl
     },
 
     findInByProperty: function(findIn, value){
-        var index =  findIn.findIndex(idx => idx.name == value);
+        //var index =  findIn.findIndex(idx => idx.name == value);
+          var index = -1;
+          findIn.some(function(el, i) {
+            if (el.name == value) {
+                index = i;
+               return true;
+            }
+        });
         if (index <=-1){
             var item = {
                 name: value,
@@ -202,6 +209,7 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.DeviceLifecycl
         }
         return findIn[index];
     },
+
 
     loadDeviceTypes: function(){
         var me = this,
