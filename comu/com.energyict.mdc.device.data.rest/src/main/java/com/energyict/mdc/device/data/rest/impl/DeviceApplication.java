@@ -164,6 +164,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile FirmwareService firmwareService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile AppService appService;
+    private volatile AppServerHelper appServerHelper;
     private volatile MessageService messageService;
     private volatile SearchService searchService;
     private volatile LoadProfileService loadProfileService;
@@ -449,6 +450,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.aliasSearchFilterFactory = aliasSearchFilterFactory;
     }
 
+    @Reference
+    public void setAppServerHelper(AppServerHelper appServerHelper) {
+        this.appServerHelper = appServerHelper;
+    }
+
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
@@ -715,7 +721,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
             bind(DeviceAttributesInfoFactory.class).to(DeviceAttributesInfoFactory.class);
             bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
-            bind(AppServerHelper.class).to(AppServerHelper.class);
+            bind(appServerHelper).to(AppServerHelper.class);
             bind(appService).to(AppService.class);
             bind(messageService).to(MessageService.class);
             bind(loadProfileService).to(LoadProfileService.class);

@@ -15,7 +15,6 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -24,10 +23,10 @@ import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.mdc.zone.device.message.handler.factory",
         service = MessageHandlerFactory.class,
-        property = {"subscriber="+ MeteringZoneService.BULK_ZONE_QUEUE_SUBSCRIBER,
-                "destination="+ MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION},
+        property = {"subscriber=" + MeteringZoneService.BULK_ZONE_QUEUE_SUBSCRIBER,
+                "destination=" + MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION},
         immediate = true)
-public class ZoneOnDeviceMessageHandlerFactory implements MessageHandlerFactory{
+public class ZoneOnDeviceMessageHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;

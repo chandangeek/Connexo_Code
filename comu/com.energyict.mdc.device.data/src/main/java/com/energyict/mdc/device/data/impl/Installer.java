@@ -52,7 +52,7 @@ public class Installer implements FullInstaller {
     static final String COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME = "Recalculate communication schedules";
     public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME = "COMSCHED_BATCH_OBSOLETE";
     static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME = "Handle obsolete communication schedules";
-    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+    static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
     private final UserService userService;

@@ -133,7 +133,8 @@ public class DeviceZoneResource {
         meteringZoneService.getByEndDevice(getDeviceByName(name))
                 .stream()
                 .filter(endDeviceZone->endDeviceZone.getZone().getId() == zoneId)
-                .findFirst().ifPresent(endDeviceZone -> endDeviceZone.delete());
+                .findFirst()
+                .ifPresent(endDeviceZone -> endDeviceZone.delete());
 
         return Response.status(Response.Status.OK).build();
     }

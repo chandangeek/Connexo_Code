@@ -12,8 +12,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.ZoneOnDeviceQueueMessage;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -85,7 +85,7 @@ public class ZoneOnDeviceMessageHandler implements MessageHandler {
                 endDeviceZone.get().setZone(zone);
                 endDeviceZone.get().save();
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             LOGGER.log(Level.WARNING, e.getLocalizedMessage());
         }
     }
@@ -95,7 +95,7 @@ public class ZoneOnDeviceMessageHandler implements MessageHandler {
         try {
             meteringZoneService.getByEndDevice(meteringService.findEndDeviceByName(device.getName()).get())
                     .stream()
-                    .filter(endDeviceZone->endDeviceZone.getZone().getId() == zone.getId())
+                    .filter(endDeviceZone -> endDeviceZone.getZone().getId() == zone.getId())
                     .findFirst().ifPresent(endDeviceZone -> endDeviceZone.delete());
             LOGGER.info(thesaurus.getFormat(MessageSeeds.ZONE_REMOVED).format(queueMessage.zoneId, device.getName()));
         } catch (Exception e) {
@@ -103,9 +103,9 @@ public class ZoneOnDeviceMessageHandler implements MessageHandler {
         }
     }
 
-    public Optional<EndDeviceZone> endDeviceZoneByZoneType(Zone zone, Device device){
+    public Optional<EndDeviceZone> endDeviceZoneByZoneType(Zone zone, Device device) {
         Optional<EndDevice> endDevice = meteringService.findEndDeviceByName(device.getName());
-        if(endDevice.isPresent()) {
+        if (endDevice.isPresent()) {
             return meteringZoneService.getByEndDevice(endDevice.get())
                     .stream()
                     .filter(endDeviceZone -> endDeviceZone.getZone().getZoneType().getId() == zone.getZoneType().getId())
