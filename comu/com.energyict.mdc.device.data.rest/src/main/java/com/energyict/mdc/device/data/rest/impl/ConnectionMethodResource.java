@@ -125,7 +125,7 @@ public class ConnectionMethodResource {
 
         if(Objects.isNull(task.getComPortPool()))
             return false;
-
+        ///if the communication is SERIAL don't check the props: host name and portPool
         if (task.getComPortPool().getComPortType().equals(ComPortType.SERIAL))
             return true;
 
