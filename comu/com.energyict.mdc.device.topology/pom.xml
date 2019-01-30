@@ -9,12 +9,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>0.1.0-Nessus-SNAPSHOT</version>
+
     </parent>
 
     <artifactId>mdc.device.topology</artifactId>
-    <version>3.1.2${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.topology [init DTL]</name>
     <description>

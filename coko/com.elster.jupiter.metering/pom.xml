@@ -8,11 +8,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
+        <version>0.1.0-Nessus-SNAPSHOT</version>
+
     </parent>
     <artifactId>metering</artifactId>
-    <version>6.5.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.metering</name>
 

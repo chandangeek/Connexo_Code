@@ -8,12 +8,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>mdm.parent</artifactId>
-        <version>1.4.1${revision}</version>
-        <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
+        <version>0.1.0-Nessus-SNAPSHOT</version>        
     </parent>
 
     <artifactId>mdm.app.help</artifactId>
-    <version>1.1.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDM] mdm.app.help</name>
     <description>

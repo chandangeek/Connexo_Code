@@ -8,13 +8,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>mdm.parent</artifactId>
-        <version>1.4.1${revision}</version>
-        <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
+        <version>0.1.0-Nessus-SNAPSHOT</version>        
     </parent>
 
     <artifactId>mdm.metering.extjs</artifactId>
     <packaging>bundle</packaging>
-    <version>1.4.1${revision}</version>
     <name>[MDM] mdm.metering.extjs</name>
     <description>
         Contains ExtJS code for metering

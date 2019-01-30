@@ -8,13 +8,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>mdm.parent</artifactId>
-        <version>1.4.1${revision}</version>
-        <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
+        <version>0.1.0-Nessus-SNAPSHOT</version>        
     </parent>
 
     <artifactId>mdm.app</artifactId>
     <packaging>bundle</packaging>
-    <version>2.2.1${revision}</version>
     <name>[MDM] mdm.app [init MDMAPP]</name>
     <description>
         Contains ExtJS code for the insight app

@@ -8,12 +8,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
+        <version>0.1.0-Nessus-SNAPSHOT</version>
+
     </parent>
 
     <artifactId>webservices.outbound.rest.issue.actions</artifactId>
-    <version>1.1.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.webservices.outbound.rest.issue.actions</name>
     <description>Demo client issue action REST bundle for web services -- Outbound REST bundle</description>
