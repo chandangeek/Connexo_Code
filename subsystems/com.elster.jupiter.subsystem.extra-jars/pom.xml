@@ -86,16 +86,6 @@
             <artifactId>webservices.outbound.rest.issue.actions</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cim.webservices.inbound.soap</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cim.webservices.outbound.soap</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!-- COKO -->
         <dependency>
             <groupId>com.energyict</groupId>

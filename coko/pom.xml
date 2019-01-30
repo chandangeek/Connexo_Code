@@ -59,11 +59,13 @@
 				<groupId>com.elster.jupiter</groupId>
 				<artifactId>cim.webservices.inbound.soap</artifactId>
 				<version>${project.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
 				<artifactId>cim.webservices.outbound.soap</artifactId>
 				<version>${project.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
