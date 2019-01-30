@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
@@ -9,11 +8,14 @@ import com.elster.jupiter.metering.zone.EndDeviceZone;
 import com.elster.jupiter.metering.zone.EndDeviceZoneBuilder;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneType;
-
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.data.Device;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -21,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,12 +43,18 @@ public class BulkZoneResourceTest extends DeviceDataRestApplicationJerseyTest {
     private static final String APPLICATION = "nameOfApplication";
     private static final long VERSION = 1L;
 
+    private ExceptionFactory exceptionFactory;
+    private BulkZoneResource bulkZoneResource;
+
     @Mock
     private EndDeviceZoneBuilder endDeviceZoneBuilder;
     @Mock
     private DestinationSpec bulkZoneQueueDestination;
     @Mock
     private MessageBuilder msgBuilder;
+    @Mock
+    private UriInfo uriInfo;
+
 
     @Before
     public void setUp1() {
@@ -70,18 +79,28 @@ public class BulkZoneResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.of(bulkZoneQueueDestination));
         when(bulkZoneQueueDestination.message(anyString())).thenReturn(msgBuilder);
         when(appServerHelper.verifyActiveAppServerExists(anyString())).thenReturn(Boolean.TRUE);
+
+        mockUriInfo();
+        exceptionFactory = new ExceptionFactory(thesaurus);
+        bulkZoneResource = new BulkZoneResource(exceptionFactory, appServerHelper, jsonService, messageService, searchService, meteringZoneService,
+                deviceService, meteringService, thesaurus);
     }
 
     private Device mockDevice() {
         Device device = mock(Device.class);
         when(device.getVersion()).thenReturn(1L);
-        String name = "ZABF0000000";
-        when(device.getName()).thenReturn(name);
-        when(deviceService.findAndLockDeviceByNameAndVersion(name, device.getVersion())).thenReturn(Optional.of(device));
+        when(device.getName()).thenReturn(END_DEVICE_NAME);
+        when(deviceService.findAndLockDeviceByNameAndVersion(END_DEVICE_NAME, device.getVersion())).thenReturn(Optional.of(device));
         when(deviceService.findDeviceById(1L)).thenReturn(Optional.of(device));
         when(deviceService.findDeviceById(0L)).thenReturn(Optional.empty());
 
         return device;
+    }
+
+    private void mockUriInfo() {
+        MultivaluedMap<String, String> parameters = new MultivaluedHashMap<>();
+        parameters.add("deviceIds", "1");
+        when(uriInfo.getQueryParameters()).thenReturn(parameters);
     }
 
     private Zone mockZone(Long zoneId, String zoneName, String application, long version, long zoneTypeId, String zoneTypeName) {
@@ -114,12 +133,19 @@ public class BulkZoneResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testAddOrRemoveZoneToDeviceSet() {
+    public void testAddZoneToDeviceSet() {
         BulkRequestInfo info = new BulkRequestInfo();
         info.action = "addToZone"; // removeFromZone
-        info.deviceIds = Arrays.asList(0L);
+        info.deviceIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(info);
 
         Response response = target("/devices/zones").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testGetDevicesOnZoneTypeWithoutFilter() {
+        Response response = bulkZoneResource.getDevicesOnZoneType(uriInfo, ZONE_TYPE_ID, ZONE_ID, null);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 }
