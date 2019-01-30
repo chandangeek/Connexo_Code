@@ -9,7 +9,7 @@
 
 	<groupId>com.elster.jupiter</groupId>
 	<artifactId>parent</artifactId>
-	<version>0.0.2-Elatus-SNAPSHOT</version>
+	<version>0.1.0-Nessus-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>[Jupiter] com.elster.jupiter.parent</name>
 
@@ -39,7 +39,7 @@
              will be set to false by the release profile for releases -->
 		<include.source>true</include.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<baseline>0.0.1-Elatus</baseline>
+		<baseline>0.0.1-Nessus</baseline>
 	</properties>
 
 	<!-- Repositories specification. -->
@@ -227,6 +227,7 @@
 		</resources>
 		<pluginManagement>
 			<plugins>
+
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
@@ -256,7 +257,7 @@
 				<plugin>
 					<groupId>com.elster.plugin</groupId>
 					<artifactId>bundle-version-maven-plugin</artifactId>
-					<version>1.1</version>
+					<version>1.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -388,8 +389,8 @@
 							<goal>baseline</goal>
 						</goals>
 						<configuration>
-							<comparisonVersion>${baseline}</comparisonVersion>
 							<failOnError>true</failOnError>
+							<comparisonVersion>${baseline}</comparisonVersion>
 							<artifactRepoIds>
 								<artifactRepoId>eict-public</artifactRepoId>
 							</artifactRepoIds>
@@ -401,18 +402,14 @@
 				<groupId>com.elster.plugin</groupId>
 				<artifactId>bundle-version-maven-plugin</artifactId>
 				<configuration>
-					<acceptedPackages>
-						<param>com.elster</param>
-						<param>com.energyict</param>
-					</acceptedPackages>
-					<releasedVersion>${baseline}</releasedVersion>
+				  <releasedVersion>${baseline}</releasedVersion>
 				</configuration>
 				<executions>
 					<execution>
 						<phase>verify</phase>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
+					<goals>
+						<goal>enforce</goal>
+					</goals>
 					</execution>
 				</executions>
 			</plugin>

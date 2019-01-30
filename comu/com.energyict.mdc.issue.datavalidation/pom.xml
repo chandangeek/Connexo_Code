@@ -6,9 +6,10 @@
     <modelVersion>4.0.0</modelVersion>
 
   <parent>
-      <groupId>com.energyict</groupId>
-      <artifactId>mdc.parent</artifactId>
-      <version>0.0.2-Elatus-SNAPSHOT</version>
+    <groupId>com.energyict</groupId>
+    <artifactId>mdc.parent</artifactId>
+      <version>0.1.0-Nessus-SNAPSHOT</version>
+
   </parent>
 
   <artifactId>mdc.issue.datavalidation</artifactId>

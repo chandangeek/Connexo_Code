@@ -8,9 +8,10 @@
 	<parent>
 		<groupId>com.energyict</groupId>
 		<artifactId>upl</artifactId>
-		<version>0.0.2-Elatus-SNAPSHOT</version>
+		<version>0.1.0-Nessus-SNAPSHOT</version>
 	</parent>
 
+	<groupId>com.energyict</groupId>
     <artifactId>protocols</artifactId>
     <packaging>pom</packaging>
     <name>protocols</name>

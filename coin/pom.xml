@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.elster.jupiter</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.0.2-Elatus-SNAPSHOT</version>
+		<version>0.1.0-Nessus-SNAPSHOT</version>
 	</parent>
 
 	<groupId>com.elster.jupiter</groupId>
@@ -134,7 +134,7 @@
 				<module>com.elster.insight.issue.datavalidation.rest</module>
 				<module>com.elster.jupiter.mdm.bpm.event</module>
 				<module>com.elster.jupiter.mdm.dataquality</module>
-				<module>com.elster.jupiter.mdm.dataquality.rest</module>
+				<module>com.elster.jupiter.mdm.dataquality.rest</module>				
 			</modules>
 		</profile>
 

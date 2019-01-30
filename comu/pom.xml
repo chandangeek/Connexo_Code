@@ -7,7 +7,7 @@
 	    <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>0.0.2-Elatus-SNAPSHOT</version>
+        <version>0.1.0-Nessus-SNAPSHOT</version>
     </parent>
 
 	<groupId>com.energyict</groupId>
@@ -691,7 +691,7 @@
 				<module>com.energyict.mdc.scheduling.rest</module>
 				<module>com.energyict.mdc.tasks</module>
 				<module>com.energyict.mdc.tasks.rest</module>
-				<module>com.energyict.mdc.usagepoint.data.rest</module>
+				<module>com.energyict.mdc.usagepoint.data.rest</module>				
 				<!-- Can we please keep this list organized alphabetically -->
 			</modules>
 		</profile>
@@ -701,7 +701,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<modules>
-				<module>com.elster.jupiter.demo</module>
+				<module>com.energyict.demo</module>
 				<module>com.energyict.mdc.device.cps.examples</module>
 				<module>com.energyict.mdc.protocols.test</module>
 				<module>com.energyict.mdc.servicecall.examples</module>

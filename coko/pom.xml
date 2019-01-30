@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.elster.jupiter</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.0.2-Elatus-SNAPSHOT</version>
+		<version>0.1.0-Nessus-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>kore</artifactId>
@@ -205,6 +205,12 @@
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
+				<artifactId>metering.zone</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
 				<artifactId>parties</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
@@ -383,6 +389,7 @@
 				<module>com.elster.jupiter.metering.imports</module>
 				<module>com.elster.jupiter.metering.rest</module>
 				<module>com.elster.jupiter.metering.extjs</module>
+				<module>com.elster.jupiter.metering.zone</module>
 				<module>com.elster.jupiter.parties</module>
 				<module>com.elster.jupiter.parties.rest</module>
 				<module>com.elster.jupiter.slp.importers</module>
@@ -400,7 +407,7 @@
 				<module>com.elster.jupiter.yellowfin.rest</module>
 				<module>com.elster.jupiter.yellowfin.extjs</module>
 				<module>com.elster.jupiter.customtask</module>
-				<module>com.elster.jupiter.customtask.rest</module>
+				<module>com.elster.jupiter.customtask.rest</module>				
 			</modules>
 		</profile>
 		<profile>
