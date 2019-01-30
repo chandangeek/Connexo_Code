@@ -43,7 +43,7 @@ public class ConsumptionAllocationCustomPropertySet implements CustomPropertySet
     private static final String TABLE_NAME = "DOA_UP_CONSO_ALLOCATION";
     private static final String FK_CPS_USAGEPOINT = "FK_DOA_UP_CONSO_ALLOCATION";
     private static final String COMPONENT_NAME = "DOA";
-    private volatile Thesaurus thesaurus;  //lori
+    private volatile Thesaurus thesaurus;  // check in a previous version if this is necessary
 
     private PropertySpecService propertySpecService;
     private MeteringService meteringService;

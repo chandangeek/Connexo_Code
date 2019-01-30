@@ -2,6 +2,9 @@ package com.energyict.protocolimplv2.nta.dsmr23;
 
 import java.math.BigDecimal;
 
+import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_BULK_REQUEST;
+
 
 /**
  * Copyrights EnergyICT
@@ -24,5 +27,11 @@ public class Dsmr23Properties extends DlmsProperties {
 
     public boolean replayAttackPreventionEnabled(){
        return parseBooleanProperty(REPLAY_ATTACK_PREVENTION, false);
+    }
+
+    //added while porting KaifaProperties from EIServer, since it seems it was forgotten when Dsmr23Properties was ported
+    @Override
+    public boolean isBulkRequest() {
+        return getProperties().<Boolean>getTypedProperty(BULK_REQUEST, true);
     }
 }

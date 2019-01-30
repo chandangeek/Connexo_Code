@@ -34,10 +34,8 @@ import java.util.logging.Logger;
  */
 public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    static final String USER_NAME = "userName";
-    static final String PASSWORD = "password";
+    static final String USERPRINCIPAL = "com.elster.jupiter.userprincipal";
 
-    public static final String ANONYMOUS_USER = "anonymous";
     private final UserService userService;
     private InboundEndPointConfiguration endPointConfiguration;
     private final TransactionService transactionService;
@@ -80,18 +78,22 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
                     fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
                 }
             }
-            if (newSession) {
-                httpSession.setAttribute(USER_NAME, userName);
-                if (password != null) {
-                    httpSession.setAttribute(PASSWORD, password);
-                }
-            }
-        } catch (Fault e) {
+
+           request.setAttribute(USERPRINCIPAL, user.get());
+
+        } catch (
+                Fault e)
+
+        {
             throw e;
-        } catch (Exception e) {
+        } catch (
+                Exception e)
+
+        {
             logInTransaction("Exception while logging in " + userName + ":", e);
             fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
         }
+
     }
 
     private void fail(String message, int statusCode) {
