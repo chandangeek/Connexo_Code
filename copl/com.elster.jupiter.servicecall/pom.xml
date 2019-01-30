@@ -8,11 +8,9 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.4.5${revision}</version>
-        <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
+        <version>0.0.2-Hydra-SNAPSHOT</version>
     </parent>
     <artifactId>servicecall</artifactId>
-    <version>1.2.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.servicecall</name>
 
@@ -169,9 +167,19 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>soap.whiteboard.cxf</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.jayway.awaitility</groupId>
       <artifactId>awaitility</artifactId>
       <version>1.7.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

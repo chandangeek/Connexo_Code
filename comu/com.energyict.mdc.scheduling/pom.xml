@@ -9,12 +9,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.4.5${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>0.0.2-Hydra-SNAPSHOT</version>
+
     </parent>
 
     <artifactId>mdc.scheduling</artifactId>
-    <version>3.1.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.scheduling [init SCH]</name>
     <description>
@@ -212,6 +211,16 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>tasks</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>soap.whiteboard.cxf</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

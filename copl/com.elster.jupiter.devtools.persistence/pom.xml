@@ -8,11 +8,9 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.4.5${revision}</version>
-        <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
+        <version>0.0.2-Hydra-SNAPSHOT</version>
     </parent>
     <artifactId>devtools.persistence</artifactId>
-    <version>1.4.5${revision}</version>
     <packaging>jar</packaging>
     <name>[Jupiter] com.elster.jupiter.devtools.persistence : use as test dependency only</name>
 

@@ -8,12 +8,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>1.1.5${revision}</version>
+        <version>0.0.2-Hydra-SNAPSHOT</version>
     </parent>
 
     <artifactId>protocol-api</artifactId>
     <packaging>jar</packaging>
-    <version>1.1.5${revision}</version>
     <name>protocol-api</name>
 
     <dependencies>

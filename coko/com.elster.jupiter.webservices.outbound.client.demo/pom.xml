@@ -8,12 +8,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.4.5${revision}</version>
-        <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
+        <version>0.0.2-Hydra-SNAPSHOT</version>
+
     </parent>
 
     <artifactId>webservices.outbound.client.demo</artifactId>
-    <version>1.2.5${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.webservices.outbound.client.demo</name>
     <description>Demo REST bundle for web services -- Outbound REST client bundle</description>
