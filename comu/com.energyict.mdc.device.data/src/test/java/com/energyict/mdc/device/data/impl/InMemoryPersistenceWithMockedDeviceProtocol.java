@@ -28,7 +28,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -342,8 +341,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
-            bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
-            bind(MeteringZoneService.class).toInstance(mock(MeteringZoneService.class));
+            bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));;
         }
 
     }

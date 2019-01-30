@@ -157,6 +157,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile LockService lockService;
     private volatile DataVaultService dataVaultService;
     private volatile SecurityManagementService securityManagementService;
+    private volatile MeteringZoneService meteringZoneService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -172,7 +173,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private DeviceMessageService deviceMessageService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
-    private MeteringZoneService meteringZoneService;
+
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -543,9 +544,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Reference
-    public void setMeteringZoneService(MeteringZoneService meteringZoneService) {
-        this.meteringZoneService = meteringZoneService;
-    }
+    public void setMeteringZoneService(MeteringZoneService meteringZoneService) { this.meteringZoneService = meteringZoneService; }
 
     private Module getModule() {
         return new AbstractModule() {
