@@ -9,12 +9,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>mdm.parent</artifactId>
-        <version>1.4.1${revision}</version>
-        <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
+        <version>0.0.2-Elatus-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdm.issue.datavalidation</artifactId>
-    <version>1.0.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDM] mdm.issue.datavalidation</name>
     <description>

@@ -8,11 +8,9 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
+        <version>0.0.2-Elatus-SNAPSHOT</version>
     </parent>
     <artifactId>metering.cim</artifactId>
-    <version>1.5.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.metering.cim</name>
 

@@ -6,14 +6,12 @@
     <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.energyict</groupId>
-    <artifactId>mdc.parent</artifactId>
-    <version>1.5.1${revision}</version>
-    <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.parent</artifactId>
+      <version>0.0.2-Elatus-SNAPSHOT</version>
   </parent>
 
   <artifactId>mdc.issue.datavalidation</artifactId>
-  <version>1.4.1${revision}</version>
   <packaging>bundle</packaging>
   <name>[MDC] mdc.issue.datavalidation [init IDV]</name>
   <description>

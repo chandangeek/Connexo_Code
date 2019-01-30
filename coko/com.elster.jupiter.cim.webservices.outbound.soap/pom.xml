@@ -9,12 +9,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
+        <version>0.0.2-Elatus-SNAPSHOT</version>
     </parent>
 
     <artifactId>cim.webservices.outbound.soap</artifactId>
-    <version>1.2.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.cim.webservices.outbound.soap</name>
     <description>CIM specification for outbound web services</description>
@@ -90,26 +88,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>devtools</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>parties</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>usagepoint.lifecycle.config</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -128,7 +106,6 @@
                     <wsdlDirectory>src/main/resources</wsdlDirectory>
                     <wsdlFiles>
                         <wsdlFile>enddeviceconfig/ReplyEndDeviceConfig.wsdl</wsdlFile>
-                        <wsdlFile>meterreadings/SendMeterReadings.wsdl</wsdlFile>
                     </wsdlFiles>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
                     <bindingDirectory>${basedir}/src/main/resources/binding</bindingDirectory>
