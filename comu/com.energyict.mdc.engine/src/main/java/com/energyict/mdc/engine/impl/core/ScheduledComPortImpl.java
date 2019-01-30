@@ -24,16 +24,18 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ServerScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
-import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -51,6 +53,7 @@ import java.util.logging.Logger;
  */
 public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable {
 
+    private static final int SEND_TO_SLEEP_THRESHOLD = 100;
     private final ServiceProvider serviceProvider;
     private final RunningComServer runningComServer;
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
@@ -218,16 +221,37 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     private void doRun() {
+        goSleepIfWokeUpTooEarly();
         this.executeTasks();
+    }
+
+    private void goSleepIfWokeUpTooEarly() {
+        long millisBeforeRoundSecond = getMillisBeforeRoundSecond();
+        if (millisBeforeRoundSecond < SEND_TO_SLEEP_THRESHOLD) {
+            try {
+                Thread.sleep(millisBeforeRoundSecond);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private long getMillisBeforeRoundSecond() {
+        return TimeUnit.SECONDS.toMillis(1) - Instant.now().get(ChronoField.MILLI_OF_SECOND);
     }
 
     protected void reschedule() {
         try {
-            int seconds = this.schedulingInterpollDelay.getSeconds();
-            Thread.sleep(seconds * DateTimeConstants.MILLIS_PER_SECOND);
+            Thread.sleep(getSleepDurationInMs());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    private long getSleepDurationInMs() {
+        Instant now = Instant.now();
+        Instant nextExecutionMoment = now.plus(schedulingInterpollDelay.getMilliSeconds(), ChronoUnit.MILLIS).truncatedTo(ChronoUnit.MINUTES);
+        return now.until(nextExecutionMoment, ChronoUnit.MILLIS);
     }
 
     final void executeTasks() {

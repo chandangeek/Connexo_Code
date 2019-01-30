@@ -131,6 +131,18 @@ public enum LoadProfileMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpecBuilder(service, NewValueAttributeName, NewValueAttributeDefaultTranslation).finish());
         }
+    },
+    CONFIGURE_CAPTURE_DEFINITION(13014, "Configure capture definition") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.captureObjectListAttributeName, DeviceMessageConstants.captureObjectListDefaultTranslation));
+        }
+    },
+    CONFIGURE_CAPTURE_PERIOD(13015, "Configure capture period") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.durationSpec(service, capturePeriodAttributeName, capturePeriodAttributeDefaultTranslation));
+        }
     };
 
     private final long id;

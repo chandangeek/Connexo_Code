@@ -41,7 +41,6 @@ Ext.define('Cfg.zones.view.AddForm', {
                         fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                         required: true,
                         allowBlank: false,
-                        store: me.zonesStore
                     },
                     {
                         itemId: 'zone-type',
@@ -56,16 +55,6 @@ Ext.define('Cfg.zones.view.AddForm', {
                         disabled: me.edit
                             ? true
                             : false
-                    },
-                    {
-                        xtype: 'property-form',
-                        itemId: 'property-form',
-                        defaults: {
-                            width: 325,
-                            labelWidth: 260,
-                            resetButtonHidden: true
-                        },
-                        width: 1000
                     },
                     {
                         xtype: 'fieldcontainer',

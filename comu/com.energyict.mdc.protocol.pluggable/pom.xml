@@ -9,12 +9,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>1.0.0-Nessus-SNAPSHOT</version>
+
     </parent>
 
     <artifactId>mdc.protocol.pluggable</artifactId>
-    <version>4.2.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.protocol.pluggable [init PPC]</name>
     <description>

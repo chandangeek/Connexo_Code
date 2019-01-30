@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.elster.jupiter</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0-Nessus-SNAPSHOT</version>
+	</parent>
+
+	<groupId>com.elster.jupiter</groupId>
+	<artifactId>mdm.parent</artifactId>
+	<packaging>pom</packaging>
+	<name>[MDM] mdm.parent</name>
+
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>kore</artifactId>
+				<version>${project.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<!-- Project modules - please keep in alphabetical order on artifactId -->
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.app</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.app.help</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.bpm.event</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.common</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.metering.extjs</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.usagepoint.config</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.usagepoint.config.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.usagepoint.data</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.usagepoint.data.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.dataquality</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.dataquality.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.issue.datavalidation</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>mdm.issue.datavalidation.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<!-- Other deps-->
+			<dependency>
+				<groupId>org.json</groupId>
+				<artifactId>json</artifactId>
+				<version>${json.version}</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<profiles>
+		<profile>
+			<id>insight</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>com.elster.insight.app</module>
+				<module>com.elster.insight.app.help</module>
+				<module>com.elster.insight.common</module>
+				<module>com.elster.insight.metering.extjs</module>
+				<module>com.elster.insight.usagepoint.config</module>
+				<module>com.elster.insight.usagepoint.config.rest</module>
+				<module>com.elster.insight.usagepoint.data</module>
+				<module>com.elster.insight.usagepoint.data.rest</module>
+				<module>com.elster.insight.issue.datavalidation</module>
+				<module>com.elster.insight.issue.datavalidation.rest</module>
+				<module>com.elster.jupiter.mdm.bpm.event</module>
+				<module>com.elster.jupiter.mdm.dataquality</module>
+				<module>com.elster.jupiter.mdm.dataquality.rest</module>				
+			</modules>
+		</profile>
+
+		<profile>
+			<id>test-mdm-bundles</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>com.elster.jupiter.mdm.test.api.rest</module>
+				<module>com.elster.jupiter.mdm.demo.customtask</module>
+			</modules>
+		</profile>
+	</profiles>
+
+</project>
