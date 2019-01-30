@@ -478,6 +478,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         return this.validationService;
     }
 
+    @Override
+    public MeteringZoneService meteringZoneService() {
+        return this.meteringZoneService;
+    }
+
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;

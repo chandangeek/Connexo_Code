@@ -28,6 +28,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.ZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -159,6 +161,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private InMemoryBootstrapModule bootstrapModule;
     private IssueService issueService;
     private Thesaurus thesaurus;
+    private MeteringZoneService meteringZoneService;
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
         this(Clock.systemDefaultZone());
@@ -230,7 +233,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new DeviceDataModule(),
                 new CalendarModule(),
                 new WebServicesModule(),
-                new FileImportModule());
+                new FileImportModule(),
+                new ZoneModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(PluggableService.class);
@@ -246,6 +250,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.nlsService = injector.getInstance(NlsService.class);
             injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
+            this.meteringZoneService = injector.getInstance(MeteringZoneService.class);
             injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
