@@ -230,6 +230,7 @@ public class InMemoryIntegrationPersistence {
     private CronExpressionParser cronExpressionParser;
     private SecurityManagementService securityManagementService;
     private HsmEnergyService hsmEnergyService;
+    private AuditService auditService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -375,6 +376,7 @@ public class InMemoryIntegrationPersistence {
             this.deviceMessageService = injector.getInstance(DeviceMessageService.class);
             this.securityManagementService = injector.getInstance(SecurityManagementService.class);
             injector.getInstance(UsagePointLifeCycleService.class);
+            this.auditService = injector.getInstance(AuditService.class);
             initHeadEndInterface();
             initializePrivileges();
             ctx.commit();
@@ -511,6 +513,10 @@ public class InMemoryIntegrationPersistence {
         return this.deviceDataModelService.deviceService();
     }
 
+    public AuditService getAuditService() {
+        return auditService;
+    }
+
     public SchedulingService getSchedulingService() {
         return schedulingService;
     }
@@ -581,6 +587,10 @@ public class InMemoryIntegrationPersistence {
 
     public CalendarService calendarService() {
         return calendarService;
+    }
+
+    public AuditService auditService() {
+        return auditService;
     }
 
     public ServiceCallService getServiceCallService() {

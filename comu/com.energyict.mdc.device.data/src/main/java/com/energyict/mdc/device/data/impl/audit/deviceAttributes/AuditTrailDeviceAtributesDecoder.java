@@ -30,8 +30,10 @@ import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.google.common.collect.ImmutableMap;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -202,7 +204,9 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
     }
 
     private Optional<AuditLogChange> getAuditLogChangeForBatch(Device from, Device to) {
-        if (to.getBatch() != from.getBatch()) {
+        if ((to.getBatch().isPresent() != from.getBatch().isPresent()) ||
+                (to.getBatch().isPresent() && from.getBatch().isPresent() &&
+                        to.getBatch().get().getName().compareToIgnoreCase(from.getBatch().get().getName()) != 0)) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(PropertyTranslationKeys.BATCH));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
@@ -242,20 +246,112 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
             if (from != null && Meter.class.isInstance(from)) {
                 Meter meter = Meter.class.cast(from);
                 MultiplierType multiplierType = serverDeviceService.findDefaultMultiplierType();
+                List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
 
-                Optional<? extends MeterActivation> toMeterActivation = meter.getMeterActivation(to.getModTime());
-                Optional<? extends MeterActivation> fromMeterActivation = toMeterActivation
-                        .map(t -> meter.getMeterActivation(t.getStart().minusMillis(1)))
-                        .orElse(Optional.empty());
+                Optional<BigDecimal> toMultiplier = Optional.empty();
+                Optional<BigDecimal> fromMultiplier = Optional.empty();
 
-                Optional<BigDecimal> toMultiplier = toMeterActivation.map(activaton ->
-                        activaton.getMultiplier(multiplierType).map(Optional::of)
-                                .orElseGet(() -> Optional.of(MULTIPLIER_ONE)))
-                        .orElseGet(() -> Optional.of(MULTIPLIER_ONE));
-                Optional<BigDecimal> fromMultiplier = fromMeterActivation.map(activaton ->
-                        activaton.getMultiplier(multiplierType).map(Optional::of)
-                                .orElseGet(() -> Optional.of(MULTIPLIER_ONE)))
-                        .orElseGet(() -> Optional.of(MULTIPLIER_ONE));
+                Map<Instant, BigDecimal> timeSlices = new HashMap<>();
+
+
+                meterActivations.stream()
+                        .forEach(meterActivation -> {
+                            Map<Instant, BigDecimal> toJournalMultipliers = meterActivation.getJournalMultipliers();
+                            if (timeSlices.size() == 0) {
+                                timeSlices.put(((MeterActivation) meterActivation).getCreateDate(), MULTIPLIER_ONE);
+                            }
+                            if (toJournalMultipliers.size() > 0) {
+                                toJournalMultipliers.entrySet().stream()
+                                        .forEach(history -> {
+                                            timeSlices.put(history.getKey(), history.getValue());
+                                        });
+                            }
+                            if ((toJournalMultipliers.size() == 0) || (((MeterActivation) meterActivation).getEnd() == null)) {
+                                timeSlices.put(((MeterActivation) meterActivation).getModificationDate(), ((MeterActivation) meterActivation).getMultiplier(multiplierType)
+                                        .orElseGet(() -> MULTIPLIER_ONE));
+                            }
+                        });
+
+                fromMultiplier = timeSlices.entrySet().stream()
+                        .filter(timeSlice -> timeSlice.getKey().isAfter(getAuditTrailReference().getModTimeStart()))
+                        .sorted((o1, o2) -> o1.getKey().compareTo(o2.getKey()))
+                        .map(Map.Entry::getValue)
+                        .findFirst();
+                toMultiplier = timeSlices.entrySet().stream()
+                        .filter(timeSlice -> timeSlice.getKey().isAfter(getAuditTrailReference().getModTimeStart()))
+                        .sorted((o1, o2) -> o1.getKey().compareTo(o2.getKey()))
+                        .skip(1)
+                        .map(Map.Entry::getValue)
+                        .findFirst();
+               /*
+                Optional<? extends MeterActivation> toMeterActivation = meterActivations.stream()
+                        .filter(activation -> ((MeterActivation) activation).getStart().compareTo(getAuditTrailReference().getModTimeStart().truncatedTo(ChronoUnit.MINUTES))==0)
+                        .findFirst();
+
+                if (toMeterActivation.isPresent()==false){
+                    return Optional.empty();
+                }
+
+                Map<Instant, BigDecimal> toJournalMultipliers = toMeterActivation.get().getJournalMultipliers();
+                if (toJournalMultipliers.size()>0){
+                    Set<Map.Entry<Instant, BigDecimal>> f1 = toJournalMultipliers.entrySet().stream()
+                            .filter(multiplierValueJournalEntry -> multiplierValueJournalEntry.getKey().isAfter(getAuditTrailReference().getModTimeStart()) &&
+                                    multiplierValueJournalEntry.getKey().isBefore(getAuditTrailReference().getModTimeEnd()))
+                            .collect(Collectors.toSet());
+                    Set<Map.Entry<Instant, BigDecimal>> f2 = f1.stream().sorted(Comparator.comparing(Map.Entry::getKey)).collect(Collectors.toSet());
+
+                    fromMultiplier = f2.stream().map(journalEntry -> journalEntry.getValue()).findFirst();
+                    if (fromMultiplier.isPresent() == false)
+                    {
+                        Optional<? extends MeterActivation> fromMeterActivation = meterActivations.stream()
+                                .filter(activation -> ((MeterActivation) activation).getEnd().compareTo(getAuditTrailReference().getModTimeStart().truncatedTo(ChronoUnit.MINUTES))==0)
+                                .findFirst();
+
+                        fromMultiplier = fromMeterActivation.get().getJournalMultipliers().entrySet().stream()
+                                .filter(multiplierValueJournalEntry -> multiplierValueJournalEntry.getKey().isAfter(getAuditTrailReference().getModTimeStart()))
+                                .sorted(Comparator.comparing(Map.Entry::getKey))
+                                .findFirst()
+                                .map(journalEntry -> journalEntry.getValue())
+                                .map(Optional::of)
+                                .orElseGet(() -> fromMeterActivation.get().getMultiplier(multiplierType))
+                                .map(Optional::of)
+                                .orElseGet(() -> Optional.of(MULTIPLIER_ONE));
+                    }
+
+                    Set<Map.Entry<Instant, BigDecimal>> t1 = toJournalMultipliers.entrySet().stream()
+                            .filter(multiplierValueJournalEntry -> multiplierValueJournalEntry.getKey().isAfter(getAuditTrailReference().getModTimeEnd()))
+                            .collect(Collectors.toSet());
+                    Set<Map.Entry<Instant, BigDecimal>> t2 = t1.stream().sorted(Comparator.comparing(Map.Entry::getKey)).collect(Collectors.toSet());
+
+                    toMultiplier = toJournalMultipliers.entrySet().stream()
+                            .filter(multiplierValueJournalEntry -> multiplierValueJournalEntry.getKey().isAfter(getAuditTrailReference().getModTimeEnd()))
+                            .sorted(Comparator.comparing(Map.Entry::getKey))
+                            .findFirst()
+                            .map(journalEntry -> journalEntry.getValue())
+                            .map(Optional::of)
+                            .orElseGet(() -> toMeterActivation.get().getMultiplier(multiplierType))
+                            .map(Optional::of)
+                            .orElseGet(() -> Optional.of(MULTIPLIER_ONE));
+                }
+                else {
+                    toMultiplier = toMeterActivation.get().getMultiplier(multiplierType)
+                            .map(Optional::of)
+                            .orElseGet(() -> Optional.of(MULTIPLIER_ONE));
+
+                    Optional<? extends MeterActivation> fromMeterActivation = meterActivations.stream()
+                            .filter(activation -> ((MeterActivation) activation).getEnd().compareTo(getAuditTrailReference().getModTimeStart().truncatedTo(ChronoUnit.MINUTES))==0)
+                            .findFirst();
+
+                    fromMultiplier = fromMeterActivation.get().getJournalMultipliers().entrySet().stream()
+                            .filter(multiplierValueJournalEntry -> multiplierValueJournalEntry.getKey().isAfter(getAuditTrailReference().getModTimeStart()))
+                            .sorted((e1, e2) -> e2.getKey().compareTo(e1.getKey()))
+                            .findFirst()
+                            .map(journalEntry -> journalEntry.getValue())
+                            .map(Optional::of)
+                            .orElseGet(() -> fromMeterActivation.get().getMultiplier(multiplierType))
+                            .map(Optional::of)
+                            .orElseGet(() -> Optional.of(MULTIPLIER_ONE));
+                }*/
 
                 if (fromMultiplier.equals(toMultiplier) == false) {
                     AuditLogChange auditLogChange = new AuditLogChangeBuilder();
@@ -265,6 +361,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
                     fromMultiplier.ifPresent(multiplier -> auditLogChange.setPreviousValue(multiplier));
                     return Optional.of(auditLogChange);
                 }
+
             }
         } catch (Exception e) {
         }
