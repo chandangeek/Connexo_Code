@@ -143,7 +143,6 @@ public class BulkZoneResource {
                 .limit(LIMIT_DEVICES_ALREADY_LINKED_TO_ZONE_TYPE)
                 .map(device -> device.getName())
                 .collect(Collectors.toList()))).build();
-
     }
 
     private void setZoneFilterProperties(@BeanParam JsonQueryFilter filter, Optional<SearchDomain> deviceSearchDomain, ZoneOnDevicesFilterSpecification zoneFilter) {
@@ -201,6 +200,5 @@ public class BulkZoneResource {
         } else {
             throw new InvalidSearchDomain(thesaurus, Device.class.getName());
         }
-
     }
 }
