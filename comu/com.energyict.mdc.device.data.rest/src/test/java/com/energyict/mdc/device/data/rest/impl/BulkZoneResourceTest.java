@@ -1,14 +1,24 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.zone.EndDeviceZone;
 import com.elster.jupiter.metering.zone.EndDeviceZoneBuilder;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneType;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.search.SearchBuilder;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.energyict.mdc.device.data.Device;
 
 import javax.ws.rs.client.Entity;
@@ -17,6 +27,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -24,7 +36,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +69,16 @@ public class BulkZoneResourceTest extends DeviceDataRestApplicationJerseyTest {
     private MessageBuilder msgBuilder;
     @Mock
     private UriInfo uriInfo;
+    @Mock
+    private SearchDomain searchDomain;
+    @Mock
+    private SearchBuilder searchBuilder;
+    @Mock
+    private SearchBuilder.CriterionBuilder criterionBuilder;
+    @Mock
+    private Finder finder;
+    @Mock
+    private AppServerHelper appServerHelper;
 
 
     @Before
@@ -78,9 +103,14 @@ public class BulkZoneResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceZoneBuilder.create()).thenReturn(endDeviceZone1);
         when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.of(bulkZoneQueueDestination));
         when(bulkZoneQueueDestination.message(anyString())).thenReturn(msgBuilder);
-        when(appServerHelper.verifyActiveAppServerExists(anyString())).thenReturn(Boolean.TRUE);
 
         mockUriInfo();
+        when(searchService.findDomain(anyString())).thenReturn(Optional.of(searchDomain));
+        when(searchService.search((SearchDomain) any())).thenReturn(searchBuilder);
+        when(searchBuilder.toFinder()).thenReturn(finder);
+        when(finder.stream()).thenReturn(Collections.singletonList(device).stream());
+        when(searchBuilder.where((SearchableProperty) any())).thenReturn(criterionBuilder);
+
         exceptionFactory = new ExceptionFactory(thesaurus);
         bulkZoneResource = new BulkZoneResource(exceptionFactory, appServerHelper, jsonService, messageService, searchService, meteringZoneService,
                 deviceService, meteringService, thesaurus);
@@ -132,20 +162,121 @@ public class BulkZoneResourceTest extends DeviceDataRestApplicationJerseyTest {
         return endDeviceZone;
     }
 
+    private SearchableProperty mockSearchableProperty(String name) {
+        SearchableProperty property = mock(SearchableProperty.class, RETURNS_DEEP_STUBS);
+        when(property.getName()).thenReturn(name);
+        when(property.getSpecification().getName()).thenReturn(name);
+        when(property.getSpecification().getValueFactory()).thenReturn(new StringFactory());
+        when(property.getConstraints()).thenReturn(Collections.emptyList());
+        return property;
+    }
+
+    private SearchablePropertyValue mockSearchablePropertyValue(SearchableProperty searchableProperty, SearchablePropertyOperator operator, List<String> values) {
+        return new SearchablePropertyValue(searchableProperty, new SearchablePropertyValue.ValueBean(searchableProperty.getName(), operator, values));
+    }
+
     @Test
-    public void testAddZoneToDeviceSet() {
+    public void testAddZoneToDeviceSetByDeviceId() {
         BulkRequestInfo info = new BulkRequestInfo();
-        info.action = "addToZone"; // removeFromZone
+        info.action = "addToZone";
         info.deviceIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(info);
+        mockAppServers(MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION);
 
         Response response = target("/devices/zones").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
+    public void testAddZoneToDeviceSetByFilterOnDevice() {
+        BulkRequestInfo info = new BulkRequestInfo();
+        info.action = "addToZone";
+        info.filter = "[{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"2\"],\"filter\":\"\"}]}]";
+        Entity<BulkRequestInfo> json = Entity.json(info);
+        mockAppServers(MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION);
+
+        Response response = target("/devices/zones").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testAddZoneWhenNoAppServer() {
+        when(appServerHelper.verifyActiveAppServerExists(anyString())).thenReturn(Boolean.FALSE);
+        BulkRequestInfo info = new BulkRequestInfo();
+        Entity<BulkRequestInfo> json = Entity.json(info);
+
+        Response response = target("/devices/zones").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testAddZoneWithBadAction() {
+        BulkRequestInfo info = new BulkRequestInfo();
+        info.action = "bad action";
+        Entity<BulkRequestInfo> json = Entity.json(info);
+        mockAppServers(MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION);
+
+        Response response = target("/devices/zones").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testAddZoneWhenNoDestinationSpec() {
+        BulkRequestInfo info = new BulkRequestInfo();
+        info.action = "addToZone";
+        info.deviceIds = Arrays.asList(1L);
+        Entity<BulkRequestInfo> json = Entity.json(info);
+        when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.empty());
+        mockAppServers(MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION);
+
+        Response response = target("/devices/zones").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testAddZoneToDeviceWithInvalidSearchDomain() {
+        BulkRequestInfo info = new BulkRequestInfo();
+        info.action = "addToZone";
+        info.filter = "[{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"2\"],\"filter\":\"\"}]}]";
+        Entity<BulkRequestInfo> json = Entity.json(info);
+        when(searchService.findDomain(anyString())).thenReturn(Optional.empty());
+        mockAppServers(MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION);
+
+        Response response = target("/devices/zones").request().put(json);
+        assertThat(response.getStatus()).isGreaterThanOrEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
     public void testGetDevicesOnZoneTypeWithoutFilter() {
         Response response = bulkZoneResource.getDevicesOnZoneType(uriInfo, ZONE_TYPE_ID, ZONE_ID, null);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testGetDevicesOnZoneTypeWithFilter() {
+        JsonQueryFilter filter = new JsonQueryFilter("[{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"2\"],\"filter\":\"\"}]}]");
+        SearchableProperty searchableProperty = mockSearchableProperty("deviceType");
+        SearchablePropertyValue searchablePropertyValue = mockSearchablePropertyValue(searchableProperty, SearchablePropertyOperator.EQUAL, Arrays.asList("2"));
+        List<SearchablePropertyValue> spvList = Collections.singletonList(searchablePropertyValue);
+        when(searchDomain.getPropertiesValues(any())).thenReturn(spvList);
+
+        Response response = bulkZoneResource.getDevicesOnZoneType(uriInfo, ZONE_TYPE_ID, ZONE_ID, filter);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testGetDevicesOnZoneTypeWithInvalidProperty() throws Exception {
+        JsonQueryFilter filter = new JsonQueryFilter("[{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"2\"],\"filter\":\"\"}]}]");
+        SearchableProperty searchableProperty = mockSearchableProperty("deviceType");
+        when(searchableProperty.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.SINGLE);
+        SearchablePropertyValue searchablePropertyValue = mockSearchablePropertyValue(searchableProperty, SearchablePropertyOperator.EQUAL, Arrays.asList("1", "2"));
+        List<SearchablePropertyValue> spvList = Collections.singletonList(searchablePropertyValue);
+        when(searchDomain.getPropertiesValues(any())).thenReturn(spvList);
+
+        try {
+            bulkZoneResource.getDevicesOnZoneType(uriInfo, ZONE_TYPE_ID, ZONE_ID, filter);
+        } catch (Exception e) {
+            assertTrue(e.getCause() instanceof InvalidValueException);
+        }
     }
 }
