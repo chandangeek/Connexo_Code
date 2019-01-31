@@ -15,6 +15,10 @@
     <packaging>bundle</packaging>
     <name>[MDC] mdc.issue.devicelifecycle.rest</name>
 
+    <properties>
+        <baseline>(,${project.version})</baseline>
+    </properties>
+
     <profiles>
         <profile>
             <id>restdoc</id>
