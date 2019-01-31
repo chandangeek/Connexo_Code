@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Tou.view.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.tou-campaigns-action-menu',
-    requires:[
+    requires: [
         'Tou.privileges.TouCampaign'
     ],
     returnToCampaignOverview: false,
@@ -14,13 +14,11 @@ Ext.define('Tou.view.ActionMenu', {
     initComponent: function () {
         var me = this;
 
-        me.items = [
-            {
-                 text: Uni.I18n.translate('tou.campaigns.editCampaign', 'TOU', 'Edit campaign'),
-                 action: me.returnToCampaignOverview ? 'editCampaignAndReturnToOverview' : 'editCampaign',
-                 section: this.SECTION_EDIT
-            },
-            {
+        me.items = [{
+                text: Uni.I18n.translate('tou.campaigns.editCampaign', 'TOU', 'Edit campaign'),
+                action: me.returnToCampaignOverview ? 'editCampaignAndReturnToOverview' : 'editCampaign',
+                section: this.SECTION_EDIT
+            }, {
                 text: Uni.I18n.translate('tou.campaigns.cancelCampaign', 'TOU', 'Cancel campaign'),
                 action: 'cancelCampaign',
                 section: this.SECTION_ACTION

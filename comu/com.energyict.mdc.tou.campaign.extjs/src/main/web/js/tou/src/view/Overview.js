@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Tou.view.Overview', {
@@ -16,12 +16,10 @@ Ext.define('Tou.view.Overview', {
     initComponent: function () {
         var me = this;
 
-        me.content = [
-            {
+        me.content = [{
                 title: Uni.I18n.translate('tou.campaigns.touCampaigns', 'TOU', 'ToU campaigns'),
                 ui: 'large',
-                items: [
-                    {
+                items: [{
                         xtype: 'preview-container',
                         itemId: 'tou-preview-container',
                         grid: {
@@ -34,10 +32,9 @@ Ext.define('Tou.view.Overview', {
                             itemId: 'tou-empty-component',
                             title: Uni.I18n.translate('tou.campaigns.empty.title', 'TOU', 'No ToU campaigns found'),
                             reasons: [
-                                 Uni.I18n.translate('tou.campaigns.empty.list.item1', 'TOU', 'No ToU campaigns have been added yet.')
+                                Uni.I18n.translate('tou.campaigns.empty.list.item1', 'TOU', 'No ToU campaigns have been added yet.')
                             ],
-                            stepItems: [
-                                {
+                            stepItems: [{
                                     itemId: 'tou-empty-add-button',
                                     text: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU campaign'),
                                     action: 'addTouCampaign',
