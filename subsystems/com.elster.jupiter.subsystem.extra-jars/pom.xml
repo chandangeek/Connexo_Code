@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>0.1.0-Nessus-SNAPSHOT</version>
+        <version>1.0.0-Nessus-SNAPSHOT</version>
     </parent>
 
     <artifactId>extra-jars</artifactId>
@@ -84,16 +84,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>webservices.outbound.rest.issue.actions</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cim.webservices.inbound.soap</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cim.webservices.outbound.soap</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- COKO -->

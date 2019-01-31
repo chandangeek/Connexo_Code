@@ -25,4 +25,9 @@ public class Dsmr40MbusProtocol extends MbusDevice {
         return "$Date: 2013-02-04 14:56:46 +0200 (Mon, 04 Feb 2013) $";
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU KP DLMS (NTA DSMR4.0) Mbus Slave V2";
+    }
+
 }

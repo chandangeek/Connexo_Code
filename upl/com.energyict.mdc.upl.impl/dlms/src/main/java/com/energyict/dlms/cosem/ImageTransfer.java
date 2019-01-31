@@ -278,7 +278,8 @@ public class ImageTransfer extends AbstractCosemObject {
                     imageActivation();
                 } catch (DataAccessResultException e) {
                     if (isTemporaryFailure(e)) {
-                        getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
+                        getLogger().log(Level.INFO, "aaa Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");  //lori
+                        //pollForImageActivationStatus(); //Lori
                     } else {
                         throw e;
                     }
@@ -408,6 +409,23 @@ public class ImageTransfer extends AbstractCosemObject {
             imageTransferInitiate(imageInitiateStructure);
         } else {
             throw new ProtocolException("Could not perform the upgrade because meter does not allow it.");
+        }
+    }
+
+    /**
+     *  LTE FW Upgrade initialization
+     */
+    public void initializeFOTA() throws IOException {
+        // Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
+        writeImageTransferEnabledState(true);
+
+        if (getImageTransferEnabledState().getState()) {
+            Structure imageInitiateStructure = new Structure();
+            imageInitiateStructure.addDataType(OctetString.fromByteArray(new byte[]{0x1, 0xF, 0x0}));
+            imageInitiateStructure.addDataType(new Unsigned32(1));
+            imageTransferInitiate(imageInitiateStructure);
+        } else {
+            throw new IOException("Could not perform the upgrade because meter does not allow it.");
         }
     }
 

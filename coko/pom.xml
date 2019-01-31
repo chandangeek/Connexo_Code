@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.elster.jupiter</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.1.0-Nessus-SNAPSHOT</version>
+		<version>1.0.0-Nessus-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>kore</artifactId>
@@ -59,11 +59,13 @@
 				<groupId>com.elster.jupiter</groupId>
 				<artifactId>cim.webservices.inbound.soap</artifactId>
 				<version>${project.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
 				<artifactId>cim.webservices.outbound.soap</artifactId>
 				<version>${project.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
