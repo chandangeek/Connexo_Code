@@ -27,24 +27,28 @@ Ext.define('Tou.controller.Main', {
     ],
 
     init: function () {
-        var me = this;
+        var me = this,
           historian = me.getController('Tou.controller.History'); // Forces route registration.
           if (Tou.privileges.TouCampaign.canView()) {
-              //Uni.store.PortalItems.findRecord();
-              Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
-                    title: Uni.I18n.translate('tou.touManagement', 'TOU', 'ToU campaigns'),
-                    portal: 'workspace',
-                    route: 'toucampaigns',
-                    items: [
-                        {
+              var portalItemLink = {
                             text: Uni.I18n.translate('tou.campaigns.touCampaigns', 'TOU', 'ToU campaigns'),
                             itemId:'tou-campaigns-link-tou',
                             href: '#/workspace/toucampaigns',
                             route: 'workspace',
                             privileges: Tou.privileges.TouCampaign.view
-                        }
-                    ]
-              }));
+                        };
+              var portalItem = Uni.store.PortalItems.findRecord('id', 'Campaigns');
+              if (portalItem){
+                  var portalItemData = portalItem.get('items');
+                  portalItemData.push(portalItemLink);
+              }else{
+                  Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
+                                      title: Uni.I18n.translate('tou.touManagement', 'TOU', 'ToU campaigns'),
+                                      portal: 'workspace',
+                                      route: 'toucampaigns',
+                                      items: [portalItemLink]
+                                      }));
+              }
           }
        // me.getApplication().fireEvent('cfginitialized');
     }

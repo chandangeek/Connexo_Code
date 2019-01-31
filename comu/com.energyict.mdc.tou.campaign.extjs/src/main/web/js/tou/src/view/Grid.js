@@ -142,9 +142,9 @@ Ext.define('Tou.view.Grid', {
                         itemId: 'tou-campaigns-grid-paging-toolbar-top',
                         dock: 'top',
                         store: me.store,
-                        displayMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.displayMsg', 'TOU', '{0} - {1} of {2} firmware campaigns'),
-                        displayMoreMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.displayMoreMsg', 'TOU', '{0} - {1} of more than {2} firmware campaigns'),
-                        emptyMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.emptyMsg', 'TOU', 'There are no firmware campaigns to display'),
+                        displayMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.displayMsg', 'TOU', '{0} - {1} of {2} time of use campaigns'),
+                        displayMoreMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.displayMoreMsg', 'TOU', '{0} - {1} of more than {2} time of use campaigns'),
+                        emptyMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.emptyMsg', 'TOU', 'There are no time of use campaigns to display'),
                         items: [
                             {
                                 itemId: 'tou-campaigns-add-button',

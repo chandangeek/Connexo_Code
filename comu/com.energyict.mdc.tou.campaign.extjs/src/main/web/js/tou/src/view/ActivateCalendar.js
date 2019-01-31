@@ -43,6 +43,7 @@ Ext.define('Tou.view.ActivateCalendar', {
                     },
                     {
                          itemId: 'Immediately',
+                         id: 'TouImmediately',
                          boxLabel: Uni.I18n.translate('tou.campaigns.activate.calendar.immediatelyLbl', 'TOU', 'Immediately'),
                          name: me.groupName,
                          inputValue: 'immediately',

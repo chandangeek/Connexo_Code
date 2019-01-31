@@ -56,7 +56,7 @@ Ext.define('Tou.view.Devices', {
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'tou-campaigns-devices-empty-component',
-                            title: Uni.I18n.translate('tou.campaigns.devices.empty.title', 'TOU', 'No devices'),,
+                            title: Uni.I18n.translate('tou.campaigns.devices.empty.title', 'TOU', 'No devices'),
                             reasons: [
                                 Uni.I18n.translate('tou.campaigns.devices.empty.list.item1', 'TOU', 'Selected device group doesn\'t contain devices of device type \'{0}\'.', [me.deviceType.name]),
                                 Uni.I18n.translate('tou.campaigns.devices.empty.list.item2', 'TOU', 'No devices comply with the filter.')

@@ -223,21 +223,19 @@ Ext.define('Tou.view.AddForm', {
              if (!calParams) return;
              cbxCal.bindStore(calParams.calendars());
 
-             if (calParams.get('fullCalendar')) {
-                 Ext.getCmp("fullCalendar").enable();
-             }else{
-                 Ext.getCmp("fullCalendar").disable();
+             if (calParams.get('fullCalendar')!== undefined) {
+                 calParams.get('fullCalendar') ? Ext.getCmp("fullCalendar").enable() : Ext.getCmp("fullCalendar").disable();
              }
-             if (calParams.get('specialDays')){
-                 Ext.getCmp("specialDays").enable();
-             }else{
-                  Ext.getCmp("specialDays").disable();
+             if (calParams.get('specialDays') !== undefined){
+                 calParams.get('specialDays') ? Ext.getCmp("specialDays").enable() : Ext.getCmp("specialDays").disable();
              }
-             if (calParams.get('withActivationDate')){
-                  Ext.getCmp("TouByDate").enable();
-             }else{
-                   Ext.getCmp("TouByDate").disable();
+             if (calParams.get('withActivationDate') !== undefined){
+                 calParams.get('withActivationDate') ? Ext.getCmp("TouByDate").enable() : Ext.getCmp("TouByDate").disable();
              }
+             if (calParams.get('immediately') !== undefined){
+                 calParams.get('immediately') ? Ext.getCmp("TouImmediately").enable() : Ext.getCmp("TouImmediately").disable();
+             }
+
              me.fireEvent('tou-deviceTypeChanged');
         });
     },

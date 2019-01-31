@@ -78,6 +78,16 @@ Ext.define('Tou.controller.Add', {
             var deviceTypeId  = record.get('deviceType');
             var activationStartItem = form.down('#activationStart');
             var activationEndItem = form.down('#activationEnd');
+            if (activationStartItem){
+               var activationStartTime = activationStartItem.getValue();
+               activationStartTime += new Date().getTimezoneOffset() * 60;
+               record.set('activationStart', activationStartTime);
+            }
+            if (activationEndItem){
+                var activationEndTime = activationEndItem.getValue();
+                activationEndTime += new Date().getTimezoneOffset() * 60;
+                record.set('activationEnd', activationEndTime);
+            }
             if (!justUpdated){
             if (deviceTypeId) record.set('deviceType', {"id" : deviceTypeId});
             var activateCalendarItem = form.down('#activate-calendar');

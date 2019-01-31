@@ -39,7 +39,7 @@ Ext.define('Tou.view.Overview', {
                             stepItems: [
                                 {
                                     itemId: 'tou-empty-add-button',
-                                    text: Uni.I18n.translate('tou.campaigns.addFirmwareCampaign', 'TOU', 'Add ToU campaign'),
+                                    text: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU campaign'),
                                     action: 'addTouCampaign',
                                     href: me.router.getRoute('workspace/toucampaigns/add').buildUrl(),
                                     privileges: Tou.privileges.TouCampaign.administrate
