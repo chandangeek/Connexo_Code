@@ -26,6 +26,8 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 @Component(name = "com.energyict.mdc.tou.campaign.handler", service = Subscriber.class, immediate = true)
 public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
@@ -55,6 +57,8 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
         } else if (event.getType().getTopic().equals(EventType.COMTASKEXECUTION_FAILED.topic())
                 || event.getType().getTopic().equals(EventType.SCHEDULED_COMTASKEXECUTION_FAILED.topic())) {
             processEvent(event, this::onComTaskFailed);
+        } else if (event.getType().getTopic().equals(com.energyict.mdc.tou.campaign.impl.EventType.TOU_CAMPAIGN_EDITED.topic())) {
+            CompletableFuture.runAsync(()->timeOfUseCampaignService.editCampaignItems((TimeOfUseCampaign) event.getSource()), Executors.newSingleThreadExecutor());
         }
     }
 

@@ -14,7 +14,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -24,26 +23,23 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallStateChangeTopicHandler;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -66,7 +62,6 @@ import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceC
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceImpl;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemServiceCallHandler;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
-import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -87,6 +82,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -110,7 +106,7 @@ public class ToUCampaignServiceIT{
 
     private static ToUCampaignInMemoryPersistence inMemoryPersistence = new ToUCampaignInMemoryPersistence();
     private static ServiceCallService serviceCallService;
-    private static MeteringGroupsService meteringGroupsService =  mock(MeteringGroupsService.class);;
+    private static MeteringGroupsService meteringGroupsService;// =  mock(MeteringGroupsService.class);;
     private static TransactionService transactionService;
     private static TimeOfUseCampaignService timeOfUseCampaignService;
     private static ServiceCallHandler serviceCallHandler;
@@ -136,7 +132,7 @@ public class ToUCampaignServiceIT{
         inMemoryPersistence.activate();
         serviceCallService = inMemoryPersistence.get(ServiceCallService.class);
         timeOfUseCampaignService = inMemoryPersistence.get(TimeOfUseCampaignService.class);
-      //  meteringGroupsService = inMemoryPersistence.get(MeteringGroupsService.class);
+        meteringGroupsService = inMemoryPersistence.get(MeteringGroupsService.class);
         transactionService = inMemoryPersistence.get(TransactionService.class);
         calendarService = inMemoryPersistence.get(CalendarService.class);
         deviceConfigurationService = inMemoryPersistence.get(DeviceConfigurationService.class);
@@ -211,9 +207,9 @@ public class ToUCampaignServiceIT{
     @Test
     @Transactional
     public void getAllCampaignsTest() {
-        assertThat(timeOfUseCampaignService.getAllCampaigns()).isEmpty();
+        assertThat(timeOfUseCampaignService.streamAllCampaigns().collect(Collectors.toList())).isEmpty();
         makeDefaultCampaign();
-        assertThat(timeOfUseCampaignService.getAllCampaigns()).isNotEmpty();
+        assertThat(timeOfUseCampaignService.streamAllCampaigns().collect(Collectors.toList())).isNotEmpty();
     }
 
     @Test
@@ -230,17 +226,16 @@ public class ToUCampaignServiceIT{
         String activationOption = "immediately";
         String updateType = "fullCalendar";
         long timeValidation = 120;
-//        TimeOfUseCampaign timeOfUseCampaign1 = timeOfUseCampaignService.newToUbuilder(name, deviceType, deviceGroup, activationStart, activationEnd, calendar, activationDate, updateType, timeValidation)
-//                .create();
-//        assertThat(timeOfUseCampaign1.getName()).isEqualTo(name);
-//        assertThat(timeOfUseCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);
-//        assertThat(timeOfUseCampaign1.getDeviceType()).isEqualTo(deviceType1);
-////        assertThat(timeOfUseCampaign1.getActivationStart()).isEqualTo(getToday(inMemoryPersistence.get(Clock.class)).plusSeconds(activationStart.getEpochSecond()).plusMillis(111));
-////        assertThat(timeOfUseCampaign1.getActivationEnd()).isEqualTo(getToday(inMemoryPersistence.get(Clock.class)).plusSeconds(activationEnd.getEpochSecond()));
-//        assertThat(timeOfUseCampaign1.getCalendar()).isEqualTo(calendar1);
-//        assertThat(timeOfUseCampaign1.getActivationDate()).isEqualTo(activationDate);
-//        assertThat(timeOfUseCampaign1.getUpdateType()).isEqualTo(updateType);
-//        assertThat(timeOfUseCampaign1.getTimeValidation()).isEqualTo(timeValidation);
+        TimeOfUseCampaign timeOfUseCampaign1 = timeOfUseCampaignService.newToUbuilder(name, deviceType, deviceGroup, activationStart, activationEnd, calendar, activationOption, null, updateType, timeValidation)
+                .create();
+        assertThat(timeOfUseCampaign1.getName()).isEqualTo(name);
+        assertThat(timeOfUseCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);
+        assertThat(timeOfUseCampaign1.getDeviceType()).isEqualTo(deviceType1);
+        assertThat(timeOfUseCampaign1.getActivationStart()).isEqualTo(TimeOfUseCampaignServiceImpl.getToday(inMemoryPersistence.get(Clock.class)).plusSeconds(activationStart.getEpochSecond()));
+        assertThat(timeOfUseCampaign1.getActivationEnd()).isEqualTo(TimeOfUseCampaignServiceImpl.getToday(inMemoryPersistence.get(Clock.class)).plusSeconds(activationEnd.getEpochSecond()));
+        assertThat(timeOfUseCampaign1.getCalendar()).isEqualTo(calendar1);
+        assertThat(timeOfUseCampaign1.getUpdateType()).isEqualTo(updateType);
+        assertThat(timeOfUseCampaign1.getTimeValidation()).isEqualTo(timeValidation);
     }
 
     @Test
@@ -298,62 +293,67 @@ public class ToUCampaignServiceIT{
         Calendar calendar = makeCalendar("cal01", "2");
         calendar.activate();
         DeviceType deviceType = deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass);
-        Device device = mock(Device.class);
-//        ProtocolTask protocolTask = mock(MessagesTask.class);
-//        com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec deviceMessageSpec = mock(com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec.class);
-//        DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
-////        MessagesTaskTypeUsage messagesTaskTypeUsage = mock(MessagesTaskTypeUsage.class);
-//        when(deviceMessageCategory.getId()).thenReturn(0);
-//        when(deviceMessageSpecificationService.findCategoryById(0)).thenReturn(Optional.of(deviceMessageCategory));
-//        when(deviceMessageSpecificationService.findMessageSpecById(20)).thenReturn(Optional.of(deviceMessageSpec));
-//        ComTask comTask_1 = inMemoryPersistence.get(TaskService.class).newComTask("Upload");
-//        comTask_1.createMessagesTask().deviceMessageCategories(Arrays.asList(deviceMessageCategory)).add();
-//        comTask_1.save();
-//        //((MessagesTask) comTask_1.getProtocolTasks().get(0)).setDeviceMessageCategories(Arrays.asList(deviceMessageCategory));
-////        ((MessagesTask)comTask_1.getProtocolTasks().get(0)).setMessageTaskType(messagesTaskTypeUsage);
-////        ((MessagesTask)comTask_1.getProtocolTasks().get(0))save();
-//        ComTask comTask_2 = inMemoryPersistence.get(TaskService.class).newComTask("Verify");
-//        comTask_2.createStatusInformationTask();
-//        comTask_2.save();
-//
-//        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("con1");
-//        deviceConfigurationBuilder.add();
-//        DeviceConfiguration deviceConfiguration = deviceType.getConfigurations().get(0);
-//        deviceConfiguration.activate();
-//        SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
-//        securityPropertySetBuilder.authenticationLevel(0);
-//        securityPropertySetBuilder.encryptionLevel(0);
-//        SecurityPropertySet securityPropertySet = securityPropertySetBuilder.build();
-//
-//        ComTaskEnablement comTaskEnablement = deviceConfiguration.enableComTask(
-//                comTask_1,
-//                securityPropertySet)
-//                .setIgnoreNextExecutionSpecsForInbound(false)
-//                .add();
-//        deviceConfiguration.enableComTask(
-//                comTask_2,
-//                securityPropertySet)
-//                .setIgnoreNextExecutionSpecsForInbound(false)
-//                .add();
-//        ConnectionTaskImpl connectionTask = mock(ConnectionTaskImpl.class);
-//
-//        Device device = inMemoryPersistence.get(DeviceService.class).newDevice(deviceType.getConfigurations().get(0), "dev1", clock.instant());
-//        deviceConfigurationService.findAllDeviceTypes().find().get(0).addCalendar(calendar);
-//        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
+//        Device device = mock(Device.class);
+        ProtocolTask protocolTask = mock(MessagesTask.class);
+        com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec deviceMessageSpec = mock(com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec.class);
+        DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
+//        MessagesTaskTypeUsage messagesTaskTypeUsage = mock(MessagesTaskTypeUsage.class);
+        when(deviceMessageCategory.getId()).thenReturn(0);
+        when(deviceMessageSpecificationService.findCategoryById(0)).thenReturn(Optional.of(deviceMessageCategory));
+        when(deviceMessageSpecificationService.findMessageSpecById(20)).thenReturn(Optional.of(deviceMessageSpec));
+        ComTask comTask_1 = inMemoryPersistence.get(TaskService.class).newComTask("Upload");
+        comTask_1.createMessagesTask().deviceMessageCategories(Arrays.asList(deviceMessageCategory)).add();
+        comTask_1.save();
+        //((MessagesTask) comTask_1.getProtocolTasks().get(0)).setDeviceMessageCategories(Arrays.asList(deviceMessageCategory));
+//        ((MessagesTask)comTask_1.getProtocolTasks().get(0)).setMessageTaskType(messagesTaskTypeUsage);
+//        ((MessagesTask)comTask_1.getProtocolTasks().get(0))save();
+        ComTask comTask_2 = inMemoryPersistence.get(TaskService.class).newComTask("Verify");
+        comTask_2.createStatusInformationTask();
+        comTask_2.save();
+
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("con1");
+        deviceConfigurationBuilder.add();
+        DeviceConfiguration deviceConfiguration = deviceType.getConfigurations().get(0);
+        deviceConfiguration.activate();
+        SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
+        securityPropertySetBuilder.authenticationLevel(0);
+        securityPropertySetBuilder.encryptionLevel(0);
+        SecurityPropertySet securityPropertySet = securityPropertySetBuilder.build();
+
+        ConnectionTaskService connectionTaskService;
+   //     connectionTaskService.conn
+        ComTaskEnablement comTaskEnablement = deviceConfiguration.enableComTask(
+                comTask_1,
+                securityPropertySet)
+                .setIgnoreNextExecutionSpecsForInbound(false)
+                .add();
+        deviceConfiguration.enableComTask(
+                comTask_2,
+                securityPropertySet)
+                .setIgnoreNextExecutionSpecsForInbound(false)
+                .add();
+        ConnectionTaskImpl connectionTask = mock(ConnectionTaskImpl.class);
+
+        Device device = inMemoryPersistence.get(DeviceService.class).newDevice(deviceType.getConfigurations().get(0), "dev1", clock.instant());
+        deviceConfigurationService.findAllDeviceTypes().find().get(0).addCalendar(calendar);
+        device.getComTaskExecutions();
+        //ComTaskExecutionBuilder comTaskExecutionBuilder =
+//         device.newAdHocComTaskExecution(comTaskEnablement).connectionTask(connectionTask).add();
 //        comTaskExecutionBuilder.connectionTask(connectionTask);
 //        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-//
-//        Set<ProtocolSupportedCalendarOptions> set = new HashSet<>();
-//        set.add(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR);
-//        set.add(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
-//        set.add(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR);
-//        TimeOfUseOptions timeOfUseOptions = deviceConfigurationService.newTimeOfUseOptions(deviceType);
-//        timeOfUseOptions.setOptions(set);
-//        timeOfUseOptions.save();
-//        EnumeratedEndDeviceGroup deviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(device.getMeter()).setName("group1").create();
-        EnumeratedEndDeviceGroup deviceGroup = mock(EnumeratedEndDeviceGroup.class);
+
+        Set<ProtocolSupportedCalendarOptions> set = new HashSet<>();
+        set.add(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR);
+        set.add(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
+        set.add(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR);
+        TimeOfUseOptions timeOfUseOptions = deviceConfigurationService.newTimeOfUseOptions(deviceType);
+        timeOfUseOptions.setOptions(set);
+        timeOfUseOptions.save();
+        EnumeratedEndDeviceGroup deviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(device.getMeter()).setName("group1").create();
+//        EnumeratedEndDeviceGroup deviceGroup = mock(EnumeratedEndDeviceGroup.class);
 //        MeteringGroupsService meteringGroupsService = mock(MeteringGroupsService.class);
-        when(meteringGroupsService.findEndDeviceGroupByName("group1")).thenReturn(Optional.of(deviceGroup));
+
+//        when(meteringGroupsService.findEndDeviceGroupByName("group1")).thenReturn(Optional.of(deviceGroup));
         makeCampaign("c1", 0, 0, calendar, "group1", deviceType, null, "immediately", null, 0);
         ((TimeOfUseCampaignServiceImpl) timeOfUseCampaignService).createItemsOnCampaign(serviceCallService.getServiceCallFinder().find().get(0));
         timeOfUseCampaignService.cancelDevice(device);

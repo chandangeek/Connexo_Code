@@ -107,7 +107,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
+        </dependency>
         <!-- Testing -->
 
         <dependency>
@@ -123,11 +126,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.persistence</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>messaging</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

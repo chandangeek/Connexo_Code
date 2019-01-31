@@ -3,9 +3,12 @@
  */
 package com.energyict.mdc.tou.campaign.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -13,26 +16,38 @@ import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-public class Installer implements FullInstaller {
+public class Installer implements FullInstaller, PrivilegesProvider {
 
     private final CustomPropertySetService customPropertySetService;
     private final ServiceCallService serviceCallService;
     private final UserService userService;
+    private final EventService eventService;
+
 
     @Inject
-    public Installer(CustomPropertySetService customPropertySetService, ServiceCallService serviceCallService, UserService userService) {
+    public Installer(CustomPropertySetService customPropertySetService, ServiceCallService serviceCallService, UserService userService,
+                     EventService eventService) {
         this.customPropertySetService = customPropertySetService;
         this.serviceCallService = serviceCallService;
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     @Override
@@ -42,10 +57,8 @@ public class Installer implements FullInstaller {
                 this::createServiceCallTypes,
                 logger
         );
-        Resource resource = userService.getResource(Privileges.RESOURCE_TOU_CALENDARS.getKey())
-                .orElseThrow(() -> new NoSuchElementException("resource " + Privileges.RESOURCE_TOU_CALENDARS.getKey() + " not found"));
-        resource.createPrivilege(com.energyict.mdc.tou.campaign.security.Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS);
-        resource.createPrivilege(com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS);
+        userService.addModulePrivileges(this);
+        Arrays.stream(EventType.values()).forEach(eventType -> eventType.createIfNotExists(eventService));
     }
 
     private void createServiceCallTypes() {
@@ -126,5 +139,20 @@ public class Installer implements FullInstaller {
                         .addTransition(DefaultState.CANCELLED, DefaultState.PENDING)
                         .create();
         }
+    }
+
+    @Override
+    public String getModuleName() {
+        return CalendarService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(this.userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_TOU_CALENDARS.getKey(), Privileges.RESOURCE_TOU_CALENDARS_DESCRIPTION.getKey(),
+                Arrays.asList(com.energyict.mdc.tou.campaign.security.Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS,
+                        com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS)));
+        return resources;
     }
 }

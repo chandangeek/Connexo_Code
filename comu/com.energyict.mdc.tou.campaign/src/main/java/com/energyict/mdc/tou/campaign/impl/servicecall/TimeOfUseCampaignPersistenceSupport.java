@@ -23,7 +23,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
 
     private static final String TABLE_NAME = TimeOfUseCampaignService.COMPONENT_NAME + "_" + "TU1_CAMPAIGN";
     private static final String FK_NAME = "FK_" + TABLE_NAME;
-    private static final String COMPONENT_NAME = "TU1";
+    static final String COMPONENT_NAME = "TU1";
     private final TimeOfUseCampaignService timeOfUseCampaignService;
 
     public TimeOfUseCampaignPersistenceSupport(TimeOfUseCampaignService timeOfUseCampaignService) {
@@ -72,7 +72,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
 
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-        table.column(TimeOfUseCampaignDomainExtension.FieldNames.NAME_OF_CAMPAIGN.databaseName())
+        Column name = table.column(TimeOfUseCampaignDomainExtension.FieldNames.NAME_OF_CAMPAIGN.databaseName())
                 .varChar()
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.NAME_OF_CAMPAIGN.javaName())
                 .notNull()
@@ -128,6 +128,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .references(DeviceType.class)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_TYPE.javaName())
                 .add();
+        table.unique("UK_"+TABLE_NAME+"_NAME").on(name).add();
     }
 
     @Override

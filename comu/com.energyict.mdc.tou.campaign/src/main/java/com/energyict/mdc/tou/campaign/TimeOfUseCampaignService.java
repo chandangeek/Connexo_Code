@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.tou.campaign;
 
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -22,7 +23,7 @@ import java.util.Optional;
 public interface TimeOfUseCampaignService {
     String COMPONENT_NAME = "TOU";
 
-    Map<TimeOfUseCampaign, DefaultState> getAllCampaigns();
+    QueryStream<? extends TimeOfUseCampaign> streamAllCampaigns();
 
     DeviceConfigurationService getDeviceConfigurationService();
 
@@ -40,6 +41,8 @@ public interface TimeOfUseCampaignService {
 
     Optional<TimeOfUseCampaign> getCampaignOn(ComTaskExecution comTaskExecution);
 
+    QueryStream<? extends TimeOfUseItem> streamDevicesInCampaigns();
+
     List<DeviceType> getDeviceTypesWithCalendars();
 
     Pair<Device, ServiceCall> retryDevice(long id);
@@ -55,4 +58,6 @@ public interface TimeOfUseCampaignService {
     void edit(String name, TimeOfUseCampaign timeOfUseCampaign);
 
     Optional<ServiceCall> findCampaignServiceCall(String campaignName);
+
+    Optional<TimeOfUseCampaign> findAndLockToUCampaignByIdAndVersion(long id, long version);
 }

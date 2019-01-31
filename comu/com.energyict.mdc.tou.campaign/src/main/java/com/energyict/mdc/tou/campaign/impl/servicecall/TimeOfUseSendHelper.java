@@ -101,7 +101,11 @@ public class TimeOfUseSendHelper {
             }
             if (comTaskExecution.getConnectionTask().isPresent()) {
                 scheduleCampaign(comTaskExecution, timeOfUseCampaign.getActivationStart(), timeOfUseCampaign.getActivationEnd());
+                TimeOfUseItemDomainExtension extension = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get();
+                extension.setDeviceMessage(deviceMessage);
+                serviceCall.update(extension);
                 timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.PENDING);
+
             } else {
                 serviceCall.log(LogLevel.SEVERE, thesaurus.getString(MessageSeeds.MISSING_CONNECTION_TASKS.getKey(), MessageSeeds.MISSING_CONNECTION_TASKS.getDefaultFormat()));
                 timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.REJECTED);

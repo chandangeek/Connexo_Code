@@ -5,6 +5,7 @@
 package com.energyict.mdc.tou.campaign;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceType;
 
 import java.time.Instant;
@@ -29,7 +30,11 @@ public interface TimeOfUseCampaign {
 
     String getUpdateType();
 
+    ServiceCall getServiceCall();
+
     long getTimeValidation();
+
+    long getVersion();
 
     long getId();
 

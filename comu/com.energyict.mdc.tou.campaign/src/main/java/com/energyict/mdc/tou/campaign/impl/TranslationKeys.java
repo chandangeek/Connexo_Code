@@ -22,7 +22,9 @@ public enum TranslationKeys implements TranslationKey {
     FULL_CALENDAR("fullCalendar", "Full Calendar"),
     SPECIAL_DAYS("specialDays", "Special Days"),
     IMMEDIATELY("immediately", "Immediately"),
-    WITHOUT_ACTIVATION("withoutActivation", "Without Activation");
+    WITHOUT_ACTIVATION("withoutActivation", "Without Activation"),
+    DEVICE_MESSAGE_ID("deviceMessageId", "Device Message Id")
+    ;
 
 
     private final String key;

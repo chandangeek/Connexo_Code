@@ -37,6 +37,11 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         super();
     }
 
+    @Override
+    public long getVersion() {
+        return super.getVersion();
+    }
+
     public enum FieldNames {
         DOMAIN("serviceCall", "service_call"),
         NAME_OF_CAMPAIGN("name", "name"),
@@ -176,6 +181,11 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
 
     public void setTimeValidation(long timeValidation) {
         this.timeValidation = timeValidation;
+    }
+
+    @Override
+    public ServiceCall getServiceCall() {
+        return serviceCall.get();
     }
 
     @Override

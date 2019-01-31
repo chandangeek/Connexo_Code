@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import com.google.inject.Module;
@@ -20,10 +21,11 @@ public class TimeOfUseItemPersistenceSupport implements PersistenceSupport<Servi
 
     private static final String TABLE_NAME = TimeOfUseCampaignService.COMPONENT_NAME + "_" + "TU2_ITEMS";
     private static final String FK_NAME = "FK_" + TABLE_NAME;
+    public static final String COMPONENT_NAME = "TU2";
 
     @Override
     public String componentName() {
-        return "TU2";
+        return COMPONENT_NAME;
     }
 
     @Override
@@ -66,6 +68,14 @@ public class TimeOfUseItemPersistenceSupport implements PersistenceSupport<Servi
                 .on(device)
                 .references(Device.class)
                 .map(TimeOfUseItemDomainExtension.FieldNames.DEVICE.javaName())
+                .add();
+        Column deviceMessage = table.column(TimeOfUseItemDomainExtension.FieldNames.DEVICE_MESSAGE.databaseName())
+                .number()
+                .add();
+        table.foreignKey(FK_NAME + "_DEV_MES")
+                .on(deviceMessage)
+                .map(TimeOfUseItemDomainExtension.FieldNames.DEVICE_MESSAGE.javaName())
+                .references(DeviceMessage.class)
                 .add();
     }
 

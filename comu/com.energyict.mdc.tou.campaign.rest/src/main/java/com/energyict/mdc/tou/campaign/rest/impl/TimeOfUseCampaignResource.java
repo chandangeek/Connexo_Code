@@ -4,22 +4,26 @@
 
 package com.energyict.mdc.tou.campaign.rest.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallFilter;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.tou.campaign.Pair;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
+import com.energyict.mdc.tou.campaign.TimeOfUseItem;
 import com.energyict.mdc.tou.campaign.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -34,10 +38,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/touCampaigns")
 public class TimeOfUseCampaignResource {
@@ -45,14 +48,16 @@ public class TimeOfUseCampaignResource {
     private final TimeOfUseCampaignService timeOfUseCampaignService;
     private final TimeOfUseCampaignInfoFactory timeOfUseCampaignInfoFactory;
     private final Thesaurus thesaurus;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
 
     @Inject
     public TimeOfUseCampaignResource(TimeOfUseCampaignService timeOfUseCampaignService, TimeOfUseCampaignInfoFactory timeOfUseCampaignInfoFactory,
-                                     Thesaurus thesaurus) {
+                                     Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.timeOfUseCampaignInfoFactory = timeOfUseCampaignInfoFactory;
         this.thesaurus = thesaurus;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -60,12 +65,12 @@ public class TimeOfUseCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getToUCampaigns(@BeanParam JsonQueryParameters queryParameters) {
-        List<TimeOfUseCampaignInfo> touCampaigns = new ArrayList<>();
-        timeOfUseCampaignService.getAllCampaigns().forEach((campaign, status) -> {
-            touCampaigns.add(getOverviewCampaignInfo(campaign, status));
-        });
-        touCampaigns.sort(Comparator.<TimeOfUseCampaignInfo, Instant>comparing(o -> o.startedOn).reversed());
-        return Response.ok(PagedInfoList.fromPagedList("touCampaigns", ListPager.of(touCampaigns).from(queryParameters).find(), queryParameters)).build();
+        QueryStream<? extends TimeOfUseCampaign> campaigns = timeOfUseCampaignService.streamAllCampaigns().join(ServiceCall.class)
+                .sorted(Order.descending("serviceCall.createTime"));
+        queryParameters.getStart().ifPresent(campaigns::skip);
+        queryParameters.getLimit().ifPresent(limit -> campaigns.limit(limit + 1));
+        List<TimeOfUseCampaignInfo> touCampaigns = campaigns.map(o -> getOverviewCampaignInfo(o, o.getServiceCall().getState())).collect(Collectors.toList());
+        return Response.ok(PagedInfoList.fromPagedList("touCampaigns", touCampaigns, queryParameters)).build();
     }
 
     @GET
@@ -85,23 +90,17 @@ public class TimeOfUseCampaignResource {
     @Path("/{name}/devices")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
-    public Response getToUCampaignsDevices(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaign(name)
-                .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_TIME_OF_USE_CAMPAIGN_IS_FOUND));
-        ServiceCall parent = timeOfUseCampaignService.findCampaignServiceCall(timeOfUseCampaign.getName()).get();
-        List<DeviceInCampaignInfo> deviceInCampaignInfo = new ArrayList<>();
-        ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
-        serviceCallFilter.states = filter.getStringList("status");
-        parent.findChildren(serviceCallFilter).from(queryParameters).stream().forEach(serviceCall -> {
-            Device device = timeOfUseCampaignService.findDeviceByServiceCall(serviceCall);
-            deviceInCampaignInfo.add(new DeviceInCampaignInfo(new IdWithNameInfo(device.getId(), device.getName()),
-                    getStatus(serviceCall.getState(), thesaurus),
-                    serviceCall.getCreationTime(),
-                    (serviceCall.getState().equals(DefaultState.CANCELLED)
-                            || serviceCall.getState().equals(DefaultState.SUCCESSFUL)) ? serviceCall.getLastModificationTime() : null));
-        });
-        deviceInCampaignInfo.sort(Comparator.comparing(o -> o.device.name));
-        return Response.ok(PagedInfoList.fromPagedList("devicesInCampaign", ListPager.of(deviceInCampaignInfo).from(queryParameters).find(), queryParameters)).build();
+    public Response getToUCampaignDevices(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        List<String> states = filter.getStringList("status").stream().map(DefaultState::valueOf).map(DefaultState::getKey).collect(Collectors.toList());
+        QueryStream<? extends TimeOfUseItem> devices = timeOfUseCampaignService.streamDevicesInCampaigns().join(ServiceCall.class).join(State.class)
+                .sorted(Order.ascending("device")).filter(Where.where("serviceCall.parent").isEqualTo(timeOfUseCampaignService.findCampaignServiceCall(name).get()));
+        if(states.size()>0){
+            devices.filter(Where.where("serviceCall.state.name").in(states));
+        }
+        queryParameters.getStart().ifPresent(devices::skip);
+        queryParameters.getLimit().ifPresent(limit -> devices.limit(limit + 1));
+        List<DeviceInCampaignInfo> deviceInCampaignInfo = devices.map(o -> getDeviceInCampaignInfo(o)).collect(Collectors.toList());
+        return Response.ok(PagedInfoList.fromPagedList("devicesInCampaign", deviceInCampaignInfo, queryParameters)).build();
     }
 
     @POST
@@ -150,6 +149,10 @@ public class TimeOfUseCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response edit(@PathParam("name") String name, TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
+        timeOfUseCampaignService.findAndLockToUCampaignByIdAndVersion(timeOfUseCampaignInfo.id, timeOfUseCampaignInfo.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(timeOfUseCampaignInfo.name)
+                        .withActualVersion(() -> getCurrentCampaignVersion(timeOfUseCampaignInfo.id))
+                        .supplier());
         timeOfUseCampaignService.edit(name, timeOfUseCampaignInfoFactory.build(timeOfUseCampaignInfo));
         return Response.ok(timeOfUseCampaignInfo).build();
     }
@@ -207,6 +210,14 @@ public class TimeOfUseCampaignResource {
         return Response.ok(deviceTypeAndOptionsInfo).build();
     }
 
+    private DeviceInCampaignInfo getDeviceInCampaignInfo(TimeOfUseItem o){
+        return new DeviceInCampaignInfo(new IdWithNameInfo(o.getDevice().getId(),o.getDevice().getName()),
+                getStatus(o.getServiceCall().getState(),thesaurus),
+                        o.getServiceCall().getCreationTime(),
+                        (o.getServiceCall().getState().equals(DefaultState.CANCELLED)
+                                || o.getServiceCall().getState().equals(DefaultState.SUCCESSFUL)) ? o.getServiceCall().getLastModificationTime() : null);
+    }
+
     private TimeOfUseCampaignInfo getOverviewCampaignInfo(TimeOfUseCampaign campaign, DefaultState status) {
         TimeOfUseCampaignInfo info = timeOfUseCampaignInfoFactory.from(campaign);
         ServiceCall campaignsServiceCall = timeOfUseCampaignService.findCampaignServiceCall(campaign.getName()).get();
@@ -245,5 +256,9 @@ public class TimeOfUseCampaignResource {
                 return thesaurus.getString(TranslationKeys.STATUS_CANCELED.getKey(), TranslationKeys.STATUS_CANCELED.getDefaultFormat());
         }
         return defaultState.getDisplayName(thesaurus);
+    }
+
+    public Long getCurrentCampaignVersion(long id) {
+        return timeOfUseCampaignService.getCampaign(id).map(TimeOfUseCampaign::getVersion).orElse(null);
     }
 }
