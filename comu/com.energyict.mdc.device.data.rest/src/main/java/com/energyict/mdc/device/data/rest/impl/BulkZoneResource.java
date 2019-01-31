@@ -60,7 +60,7 @@ public class BulkZoneResource {
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
 
-    private final static int LIMIT_DEVICES_ALREADY_LINKD_TO_ZONE_TYPE = 10;
+    private final static int LIMIT_DEVICES_ALREADY_LINKED_TO_ZONE_TYPE = 10;
 
     @Inject
     public BulkZoneResource(ExceptionFactory exceptionFactory, AppServerHelper appServerHelper,
@@ -82,7 +82,6 @@ public class BulkZoneResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ZONE)
     public Response addOrRemoveZoneToDeviceSet(BulkRequestInfo request) {
-
         if (!appServerHelper.verifyActiveAppServerExists(MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
@@ -141,7 +140,7 @@ public class BulkZoneResource {
         List<Device> deviceList = getDevicesLinkedToDifferentZoneFromZoneType(deviceStream.collect(Collectors.toList()), zoneTypeId, zoneId);
 
         return Response.ok(DeviceZoneInfo.from(deviceList.size(), deviceList.stream()
-                .limit(LIMIT_DEVICES_ALREADY_LINKD_TO_ZONE_TYPE)
+                .limit(LIMIT_DEVICES_ALREADY_LINKED_TO_ZONE_TYPE)
                 .map(device -> device.getName())
                 .collect(Collectors.toList()))).build();
 
