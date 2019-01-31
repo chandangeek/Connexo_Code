@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Tou.controller.History', {
@@ -24,13 +24,13 @@ Ext.define('Tou.controller.History', {
                     items: {
                         add: {
                             title: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU campaign'),
-                             route: 'add',
-                             controller: 'Tou.controller.Add',
-                             action: 'showAdd',
-                             privileges: Tou.privileges.TouCampaign.administrate
+                            route: 'add',
+                            controller: 'Tou.controller.Add',
+                            action: 'showAdd',
+                            privileges: Tou.privileges.TouCampaign.administrate
                         },
                         toucampaign: {
-                           title: Uni.I18n.translate('tou.campaigns.touCampaign', 'TOU', 'ToU campaign'),
+                            title: Uni.I18n.translate('tou.campaigns.touCampaign', 'TOU', 'ToU campaign'),
                             route: '{touCampaignName}',
                             controller: 'Tou.controller.Detail',
                             action: 'showDetail',
@@ -39,7 +39,9 @@ Ext.define('Tou.controller.History', {
                                 this.getApplication().on('loadTouCampaign', function (record) {
                                     route.setTitle(record.get('name'));
                                     return true;
-                                }, {single: true});
+                                }, {
+                                    single: true
+                                });
                                 return this;
                             },
                             items: {
@@ -51,11 +53,11 @@ Ext.define('Tou.controller.History', {
                                     privileges: Tou.privileges.TouCampaign.view
                                 },
                                 edit: {
-                                     title: Uni.I18n.translate('general.edit', 'TOU', 'Edit'),
-                                     route: 'edit',
-                                     controller: 'Tou.controller.Overview',
-                                     action: 'editCampaign',
-                                     privileges: Tou.privileges.TouCampaign.administrate
+                                    title: Uni.I18n.translate('general.edit', 'TOU', 'Edit'),
+                                    route: 'edit',
+                                    controller: 'Tou.controller.Overview',
+                                    action: 'editCampaign',
+                                    privileges: Tou.privileges.TouCampaign.administrate
                                 },
                             }
                         }

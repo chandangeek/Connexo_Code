@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 /**
@@ -17,8 +17,7 @@ Ext.define('Tou.privileges.TouCampaign', {
     all: function () {
         return Ext.Array.merge(
             Tou.privileges.TouCampaign.view,
-            Tou.privileges.TouCampaign.administrate
-        );
+            Tou.privileges.TouCampaign.administrate);
     },
     canView: function () {
         return Uni.Auth.checkPrivileges(Tou.privileges.TouCampaign.view);

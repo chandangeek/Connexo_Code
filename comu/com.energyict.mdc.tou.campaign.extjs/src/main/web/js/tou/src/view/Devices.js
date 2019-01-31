@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Tou.view.Devices', {
@@ -19,12 +19,10 @@ Ext.define('Tou.view.Devices', {
     initComponent: function () {
         var me = this;
 
-        me.side = [
-            {
+        me.side = [{
                 xtype: 'panel',
                 ui: 'medium',
-                items: [
-                    {
+                items: [{
                         xtype: 'tou-campaign-side-menu',
                         itemId: 'tou-campaign-side-menu',
                         router: me.router
@@ -33,18 +31,14 @@ Ext.define('Tou.view.Devices', {
             }
         ];
 
-        me.content = [
-            {
+        me.content = [{
                 itemId: 'tou-campaigns-devices-panel',
                 title: 'Devices',
                 ui: 'large',
-                items: [
-                    {
+                items: [{
                         xtype: 'tou-view-deviceStatusFilter',
                         itemId: 'tou-campaign-filter'
-                    }
-                    ,
-                    {
+                    }, {
                         xtype: 'emptygridcontainer',
                         itemId: 'tou-campaigns-devices-empty-grid-container',
                         grid: {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Tou.controller.Detail', {
@@ -17,8 +17,7 @@ Ext.define('Tou.controller.Detail', {
         'Tou.model.TouCampaign'
     ],
 
-    refs: [
-        {
+    refs: [{
             ref: 'sideMenu',
             selector: 'tou-campaign-detail tou-campaign-side-menu'
         }
@@ -26,9 +25,9 @@ Ext.define('Tou.controller.Detail', {
 
     showDetail: function (touCampaignName) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            widget = Ext.widget('tou-campaign-detail', {
+        router = me.getController('Uni.controller.history.Router'),
+        pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+        widget = Ext.widget('tou-campaign-detail', {
                 itemId: 'tou-campaign-detail',
                 router: router
             });

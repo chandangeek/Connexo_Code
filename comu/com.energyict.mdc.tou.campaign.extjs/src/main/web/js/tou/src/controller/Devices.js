@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Tou.controller.Devices', {
@@ -17,8 +17,7 @@ Ext.define('Tou.controller.Devices', {
         'Tou.store.Devices'
     ],
 
-    refs: [
-        {
+    refs: [{
             ref: 'sideMenu',
             selector: 'tou-campaign-devices tou-campaign-side-menu'
         }
@@ -36,21 +35,21 @@ Ext.define('Tou.controller.Devices', {
 
     showDevices: function (touCampaignName) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            devicesStore = me.getStore('Tou.store.Devices');
+        router = me.getController('Uni.controller.history.Router'),
+        pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+        devicesStore = me.getStore('Tou.store.Devices');
 
         devicesStore.getProxy().setUrl(touCampaignName);
         pageView.setLoading();
         me.getModel('Tou.model.TouCampaign').load(touCampaignName, {
             success: function (record) {
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('tou-campaign-devices', {
-                    itemId: 'tou-campaign-devices',
-                    router: router,
-                    deviceType: record.get('deviceType'),
-                    campaignIsOngoing:record.get('status') === 'Ongoing',
-                    returnLink: router.getRoute('workspace/toucampaigns/toucampaign/devices').buildUrl()
-                }));
+                        itemId: 'tou-campaign-devices',
+                        router: router,
+                        deviceType: record.get('deviceType'),
+                        campaignIsOngoing: record.get('status') === 'Ongoing',
+                        returnLink: router.getRoute('workspace/toucampaigns/toucampaign/devices').buildUrl()
+                    }));
                 me.getSideMenu().setHeader(record.get('name'));
                 me.getApplication().fireEvent('loadTouCampaign', record);
             },
@@ -62,44 +61,48 @@ Ext.define('Tou.controller.Devices', {
 
     onActionMenuClicked: function (menu, item) {
         switch (item.action) {
-            case 'cancelDevice':
-                this.doCancelDeviceInTouCampaign(menu.record);
-                break;
-            case 'retryDevice':
-                this.doRetryDeviceInTouCampaign(menu.record);
-                break;
+        case 'cancelDevice':
+            this.doCancelDeviceInTouCampaign(menu.record);
+            break;
+        case 'retryDevice':
+            this.doRetryDeviceInTouCampaign(menu.record);
+            break;
         }
     },
 
     doCancelDeviceInTouCampaign: function (record) {
         var me = this,
-            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            url = record.cancelUrl(),
-            devicesWidget = pageView.down("#tou-campaign-devices");
+        pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+        url = record.cancelUrl(),
+        devicesWidget = pageView.down("#tou-campaign-devices");
 
         me.currentRecord = record;
 
         Ext.Ajax.request({
             url: url,
-            jsonData : {"id" : record.get('device').id},
+            jsonData: {
+                "id": record.get('device').id
+            },
             method: 'PUT',
             success: function (response) {
                 me.doUpdateRecord(me.currentRecord, response.responseText);
-                me.getApplication().fireEvent('acknowledge',  Uni.I18n.translate('deviceInTouCampaign.cancelled', 'TOU', ' Time of use calendar upload for device cancelled'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInTouCampaign.cancelled', 'TOU', ' Time of use calendar upload for device cancelled'));
             }
         });
     },
-    doRetryDeviceInTouCampaign : function (record) {
+    doRetryDeviceInTouCampaign: function (record) {
         var me = this,
-            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            url = record.retryUrl(),
-            devicesWidget = pageView.down("#tou-campaign-devices");
+        pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+        url = record.retryUrl(),
+        devicesWidget = pageView.down("#tou-campaign-devices");
 
         me.currentRecord = record;
 
         Ext.Ajax.request({
             url: url,
-            jsonData : {"id" : record.get('device').id},
+            jsonData: {
+                "id": record.get('device').id
+            },
             method: 'PUT',
             success: function (response) {
                 me.doUpdateRecord(me.currentRecord, response.responseText);
@@ -107,12 +110,12 @@ Ext.define('Tou.controller.Devices', {
             }
         });
     },
-    doUpdateRecord: function(record, responseText) {
+    doUpdateRecord: function (record, responseText) {
         var result = Ext.JSON.decode(responseText);
         if (result) {
             var status = result['status'],
-                startedOn = result['startedOn'],
-                finishedOn = result['finishedOn'];
+            startedOn = result['startedOn'],
+            finishedOn = result['finishedOn'];
             record.beginEdit();
             record.set('status', status);
             record.set('startedOn', startedOn);
@@ -121,7 +124,5 @@ Ext.define('Tou.controller.Devices', {
         }
 
     }
-
-
 
 });

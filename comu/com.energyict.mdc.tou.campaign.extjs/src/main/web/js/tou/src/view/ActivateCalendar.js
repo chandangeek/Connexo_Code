@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Tou.view.ActivateCalendar', {
@@ -15,14 +15,13 @@ Ext.define('Tou.view.ActivateCalendar', {
     },
 
     requires: [
-       'Uni.form.field.DateTime'
+        'Uni.form.field.DateTime'
     ],
 
     initComponent: function () {
         var me = this;
 
         me.items = [
-
             {
                 itemId: 'uploadRadioGroup',
                 xtype: 'radiogroup',
@@ -33,23 +32,20 @@ Ext.define('Tou.view.ActivateCalendar', {
                     name: me.groupName,
                     submitValue: false
                 },
-                items: [
-                    {
+                items: [{
                         itemId: 'wActivation',
                         boxLabel: Uni.I18n.translate('tou.campaigns.activate.calendar.wActivationLbl', 'TOU', 'Send without activation'),
                         name: me.groupName,
                         inputValue: 'withoutActivation',
                         checked: true
-                    },
-                    {
-                         itemId: 'Immediately',
-                         id: 'TouImmediately',
-                         boxLabel: Uni.I18n.translate('tou.campaigns.activate.calendar.immediatelyLbl', 'TOU', 'Immediately'),
-                         name: me.groupName,
-                         inputValue: 'immediately',
-                         checked: false
-                    },
-                    {
+                    }, {
+                        itemId: 'Immediately',
+                        id: 'TouImmediately',
+                        boxLabel: Uni.I18n.translate('tou.campaigns.activate.calendar.immediatelyLbl', 'TOU', 'Immediately'),
+                        name: me.groupName,
+                        inputValue: 'immediately',
+                        checked: false
+                    }, {
                         itemId: 'ByDate',
                         id: 'TouByDate',
                         name: me.groupName,
@@ -65,20 +61,19 @@ Ext.define('Tou.view.ActivateCalendar', {
                         if (newValue[me.groupName] == 'withoutActivation' || newValue[me.groupName] == 'immediately') {
                             uploadFileDateContainer.disable();
                             uploadFileDateContainer.setValue(null);
-                         } else {
-                             uploadFileDateContainer.enable();
-                             uploadFileDateContainer.setValue(moment().startOf('day').add('days', 1));
-                         }
-                         if (newValue[me.groupName] == 'immediately'){
-                             timeoutFld.show();
-                         }else{
-                             timeoutFld.hide();
-                         }
+                        } else {
+                            uploadFileDateContainer.enable();
+                            uploadFileDateContainer.setValue(moment().startOf('day').add('days', 1));
+                        }
+                        if (newValue[me.groupName] == 'immediately') {
+                            timeoutFld.show();
+                        } else {
+                            timeoutFld.hide();
+                        }
 
                     }
                 }
-            },
-            {
+            }, {
                 xtype: 'date-time',
                 itemId: 'uploadFileDateContainer',
                 layout: 'hbox',
@@ -98,16 +93,16 @@ Ext.define('Tou.view.ActivateCalendar', {
 
         me.getOptionValue = function () {
             var radiogroup = me.down('#uploadRadioGroup'),
-                dateField = me.down('#uploadFileDateContainer');
+            dateField = me.down('#uploadFileDateContainer');
 
-            if (radiogroup) return radiogroup.getValue()[me.groupName];
+            if (radiogroup)
+                return radiogroup.getValue()[me.groupName];
         };
 
         me.getDateValue = function () {
             var dateField = me.down('#uploadFileDateContainer');
             return dateField.getValue().getTime().toString();
         };
-
 
         me.callParent(arguments);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Tou.view.Add', {
@@ -14,14 +14,13 @@ Ext.define('Tou.view.Add', {
     initComponent: function () {
         var me = this;
 
-        me.content = [
-            {
+        me.content = [{
                 xtype: 'tou-campaigns-add-form',
                 itemId: 'tou-campaigns-add-form',
                 title: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU campaign'),
                 ui: 'large',
                 returnLink: me.returnLink,
-                action : me.action
+                action: me.action
             }
         ];
 
