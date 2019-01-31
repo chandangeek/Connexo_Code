@@ -1467,6 +1467,20 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.zones.controller.Zones',
                             action: 'editZone',
                             privileges: Cfg.privileges.Validation.adminZones,
+                        },
+                        view: {
+                            title: Uni.I18n.translate('zones.Zone', 'MDC', 'Zone'),
+                            route: '{zoneId}',
+                            controller: 'Mdc.zones.controller.Zones',
+                            action: 'viewZone',
+                            privileges: Cfg.privileges.Validation.adminZones,
+                            callback: function (route) {
+                                this.getApplication().on('loadDeviceZone', function (record) {
+                                    route.setTitle(Uni.I18n.translate('zones.viewZone', 'MDC', "{0}", record.get('name'), false));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
                         }
                     }
                 }

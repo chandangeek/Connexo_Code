@@ -1,21 +1,21 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.zone.EndDeviceZone;
 import com.elster.jupiter.metering.zone.EndDeviceZoneBuilder;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneType;
-
-import com.jayway.jsonpath.JsonModel;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.energyict.mdc.device.data.Device;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
+import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -24,10 +24,11 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DeviceZoneResourceTest extends DeviceDataRestApplicationJerseyTest {
+public class BulkZoneResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     private static final String ZONE_TYPE_NAME = "ZoneTypeName";
     private static final String ZONE_NAME = "ZoneName";
@@ -42,11 +43,22 @@ public class DeviceZoneResourceTest extends DeviceDataRestApplicationJerseyTest 
     private static final String APPLICATION = "nameOfApplication";
     private static final long VERSION = 1L;
 
+    private ExceptionFactory exceptionFactory;
+    private BulkZoneResource bulkZoneResource;
+
     @Mock
     private EndDeviceZoneBuilder endDeviceZoneBuilder;
+    @Mock
+    private DestinationSpec bulkZoneQueueDestination;
+    @Mock
+    private MessageBuilder msgBuilder;
+    @Mock
+    private UriInfo uriInfo;
+
 
     @Before
     public void setUp1() {
+        Device device = mockDevice();
         EndDevice endDevice = mock(EndDevice.class);
         when(meteringService.findEndDeviceByName(END_DEVICE_NAME)).thenReturn(Optional.of(endDevice));
         when(meteringService.findEndDeviceByName(NO_END_DEVICE_NAME)).thenReturn(Optional.empty());
@@ -64,6 +76,31 @@ public class DeviceZoneResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(endDeviceZoneBuilder.withEndDevice(endDevice)).thenReturn(endDeviceZoneBuilder);
         when(endDeviceZoneBuilder.withZone(zone)).thenReturn(endDeviceZoneBuilder);
         when(endDeviceZoneBuilder.create()).thenReturn(endDeviceZone1);
+        when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.of(bulkZoneQueueDestination));
+        when(bulkZoneQueueDestination.message(anyString())).thenReturn(msgBuilder);
+        when(appServerHelper.verifyActiveAppServerExists(anyString())).thenReturn(Boolean.TRUE);
+
+        mockUriInfo();
+        exceptionFactory = new ExceptionFactory(thesaurus);
+        bulkZoneResource = new BulkZoneResource(exceptionFactory, appServerHelper, jsonService, messageService, searchService, meteringZoneService,
+                deviceService, meteringService, thesaurus);
+    }
+
+    private Device mockDevice() {
+        Device device = mock(Device.class);
+        when(device.getVersion()).thenReturn(1L);
+        when(device.getName()).thenReturn(END_DEVICE_NAME);
+        when(deviceService.findAndLockDeviceByNameAndVersion(END_DEVICE_NAME, device.getVersion())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceById(1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceById(0L)).thenReturn(Optional.empty());
+
+        return device;
+    }
+
+    private void mockUriInfo() {
+        MultivaluedMap<String, String> parameters = new MultivaluedHashMap<>();
+        parameters.add("deviceIds", "1");
+        when(uriInfo.getQueryParameters()).thenReturn(parameters);
     }
 
     private Zone mockZone(Long zoneId, String zoneName, String application, long version, long zoneTypeId, String zoneTypeName) {
@@ -96,63 +133,19 @@ public class DeviceZoneResourceTest extends DeviceDataRestApplicationJerseyTest 
     }
 
     @Test
-    public void testGetZones() {
-        String response = target("/devices/" + END_DEVICE_NAME + "/zones").request().get(String.class);
+    public void testAddZoneToDeviceSet() {
+        BulkRequestInfo info = new BulkRequestInfo();
+        info.action = "addToZone"; // removeFromZone
+        info.deviceIds = Arrays.asList(1L);
+        Entity<BulkRequestInfo> json = Entity.json(info);
 
-        JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.zones[0].zoneTypeName")).isEqualTo(ZONE_TYPE_NAME);
-        assertThat(jsonModel.<String>get("$.zones[0].zoneName")).isEqualTo(ZONE_NAME);
-    }
-
-    @Test
-    public void testGetZonesInvalidNoDeviceFound() throws Exception {
-        Response response = target("/devices/" + NO_END_DEVICE_NAME + "/zones").request().get();
-        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(model.<Boolean>get("$.success")).isFalse();
-        assertThat(model.<String>get("$.error")).isEqualTo(MessageSeeds.NO_SUCH_DEVICE.getKey());
-    }
-
-    @Test
-    public void testGetRemainingZoneTypes() {
-        String response = target("/devices/" + END_DEVICE_NAME + "/zones/remainingZoneTypes").request().get(String.class);
-
-        assertThat(response).isEqualTo("[]");
-    }
-
-    @Test
-    public void testAddZone() {
-        EndDeviceZoneInfo info = new EndDeviceZoneInfo(ZONE_TYPE_NAME, ZONE_NAME, END_DEVICE_ZONE_ID, ZONE_TYPE_ID, ZONE_ID);
-        Entity<EndDeviceZoneInfo> json = Entity.json(info);
-        Response response = target("/devices/" + END_DEVICE_NAME + "/zones").queryParam("name", END_DEVICE_NAME).request().post(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-    }
-
-    @Test
-    public void testEditZone() {
-        EndDeviceZoneInfo info = new EndDeviceZoneInfo(ZONE_TYPE_NAME, ZONE_NAME, END_DEVICE_ZONE_ID, ZONE_TYPE_ID, ZONE_ID);
-        Entity<EndDeviceZoneInfo> json = Entity.json(info);
-        Response response = target("/devices/" + END_DEVICE_NAME + "/zones/" + END_DEVICE_ZONE_ID).request().put(json);
+        Response response = target("/devices/zones").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
-    public void testDeleteZone() {
-        Response response = target("/devices/" + END_DEVICE_NAME + "/zones/" + END_DEVICE_ZONE_ID).request().delete();
+    public void testGetDevicesOnZoneTypeWithoutFilter() {
+        Response response = bulkZoneResource.getDevicesOnZoneType(uriInfo, ZONE_TYPE_ID, ZONE_ID, null);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
-
-    @Test
-    public void testDeleteZoneByZoneId() {
-        Response response = target("/devices/" + END_DEVICE_NAME + "/zones/byZoneId/" + ZONE_ID).request().delete();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
-
-    @Test
-    public void testDeleteInvalidZone() throws Exception {
-        Response response = target("/devices/" + END_DEVICE_NAME + "/zones/" + NO_END_DEVICE_ZONE_ID).request().delete();
-        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(model.<Boolean>get("$.success")).isFalse();
-        assertThat(model.<String>get("$.error")).isEqualTo(MessageSeeds.NO_SUCH_END_DEVICE_ZONE.getKey());
     }
 }

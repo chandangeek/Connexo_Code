@@ -16,6 +16,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -156,6 +157,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile LockService lockService;
     private volatile DataVaultService dataVaultService;
     private volatile SecurityManagementService securityManagementService;
+    private volatile MeteringZoneService meteringZoneService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -171,6 +173,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private DeviceMessageService deviceMessageService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
+
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -191,7 +194,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
             UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService,
-            LockService lockService, DataVaultService dataVaultService, SecurityManagementService securityManagementService) {
+            LockService lockService, DataVaultService dataVaultService, SecurityManagementService securityManagementService,  MeteringZoneService meteringZoneService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -229,6 +232,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setLockService(lockService);
         setDataVaultService(dataVaultService);
         setSecurityManagementService(securityManagementService);
+        setMeteringZoneService(meteringZoneService);
         activate(bundleContext);
     }
 
@@ -474,6 +478,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         return this.validationService;
     }
 
+    @Override
+    public MeteringZoneService meteringZoneService() {
+        return this.meteringZoneService;
+    }
+
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
@@ -539,6 +548,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.dataVaultService = dataVaultService;
     }
 
+    @Reference
+    public void setMeteringZoneService(MeteringZoneService meteringZoneService) { this.meteringZoneService = meteringZoneService; }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -595,6 +607,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(LockService.class).toInstance(lockService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
                 bind(CrlRequestTaskPropertiesService.class).toInstance(crlRequestTaskPropertiesService);
+                bind(MeteringZoneService.class).toInstance(meteringZoneService);
             }
         };
     }
