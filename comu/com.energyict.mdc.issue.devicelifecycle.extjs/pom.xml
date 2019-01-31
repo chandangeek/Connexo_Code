@@ -14,6 +14,10 @@
     <packaging>bundle</packaging>
     <name>[MDC] mdc.issue.devicelifecycle.extjs</name>
 
+    <properties>
+         <baseline>(,${project.version})</baseline>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
