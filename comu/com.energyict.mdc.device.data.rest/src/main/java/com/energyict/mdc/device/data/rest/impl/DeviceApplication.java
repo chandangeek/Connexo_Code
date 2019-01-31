@@ -244,7 +244,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceMessageSearchResource.class,
                 CrlRequestTaskResource.class,
                 DeviceZoneResource.class,
-                ProcessResource.class
+                ProcessResource.class,
+                AppServerHelper.class
         );
     }
 
@@ -448,11 +449,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setAliasSearchFilterFactory(AliasSearchFilterFactory aliasSearchFilterFactory) {
         this.aliasSearchFilterFactory = aliasSearchFilterFactory;
-    }
-
-    @Reference
-    public void setAppServerHelper(AppServerHelper appServerHelper) {
-        this.appServerHelper = appServerHelper;
     }
 
     @Override
@@ -721,7 +717,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
             bind(DeviceAttributesInfoFactory.class).to(DeviceAttributesInfoFactory.class);
             bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
-            bind(appServerHelper).to(AppServerHelper.class);
+            bind(AppServerHelper.class).to(AppServerHelper.class);
             bind(appService).to(AppService.class);
             bind(messageService).to(MessageService.class);
             bind(loadProfileService).to(LoadProfileService.class);

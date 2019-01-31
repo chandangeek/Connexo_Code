@@ -378,7 +378,6 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setFirmwareService(firmwareService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);
         application.setAppService(appService);
-        application.setAppServerHelper(appServerHelper);
         application.setMessageService(messageService);
         application.setSearchService(searchService);
         application.setLoadProfileService(loadProfileService);
