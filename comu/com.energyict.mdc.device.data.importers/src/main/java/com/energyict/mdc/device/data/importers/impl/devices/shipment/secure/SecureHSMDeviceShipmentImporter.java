@@ -54,20 +54,25 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
         byte[] deviceKeyBytes = importFileDeviceKey.getCipher();
 
         String securityAccessorName = deviceKey.getName();
-        SecurityAccessorType securityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger).orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, device.getName(), securityAccessorName));
+        Optional<SecurityAccessorType> optionalSecurityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger);
+        if (optionalSecurityAccessorType.isPresent()) {
+            SecurityAccessorType securityAccessorType = optionalSecurityAccessorType.get();
+            ImportKeyRequest ikr = new ImportKeyRequest(wrapperkeyLabel, wrapperKeyAlgorithm, wrapKeyMap.get(wrapperkeyLabel).getSymmetricKey().getCipherData().getCipherValue(), symmetricAlgorithm, deviceKeyBytes, initVector, securityAccessorType.getHsmKeyType());
+            HsmEncryptedKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
 
-        ImportKeyRequest ikr = new ImportKeyRequest(wrapperkeyLabel, wrapperKeyAlgorithm, wrapKeyMap.get(wrapperkeyLabel).getSymmetricKey().getCipherData().getCipherValue(), symmetricAlgorithm, deviceKeyBytes, initVector, securityAccessorType.getHsmKeyType());
-        HsmEncryptedKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
-
-        Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
-        if (securityAccessorOptional.flatMap(SecurityAccessor::getActualValue).isPresent()) {
-            log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
-        } else {
-            SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
-            HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
-            hsmKey.setKey(hsmEncryptedKey.getEncryptedKey(), hsmEncryptedKey.getKeyLabel());
-            securityAccessor.setActualValue(hsmKey);
-            securityAccessor.save();
+            Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
+            if (securityAccessorOptional.flatMap(SecurityAccessor::getActualValue).isPresent()) {
+                log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
+            } else {
+                SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
+                HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
+                hsmKey.setKey(hsmEncryptedKey.getEncryptedKey(), hsmEncryptedKey.getKeyLabel());
+                securityAccessor.setActualValue(hsmKey);
+                securityAccessor.save();
+            }
+        }
+        else {
+            logger.warning("No security accessor found for name:" + securityAccessorName);
         }
     }
 
