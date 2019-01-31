@@ -6,6 +6,7 @@ package com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig;
 
 import com.elster.connexo._2017.schema.customattributes.Attribute;
 import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
+import com.elster.jupiter.cim.webservices.inbound.soap.impl.XsdQuantityConverter;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -28,6 +29,7 @@ import ch.iec.tc57._2011.usagepointconfig.Status;
 import ch.iec.tc57._2011.usagepointconfig.UsagePoint.MetrologyRequirements;
 import ch.iec.tc57._2011.usagepointconfig.UsagePointConfig;
 import ch.iec.tc57._2011.usagepointconfig.UsagePointConnectedKind;
+import com.elster.jupiter.util.units.Quantity;
 import sun.util.calendar.ZoneInfo;
 
 import javax.inject.Inject;
@@ -134,7 +136,7 @@ class UsagePointConfigFactory {
         }
         if (values == null || values.isEmpty()) {
             List<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
-            customAttribute.setId(propertySet.getName());
+            customAttribute.setId(propertySet.getId());
             for (PropertySpec propertySpec : propertySpecs) {
                 Attribute attr = new Attribute();
                 attr.setName(propertySpec.getName());
@@ -149,7 +151,7 @@ class UsagePointConfigFactory {
     }
 
     private void setAttrToCustomAttribute(CustomPropertySet propertySet, CustomPropertySetValues values, CustomAttributeSet customAttribute) {
-        customAttribute.setId(propertySet.getName());
+        customAttribute.setId(propertySet.getId());
         for (String property : values.propertyNames()) {
             Attribute attr = new Attribute();
             attr.setName(property);
@@ -158,8 +160,10 @@ class UsagePointConfigFactory {
             if (propertySet.isVersioned()) {
                 if (values.getEffectiveRange().hasLowerBound()) {
                     customAttribute.setFromDateTime(values.getEffectiveRange().lowerEndpoint());
+                    customAttribute.setVersionId(values.getEffectiveRange().lowerEndpoint());
                 } else {
                     customAttribute.setFromDateTime(null);
+                    customAttribute.setVersionId(null);
                 }
                 if (values.getEffectiveRange().hasUpperBound()) {
                     customAttribute.setToDateTime(values.getEffectiveRange().upperEndpoint());
@@ -179,6 +183,8 @@ class UsagePointConfigFactory {
             return "null";
         } else if (value instanceof ZoneInfo) {
             return ((ZoneInfo)value).getID();
+        } else if (value instanceof Quantity) {
+            return XsdQuantityConverter.marshal((Quantity)value);
         } else {
             return String.valueOf(value);
         }
