@@ -1025,7 +1025,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 progressBar.wait({
                                     interval: 50,
                                     increment: 20,
-                                    text: (me.operation === 'add' ? Uni.I18n.translate('general.adding', 'MDC', 'Adding...') : Uni.I18n.translate('general.removing', 'MDC', 'Removing...'))
+                                    text: (me.operation === 'add' || me.operation === 'addToZone'  ? Uni.I18n.translate('general.adding', 'MDC', 'Adding...') : Uni.I18n.translate('general.removing', 'MDC', 'Removing...'))
                                 })
                             );
                             Ext.resumeLayouts();
