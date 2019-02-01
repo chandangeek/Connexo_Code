@@ -55,6 +55,7 @@ public class ZoneSearchableProperty extends AbstractSearchableDeviceProperty {
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
+        builder.addEndDevice();
     }
 
     ZoneSearchableProperty init(DeviceSearchDomain domain, SearchablePropertyGroup group, SearchableProperty zoneTypeProperty) {
@@ -68,7 +69,7 @@ public class ZoneSearchableProperty extends AbstractSearchableDeviceProperty {
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
 
         SqlBuilder builder = new SqlBuilder();
-        builder.append(JoinClauseBuilder.Aliases.DEVICE + ".id IN (");
+        builder.append(JoinClauseBuilder.Aliases.END_DEVICE + ".id IN (");
         builder.append("select enddevice " +
                 "from MTZ_ZONETOENDDEVICE " +
                 "where ");
