@@ -71,7 +71,6 @@ public class ZoneOnDeviceMessageHandler implements MessageHandler {
     }
 
     private void addZone(Zone zone, Device device, ZoneOnDeviceQueueMessage queueMessage) {
-
         Optional<EndDeviceZone> endDeviceZone = endDeviceZoneByZoneType(zone, device);
         try {
             if (!endDeviceZone.isPresent()) {
