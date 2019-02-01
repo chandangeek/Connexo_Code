@@ -84,7 +84,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 privileges: Fwc.privileges.FirmwareCampaign.administrate,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     if (!me.campaignIsOngoing) {
-                        //return true;
+                        return true;
                     }
                     switch (record.get('status').id) { // current device status
                         case 'pending':
