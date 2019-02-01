@@ -8,7 +8,9 @@ import com.elster.jupiter.metering.zone.EndDeviceZone;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.json.JsonDeserializeException;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -41,7 +43,13 @@ public class ZoneOnDeviceMessageHandler implements MessageHandler {
 
     @Override
     public void process(Message message) {
-        ZoneOnDeviceQueueMessage queueMessage = jsonService.deserialize(message.getPayload(), ZoneOnDeviceQueueMessage.class);
+        ZoneOnDeviceQueueMessage queueMessage;
+        try {
+            queueMessage = jsonService.deserialize(message.getPayload(), ZoneOnDeviceQueueMessage.class);
+        } catch (JsonDeserializeException e) {
+            LOGGER.log(Level.WARNING, "Could not deserialize message - ignoring: " + message.getPayload());
+            return;
+        }
         Optional<Zone> zone = meteringZoneService.getZone(queueMessage.zoneId);
         if (!zone.isPresent()) {
             LOGGER.log(Level.SEVERE, thesaurus.getFormat(MessageSeeds.NO_SUCH_ZONE).format(queueMessage.zoneId));
@@ -60,8 +68,7 @@ public class ZoneOnDeviceMessageHandler implements MessageHandler {
             case Remove:
                 removeZone(zone.get(), device.get(), queueMessage);
                 break;
-            default:
-                LOGGER.log(Level.WARNING, "Unknown action for Zone on device: " + queueMessage.action);
+            // since "action" comes from an enum, it can't have any other value then Add/Remove, or it breaks at json deserialization
         }
     }
 
@@ -71,16 +78,13 @@ public class ZoneOnDeviceMessageHandler implements MessageHandler {
     }
 
     private void addZone(Zone zone, Device device, ZoneOnDeviceQueueMessage queueMessage) {
-
-        Optional<EndDeviceZone> endDeviceZone = endDeviceZoneByZoneType(zone, device);
         try {
+            Optional<EndDeviceZone> endDeviceZone = endDeviceZoneByZoneType(zone, device);
             if (!endDeviceZone.isPresent()) {
                 meteringZoneService.newEndDeviceZoneBuilder()
-                        .withEndDevice(meteringService
-                                .findEndDeviceByName(device.getName()).get())
+                        .withEndDevice(meteringService.findEndDeviceByName(device.getName()).get())
                         .withZone(zone)
                         .create();
-
             } else {
                 endDeviceZone.get().setZone(zone);
                 endDeviceZone.get().save();
@@ -89,7 +93,6 @@ public class ZoneOnDeviceMessageHandler implements MessageHandler {
             LOGGER.log(Level.WARNING, e.getLocalizedMessage());
         }
     }
-
 
     private void removeZone(Zone zone, Device device, ZoneOnDeviceQueueMessage queueMessage) {
         try {
@@ -112,6 +115,6 @@ public class ZoneOnDeviceMessageHandler implements MessageHandler {
                     .findFirst();
         }
 
-        return Optional.empty();
+        throw new DoesNotExistException(device.getName());
     }
 }
