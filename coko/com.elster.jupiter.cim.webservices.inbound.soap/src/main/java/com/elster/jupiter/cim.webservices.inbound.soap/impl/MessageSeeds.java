@@ -60,8 +60,8 @@ public enum MessageSeeds implements MessageSeed {
     START_DATE_LOWER_CREATED_DATE(2023, "StartDateLowerCreatedDate", "Start date must be greater or equal to created date of usage point {0}"),
     NO_CUSTOMATTRIBUTE_VERSION(2024, "NoCustomAttributeVersion", "Custom attribute set version with start date {0} is not found"),
     NO_CUSTOMATTRIBUTE(2025, "NoCustomAttribute", "Can''t find custom attribute set {0}"),
-    WRONG_QUANTITY_FORMAT(2026, "WrongQuantitiyFormat", "Wrong unit format for column {0}. Supported multipliers: {1}, supported units: {2}"),
-    WRONG_ENUM_FORMAT(2027, "WrongEnumFormat", "Wrong enumeration value for column {0}. Possible values: {1}"),
+    WRONG_QUANTITY_FORMAT(2026, "WrongQuantitiyFormat", "Wrong unit format for attribute {0}. Supported multipliers: {1}, supported units: {2}"),
+    WRONG_ENUM_FORMAT(2027, "WrongEnumFormat", "Wrong enumeration value for attribute {0}. Possible values: {1}"),
     MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE(2028, "MissingRequiredCustomAttributeValue", "Attribute {0} is required on custom attribute set {1}"),
     INVALID_QUANTITY_FORMAT(2029, "InvalidQuantityFormat", "Invalid Quantity format for {0}. Expected values: {1}"),
 

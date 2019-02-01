@@ -1025,23 +1025,28 @@ class UsagePointBuilder {
             CustomPropertySetValues values = getValuesVersion(businessObject, customPropertySet, data, versionId.get(), additionalPrimaryKeyObject);
             if (!values.isEmpty()) {
                 values = updateValues(customPropertySet, data, values);
-                if(!endTime.isPresent() && data.getId().equalsIgnoreCase(customPropertySet.getId())){
-                    endTime = Optional.of(Instant.EPOCH);
-                }
-                Range<Instant> range = getRangeToUpdate(startTime, endTime, values.getEffectiveRange());
-                OverlapCalculatorBuilder overlapCalculatorBuilder;
-                if (additionalPrimaryKeyObject != null) {
-                    overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject, additionalPrimaryKeyObject);
+                Range<Instant> range;
+                if (updateRange.isPresent() && updateRange.get()) {
+                    if (!endTime.isPresent() && data.getId().equalsIgnoreCase(customPropertySet.getId())) {
+                        endTime = Optional.of(Instant.EPOCH);
+                    }
+                    range = getRangeToUpdate(startTime, endTime, values.getEffectiveRange());
+                    OverlapCalculatorBuilder overlapCalculatorBuilder;
+                    if (additionalPrimaryKeyObject != null) {
+                        overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject, additionalPrimaryKeyObject);
+                    } else {
+                        overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject);
+                    }
+                    for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenUpdating(versionId.get(), range)) {
+                        if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
+                            range = getRangeToUpdate(Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()), endTime, values.getEffectiveRange());
+                        }
+                        if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
+                            range = getRangeToUpdate(startTime, Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()), values.getEffectiveRange());
+                        }
+                    }
                 } else {
-                    overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject);
-                }
-                for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenUpdating(versionId.get(), range)) {
-                    if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
-                        range = getRangeToUpdate(Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()), endTime, values.getEffectiveRange());
-                    }
-                    if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
-                        range = getRangeToUpdate(startTime, Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()), values.getEffectiveRange());
-                    }
+                    range = values.getEffectiveRange();
                 }
                 if (additionalPrimaryKeyObject != null) {
                     customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, values, range, versionId.get(), additionalPrimaryKeyObject);
@@ -1055,12 +1060,8 @@ class UsagePointBuilder {
         } else {
             if (!startTime.isPresent()) {
                 com.elster.jupiter.metering.UsagePoint usagePoint = (com.elster.jupiter.metering.UsagePoint)businessObject;
-                if (updateRange.isPresent() && updateRange.get()) {
-                    startTime = Optional.of(usagePoint.getCreateDate());
-                } else {
-                    throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                            MessageSeeds.START_DATE_LOWER_CREATED_DATE, usagePoint.getName()).get();
-                }
+                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                        MessageSeeds.START_DATE_LOWER_CREATED_DATE, usagePoint.getName()).get();
             }
             Range<Instant> range = getRangeToCreate(startTime, endTime);
             OverlapCalculatorBuilder overlapCalculatorBuilder;
