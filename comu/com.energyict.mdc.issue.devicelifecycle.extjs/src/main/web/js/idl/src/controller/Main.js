@@ -77,7 +77,7 @@ Ext.define('Idl.controller.Main', {
             }
 
             dataCollection = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.devicelifecycle.issues','IDL','Device Lifecycle Issues'),
+                title: Uni.I18n.translate('general.devicelifecycle.issues','IDL','Device lifecycle issues'),
                 portal: 'workspace',
                 route: 'datavalidation',
                 items:  items
