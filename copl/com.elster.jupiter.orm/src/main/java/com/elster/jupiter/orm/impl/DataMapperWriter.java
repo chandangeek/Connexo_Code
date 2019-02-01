@@ -278,9 +278,9 @@ public class DataMapperWriter<T> {
         }
         refresh(object, false);
 
-        // if (columns.size() != 0) { //for touch
+        if (columns.size() != 0) { //for touch
             new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.UPDATE).audit();
-        //   }
+        }
     }
 
     private boolean doJournal(List<ColumnImpl> columns) {

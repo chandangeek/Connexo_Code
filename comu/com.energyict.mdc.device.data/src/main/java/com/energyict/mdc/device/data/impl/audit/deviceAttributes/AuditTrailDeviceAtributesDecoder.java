@@ -160,7 +160,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
                                             .getInstalledDate(), PropertyTranslationKeys.TRANSITION_INSTALLATION, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForLocation(from, to, PropertyTranslationKeys.DEVICE_LOCATION).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForCoordinates(from, to, PropertyTranslationKeys.DEVICE_COORDINATES).ifPresent(auditLogChanges::add);
-                                    getAuditLogChangeForMultiplier(from, to, PropertyTranslationKeys.MULTIPLIER).ifPresent(auditLogChanges::add);
+                                    //getAuditLogChangeForMultiplier(from, to, PropertyTranslationKeys.MULTIPLIER).ifPresent(auditLogChanges::add);
 
                                 });
                     });
@@ -211,7 +211,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
             auditLogChange.setName(getDisplayName(PropertyTranslationKeys.BATCH));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
             to.getBatch().ifPresent(batch -> auditLogChange.setValue(batch.getName()));
-            from.getBatch().ifPresent(batch -> auditLogChange.setValue(batch.getName()));
+            from.getBatch().ifPresent(batch -> auditLogChange.setPreviousValue(batch.getName()));
             return Optional.of(auditLogChange);
         }
         return Optional.empty();

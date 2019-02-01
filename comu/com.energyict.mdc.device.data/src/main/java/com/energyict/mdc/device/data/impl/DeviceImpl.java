@@ -195,7 +195,6 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import com.energyict.obis.ObisCode;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -590,8 +589,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private void notifyCreated() {
         this.eventService.postEvent(CreateEventType.DEVICE.topic(), this);
         // In addition notify the creation of ConnectionTasks and ComTaskExecutions
-        this.getConnectionTaskImpls().forEach(ConnectionTaskImpl::notifyCreated);
-        this.getComTaskExecutionImpls().forEach(ComTaskExecutionImpl::notifyCreated);
+        //this.getConnectionTaskImpls().forEach(ConnectionTaskImpl::notifyCreated);
+        //this.getComTaskExecutionImpls().forEach(ComTaskExecutionImpl::notifyCreated);
     }
 
     private void notifyDeleted() {
