@@ -236,8 +236,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new CalendarModule(),
                 new WebServicesModule(),
                 new FileImportModule(),
-                new ZoneModule()),
-                new AuditServiceModule();
+                new ZoneModule(),
+                new AuditServiceModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(PluggableService.class);
