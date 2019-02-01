@@ -107,8 +107,8 @@ public class DeviceTypeResource {
      * @param cpsId   Id of the custom attribute set
      * @param uriInfo uriInfo
      * @param fields  fields
-     * @return Uniquely identified device type
-     * @summary Fetch device type
+     * @return Uniquely identified registered custom property set
+     * @summary Fetch registered custom property set
      */
     @GET
     @Transactional
@@ -123,9 +123,8 @@ public class DeviceTypeResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND,
                         MessageSeeds.NO_SUCH_DEVICE_TYPE));
         RegisteredCustomPropertySetTypeInfo registeredCustomPropertySetTypeInfo =
-                deviceTypeInfoFactory.getRegisteredCustomPropertySetTypeInfos(deviceType)
+                deviceTypeInfoFactory.getRegisteredCustomPropertySetTypeInfos(deviceType,cpsId)
                         .stream()
-                        .filter(rcpsInfo -> rcpsInfo.getRegisteredCustomPropertySet().getId() == cpsId)
                         .findFirst()
                         .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND,
                                 MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET));

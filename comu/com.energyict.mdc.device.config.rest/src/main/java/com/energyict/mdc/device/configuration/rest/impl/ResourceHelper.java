@@ -56,9 +56,11 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -157,11 +159,10 @@ public class ResourceHelper {
                 .collect(Collectors.toList());
     }
 
-    public Map<RegisteredCustomPropertySet, List<PropertyInfo>> getDeviceTypeCustomPropertySetInfo(DeviceType deviceType) {
-        Map<RegisteredCustomPropertySet, List<PropertyInfo>> propertyInfos = new HashMap<>();
-        getRegisteredCPSForEditing(deviceType).forEach(rcps -> propertyInfos.put(rcps,
-                getCustomPropertySetValues(deviceType, rcps)));
-        return propertyInfos;
+    public Map<RegisteredCustomPropertySet, List<PropertyInfo>> getCustomPropertySetValusesForRegisteredCustomPropertySets(DeviceType deviceType) {
+        return getRegisteredCPSForEditing(deviceType)
+                .stream()
+                .collect(Collectors.toMap(Function.identity(), rcps -> getPropertyInfoList(deviceType, rcps)));
     }
 
     @SuppressWarnings("unchecked")
@@ -183,7 +184,7 @@ public class ResourceHelper {
     }
 
     @SuppressWarnings("unchecked")
-    public List<PropertyInfo> getCustomPropertySetValues(DeviceType deviceType, RegisteredCustomPropertySet rcps) {
+    public List<PropertyInfo> getPropertyInfoList(DeviceType deviceType, RegisteredCustomPropertySet rcps) {
         return mdcPropertyUtils.convertPropertySpecsToPropertyInfos(rcps.getCustomPropertySet().getPropertySpecs(),
                 getCustomProperties(customPropertySetService.getUniqueValuesFor(rcps.getCustomPropertySet(),
                         deviceType)));
@@ -703,21 +704,26 @@ public class ResourceHelper {
     public List<RegisteredCustomPropertySet> getRegisteredCPSForEditing(DeviceType deviceType) {
         return deviceType.getCustomPropertySets()
                 .stream()
-                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(RegisteredCustomPropertySet::isEditableByCurrentUser)
                 .filter(rcps -> !rcps.getCustomPropertySet().isVersioned())
                 .filter(rcps -> rcps.getCustomPropertySet().getDomainClass().equals(DeviceType.class))
                 .collect(Collectors.toList());
     }
 
     public List<RegisteredCustomPropertySet> getRegisteredCPSForLinking(DeviceType deviceType, boolean isLinked) {
-        return isLinked ? deviceType.getCustomPropertySets() :
-                findAllCustomPropertySetsByDomain(Device.class, DeviceType.class)
-                        .stream()
-                        .filter(f -> !deviceType.getCustomPropertySets()
-                                .stream()
-                                .map(RegisteredCustomPropertySet::getId)
-                                .collect(Collectors.toList())
-                                .contains(f.getId()))
-                        .collect(Collectors.toList());
+
+        if (isLinked) {
+            return deviceType.getCustomPropertySets();
+        } else {
+            Set<Long> cpsIds = deviceType.getCustomPropertySets()
+                    .stream()
+                    .map(RegisteredCustomPropertySet::getId)
+                    .collect(Collectors.toSet());
+
+            return findAllCustomPropertySetsByDomain(Device.class, DeviceType.class)
+                    .stream()
+                    .filter(f -> !cpsIds.contains(f.getId()))
+                    .collect(Collectors.toList());
+        }
     }
 }

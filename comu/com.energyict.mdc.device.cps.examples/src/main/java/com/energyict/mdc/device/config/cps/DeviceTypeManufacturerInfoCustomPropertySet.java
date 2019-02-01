@@ -1,5 +1,8 @@
-package com.energyict.mdc.device.config.cps;
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 
+package com.energyict.mdc.device.config.cps;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
@@ -12,18 +15,14 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -32,18 +31,17 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component(name = "com.energyict.mdc.device.config.cps.DeviceTypeTypeCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<DeviceType, DeviceTypeTypeDomainExtension> {
+public class DeviceTypeManufacturerInfoCustomPropertySet implements CustomPropertySet<DeviceType, DeviceTypeManufacturerInfoDomainExtension> {
 
-/*XROMVYU */
-    public static final String TABLE_NAME = "RVK_CPS_DEVICE_TYPE";
-    public static final String FK_CPS_DEVICE_TYPE = "FK_CPS_DEVICE_TYPE";
-    public static final String PREFIX = "DTT";
+    public static final String TABLE_NAME = "DMI_MANUFACTURER_INFO_CPS";
+    public static final String FK_DMI_MANUFACT_INFO_DT = "FK_DMI_MANUFACT_INFO_DT";
+    public static final String PREFIX = "DMI";
 
-    public volatile PropertySpecService propertySpecService;
-    public volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile PropertySpecService propertySpecService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile Thesaurus thesaurus;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    @Reference
     public void setDeviceConfiguratyionService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
@@ -53,36 +51,30 @@ public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<Devic
         this.propertySpecService = propertySpecService;
     }
 
+    @Reference
+    public void setCustomPropertySetsDemoInstaller(CustomPropertySetsDemoInstaller customPropertySetsDemoInstaller) {
+        /* For translations. To wait untill CustomPropertySetsDemoInstaller is up. */
+    }
 
-    @SuppressWarnings("unused") // OSGI
-    @org.osgi.service.component.annotations.Reference
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(CustomPropertySetsDemoInstaller.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-    public DeviceTypeTypeCustomPropertySet() {
+    /* OSGI */
+    public DeviceTypeManufacturerInfoCustomPropertySet() {
         super();
     }
 
     @Inject
-    public DeviceTypeTypeCustomPropertySet(PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService){
-        this();
-        this.setPropertySpecService(propertySpecService);
-        this.setDeviceConfiguratyionService(deviceConfigurationService);
-    }
-
-    @Inject
-    public DeviceTypeTypeCustomPropertySet(PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, NlsService nlsService)  {
+    public DeviceTypeManufacturerInfoCustomPropertySet(PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, NlsService nlsService)  {
         this();
         this.setNlsService(nlsService);
         this.setPropertySpecService(propertySpecService);
         this.setDeviceConfiguratyionService(deviceConfigurationService);
     }
 
-
-
-
-    private static class DeviceTypePeristenceSupport implements PersistenceSupport<DeviceType, DeviceTypeTypeDomainExtension> {
+    private static class DeviceTypePeristenceSupport implements PersistenceSupport<DeviceType, DeviceTypeManufacturerInfoDomainExtension> {
         @Override
         public String application() {
             return "Example";
@@ -90,7 +82,7 @@ public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<Devic
 
         @Override
         public String componentName() {
-            return "DTP";
+            return PREFIX;
         }
 
         @Override
@@ -100,17 +92,17 @@ public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<Devic
 
         @Override
         public String domainFieldName() {
-            return DeviceTypeTypeDomainExtension.FieldNames.DOMAIN.javaName();
+            return DeviceTypeManufacturerInfoDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
         public String domainForeignKeyName() {
-            return FK_CPS_DEVICE_TYPE;
+            return FK_DMI_MANUFACT_INFO_DT;
         }
 
         @Override
-        public Class<DeviceTypeTypeDomainExtension> persistenceClass() {
-            return DeviceTypeTypeDomainExtension.class;
+        public Class<DeviceTypeManufacturerInfoDomainExtension> persistenceClass() {
+            return DeviceTypeManufacturerInfoDomainExtension.class;
         }
 
         @Override
@@ -126,15 +118,15 @@ public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<Devic
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(DeviceTypeTypeDomainExtension.FieldNames.MANUFACT_ID_NUMBER.databaseName())
+                    .column(DeviceTypeManufacturerInfoDomainExtension.FieldNames.MANUFACT_ID_NUMBER.databaseName())
                     .number()
-                    .map(DeviceTypeTypeDomainExtension.FieldNames.MANUFACT_ID_NUMBER.javaName())
+                    .map(DeviceTypeManufacturerInfoDomainExtension.FieldNames.MANUFACT_ID_NUMBER.javaName())
                     .notNull()
                     .add();
             table
-                    .column(DeviceTypeTypeDomainExtension.FieldNames.MANUFACT_NAME_STRING.databaseName())
+                    .column(DeviceTypeManufacturerInfoDomainExtension.FieldNames.MANUFACT_NAME_STRING.databaseName())
                     .varChar()
-                    .map(DeviceTypeTypeDomainExtension.FieldNames.MANUFACT_NAME_STRING.javaName())
+                    .map(DeviceTypeManufacturerInfoDomainExtension.FieldNames.MANUFACT_NAME_STRING.javaName())
                     .notNull()
                     .add();
         }
@@ -142,7 +134,7 @@ public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<Devic
 
 
     @Override
-    public PersistenceSupport<DeviceType, DeviceTypeTypeDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<DeviceType, DeviceTypeManufacturerInfoDomainExtension> getPersistenceSupport() {
         return new DeviceTypePeristenceSupport();
     }
 
@@ -173,13 +165,12 @@ public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<Devic
 
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(TranslationKeys.DTT_NAME).format();
+        return this.thesaurus.getFormat(TranslationKeys.DMI_NAME).format();
     }
 
     @Override
     public String getDomainClassDisplayName() {
-
-        return this.thesaurus.getFormat(TranslationKeys.DTT_DOMAIN_NAME).format();
+        return this.thesaurus.getFormat(TranslationKeys.DMI_DOMAIN_NAME).format();
     }
 
     @Override
@@ -187,13 +178,13 @@ public class DeviceTypeTypeCustomPropertySet  implements CustomPropertySet<Devic
         return Arrays.asList(
                 this.propertySpecService
                         .bigDecimalSpec()
-                        .named(DeviceTypeTypeDomainExtension.FieldNames.MANUFACT_ID_NUMBER.javaName(), TranslationKeys.DTT_MANUFACTURER_ID)
+                        .named(DeviceTypeManufacturerInfoDomainExtension.FieldNames.MANUFACT_ID_NUMBER.javaName(), TranslationKeys.DMI_MANUFACTURER_ID)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(DeviceTypeTypeDomainExtension.FieldNames.MANUFACT_NAME_STRING.javaName(), TranslationKeys.DTT_MANUFACTURER_NAME)
+                        .named(DeviceTypeManufacturerInfoDomainExtension.FieldNames.MANUFACT_NAME_STRING.javaName(), TranslationKeys.DMI_MANUFACTURER_NAME)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
                         .finish());

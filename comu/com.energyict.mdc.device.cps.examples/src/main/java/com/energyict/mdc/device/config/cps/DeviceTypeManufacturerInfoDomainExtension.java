@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.cps;
 
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
@@ -12,13 +16,12 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
-/*XROMVYU*/
-public class DeviceTypeTypeDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<DeviceType> {
+public class DeviceTypeManufacturerInfoDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<DeviceType> {
 
     public enum FieldNames {
-        DOMAIN("deviceType", "deviceType"),
-        MANUFACT_NAME_STRING("manufacturerName", "manufacturer_name"),
-        MANUFACT_ID_NUMBER("manufacturerId", "manufacturer_id");
+        DOMAIN("deviceType", "DEVICE_TYPE"),
+        MANUFACT_NAME_STRING("manufacturerName", "MANUFACTURER_NAME"),
+        MANUFACT_ID_NUMBER("manufacturerId", "MANUFACTURER_ID");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -31,7 +34,6 @@ public class DeviceTypeTypeDomainExtension extends AbstractPersistentDomainExten
         public String javaName() {
             return javaName;
         }
-
         public String databaseName() {
             return databaseName;
         }
@@ -40,27 +42,24 @@ public class DeviceTypeTypeDomainExtension extends AbstractPersistentDomainExten
     private Reference<DeviceType> deviceType = Reference.empty();
 
     @NotNull(message = "{" + MessageSeeds.Keys.REQUIRED_FIELD + "}")
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong"/*"{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}"*/)
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String manufacturerName;
     @NotNull(message = "{" + MessageSeeds.Keys.REQUIRED_FIELD + "}")
     private BigDecimal manufacturerId;
 
-
-    public void setManufacturerName(String manufacturerName){
+    public void setManufacturerName(String manufacturerName) {
         this.manufacturerName = manufacturerName;
-
     }
 
-    public void setManufacturerId(BigDecimal manufacturerId){
+    public void setManufacturerId(BigDecimal manufacturerId) {
         this.manufacturerId = manufacturerId;
     }
 
-
-    public String getManufacturerName(){
+    public String getManufacturerName() {
         return manufacturerName;
     }
 
-    public BigDecimal getManufacturerId(){
+    public BigDecimal getManufacturerId() {
         return manufacturerId;
     }
 

@@ -177,7 +177,9 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteDeviceType(@PathParam("id") long id, DeviceTypeInfo info) {
         info.id = id;
+
         resourceHelper.lockDeviceTypeOrThrowException(info).delete();
+
         return Response.ok().build();
     }
 
@@ -379,7 +381,7 @@ public class DeviceTypeResource {
                                                              @BeanParam JsonQueryFilter filter,
                                                              @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        return PagedInfoList.fromPagedList("deviceTypeCustomPropertySets",
+        return PagedInfoList.fromCompleteList("deviceTypeCustomPropertySets",
                 getDeviceTypeCustomPropertySetInfos(deviceType, filter.getBoolean("linked"),
                         filter.getBoolean("edit")),
                 queryParameters);
@@ -395,7 +397,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         RegisteredCustomPropertySet rcps = resourceHelper.getRegisteredCPSForEditingOrThrowException(cpsId, deviceType);
         return DeviceTypeCustomPropertySetInfo.from(deviceType, rcps,
-                resourceHelper.getCustomPropertySetValues(deviceType, rcps));
+                resourceHelper.getPropertyInfoList(deviceType, rcps));
     }
 
     @PUT
@@ -403,7 +405,7 @@ public class DeviceTypeResource {
     @Path("/{id}/custompropertysets/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
-    public Response editDeviceCustomAttribute(@PathParam("id") long id,
+    public Response editDeviceCustomAttributes(@PathParam("id") long id,
                                               @PathParam("cpsId") long cpsId,
                                               DeviceTypeCustomPropertySetInfo info) {
         DeviceType lockedDeviceType = resourceHelper.lockDeviceTypeOrThrowException(id, info.deviceTypeVersion,
@@ -1061,6 +1063,6 @@ public class DeviceTypeResource {
                                                                                       boolean isEdit) {
         return !isEdit ?
                 DeviceTypeCustomPropertySetInfo.from(deviceType, resourceHelper.getRegisteredCPSForLinking(deviceType, isLinked)) :
-                DeviceTypeCustomPropertySetInfo.from(deviceType, resourceHelper.getDeviceTypeCustomPropertySetInfo(deviceType));
+                DeviceTypeCustomPropertySetInfo.from(deviceType, resourceHelper.getCustomPropertySetValusesForRegisteredCustomPropertySets(deviceType));
     }
 }

@@ -31,10 +31,10 @@ public enum TranslationKeys implements TranslationKey {
     SCI_PROPERTY_IN_USE(ChannelSAPInfoCustomPropertySet.PREFIX + ".inUse", "In use"),
     SCI_PROPERTY_BILLING_FACTOR(ChannelSAPInfoCustomPropertySet.PREFIX + ".billingFactor", "Billing factor"),
 
-    DTT_NAME(DeviceTypeTypeCustomPropertySet.PREFIX +".name", "Manufacturer-info"),
-    DTT_DOMAIN_NAME(DeviceTypeTypeCustomPropertySet.PREFIX +".domain.name", "Device type"),
-    DTT_MANUFACTURER_NAME(DeviceTypeTypeCustomPropertySet.PREFIX +".manufacturername", "Manufacturer Name"),
-    DTT_MANUFACTURER_ID(DeviceTypeTypeCustomPropertySet.PREFIX +".manufacturerid", "Manufacturer Id");
+    DMI_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".name", "Manufacturer-info"),
+    DMI_DOMAIN_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".domain.name", "Device type"),
+    DMI_MANUFACTURER_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".manufacturername", "Manufacturer Name"),
+    DMI_MANUFACTURER_ID(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".manufacturerid", "Manufacturer Id");
 
     private final String key;
     private final String defaultFormat;

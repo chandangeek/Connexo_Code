@@ -64,7 +64,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_VALUE(229, "InvalidValue", "Invalid value"),
     INVALID_TIME_DURATION(230, "TimeDurationTooLong", "Validity period must be shorter than or equal to 30 years."),
     DEVICE_TYPE_IN_USE_BY_CREATION_RULE(231, "DeviceTypeInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by alarm creation rule ''{2}''"),
-    NO_SUCH_CUSTOMPROPERTYSET(232, "noSuchCPS", "No custom property set with ID {0}"),
+    NO_SUCH_CUSTOMPROPERTYSET(232, "noSuchCPS", "No custom property set with id {0}."),
 
     ;
 

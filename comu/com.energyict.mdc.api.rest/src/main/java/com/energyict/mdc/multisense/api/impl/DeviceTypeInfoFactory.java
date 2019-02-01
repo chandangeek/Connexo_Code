@@ -108,4 +108,15 @@ public class DeviceTypeInfoFactory extends SelectableFieldFactory<DeviceTypeInfo
                 .map(rcps -> RegisteredCustomPropertySetTypeInfo.builder().from(deviceType, rcps).build())
                 .collect(Collectors.toList());
     }
+
+    public List<RegisteredCustomPropertySetTypeInfo> getRegisteredCustomPropertySetTypeInfos(DeviceType deviceType, long cpsId) {
+        return deviceType.getCustomPropertySets()
+                .stream()
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(rcps -> !rcps.getCustomPropertySet().isVersioned())
+                .filter(rcps -> rcps.getCustomPropertySet().getDomainClass().equals(DeviceType.class))
+                .filter(rcps -> rcps.getId() == cpsId)
+                .map(rcps -> RegisteredCustomPropertySetTypeInfo.builder().from(deviceType, rcps).build())
+                .collect(Collectors.toList());
+    }
 }

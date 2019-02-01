@@ -86,7 +86,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_RESPONSE_SECURITY_DEVICE_ACCESS_LEVEL(86, "NoSuchRespDevAccessLevel", "The device protocol does not have a response security  access level with that id"),
     NO_SUCH_CONNECTION_FUNCTION(87, "NoSuchConnectionFunction", "The device protocol does not have a connection function with that id"),
     NO_SUCH_CERTIFICATE_WRAPPER(88, "NoSuchCertificateWrapper", "Certificate wrapper does not exist"),
-    NO_SUCH_CUSTOM_PROPERTY_SET(89, "NoSuchCustomPropertySet", "No such custom property set"),
+    NO_SUCH_CUSTOM_PROPERTY_SET(89, "NoSuchCustomPropertySet", "No such custom property set."),
 
     ;
 
