@@ -122,6 +122,7 @@ public enum Privileges implements TranslationKey {
         String ADMINISTER_VALIDATION_CONFIGURATION = "privilege.administer.device.validationConfiguration";
         String ADMINISTER_ESTIMATION_CONFIGURATION = "privilege.administer.device.estimationConfiguration";
 
+        String ADMINISTRATE_ZONE = "privilege.administrate.zone";
 
     }
 }

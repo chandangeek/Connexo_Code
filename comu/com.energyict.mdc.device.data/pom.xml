@@ -384,5 +384,10 @@
             <artifactId>fileimport</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.zone</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>
