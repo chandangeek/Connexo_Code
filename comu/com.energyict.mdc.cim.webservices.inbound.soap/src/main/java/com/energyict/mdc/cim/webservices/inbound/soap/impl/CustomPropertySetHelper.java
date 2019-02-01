@@ -84,47 +84,47 @@ public class CustomPropertySetHelper {
      * Sets values for CustomPropertySet on specific device logging detailed error messages if possible
      *
      * @param device
-     * @param info
+     * @param newCustomProperySetInfo
      * @param serviceCall
      *            service call for logging purposes
      * @return
      */
     @SuppressWarnings("unchecked")
-    private List<FaultMessage> addCustomPropertySet(Device device, CustomPropertySetInfo info,
+    private List<FaultMessage> addCustomPropertySet(Device device, CustomPropertySetInfo newCustomProperySetInfo,
             ServiceCall serviceCall) {
         List<FaultMessage> faults = new ArrayList<>();
         try {
             Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = customPropertySetService
-                    .findActiveCustomPropertySet(info.getId());
+                    .findActiveCustomPropertySet(newCustomProperySetInfo.getId());
             if (!registeredCustomPropertySet.isPresent()) {
-                logSevere(device, faults, serviceCall, MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET, info.getId());
+                logSevere(device, faults, serviceCall, MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET, newCustomProperySetInfo.getId());
                 return faults;
             }
             CustomPropertySet<Device, ?> customPropertySet = registeredCustomPropertySet.get().getCustomPropertySet();
             List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
             CustomPropertySetValues values = CustomPropertySetValues.empty();
-            for (Entry<String, String> attributeEntry : info.getAttributes().entrySet()) {
-                String attributeName = attributeEntry.getKey();
+            for (Entry<String, String> newAttributeNameAndValue : newCustomProperySetInfo.getAttributes().entrySet()) {
+                String attributeName = newAttributeNameAndValue.getKey();
                 Optional<PropertySpec> optionalPropertySpec = propertySpecs.stream()
                         .filter(spec -> spec.getName().equals(attributeName)).findAny();
                 if (optionalPropertySpec.isPresent()) {
-                    setAttributeValue(device, info, serviceCall, faults, values, attributeEntry,
+                    setAttributeValue(device, newCustomProperySetInfo, serviceCall, faults, values, newAttributeNameAndValue,
                             optionalPropertySpec.get());
                 } else {
                     logSevere(device, faults, serviceCall, MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE, attributeName,
-                            info.getId());
+                            newCustomProperySetInfo.getId());
                 }
             }
             if (faults.isEmpty()) {
                 if (customPropertySet.isVersioned()) {
-                    Range<Instant> range = Ranges.closedOpen(info.getFromDate(), info.getEndDate());
-                    if (info.getVersionId() == null) {
+                    Range<Instant> range = Ranges.closedOpen(newCustomProperySetInfo.getFromDate(), newCustomProperySetInfo.getEndDate());
+                    if (newCustomProperySetInfo.getVersionId() == null) {
                         // add new
                         customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range);
                     } else {
                         // modify existing
                         customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range,
-                                info.getVersionId());
+                                newCustomProperySetInfo.getVersionId());
                     }
                 } else {
                     customPropertySetService.setValuesFor(customPropertySet, device, values);
@@ -133,7 +133,7 @@ public class CustomPropertySetHelper {
             return faults;
         } catch (Exception ex) {
             logException(device, faults, serviceCall, ex, MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET,
-                    info.getId());
+                    newCustomProperySetInfo.getId());
             return faults;
         }
     }
