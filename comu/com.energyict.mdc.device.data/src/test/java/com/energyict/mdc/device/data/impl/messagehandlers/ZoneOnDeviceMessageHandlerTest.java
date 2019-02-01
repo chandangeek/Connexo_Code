@@ -31,6 +31,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -81,20 +82,8 @@ public class ZoneOnDeviceMessageHandlerTest {
         messageHandler = createMessageHandler();
     }
 
-    private void createAddZoneMessage() {
-        ZoneOnDeviceQueueMessage zoneOnDeviceQueueMessage = new ZoneOnDeviceQueueMessage(1, 1, 1, ZoneAction.Add);
-        createAddZoneMessage(zoneOnDeviceQueueMessage);
-    }
-
-    private void createAddZoneMessage(ZoneOnDeviceQueueMessage zoneOnDeviceQueueMessage) {
-        JsonService js = new JsonServiceImpl();
-        String serializedMessage = js.serialize(zoneOnDeviceQueueMessage);
-        when(message.getPayload()).thenReturn(serializedMessage.getBytes());
-        when(jsonService.deserialize((byte[]) any(), eq(ZoneOnDeviceQueueMessage.class))).thenReturn(zoneOnDeviceQueueMessage);
-    }
-
     @Test
-    public void testProcessAddZone() {
+    public void testProcessAddExistingZone() {
         createAddZoneMessage();
 
         messageHandler.process(message);
@@ -104,11 +93,40 @@ public class ZoneOnDeviceMessageHandlerTest {
     }
 
     @Test
-    public void testProcessRemoveZone() {
+    public void testProcessAddNewZone() {
+        when(meteringService.findEndDeviceByName(anyString())).thenReturn(Optional.empty());
+        createAddZoneMessage();
+
         messageHandler.process(message);
 
-        Mockito.verify(endDeviceZone, times(1)).setZone(zone);
-        Mockito.verify(endDeviceZone, times(1)).save();
+        Mockito.verify(endDeviceZone, never()).setZone(zone);
+        Mockito.verify(endDeviceZone, never()).save();
+    }
+
+    @Test
+    public void testProcessRemoveZone() {
+        createRemoveZoneMessage();
+
+        messageHandler.process(message);
+
+        Mockito.verify(endDeviceZone, times(1)).delete();
+    }
+
+    private void createAddZoneMessage() {
+        ZoneOnDeviceQueueMessage zoneOnDeviceQueueMessage = new ZoneOnDeviceQueueMessage(1, 1, 1, ZoneAction.Add);
+        createMessage(zoneOnDeviceQueueMessage);
+    }
+
+    private void createRemoveZoneMessage() {
+        ZoneOnDeviceQueueMessage zoneOnDeviceQueueMessage = new ZoneOnDeviceQueueMessage(1, 1, 1, ZoneAction.Remove);
+        createMessage(zoneOnDeviceQueueMessage);
+    }
+
+    private void createMessage(ZoneOnDeviceQueueMessage zoneOnDeviceQueueMessage) {
+        JsonService js = new JsonServiceImpl();
+        String serializedMessage = js.serialize(zoneOnDeviceQueueMessage);
+        when(message.getPayload()).thenReturn(serializedMessage.getBytes());
+        when(jsonService.deserialize((byte[]) any(), eq(ZoneOnDeviceQueueMessage.class))).thenReturn(zoneOnDeviceQueueMessage);
     }
 
     private ZoneOnDeviceMessageHandler createMessageHandler() {
