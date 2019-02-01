@@ -99,8 +99,11 @@ public class ZoneOnDeviceMessageHandler implements MessageHandler {
             meteringZoneService.getByEndDevice(meteringService.findEndDeviceByName(device.getName()).get())
                     .stream()
                     .filter(endDeviceZone -> endDeviceZone.getZone().getId() == zone.getId())
-                    .findFirst().ifPresent(endDeviceZone -> endDeviceZone.delete());
-            LOGGER.info(thesaurus.getFormat(MessageSeeds.ZONE_REMOVED).format(queueMessage.zoneId, device.getName()));
+                    .findFirst()
+                    .ifPresent(endDeviceZone -> {
+                        endDeviceZone.delete();
+                        LOGGER.info(thesaurus.getFormat(MessageSeeds.ZONE_REMOVED).format(queueMessage.zoneId, device.getName()));
+                    });
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, e.getLocalizedMessage());
         }
