@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum AuditDomainContextTranslationKeys implements TranslationKey {
 
-    UNKNOWN(AuditDomainContextType.UNKNOWN, "Unknown"),
+    UNKNOWN(AuditDomainContextType.EMPTY, ""),
     GENERAL_ATTRIBUTES(AuditDomainContextType.GENERAL_ATTRIBUTES, "General attributes"),
     DEVICE_ATTRIBUTES(AuditDomainContextType.DEVICE_ATTRIBUTES, "Device attributes");
 

@@ -91,6 +91,11 @@ public class AuditTrailImpl implements AuditTrail {
     }
 
     @Override
+    public UnexpectedNumberOfUpdatesException.Operation getDefaultOperation() {
+        return operation;
+    }
+
+    @Override
     public Instant getChangedOn() {
         return createTime;
     }
@@ -105,7 +110,7 @@ public class AuditTrailImpl implements AuditTrail {
         try {
             return AuditDomainContextType.valueOf(context);
         } catch (Exception e) {
-            return AuditDomainContextType.UNKNOWN;
+            return AuditDomainContextType.EMPTY;
         }
 
     }

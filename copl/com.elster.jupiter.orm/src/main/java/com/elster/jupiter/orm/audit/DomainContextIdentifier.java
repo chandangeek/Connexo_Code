@@ -1,5 +1,7 @@
 package com.elster.jupiter.orm.audit;
 
+import com.elster.jupiter.orm.TableAudit;
+
 public class DomainContextIdentifier {
 
     private Long id;
@@ -7,6 +9,9 @@ public class DomainContextIdentifier {
     private String context;
     private String reference;
     private int operation;
+    private Object object;
+    private TableAudit tableAudit;
+    private Long reverseReferenceMapValue;
 
     private long pkColumn;
 
@@ -40,6 +45,21 @@ public class DomainContextIdentifier {
         return this;
     }
 
+    public DomainContextIdentifier setObject(Object object) {
+        this.object = object;
+        return this;
+    }
+
+    public DomainContextIdentifier setTableAudit(TableAudit tableAudit) {
+        this.tableAudit = tableAudit;
+        return this;
+    }
+
+    public DomainContextIdentifier setReverseReferenceMapValue(Long reverseReferenceMapValue) {
+        this.reverseReferenceMapValue = reverseReferenceMapValue;
+        return this;
+    }
+
     public Long getId() {
         return id;
     }
@@ -64,4 +84,15 @@ public class DomainContextIdentifier {
         return pkColumn;
     }
 
+    public Object getObject() {
+        return object;
+    }
+
+    public TableAudit getTableAudit() {
+        return tableAudit;
+    }
+
+    public Long getReverseReferenceMapValue() {
+        return reverseReferenceMapValue;
+    }
 }

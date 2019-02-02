@@ -8,6 +8,7 @@ import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditTrail;
 import com.elster.jupiter.audit.AuditTrailReference;
+import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 
 import java.time.Instant;
 
@@ -19,7 +20,7 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
     private Instant modTimeEnd;
     private String tableName;
     private long pkcolumn;
-    private String operation;
+    private UnexpectedNumberOfUpdatesException.Operation operation;
 
 
     AuditTrailReferenceImpl() {
@@ -32,6 +33,7 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
         atr.setModTimeStart(auditTrail.getModTimeStart());
         atr.setModTimeEnd(auditTrail.getModTimeEnd());
         atr.setPkcolumn(auditTrail.getPkcolumn());
+        atr.setOperation(auditTrail.getDefaultOperation());
         return atr;
     }
 
@@ -66,7 +68,7 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
     }
 
     @Override
-    public String getOperation() {
+    public UnexpectedNumberOfUpdatesException.Operation getOperation() {
         return operation;
     }
 
@@ -94,7 +96,7 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
         this.pkcolumn = pkcolumn;
     }
 
-    public void setOperation(String operation) {
+    public void setOperation(UnexpectedNumberOfUpdatesException.Operation operation) {
         this.operation = operation;
     }
 }

@@ -59,6 +59,17 @@ Ext.define('Mdc.audit.controller.Audit', {
             auditPreviewGrid = me.getAuditPreviewGrid(),
             auditPreviewNoItems = me.getAuditPreviewNoItem();
 
+        Ext.each(auditPreviewGrid.columns, function (column) {
+            if (column.dataIndex === 'previousValue') {
+                column.setVisible(record[0].get('operationType') == 'UPDATE');
+            }
+            if (column.dataIndex === 'value') {
+                column.setText(record[0].get('operationType') == 'UPDATE' ? Uni.I18n.translate('audit.preview.changedTo', 'MDC', 'Changed to') :
+                    Uni.I18n.translate('audit.preview.value', 'MDC', 'Value'));
+            }
+
+        });
+
         if (record[0].auditLogsStore.getCount() > 0) {
             auditPreviewGrid.setVisible(true);
             auditPreviewGrid.getStore().loadRawData(record[0].raw['auditLogs']);
@@ -111,7 +122,7 @@ Ext.define('Mdc.audit.controller.Audit', {
             default:
                 rendererLink = record.get('auditReference').name;
         }
-        return rendererLink;
+        return ((rendererLink != null) && (rendererLink.length == 0)) ? '-' : rendererLink;
     },
 
     contextConvertor: function (value, record) {
@@ -128,8 +139,8 @@ Ext.define('Mdc.audit.controller.Audit', {
                 rendererLink = isRemoved == true ? value : '<a href="#/devices/' + record.get('auditReference').name + '/attributes">' + value + '</a>';
                 break;
             default:
-                rendererLink = record.get('auditReference').name;
+                rendererLink = '';
         }
-        return rendererLink;
+        return ((rendererLink != null) && (rendererLink.length == 0)) ? '-' : rendererLink;
     }
 });

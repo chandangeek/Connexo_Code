@@ -7,6 +7,7 @@ package com.elster.jupiter.orm;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TableAudit {
 
@@ -16,13 +17,17 @@ public interface TableAudit {
 
     String getContext();
 
-    List<Object> getPkColumns(Object object);
+    List<Object> getDomainPkValues(Object object);
+
+    List<Object> getContextPkValues(Object object);
 
     String getDomainReferences(Object object);
 
     Object getDomainShortReference(Object object);
 
     String getContextReferences(Object object);
+
+    Optional<Long> getReverseReferenceMap(Object object);
 
     List<String> getReferences(Object object);
 
@@ -44,6 +49,8 @@ public interface TableAudit {
         Builder references(ForeignKeyConstraint foreignKeyConstraint);
 
         Builder references(String... foreignKeyConstraints);
+
+        Builder reverseReferenceMap(String reverseReferenceMap);
 
         TableAudit build();
     }

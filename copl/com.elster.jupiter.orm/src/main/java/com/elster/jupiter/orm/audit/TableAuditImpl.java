@@ -26,6 +26,7 @@ public class TableAuditImpl implements TableAudit {
     List<ForeignKeyConstraint> foreignKeyConstraints = new ArrayList<ForeignKeyConstraint>();
     private String domain;
     private String context;
+    private Optional<String> reverseReferenceMap = Optional.empty();
     private Optional<String> domainForeignKey = Optional.empty();
     private Optional<String> contextForeignKey = Optional.empty();
     private final Reference<TableImpl<?>> table = ValueReference.absent();
@@ -55,7 +56,7 @@ public class TableAuditImpl implements TableAudit {
     }
 
     @Override
-    public List<Object> getPkColumns(Object object) {
+    public List<Object> getDomainPkValues(Object object) {
         Optional<String> foreignKeyName = domainForeignKey;
         if ((foreignKeyConstraints.size() == 0) || (!foreignKeyName.isPresent()) || (foreignKeyName.isPresent() && foreignKeyName.get().isEmpty())) {
             return getPkColumnReference(getTable().getPrimaryKeyColumns(), object);
@@ -63,9 +64,12 @@ public class TableAuditImpl implements TableAudit {
         try {
             for (ForeignKeyConstraint foreignKeyConstraint : foreignKeyConstraints) {
                 String fieldName = foreignKeyConstraint.getFieldName();
-                object = ((Reference<?>) (((TableImpl) foreignKeyConstraint.getReferencedTable()).getDomainMapper().getField(object.getClass(), fieldName)
-                        .get(object))).getOptional().get();
-
+                Optional<?> reference = ((Reference<?>) (((TableImpl) foreignKeyConstraint.getReferencedTable()).getDomainMapper().getField(object.getClass(), fieldName)
+                        .get(object))).getOptional();
+                if (reference.isPresent() == false) {
+                    return Collections.emptyList();
+                }
+                object = reference.get();
                 if (foreignKeyConstraint.getName().compareToIgnoreCase(foreignKeyName.get()) == 0) {
                     return getPkColumnReference(foreignKeyConstraint.getReferencedTable().getPrimaryKeyColumns(), object);
                 }
@@ -74,6 +78,11 @@ public class TableAuditImpl implements TableAudit {
         } catch (IllegalAccessException ex) {
             throw new IllegalStateException("");
         }
+    }
+
+    @Override
+    public List<Object> getContextPkValues(Object object) {
+        return getPkColumnReference(getTable().getPrimaryKeyColumns(), object);
     }
 
     @Override
@@ -94,6 +103,20 @@ public class TableAuditImpl implements TableAudit {
         } catch (IllegalAccessException ex) {
             throw new IllegalStateException("");
         }
+    }
+
+    @Override
+    public Optional<Long> getReverseReferenceMap(Object object) {
+        try {
+            if (reverseReferenceMap.isPresent() && reverseReferenceMap.get().length() != 0) {
+                Object referenceValue = ((TableImpl) getTouchTable()).getDomainMapper().getField(object.getClass(), reverseReferenceMap.get()).get(object);
+                return Optional.of(Long.parseLong(referenceValue.toString()));
+            }
+
+        } catch (IllegalAccessException ex) {
+            throw new IllegalStateException("");
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -223,6 +246,12 @@ public class TableAuditImpl implements TableAudit {
                 tableAudit.foreignKeyConstraints.add(fkc);
                 table = fkc.getReferencedTable();
             }
+            return this;
+        }
+
+        @Override
+        public Builder reverseReferenceMap(String reverseReferenceMap) {
+            tableAudit.reverseReferenceMap = Optional.of(reverseReferenceMap);
             return this;
         }
 

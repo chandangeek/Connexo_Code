@@ -68,20 +68,20 @@ public class AuditTrailDataWriter<T> {
 
         try (Connection connection = getConnection(true)) {
             TableAudit tableAudit = getTable().getTableAudit();
+            List<Object> pkColumns = tableAudit.getDomainPkValues(object);
             List<DomainContextIdentifier> contextAuditIdentifiers = getContextAuditIdentifiers();
+            resolveIncompleteContextIdentifier(object);
             return contextAuditIdentifiers.stream()
                     .filter(contextIdentifierEntry -> {
-                        List<Object> pkColumns = tableAudit.getPkColumns(object);
                         return
                                 (contextIdentifierEntry.getDomain().compareToIgnoreCase(tableAudit.getDomain()) == 0) &&
                                         (contextIdentifierEntry.getContext().compareToIgnoreCase(tableAudit.getContext()) == 0) &&
-                                        (contextIdentifierEntry.getPkColumn() == getPkColumnByIndex(pkColumns, 0)) /*&&
-                                        (contextIdentifierEntry.getOperation() == operation.ordinal())*/;
+                                        (contextIdentifierEntry.getPkColumn() == getPkColumnByIndex(pkColumns, 0));
                     })
                     .findFirst()
                     .map(domainContextIdentifier -> {
                         try {
-                            updateAuditDomain(now, domainContextIdentifier.getId());
+                            updateAuditDomain(now, domainContextIdentifier);
                         } catch (SQLException e) {
                         }
                         return domainContextIdentifier;
@@ -90,12 +90,14 @@ public class AuditTrailDataWriter<T> {
                     .orElseGet(() -> {
                         try {
                             Long nextVal = getNext(connection, "ADT_AUDIT_TRAILID");
-                            List<Object> pkColumns = tableAudit.getPkColumns(object);
                             updateContextAuditIdentifiers(new DomainContextIdentifier().setId(nextVal)
                                     .setDomain(tableAudit.getDomain())
                                     .setContext(tableAudit.getContext())
                                     .setPkColumn(getPkColumnByIndex(pkColumns, 0))
-                                    .setOperation(operation.ordinal()));
+                                    .setOperation(operation.ordinal())
+                                    .setObject(object)
+                                    .setTableAudit(tableAudit)
+                                    .setReverseReferenceMapValue(getPkColumnByIndex(tableAudit.getContextPkValues(object), 0)));
                             persistAuditDomain(object, now, operation, nextVal, pkColumns);
                             return nextVal;
                         } catch (SQLException e) {
@@ -110,6 +112,13 @@ public class AuditTrailDataWriter<T> {
             return Long.parseLong(pkColumns.get(index).toString());
         }
         return 0;
+    }
+
+    private long getPkColumnBy(DomainContextIdentifier domainContextIdentifier) {
+        if (domainContextIdentifier.getPkColumn() == 0) {
+            domainContextIdentifier.setPkColumn(getPkColumnByIndex(getTable().getTableAudit().getDomainPkValues(object), 0));
+        }
+        return domainContextIdentifier.getPkColumn();
     }
 
     private void persistAuditDomain(Object object, Instant now, UnexpectedNumberOfUpdatesException.Operation operation, Long nextVal, List<Object> pkColumns) throws SQLException {
@@ -136,14 +145,14 @@ public class AuditTrailDataWriter<T> {
         }
     }
 
-    private void updateAuditDomain(Instant now, Long nextVal) throws SQLException {
-
-        TableAudit tableAudit = getTable().getTableAudit();
+    private void updateAuditDomain(Instant now, DomainContextIdentifier domainContextIdentifier) throws SQLException {
+        Long nextVal = domainContextIdentifier.getId();
         String auditLog = getSqlGenerator().updateAuditTrailSql();
         try (Connection connection = getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(auditLog)) {
                 int index = 1;
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMEEND
+                statement.setLong(index++, getPkColumnBy(domainContextIdentifier)); // PKCOLUMN
                 statement.setLong(index++, nextVal); // ID
                 statement.execute();
             }
@@ -168,6 +177,26 @@ public class AuditTrailDataWriter<T> {
                     domainContextIdentifiers.add(domainContextIdentifier);
                     getTable().getDataModel().getOrmService().getTransactionService().getTransactionProperties().removeProperty(AUDIT_CONTEXT);
                     getTable().getDataModel().getOrmService().getTransactionService().getTransactionProperties().setProperty(AUDIT_CONTEXT, domainContextIdentifiers);
+                });
+    }
+
+    private void resolveIncompleteContextIdentifier(Object object) {
+        List<DomainContextIdentifier> contextAuditIdentifiers = getContextAuditIdentifiers();
+
+        contextAuditIdentifiers.stream()
+                .filter(contextIdentifierEntry -> contextIdentifierEntry.getPkColumn() == 0)
+                .forEach(contextIdentifierEntry -> {
+                    TableAudit tableAudit = getTable().getTableAudit();
+                    if (contextIdentifierEntry.getTableAudit().getTouchTable().getName().compareToIgnoreCase(getTable().getName()) == 0) {
+                        contextIdentifierEntry.getTableAudit().getReverseReferenceMap(object).ifPresent(reverseReference -> {
+                            if (reverseReference.longValue() == contextIdentifierEntry.getReverseReferenceMapValue().longValue()) {
+                                contextIdentifierEntry
+                                        .setPkColumn(getPkColumnByIndex(tableAudit.getDomainPkValues(object), 0));
+
+                            }
+                        });
+                    }
+
                 });
     }
 

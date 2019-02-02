@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.audit;
 
+import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
@@ -23,6 +25,6 @@ public interface AuditTrailReference {
 
     long getPkcolumn();
 
-    String getOperation();
+    UnexpectedNumberOfUpdatesException.Operation getOperation();
 }
 

@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Comparison;
@@ -44,6 +45,11 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     @Override
     public boolean isRemoved() {
         return isRemoved;
+    }
+
+    @Override
+    public UnexpectedNumberOfUpdatesException.Operation getOperation(UnexpectedNumberOfUpdatesException.Operation operation, AuditDomainContextType context) {
+        return operation;
     }
 
     public void setThesaurus(Thesaurus thesaurus) {
@@ -176,6 +182,34 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
             return Optional.of(auditLogChange);
         }
         return Optional.empty();
+    }
+
+    public Optional<AuditLogChange> getAuditLogChangeForInteger(Integer to, TranslationKey translationKey) {
+        AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+        auditLogChange.setName(getDisplayName(translationKey));
+        auditLogChange.setType(SimplePropertyType.INTEGER.name());
+        auditLogChange.setValue(to);
+        return Optional.of(auditLogChange);
+    }
+
+    public Optional<AuditLogChange> getAuditLogChangeForString(String to, TranslationKey translationKey) {
+        return Optional.ofNullable(to).filter(s -> !s.isEmpty()).map(value -> {
+            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setType(SimplePropertyType.TEXT.name());
+            auditLogChange.setValue(to);
+            return auditLogChange;
+        });
+    }
+
+    public Optional<AuditLogChange> getAuditLogChangeForOptional(Optional to, TranslationKey translationKey, SimplePropertyType simplePropertyType) {
+        return to.map(value -> {
+            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setType(simplePropertyType.name());
+            auditLogChange.setValue(value);
+            return auditLogChange;
+        });
     }
 
     public String getDisplayName(TranslationKey key) {

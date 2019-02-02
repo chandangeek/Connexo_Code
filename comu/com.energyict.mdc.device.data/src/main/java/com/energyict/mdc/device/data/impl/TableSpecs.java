@@ -167,6 +167,10 @@ public enum TableSpecs {
             table.audit(DDC_DEVICE.name())
                     .domain("DEVICE")
                     .context("DEVICE_ATTRIBUTES")
+                    .references("FK_DDC_DEVICE_ENDDEVICE")
+                    .reverseReferenceMap("amrId")
+                    .touchDomain("FK_DDC_DEVICE_ENDDEVICE")
+                    .touchContext("")
                     .build();
         }
     },

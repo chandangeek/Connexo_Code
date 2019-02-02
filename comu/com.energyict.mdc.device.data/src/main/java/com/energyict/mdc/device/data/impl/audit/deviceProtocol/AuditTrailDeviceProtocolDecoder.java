@@ -225,13 +225,13 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
         if ((valueFactory instanceof BooleanFactory) && (propertySpecPossibleValues == null)) {
             return (Integer.parseInt("0"));
         }
-        if (valueFactory instanceof BigDecimalFactory || valueFactory instanceof BooleanFactory) {
+        if ((valueFactory instanceof BigDecimalFactory || valueFactory instanceof BooleanFactory) && (propertySpecPossibleValues != null)) {
             return (Integer.parseInt(propertySpec.getValueFactory().valueToDatabase(propertySpec.getPossibleValues().getDefault()).toString()));
         }
-        if (propertySpec.getPossibleValues() == null) {
+        if (propertySpecPossibleValues == null) {
             return "";
         }
-        return propertySpec.getPossibleValues().getDefault();
+        return propertySpecPossibleValues.getDefault();
     }
 
     private List<PropertySpec> getDeviceProtocolPropertySpecs() {

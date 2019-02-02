@@ -9,6 +9,7 @@ Ext.define('Mdc.audit.view.AuditPreviewGrid', {
         'Mdc.audit.store.AuditDetails'
     ],
     store: 'Mdc.audit.store.AuditDetails',
+    maxHeight: 355,
 
     initComponent: function () {
         var me = this;
@@ -36,10 +37,10 @@ Ext.define('Mdc.audit.view.AuditPreviewGrid', {
             }
         ];
 
-        me.on('refresh', function () {
-        });
-        me.on('datachanged', function () {
-        });
+        /* me.on('refresh', function () {
+         });
+         me.on('datachanged', function () {
+         });*/
 
         me.callParent(arguments);
     }
