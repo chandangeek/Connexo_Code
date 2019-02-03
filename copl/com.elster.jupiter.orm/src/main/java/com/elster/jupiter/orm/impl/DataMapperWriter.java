@@ -111,7 +111,7 @@ public class DataMapperWriter<T> {
             }
         }
 
-        new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT).audit();
+        new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT, false).audit();
 
     }
 
@@ -278,9 +278,7 @@ public class DataMapperWriter<T> {
         }
         refresh(object, false);
 
-        if (columns.size() != 0) { //for touch
-            new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.UPDATE).audit();
-        }
+        new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.UPDATE, columns.size() == 0).audit();
     }
 
     private boolean doJournal(List<ColumnImpl> columns) {
@@ -353,7 +351,7 @@ public class DataMapperWriter<T> {
             ((PersistenceAware)object).postDelete();
         }
 
-        new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.DELETE).audit();
+        new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.DELETE, false).audit();
     }
 
     public void remove(List<? extends T> objects) throws SQLException {

@@ -46,7 +46,6 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile MeteringService meteringService;
     private volatile DeviceService deviceService;
-
     private Long deviceId;
     private Optional<Device> device;
 
@@ -138,15 +137,11 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
     private Optional<AuditLogChange> getAuditLogChange(List<PropertySpec> deviceProtocolPropertySpecs, Optional<DeviceProtocolProperty> oldDeviceProtocolProperty, Optional<DeviceProtocolProperty> newDeviceProtocolProperty) {
 
         String propertyName = Optional.of(newDeviceProtocolProperty.orElseGet(() -> oldDeviceProtocolProperty.get()))
-                .map(dpp -> dpp.getName())
+                .map(DeviceProtocolProperty::getName)
                 .orElseGet(String::new);
         String displayPropertyName = deviceProtocolPropertySpecs.stream()
                 .filter(ps -> ps.getName().compareToIgnoreCase(propertyName) == 0)
                 .map(PropertySpec::getDisplayName).findFirst().orElse(propertyName);
-        /*PropertySpec propertySpec = Optional.of(newDeviceProtocolProperty.orElseGet(() -> oldDeviceProtocolProperty.get()))
-                .map(dpp -> ((DeviceProtocolPropertyImpl) dpp)
-                        .getPropertySpec())
-                .orElseThrow(() -> new IllegalStateException("Cannot found propertySpec"));*/
         PropertySpec propertySpec = device.get()
                 .getDeviceType().getDeviceProtocolPluggableClass().get()
                 .getDeviceProtocol()
@@ -191,11 +186,6 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
     private Object getValueFromDeviceProtocolProperty(Object value, PropertySpec propertySpec) {
         Object propertyValue;
         ValueFactory valueFactory = propertySpec.getValueFactory();
-        /*if (valueFactory instanceof BigDecimalFactory || valueFactory instanceof BooleanFactory) {
-            propertyValue = (Integer.parseInt( ((DeviceProtocolPropertyImpl) value).getPropertyValue()));
-        } else {
-            propertyValue =  ((DeviceProtocolPropertyImpl) value).getPropertyValue();
-        }*/
         if (valueFactory instanceof BigDecimalFactory || valueFactory instanceof BooleanFactory) {
             propertyValue = (Integer.parseInt(((DeviceProtocolPropertyImpl) value).getPropertyValue()));
         } else {

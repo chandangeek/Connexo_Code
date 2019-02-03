@@ -173,7 +173,7 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     }
 
     public Optional<AuditLogChange> getAuditLogChangeForOptional(Optional from, Optional to, TranslationKey translationKey, SimplePropertyType simplePropertyType) {
-        if (to.equals(from) == false) {
+        if (to.isPresent() && !to.get().equals(from.get())) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
             auditLogChange.setType(simplePropertyType.name());

@@ -25,12 +25,14 @@ public class AuditTrailDataWriter<T> {
     private Object object;
     private Instant instant;
     private UnexpectedNumberOfUpdatesException.Operation operation;
+    private boolean isTouch;
 
-    public AuditTrailDataWriter(DataMapperImpl<T> dataMapper, Object object, Instant instant, UnexpectedNumberOfUpdatesException.Operation operation) {
+    public AuditTrailDataWriter(DataMapperImpl<T> dataMapper, Object object, Instant instant, UnexpectedNumberOfUpdatesException.Operation operation, boolean isTouch) {
         this.dataMapper = dataMapper;
         this.object = object;
         this.instant = instant;
         this.operation = operation;
+        this.isTouch = isTouch;
     }
 
     public void audit() throws SQLException {
@@ -64,14 +66,14 @@ public class AuditTrailDataWriter<T> {
         return principal == null ? null : principal.getName();
     }
 
-    private long getAuditDomain(Object object, Instant now, UnexpectedNumberOfUpdatesException.Operation operation) throws SQLException {
+    private void getAuditDomain(Object object, Instant now, UnexpectedNumberOfUpdatesException.Operation operation) throws SQLException {
 
         try (Connection connection = getConnection(true)) {
             TableAudit tableAudit = getTable().getTableAudit();
             List<Object> pkColumns = tableAudit.getDomainPkValues(object);
             List<DomainContextIdentifier> contextAuditIdentifiers = getContextAuditIdentifiers();
             resolveIncompleteContextIdentifier(object);
-            return contextAuditIdentifiers.stream()
+            contextAuditIdentifiers.stream()
                     .filter(contextIdentifierEntry -> {
                         return
                                 (contextIdentifierEntry.getDomain().compareToIgnoreCase(tableAudit.getDomain()) == 0) &&
@@ -89,17 +91,20 @@ public class AuditTrailDataWriter<T> {
                     .map(DomainContextIdentifier::getId)
                     .orElseGet(() -> {
                         try {
-                            Long nextVal = getNext(connection, "ADT_AUDIT_TRAILID");
-                            updateContextAuditIdentifiers(new DomainContextIdentifier().setId(nextVal)
-                                    .setDomain(tableAudit.getDomain())
-                                    .setContext(tableAudit.getContext())
-                                    .setPkColumn(getPkColumnByIndex(pkColumns, 0))
-                                    .setOperation(operation.ordinal())
-                                    .setObject(object)
-                                    .setTableAudit(tableAudit)
-                                    .setReverseReferenceMapValue(getPkColumnByIndex(tableAudit.getContextPkValues(object), 0)));
-                            persistAuditDomain(object, now, operation, nextVal, pkColumns);
-                            return nextVal;
+                            if (isTouch == false) {
+                                Long nextVal = getNext(connection, "ADT_AUDIT_TRAILID");
+                                updateContextAuditIdentifiers(new DomainContextIdentifier().setId(nextVal)
+                                        .setDomain(tableAudit.getDomain())
+                                        .setContext(tableAudit.getContext())
+                                        .setPkColumn(getPkColumnByIndex(pkColumns, 0))
+                                        .setOperation(operation.ordinal())
+                                        .setObject(object)
+                                        .setTableAudit(tableAudit)
+                                        .setReverseReferenceMapValue(getPkColumnByIndex(tableAudit.getContextPkValues(object), 0)));
+                                persistAuditDomain(object, now, operation, nextVal, pkColumns);
+                                return nextVal;
+                            }
+                            return 0L;
                         } catch (SQLException e) {
                             throw new UnderlyingSQLFailedException(e);
                         }
