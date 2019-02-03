@@ -134,7 +134,7 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     protected abstract void decodeReference();
 
 
-    public Optional<AuditLogChange> getAuditLogChangeForString(String from, String to, TranslationKey translationKey) {
+    protected Optional<AuditLogChange> getAuditLogChangeForString(String from, String to, TranslationKey translationKey) {
         if (to.compareTo(from) != 0) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
@@ -146,7 +146,7 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         return Optional.empty();
     }
 
-    public Optional<AuditLogChange> getAuditLogChangeForInteger(Integer from, Integer to, TranslationKey translationKey) {
+    protected Optional<AuditLogChange> getAuditLogChangeForInteger(Integer from, Integer to, TranslationKey translationKey) {
         if (to.compareTo(from) != 0) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
@@ -158,8 +158,8 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         return Optional.empty();
     }
 
-    public Optional<AuditLogChange> getAuditLogChangeForOptional(Optional from, Optional to, TranslationKey translationKey) {
-        if (to.equals(from) == false) {
+    protected Optional<AuditLogChange> getAuditLogChangeForOptional(Optional from, Optional to, TranslationKey translationKey) {
+        if (!compareOptionals(to, from)) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
@@ -172,19 +172,19 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         return Optional.empty();
     }
 
-    public Optional<AuditLogChange> getAuditLogChangeForOptional(Optional from, Optional to, TranslationKey translationKey, SimplePropertyType simplePropertyType) {
-        if (to.isPresent() && !to.get().equals(from.get())) {
+    protected Optional<AuditLogChange> getAuditLogChangeForOptional(Optional from, Optional to, TranslationKey translationKey, SimplePropertyType simplePropertyType) {
+        if (!compareOptionals(to, from)) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
             auditLogChange.setType(simplePropertyType.name());
-            to.ifPresent(dt -> auditLogChange.setValue(dt));
-            from.ifPresent(dt -> auditLogChange.setPreviousValue(dt));
+            to.ifPresent(auditLogChange::setValue);
+            from.ifPresent(auditLogChange::setPreviousValue);
             return Optional.of(auditLogChange);
         }
         return Optional.empty();
     }
 
-    public Optional<AuditLogChange> getAuditLogChangeForInteger(Integer to, TranslationKey translationKey) {
+    protected Optional<AuditLogChange> getAuditLogChangeForInteger(Integer to, TranslationKey translationKey) {
         AuditLogChange auditLogChange = new AuditLogChangeBuilder();
         auditLogChange.setName(getDisplayName(translationKey));
         auditLogChange.setType(SimplePropertyType.INTEGER.name());
@@ -192,7 +192,7 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         return Optional.of(auditLogChange);
     }
 
-    public Optional<AuditLogChange> getAuditLogChangeForString(String to, TranslationKey translationKey) {
+    protected Optional<AuditLogChange> getAuditLogChangeForString(String to, TranslationKey translationKey) {
         return Optional.ofNullable(to).filter(s -> !s.isEmpty()).map(value -> {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
@@ -202,7 +202,7 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         });
     }
 
-    public Optional<AuditLogChange> getAuditLogChangeForOptional(Optional to, TranslationKey translationKey, SimplePropertyType simplePropertyType) {
+    protected Optional<AuditLogChange> getAuditLogChangeForOptional(Optional to, TranslationKey translationKey, SimplePropertyType simplePropertyType) {
         return to.map(value -> {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
@@ -210,6 +210,11 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
             auditLogChange.setValue(value);
             return auditLogChange;
         });
+    }
+
+    private boolean compareOptionals(Optional optional1, Optional optional2) {
+        return ((!optional1.isPresent() && !optional2.isPresent()) ||
+                (optional1.isPresent() && optional2.isPresent() && optional1.get().equals(optional2.get())));
     }
 
     public String getDisplayName(TranslationKey key) {

@@ -25,7 +25,7 @@ public class AuditInfoFactory {
                 audit.getContext() : AuditDomainContextType.EMPTY;
         auditInfo.id = audit.getId();
         auditInfo.domain = thesaurus.getString(audit.getDomain().name(), audit.getDomain().name());
-        auditInfo.context = thesaurus.getString(auditDomainContextType.name(), auditDomainContextType.name());
+        auditInfo.context = thesaurus.getString(auditDomainContextType.type(), auditDomainContextType.name());
         auditInfo.contextType = auditDomainContextType;
         auditInfo.domainType = audit.getDomain();
         auditInfo.changedOn = audit.getChangedOn();
