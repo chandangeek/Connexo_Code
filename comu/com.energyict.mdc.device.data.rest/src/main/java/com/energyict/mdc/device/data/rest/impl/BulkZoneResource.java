@@ -145,6 +145,27 @@ public class BulkZoneResource {
                 .collect(Collectors.toList()))).build();
     }
 
+    @GET
+    @Transactional
+    @Path("/byZoneId")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ZONE)
+    public Response getDevicesOnZone(@Context UriInfo uriInfo, @QueryParam("zoneTypeId") long zoneTypeId, @QueryParam("zoneId") long zoneId, @BeanParam JsonQueryFilter filter) {
+
+        Optional<SearchDomain> deviceSearchDomain = searchService.findDomain(Device.class.getName());
+        ZoneOnDevicesFilterSpecification zoneFilter = new ZoneOnDevicesFilterSpecification();
+        setZoneFilterProperties(filter, deviceSearchDomain, zoneFilter);
+
+        SearchBuilder<Object> searchBuilder = getObjectSearchBuilder(zoneFilter);
+        Stream<Device>  deviceStream = searchBuilder.toFinder().stream().map(Device.class::cast);
+
+
+        return Response.ok(deviceStream
+                .collect(Collectors.toList())).build();
+
+    }
+
     private void setZoneFilterProperties(@BeanParam JsonQueryFilter filter, Optional<SearchDomain> deviceSearchDomain, ZoneOnDevicesFilterSpecification zoneFilter) {
         if (filter.hasFilters() && deviceSearchDomain.isPresent()) {
             deviceSearchDomain.get().getPropertiesValues(searchableProperty -> SearchablePropertyValueConverter.convert(searchableProperty, filter))

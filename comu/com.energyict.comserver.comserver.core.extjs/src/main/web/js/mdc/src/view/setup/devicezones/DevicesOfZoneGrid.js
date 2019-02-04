@@ -26,9 +26,6 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
     sortableColumns: true,
     forceFit: true,
     enableColumnMove: true,
-    config: {
-        service: null
-    },
     searchLink: null,
 
     initComponent: function () {

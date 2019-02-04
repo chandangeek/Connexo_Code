@@ -49,26 +49,25 @@ Ext.define('Mdc.zones.controller.Zones',{
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             model = me.getModel('Cfg.zones.model.Zone'),
-            widget;
+            widget,
+            urlZones = '/api/ddr/devices/zones/byZoneId';
 
-        var service = Ext.create('Mdc.service.Search', {
-            router: router
-        });
 
 
         widget = Ext.widget('device-zone-details', {
             router: router,
             deviceZoneId: currentZoneId,
-            service: service,
-            searchLink: "#search"
         });
         me.getApplication().fireEvent('changecontentevent', widget);
         model.load(currentZoneId, {
             success: function (record) {
-                var domainsStore = service.getSearchDomainsStore();
-                domainsStore.load(function () {
-                    service.applyState({
-                        domain: 'com.energyict.mdc.device.data.Device',
+                Ext.Ajax.request({
+                    url: urlZones,
+                    method: 'GET',
+                    zoneTypeId: record.get("zoneTypeId"),
+                    zoneId: currentZoneId,
+                    filters: {
+
                         filters: [
                             {
                                 property: 'device.zoneType',
@@ -86,10 +85,21 @@ Ext.define('Mdc.zones.controller.Zones',{
 
                             }
                         ]
-                    });
+                    },
+                    timeout: 180000,
+                    success: function (response) {
+                        var deviceList = Ext.JSON.decode(response.responseText);
+                        if(deviceList.total > 0)
+                            me.getStep4().showWarningZoneTypeAlreadyLinkedToDevice(deviceList);
+                    },
+
+                    failure: function () {
+                    },
+                    callback: function () {
+                        wizard.setLoading(false);
+                    }
                 });
 
-                widget.searchLink = service.getRouter().getRoute('search').buildUrl();
                 Ext.suspendLayouts();
                 widget.down('#device-zone-title').setTitle(record.get('name'));
                 widget.down('form').loadRecord(record);

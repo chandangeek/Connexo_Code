@@ -61,8 +61,6 @@ Ext.define('Mdc.view.setup.devicezones.Details', {
                     itemId: 'search-preview-container',
                     grid: {
                         xtype: 'devicesOfZoneGrid',
-                        service: me.service,
-                        searchLink: me.searchLink
                     },
                     emptyComponent: {
                         xtype: 'uni-form-empty-message',
