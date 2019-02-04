@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -98,9 +100,11 @@ public class ValidatorInMemoryBootstrapModule {
                 new UsagePointLifeCycleConfigurationModule(),
                 new TaskModule(),
                 new BpmModule(),
+                new AuditServiceModule(),
                 new WebServicesModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(AuditService.class);
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(PropertySpecService.class);

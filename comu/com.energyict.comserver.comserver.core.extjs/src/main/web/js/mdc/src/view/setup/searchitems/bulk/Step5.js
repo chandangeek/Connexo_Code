@@ -40,6 +40,9 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step5', {
         Ext.resumeLayouts(true);
     },
 
+
+
+
     initComponent: function () {
         this.callParent(arguments);
     }

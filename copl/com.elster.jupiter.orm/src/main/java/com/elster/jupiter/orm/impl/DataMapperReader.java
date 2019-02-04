@@ -272,7 +272,14 @@ public class DataMapperReader<T> implements TupleParser<T> {
                             }
                         }
                     } else {
-                        statement.setLong(index++, Long.parseLong(comparison.getValues()[0].toString()));
+                        Object value = comparison.getValues()[0];
+                        if (value instanceof String) {
+                            statement.setString(index++, value.toString());
+                        } else if (value instanceof Instant) {
+                            statement.setLong(index++, ((Instant) value).toEpochMilli());
+                        } else {
+                            statement.setLong(index++, Long.parseLong(value.toString()));
+                        }
                     }
                     return index;
                 }

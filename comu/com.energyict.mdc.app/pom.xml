@@ -8,13 +8,12 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>1.0.0-Nessus-SNAPSHOT</version>
+
     </parent>
 
     <artifactId>mdc.app</artifactId>
     <packaging>bundle</packaging>
-    <version>1.5.1${revision}</version>
     <name>[MDC] mdc.app</name>
     <description>
         Contains ExtJS code for the MDC app
@@ -253,6 +252,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pki</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>audit</artifactId>
         </dependency>
     </dependencies>
 

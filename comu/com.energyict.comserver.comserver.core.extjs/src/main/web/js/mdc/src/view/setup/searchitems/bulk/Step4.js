@@ -71,6 +71,10 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         this.down('#strategyform').hide();
     },
 
+    showStrategyForm: function () {
+        this.down('#strategyform').show();
+    },
+
 
     showChangeDeviceConfigConfirmation: function (title, text, solveLink, additionalText, type) {
         var bodyText, widget,
@@ -119,6 +123,58 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         this.removeAll();
         this.add(widget);
         Ext.resumeLayouts(true);
-    }
+    },
+
+    showWarningZoneTypeAlreadyLinkedToDevice: function (devices) {
+        var me = this,
+            titleWarning,
+            devicesPanel = {
+                xtype: 'panel',
+                itemId: 'warning-device-zones-panel',
+                ui: 'tile',
+                width: 600,
+                items: [
+                    {
+                        xtype: 'uni-form-info-message',
+                        style: 'border: 0px;',
+                        margin: '7 0 17 0',
+                        itemId: 'device-zones-error-msg',
+                        iconCmp: {
+                            xtype: 'component',
+                            style: 'font-size: 28px; color: #eb5642; margin: 0px -22px 0px 0px;',
+                            cls: 'icon-warning'
+                        },
+                    }
+                ]
+            },
+            zonesContainer = {
+                itemId: 'warning-device-zones',
+                xtype: 'fieldcontainer'
+            };
+
+        me.add(devicesPanel);
+        me.down('#warning-device-zones-panel').add(zonesContainer);
+        if (!Ext.isEmpty(devices.deviceNames)) {
+
+            titleWarning = Uni.I18n.translatePlural('searchItems.bulk.WarningDeviceLinkedToSameZoneType', devices.total, 'MDC',
+                '{0} device already has another zone with the same zone type defined',
+                '{0} device already has another zone with the same zone type defined',
+                '{0} devices already have another zone with the same zone type defined', devices.total);
+
+            me.down('#device-zones-error-msg').setText(titleWarning);
+            Ext.Array.each(devices.deviceNames, function (device) {
+                me.down('#warning-device-zones-panel').down('#warning-device-zones').add({
+                        xtype: 'displayfield',
+                        labelWidth: 120,
+                        value: device,
+                        margin: '0 0 0 15',
+                        renderer: function (value) {
+                            return '<a href="#/devices/' + encodeURIComponent(value) + '">' + Ext.String.htmlEncode(value) + '</a>';
+                        },
+                    });
+            });
+        }
+    },
+
 
 });

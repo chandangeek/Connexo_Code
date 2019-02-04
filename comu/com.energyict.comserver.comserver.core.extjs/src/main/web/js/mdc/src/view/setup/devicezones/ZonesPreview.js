@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.devicezones.ZonesPreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
     alias: 'widget.device-zones-preview',
-
     requires: [
         'Mdc.view.setup.devicezones.ZonesActionsMenu'
     ],
@@ -73,8 +72,6 @@ Ext.define('Mdc.view.setup.devicezones.ZonesPreview', {
                 ]
             }
         ],
-
-
         this.callParent(arguments);
     }
 });

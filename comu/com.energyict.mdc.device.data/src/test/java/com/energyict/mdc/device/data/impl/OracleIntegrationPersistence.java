@@ -24,6 +24,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.ZoneModule;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -165,6 +167,7 @@ public class OracleIntegrationPersistence {
     private UserService userService;
     private MeteringGroupsService meteringGroupsService;
     private DeviceSearchDomain deviceSearchDomain;
+    private MeteringZoneService meteringZoneService;
 
     public void initializeDatabase(String testName) throws SQLException {
         this.initializeMocks(testName);
@@ -229,7 +232,8 @@ public class OracleIntegrationPersistence {
                 new TaskModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
-                new SchedulingModule());
+                new SchedulingModule(),
+                new ZoneModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
@@ -238,6 +242,7 @@ public class OracleIntegrationPersistence {
             this.eventService = injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
+            this.meteringZoneService =  injector.getInstance(MeteringZoneService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);

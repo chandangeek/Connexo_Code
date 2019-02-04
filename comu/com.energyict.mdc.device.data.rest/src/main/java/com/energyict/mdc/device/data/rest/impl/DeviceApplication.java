@@ -164,6 +164,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile FirmwareService firmwareService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile AppService appService;
+    private volatile AppServerHelper appServerHelper;
     private volatile MessageService messageService;
     private volatile SearchService searchService;
     private volatile LoadProfileService loadProfileService;
@@ -213,6 +214,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceValidationResource.class,
                 LoadProfileResource.class,
                 BulkScheduleResource.class,
+                BulkZoneResource.class,
                 DeviceScheduleResource.class,
                 DeviceSharedScheduleResource.class,
                 DeviceComTaskResource.class,
@@ -242,7 +244,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceMessageSearchResource.class,
                 CrlRequestTaskResource.class,
                 DeviceZoneResource.class,
-                ProcessResource.class
+                ProcessResource.class,
+                AppServerHelper.class
         );
     }
 

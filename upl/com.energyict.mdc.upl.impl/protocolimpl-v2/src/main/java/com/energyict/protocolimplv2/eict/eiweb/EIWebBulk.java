@@ -8,9 +8,9 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.nls.PropertyTranslationKeys;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,7 +61,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: Mon Jan 2 13:31:14 2017 +0100 $";
+        return "$Date: Thursday Dec 6, 2018 $";
     }
 
     @Override

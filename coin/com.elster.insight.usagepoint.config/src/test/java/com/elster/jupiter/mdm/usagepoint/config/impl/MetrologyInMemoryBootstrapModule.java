@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -114,6 +115,7 @@ public class MetrologyInMemoryBootstrapModule {
                 new TimeModule(),
                 new CustomPropertySetsModule(),
                 new SearchModule(),
+                new AuditServiceModule(),
                 new WebServicesModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {

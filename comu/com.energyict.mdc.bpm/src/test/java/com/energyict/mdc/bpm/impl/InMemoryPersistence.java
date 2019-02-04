@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.bpm.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
@@ -199,6 +200,7 @@ public class InMemoryPersistence {
                 new CalendarModule(),
                 new PkiModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new FileImportModule()
         );
     }

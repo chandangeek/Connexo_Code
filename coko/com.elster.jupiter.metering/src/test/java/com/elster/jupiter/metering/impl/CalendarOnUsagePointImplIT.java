@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.Calendar;
@@ -157,6 +158,7 @@ public class CalendarOnUsagePointImplIT {
                     new MeteringModule(SECONDARY_DELTA),
                     new CalendarModule(),
                     new UsagePointLifeCycleConfigurationModule(),
+                    new AuditServiceModule(),
                     new WebServicesModule()
             );
         } catch (Exception e) {

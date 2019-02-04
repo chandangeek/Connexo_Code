@@ -7,17 +7,15 @@
 
     <groupId>com.elster.partners</groupId>
     <artifactId>facts.filter</artifactId>
-    <version>1.4.1${revision}</version>
     <name>[Partners] Facts SSO servlet filter</name>
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>parent</artifactId>
-        <version>1.2.0</version>
+        <artifactId>copa</artifactId>
+        <version>1.0.0-Nessus-SNAPSHOT</version>
     </parent>
 
     <properties>
-        <revision>-SNAPSHOT</revision>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <yellowfin.version>7.4</yellowfin.version>
@@ -38,7 +36,7 @@
         <dependency>
             <groupId>com.elster.partners</groupId>
             <artifactId>connexo.filter</artifactId>
-            <version>1.4.1${revision}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.yellowfin</groupId>

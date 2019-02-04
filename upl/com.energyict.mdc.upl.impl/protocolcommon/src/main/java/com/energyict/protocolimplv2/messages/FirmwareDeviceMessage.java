@@ -567,6 +567,22 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public Optional<PropertySpec> getFirmwareIdentifierPropertySpec(PropertySpecService service) {
             return Optional.of(this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation));
         }
+    },
+
+    LTE_MODEM_FIRMWARE_UPGRADE(5036, "LTE Modem Firmware Upgrade") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, LTEModemFirmwareUgradeDownloadFileAttributeName, LTEModemFirmwareUgradeDownloadFileAttributeNameDefaultTranslation),
+                    this.bigDecimalSpec(service, LTEModemFirmwareUgradeDownloadTimeoutAttributeName, LTEModemFirmwareUgradeDownloadTimeoutAttributeNameDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.empty();
+        }
+
     };
 
     private final long id;
