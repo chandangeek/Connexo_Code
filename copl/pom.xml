@@ -897,6 +897,18 @@
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>audit</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>audit.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
 
 			<!-- Module dependencies only for test -->
 			<dependency>
@@ -1125,6 +1137,8 @@
 			<modules>
 				<module>com.elster.jupiter.appserver</module>
 				<module>com.elster.jupiter.appserver.extjs</module>
+				<module>com.elster.jupiter.audit</module>
+				<module>com.elster.jupiter.audit.rest</module>
 				<module>com.elster.jupiter.bootstrap</module>
 				<module>com.elster.jupiter.bootstrap.oracle</module>
 				<module>com.elster.jupiter.bpm</module>

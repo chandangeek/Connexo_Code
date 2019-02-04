@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -161,6 +162,7 @@ public class InMemoryPersistence {
                 new UsagePointLifeCycleConfigurationModule(),
                 new UsagePointLifeCycleModule(),
                 new ServiceCallModule(),
+                new AuditServiceModule(),
                 new WebServicesModule()
         );
     }

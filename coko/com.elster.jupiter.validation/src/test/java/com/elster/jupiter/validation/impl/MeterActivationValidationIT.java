@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -173,10 +175,13 @@ public class MeterActivationValidationIT {
                 new CalendarModule(),
                 new BasicPropertiesModule(),
                 new CustomPropertySetsModule(),
+                new AuditServiceModule(),
                 new WebServicesModule()
         );
+
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(VoidTransaction.of(() -> {
+            injector.getInstance(AuditService.class);
             injector.getInstance(FiniteStateMachineService.class);
             validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
         }));

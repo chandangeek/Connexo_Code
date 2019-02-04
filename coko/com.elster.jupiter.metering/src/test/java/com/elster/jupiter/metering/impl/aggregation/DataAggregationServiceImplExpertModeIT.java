@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.CalendarService;
@@ -239,7 +241,8 @@ public class DataAggregationServiceImplExpertModeIT {
                     new CustomPropertySetsModule(),
                     new BasicPropertiesModule(),
                     new UsagePointLifeCycleConfigurationModule(),
-                    new WebServicesModule()
+                    new WebServicesModule(),
+                    new AuditServiceModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -247,6 +250,7 @@ public class DataAggregationServiceImplExpertModeIT {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(EndPointConfigurationService.class);
             injector.getInstance(WebServicesService.class);
+            injector.getInstance(AuditService.class);
             getMeteringService();
             getDataAggregationService();
             ctx.commit();

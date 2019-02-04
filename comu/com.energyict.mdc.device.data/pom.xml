@@ -227,6 +227,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bpm.rest</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>audit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties.rest</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>

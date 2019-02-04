@@ -179,6 +179,9 @@ public class CreateBeaconDeviceCommand {
         AddLocationInfoToDevicesCommand addLocationInfoToDevicesCommand = this.addLocationInfoToDevicesCommandProvider.get();
         addLocationInfoToDevicesCommand.setDevices(Collections.singletonList(device));
         addLocationInfoToDevicesCommand.run();
+        device.save();
+
+        device = deviceService.findDeviceById(device.getId()).get();
 
         // activate
         ActivateDevicesCommand activateDevicesCommand = activateDevicesCommandProvider.get();

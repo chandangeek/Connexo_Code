@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.users.User;
@@ -6,7 +10,7 @@ public class LocalEventUserSource {
 
     private User user;
     private String userName;
-    
+
     LocalEventUserSource(User user) {
         this.user = user;
     }
@@ -40,7 +44,7 @@ public class LocalEventUserSource {
     }
 
     public String getLastSuccessfulLogin() {
-        if (user != null) {
+        if ((user != null) && (user.getLastSuccessfulLogin() != null)) {
             return user.getLastSuccessfulLogin().toString();
         }
 

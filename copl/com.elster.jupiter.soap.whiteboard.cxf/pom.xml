@@ -170,6 +170,11 @@
             <artifactId>devtools.persistence</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>audit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 </project>

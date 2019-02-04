@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.app.impl;
@@ -11,6 +11,7 @@ import com.energyict.mdc.app.MdcAppService;
 
 import javax.inject.Inject;
 
+import static com.elster.jupiter.audit.security.Privileges.Constants.VIEW_AUDIT_LOG;
 import static com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTRATE_ZONE;
 import static com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ZONE;
 
@@ -33,7 +34,8 @@ public class UpgraderV10_6 implements Upgrader {
         return new String[]{
                 // ZONE
                 ADMINISTRATE_ZONE,
-                VIEW_ZONE
+                VIEW_ZONE,
+                VIEW_AUDIT_LOG
         };
     }
 }

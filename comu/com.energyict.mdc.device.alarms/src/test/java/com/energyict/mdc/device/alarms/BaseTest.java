@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.alarms;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -229,6 +231,7 @@ public abstract class BaseTest {
                 new BpmModule(),
                 new PkiModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new FileImportModule()
         );
 
@@ -247,6 +250,7 @@ public abstract class BaseTest {
             injector.getInstance(TimeService.class);
             injector.getInstance(BpmService.class);
             issueService = injector.getInstance(IssueService.class);
+            injector.getInstance(AuditService.class);
             IssueType type = issueService.createIssueType("alarm", MESSAGE_SEED_DEFAULT_TRANSLATION, "ALM");
             issueService.createReason(ALARM_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
             ctx.commit();

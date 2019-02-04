@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.yellowfin.groups.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -132,6 +134,7 @@ public class DynamicDeviceGroupImplIT {
                     new TaskModule(),
                     new DataVaultModule(),
                     new CustomPropertySetsModule(),
+                    new AuditServiceModule(),
                     new WebServicesModule()
             );
         } catch (Exception e) {
@@ -139,6 +142,7 @@ public class DynamicDeviceGroupImplIT {
         }
 
         injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(AuditService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(YellowfinGroupsService.class);
             MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
