@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.device.data.impl;
@@ -12,7 +12,6 @@ import com.energyict.mdc.device.data.security.Privileges;
 
 import javax.inject.Inject;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTRATE_ZONE;
@@ -33,11 +32,17 @@ public class PrivilegesProviderV10_6 implements PrivilegesProvider {
 
     @Override
     public List<ResourceDefinition> getModuleResources() {
-        return Collections.singletonList(
+        return Arrays.asList(
                 this.userService.createModuleResourceWithPrivileges(
                         DeviceDataServices.COMPONENT_NAME,
                         Privileges.RESOURCE_DEVICE_ZONES.getKey(),
                         Privileges.RESOURCE_DEVICE_ZONES_DESCRIPTION.getKey(),
-                        Arrays.asList(ADMINISTRATE_ZONE, VIEW_ZONE)));
+                        Arrays.asList(ADMINISTRATE_ZONE, VIEW_ZONE))/*,
+                userService.createModuleResourceWithPrivileges(
+                        getModuleName(),
+                        Privileges.RESOURCE_AUDIT_LOG.getKey(),
+                        Privileges.RESOURCE_AUDIT_LOG_DESCRIPTION.getKey(),
+                        Arrays.asList(
+                                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_AUDIT_LOG))*/);
     }
 }

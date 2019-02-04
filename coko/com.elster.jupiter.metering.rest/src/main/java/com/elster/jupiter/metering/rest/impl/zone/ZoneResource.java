@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneFilter;
+import com.elster.jupiter.metering.zone.ZoneType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -35,6 +36,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -78,8 +80,14 @@ public class ZoneResource {
             Privileges.Constants.ADMINISTRATE_ZONE})
     public PagedInfoList getZoneTypes(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey, @BeanParam JsonQueryParameters queryParameters) {
         return PagedInfoList.fromPagedList("types", meteringZoneService.getZoneTypes(appKey).stream()
+                .filter((ZoneType zoneType) ->
+                            meteringZoneService
+                            .getZones(appKey,
+                                    meteringZoneService.newZoneFilter()
+                                            .setZoneTypes(Collections.singletonList(zoneType.getId())))
+                            .find().size() != 0)
                 .sorted((zoneType1, zoneType2) -> zoneType1.getName().compareToIgnoreCase(zoneType2.getName()))
-                .map(zoneTypes -> zoneTypeInfoFactory.from(zoneTypes))
+                .map(zoneType -> zoneTypeInfoFactory.from(zoneType))
                 .collect(Collectors.toList()), queryParameters);
     }
 

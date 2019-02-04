@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
@@ -126,6 +127,7 @@ public class WebServicesServiceImplIT {
                     new TransactionModule(),
                     new NlsModule(),
                     new UserModule(),
+                    new AuditServiceModule(),
                     new WebServicesModule()
             );
         } catch (Exception e) {

@@ -4,6 +4,7 @@
 
 package com.elster.insight.issue.datavalidation.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -156,6 +157,7 @@ public abstract class BaseTest {
                 new CalendarModule(),
                 new ServiceCallModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new FileImportModule()
         );
 

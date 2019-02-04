@@ -42,11 +42,11 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
-import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertyImpl;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
+import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertyImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.pki.AbstractDeviceSecurityAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
@@ -164,6 +164,14 @@ public enum TableSpecs {
             table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
             table.unique("UK_DDC_DEVICE_NAME").on(name).since(version(10, 2, 1)).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
+            table.audit(DDC_DEVICE.name())
+                    .domain("DEVICE")
+                    .context("DEVICE_ATTRIBUTES")
+                    .references("FK_DDC_DEVICE_ENDDEVICE")
+                    .reverseReferenceMap("amrId")
+                    .touchDomain("FK_DDC_DEVICE_ENDDEVICE")
+                    .touchContext("")
+                    .build();
         }
     },
 
@@ -185,6 +193,13 @@ public enum TableSpecs {
                     .reverseMap("deviceProperties")
                     .composition()
                     .add();
+            table.audit(DDC_DEVICEPROTOCOLPROPERTY.name())
+                    .domain("DEVICE")
+                    .context("GENERAL_ATTRIBUTES")
+                    .references("FK_DDC_DEVICEPROTPROP_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
+                    .touchDomain("FK_DDC_DEVICE_ENDDEVICE")
+                    .touchContext("")
+                    .build();
         }
     },
 

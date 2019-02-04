@@ -29,6 +29,8 @@ public enum Privileges implements TranslationKey {
     RESOURCE_CRL_REQUEST_DESCRIPTION("crlRequest.crlRequests.description", "Manage CRL request"),
     RESOURCE_DEVICE_ZONES("deviceZone.deviceZones", "Device zones"),
     RESOURCE_DEVICE_ZONES_DESCRIPTION("deviceZone.deviceZones.description", "Manage device zones"),
+    //  RESOURCE_AUDIT_LOG("privilege.view.auditLog.resource", "Audit log"),
+    //  RESOURCE_AUDIT_LOG_DESCRIPTION("privilege.view.auditLog.description", "Manage audit log"),
 
     //Privileges
     ADMINISTRATE_DEVICE(Constants.ADMINISTRATE_DEVICE, "Administrate"),
@@ -55,6 +57,7 @@ public enum Privileges implements TranslationKey {
     ADMINISTER_ESTIMATION_CONFIGURATION(Constants.ADMINISTER_ESTIMATION_CONFIGURATION, "Administer estimation configuration"),
     ADMINISTRATE_DEVICE_ZONE(ADMINISTRATE_ZONE, "Administrate"),
     VIEW_DEVICE_ZONE(VIEW_ZONE, "View"),
+    //   VIEW_AUDIT_LOG_DATA(VIEW_AUDIT_LOG, "View")
     ;
 
     private final String key;
@@ -119,6 +122,7 @@ public enum Privileges implements TranslationKey {
         String ADMINISTER_VALIDATION_CONFIGURATION = "privilege.administer.device.validationConfiguration";
         String ADMINISTER_ESTIMATION_CONFIGURATION = "privilege.administer.device.estimationConfiguration";
 
+        String ADMINISTRATE_ZONE = "privilege.administrate.zone";
 
     }
 }

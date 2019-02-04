@@ -5,6 +5,8 @@
 package com.elster.jupiter.dataquality.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -74,6 +76,7 @@ public class InMemoryPersistence {
                 new AppServiceModule(),
                 new FileImportModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new CalendarModule(),
                 new UsagePointLifeCycleModule(),
@@ -102,6 +105,7 @@ public class InMemoryPersistence {
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(MeteringGroupsService.class);
+            injector.getInstance(AuditService.class);
             injector.getInstance(DataQualityKpiService.class);
             injector.getInstance(UsagePointLifeCycleService.class);
             ctx.commit();

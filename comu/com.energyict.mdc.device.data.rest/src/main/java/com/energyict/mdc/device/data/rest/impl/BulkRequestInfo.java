@@ -18,6 +18,8 @@ public class BulkRequestInfo {
     public List<Long> deviceIds;
     public List<Long> scheduleIds;
     public long newDeviceConfiguration;
+    public long zoneId;
+    public long zoneTypeId;
     public String strategy;
 
     public String name;

@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.zone.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -107,6 +109,7 @@ public abstract class BaseZoneIT {
                     new BpmModule(),
                     new TaskModule(),
                     new WebServicesModule(),
+                    new AuditServiceModule(),
                     new UsagePointLifeCycleConfigurationModule(),
                     new UserModule(),
                     new DataVaultModule()
@@ -116,6 +119,7 @@ public abstract class BaseZoneIT {
             throw new RuntimeException(e);
         }
         injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(AuditService.class);
                     injector.getInstance(MeteringZoneService.class);
                     return null;
                 }

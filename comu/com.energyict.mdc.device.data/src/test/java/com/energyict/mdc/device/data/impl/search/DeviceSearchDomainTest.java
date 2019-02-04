@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -114,6 +115,8 @@ public class DeviceSearchDomainTest {
     private MasterDataService masterDataService;
     @Mock
     private SecurityManagementService securityManagementService;
+    @Mock
+    private MeteringZoneService meteringZoneService;
 
     private Injector injector;
 
@@ -227,6 +230,10 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(TransitionInstallationDateSearchableProperty.class);
         verify(this.dataModel).getInstance(TransitionDeactivationDateSearchableProperty.class);
         verify(this.dataModel).getInstance(TransitionDecommissioningDateSearchableProperty.class);
+        verify(this.dataModel).getInstance(TransitionDecommissioningDateSearchableProperty.class);
+        verify(this.dataModel).getInstance(ZoneTypeSearchableProperty.class);
+        verify(this.dataModel).getInstance(ZoneSearchableProperty.class);
+        verify(this.dataModel).getInstance(ZonesSearchablePropertyGroup.class);
     }
 
     public void getPropertiesWithEmptyListOfConstrictions() {
@@ -312,6 +319,7 @@ public class DeviceSearchDomainTest {
                 bind(com.elster.jupiter.properties.PropertySpecService.class).to(com.elster.jupiter.properties.impl.PropertySpecServiceImpl.class);
                 bind(PropertySpecService.class).to(PropertySpecServiceImpl.class);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
+                bind(MeteringZoneService.class).toInstance(meteringZoneService);
             }
         };
     }

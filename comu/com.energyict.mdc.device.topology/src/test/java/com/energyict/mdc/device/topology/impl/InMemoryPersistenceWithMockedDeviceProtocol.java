@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -256,10 +258,12 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new TopologyModule(),
                 new CalendarModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new FileImportModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
+            injector.getInstance(AuditService.class);
             injector.getInstance(PluggableService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             injector.getInstance(ServiceCallService.class);

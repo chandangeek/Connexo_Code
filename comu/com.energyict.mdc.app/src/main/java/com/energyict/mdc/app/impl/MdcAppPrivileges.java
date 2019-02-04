@@ -227,7 +227,11 @@ class MdcAppPrivileges {
 
                 // zone
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTRATE_ZONE,
-                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ZONE
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ZONE,
+
+                com.elster.jupiter.audit.security.Privileges.Constants.VIEW_AUDIT_LOG
+
+
         );
     }
 }

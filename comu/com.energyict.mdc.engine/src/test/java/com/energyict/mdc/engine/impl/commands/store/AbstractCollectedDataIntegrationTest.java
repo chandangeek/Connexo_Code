@@ -5,6 +5,8 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -149,6 +151,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new DomainUtilModule(),
                 new NlsModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new AppServiceModule(),
                 new UserModule(),
                 new BpmModule(),
@@ -227,6 +230,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
 //                injector.getInstance(EngineService.class);
                 injector.getInstance(TopologyService.class);
                 injector.getInstance(EventService.class);
+                injector.getInstance(AuditService.class);
                 meteringService = injector.getInstance(MeteringService.class);
                 mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 masterDataService = injector.getInstance(MasterDataService.class);

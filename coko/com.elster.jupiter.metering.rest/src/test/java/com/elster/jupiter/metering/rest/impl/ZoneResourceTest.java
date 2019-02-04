@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.rest.impl.zone.ZoneInfo;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneBuilder;
+import com.elster.jupiter.metering.zone.ZoneFilter;
 import com.elster.jupiter.metering.zone.ZoneType;
 import com.elster.jupiter.metering.zone.ZoneTypeBuilder;
 
@@ -28,6 +29,7 @@ import org.mockito.Mock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,6 +55,8 @@ public class ZoneResourceTest extends MeteringApplicationJerseyTest {
     private ZoneBuilder zoneBuilder;
     @Mock
     private ZoneTypeBuilder zoneTypeBuilder;
+    @Mock
+    private ZoneFilter zoneFilter;
 
     @Before
     public void setUp1() {
@@ -81,6 +85,9 @@ public class ZoneResourceTest extends MeteringApplicationJerseyTest {
         when(meteringZoneService.newZoneTypeBuilder()).thenReturn(zoneTypeBuilder);
         when(zoneTypeBuilder.withName(any(String.class))).thenReturn(zoneTypeBuilder);
         when(zoneTypeBuilder.withApplication(any(String.class))).thenReturn(zoneTypeBuilder);
+
+        when(meteringZoneService.newZoneFilter()).thenReturn(zoneFilter);
+        when(zoneFilter.setZoneTypes(anyList())).thenReturn(zoneFilter);
 
         Zone updateZone = mockZone(ZONE_ID, ZONE_NAME, APPLICATION, VERSION, ZONE_TYPE_ID, ZONE_TYPE_NAME);
         when(meteringZoneService.getAndLockZone(ZONE_ID, VERSION)).thenReturn(Optional.of(updateZone));
