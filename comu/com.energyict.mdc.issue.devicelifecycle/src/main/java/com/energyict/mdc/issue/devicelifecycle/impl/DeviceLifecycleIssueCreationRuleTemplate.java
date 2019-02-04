@@ -375,7 +375,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
             long deviceTypeId = Long.parseLong(values.get(0));
             long deviceLifecycleId = Long.parseLong(values.get(1));
             long stateTransitionId = Long.parseLong(values.get(2));
-            String[] stateSwitch = String.valueOf(values.get(3)).split("-");
+            String[] stateSwitch = String.valueOf(values.get(3)).split(DASH_SEPARATOR);
             if (stateSwitch.length != 2) {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
                         "properties." + DEVICE_LIFECYCLE_TRANSITION_PROPS,
@@ -383,7 +383,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
                         String.valueOf(values.size()));
             }
             long fromStateId = Long.parseLong(stateSwitch[0]);
-            //long toStateId = Long.parseLong(stateSwitch[1]);
+            long toStateId = Long.parseLong(stateSwitch[1]);
 
 
             DeviceType deviceType = deviceConfigurationService
@@ -403,7 +403,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
             State fromState = stateTransition.getFrom();
             State toState = stateTransition.getTo();
 
-            if (fromState.getId() != fromStateId || toState != toState) {
+            if (fromState.getId() != fromStateId || toState.getId() != toStateId) {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ARGUMENT,
                         "properties." + DEVICE_LIFECYCLE_TRANSITION_PROPS,
                         values.get(4));
@@ -476,7 +476,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
 
         @Override
         public String getId() {
-            return deviceType.getId() + SEPARATOR + deviceLifeCycle.getId() + SEPARATOR + stateTransition.getId() + SEPARATOR + fromState.getId() + DASH_SEPARATOR + toState;
+            return deviceType.getId() + SEPARATOR + deviceLifeCycle.getId() + SEPARATOR + stateTransition.getId() + SEPARATOR + fromState.getId() + DASH_SEPARATOR + toState.getId();
         }
 
         @Override
