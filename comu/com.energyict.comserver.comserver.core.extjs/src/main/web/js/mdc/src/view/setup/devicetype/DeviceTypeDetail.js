@@ -40,7 +40,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                         menu: {
                             xtype: 'device-type-action-menu',
                             router: me.router
-                            //router: me.getController('Uni.controller.history.Router')
                         }
                     }
                 ]
@@ -216,24 +215,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         ]
                                     }
                                 ]
-                            }/*,
-                            /* HERE WE ADD CUSTOM PROPERTY SET INFORMATION */
-                            /*{
-                                xtype: 'container',
-                                layout: {
-                                type: 'hbox',
-                                align: 'stretch'
-                                },
-                                items: [
-                                    {
-                                        xtype: 'custom-attribute-sets-placeholder-form',
-                                        itemId: 'custom-attribute-sets-placeholder-form-id',
-                                        actionMenuXtype: 'device-attributes-action-menu',
-                                        attributeSetType: 'devicetype',
-                                        router: me.router
-                                    }
-                                ]
-                            }*/
+                            }
                         ]
                     }
                 ]
