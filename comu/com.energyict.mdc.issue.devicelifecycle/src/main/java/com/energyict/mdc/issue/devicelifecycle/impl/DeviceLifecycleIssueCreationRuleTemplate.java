@@ -113,7 +113,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
                 "global java.util.logging.Logger LOGGER;\n" +
                 "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
-                "rule \"Device lifecycle issue rule @{ruleId}\"\n" +
+                "rule \"Device lifecycle issue rule @{ruleId} with log on same issue\"\n" +
                 "when\n" +
                 "\tevent : TransitionFailureEvent(resolveEvent == false)\n" +
                 "\teval( event.logOnSameIssue(\"@{" + LOG_ON_SAME_ISSUE + "}\") == true )\n" +
@@ -123,14 +123,14 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
                 "end\n" +
 
-                "rule \"Device lifecycle issue rule @{ruleId}\"\n" +
+                "rule \"Device lifecycle issue rule @{ruleId} without log on same issue\"\n" +
                 "when\n" +
                 "\tevent : TransitionFailureEvent(resolveEvent == false)\n" +
                 "\teval( event.logOnSameIssue(\"@{" + LOG_ON_SAME_ISSUE + "}\") == false )\n" +
                 "\teval( event.checkConditions(@{ruleId}, \"@{" + DEVICE_LIFECYCLE_TRANSITION_PROPS + "}\") == true )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by devicelifecycle rule [id = @{ruleId}]\");\n" +
-                "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event, false);\n" +
+                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, false);\n" +
                 "end\n" +
 
                 "\n" +
