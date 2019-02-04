@@ -210,8 +210,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
             DataMapper<EndDevice> dataMapper = ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(EndDevice.class);
 
             Optional<EndDevice> auditDevice = endDevice
-                    .filter(d -> d.getModTime().isAfter(getAuditTrailReference().getModTimeStart()) &&
-                            d.getModTime().isBefore(getAuditTrailReference().getModTimeEnd()))
+                    .filter(d -> isBetweenPeriodMod(d.getModTime()))
                     .map(Optional::of)
                     .orElseGet(() -> getHistoryEntries(dataMapper, getHistoryByModTimeClauses(endDevice.get().getId()))
                             .stream().max(Comparator.comparing(EndDevice::getVersion)));
@@ -219,7 +218,6 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
                     .ifPresent(from -> {
                         getAuditLogChangeForString(from.getName(), PropertyTranslationKeys.DEVICE_NAME).ifPresent(auditLogChanges::add);
                         getAuditLogChangeForString(from.getSerialNumber(), PropertyTranslationKeys.DEVICE_SERIAL_NUMBER).ifPresent(auditLogChanges::add);
-
                         getAuditLogChangeForString(from.getManufacturer(), PropertyTranslationKeys.DEVICE_MANUFACTURER).ifPresent(auditLogChanges::add);
                         getAuditLogChangeForString(from.getModelNumber(), PropertyTranslationKeys.DEVICE_MODEL_NBR).ifPresent(auditLogChanges::add);
                         getAuditLogChangeForString(from.getModelVersion(), PropertyTranslationKeys.DEVICE_MODEL_VERSION).ifPresent(auditLogChanges::add);
