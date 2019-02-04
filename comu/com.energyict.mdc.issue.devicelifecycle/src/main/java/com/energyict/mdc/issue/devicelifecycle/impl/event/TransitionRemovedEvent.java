@@ -19,6 +19,8 @@ import com.google.inject.Inject;
 import java.time.Instant;
 import java.util.Map;
 
+import static com.elster.jupiter.util.Checks.is;
+
 public class TransitionRemovedEvent extends DeviceLifecycleEvent {
 
     private Instant modTime;
@@ -50,5 +52,10 @@ public class TransitionRemovedEvent extends DeviceLifecycleEvent {
         } catch (Exception e) {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
         }
+    }
+
+    @Override
+    public boolean isResolveEvent(){
+        return true;
     }
 }

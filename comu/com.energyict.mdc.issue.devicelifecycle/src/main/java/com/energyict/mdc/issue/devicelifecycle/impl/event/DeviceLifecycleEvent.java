@@ -117,6 +117,10 @@ public abstract class DeviceLifecycleEvent implements IssueEvent {
             return Optional.empty();
         }
     }
+
+    public boolean isResolveEvent(){
+        return false;
+    }
 }
 
 
