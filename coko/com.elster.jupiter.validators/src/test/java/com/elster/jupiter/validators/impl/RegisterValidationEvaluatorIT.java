@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -167,9 +169,11 @@ public class RegisterValidationEvaluatorIT {
                 new BasicPropertiesModule(),
                 new DataVaultModule(),
                 new CustomPropertySetsModule(),
+                new AuditServiceModule(),
                 new WebServicesModule()
         );
         injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(AuditService.class);
             injector.getInstance(FiniteStateMachineService.class);
             MeteringService meteringService = injector.getInstance(MeteringService.class);
             readingType = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)

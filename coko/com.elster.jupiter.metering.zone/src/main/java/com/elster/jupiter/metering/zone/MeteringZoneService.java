@@ -17,6 +17,11 @@ public interface MeteringZoneService {
 
     String COMPONENTNAME = "MTZ";
 
+    String BULK_ZONE_QUEUE_DESTINATION = "BulkZoneQD";
+    String BULK_ZONE_QUEUE_SUBSCRIBER = "BulkZoneQS";
+    String BULK_ZONE_QUEUE_DISPLAYNAME = "Handle zone link/unlink to/from device";
+
+
     /*
     Zone type section
     */

@@ -15,7 +15,6 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
         'Mdc.model.Device',
         'Mdc.model.DeviceZones',
         'Cfg.zones.model.Zone'
-
     ],
 
     views: [
@@ -241,10 +240,7 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
     removeZone: function (record) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
-            router = me.getController('Uni.controller.history.Router'),
-            form =  this.getDeviceZonesGrid();
-
-
+            gridZones =  this.getDeviceZonesGrid();
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('devicezone.general.remove.msg', 'MDC', 'The device will be unlinked from this zone.'),
@@ -252,20 +248,20 @@ Ext.define('Mdc.controller.setup.DeviceZones', {
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
-                    form.setLoading(true);
+                    gridZones.setLoading(true);
                     record.destroy({
-                        url: '/api/ddr/devices/' + encodeURIComponent(form.deviceId) + '/zones',
+                        url: '/api/ddr/devices/' + encodeURIComponent(gridZones.deviceId) + '/zones',
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicezone.remove.success.msg', 'MDC', "Device removed from zone '{0}'",[record.data.zoneName]));
-                            form.getStore().load();
+                            router.getRoute('devices/device/zones').forward();
                         },
                         callback: function () {
-                            form.setLoading(false);
+                            gridZones.setLoading(false);
                         }
                     });
                 } else if (state === 'cancel') {
                     this.close();
-                    form.setLoading(false);
+                    gridZones.setLoading(false);
                 }
             }
         });

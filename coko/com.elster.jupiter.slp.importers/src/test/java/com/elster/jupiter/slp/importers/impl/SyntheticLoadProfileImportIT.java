@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.slp.importers.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -142,6 +143,7 @@ public class SyntheticLoadProfileImportIT {
                     new SearchModule(),
                     new CalendarModule(),
                     new MeteringModule("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"),
+                    new AuditServiceModule(),
                     new WebServicesModule()
             );
         } catch (Exception e) {

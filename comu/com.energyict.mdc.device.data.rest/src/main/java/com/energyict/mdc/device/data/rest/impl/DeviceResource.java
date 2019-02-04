@@ -142,6 +142,7 @@ public class DeviceResource {
     private final Provider<DeviceEstimationResource> deviceEstimationResourceProvider;
     private final Provider<RegisterResource> registerResourceProvider;
     private final Provider<BulkScheduleResource> bulkScheduleResourceProvider;
+    private final Provider<BulkZoneResource> bulkZoneResourceProvider;
     private final Provider<DeviceScheduleResource> deviceScheduleResourceProvider;
     private final Provider<DeviceComTaskResource> deviceComTaskResourceProvider;
     private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
@@ -191,6 +192,7 @@ public class DeviceResource {
             Provider<DeviceValidationResource> deviceValidationResourceProvider,
             Provider<DeviceEstimationResource> deviceEstimationResourceProvider,
             Provider<BulkScheduleResource> bulkScheduleResourceProvider,
+            Provider<BulkZoneResource> bulkZoneResourceProvider,
             Provider<DeviceScheduleResource> deviceScheduleResourceProvider,
             Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
             Provider<DeviceMessageResource> deviceCommandResourceProvider,
@@ -238,6 +240,7 @@ public class DeviceResource {
         this.deviceValidationResourceProvider = deviceValidationResourceProvider;
         this.deviceEstimationResourceProvider = deviceEstimationResourceProvider;
         this.bulkScheduleResourceProvider = bulkScheduleResourceProvider;
+        this.bulkZoneResourceProvider = bulkZoneResourceProvider;
         this.deviceScheduleResourceProvider = deviceScheduleResourceProvider;
         this.deviceComTaskResourceProvider = deviceComTaskResourceProvider;
         this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
@@ -899,6 +902,11 @@ public class DeviceResource {
     @Path("/schedules")
     public BulkScheduleResource getBulkScheduleResource() {
         return bulkScheduleResourceProvider.get();
+    }
+
+    @Path("/zones")
+    public BulkZoneResource getBulkZoneResource() {
+        return bulkZoneResourceProvider.get();
     }
 
     @Path("/{name}/schedules")

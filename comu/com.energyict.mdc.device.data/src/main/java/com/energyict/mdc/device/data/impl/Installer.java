@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
@@ -51,7 +52,7 @@ public class Installer implements FullInstaller {
     static final String COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME = "Recalculate communication schedules";
     public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME = "COMSCHED_BATCH_OBSOLETE";
     static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME = "Handle obsolete communication schedules";
-    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+    static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
     private final UserService userService;
@@ -169,6 +170,7 @@ public class Installer implements FullInstaller {
         this.createMessageHandler(defaultQueueTableSpec, CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_DESTINATION_NAME, SubscriberTranslationKeys.CERTIFICATE_RENEWAL_TASK_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_DESTINATION_NAME, SubscriberTranslationKeys.KEY_RENEWAL_TASK_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, CrlRequestHandlerFactory.CRL_REQUEST_TASK_DESTINATION_NAME, SubscriberTranslationKeys.CRL_REQUEST_TASK_SUBSCRIBER);
+        this.createMessageHandler(defaultQueueTableSpec, MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION, SubscriberTranslationKeys.ZONE_SUBSCRIBER);
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, TranslationKey nameKey) {

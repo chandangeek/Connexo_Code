@@ -4,6 +4,7 @@
 
 package com.elster.insight.issue.datavalidation.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -86,7 +87,6 @@ import java.util.Optional;
 import java.util.Properties;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -187,6 +187,7 @@ public class InMemoryIntegrationPersistence {
                 new UsagePointIssueDataValidationModule(),
                 new CalendarModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new FileImportModule()
         );
         if (this.metrologyConfigurationService == null) {

@@ -431,6 +431,10 @@ public enum TableSpecs {
             table.unique("MTR_U_METERAMR").on(amrSystemIdColumn, amrIdColumn).add();
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
             table.unique("UK_MTR_ENDDEVICE_NAME").on(nameColumn, obsoleteTime).since(version(10, 2, 1)).add();
+            table.audit(MTR_ENDDEVICE.name())
+                    .domain("DEVICE")
+                    .context("DEVICE_ATTRIBUTES")
+                    .build();
         }
     },
     MTR_ENDDEVICESTATUS {
@@ -521,6 +525,13 @@ public enum TableSpecs {
                     .map("meterRole")
                     .on(meterRoleIdColumn)
                     .add();
+            table.audit(MTR_MULTIPLIERVALUE.name())
+                    .domain("DEVICE")
+                    .context("DEVICE_ATTRIBUTES")
+                    .references("FK_MTR_METERACTMETER")
+                    .touchDomain("FK_MTR_METERACTMETER")
+                    .touchContext("")
+                    .build();
         }
     },
     MTR_UPACCOUNTABILITY {

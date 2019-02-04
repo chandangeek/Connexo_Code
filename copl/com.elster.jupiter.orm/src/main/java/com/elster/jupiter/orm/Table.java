@@ -225,6 +225,12 @@ public interface Table<T> {
 
     SortedSet<Version> changeVersions();
 
+    TableAudit.Builder audit(String name);
+
+    boolean hasAudit();
+
+    TableAudit getTableAudit();
+
     interface JournalTableVersionOptions {
         void since(Version version);
         void upTo(Version version);

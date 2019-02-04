@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -290,12 +292,14 @@ public class InMemoryIntegrationPersistence {
                 new CalendarModule(),
                 new MultiElementDeviceModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new FileImportModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
             injector.getInstance(ServiceCallService.class);
+            injector.getInstance(AuditService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());

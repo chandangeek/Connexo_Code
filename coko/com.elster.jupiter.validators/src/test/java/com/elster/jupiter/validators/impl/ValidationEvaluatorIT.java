@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -180,12 +182,14 @@ public class ValidationEvaluatorIT {
                     new BasicPropertiesModule(),
                     new DataVaultModule(),
                     new CustomPropertySetsModule(),
+                    new AuditServiceModule(),
                     new WebServicesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(AuditService.class);
             injector.getInstance(FiniteStateMachineService.class);
             readingType = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .measure(MeasurementKind.ENERGY)

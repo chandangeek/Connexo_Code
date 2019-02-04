@@ -7,12 +7,15 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
 import com.google.inject.Inject;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 class MultiplierValueImpl implements MultiplierValue {
 
@@ -61,5 +64,10 @@ class MultiplierValueImpl implements MultiplierValue {
     @Override
     public MultiplierType getType() {
         return type.get();
+    }
+
+    @Override
+    public List<JournalEntry<MultiplierValue>> getHistory() {
+        return dataModel.mapper(MultiplierValue.class).getJournal(meterActivation.get().getId(), getType().getId());
     }
 }
