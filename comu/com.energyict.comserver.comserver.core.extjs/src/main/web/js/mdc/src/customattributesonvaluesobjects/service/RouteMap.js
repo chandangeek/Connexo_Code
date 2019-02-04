@@ -7,7 +7,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.service.RouteMap', {
 
     routeMap: {
         "device": "devices/device/attributes/editcustomattributes",
-        "devicetype": "administration/devicetypes/view/editcustomattributes",/*XROMVYU*/
+        "devicetype": "administration/devicetypes/view/editcustomattributes",
         "channel": "devices/device/channels/channel/editcustomattributes",
         "register": "devices/device/registers/register/editcustomattributes"
     },

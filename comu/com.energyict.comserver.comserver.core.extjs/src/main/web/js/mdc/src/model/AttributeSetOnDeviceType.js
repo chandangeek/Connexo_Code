@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Mdc.model.AttributeSetOnDeviceType', {
@@ -15,7 +15,6 @@ Ext.define('Mdc.model.AttributeSetOnDeviceType', {
 
     proxy: {
         type: 'rest',
-        //url: '/api/ddr/devices/{deviceId}/customproperties'
         urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/custompropertysets',
         setUrl: function(deviceTypeId) {
             this.url = this.urlTpl.replace('{deviceTypeId}', encodeURIComponent(deviceTypeId));
