@@ -29,6 +29,7 @@ public class TransitionFailureEvent extends DeviceLifecycleEvent {
     private static final String COLON_SEPARATOR = ":";
     private static final String DASH_SEPARATOR = "-";
     private static final String SEMI_COLON_SEPARATOR = ";";
+    private int ruleId;
 
 
     @Inject
@@ -65,7 +66,8 @@ public class TransitionFailureEvent extends DeviceLifecycleEvent {
         return Boolean.valueOf(true);
     }
 
-    public boolean checkConditions(String deviceLifecycleTransitionProps) {
+    public boolean checkConditions(int ruleId, String deviceLifecycleTransitionProps) {
+        setCreationRule(ruleId);
         return parseRawInputToList(deviceLifecycleTransitionProps, SEMI_COLON_SEPARATOR).stream().map(value -> parseRawInputToList(value, COLON_SEPARATOR))
                 .anyMatch(valueSet -> valueSet.size() == 4 &&
                         this.getDevice().get().getDeviceType().getId() == Long.parseLong(valueSet.get(0)) &&
@@ -83,4 +85,8 @@ public class TransitionFailureEvent extends DeviceLifecycleEvent {
     }
 
 
+
+    private void setCreationRule(int ruleId){
+        this.ruleId = ruleId;
+    }
 }
