@@ -20,7 +20,7 @@ Ext.define('Mdc.devicetypecustomattributes.store.CustomAttributeSetsAvailable', 
         },
 
         extraParams: {
-            filter: '[{"property":"linked","value":false}]'
+            filter: '[{"property":"linked","value":false},{"property":"edit","value":false}]'
         },
         pageParam: false,
         startParam: false,
