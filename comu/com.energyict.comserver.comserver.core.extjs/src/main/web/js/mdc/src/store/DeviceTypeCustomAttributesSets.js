@@ -2,12 +2,10 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.devicetypecustomattributes.store.CustomAttributeSets', {
+Ext.define('Mdc.store.DeviceTypeCustomAttributesSets', {
     extend: 'Ext.data.Store',
-    model: 'Mdc.devicetypecustomattributes.model.CustomAttributeSet',
-    requires: [
-        'Mdc.devicetypecustomattributes.model.CustomAttributeSet'
-    ],
+    model: 'Mdc.model.AttributeSetOnDeviceType',
+
     autoLoad: false,
 
     proxy: {
@@ -20,8 +18,11 @@ Ext.define('Mdc.devicetypecustomattributes.store.CustomAttributeSets', {
         },
 
         extraParams: {
-            filter: '[{"property":"linked","value":true},{"property":"edit","value":false}]'
+            filter: '[{"property":"linked","value":true},{"property":"edit","value":true}]'
         },
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
 
         setUrl: function(deviceTypeId) {
             this.url = this.urlTpl.replace('{deviceTypeId}', encodeURIComponent(deviceTypeId));
