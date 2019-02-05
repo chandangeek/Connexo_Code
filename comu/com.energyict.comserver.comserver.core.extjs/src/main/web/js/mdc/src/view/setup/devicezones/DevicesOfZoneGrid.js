@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
     extend: 'Ext.grid.Panel',
     overflowY: 'auto',
     xtype: 'devicesOfZoneGrid',
+    alias: 'widget.devicesOfZoneGrid1',
     itemId: 'allDevicesOfZoneGrid',
     requires: [
         'Uni.view.toolbar.PagingTop',
@@ -22,7 +23,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
     selModel: {
         mode: 'SINGLE'
     },
-    store: 'Uni.store.search.Results',
+    store: 'Mdc.store.DevicesOfZone',
     sortableColumns: true,
     forceFit: true,
     enableColumnMove: true,
@@ -41,7 +42,8 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
                     return '<a href="#/devices/' + encodeURIComponent(record.get('name')) + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 fixed: true,
-                flex: 3
+                flex: 3,
+                store: 'Mdc.store.DevicesOfZone',
             },
             {
                 header: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),

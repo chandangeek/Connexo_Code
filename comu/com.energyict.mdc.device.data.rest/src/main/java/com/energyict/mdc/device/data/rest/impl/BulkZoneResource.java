@@ -160,9 +160,7 @@ public class BulkZoneResource {
         SearchBuilder<Object> searchBuilder = getObjectSearchBuilder(zoneFilter);
         Stream<Device>  deviceStream = searchBuilder.toFinder().stream().map(Device.class::cast);
 
-
-        return Response.ok(deviceStream
-                .collect(Collectors.toList())).build();
+        return Response.ok(DeviceInfo.fromDevices(deviceStream.collect(Collectors.toList()))).build();
 
     }
 
