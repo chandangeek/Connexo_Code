@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
@@ -7,7 +7,6 @@ package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
-import com.google.common.base.Strings;
 
 import java.math.BigDecimal;
 
@@ -25,14 +24,14 @@ public class XsdQuantityConverter {
                     try {
                         Unit.get(unitString);
                     } catch (IllegalArgumentException e) {
-                        throw new ValueParserException(unitString, "A, V, Wh, kg");
+                        throw new ValueParserException(unitString);
                     }
                     return Quantity.create(bigDecimalValue, multiplier, unitString);
                 } catch (IllegalArgumentException e) {
-                    throw new ValueParserException(value, "9:3:A");
+                    throw new ValueParserException(value);
                 }
             } else {
-                throw new ValueParserException(value, "9:3:A");
+                throw new ValueParserException(value);
             }
         } else {
             return null;

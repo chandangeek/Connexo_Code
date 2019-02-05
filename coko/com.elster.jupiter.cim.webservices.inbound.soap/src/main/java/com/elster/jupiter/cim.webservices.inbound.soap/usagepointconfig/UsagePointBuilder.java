@@ -1,16 +1,21 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig;
 
-import com.elster.connexo._2017.schema.customattributes.Attribute;
-import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ValueParserException;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.XsdQuantityConverter;
-import com.elster.jupiter.cps.*;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.OverlapCalculatorBuilder;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ValuesRangeConflict;
+import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
@@ -37,6 +42,8 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+import com.elster.jupiter.util.units.Quantity;
 
 import ch.iec.tc57._2011.executeusagepointconfig.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
@@ -48,8 +55,8 @@ import ch.iec.tc57._2011.usagepointconfig.ServiceKind;
 import ch.iec.tc57._2011.usagepointconfig.Status;
 import ch.iec.tc57._2011.usagepointconfig.UsagePoint;
 import ch.iec.tc57._2011.usagepointconfig.UsagePointConnectedKind;
-import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
-import com.elster.jupiter.util.units.Quantity;
+import com.elster.connexo._2017.schema.customattributes.Attribute;
+import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -247,11 +254,9 @@ class UsagePointBuilder {
     }
 
     private void validateAndUpdateCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, List<CustomAttributeSet> data) throws FaultMessage {
-        if (data != null) {
-            for (CustomAttributeSet cas: data) {
-                validateCustomPropertySetValues(usagePoint, cas);
-                addCustomPropertySetValues(usagePoint, cas);
-            }
+        for (CustomAttributeSet cas: data) {
+            validateCustomPropertySetValues(usagePoint, cas);
+            addCustomPropertySetValues(usagePoint, cas);
         }
     }
 
@@ -833,7 +838,7 @@ class UsagePointBuilder {
         }
     }
 
-    private void validateMandatoryCustomProperties(CustomPropertySet<?, ?> customPropertySet, CustomPropertySetValues values, CustomAttributeSet data) throws FaultMessage {
+    private void validateMandatoryCustomProperties(CustomPropertySet<?, ?> customPropertySet, CustomPropertySetValues values) throws FaultMessage {
         List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
         for (PropertySpec spec : propertySpecs) {
             if (spec.isRequired() && values.getProperty(spec.getName()) == null) {
@@ -846,12 +851,7 @@ class UsagePointBuilder {
     private void validatePossibleValues(CustomPropertySet<?, ?> customPropertySet, CustomPropertySetValues values, CustomAttributeSet data) throws FaultMessage {
         List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
         for (PropertySpec spec : propertySpecs) {
-            Object value;
-            if (values.getProperty(spec.getName()) instanceof Optional) {
-                value = ((Optional) values.getProperty(spec.getName())).isPresent()?((Optional) values.getProperty(spec.getName())).get():null;
-            } else {
-                value = values.getProperty(spec.getName());
-            }
+            Object value = values.getProperty(spec.getName());
             if (spec.getValueFactory().getValueType().equals(Quantity.class) && !isValidQuantityValues(spec, (Quantity)value)) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.WRONG_QUANTITY_FORMAT,
@@ -872,7 +872,7 @@ class UsagePointBuilder {
     private void validateCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, CustomAttributeSet data) throws FaultMessage {
         List<CustomPropertySet> customPropertySets = usagePoint.forCustomProperties().getAllPropertySets().stream()
                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
-                .filter(cps -> data.getId().contains(cps.getId()))
+                .filter(cps -> data.getId().equalsIgnoreCase(cps.getId()))
                 .collect(Collectors.toList());
         checkUnusedCustomPropertySets(customPropertySets, data);
         for (CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet : customPropertySets) {
@@ -931,7 +931,7 @@ class UsagePointBuilder {
                     values.setProperty(spec.getName(), findValue(customPropertySet, spec, data));
                 };
             }
-            validateMandatoryCustomProperties(customPropertySet, values, data);
+            validateMandatoryCustomProperties(customPropertySet, values);
             validatePossibleValues(customPropertySet, values, data);
             customPropertySetService.validateCustomPropertySetValues(customPropertySet, values);
         }
@@ -969,20 +969,23 @@ class UsagePointBuilder {
         if (data.getId().equalsIgnoreCase(customPropertySet.getId())) {
             for (Attribute attr : data.getAttribute()) {
                 if (attr.getName().equalsIgnoreCase(spec.getName())) {
-                    return convertValues(spec.getValueFactory().getValueType(), attr.getValue());
+                    return convertValues(spec, attr.getValue());
                 }
             }
         }
         return null;
     }
 
-    private Object convertValues(Class valueType, String value) throws FaultMessage {
-        if (valueType.equals(Quantity.class)) {
+    private Object convertValues(PropertySpec spec, String value) throws FaultMessage {
+        if (spec.getValueFactory().getValueType().equals(Quantity.class)) {
             try {
                 return XsdQuantityConverter.unmarshal(value);
             } catch (ValueParserException e) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.INVALID_QUANTITY_FORMAT, e.getValue(), e.getExpected()).get();
+                        MessageSeeds.WRONG_QUANTITY_FORMAT,
+                        spec.getName(),
+                        spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getMultiplier())).collect(Collectors.joining(",")),
+                        spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getUnit())).collect(Collectors.joining(","))).get();
             }
         } else {
             return value;
@@ -1002,7 +1005,7 @@ class UsagePointBuilder {
 
     private void addCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, CustomAttributeSet data) throws FaultMessage {
         for (RegisteredCustomPropertySet registeredCustomPropertySet : usagePoint.forCustomProperties().getAllPropertySets().stream()
-                .filter(cps -> data.getId().contains(cps.getCustomPropertySetId())).collect(Collectors.toList())) {
+                .filter(cps -> data.getId().equalsIgnoreCase(cps.getCustomPropertySetId())).collect(Collectors.toList())) {
             addCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet(), usagePoint, data, null);
         }
     }
@@ -1058,8 +1061,8 @@ class UsagePointBuilder {
                         MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(versionId.get().atZone(clock.getZone()))).get();
             }
         } else {
-            if (!startTime.isPresent()) {
-                com.elster.jupiter.metering.UsagePoint usagePoint = (com.elster.jupiter.metering.UsagePoint)businessObject;
+            com.elster.jupiter.metering.UsagePoint usagePoint = (com.elster.jupiter.metering.UsagePoint)businessObject;
+            if (!startTime.isPresent() || startTime.get().isBefore(usagePoint.getCreateDate())) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.START_DATE_LOWER_CREATED_DATE, usagePoint.getName()).get();
             }

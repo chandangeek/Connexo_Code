@@ -1,23 +1,26 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig;
 
-import com.elster.connexo._2017.schema.customattributes.Attribute;
-import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.XsdQuantityConverter;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.ConnectionState;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointConnectionState;
+import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
+import com.elster.jupiter.util.units.Quantity;
 
 import ch.iec.tc57._2011.usagepointconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.usagepointconfig.Name;
@@ -29,14 +32,20 @@ import ch.iec.tc57._2011.usagepointconfig.Status;
 import ch.iec.tc57._2011.usagepointconfig.UsagePoint.MetrologyRequirements;
 import ch.iec.tc57._2011.usagepointconfig.UsagePointConfig;
 import ch.iec.tc57._2011.usagepointconfig.UsagePointConnectedKind;
-import com.elster.jupiter.util.units.Quantity;
+import com.elster.connexo._2017.schema.customattributes.Attribute;
+import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import sun.util.calendar.ZoneInfo;
 
 import javax.inject.Inject;
 import java.math.BigInteger;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 class UsagePointConfigFactory {
@@ -126,61 +135,48 @@ class UsagePointConfigFactory {
     }
 
     private CustomAttributeSet convertToCustomAttributeSet(UsagePointPropertySet registeredCustomPropertySet, UsagePoint usagePoint) {
-        CustomAttributeSet customAttribute = new CustomAttributeSet();
+        CustomAttributeSet customAttributeSet = new CustomAttributeSet();
         CustomPropertySetValues values = null;
         CustomPropertySet propertySet = registeredCustomPropertySet.getCustomPropertySet();
         if (!propertySet.isVersioned()) {
             values = customPropertySetService.getUniqueValuesFor(propertySet, usagePoint);
         } else {
-            values = customPropertySetService.getUniqueValuesFor(propertySet, usagePoint, Instant.now());
+            values = customPropertySetService.getUniqueValuesFor(propertySet, usagePoint, clock.instant());
         }
-        if (values == null || values.isEmpty()) {
-            List<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
-            customAttribute.setId(propertySet.getId());
-            for (PropertySpec propertySpec : propertySpecs) {
-                Attribute attr = new Attribute();
-                attr.setName(propertySpec.getName());
-                Object propertyValue = getPropertyValue(propertySpec);
-                attr.setValue(convertPropertyValue(propertyValue));
-                customAttribute.getAttribute().add(attr);
-            }
-        } else {
-            setAttrToCustomAttribute(propertySet, values, customAttribute);
-        }
-        return customAttribute;
-    }
-
-    private void setAttrToCustomAttribute(CustomPropertySet propertySet, CustomPropertySetValues values, CustomAttributeSet customAttribute) {
-        customAttribute.setId(propertySet.getId());
-        for (String property : values.propertyNames()) {
+        List<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
+        customAttributeSet.setId(propertySet.getId());
+        for (PropertySpec propertySpec : propertySpecs) {
             Attribute attr = new Attribute();
-            attr.setName(property);
-            attr.setValue(convertPropertyValue(values.getProperty(property)));
-            customAttribute.getAttribute().add(attr);
-            if (propertySet.isVersioned()) {
+            attr.setName(propertySpec.getName());
+            Object value = (values == null)?null:values.getProperty(propertySpec.getName());
+            if (value == null) {
+                Object propertyValue = getDefaultPropertyValue(propertySpec);
+                attr.setValue(convertPropertyValue(propertyValue));
+                customAttributeSet.getAttribute().add(attr);
+            } else {
+                attr.setValue(convertPropertyValue(value));
+                customAttributeSet.getAttribute().add(attr);
+            }
+            if (propertySet.isVersioned() && values != null) {
                 if (values.getEffectiveRange().hasLowerBound()) {
-                    customAttribute.setFromDateTime(values.getEffectiveRange().lowerEndpoint());
-                    customAttribute.setVersionId(values.getEffectiveRange().lowerEndpoint());
-                } else {
-                    customAttribute.setFromDateTime(null);
-                    customAttribute.setVersionId(null);
+                    customAttributeSet.setFromDateTime(values.getEffectiveRange().lowerEndpoint());
+                    customAttributeSet.setVersionId(values.getEffectiveRange().lowerEndpoint());
                 }
                 if (values.getEffectiveRange().hasUpperBound()) {
-                    customAttribute.setToDateTime(values.getEffectiveRange().upperEndpoint());
-                } else {
-                    customAttribute.setToDateTime(null);
+                    customAttributeSet.setToDateTime(values.getEffectiveRange().upperEndpoint());
                 }
             }
         }
+        return customAttributeSet;
     }
 
-    private Object getPropertyValue(PropertySpec propertySpec) {
+    private Object getDefaultPropertyValue(PropertySpec propertySpec) {
         return propertySpec.getPossibleValues() == null ? null : propertySpec.getPossibleValues().getDefault();
     }
 
     private String convertPropertyValue(Object value) {
         if (value == null) {
-            return "null";
+            return null;
         } else if (value instanceof ZoneInfo) {
             return ((ZoneInfo)value).getID();
         } else if (value instanceof Quantity) {

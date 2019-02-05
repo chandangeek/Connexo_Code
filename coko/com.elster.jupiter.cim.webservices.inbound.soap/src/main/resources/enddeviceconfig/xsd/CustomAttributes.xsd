@@ -15,6 +15,7 @@
                 </xs:annotation>
             </xs:element>
             <xs:element name="versionId" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="updateRange" type="xs:boolean" default="false" minOccurs="0"/>
             <xs:element name="fromDateTime" type="xs:dateTime" minOccurs="0"/>
             <xs:element name="toDateTime" type="xs:dateTime" minOccurs="0"/>
             <xs:element name="Attribute" type="cas:Attribute" minOccurs="0" maxOccurs="unbounded"/>
