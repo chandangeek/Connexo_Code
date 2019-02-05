@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
     extend: 'Ext.grid.Panel',
     overflowY: 'auto',
     xtype: 'devicesOfZoneGrid',
-    alias: 'widget.devicesOfZoneGrid1',
+    alias: 'widget.zone-details1',
     itemId: 'allDevicesOfZoneGrid',
     requires: [
         'Uni.view.toolbar.PagingTop',
@@ -23,10 +23,13 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
     selModel: {
         mode: 'SINGLE'
     },
-    store: 'Mdc.store.DevicesOfZone',
+    //store: 'Uni.store.search.Results',
     sortableColumns: true,
     forceFit: true,
     enableColumnMove: true,
+    config: {
+        service: null
+    },
     searchLink: null,
 
     initComponent: function () {
@@ -42,8 +45,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
                     return '<a href="#/devices/' + encodeURIComponent(record.get('name')) + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 fixed: true,
-                flex: 3,
-                store: 'Mdc.store.DevicesOfZone',
+                flex: 3
             },
             {
                 header: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
@@ -74,7 +76,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                store: me.store,
+                //store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
@@ -92,7 +94,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                store: me.store,
+                //store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page'),
                 dock: 'bottom',
                 deferLoading: true,
