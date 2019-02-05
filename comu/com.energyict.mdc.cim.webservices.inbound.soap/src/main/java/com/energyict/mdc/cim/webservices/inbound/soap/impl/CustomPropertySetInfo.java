@@ -12,6 +12,7 @@ public final class CustomPropertySetInfo {
     private Instant fromDate;
     private Instant endDate;
     private Map<String, String> attributes;
+    private Boolean updateRange;
 
     public String getId() {
         return id;
@@ -53,4 +54,14 @@ public final class CustomPropertySetInfo {
         this.versionId = versionId;
     }
 
+    public boolean isUpdateRange() {
+        return this.updateRange;
+    }
+
+    public void setUpdateRange(Boolean updateRange) {
+        if(updateRange == null){
+            this.updateRange = false;
+        }
+        else{ this.updateRange = updateRange;}
+    }
 }
