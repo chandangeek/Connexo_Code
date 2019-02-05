@@ -11,6 +11,7 @@ import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.HsmKey;
+import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -117,8 +118,14 @@ public class SecurityHelper {
 			securityAccessor.setActualValue(hsmKey);
 			securityAccessor.save();
 		} else if (securityInfo.getPublicKeyLabel() == null && securityInfo.getSymmetricKey() == null) {
-			SecurityValueWrapper wrapperValue = createPlaintextWrapper(securityInfo.getSecurityAccessorKey(),
-					securityAccessorType);
+			SecurityValueWrapper wrapperValue;
+			if (securityAccessorType.getKeyType().getKeyAlgorithm() != null) {
+				wrapperValue = createPlaintextSymmetricKeyWrapper(securityInfo.getSecurityAccessorKey(),
+						securityAccessorType);
+			} else {
+				wrapperValue = createPlaintextPassphraseWrapper(securityInfo.getSecurityAccessorKey(),
+						securityAccessorType);
+			}
 			securityAccessor.setActualValue(wrapperValue);
 			securityAccessor.save();
 		} else {
@@ -133,11 +140,20 @@ public class SecurityHelper {
 				.filter(kat -> kat.getName().equals(securityAccessorName)).findAny();
 	}
 
-	public PlaintextSymmetricKey createPlaintextWrapper(byte[] bytes, SecurityAccessorType securityAccessorType) {
+	public PlaintextSymmetricKey createPlaintextSymmetricKeyWrapper(byte[] bytes,
+			SecurityAccessorType securityAccessorType) {
 		PlaintextSymmetricKey instance = (PlaintextSymmetricKey) securityManagementService
 				.newSymmetricKeyWrapper(securityAccessorType);
 		SecretKeySpec secretKeySpec = new SecretKeySpec(bytes, securityAccessorType.getKeyType().getKeyAlgorithm());
 		instance.setKey(secretKeySpec);
+		return instance;
+	}
+
+	public PlaintextPassphrase createPlaintextPassphraseWrapper(byte[] bytes,
+			SecurityAccessorType securityAccessorType) {
+		PlaintextPassphrase instance = (PlaintextPassphrase) securityManagementService
+				.newPassphraseWrapper(securityAccessorType);
+		instance.setPassphrase(new String(bytes));
 		return instance;
 	}
 
