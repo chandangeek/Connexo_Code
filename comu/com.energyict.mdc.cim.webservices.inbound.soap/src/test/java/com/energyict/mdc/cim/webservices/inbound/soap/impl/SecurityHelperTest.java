@@ -32,6 +32,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.HsmKey;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -88,6 +89,9 @@ public class SecurityHelperTest {
 
 	@Mock
 	private PlaintextSymmetricKey plaintextSymmetricKey;
+
+	@Mock
+	private PlaintextPassphrase plaintextPassphrase;
 
 	@Mock
 	private KeyType keyType;
@@ -160,7 +164,7 @@ public class SecurityHelperTest {
 	}
 
 	@Test
-	public void testAddKeysNoHsmSuccess() throws HsmBaseException {
+	public void testAddKeysNoHsmSuccessSymmetricKey() throws HsmBaseException {
 		final SecurityKeyInfo securityInfo = new SecurityKeyInfo();
 		securityInfo.setPublicKeyLabel(null);
 		securityInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY);
@@ -177,6 +181,28 @@ public class SecurityHelperTest {
 		SecretKeySpec secretKeySpec = new SecretKeySpec(SECURITY_ACCESSOR_KEY, KEY_ALGORITHM);
 		verify(plaintextSymmetricKey).setKey(secretKeySpec);
 		verify(securityAccessor).setActualValue(plaintextSymmetricKey);
+		verify(securityAccessor).save();
+	}
+
+	@Test
+	public void testAddKeysNoHsmSuccessPassphrase() throws HsmBaseException {
+		final SecurityKeyInfo securityInfo = new SecurityKeyInfo();
+		securityInfo.setPublicKeyLabel(null);
+		securityInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY);
+		securityInfo.setSecurityAccessorName(SECURITY_ACCESSOR_NAME);
+		securityInfo.setSymmetricKey(null);
+		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
+		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
+		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
+		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
+		when(securityAccessor.getActualValue()).thenReturn(Optional.empty());
+		when(securityManagementService.newPassphraseWrapper(securityAccessorType)).thenReturn(plaintextPassphrase);
+		when(keyType.getKeyAlgorithm()).thenReturn(null);
+		List<FaultMessage> faults = testable.addSecurityKeys(device, securityInfoList, serviceCall);
+		assertTrue(faults.isEmpty());
+		SecretKeySpec secretKeySpec = new SecretKeySpec(SECURITY_ACCESSOR_KEY, KEY_ALGORITHM);
+		verify(plaintextPassphrase).setPassphrase(new String(SECURITY_ACCESSOR_KEY));
+		verify(securityAccessor).setActualValue(plaintextPassphrase);
 		verify(securityAccessor).save();
 	}
 
