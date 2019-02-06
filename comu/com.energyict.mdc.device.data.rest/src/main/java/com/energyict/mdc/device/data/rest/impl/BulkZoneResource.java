@@ -11,6 +11,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
@@ -151,7 +153,7 @@ public class BulkZoneResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ZONE)
-    public Response getDevicesOnZone(@Context UriInfo uriInfo, @QueryParam("zoneTypeId") long zoneTypeId, @QueryParam("zoneId") long zoneId, @BeanParam JsonQueryFilter filter) {
+    public PagedInfoList getDevicesOnZone(@Context UriInfo uriInfo, @QueryParam("zoneTypeId") long zoneTypeId, @QueryParam("zoneId") long zoneId, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
 
         Optional<SearchDomain> deviceSearchDomain = searchService.findDomain(Device.class.getName());
         ZoneOnDevicesFilterSpecification zoneFilter = new ZoneOnDevicesFilterSpecification();
@@ -160,7 +162,7 @@ public class BulkZoneResource {
         SearchBuilder<Object> searchBuilder = getObjectSearchBuilder(zoneFilter);
         Stream<Device>  deviceStream = searchBuilder.toFinder().stream().map(Device.class::cast);
 
-        return Response.ok(DeviceInfo.fromDevices(deviceStream.collect(Collectors.toList()))).build();
+        return PagedInfoList.fromPagedList("devices", deviceStream.map(device -> DeviceInfo.from(device)).collect(Collectors.toList()), queryParameters);
 
     }
 

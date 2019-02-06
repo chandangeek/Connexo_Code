@@ -13,6 +13,7 @@ Ext.define('Mdc.zones.controller.Zones',{
 
     stores: [
         'Mdc.store.Zones',
+        'Mdc.store.DevicesOfZone'
 
     ],
 
@@ -49,29 +50,24 @@ Ext.define('Mdc.zones.controller.Zones',{
     viewZone: function (currentZoneId) {
         var me = this,
             model = me.getModel('Cfg.zones.model.Zone'),
-            deviceZonesModel =   Ext.ModelManager.getModel('Mdc.model.DevicesOfZone'),
+            deviceZonesStore =    Ext.getStore('Mdc.store.DevicesOfZone'),
             widget,
-            widget1,
-            gridDevices =  this.getDevicesOfZoneGrid();
+            gridDevices =  Ext.widget('zone-details-grid');
 
 
+        gridDevices.setLoading();
         model.load(currentZoneId, {
             success: function (record) {
-                deviceZonesModel.getProxy().extraParams = {
+                deviceZonesStore.getProxy().extraParams = {
                     zoneTypeId: record.get("zoneTypeId"),
                     zoneId: currentZoneId,
                     filter: Ext.JSON.encode([{"property": "device.zoneType", "value": [{"operator": "==", "criteria": record.get("zoneTypeId"), "filter": ""}]}])
                 };
 
-                deviceZonesModel.load(null, {
-                    success: function (device){
-                        widget1 = Ext.widget('devicesOfZoneGrid', {device: device});
-
-
-                        //widget1.loadRecord(device);
-
-                        me.getApplication().fireEvent('changecontentevent', widget1);
-                    }
+                deviceZonesStore.load(function (records) {
+                    callback:( function () {
+                        gridDevices.setLoading(false);
+                    });
                 });
 
                 widget = Ext.widget('device-zone-details', {deviceZoneId: currentZoneId});

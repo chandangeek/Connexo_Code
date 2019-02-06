@@ -4,38 +4,21 @@
 
 Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
     extend: 'Ext.grid.Panel',
-    overflowY: 'auto',
-    xtype: 'devicesOfZoneGrid',
-    alias: 'widget.zone-details1',
+    //overflowY: 'auto',
+   // xtype: 'devicesOfZoneGrid',
+    alias: 'widget.zone-details-grid',
     itemId: 'allDevicesOfZoneGrid',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.store.search.Fields',
-        'Uni.view.search.ColumnPicker',
-        'Uni.grid.plugin.ShowConditionalToolTip'
+        'Mdc.store.DevicesOfZone'
     ],
-    plugins: [{
-        ptype: 'showConditionalToolTip',
-        pluginId: 'showConditionalToolTipId'
-    }],
-
-    selModel: {
-        mode: 'SINGLE'
-    },
-    //store: 'Uni.store.search.Results',
-    sortableColumns: true,
-    forceFit: true,
-    enableColumnMove: true,
-    config: {
-        service: null
-    },
-    searchLink: null,
+    store: 'Mdc.store.DevicesOfZone',
 
     initComponent: function () {
         var me = this;
 
-        this.columns = [
+        me.columns = [
             {
                 header: Uni.I18n.translate('general.device', 'MDC', 'Device'),
                 dataIndex: 'name',
@@ -76,7 +59,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                //store: me.store,
+                store: 'Mdc.store.DevicesOfZone'
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
@@ -94,7 +77,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                //store: me.store,
+                store: 'Mdc.store.DevicesOfZone',
                 itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page'),
                 dock: 'bottom',
                 deferLoading: true,
