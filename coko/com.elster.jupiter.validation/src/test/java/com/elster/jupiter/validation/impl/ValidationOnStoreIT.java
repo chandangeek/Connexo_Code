@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -185,6 +187,7 @@ public class ValidationOnStoreIT {
                     new CalendarModule(),
                     new DataVaultModule(),
                     new CustomPropertySetsModule(),
+                    new AuditServiceModule(),
                     new WebServicesModule()
             );
         } catch (Exception e) {
@@ -213,6 +216,7 @@ public class ValidationOnStoreIT {
         transactionService.execute(new Transaction<Void>() {
             @Override
             public Void perform() {
+                injector.getInstance(AuditService.class);
                 injector.getInstance(FiniteStateMachineService.class);
                 MeteringService meteringService = injector.getInstance(MeteringService.class);
                 deltaReadingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();

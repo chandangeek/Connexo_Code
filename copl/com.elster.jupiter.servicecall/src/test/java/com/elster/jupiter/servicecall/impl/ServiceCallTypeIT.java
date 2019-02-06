@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -41,7 +42,6 @@ import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
 import com.elster.jupiter.servicecall.impl.example.FakeTypeOneCustomPropertySet;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeDomainExtension;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeOneCustomPropertySet;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.Transaction;
@@ -154,6 +154,7 @@ public class ServiceCallTypeIT {
                     new TimeModule(),
                     new BasicPropertiesModule(),
                     new ServiceCallModule(),
+                    new AuditServiceModule(),
                     new WebServicesModule()
             );
         } catch (Exception e) {

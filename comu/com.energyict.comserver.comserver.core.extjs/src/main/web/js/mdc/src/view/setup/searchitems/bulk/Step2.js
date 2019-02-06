@@ -28,6 +28,13 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
                 privileges: Mdc.privileges.Device.administrateDeviceCommunication
             },
             {
+                itemId: 'searchitemsaddtozone',
+                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.searchItems.bulk.addToZone', 'MDC', 'Add to zone') + '</b>',
+                name: 'operation',
+                inputValue: 'addToZone',
+                privileges: Cfg.privileges.Validation.adminZones,
+            },
+            {
                 itemId: 'searchitemschangeconfig',
                 boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.changeConfig', 'MDC', 'Change device configuration') + '</b>',
                 afterSubTpl: '<span class="x-form-cb-label" style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('searchItems.bulk.changeConfigMsg', 'MDC', 'This option is only available on devices of the same device configuration of a standard device type. Please first apply the corresponding search criteria to enable this option.') + '</span>',
@@ -42,6 +49,13 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
                 name: 'operation',
                 inputValue: 'remove',
                 privileges: Mdc.privileges.Device.administrateDeviceCommunication
+            },
+            {
+                itemId: 'searchitemsremovefromzone',
+                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.searchItems.bulk.removeFromZone', 'MDC', 'Remove from zone') + '</b>',
+                name: 'operation',
+                inputValue: 'removeFromZone',
+                privileges: Cfg.privileges.Validation.adminZones,
             },
             {
                 itemId: 'searchitemsstartprocess',

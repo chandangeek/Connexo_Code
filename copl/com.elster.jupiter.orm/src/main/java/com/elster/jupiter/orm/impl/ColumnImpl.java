@@ -335,7 +335,7 @@ public class ColumnImpl implements Column {
         return skipOnUpdate;
     }
 
-    boolean alwaysJournal() {
+    public boolean alwaysJournal() {
         return alwaysJournal;
     }
 
@@ -464,7 +464,7 @@ public class ColumnImpl implements Column {
         return this.convertToDb(this.domainValue(target));
     }
 
-    Object domainValue(Object target) {
+    public Object domainValue(Object target) {
         if (isDiscriminator()) {
             return getTable().getMapperType().getDiscriminator(target.getClass());
         } else if (fieldName != null) {

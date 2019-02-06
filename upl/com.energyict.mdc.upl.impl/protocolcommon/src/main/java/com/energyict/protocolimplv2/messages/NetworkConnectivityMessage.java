@@ -40,7 +40,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
             return Collections.emptyList();
         }
     },
-    CHANGE_GPRS_USER_CREDENTIALS(4003, "Change the GPRS user credentials") {
+    CHANGE_GPRS_USER_CREDENTIALS(4003, "Change the LTE user credentials") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -49,7 +49,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CHANGE_GPRS_APN_CREDENTIALS(4004, "Change the GPRS apn credentials") {
+    CHANGE_GPRS_APN_CREDENTIALS(4004, "Change the LTE apn credentials") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -618,8 +618,25 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                     this.booleanSpec(service, DeviceMessageConstants.snmpUserState, DeviceMessageConstants.snmpUserStateDefaultTranslation)
             );
         }
-    }
+    },
 
+    CHANGE_LTE_APN_NAME(4075, "Change the LTE APN name") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.apnAttributeName, DeviceMessageConstants.apnAttributeDefaultTranslation)
+            );
+        }
+    },
+
+    CHANGE_LTE_PING_ADDRESS(4076, "Change the LTE ping address") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.uplinkPingDestinationAddress, DeviceMessageConstants.enableUplinkPingDefaultTranslation)
+            );
+        }
+    }
     ;
 
     public enum VPNAuthenticationType {

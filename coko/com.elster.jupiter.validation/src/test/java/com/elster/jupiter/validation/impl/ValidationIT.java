@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -106,6 +107,7 @@ public class ValidationIT {
     @Before
     public void before() {
         rangeSet.add(Range.atLeast(Instant.EPOCH));
+        inMemoryBootstrapModule.get(AuditService.class);
         MeteringService meteringService = inMemoryBootstrapModule.get(MeteringService.class);
         ReadingType readingType1 = meteringService.getReadingType(READING_TYPE_1).get();
         ReadingType readingType2 = meteringService.getReadingType(READING_TYPE_2).get();

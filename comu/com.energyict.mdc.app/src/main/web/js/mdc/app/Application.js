@@ -35,6 +35,7 @@ Ext.define('MdcApp.Application', {
         'Mdc.privileges.RegisteredDevicesKpi',
         'Mdc.privileges.TaskManagement',
         'Mdc.privileges.SecurityAccessor',
+        'Mdc.privileges.Audit',
         'Tou.privileges.TouCampaign'
     ],
     controllers: [

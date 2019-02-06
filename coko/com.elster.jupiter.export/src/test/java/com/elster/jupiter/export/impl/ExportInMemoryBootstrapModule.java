@@ -5,6 +5,8 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -120,6 +122,7 @@ public class ExportInMemoryBootstrapModule {
                 new SearchModule(),
                 new UserModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new AppServiceModule(),
                 new BasicPropertiesModule(),
                 new MailModule(),
@@ -136,6 +139,7 @@ public class ExportInMemoryBootstrapModule {
 
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            injector.getInstance(AuditService.class);
             injector.getInstance(FiniteStateMachineService.class);
             dataExportService = injector.getInstance(DataExportService.class);
             timeService = injector.getInstance(TimeService.class);

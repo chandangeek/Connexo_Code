@@ -13,10 +13,12 @@ import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.TableAudit;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.audit.TableAuditImpl;
 import com.elster.jupiter.orm.fields.impl.ColumnMapping;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
@@ -110,6 +112,9 @@ public class TableImpl<T> implements Table<T> {
     private List<ForeignKeyConstraintImpl> referenceConstraints;
     private List<ForeignKeyConstraintImpl> reverseMappedConstraints;
     private List<ColumnImpl> realColumns;
+
+    private TableAudit tableAudit;
+    private boolean hasAudit = false;
 
     private TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
         assert !is(name).emptyOrOnlyWhiteSpace();
@@ -293,7 +298,7 @@ public class TableImpl<T> implements Table<T> {
         return primaryKeyConstraint != null && primaryKeyConstraint.getColumns().contains(column);
     }
 
-    ColumnImpl[] getVersionColumns() {
+    public ColumnImpl[] getVersionColumns() {
         return this.getRealColumns().filter(ColumnImpl::isVersion).toArray(ColumnImpl[]::new);
     }
 
@@ -1189,6 +1194,30 @@ public class TableImpl<T> implements Table<T> {
 
     Encrypter getEncrypter() {
         return encrypter;
+    }
+
+    @Override
+    public TableAudit.Builder audit(String name) {
+        checkActiveBuilder();
+        activeBuilder = true;
+        return new TableAuditImpl.BuilderImpl(this, name);
+    }
+
+    public TableAudit add(TableAudit tableAudit) {
+        this.activeBuilder = false;
+        this.hasAudit = true;
+        this.tableAudit = tableAudit;
+        return tableAudit;
+    }
+
+    @Override
+    public boolean hasAudit() {
+        return this.hasAudit;
+    }
+
+    @Override
+    public TableAudit getTableAudit() {
+        return tableAudit;
     }
 
     private class JournalTableVersionOptionsImpl implements JournalTableVersionOptions {

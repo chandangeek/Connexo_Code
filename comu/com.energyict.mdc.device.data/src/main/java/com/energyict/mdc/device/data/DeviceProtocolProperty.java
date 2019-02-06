@@ -27,4 +27,6 @@ public interface DeviceProtocolProperty {
 
     void update();
 
+    long getVesion();
+
 }

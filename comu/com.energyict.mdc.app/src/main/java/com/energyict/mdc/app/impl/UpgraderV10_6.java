@@ -10,6 +10,7 @@ import com.energyict.mdc.app.MdcAppService;
 
 import javax.inject.Inject;
 
+import static com.elster.jupiter.audit.security.Privileges.Constants.VIEW_AUDIT_LOG;
 import static com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTRATE_ZONE;
 import static com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ZONE;
 
@@ -40,6 +41,7 @@ public class UpgraderV10_6 implements Upgrader {
                 // ZONE
                 ADMINISTRATE_ZONE,
                 VIEW_ZONE,
+                VIEW_AUDIT_LOG,
                 // TOU
                 com.energyict.mdc.tou.campaign.security.Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS,
                 com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS

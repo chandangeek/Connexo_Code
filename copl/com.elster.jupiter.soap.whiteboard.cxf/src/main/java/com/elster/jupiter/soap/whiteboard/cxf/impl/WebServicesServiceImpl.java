@@ -25,6 +25,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.InboundRestEndPointFactoryImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.OutboundRestEndPointFactoryImpl;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.ServletWrapper;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.soap.InboundSoapEndPointFactoryImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.soap.OutboundSoapEndPointFactoryImpl;
 import com.elster.jupiter.transaction.TransactionService;
@@ -34,20 +35,25 @@ import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.osgi.BundleWaiter;
 
-import com.google.common.util.concurrent.SimpleTimeLimiter;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
+import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.http.NamespaceException;
 
 import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.validation.MessageInterpolator;
 import java.io.File;
 import java.util.ArrayList;
@@ -55,16 +61,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import static java.util.concurrent.Executors.newCachedThreadPool;
 import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 4/29/16.
  */
-@Component(name = "com.elster.jupiter.soap.webservices.cxf", service = {WebServicesServiceImpl.class}, immediate = true)
+@Component(name = "com.elster.jupiter.soap.webservices.cxf", service = {WebServicesService.class}, immediate = true)
 public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.Startable {
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
 
@@ -79,7 +83,6 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile TransactionService transactionService;
-    private volatile HttpService httpService;
 
     // OSGi
     public WebServicesServiceImpl() {
@@ -88,8 +91,7 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
     @Inject // For test purposes only
     public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService,
                                   UpgradeService upgradeService, BundleContext bundleContext, EventService eventService,
-                                  UserService userService, NlsService nlsService, TransactionService transactionService,
-                                  HttpService httpService) throws Exception {
+                                  UserService userService, NlsService nlsService, TransactionService transactionService) throws Exception {
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setOrmService(ormService);
         setUpgradeService(upgradeService);
@@ -97,7 +99,6 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
         setNlsService(nlsService);
         setUserService(userService);
         setTransactionService(transactionService);
-        setHttpService(httpService);
         activate(bundleContext);
     }
 
@@ -109,11 +110,6 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
     @Reference
     public void setSoapProviderSupportFactory(SoapProviderSupportFactory soapProviderSupportFactory) {
         this.soapProviderSupportFactory = soapProviderSupportFactory;
-    }
-
-    @Reference
-    public void setHttpService(HttpService httpService) {
-        this.httpService = httpService;
     }
 
     @Reference
@@ -142,6 +138,20 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setHttpService(HttpService httpService) {
+        HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet());
+        try {
+            httpService.registerServlet("/soap",servlet,null,null);
+        } catch (NamespaceException | ServletException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Reference
+    public void setConfiguration(WhiteBoardConfigurationProvider provider) {
     }
 
     @Override
@@ -294,11 +304,6 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
     @Activate
     public void activate(BundleContext bundleContext) throws Exception {
         this.bundleContext = bundleContext;
-        new SimpleTimeLimiter(newCachedThreadPool()).callWithTimeout(
-                this::waitForWhiteBoardProvider,
-                //todo: provide value from config as opposed to hardcoding it
-                10000L,
-                TimeUnit.MILLISECONDS, true);
         String logDirectory = this.bundleContext.getProperty("com.elster.jupiter.webservices.log.directory");
         if (logDirectory == null) {
             logDirectory = System.getProperty("java.io.tmpdir");
@@ -317,14 +322,9 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
                 ));
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
-        BundleWaiter.wait(this, bundleContext, "com.elster.jupiter.soap.whiteboard.implementation");
-        BundleWaiter.wait(this, bundleContext, "org.glassfish.hk2.osgi-resource-locator");
+        //BundleWaiter.wait(this, bundleContext, "org.glassfish.hk2.osgi-resource-locator");
     }
 
-    private BundleContext waitForWhiteBoardProvider() {
-        BundleWaiter.wait(this, bundleContext, "com.elster.jupiter.soap.whiteboard.implementation");
-        return this.bundleContext;
-    }
 
     @Override
     public void start(BundleContext context) {
@@ -352,7 +352,6 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
                 bind(UserService.class).toInstance(userService);
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(String.class).annotatedWith(Names.named("LogDirectory")).toInstance(logDirectory);
-                bind(HttpService.class).toInstance(httpService);
                 bind(WebServicesService.class).toInstance(WebServicesServiceImpl.this);
             }
         };
@@ -386,4 +385,74 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
 
         }
     }
+
+    @Reference(name = "ZInboundSoapEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addEndPoint(InboundSoapEndPointProvider provider, Map<String, Object> props) {
+        String alias = getName(props);
+        if (alias == null) {
+            return;
+        }
+        this.register(alias, provider);
+    }
+
+    public void removeEndPoint(InboundSoapEndPointProvider provider, Map<String, Object> props) {
+        String alias = getName(props);
+        if (alias != null) {
+            this.unregister(alias);
+        }
+    }
+
+    @Reference(name = "ZInboundRestEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addEndPoint(InboundRestEndPointProvider provider, Map<String, Object> props) {
+        String alias = getName(props);
+        if (alias == null) {
+            return;
+        }
+        this.register(alias, provider);
+    }
+
+    public void removeEndPoint(InboundRestEndPointProvider provider, Map<String, Object> props) {
+        String alias = getName(props);
+        if (alias != null) {
+            this.unregister(alias);
+        }
+    }
+
+    @Reference(name = "ZOutboundSoapEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addEndPoint(OutboundSoapEndPointProvider provider, Map<String, Object> props) {
+        String alias = getName(props);
+        if (alias == null) {
+            return;
+        }
+        this.register(alias, provider);
+    }
+
+    public void removeEndPoint(OutboundSoapEndPointProvider provider, Map<String, Object> props) {
+        String alias = getName(props);
+        if (alias != null) {
+            this.unregister(alias);
+        }
+    }
+
+    @Reference(name = "ZOutboundRestEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addEndPoint(OutboundRestEndPointProvider provider, Map<String, Object> props) {
+        String alias = getName(props);
+        if (alias == null) {
+            return;
+        }
+        this.register(alias, provider);
+    }
+
+    public void removeEndPoint(OutboundRestEndPointProvider provider, Map<String, Object> props) {
+        String alias = getName(props);
+        if (alias != null) {
+            this.unregister(alias);
+        }
+    }
+
+
+    private String getName(Map<String, Object> props) {
+        return props == null ? null : (String) props.get("name");
+    }
+
 }

@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -123,7 +125,8 @@ public class EnumeratedUsagePointGroupImplIT {
                     new DataVaultModule(),
                     new TaskModule(),
                     new CustomPropertySetsModule(),
-                    new WebServicesModule()
+                    new WebServicesModule(),
+                    new AuditServiceModule()
 
             );
         } catch (Exception e) {
@@ -132,6 +135,7 @@ public class EnumeratedUsagePointGroupImplIT {
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
+            injector.getInstance(AuditService.class);
             setupDefaultUsagePointLifeCycle();
             return null;
         });

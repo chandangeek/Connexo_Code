@@ -227,6 +227,8 @@ class MdcAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTRATE_ZONE,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ZONE,
 
+                com.elster.jupiter.audit.security.Privileges.Constants.VIEW_AUDIT_LOG,
+
                 // time of use campaigns management
                 com.energyict.mdc.tou.campaign.security.Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS,
                 com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS

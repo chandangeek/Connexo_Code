@@ -77,7 +77,9 @@ public class ProtocolHandler {
     public List<CollectedData> getCollectedData() {
         List<CollectedData> collectedData = new ArrayList<>();
         this.packetBuilder.addCollectedData(collectedData);
-        this.profileBuilder.addCollectedData(collectedData);
+        if (this.profileBuilder != null) {
+            this.profileBuilder.addCollectedData(collectedData);
+        }
         collectedData.addAll(this.registerData);
         if (this.configurationInformation != null) {
             collectedData.add(this.configurationInformation);

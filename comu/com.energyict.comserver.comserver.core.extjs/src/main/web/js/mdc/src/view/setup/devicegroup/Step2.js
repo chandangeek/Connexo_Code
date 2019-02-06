@@ -162,7 +162,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
         });
 
         me.on('render', function() {
-            me.down('search-criteria-selector').setSearchContainer(Ext.ComponentQuery.query('contentcontainer')[0]);
+           me.down('search-criteria-selector').setSearchContainer(Ext.ComponentQuery.query('contentcontainer')[0]);
         });
         me.on('destroy', function () {
             listeners.destroy();

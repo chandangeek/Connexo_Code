@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -154,7 +156,8 @@ public class QueryUsagePointGroupImplIT {
                     new DataVaultModule(),
                     new TaskModule(),
                     new CustomPropertySetsModule(),
-                    new WebServicesModule()
+                    new WebServicesModule(),
+                    new AuditServiceModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -164,6 +167,7 @@ public class QueryUsagePointGroupImplIT {
             setupDefaultUsagePointLifeCycle();
             injector.getInstance(MeteringGroupsService.class).addQueryProvider(injector.getInstance(SimpleUsagePointQueryProvider.class));
             searchDomain = injector.getInstance(UsagePointSearchDomain.class);
+            injector.getInstance(AuditService.class);
             injector.getInstance(SearchService.class).register(searchDomain);
             usagePoint = injector.getInstance(MeteringService.class)
                     .getServiceCategory(ServiceKind.ELECTRICITY).get()

@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.issue.datavalidation.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -190,6 +192,7 @@ public abstract class BaseTest {
                 new CalendarModule(),
                 new ServiceCallModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new FileImportModule()
         );
 
@@ -199,6 +202,7 @@ public abstract class BaseTest {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
+            injector.getInstance(AuditService.class);
             injector.getInstance(IssueDataValidationService.class);
             ctx.commit();
         }

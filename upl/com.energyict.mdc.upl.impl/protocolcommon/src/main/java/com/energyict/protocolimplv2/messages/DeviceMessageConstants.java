@@ -164,6 +164,19 @@ public final class DeviceMessageConstants {
     public static final String FW_UPGRADE_IMAGE_SIZE = "FirmwareDeviceMessage.ImageSize";
     public static final String FW_UPGRADE_IMAGE_SIZE_DEFAULT_TRANSLATION = "Image size";
 
+    /**
+     * Attribute containing the location of user file for LTE modem firmware upgrade
+     */
+    public static final String LTEModemFirmwareUgradeDownloadFileAttributeName = "FirmwareDeviceMessage.Download_location";
+    public static final String LTEModemFirmwareUgradeDownloadFileAttributeNameDefaultTranslation = "Download file location";
+
+    /**
+     * Attribute containing the location of user file for LTE modem firmware upgrade
+     */
+    public static final String LTEModemFirmwareUgradeDownloadTimeoutAttributeName = "FirmwareDeviceMessage.Download_Timeout";
+    public static final String LTEModemFirmwareUgradeDownloadTimeoutAttributeNameDefaultTranslation  = "Download timeout";
+
+
     public static final String contractAttributeName = "contract";
     public static final String contractAttributeDefaultTranslation = "Contract";
     public static final String defaultTariffCodeAttrributeName = "ActivityCalendarDeviceMessage.default.tariff";
@@ -367,6 +380,8 @@ public final class DeviceMessageConstants {
     public static final String ntpAddressDefaultTranslation = "NTP address";
     public static final String useLegacyTimeServerIC = "ConfigurationChangeDeviceMessage.useLegacyTimeServerIC";
     public static final String useLegacyTimeServerICDefaultTranslation = "Use legacy (0-128:96.196.0.255) Time Server IC";
+    public static final String useLegacyNTPServerAddressIC = "ConfigurationChangeDeviceMessage.useLegacyNTPServerAddressIC";
+    public static final String useLegacyNTPServerAddressICDefaultTranslation = "Use legacy (0.0.128.0.10.255) NTP Server Address IC";
     public static final String ntpSetActivated = "ConfigurationChangeDeviceMessage.ntpSetActivated";
     public static final String ntpSetActivatedDefaultTranslation = "Activate NTP time synchronization";
     public static final String ntpSetAuthMethod = "ConfigurationChangeDeviceMessage.ntpSetAuthMethod";
@@ -505,6 +520,8 @@ public final class DeviceMessageConstants {
     public static final String negativeThresholdInAmpereAttributeDefaultTranslation = "Negative threshold in ampere(Export)";
     public static final String capturePeriodAttributeName = "LoadProfileConfigurationMessage.captureperiod";
     public static final String capturePeriodAttributeDefaultTranslation = "Capture period";
+    public static final String captureObjectListAttributeName = "LoadProfileConfigurationMessage.captureobjectlist";
+    public static final String captureObjectListDefaultTranslation = "Capture object list";
     public static final String consumerProducerModeAttributeName = "LoadProfileConfigurationMessage.consumerproducermode";
     public static final String consumerProducerModeAttributeDefaultTranslation = "Consumer producer mode";
     public static final String loadProfileOptInOutModeAttributeName = "LoadProfileConfigurationMessage.optinout";
@@ -1025,6 +1042,8 @@ public final class DeviceMessageConstants {
     public static final String SetMBusInterFrameTimeAttributeDefaultTranslation = "MBus inter frame timeout";
     public static final String SetMBusConfigAttributeName = "MBusConfigurationDeviceMessage.setmbusconfig";
     public static final String SetMBusConfigAttributeDefaultTranslation = "MBus configuration";
+    public static final String SetMBusConfigBit11AttributeName = "MBusConfigurationDeviceMessage.setmbusconfigbit11";
+    public static final String SetMBusConfigBit11AttributeDefaultTranslation = "MBus configuration Bit 11 value";
     public static final String SetMBusVIFAttributeName = "MBusConfigurationDeviceMessage.mbusvif";
     public static final String SetMBusVIFAttributeDefaultTranslation = "MBus VIF";
 
