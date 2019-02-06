@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.device.lifecycle.config.impl;
@@ -7,16 +7,15 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.Upgrader;
-
 import com.energyict.mdc.device.lifecycle.config.EventType;
 
 import javax.inject.Inject;
 
-public class UpgraderV10_4 implements Upgrader {
+public class UpgraderV10_6 implements Upgrader {
     private final EventService eventService;
 
     @Inject
-    public UpgraderV10_4(EventService eventService) {
+    public UpgraderV10_6(EventService eventService) {
         this.eventService = eventService;
     }
 

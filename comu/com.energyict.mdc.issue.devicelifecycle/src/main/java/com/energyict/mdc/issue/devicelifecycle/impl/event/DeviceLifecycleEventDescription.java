@@ -14,7 +14,7 @@ import java.util.Map;
 
 public enum DeviceLifecycleEventDescription {
 
-    TRANSITION_FAILURE("com/energyict/mdc/device/lifecycle/transition/FAILED", TransitionFailureEvent.class) {
+    TRANSITION_FAILURE("com/energyict/mdc/device/lifecycle/config/transition/FAILED", TransitionFailureEvent.class) {
         @Override
         public boolean matches(Map<?, ?> map) {
             return super.matches(map);
