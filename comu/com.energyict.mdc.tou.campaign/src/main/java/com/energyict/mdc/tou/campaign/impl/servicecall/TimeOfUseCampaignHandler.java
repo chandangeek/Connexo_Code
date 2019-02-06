@@ -48,13 +48,13 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
 
     @Override
     protected void onEvent(LocalEvent event, Object... eventDetails) {
-        if (event.getType().getTopic().equals(EventType.COMTASKEXECUTION_STARTED.topic())
+        if (event.getType().getTopic().equals(EventType.MANUAL_COMTASKEXECUTION_STARTED.topic())
                 || event.getType().getTopic().equals(EventType.SCHEDULED_COMTASKEXECUTION_STARTED.topic())) {
             processEvent(event, this::onComTaskStarted);
-        } else if (event.getType().getTopic().equals(EventType.COMTASKEXECUTION_COMPLETED.topic())
+        } else if (event.getType().getTopic().equals(EventType.MANUAL_COMTASKEXECUTION_COMPLETED.topic())
                 || event.getType().getTopic().equals(EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED.topic())) {
             processEvent(event, this::onComTaskCompleted);
-        } else if (event.getType().getTopic().equals(EventType.COMTASKEXECUTION_FAILED.topic())
+        } else if (event.getType().getTopic().equals(EventType.MANUAL_COMTASKEXECUTION_FAILED.topic())
                 || event.getType().getTopic().equals(EventType.SCHEDULED_COMTASKEXECUTION_FAILED.topic())) {
             processEvent(event, this::onComTaskFailed);
         } else if (event.getType().getTopic().equals(com.energyict.mdc.tou.campaign.impl.EventType.TOU_CAMPAIGN_EDITED.topic())) {
@@ -242,9 +242,9 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
     }
 
     public enum EventType {
-        COMTASKEXECUTION_STARTED("comtaskexecution/STARTED"),
-        COMTASKEXECUTION_COMPLETED("comtaskexecution/COMPLETED"),
-        COMTASKEXECUTION_FAILED("comtaskexecution/FAILED"),
+        MANUAL_COMTASKEXECUTION_STARTED("manualcomtaskexecution/STARTED"),
+        MANUAL_COMTASKEXECUTION_COMPLETED("manualcomtaskexecution/COMPLETED"),
+        MANUAL_COMTASKEXECUTION_FAILED("manualcomtaskexecution/FAILED"),
         SCHEDULED_COMTASKEXECUTION_STARTED("scheduledcomtaskexecution/STARTED"),
         SCHEDULED_COMTASKEXECUTION_COMPLETED("scheduledcomtaskexecution/COMPLETED"),
         SCHEDULED_COMTASKEXECUTION_FAILED("scheduledcomtaskexecution/FAILED");

@@ -1315,20 +1315,20 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public void comTaskStarted() {
-                LOGGER.info("Raised event " + EventType.COMTASKEXECUTION_STARTED.topic());
-                postEvent(EventType.COMTASKEXECUTION_STARTED);
+                LOGGER.info("Raised event " + EventType.MANUAL_COMTASKEXECUTION_STARTED.topic());
+                postEvent(EventType.MANUAL_COMTASKEXECUTION_STARTED);
         }
 
         @Override
         public void comTaskCompleted() {
-                LOGGER.info("Raised event " + EventType.COMTASKEXECUTION_COMPLETED.topic());
-                postEvent(EventType.COMTASKEXECUTION_COMPLETED);
+                LOGGER.info("Raised event " + EventType.MANUAL_COMTASKEXECUTION_COMPLETED.topic());
+                postEvent(EventType.MANUAL_COMTASKEXECUTION_COMPLETED);
         }
 
         @Override
         public void comTaskFailed() {
-                LOGGER.info("Raised event " + EventType.COMTASKEXECUTION_FAILED.topic());
-                postEvent(EventType.COMTASKEXECUTION_FAILED);
+                LOGGER.info("Raised event " + EventType.MANUAL_COMTASKEXECUTION_FAILED.topic());
+                postEvent(EventType.MANUAL_COMTASKEXECUTION_FAILED);
         }
 
         @Override

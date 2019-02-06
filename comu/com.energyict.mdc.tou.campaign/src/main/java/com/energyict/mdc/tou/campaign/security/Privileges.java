@@ -10,15 +10,6 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
-
-    //Resources
-//    RESOURCE_SERVICE_CALL_TYPES("serviceCallTypes.serviceCallTypes", "Service call types"),
-//    RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION("serviceCallTypes.serviceCallTypes.description", "Manage service call types"),
-//    RESOURCE_SERVICE_CALL("serviceCalls.serviceCalls", "Service calls"),
-//    RESOURCE_SERVICE_CALL_DESCRIPTION("serviceCalls.serviceCalls.description", "Manage service calls"),
-
-
-
     //Privileges
     VIEW_TOU_CAMPAIGNS(Constants.VIEW_TOU_CAMPAIGNS, "View campaigns"),
     ADMINISTER_TOU_CAMPAIGNS(Constants.ADMINISTER_TOU_CAMPAIGNS, "Administer campaigns");
