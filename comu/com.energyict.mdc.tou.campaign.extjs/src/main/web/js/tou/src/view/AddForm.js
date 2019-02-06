@@ -200,6 +200,16 @@ Ext.define('Tou.view.AddForm', {
 
         me.callParent(arguments);
     },
+    enableOptions: function (allEnabledOptionsArr){
+	    var allOptions = ['TouWActivation', 'TouImmediately', 'TouByDate', 'fullCalendar', 'specialDays'];
+        for ( var optCnt = 0; optCnt < allOptions.length; optCnt++ ){
+            var option = allOptions[optCnt];
+            var cmp = Ext.getCmp(option);
+            if (cmp){
+               (Ext.Array.indexOf(allEnabledOptionsArr, option) !== -1) ? cmp.enable() : cmp.disable()
+            }
+        }
+    },
     onDeviceTypeChange: function (radiogroup, newValue) {
         var me = this;
         if (!radiogroup.findRecordByValue(newValue))
@@ -216,19 +226,11 @@ Ext.define('Tou.view.AddForm', {
             if (!calParams)
                 return;
             cbxCal.bindStore(calParams.calendars());
-
-            if (calParams.get('fullCalendar') !== undefined) {
-                calParams.get('fullCalendar') ? Ext.getCmp("fullCalendar").enable() : Ext.getCmp("fullCalendar").disable();
-            }
-            if (calParams.get('specialDays') !== undefined) {
-                calParams.get('specialDays') ? Ext.getCmp("specialDays").enable() : Ext.getCmp("specialDays").disable();
-            }
-            if (calParams.get('withActivationDate') !== undefined) {
-                calParams.get('withActivationDate') ? Ext.getCmp("TouByDate").enable() : Ext.getCmp("TouByDate").disable();
-            }
-            if (calParams.get('immediately') !== undefined) {
-                calParams.get('immediately') ? Ext.getCmp("TouImmediately").enable() : Ext.getCmp("TouImmediately").disable();
-            }
+            var allEnabledOptionsArr = [];
+            allEnabledOptionsArr = calParams.get('fullCalendar') ? Ext.Array.merge(allEnabledOptionsArr, ['TouWActivation', 'fullCalendar'] ) : allEnabledOptionsArr;
+            allEnabledOptionsArr = calParams.get('withActivationDate') ? Ext.Array.merge(allEnabledOptionsArr, ['TouImmediately', 'TouByDate', 'fullCalendar'] ) : allEnabledOptionsArr;
+            allEnabledOptionsArr = calParams.get('specialDays') ? Ext.Array.merge(allEnabledOptionsArr, ['TouWActivation', 'specialDays'] ) : allEnabledOptionsArr;
+            me.enableOptions(allEnabledOptionsArr);
 
             me.fireEvent('tou-deviceTypeChanged');
         });
