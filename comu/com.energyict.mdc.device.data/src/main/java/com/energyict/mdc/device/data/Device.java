@@ -244,6 +244,8 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
     boolean hasData();
 
+    void touchDevice();
+
     /**
      * Activates the device on a usage point. Either end the current MeterActivation and create a new one
      * based on previous MeterActivation but with the target Usage Point, or just create a new MeterActivation.

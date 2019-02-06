@@ -29,6 +29,7 @@ public class TableAuditImpl implements TableAudit {
     private Optional<String> reverseReferenceMap = Optional.empty();
     private Optional<String> domainForeignKey = Optional.empty();
     private Optional<String> contextForeignKey = Optional.empty();
+    private Optional<String> contextReferenceColumn = Optional.empty();
     private final Reference<TableImpl<?>> table = ValueReference.absent();
 
     TableAuditImpl init(TableImpl<?> table, String name) {
@@ -82,6 +83,17 @@ public class TableAuditImpl implements TableAudit {
 
     @Override
     public List<Object> getContextPkValues(Object object) {
+        return Optional.ofNullable(contextReferenceColumn)
+                .filter(column -> column.isPresent() && column.get().length() > 0)
+                .map(Optional::get)
+                .map(column -> getTable().getColumn(column)
+                        .map(columnImpl -> getPkColumnReference(Collections.singletonList(columnImpl), object))
+                        .orElseGet(Collections::emptyList))
+                .orElseGet(Collections::emptyList);
+    }
+
+    @Override
+    public List<Object> getResersePkValues(Object object) {
         return getPkColumnReference(getTable().getPrimaryKeyColumns(), object);
     }
 
@@ -229,13 +241,13 @@ public class TableAuditImpl implements TableAudit {
         }
 
         @Override
-        public Builder references(ForeignKeyConstraint foreignKeyConstraint) {
+        public Builder domainReferences(ForeignKeyConstraint foreignKeyConstraint) {
             tableAudit.foreignKeyConstraints.add(foreignKeyConstraint);
             return this;
         }
 
         @Override
-        public Builder references(String... foreignKeyConstraintList) {
+        public Builder domainReferences(String... foreignKeyConstraintList) {
             Table<?> table = tableAudit.getTable();
             for (String foreignKeyConstraint : foreignKeyConstraintList) {
                 String tableName = table.getName();
@@ -255,6 +267,11 @@ public class TableAuditImpl implements TableAudit {
             return this;
         }
 
+        @Override
+        public Builder contextReferenceColumn(String contextReferenceColumn) {
+            tableAudit.contextReferenceColumn = Optional.of(contextReferenceColumn);
+            return this;
+        }
         @Override
         public TableAudit build() {
             return add();

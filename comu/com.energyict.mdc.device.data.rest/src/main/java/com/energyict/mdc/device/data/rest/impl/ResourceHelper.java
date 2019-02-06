@@ -783,7 +783,7 @@ public class ResourceHelper {
         }
         customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
                 .getPropertySpecs(), info), newRange);
-        device.save();
+        device.touchDevice();
     }
 
     @SuppressWarnings("unchecked")
@@ -794,7 +794,7 @@ public class ResourceHelper {
         }
         customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
                 .getPropertySpecs(), info));
-        device.save();
+        device.touchDevice();
     }
 
     @SuppressWarnings("unchecked")
@@ -806,7 +806,7 @@ public class ResourceHelper {
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
         customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
                 .getPropertySpecs(), info), newRange, effectiveTimestamp);
-        device.save();
+        device.touchDevice();
     }
 
     @SuppressWarnings("unchecked")

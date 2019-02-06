@@ -167,7 +167,7 @@ public enum TableSpecs {
             table.audit(DDC_DEVICE.name())
                     .domain("DEVICE")
                     .context("DEVICE_ATTRIBUTES")
-                    .references("FK_DDC_DEVICE_ENDDEVICE")
+                    .domainReferences("FK_DDC_DEVICE_ENDDEVICE")
                     .reverseReferenceMap("amrId")
                     .touchDomain("FK_DDC_DEVICE_ENDDEVICE")
                     .touchContext("")
@@ -196,7 +196,7 @@ public enum TableSpecs {
             table.audit(DDC_DEVICEPROTOCOLPROPERTY.name())
                     .domain("DEVICE")
                     .context("GENERAL_ATTRIBUTES")
-                    .references("FK_DDC_DEVICEPROTPROP_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
+                    .domainReferences("FK_DDC_DEVICEPROTPROP_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                     .touchDomain("FK_DDC_DEVICE_ENDDEVICE")
                     .touchContext("")
                     .build();

@@ -33,6 +33,8 @@ public interface AuditTrail {
 
     Instant getModTimeEnd();
 
-    long getPkcolumn();
+    long getPkDomain();
+
+    long getPkContext();
 
 }

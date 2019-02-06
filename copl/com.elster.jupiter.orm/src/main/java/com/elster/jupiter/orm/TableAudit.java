@@ -21,6 +21,8 @@ public interface TableAudit {
 
     List<Object> getContextPkValues(Object object);
 
+    List<Object> getResersePkValues(Object object);
+
     String getDomainReferences(Object object);
 
     Object getDomainShortReference(Object object);
@@ -46,9 +48,11 @@ public interface TableAudit {
 
         Builder touchContext(String contextForeignKey);
 
-        Builder references(ForeignKeyConstraint foreignKeyConstraint);
+        Builder domainReferences(ForeignKeyConstraint foreignKeyConstraint);
 
-        Builder references(String... foreignKeyConstraints);
+        Builder domainReferences(String... foreignKeyConstraints);
+
+        Builder contextReferenceColumn(String contextReferenceColumn);
 
         Builder reverseReferenceMap(String reverseReferenceMap);
 

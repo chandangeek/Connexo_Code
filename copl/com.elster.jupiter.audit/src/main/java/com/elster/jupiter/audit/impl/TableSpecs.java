@@ -29,6 +29,7 @@ public enum TableSpecs {
             table.column("MODTIMEEND").number().conversion(NUMBER2INSTANT).notNull().map(AuditTrailImpl.Field.MODTIMEEND.fieldName()).add();
             table.column("TABLENAME").varChar(NAME_LENGTH).notNull().map(AuditTrailImpl.Field.TABLENAME.fieldName()).add();
             table.column("PKCOLUMN").number().notNull().conversion(NUMBER2LONG).map(AuditTrailImpl.Field.PKCOLUMN.fieldName()).add();
+            table.column("PKCONTEXT").number().notNull().conversion(NUMBER2LONG).map(AuditTrailImpl.Field.PKCONTEXT.fieldName()).add();
             table.column("OPERATION").number().conversion(NUMBER2ENUM).map(AuditTrailImpl.Field.OPERATION.fieldName()).add();
             table.column("CREATETIME").number().conversion(NUMBER2INSTANT).map(AuditTrailImpl.Field.CREATETIME.fieldName()).add();
             table.column("USERNAME").varChar(NAME_LENGTH).notNull().map(AuditTrailImpl.Field.USERNAME.fieldName()).add();

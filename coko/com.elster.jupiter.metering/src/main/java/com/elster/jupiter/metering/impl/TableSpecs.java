@@ -528,7 +528,7 @@ public enum TableSpecs {
             table.audit(MTR_MULTIPLIERVALUE.name())
                     .domain("DEVICE")
                     .context("DEVICE_ATTRIBUTES")
-                    .references("FK_MTR_METERACTMETER")
+                    .domainReferences("FK_MTR_METERACTMETER")
                     .touchDomain("FK_MTR_METERACTMETER")
                     .touchContext("")
                     .build();

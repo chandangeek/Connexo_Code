@@ -19,7 +19,8 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
     private Instant modTimeStart;
     private Instant modTimeEnd;
     private String tableName;
-    private long pkcolumn;
+    private long pkDomain;
+    private long pkContext;
     private UnexpectedNumberOfUpdatesException.Operation operation;
 
 
@@ -32,7 +33,8 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
         atr.setContext(auditTrail.getContext());
         atr.setModTimeStart(auditTrail.getModTimeStart());
         atr.setModTimeEnd(auditTrail.getModTimeEnd());
-        atr.setPkcolumn(auditTrail.getPkcolumn());
+        atr.setPkDomain(auditTrail.getPkDomain());
+        atr.setPkContext(auditTrail.getPkContext());
         atr.setOperation(auditTrail.getDefaultOperation());
         return atr;
     }
@@ -63,8 +65,13 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
     }
 
     @Override
-    public long getPkcolumn() {
-        return pkcolumn;
+    public long getPkDomain() {
+        return pkDomain;
+    }
+
+    @Override
+    public long getPkContext() {
+        return pkContext;
     }
 
     @Override
@@ -92,8 +99,12 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
         this.tableName = tableName;
     }
 
-    public void setPkcolumn(long pkcolumn) {
-        this.pkcolumn = pkcolumn;
+    public void setPkDomain(long pkDomain) {
+        this.pkDomain = pkDomain;
+    }
+
+    public void setPkContext(long pkContext) {
+        this.pkContext = pkContext;
     }
 
     public void setOperation(UnexpectedNumberOfUpdatesException.Operation operation) {

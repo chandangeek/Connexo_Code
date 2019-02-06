@@ -92,7 +92,7 @@ public class AuditResourceTest extends AuditApplicationJerseyTest {
     private AuditReference mockTouchDomain() {
         AuditReference auditReference = mock(AuditReference.class);
         when(auditReference.getName()).thenReturn(AUDIT_REFERNCE_NAME);
-        when(auditReference.getReference()).thenReturn(AUDIT_REFERNCE_REFERENCE);
+        when(auditReference.getContextReference()).thenReturn(AUDIT_REFERNCE_REFERENCE);
         return auditReference;
     }
 

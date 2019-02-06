@@ -50,7 +50,7 @@ public class AuditFilterTest {
 
         when(auditService.getAuditTrailDecoderHandles()).thenReturn(Collections.singletonList(auditTrailDecoderHandle));
         when(auditTrailDecoderHandle.getPrivileges()).thenReturn(Collections.singletonList(PRIVILEGE));
-        when(auditTrailDecoderHandle.getContext()).thenReturn(CONTEXT);
+        //when(auditTrailDecoderHandle.getContext()).thenReturn(CONTEXT);
         setUpUserPrivileges();
     }
 

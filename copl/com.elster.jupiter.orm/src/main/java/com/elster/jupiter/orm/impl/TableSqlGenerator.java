@@ -233,8 +233,8 @@ public class TableSqlGenerator {
 
     public String auditTrailSql() {
         StringBuilder sb = new StringBuilder("insert into ADT_AUDIT_TRAIL");
-        sb.append(" (ID, DOMAIN, CONTEXT, MODTIMESTART, MODTIMEEND, TABLENAME, PKCOLUMN, OPERATION, CREATETIME, USERNAME)");
-        sb.append(" values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        sb.append(" (ID, DOMAIN, CONTEXT, MODTIMESTART, MODTIMEEND, TABLENAME, PKCOLUMN, PKCONTEXT, OPERATION, CREATETIME, USERNAME)");
+        sb.append(" values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         return sb.toString();
     }
 

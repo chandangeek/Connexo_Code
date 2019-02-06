@@ -162,8 +162,8 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
     public List<AuditTrailDecoderHandle> getAuditTrailDecoderHandles(String domain, String context) {
         return auditTrailDecoderHandles.stream()
                 .filter(auditDecoderHandleEntry ->
-                        (auditDecoderHandleEntry.getDomain().compareToIgnoreCase(domain) == 0) &&
-                                (auditDecoderHandleEntry.getContext().compareToIgnoreCase(context) == 0))
+                        (auditDecoderHandleEntry.getAuditDomainContextType().domainType().name().compareToIgnoreCase(domain) == 0) &&
+                                (auditDecoderHandleEntry.getAuditDomainContextType().name().compareToIgnoreCase(context) == 0))
                 .collect(Collectors.toList());
     }
 

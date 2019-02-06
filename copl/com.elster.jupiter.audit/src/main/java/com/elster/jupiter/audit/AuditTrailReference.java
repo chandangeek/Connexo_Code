@@ -23,7 +23,9 @@ public interface AuditTrailReference {
 
     String getTableName();
 
-    long getPkcolumn();
+    long getPkDomain();
+
+    long getPkContext();
 
     UnexpectedNumberOfUpdatesException.Operation getOperation();
 }

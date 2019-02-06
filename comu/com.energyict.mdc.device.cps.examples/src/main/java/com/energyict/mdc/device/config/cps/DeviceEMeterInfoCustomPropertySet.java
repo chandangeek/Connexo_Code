@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.config.cps;
 
+import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -180,6 +181,18 @@ public class DeviceEMeterInfoCustomPropertySet implements CustomPropertySet<Devi
                     .findFirst()
                     .map(Fields::name)
                     .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
+
+        @Override
+        public void addAudit(Table table) {
+            table.audit("")
+                    .domain(AuditDomainContextType.DEVICE_CUSTOM_ATTRIBUTES.domainType().type())
+                    .context(AuditDomainContextType.DEVICE_CUSTOM_ATTRIBUTES.name())
+                    .domainReferences(domainForeignKeyName(), "FK_DDC_DEVICE_ENDDEVICE")
+                    .touchDomain("FK_DDC_DEVICE_ENDDEVICE")
+                    .contextReferenceColumn("CPS")
+                    .touchContext("")
+                    .build();
         }
     }
 

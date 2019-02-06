@@ -38,8 +38,8 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     }
 
     @Override
-    public Object getReference() {
-        return new Object();
+    public Object getContextReference() {
+        return "";
     }
 
     @Override

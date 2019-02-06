@@ -37,7 +37,8 @@ public class AuditTrailImpl implements AuditTrail {
         DOMAIN("domain"),
         MODTIMESTART("modTimeStart"),
         MODTIMEEND("modTimeEnd"),
-        PKCOLUMN("pkColumn"),
+        PKCOLUMN("pkDomain"),
+        PKCONTEXT("pkContext"),
         CONTEXT("context"),
         OPERATION("operation"),
         CREATETIME("createTime"),
@@ -66,7 +67,8 @@ public class AuditTrailImpl implements AuditTrail {
     private String userName;
     private Instant modTimeStart;
     private Instant modTimeEnd;
-    private long pkColumn;
+    private long pkDomain;
+    private long pkContext;
 
     @Inject
     AuditTrailImpl(DataModel dataModel, AuditService auditService, Thesaurus thesaurus) {
@@ -110,7 +112,7 @@ public class AuditTrailImpl implements AuditTrail {
         try {
             return AuditDomainContextType.valueOf(context);
         } catch (Exception e) {
-            return AuditDomainContextType.EMPTY;
+            return AuditDomainContextType.NODOMAIN;
         }
 
     }
@@ -149,8 +151,13 @@ public class AuditTrailImpl implements AuditTrail {
     }
 
     @Override
-    public long getPkcolumn() {
-        return pkColumn;
+    public long getPkDomain() {
+        return pkDomain;
+    }
+
+    @Override
+    public long getPkContext() {
+        return pkContext;
     }
 
     private List<AuditDecoder> getAuditDecoders() {
