@@ -122,6 +122,10 @@ public final class OrmServiceImpl implements OrmService {
         return dataModels.get(COMPONENTNAME);
     }
 
+    public TransactionService getTransactionService() {
+        return transactionService;
+    }
+
     private DataModel getExistingTablesDataModel() {
         return dataModels.get(EXISTING_TABLES_DATA_MODEL);
     }

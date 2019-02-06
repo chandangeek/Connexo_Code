@@ -5,6 +5,8 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.CalendarService;
@@ -38,6 +40,8 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.ZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -228,6 +232,8 @@ public class InMemoryIntegrationPersistence {
     private CronExpressionParser cronExpressionParser;
     private SecurityManagementService securityManagementService;
     private HsmEnergyService hsmEnergyService;
+    private AuditService auditService;
+    private MeteringZoneService meteringZoneService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -322,16 +328,20 @@ public class InMemoryIntegrationPersistence {
                 new UsagePointLifeCycleConfigurationModule(),
                 new DataQualityKpiModule(),
                 new WebServicesModule(),
-                new FileImportModule());
+                new AuditServiceModule(),
+                new FileImportModule(),
+                new ZoneModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
             injector.getInstance(OrmService.class);
+            injector.getInstance(AuditService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
+            this.meteringZoneService = injector.getInstance(MeteringZoneService.class);
             this.metrologyConfigurationService = injector.getInstance(MetrologyConfigurationService.class);
             this.meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
@@ -371,6 +381,7 @@ public class InMemoryIntegrationPersistence {
             this.deviceMessageService = injector.getInstance(DeviceMessageService.class);
             this.securityManagementService = injector.getInstance(SecurityManagementService.class);
             injector.getInstance(UsagePointLifeCycleService.class);
+            this.auditService = injector.getInstance(AuditService.class);
             initHeadEndInterface();
             initializePrivileges();
             ctx.commit();
@@ -507,6 +518,10 @@ public class InMemoryIntegrationPersistence {
         return this.deviceDataModelService.deviceService();
     }
 
+    public AuditService getAuditService() {
+        return auditService;
+    }
+
     public SchedulingService getSchedulingService() {
         return schedulingService;
     }
@@ -543,9 +558,9 @@ public class InMemoryIntegrationPersistence {
         return deviceProtocolService;
     }
 
-    public ValidationService getValidationService() {
-        return validationService;
-    }
+    public ValidationService getValidationService() { return validationService; }
+
+    public MeteringZoneService getMeteringZoneService() { return meteringZoneService; }
 
     public FiniteStateMachineService getFiniteStateMachineService() {
         return finiteStateMachineService;
@@ -577,6 +592,10 @@ public class InMemoryIntegrationPersistence {
 
     public CalendarService calendarService() {
         return calendarService;
+    }
+
+    public AuditService auditService() {
+        return auditService;
     }
 
     public ServiceCallService getServiceCallService() {

@@ -52,6 +52,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -195,7 +196,6 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import com.energyict.obis.ObisCode;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -289,6 +289,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Provider<ComTaskExecutionImpl> comTaskExecutionProvider;
     private final Reference<Batch> batch = ValueReference.absent();
     private final ConnectionTaskService connectionTaskService;
+    private final MeteringZoneService meteringZoneService;
+
     @SuppressWarnings("unused")
     private long id;
     @Valid
@@ -360,7 +362,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             DeviceConfigurationService deviceConfigurationService,
             ServerDeviceService deviceService,
             LockService lockService,
-            SecurityManagementService securityManagementService, ConnectionTaskService connectionTaskService) {
+            SecurityManagementService securityManagementService,
+            ConnectionTaskService connectionTaskService,
+            MeteringZoneService meteringZoneService
+            ) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -385,6 +390,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.securityManagementService = securityManagementService;
         this.connectionTaskService = connectionTaskService;
         this.koreHelper.syncWithKore(this);
+        this.meteringZoneService = meteringZoneService;
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, Instant startDate) {
@@ -590,8 +596,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private void notifyCreated() {
         this.eventService.postEvent(CreateEventType.DEVICE.topic(), this);
         // In addition notify the creation of ConnectionTasks and ComTaskExecutions
-        this.getConnectionTaskImpls().forEach(ConnectionTaskImpl::notifyCreated);
-        this.getComTaskExecutionImpls().forEach(ComTaskExecutionImpl::notifyCreated);
+        //this.getConnectionTaskImpls().forEach(ConnectionTaskImpl::notifyCreated);
+        //this.getComTaskExecutionImpls().forEach(ComTaskExecutionImpl::notifyCreated);
     }
 
     private void notifyDeleted() {
@@ -615,6 +621,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         deleteValidationProperties();
         deleteEstimationProperties();
         removeDeviceFromStaticGroups();
+        removeZonesOnDevice();
         new SyncDeviceWithKoreForRemoval(this, deviceService, readingTypeUtilService, clock, eventService).syncWithKore(this);
         koreHelper.deactivateMeter(clock.instant());
         this.clearPassiveCalendar();
@@ -659,6 +666,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         .findEnumeratedEndDeviceGroupsContaining(this.meter.get())
                         .forEach(enumeratedEndDeviceGroup -> removeDeviceFromGroup(enumeratedEndDeviceGroup, this.meter.get()));
             }
+        }
+    }
+
+    private void removeZonesOnDevice() {
+        if (this.meter.isPresent()) {
+            meteringZoneService.getByEndDevice(this.meter.get()).stream().forEach(endDeviceZone -> endDeviceZone.delete());
         }
     }
 

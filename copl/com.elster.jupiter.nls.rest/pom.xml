@@ -8,11 +8,9 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.5.5${revision}</version>
-        <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
+        <version>1.0.0-Nessus-SNAPSHOT</version>
     </parent>
     <artifactId>nls.rest</artifactId>
-    <version>1.5.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.nls.rest</name>
 

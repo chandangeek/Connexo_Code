@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -13,6 +15,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -36,11 +39,15 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.EndDeviceZone;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneServiceImpl;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -134,6 +141,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -148,6 +156,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -178,6 +187,8 @@ public class DeviceImplDoSomethingWithEventsTest {
     DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     DeviceProtocol deviceProtocol;
+    @Mock
+    MeteringZoneService meteringZoneService;
 
     @BeforeClass
     public static void initialize() {
@@ -207,6 +218,9 @@ public class DeviceImplDoSomethingWithEventsTest {
         Query<Entity> mockedQuery = mock(Query.class);
         when(inMemoryPersistence.getIssueService().query(any())).thenReturn(mockedQuery);
         when(mockedQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
+        Finder<EndDeviceZone> endDeviceZoneFinder = mock(Finder.class);
+        doReturn(Stream.of(new EndDeviceZone[]{})).when(endDeviceZoneFinder).stream();
+        when(meteringZoneService.getByEndDevice(any(EndDevice.class))).thenReturn(endDeviceZoneFinder);
     }
 
     @After
@@ -338,11 +352,13 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new SchedulingModule(),
                     new CalendarModule(),
                     new WebServicesModule(),
+                    new AuditServiceModule(),
                     new FileImportModule());
             this.transactionService = injector.getInstance(TransactionService.class);
             try (TransactionContext ctx = this.transactionService.getContext()) {
                 this.ormService = injector.getInstance(OrmService.class);
                 injector.getInstance(ServiceCallService.class);
+                injector.getInstance(AuditService.class);
                 injector.getInstance(CustomPropertySetService.class);
                 initializeCustomPropertySets(injector);
                 this.transactionService = injector.getInstance(TransactionService.class);
@@ -393,7 +409,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(ThreadPrincipalService.class),
                                 injector.getInstance(LockService.class),
                                 injector.getInstance(DataVaultService.class),
-                                injector.getInstance(SecurityManagementService.class)
+                                injector.getInstance(SecurityManagementService.class),
+                                injector.getInstance(MeteringZoneService.class)
                         );
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
@@ -478,7 +495,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
                 bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
                 bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
-            }
+                bind(MeteringZoneService.class).to(MeteringZoneServiceImpl.class).in(Scopes.SINGLETON);}
         }
 
         public static class SpyEventService implements EventService {

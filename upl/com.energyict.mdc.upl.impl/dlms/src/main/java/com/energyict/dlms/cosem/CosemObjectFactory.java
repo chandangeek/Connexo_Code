@@ -411,6 +411,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new GPRSModemSetup(protocolLink, getObjectReference(obisCode));
     }
 
+    public LTEModemSetup getLTEModemSetup() throws NotInObjectListException {
+        return new LTEModemSetup(protocolLink, getObjectReference(LTEMODEMSETUP, protocolLink.getMeterConfig().getLTEModemSetupSN()));
+    }
+
+    public LTEModemSetup getLTEModemSetup(final ObisCode obisCode) throws NotInObjectListException {
+        return new LTEModemSetup(protocolLink, getObjectReference(obisCode));
+    }
+
     public USBSetup getUSBSetup(final ObisCode obisCode) throws NotInObjectListException {
         return new USBSetup(protocolLink, getObjectReference(obisCode));
     }

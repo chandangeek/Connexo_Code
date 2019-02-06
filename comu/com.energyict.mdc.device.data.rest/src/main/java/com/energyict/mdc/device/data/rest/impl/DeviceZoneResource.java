@@ -124,6 +124,21 @@ public class DeviceZoneResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    @DELETE
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/byZoneId/{zoneId}")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ZONE})
+    public Response deleteZone(@PathParam("name") String name, @PathParam("zoneId") long zoneId) {
+        meteringZoneService.getByEndDevice(getDeviceByName(name))
+                .stream()
+                .filter(endDeviceZone->endDeviceZone.getZone().getId() == zoneId)
+                .findFirst()
+                .ifPresent(endDeviceZone -> endDeviceZone.delete());
+
+        return Response.status(Response.Status.OK).build();
+    }
+
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")

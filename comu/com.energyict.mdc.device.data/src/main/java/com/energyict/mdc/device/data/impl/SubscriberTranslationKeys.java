@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.ami.eventhandler.CommunicationTestEventHandlerFactory;
@@ -50,7 +51,8 @@ public enum SubscriberTranslationKeys implements TranslationKey {
     CERTIFICATE_RENEWAL_TASK_SUBSCRIBER(CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_SUBSCRIBER, CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_DISPLAY_NAME),
     KEY_RENEWAL_TASK_SUBSCRIBER(KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_SUBSCRIBER, KeyRenewalHandlerFactory.KEY_RENEWAL_DISPLAY_NAME),
     CRL_REQUEST_TASK_SUBSCRIBER(CrlRequestHandlerFactory.CRL_REQUEST_TASK_SUBSCRIBER, CrlRequestHandlerFactory.CRL_REQUEST_TASK_DISPLAY_NAME),
-    IPV6ADDRESS_SUBSCRIBER("IPv6AddressSubscriber", "Handle events for IPv6 address change");
+    IPV6ADDRESS_SUBSCRIBER("IPv6AddressSubscriber", "Handle events for IPv6 address change"),
+    ZONE_SUBSCRIBER(MeteringZoneService.BULK_ZONE_QUEUE_SUBSCRIBER, MeteringZoneService.BULK_ZONE_QUEUE_DISPLAYNAME);
 
     private String key;
     private String defaultFormat;

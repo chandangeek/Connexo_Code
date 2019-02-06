@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskService;
@@ -79,6 +80,8 @@ public interface DeviceDataModelService {
     DeviceMessageSpecificationService deviceMessageSpecificationService();
 
     ValidationService validationService();
+
+    MeteringZoneService meteringZoneService();
 
     JsonService jsonService();
 

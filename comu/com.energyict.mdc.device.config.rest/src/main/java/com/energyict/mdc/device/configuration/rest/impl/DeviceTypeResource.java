@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -178,7 +177,9 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteDeviceType(@PathParam("id") long id, DeviceTypeInfo info) {
         info.id = id;
+
         resourceHelper.lockDeviceTypeOrThrowException(info).delete();
+
         return Response.ok().build();
     }
 
@@ -268,7 +269,7 @@ public class DeviceTypeResource {
                         .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state))
                         .collect(Collectors.toList());
                 ChangeDeviceLifeCycleInfo info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE)
-                        .format(targetDeviceLifeCycle.getName()),deviceLifeCycleStateInfoList, oldDeviceLifeCycle, targetDeviceLifeCycle);
+                        .format(targetDeviceLifeCycle.getName()), deviceLifeCycleStateInfoList, oldDeviceLifeCycle, targetDeviceLifeCycle);
                 return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
             }
         }
@@ -329,14 +330,14 @@ public class DeviceTypeResource {
 
         Optional<CreationRuleTemplate> ruleTemplate = issueService.getCreationRuleTemplates().values()
                 .stream()
-                .filter(template->template.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE))
+                .filter(template -> template.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE))
                 .findFirst();
 
-        if(ruleTemplate.isPresent()) {
+        if (ruleTemplate.isPresent()) {
             Optional<CreationRule> deviceAlarmCreationRule = ruleTemplate.get().getCreationRuleWhichUsesDeviceType(id);
             if (deviceAlarmCreationRule.isPresent()) {
                 info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.DEVICE_TYPE_IN_USE_BY_CREATION_RULE)
-                        .format(deviceType.getName(),deviceType.getDeviceLifeCycle().getName(), deviceAlarmCreationRule.get().getName())
+                                .format(deviceType.getName(), deviceType.getDeviceLifeCycle().getName(), deviceAlarmCreationRule.get().getName())
                         , Collections.emptyList(), oldDeviceLifeCycle, targetDeviceLifeCycle);
                 return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
             }
@@ -376,23 +377,41 @@ public class DeviceTypeResource {
     @Path("/{id}/custompropertysets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
-    public PagedInfoList getDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
-        boolean isNotLinked = !filter.getBoolean("linked");
+    public PagedInfoList getDeviceTypeCustomPropertySetUsage(@PathParam("id") long id,
+                                                             @BeanParam JsonQueryFilter filter,
+                                                             @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<RegisteredCustomPropertySet> registeredCustomPropertySets;
-        if (isNotLinked) {
-            registeredCustomPropertySets = resourceHelper.findAllCustomPropertySetsByDomain(Device.class)
-                    .stream()
-                    .filter(f -> !deviceType.getCustomPropertySets()
-                            .stream()
-                            .map(RegisteredCustomPropertySet::getId)
-                            .collect(Collectors.toList())
-                            .contains(f.getId()))
-                    .collect(Collectors.toList());
-        } else {
-            registeredCustomPropertySets = deviceType.getCustomPropertySets();
-        }
-        return PagedInfoList.fromPagedList("deviceTypeCustomPropertySets", DeviceTypeCustomPropertySetInfo.from(registeredCustomPropertySets), queryParameters);
+        return PagedInfoList.fromCompleteList("deviceTypeCustomPropertySets",
+                getDeviceTypeCustomPropertySetInfos(deviceType, filter.getBoolean("linked"),
+                        filter.getBoolean("edit")),
+                queryParameters);
+    }
+
+    @GET
+    @Transactional
+    @Path("/{id}/custompropertysets/{cpsId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    public DeviceTypeCustomPropertySetInfo getDeviceTypeCustomPropertySetUsage(@PathParam("id") long id,
+                                                                               @PathParam("cpsId") long cpsId) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        RegisteredCustomPropertySet rcps = resourceHelper.getRegisteredCPSForEditingOrThrowException(cpsId, deviceType);
+        return DeviceTypeCustomPropertySetInfo.from(deviceType, rcps,
+                resourceHelper.getPropertyInfoList(deviceType, rcps));
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{id}/custompropertysets/{cpsId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    public Response editDeviceCustomAttributes(@PathParam("id") long id,
+                                              @PathParam("cpsId") long cpsId,
+                                              DeviceTypeCustomPropertySetInfo info) {
+        DeviceType lockedDeviceType = resourceHelper.lockDeviceTypeOrThrowException(id, info.deviceTypeVersion,
+                info.deviceTypeName);
+        resourceHelper.setDeviceTypeCustomPropertySetInfo(lockedDeviceType, cpsId, info);
+        return Response.ok().build();
     }
 
     @PUT
@@ -404,7 +423,9 @@ public class DeviceTypeResource {
     public Response addDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, List<DeviceTypeCustomPropertySetInfo> infos) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         infos.forEach(deviceTypeCustomPropertySetInfo ->
-                deviceType.addCustomPropertySet(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(deviceTypeCustomPropertySetInfo.id, Device.class)));
+                deviceType.addCustomPropertySet(resourceHelper
+                        .findDeviceTypeCustomPropertySetByIdOrThrowException(deviceTypeCustomPropertySetInfo.id,
+                                Device.class, DeviceType.class)));
         return Response.ok().build();
     }
 
@@ -415,7 +436,7 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteDeviceTypeCustomPropertySetUsage(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("customPropertySetId") long customPropertySetId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        deviceType.removeCustomPropertySet(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId, Device.class));
+        deviceType.removeCustomPropertySet(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId, Device.class,DeviceType.class));
         return Response.ok().build();
     }
 
@@ -606,7 +627,8 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getRegisterCustomPropertySets() {
-        return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findAllCustomPropertySetsByDomain(RegisterSpec.class)))
+        return Response.ok(DeviceTypeCustomPropertySetInfo
+                .from(resourceHelper.findAllCustomPropertySetsByDomain(RegisterSpec.class)))
                 .build();
     }
 
@@ -1034,5 +1056,13 @@ public class DeviceTypeResource {
         } catch (IOException ex) {
             throw exceptionFactory.newException(MessageSeeds.FILE_IO);
         }
+    }
+
+    private List<DeviceTypeCustomPropertySetInfo> getDeviceTypeCustomPropertySetInfos(DeviceType deviceType,
+                                                                                      boolean isLinked,
+                                                                                      boolean isEdit) {
+        return !isEdit ?
+                DeviceTypeCustomPropertySetInfo.from(deviceType, resourceHelper.getRegisteredCPSForLinking(deviceType, isLinked)) :
+                DeviceTypeCustomPropertySetInfo.from(deviceType, resourceHelper.getCustomPropertySetValusesForRegisteredCustomPropertySets(deviceType));
     }
 }

@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -147,8 +148,8 @@ public final class ComTaskExecutionOrganizer {
                  * then we need to search for the corresponding securitySet on the master */
                 final List<SecurityPropertySet> securityPropertySets = masterDevice.getDeviceConfiguration().getSecurityPropertySets();
                 for (SecurityPropertySet masterPropertySet : securityPropertySets) {
-                    if (masterPropertySet.getAuthenticationDeviceAccessLevel().getId() == securityPropertySet.getAuthenticationDeviceAccessLevel().getId()
-                            && masterPropertySet.getEncryptionDeviceAccessLevel().getId() == securityPropertySet.getEncryptionDeviceAccessLevel().getId()) {
+                    if ((masterPropertySet.getAuthenticationDeviceAccessLevel().getId() == securityPropertySet.getAuthenticationDeviceAccessLevel().getId() || securityPropertySet.getAuthenticationDeviceAccessLevel().getId() == DeviceAccessLevel.CAN_INHERIT_PROPERTIES_FROM_MASTER_ID)
+                            && masterPropertySet.getEncryptionDeviceAccessLevel().getId() == securityPropertySet.getEncryptionDeviceAccessLevel().getId() || securityPropertySet.getEncryptionDeviceAccessLevel().getId() == DeviceAccessLevel.CAN_INHERIT_PROPERTIES_FROM_MASTER_ID) {
                         return Optional.of(masterPropertySet);
                     }
                 }

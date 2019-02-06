@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
@@ -29,6 +30,8 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.zone.EndDeviceZone;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -63,6 +66,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -182,6 +186,8 @@ public class DeviceDeleteTest {
     private DataMapper<ChannelEstimationRuleOverriddenPropertiesImpl> estimationOverriddenPropertiesDataMapper;
     @Mock
     private ConnectionTaskService connectionTaskService;
+    @Mock
+    private MeteringZoneService meteringZoneService;
 
     @Before
     public void setup() {
@@ -225,6 +231,9 @@ public class DeviceDeleteTest {
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(dataModel.mapper(ChannelValidationRuleOverriddenPropertiesImpl.class)).thenReturn(validationOverriddenPropertiesDataMapper);
         when(dataModel.mapper(ChannelEstimationRuleOverriddenPropertiesImpl.class)).thenReturn(estimationOverriddenPropertiesDataMapper);
+        Finder<EndDeviceZone> endDeviceZoneFinder = mock(Finder.class);
+        doReturn(Stream.of(new EndDeviceZone[]{})).when(endDeviceZoneFinder).stream();
+        when(meteringZoneService.getByEndDevice(any(EndDevice.class))).thenReturn(endDeviceZoneFinder);
     }
 
     @Test
@@ -323,7 +332,7 @@ public class DeviceDeleteTest {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider,
                 meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService,
-                deviceConfigurationService, deviceService, lockService, securityManagementService, connectionTaskService);
+                deviceConfigurationService, deviceService, lockService, securityManagementService, connectionTaskService, meteringZoneService);
         device.initialize(this.deviceConfiguration, "For testing purposes", Instant.now());
         device.save();
         return device;

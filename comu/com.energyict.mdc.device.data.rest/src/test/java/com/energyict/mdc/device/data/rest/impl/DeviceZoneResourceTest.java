@@ -114,6 +114,13 @@ public class DeviceZoneResourceTest extends DeviceDataRestApplicationJerseyTest 
     }
 
     @Test
+    public void testGetRemainingZoneTypes() {
+        String response = target("/devices/" + END_DEVICE_NAME + "/zones/remainingZoneTypes").request().get(String.class);
+
+        assertThat(response).isEqualTo("[]");
+    }
+
+    @Test
     public void testAddZone() {
         EndDeviceZoneInfo info = new EndDeviceZoneInfo(ZONE_TYPE_NAME, ZONE_NAME, END_DEVICE_ZONE_ID, ZONE_TYPE_ID, ZONE_ID);
         Entity<EndDeviceZoneInfo> json = Entity.json(info);
@@ -132,6 +139,12 @@ public class DeviceZoneResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Test
     public void testDeleteZone() {
         Response response = target("/devices/" + END_DEVICE_NAME + "/zones/" + END_DEVICE_ZONE_ID).request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testDeleteZoneByZoneId() {
+        Response response = target("/devices/" + END_DEVICE_NAME + "/zones/byZoneId/" + ZONE_ID).request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
