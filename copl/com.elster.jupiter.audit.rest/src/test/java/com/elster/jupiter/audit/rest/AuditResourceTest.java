@@ -140,7 +140,7 @@ public class AuditResourceTest extends AuditApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.audit[0].user")).isEqualTo(AUDIT_TRAIL_USER);
 
         assertThat(jsonModel.<String>get("$.audit[0].auditReference.name")).isEqualTo(AUDIT_REFERNCE_NAME);
-        assertThat(jsonModel.<String>get("$.audit[0].auditReference.reference")).isEqualTo(AUDIT_REFERNCE_REFERENCE);
+        assertThat(jsonModel.<String>get("$.audit[0].auditReference.contextReference")).isEqualTo(AUDIT_REFERNCE_REFERENCE);
         assertThat(jsonModel.<String>get("$.audit[0].auditLogs[0].name")).isEqualTo(AUDIT_LOG_NAME);
         assertThat(jsonModel.<String>get("$.audit[0].auditLogs[0].value")).isEqualTo(AUDIT_LOG_VALUE);
         assertThat(jsonModel.<String>get("$.audit[0].auditLogs[0].previousValue")).isEqualTo(AUDIT_LOG_PREVIOUS_VALUE);

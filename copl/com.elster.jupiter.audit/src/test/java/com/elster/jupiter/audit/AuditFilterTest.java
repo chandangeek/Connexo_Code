@@ -33,7 +33,7 @@ public class AuditFilterTest {
 
     private static final Instant CHANGED_ON_FROM = LocalDate.of(2019, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
     private static final Instant CHANGED_ON_TO = LocalDate.of(2019, 2, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
-    private static final String CONTEXT = "CONTEXT";
+    private static final AuditDomainContextType CONTEXT = AuditDomainContextType.DEVICE_ATTRIBUTES;
     private static final String PRIVILEGE = "PRIVILEGE";
     private static final String CATEGORY = "CATEGORY";
     private static final String USER = "USER";
@@ -50,7 +50,7 @@ public class AuditFilterTest {
 
         when(auditService.getAuditTrailDecoderHandles()).thenReturn(Collections.singletonList(auditTrailDecoderHandle));
         when(auditTrailDecoderHandle.getPrivileges()).thenReturn(Collections.singletonList(PRIVILEGE));
-        //when(auditTrailDecoderHandle.getContext()).thenReturn(CONTEXT);
+        when(auditTrailDecoderHandle.getAuditDomainContextType()).thenReturn(CONTEXT);
         setUpUserPrivileges();
     }
 
