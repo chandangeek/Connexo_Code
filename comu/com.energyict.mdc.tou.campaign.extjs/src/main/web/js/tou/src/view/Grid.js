@@ -142,7 +142,7 @@ Ext.define('Tou.view.Grid', {
                 emptyMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.emptyMsg', 'TOU', 'There are no time of use campaigns to display'),
                 items: [{
                         itemId: 'tou-campaigns-add-button',
-                        text: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU campaign'),
+                        text: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU calendar campaign'),
                         action: 'addTouCampaign',
                         href: me.router.getRoute('workspace/toucampaigns/add').buildUrl(),
                         privileges: Tou.privileges.TouCampaign.administrate

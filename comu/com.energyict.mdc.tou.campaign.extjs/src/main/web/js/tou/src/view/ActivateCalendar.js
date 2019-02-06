@@ -34,6 +34,7 @@ Ext.define('Tou.view.ActivateCalendar', {
                 },
                 items: [{
                         itemId: 'wActivation',
+                        id: 'TouWActivation',
                         boxLabel: Uni.I18n.translate('tou.campaigns.activate.calendar.wActivationLbl', 'TOU', 'Send without activation'),
                         name: me.groupName,
                         inputValue: 'withoutActivation',
