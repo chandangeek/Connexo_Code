@@ -21,6 +21,6 @@ public class UpgraderV10_6 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        EventType.DEVICE_LIFECYCLE_UPDATE.install(eventService);
+        EventType.TRANSITION_FAILED.install(eventService);
     }
 }
