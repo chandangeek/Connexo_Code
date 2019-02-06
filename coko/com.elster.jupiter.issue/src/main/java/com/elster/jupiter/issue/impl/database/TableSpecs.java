@@ -36,6 +36,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UniqueConstraint;
 import com.elster.jupiter.orm.Version;
@@ -157,6 +158,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
 
@@ -269,12 +271,14 @@ public enum TableSpecs {
             Table<CreationRuleProperty> table = dataModel.addTable(name(), CreationRuleProperty.class);
             table.map(CreationRulePropertyImpl.class);
 
-            Column nameColumn = table.column(CREATION_RULE_PROPS_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
+            Column nameColumn = table.column(CREATION_RULE_PROPS_NAME).map("name").varChar(NAME_LENGTH).notNull().upTo(Version.version(10, 5)).add();
+            Column extendendNameColumn = table.column(CREATION_RULE_PROPS_NAME).map("name").varChar(MAX_STRING_LENGTH).notNull().since(Version.version(10, 6)).previously(nameColumn).add();
             Column ruleColumn = table.column(CREATION_RULE_PROPS_RULE).number().conversion(NUMBER2LONG).notNull().add();
             table.column(CREATION_RULE_PROPS_VALUE).map("value").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
             table.addAuditColumns();
 
-            table.primaryKey(CREATION_RULE_PROPS_PK_NAME).on(nameColumn, ruleColumn).add();
+            PrimaryKeyConstraint oldPK = table.primaryKey(CREATION_RULE_PROPS_PK_NAME).on(nameColumn, ruleColumn).upTo(Version.version(10, 5)).add();
+            table.primaryKey(CREATION_RULE_PROPS_PK_NAME).on(extendendNameColumn, ruleColumn).since(Version.version(10, 6)).previously(oldPK).add();
             table.foreignKey(CREATION_RULE_PROPS_FK_TO_RULE).on(ruleColumn).references(ISU_CREATIONRULE.name())
                     .map("rule").reverseMap("properties").composition().onDelete(DeleteRule.CASCADE).add();
         }
