@@ -139,8 +139,8 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
                         .finish(),
                 propertySpecService
                         .longSpec()
-                        .named(TimeOfUseCampaignDomainExtension.FieldNames.TIME_VALIDATION.javaName(), TranslationKeys.TIME_VALIDATION)
-                        .describedAs(TranslationKeys.TIME_VALIDATION)
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName(), TranslationKeys.VALIDATION_TIMEOUT)
+                        .describedAs(TranslationKeys.VALIDATION_TIMEOUT)
                         .fromThesaurus(thesaurus)
                         .finish()
         );

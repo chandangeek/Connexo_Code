@@ -53,7 +53,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         ACTIVATION_OPTION("activationOption", "activation_option"),
         ACTIVATION_DATE("activationDate", "activation_date"),
         UPDATE_TYPE("updateType", "update_type"),
-        TIME_VALIDATION("timeValidation", "time_validation");
+        VALIDATION_TIMEOUT("validationTimeout", "validation_timeout");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -209,7 +209,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         this.setActivationOption((String) propertyValues.getProperty(FieldNames.ACTIVATION_OPTION.javaName()));
         this.setActivationDate((Instant) propertyValues.getProperty(FieldNames.ACTIVATION_DATE.javaName()));
         this.setUpdateType((String) propertyValues.getProperty(FieldNames.UPDATE_TYPE.javaName()));
-        this.setTimeValidation((long) propertyValues.getProperty(FieldNames.TIME_VALIDATION.javaName()));
+        this.setTimeValidation((long) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
     }
 
     @Override
@@ -223,7 +223,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.ACTIVATION_OPTION.javaName(), this.getActivationOption());
         propertySetValues.setProperty(FieldNames.ACTIVATION_DATE.javaName(), this.getActivationDate());
         propertySetValues.setProperty(FieldNames.UPDATE_TYPE.javaName(), this.getUpdateType());
-        propertySetValues.setProperty(FieldNames.TIME_VALIDATION.javaName(), this.getTimeValidation());
+        propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getTimeValidation());
     }
 
     @Override

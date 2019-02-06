@@ -113,10 +113,10 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .varChar()
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.UPDATE_TYPE.javaName())
                 .add();
-        table.column(TimeOfUseCampaignDomainExtension.FieldNames.TIME_VALIDATION.databaseName())
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.databaseName())
                 .number()
                 .conversion(ColumnConversion.NUMBER2LONG)
-                .map(TimeOfUseCampaignDomainExtension.FieldNames.TIME_VALIDATION.javaName())
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName())
                 .add();
         table.foreignKey(FK_NAME + "_CAL")
                 .on(calendar)

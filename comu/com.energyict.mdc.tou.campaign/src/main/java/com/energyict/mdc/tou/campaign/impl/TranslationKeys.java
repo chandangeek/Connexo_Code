@@ -17,7 +17,7 @@ public enum TranslationKeys implements TranslationKey {
     ACTIVATION_OPTION("activationOption", "Activation Option"),
     ACTIVATION_DATE("activationDate", "Activation Date"),
     UPDATE_TYPE("updateType", "Update"),
-    TIME_VALIDATION("timeValidation", "Timeout before validation(sec)"),
+    VALIDATION_TIMEOUT("validationTimeout", "Timeout before validation(sec)"),
     DEVICE("device", "Device"),
     FULL_CALENDAR("fullCalendar", "Full Calendar"),
     SPECIAL_DAYS("specialDays", "Special Days"),
