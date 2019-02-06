@@ -23,7 +23,7 @@ Ext.define('Mdc.zones.controller.Zones',{
 
     refs: [
 
-        {ref: 'devicesOfZoneGrid', selector: '#allDevicesOfZoneGrid'},
+        {ref: 'devicesOfZoneGrid', selector: '#zone-details-devices-grid'},
         {ref: 'deviceZonePreview', selector: '#device-zone-preview'},
         {ref: 'deviceZonePreviewForm', selector: '#device-zone-preview-form'},
         {ref: 'editDeviceZoneMenuItem', selector: '#edit-device-zone'},
@@ -32,10 +32,10 @@ Ext.define('Mdc.zones.controller.Zones',{
 
     init: function () {
         this.control({
-            '#allDevicesOfZoneGrid': {
+            '#zone-details-devices-grid': {
                 select: this.showDeviceZonePreview
             },
-            'zone-details devicesOfZoneGrid': {
+            '#zone-details-devices-grid': {
                 zoneDeviceRemoveEvent: this.onRemoveDeviceZone,
             },
             'device-zones-action-menu-from-zone': {
@@ -50,7 +50,7 @@ Ext.define('Mdc.zones.controller.Zones',{
     viewZone: function (currentZoneId) {
         var me = this,
             model = me.getModel('Cfg.zones.model.Zone'),
-            deviceZonesStore =    Ext.getStore('Mdc.store.DevicesOfZone'),
+            deviceZonesStore = Ext.getStore('Mdc.store.DevicesOfZone'),
             widget,
             gridDevices =  Ext.widget('zone-details-grid');
 
@@ -61,7 +61,8 @@ Ext.define('Mdc.zones.controller.Zones',{
                 deviceZonesStore.getProxy().extraParams = {
                     zoneTypeId: record.get("zoneTypeId"),
                     zoneId: currentZoneId,
-                    filter: Ext.JSON.encode([{"property": "device.zoneType", "value": [{"operator": "==", "criteria": record.get("zoneTypeId"), "filter": ""}]}])
+                    filter: Ext.JSON.encode([{"property": "device.zoneType", "value": [{"operator": "==", "criteria": record.get("zoneTypeId"), "filter": ""}]},
+                                            {"property": "device.zoneName", "value": [{"operator": "==", "criteria": record.get("id"), "filter": ""}]}])
                 };
 
                 deviceZonesStore.load(function (records) {

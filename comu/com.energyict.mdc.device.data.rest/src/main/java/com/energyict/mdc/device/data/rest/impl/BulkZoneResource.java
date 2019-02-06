@@ -160,7 +160,7 @@ public class BulkZoneResource {
         setZoneFilterProperties(filter, deviceSearchDomain, zoneFilter);
 
         SearchBuilder<Object> searchBuilder = getObjectSearchBuilder(zoneFilter);
-        Stream<Device>  deviceStream = searchBuilder.toFinder().stream().map(Device.class::cast);
+        Stream<Device>  deviceStream = searchBuilder.toFinder().from(queryParameters).stream().map(Device.class::cast);
 
         return PagedInfoList.fromPagedList("devices", deviceStream.map(device -> DeviceInfo.from(device)).collect(Collectors.toList()), queryParameters);
 

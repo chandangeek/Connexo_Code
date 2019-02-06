@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                store: 'Mdc.store.DevicesOfZone'
+                store: 'Mdc.store.DevicesOfZone',
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
