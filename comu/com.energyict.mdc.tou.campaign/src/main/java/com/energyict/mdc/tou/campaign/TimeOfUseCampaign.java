@@ -32,7 +32,7 @@ public interface TimeOfUseCampaign {
 
     ServiceCall getServiceCall();
 
-    long getTimeValidation();
+    long getValidationTimeout();
 
     long getVersion();
 

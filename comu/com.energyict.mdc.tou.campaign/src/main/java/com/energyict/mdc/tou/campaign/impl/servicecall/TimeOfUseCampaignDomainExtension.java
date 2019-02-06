@@ -95,7 +95,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String activationOption;
     private Instant activationDate;
-    private long timeValidation;
+    private long validationTimeout;
 
     @Override
     public String getName() {
@@ -170,8 +170,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
-    public long getTimeValidation() {
-        return timeValidation;
+    public long getValidationTimeout() {
+        return validationTimeout;
     }
 
     @Override
@@ -179,8 +179,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         return serviceCall.get().getId();
     }
 
-    public void setTimeValidation(long timeValidation) {
-        this.timeValidation = timeValidation;
+    public void setValidationTimeout(long validationTimeout) {
+        this.validationTimeout = validationTimeout;
     }
 
     @Override
@@ -209,7 +209,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         this.setActivationOption((String) propertyValues.getProperty(FieldNames.ACTIVATION_OPTION.javaName()));
         this.setActivationDate((Instant) propertyValues.getProperty(FieldNames.ACTIVATION_DATE.javaName()));
         this.setUpdateType((String) propertyValues.getProperty(FieldNames.UPDATE_TYPE.javaName()));
-        this.setTimeValidation((long) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
+        this.setValidationTimeout((long) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
     }
 
     @Override
@@ -223,7 +223,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.ACTIVATION_OPTION.javaName(), this.getActivationOption());
         propertySetValues.setProperty(FieldNames.ACTIVATION_DATE.javaName(), this.getActivationDate());
         propertySetValues.setProperty(FieldNames.UPDATE_TYPE.javaName(), this.getUpdateType());
-        propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getTimeValidation());
+        propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getValidationTimeout());
     }
 
     @Override

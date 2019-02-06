@@ -43,7 +43,7 @@ public class TimeOfUseCampaignInfoFactory {
         timeOfUseCampaignInfo.updateType = campaign.getUpdateType();
         timeOfUseCampaignInfo.activationOption = campaign.getActivationOption();
         timeOfUseCampaignInfo.activationDate = campaign.getActivationDate();
-        timeOfUseCampaignInfo.timeValidation = campaign.getTimeValidation();
+        timeOfUseCampaignInfo.timeValidation = campaign.getValidationTimeout();
         timeOfUseCampaignInfo.id = campaign.getId();
         timeOfUseCampaignInfo.version = campaign.getVersion();
         return timeOfUseCampaignInfo;

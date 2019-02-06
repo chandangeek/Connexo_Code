@@ -111,7 +111,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                             planning = false;
                         } else {
                             timeOfUseCampaignService.getCampaignOn(comTaskExecution)
-                                    .ifPresent(timeOfUseCampaign1 -> scheduleVerification(comTaskExecution.getDevice(), timeOfUseCampaign1.getTimeValidation()));
+                                    .ifPresent(timeOfUseCampaign1 -> scheduleVerification(comTaskExecution.getDevice(), timeOfUseCampaign1.getValidationTimeout()));
                             timeOfUseCampaignService.logInServiceCallByDevice(comTaskExecution.getDevice(), MessageSeeds.VERIFICATION_SCHEDULED, LogLevel.INFO);
                             planning = false;
                         }
@@ -217,7 +217,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                 .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 0);
     }
 
-    private void scheduleVerification(Device device, long timeValidation) {
+    private void scheduleVerification(Device device, long validationTimeout) {
         Optional<ComTaskEnablement> comTaskEnablementOptional = device.getDeviceConfiguration().getComTaskEnablements().stream()
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                         .anyMatch(task -> task instanceof StatusInformationTask))
@@ -234,7 +234,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
             if (comTaskExecution == null) {
                 comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add();
             }
-            comTaskExecution.schedule(clock.instant().plusSeconds(timeValidation));
+            comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
         } else {
             timeOfUseCampaignService.logInServiceCallByDevice(device, MessageSeeds.ACTIVE_VERIFICATION_TASK_NOT_FOUND, LogLevel.SEVERE);
             timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.FAILED);

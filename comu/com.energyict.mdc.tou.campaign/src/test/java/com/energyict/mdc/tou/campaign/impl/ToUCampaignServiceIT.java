@@ -28,17 +28,12 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -46,7 +41,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
@@ -235,7 +229,7 @@ public class ToUCampaignServiceIT{
         assertThat(timeOfUseCampaign1.getActivationEnd()).isEqualTo(TimeOfUseCampaignServiceImpl.getToday(inMemoryPersistence.get(Clock.class)).plusSeconds(activationEnd.getEpochSecond()));
         assertThat(timeOfUseCampaign1.getCalendar()).isEqualTo(calendar1);
         assertThat(timeOfUseCampaign1.getUpdateType()).isEqualTo(updateType);
-        assertThat(timeOfUseCampaign1.getTimeValidation()).isEqualTo(timeValidation);
+        assertThat(timeOfUseCampaign1.getValidationTimeout()).isEqualTo(timeValidation);
     }
 
     @Test
@@ -377,7 +371,7 @@ public class ToUCampaignServiceIT{
         timeOfUseCampaign.setUpdateType(updateType == null ? "fullCalendar" : updateType);
         timeOfUseCampaign.setActivationOption(activationOption == null ? "immediately" : activationOption);
         timeOfUseCampaign.setActivationDate(activationDate == null ? clock.instant() : activationDate);
-        timeOfUseCampaign.setTimeValidation(timeValidation == 0 ? 120 : timeValidation);
+        timeOfUseCampaign.setValidationTimeout(timeValidation == 0 ? 120 : timeValidation);
         timeOfUseCampaignService.createToUCampaign(timeOfUseCampaign);
         return timeOfUseCampaign;
     }

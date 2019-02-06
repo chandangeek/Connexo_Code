@@ -24,11 +24,11 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     public String activationOption;
     public Instant activationDate;
     public String updateType;
-    public long timeValidation;
+    public long validationTimeout;
 
     public TimeOfUseCampaignBuilderImpl(String name, DeviceType deviceType, String deviceGroup,
                                         Instant activationStart, Instant activationEnd, Calendar calendar,
-                                        String activationOption, Instant activationDate, String updateType, long timeValidation) {
+                                        String activationOption, Instant activationDate, String updateType, long validationTimeout) {
         this.name = name;
         this.deviceType = deviceType;
         this.deviceGroup = deviceGroup;
@@ -38,7 +38,7 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         this.activationDate = activationDate;
         this.activationOption = activationOption;
         this.updateType = updateType;
-        this.timeValidation = timeValidation;
+        this.validationTimeout = validationTimeout;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         timeOfUseCampaign.setUpdateType(updateType);
         timeOfUseCampaign.setActivationOption(activationOption);
         Optional.ofNullable(activationDate).ifPresent(timeOfUseCampaign::setActivationDate);
-        Optional.ofNullable(timeValidation).ifPresent(timeOfUseCampaign::setTimeValidation);
+        Optional.ofNullable(validationTimeout).ifPresent(timeOfUseCampaign::setValidationTimeout);
         return timeOfUseCampaign;
     }
 

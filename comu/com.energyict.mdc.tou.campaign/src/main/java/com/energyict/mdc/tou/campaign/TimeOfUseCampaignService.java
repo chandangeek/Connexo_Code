@@ -33,7 +33,7 @@ public interface TimeOfUseCampaignService {
 
     TimeOfUseCampaignBuilder newToUbuilder(String name, long deviceType, String deviceGroup,
                                            Instant activationStart, Instant activationEnd, long calendar,
-                                           String activationOption, Instant activationDate, String updateType, long timeValidation);
+                                           String activationOption, Instant activationDate, String updateType, long validationTimeout);
 
     Optional<TimeOfUseCampaign> getCampaign(long id);
 

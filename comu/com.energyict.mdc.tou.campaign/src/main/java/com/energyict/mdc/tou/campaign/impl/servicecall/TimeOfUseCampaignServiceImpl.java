@@ -325,7 +325,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         timeOfUseCampaignDomainExtension.setActivationOption(campaign.getActivationOption());
         timeOfUseCampaignDomainExtension.setActivationDate(campaign.getActivationDate());
         timeOfUseCampaignDomainExtension.setUpdateType(campaign.getUpdateType());
-        timeOfUseCampaignDomainExtension.setTimeValidation(campaign.getTimeValidation());
+        timeOfUseCampaignDomainExtension.setValidationTimeout(campaign.getValidationTimeout());
         ServiceCall serviceCall = serviceCallType.newServiceCall()
                 .origin("MultiSense")
                 .extendedWith(timeOfUseCampaignDomainExtension)
@@ -426,7 +426,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     @Override
     public TimeOfUseCampaignBuilder newToUbuilder(String name, long deviceType, String deviceGroup, Instant activationStart,
                                                   Instant activationEnd, long calendar, String activationOption,
-                                                  Instant activationDate, String updateType, long timeValidation) {
+                                                  Instant activationDate, String updateType, long validationTimeout) {
         if (forToday(activationStart)) {
             if (activationStart.isAfter(activationEnd)) {
                 activationEnd = getToday(clock).plusSeconds(getSecondsInDays(1)).plusSeconds(activationEnd.getEpochSecond());
@@ -445,7 +445,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         }
         return new TimeOfUseCampaignBuilderImpl(name, deviceConfigurationService.findDeviceType(deviceType).get(),
                 deviceGroup, activationStart, activationEnd, calendarService.findCalendar(calendar).get(), activationOption,
-                activationDate, updateType, timeValidation);
+                activationDate, updateType, validationTimeout);
     }
 
     private boolean forToday(Instant activationStart) {
