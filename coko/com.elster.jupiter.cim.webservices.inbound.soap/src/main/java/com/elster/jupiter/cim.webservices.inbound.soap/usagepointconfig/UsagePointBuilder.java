@@ -1062,9 +1062,9 @@ class UsagePointBuilder {
             }
         } else {
             com.elster.jupiter.metering.UsagePoint usagePoint = (com.elster.jupiter.metering.UsagePoint)businessObject;
-            if (!startTime.isPresent() || startTime.get().isBefore(usagePoint.getCreateDate())) {
+            if (!startTime.isPresent() || startTime.get().isBefore(usagePoint.getInstallationTime())) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.START_DATE_LOWER_CREATED_DATE, usagePoint.getName()).get();
+                        MessageSeeds.START_DATE_LOWER_CREATED_DATE, customPropertySet.getId(), usagePoint.getName()).get();
             }
             Range<Instant> range = getRangeToCreate(startTime, endTime);
             OverlapCalculatorBuilder overlapCalculatorBuilder;

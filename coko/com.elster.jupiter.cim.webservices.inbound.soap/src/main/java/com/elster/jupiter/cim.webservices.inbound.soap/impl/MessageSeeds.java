@@ -57,7 +57,7 @@ public enum MessageSeeds implements MessageSeed {
     UNSATISFIED_READING_TYPE_REQUIREMENTS(2020, "UnsatisfiedReadingTypeRequirments", "Meters don''t provide reading types specified in the metrology contract."),
     MORE_THAN_ONE_METROLOGY_CONFIGURATION_SPECIFIED(2021, "MoreThanOneMetrologyConfigurationSpecified", "Metrology requirement can''t accept more than one metrology configuration."),
     INVALID_RANGE(2022, "InvalidRange", "Start time exceeds end time of custom attribute set {0}."),
-    START_DATE_LOWER_CREATED_DATE(2023, "StartDateLowerCreatedDate", "Start date must be greater than or equal to creation date of usage point {0}."),
+    START_DATE_LOWER_CREATED_DATE(2023, "StartDateLowerCreatedDate", "Start date of custom attribute set {0} must be greater than or equal to creation date of usage point {1}."),
     NO_CUSTOMATTRIBUTE_VERSION(2024, "NoCustomAttributeVersion", "Custom attribute set version with start date {0} isn''t found."),
     NO_CUSTOMATTRIBUTE(2025, "NoCustomAttribute", "Can''t find custom attribute set {0}."),
     WRONG_QUANTITY_FORMAT(2026, "WrongQuantitiyFormat", "Wrong unit format for attribute {0}. Supported multipliers: {1}, supported units: {2}."),
