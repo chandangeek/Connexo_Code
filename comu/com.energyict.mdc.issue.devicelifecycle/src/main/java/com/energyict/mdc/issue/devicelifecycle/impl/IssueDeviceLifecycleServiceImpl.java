@@ -55,6 +55,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -112,9 +113,7 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
                 InstallIdentifier.identifier("MultiSense", IssueDeviceLifecycleService.COMPONENT_NAME),
                 dataModel,
                 Installer.class,
-                ImmutableMap.of(
-                        Version.version(10, 6), UpgraderV10_6.class
-                ));
+                Collections.emptyMap());
     }
 
     @Override

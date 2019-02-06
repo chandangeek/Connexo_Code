@@ -229,12 +229,11 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                 properties.put(BASIC_DATA_VALIDATION_RULE_TEMPLATE + ".deviceConfigurations", deviceConfigurations);
             }
         } else if (template.getName().equals(DEVICELIFECYCLE_ISSUE_RULE_TEMPLATE)) {
-            List<HasIdAndName> deviceLifecycleProps = new ArrayList<>();
             properties.put(
                     DeviceLifecycleIssueCreationRuleTemplate.AUTORESOLUTION,
-                    template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).get().getValueFactory().fromStringValue("0"));
+                    template.getPropertySpec(DeviceLifecycleIssueCreationRuleTemplate.AUTORESOLUTION).get().getValueFactory().fromStringValue("0"));
             properties.put(
-                    BasicDataCollectionRuleTemplate.RADIOGROUP,
+                    DeviceLifecycleIssueCreationRuleTemplate.LOG_ON_SAME_ISSUE,
                     getOnReccurrenceProps());
             properties.put(DEVICELIFECYCLE_ISSUE_RULE_TEMPLATE + ".deviceLifecycleTransitionProps", getDeviceLifecycleTransitionProps());
         } else if (template.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE)) {
@@ -397,7 +396,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                                      @Override
                                      public String getId() {
                                          return deviceType.getId() + SEPARATOR + deviceType.getDeviceLifeCycle().getId() + SEPARATOR + stateTransition.getId() + SEPARATOR + stateTransition.getFrom()
-                                                 .getId() + DASH_SEPARATOR + stateTransition.getFrom().getId();
+                                                 .getId() + DASH_SEPARATOR + stateTransition.getTo().getId();
                                      }
 
                                      @Override

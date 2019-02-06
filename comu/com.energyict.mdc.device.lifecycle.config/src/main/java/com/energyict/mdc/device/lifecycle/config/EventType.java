@@ -44,6 +44,10 @@ public enum EventType {
                     .withProperty("cause", ValueType.STRING, "cause")
                     .withProperty("modTime", ValueType.LONG, "modTime")
                     .create();
+        };
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
         }
     };
 
