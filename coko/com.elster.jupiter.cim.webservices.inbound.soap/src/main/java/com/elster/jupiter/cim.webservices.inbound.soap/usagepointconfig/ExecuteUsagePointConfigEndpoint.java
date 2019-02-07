@@ -143,6 +143,7 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
 
     @Override
     public UsagePointConfigResponseMessageType getUsagePointConfig(UsagePointConfigRequestMessageType getUsagePointConfigRequestMessage) throws FaultMessage {
+        endPointHelper.setSecurityContext();
         List<UsagePoint> usagePoints = retrieveUsagePoints(getUsagePointConfigRequestMessage.getPayload(), MessageSeeds.UNABLE_TO_GET_USAGE_POINT);
         UsagePoint usagePoint = usagePoints.stream().findFirst()
                 .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(MessageSeeds.UNABLE_TO_GET_USAGE_POINT,
