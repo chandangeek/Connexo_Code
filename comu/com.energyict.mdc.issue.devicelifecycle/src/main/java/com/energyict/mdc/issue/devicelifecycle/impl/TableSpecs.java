@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.devicelifecycle.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -125,13 +126,13 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("IDL_FAILTRANS_FK_FROM")
                     .on(fromRef)
-                    .references(StateTransition.class)
+                    .references(State.class)
                     .map(FailedTransitionImpl.Fields.FROM.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
             table.foreignKey("IDL_FAILTRANS_FK_TO")
                     .on(toRef)
-                    .references(StateTransition.class)
+                    .references(State.class)
                     .map(FailedTransitionImpl.Fields.TO.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
@@ -175,13 +176,13 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("IDL_HISTFAILTRANS_FK_FROM")
                     .on(fromRef)
-                    .references(StateTransition.class)
+                    .references(State.class)
                     .map(FailedTransitionImpl.Fields.FROM.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
             table.foreignKey("IDL_HISTFAILTRANS_FK_TO")
                     .on(toRef)
-                    .references(StateTransition.class)
+                    .references(State.class)
                     .map(FailedTransitionImpl.Fields.TO.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();

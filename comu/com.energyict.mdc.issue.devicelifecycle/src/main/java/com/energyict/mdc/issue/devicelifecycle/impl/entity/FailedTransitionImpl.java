@@ -44,9 +44,9 @@ public class FailedTransitionImpl implements FailedTransition {
     private Reference<StateTransition> transition = ValueReference.absent();
 
     @IsPresent
-    private Reference<State> fromState = Reference.empty();
+    private Reference<State> fromState = ValueReference.absent();
     @IsPresent
-    private Reference<State> toState = Reference.empty();
+    private Reference<State> toState = ValueReference.absent();
 
     @NotNull
     private String cause;
