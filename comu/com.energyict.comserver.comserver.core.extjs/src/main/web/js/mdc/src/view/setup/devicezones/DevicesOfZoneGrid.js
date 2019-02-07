@@ -4,8 +4,6 @@
 
 Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
     extend: 'Ext.grid.Panel',
-    //overflowY: 'auto',
-   // xtype: 'devicesOfZoneGrid',
     alias: 'widget.zone-details-grid',
     itemId: 'allDevicesOfZoneGrid',
     requires: [

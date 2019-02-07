@@ -8,17 +8,13 @@ Ext.define('Mdc.zones.controller.Zones',{
     views: [
         'Mdc.view.setup.devicezones.DevicesOfZoneGrid',
         'Mdc.view.setup.devicezones.Details',
-        'Mdc.view.setup.devicezones.PreviewForm'
+        'Mdc.view.setup.devicezones.PreviewForm',
+        'Mdc.view.setup.devicezones.DeviceZonePreview'
     ],
 
     stores: [
         'Mdc.store.Zones',
         'Mdc.store.DevicesOfZone'
-
-    ],
-
-    requires: [
-        'Mdc.model.DevicesOfZone'
     ],
 
     refs: [
@@ -32,7 +28,7 @@ Ext.define('Mdc.zones.controller.Zones',{
 
     init: function () {
         this.control({
-            '#zone-details-devices-grid': {
+            'zone-details #zone-details-devices-grid': {
                 select: this.showDeviceZonePreview
             },
             '#zone-details-devices-grid': {
@@ -51,11 +47,8 @@ Ext.define('Mdc.zones.controller.Zones',{
         var me = this,
             model = me.getModel('Cfg.zones.model.Zone'),
             deviceZonesStore = Ext.getStore('Mdc.store.DevicesOfZone'),
-            widget,
-            gridDevices =  Ext.widget('zone-details-grid');
+            widget;
 
-
-        gridDevices.setLoading();
         model.load(currentZoneId, {
             success: function (record) {
                 deviceZonesStore.getProxy().extraParams = {
@@ -64,12 +57,6 @@ Ext.define('Mdc.zones.controller.Zones',{
                     filter: Ext.JSON.encode([{"property": "device.zoneType", "value": [{"operator": "==", "criteria": record.get("zoneTypeId"), "filter": ""}]},
                                             {"property": "device.zoneName", "value": [{"operator": "==", "criteria": record.get("id"), "filter": ""}]}])
                 };
-
-                deviceZonesStore.load(function (records) {
-                    callback:(function () {
-                        gridDevices.setLoading(false);
-                    });
-                });
 
                 widget = Ext.widget('device-zone-details', {deviceZoneId: currentZoneId});
                 widget.down('#deviceZoneDetailsForm').loadRecord(record);
@@ -176,6 +163,4 @@ Ext.define('Mdc.zones.controller.Zones',{
             }
         });
     },
-
-
 });

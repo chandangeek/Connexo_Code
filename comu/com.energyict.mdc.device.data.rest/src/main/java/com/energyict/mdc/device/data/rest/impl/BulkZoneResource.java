@@ -153,7 +153,7 @@ public class BulkZoneResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ZONE)
-    public PagedInfoList getDevicesOnZone(@Context UriInfo uriInfo, @QueryParam("zoneTypeId") long zoneTypeId, @QueryParam("zoneId") long zoneId, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getDevicesOnZone(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
 
         Optional<SearchDomain> deviceSearchDomain = searchService.findDomain(Device.class.getName());
         ZoneOnDevicesFilterSpecification zoneFilter = new ZoneOnDevicesFilterSpecification();

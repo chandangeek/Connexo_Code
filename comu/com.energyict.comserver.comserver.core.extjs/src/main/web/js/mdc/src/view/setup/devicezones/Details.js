@@ -21,9 +21,7 @@ Ext.define('Mdc.view.setup.devicezones.Details', {
     device: null,
 
     initComponent: function () {
-        var me = this,
-        device = me.device ;
-
+        var me = this;
         me.content = {
             xtype: 'container',
                 layout: {
