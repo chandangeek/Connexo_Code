@@ -1589,7 +1589,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     },
                                     editcustomattributes: {
                                         title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        route: '{customAttributeSetId}/edit',
+                                        route: '{customAttributeSetId}/editcas',
                                         privileges: Mdc.privileges.DeviceType.admin,
                                         controller: 'Mdc.controller.setup.DeviceTypes',
                                         action: 'showDeviceTypeCustomAttributesEditView',

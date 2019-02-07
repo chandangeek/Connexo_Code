@@ -118,6 +118,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pki</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -148,11 +152,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
