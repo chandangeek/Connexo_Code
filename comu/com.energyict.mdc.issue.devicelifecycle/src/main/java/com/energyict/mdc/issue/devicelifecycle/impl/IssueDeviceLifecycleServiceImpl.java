@@ -6,7 +6,6 @@ package com.energyict.mdc.issue.devicelifecycle.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
@@ -31,13 +30,13 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.devicelifecycle.DeviceLifecycleIssueFilter;
 import com.energyict.mdc.issue.devicelifecycle.HistoricalIssueDeviceLifecycle;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycle;
@@ -46,7 +45,6 @@ import com.energyict.mdc.issue.devicelifecycle.OpenIssueDeviceLifecycle;
 import com.energyict.mdc.issue.devicelifecycle.impl.entity.IssueDeviceLifecycleImpl;
 import com.energyict.mdc.issue.devicelifecycle.impl.entity.OpenIssueDeviceLifecycleImpl;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -73,9 +71,10 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
     private volatile EventService eventService;
     private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     /* for dependency - startup/installation order */
     private volatile MeteringService meteringService;
-    private volatile EstimationService estimationService;
+
 
     private volatile DataModel dataModel;
 
@@ -84,7 +83,7 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
     }
 
     @Inject
-    public IssueDeviceLifecycleServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, MessageService messageService, UpgradeService upgradeService) {
+    public IssueDeviceLifecycleServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, MessageService messageService, UpgradeService upgradeService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         setOrmService(ormService);
         setIssueService(issueService);
@@ -92,6 +91,8 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
         setEventService(eventService);
         setMessageService(messageService);
         setUpgradeService(upgradeService);
+        setMeteringService(meteringService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         activate();
     }
 
@@ -212,14 +213,14 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
         this.messageService = messageService;
     }
 
-    @Reference
+   @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
     @Reference
-    public void setEstimationService(EstimationService estimationService) {
-        this.estimationService = estimationService;
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     @Reference

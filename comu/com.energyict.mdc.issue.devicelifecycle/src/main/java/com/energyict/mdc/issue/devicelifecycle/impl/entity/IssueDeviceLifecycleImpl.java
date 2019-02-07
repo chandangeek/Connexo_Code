@@ -213,6 +213,9 @@ public class IssueDeviceLifecycleImpl implements IssueDeviceLifecycle {
     }
 
     public void save() {
+        if (getBaseIssue() != null) {
+            getBaseIssue().update();
+        }
         Save.CREATE.save(dataModel, this);
     }
 

@@ -159,7 +159,7 @@ public enum TableSpecs {
             table.primaryKey("IDL_HISTFAILEDTRANSITION_PK").on(issueRef, lifecycleRef, transitionRef, fromRef, toRef, cause, modTime).add();
             table.foreignKey("IDL_HISTFAILTRANS_FK_ISSUE")
                     .on(issueRef)
-                    .references(IDL_ISSUE_OPEN.name())
+                    .references(IDL_ISSUE_HISTORY.name())
                     .map(FailedTransitionImpl.Fields.ISSUE.fieldName())
                     .reverseMap(IssueDeviceLifecycleImpl.Fields.FAILED_TRANSITIONS.fieldName())
                     .composition()

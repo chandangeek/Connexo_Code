@@ -93,7 +93,7 @@ public final class OpenIssueDeviceLifecycleImpl extends IssueDeviceLifecycleImpl
     private void createNewFailedTransition(DeviceLifeCycle deviceLifeCycle, StateTransition stateTransition,
                                            State from, State to, Instant modTime, String cause) {
         OpenIssueFailedTransitionImpl failedTransition = getDataModel().getInstance(OpenIssueFailedTransitionImpl.class);
-        failedTransition.init(deviceLifeCycle, stateTransition, from, to, modTime, cause);
+        failedTransition.init(this, deviceLifeCycle, stateTransition, from, to, modTime, cause);
         failedTransitions.add(failedTransition);
     }
 }

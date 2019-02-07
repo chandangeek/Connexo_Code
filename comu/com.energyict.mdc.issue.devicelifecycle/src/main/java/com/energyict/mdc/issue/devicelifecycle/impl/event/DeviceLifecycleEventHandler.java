@@ -12,6 +12,8 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.util.json.JsonService;
 
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+
 import com.google.inject.Injector;
 
 import java.util.Arrays;
@@ -27,21 +29,18 @@ public class DeviceLifecycleEventHandler implements MessageHandler {
     private Injector injector;
     private JsonService jsonService;
     private IssueCreationService issueCreationService;
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     public DeviceLifecycleEventHandler(Injector injector) {
         this.injector = injector;
         this.jsonService = injector.getInstance(JsonService.class);
         this.issueCreationService = injector.getInstance(IssueCreationService.class);
+        this.deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
     }
 
     @Override
     public void process(Message message) {
         createEvent(jsonService.deserialize(message.getPayload(), Map.class))
-                .filter(e -> e.getEndDevice().isPresent())
-                /*.filter(e -> e.getEndDevice().get().getState().isPresent())
-                .filter(e -> e.getEndDevice().get().getState().get().getStage().isPresent())
-                .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey()))
-                */
                 .ifPresent(event -> issueCreationService.dispatchCreationEvent(Collections.singletonList(event)));
     }
 

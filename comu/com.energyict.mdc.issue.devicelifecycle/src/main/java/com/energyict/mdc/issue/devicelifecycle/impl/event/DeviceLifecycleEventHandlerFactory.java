@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycleService;
 
 import com.google.inject.AbstractModule;
@@ -42,19 +43,22 @@ public class DeviceLifecycleEventHandlerFactory implements MessageHandlerFactory
     private volatile MeteringService meteringService;
     private volatile DeviceService deviceService;
     private volatile IssueDeviceLifecycleService issueDeviceLifecycleService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     
     //for OSGI
     public DeviceLifecycleEventHandlerFactory() {
     }
     
     @Inject
-    public DeviceLifecycleEventHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService, MeteringService meteringService, DeviceService deviceService, IssueDeviceLifecycleService issueDeviceLifecycleService) {
+    public DeviceLifecycleEventHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService, MeteringService meteringService, DeviceService deviceService, IssueDeviceLifecycleService issueDeviceLifecycleService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         setJsonService(jsonService);
         setIssueService(issueService);
         setNlsService(nlsService);
         setMeteringService(meteringService);
         setDeviceService(deviceService);
         setIssueDeviceLifecycleService(issueDeviceLifecycleService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
     }
     
     @Override
@@ -69,6 +73,8 @@ public class DeviceLifecycleEventHandlerFactory implements MessageHandlerFactory
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(IssueDeviceLifecycleService.class).toInstance(issueDeviceLifecycleService);
+                bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+
             }
         });
         return new DeviceLifecycleEventHandler(injector);
@@ -103,5 +109,10 @@ public class DeviceLifecycleEventHandlerFactory implements MessageHandlerFactory
     @Reference
     public void setIssueDeviceLifecycleService(IssueDeviceLifecycleService issueDeviceLifecycleService) {
         this.issueDeviceLifecycleService = issueDeviceLifecycleService;
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 }

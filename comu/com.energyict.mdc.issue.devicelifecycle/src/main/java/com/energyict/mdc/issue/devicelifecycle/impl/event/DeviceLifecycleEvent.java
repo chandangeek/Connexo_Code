@@ -7,10 +7,15 @@ package com.energyict.mdc.issue.devicelifecycle.impl.event;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -19,6 +24,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.issue.devicelifecycle.DeviceLifecycleIssueFilter;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycle;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycleService;
+import com.energyict.mdc.issue.devicelifecycle.impl.MessageSeeds;
 
 import com.google.inject.Inject;
 
@@ -41,14 +47,16 @@ public abstract class DeviceLifecycleEvent implements IssueEvent {
     private final IssueDeviceLifecycleService issueDeviceLifecycleService;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final IssueService issueService;
+    private final MeteringService meteringService;
 
     @Inject
-    public DeviceLifecycleEvent(Thesaurus thesaurus, DeviceService deviceService, IssueDeviceLifecycleService issueDeviceLifecycleService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, IssueService issueService) {
+    public DeviceLifecycleEvent(Thesaurus thesaurus, DeviceService deviceService, IssueDeviceLifecycleService issueDeviceLifecycleService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, IssueService issueService, MeteringService meteringService) {
         this.thesaurus = thesaurus;
         this.deviceService = deviceService;
         this.issueDeviceLifecycleService = issueDeviceLifecycleService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.issueService = issueService;
+        this.meteringService = meteringService;
     }
 
     abstract void init(Map<?, ?> jsonPayload);
@@ -60,7 +68,17 @@ public abstract class DeviceLifecycleEvent implements IssueEvent {
 
     @Override
     public Optional<EndDevice> getEndDevice() {
-        return getDevice().map(EndDevice.class::cast);
+        if (getDevice() == null || !getDevice().isPresent()) { //for unknown inbound device
+            return Optional.empty();
+        }
+        Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
+        if (amrSystemRef.isPresent()) {
+            Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device));
+            if (meterRef.isPresent()) {
+                return Optional.of(meterRef.get());
+            }
+        }
+        throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, device);
     }
 
     @Override
@@ -91,7 +109,12 @@ public abstract class DeviceLifecycleEvent implements IssueEvent {
 
     protected Optional<StateTransition> getTransition() {
         if (getDeviceLifecycle().isPresent()) {
-            return getDeviceLifecycle().get().getFiniteStateMachine().getTransitions().stream().filter(t -> t.getId() == transition).findFirst();
+            return getDeviceLifecycle().get()
+                    .getFiniteStateMachine()
+                    .getTransitions()
+                    .stream()
+                    .filter(t -> t.getId() == transition)
+                    .findFirst();
         } else {
 
             return Optional.empty();
@@ -100,25 +123,25 @@ public abstract class DeviceLifecycleEvent implements IssueEvent {
 
     protected Optional<State> getFrom() {
 
-        if(getTransition().isPresent()){
+        if (getTransition().isPresent()) {
             StateTransition stateTransition = getTransition().get();
-            return stateTransition.getFrom().getId() == from ? Optional.of(stateTransition.getFrom()) : Optional.empty();
+            return stateTransition.getFrom()
+                    .getId() == from ? Optional.of(stateTransition.getFrom()) : Optional.empty();
         } else {
             return Optional.empty();
         }
     }
 
     protected Optional<State> getTo() {
-
-        if(getTransition().isPresent()){
+        if (getTransition().isPresent()) {
             StateTransition stateTransition = getTransition().get();
-            return stateTransition.getTo().getId() == from ? Optional.of(stateTransition.getTo()) : Optional.empty();
+            return stateTransition.getTo().getId() == to ? Optional.of(stateTransition.getTo()) : Optional.empty();
         } else {
             return Optional.empty();
         }
     }
 
-    public boolean isResolveEvent(){
+    public boolean isResolveEvent() {
         return false;
     }
 }
