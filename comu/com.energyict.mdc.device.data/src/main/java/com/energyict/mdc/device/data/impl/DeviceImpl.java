@@ -732,7 +732,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         forEstimation().findAllOverriddenProperties().forEach(ChannelEstimationRuleOverriddenProperties::delete);
     }
 
-    public Reference<Meter> getMeter() {
+    @Override
+    public Meter getMeter() {
+        return this.meter.get();
+    }
+
+    public Reference<Meter> getMeterReference() {
         return this.meter;
     }
 
@@ -1032,7 +1037,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             throw new IllegalArgumentException("All arguments are mandatory and can't be null.");
         }
         try {
-            usagePoint.linkMeters().activate(start, getMeter().get(), meterRole).throwingValidation().complete();
+            usagePoint.linkMeters().activate(start, getMeterReference().get(), meterRole).throwingValidation().complete();
         } catch (MeterHasUnsatisfiedRequirements badRequirementsEx) {
             throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(this.thesaurus, badRequirementsEx.getUnsatisfiedRequirements());
         } catch (UsagePointHasMeterOnThisRole upActiveEx) {
@@ -1620,7 +1625,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (updatedValue.isPresent()) {
             return updatedValue;
         }
-        return getMeter().getOptional().map(EndDevice::getSpatialCoordinates).orElse(Optional.empty());
+        return getMeterReference().getOptional().map(EndDevice::getSpatialCoordinates).orElse(Optional.empty());
     }
 
     @Override

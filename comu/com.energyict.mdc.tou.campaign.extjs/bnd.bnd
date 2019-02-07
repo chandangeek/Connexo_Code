@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.energyict.mdc.tou.campaign.extjs
+Export-Package: !com.energyict.mdc.tou.campaign.extjs
+-include: -../development.bnd
