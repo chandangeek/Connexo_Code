@@ -26,7 +26,7 @@ public final class HistoricalIssueDeviceLifecycleImpl extends IssueDeviceLifecyc
     private Reference<HistoricalIssue> baseIssue = ValueReference.absent();
     
     @Valid
-    private List<HistoricalIssueFailedTransitionImpl> notEstimatedBlocks = new ArrayList<>();
+    private List<HistoricalIssueFailedTransitionImpl> failedTransitions = new ArrayList<>();
 
     @Inject
     public HistoricalIssueDeviceLifecycleImpl(DataModel dataModel, IssueDeviceLifecycleService issueDeviceLifecycleService) {
@@ -46,12 +46,12 @@ public final class HistoricalIssueDeviceLifecycleImpl extends IssueDeviceLifecyc
         for(FailedTransition block : openIssueDeviceLifecycle.getFailedTransitions()) {
             HistoricalIssueFailedTransitionImpl historicalBlock = getDataModel().getInstance(HistoricalIssueFailedTransitionImpl.class);
             historicalBlock.init(this, block);
-            notEstimatedBlocks.add(historicalBlock);
+            failedTransitions.add(historicalBlock);
         }
     }
     
     @Override
     public List<FailedTransition> getFailedTransitions() {
-        return Collections.unmodifiableList(notEstimatedBlocks);
+        return Collections.unmodifiableList(failedTransitions);
     }
 }

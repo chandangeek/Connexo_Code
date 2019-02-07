@@ -37,8 +37,6 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<OpenIssueDeviceLifecycle> table = dataModel.addTable(name(), OpenIssueDeviceLifecycle.class);
             table.map(OpenIssueDeviceLifecycleImpl.class);
-            table.setJournalTableName(name() + "JRNL").upTo(version(10, 2));
-
             Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
 
             table.addAuditColumns();
@@ -57,8 +55,6 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<HistoricalIssueDeviceLifecycle> table = dataModel.addTable(name(), HistoricalIssueDeviceLifecycle.class);
             table.map(HistoricalIssueDeviceLifecycleImpl.class);
-            table.setJournalTableName(name() + "JRNL").upTo(version(10, 2));
-
             Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
 
             table.addAuditColumns();
