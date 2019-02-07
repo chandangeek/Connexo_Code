@@ -66,7 +66,7 @@ Ext.define('Mdc.zones.controller.Zones',{
                 };
 
                 deviceZonesStore.load(function (records) {
-                    callback:( function () {
+                    callback:(function () {
                         gridDevices.setLoading(false);
                     });
                 });

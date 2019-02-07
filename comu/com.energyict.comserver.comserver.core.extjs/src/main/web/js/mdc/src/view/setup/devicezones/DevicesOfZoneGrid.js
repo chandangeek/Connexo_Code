@@ -59,39 +59,27 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                store: 'Mdc.store.DevicesOfZone',
+                store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
                 emptyMsg: Uni.I18n.translate('devices.pagingtoolbartop.emptyMsg', 'MDC', 'There are no devices to display'),
-                /*items: [
+                items: [
                     {
                         xtype: 'button',
                         ui: 'link',
                         itemId: 'view-all-devices-in-search',
                         text: Uni.I18n.translate('deviceZones.Search', 'MDC', 'View all devices in search'),
                         //privileges:,
-                        href: me.searchLink
+                        //href: me.searchLink
                     }
-                ]*/
+                ]
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                store: 'Mdc.store.DevicesOfZone',
+                store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page'),
                 dock: 'bottom',
-                deferLoading: true,
-                pageSizeStore: Ext.create('Ext.data.Store', {
-                    fields: ['value'],
-                    data: [
-                        {value: '10'},
-                        {value: '20'},
-                        {value: '50'},
-                        {value: '100'},
-                        {value: '200'},
-                        {value: '1000'}
-                    ]
-                })
             }
         ];
 
