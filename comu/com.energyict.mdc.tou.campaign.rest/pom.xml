@@ -12,6 +12,11 @@
         <version>1.0.0-Nessus-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <!-- TODO: remove after release 10.6 -->
+        <baseline>(,${project.version})</baseline>
+    </properties>
+
     <artifactId>mdc.tou.campaign.rest</artifactId>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.tou.campaign.rest</name>
