@@ -67,6 +67,19 @@ public class SecurityPropertySetResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/hsm")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public PagedInfoList getSecurityPropertySetsXromvyu(@PathParam("name") String name, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        List<SecurityPropertySetInfo> securityPropertySetInfos = securityPropertySetInfoFactory.asInfoHsm(device, uriInfo);
+        List<SecurityPropertySetInfo> pagedInfos = ListPager.of(securityPropertySetInfos).from(queryParameters).find();
+        return PagedInfoList.fromPagedList("securityPropertySets", pagedInfos, queryParameters);
+    }
+
+
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{securityPropertySetId}")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getSecurityPropertySet(@PathParam("name") String name, @Context UriInfo uriInfo, @PathParam("securityPropertySetId") long securityPropertySetId) {

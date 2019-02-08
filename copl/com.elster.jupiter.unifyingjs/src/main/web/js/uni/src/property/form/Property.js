@@ -109,6 +109,22 @@ Ext.define('Uni.property.form.Property', {
                 fieldType = registry.getProperty(type);
                 dependOnIsEdited = me.isMultiEdit && !me.isEdit;
                 if ((dependOnIsEdited && property.isEdited) || (!dependOnIsEdited && fieldType)) {
+                    console.log("EXT CREATE FIELD = ",fieldType);
+                    console.log("me.defaults = ", me.defaults);
+                    console.log("property = ", property);
+                    console.log("me.isEdit = ", me.isEdit);
+                    console.log("me.isReadOnly = ", me.isReadOnly);
+                    console.log("me.inputType = ", me.inputType);
+                    console.log("me.passwordAsTextComponent = ", me.passwordAsTextComponent);
+                    console.log("me.userHasEditPrivilege = ", me.userHasEditPrivilege);
+                    console.log("me.userHasViewPrivilege = ", me.userHasViewPrivilege);
+                    console.log("me.isMultiEdit = ", me.isMultiEdit);
+                    console.log("me.defaults.resetButtonHidden || me.isMultiEdit = ", me.defaults.resetButtonHidden || me.isMultiEdit);
+                    console.log("me.editButtonTooltip = ", me.editButtonTooltip);
+                    console.log("me.removeButtonTooltip  = ", me.removeButtonTooltip);
+                    console.log("me.blankText = ", me.blankText);
+                    console.log("property.getPropertyParams() = ", property.getPropertyParams());
+
                     var field = Ext.create(fieldType, Ext.apply(me.defaults, {
                         property: property,
                         isEdit: me.isEdit,
