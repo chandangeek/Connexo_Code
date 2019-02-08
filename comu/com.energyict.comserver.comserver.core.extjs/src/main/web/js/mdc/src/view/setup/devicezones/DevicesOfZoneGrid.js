@@ -5,7 +5,6 @@
 Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.zone-details-grid',
-    itemId: 'allDevicesOfZoneGrid',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
@@ -68,8 +67,7 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
                         ui: 'link',
                         itemId: 'view-all-devices-in-search',
                         text: Uni.I18n.translate('deviceZones.Search', 'MDC', 'View all devices in search'),
-                        //privileges:,
-                        //href: me.searchLink
+                        action: 'viewDevicesInSearch'
                     }
                 ]
             },
