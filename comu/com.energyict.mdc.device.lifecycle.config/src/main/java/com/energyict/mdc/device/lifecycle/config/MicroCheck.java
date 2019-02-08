@@ -111,7 +111,13 @@ public enum MicroCheck {
     /**
      * Checks if the metrology configuration of the usage point is in a correct state (if any)
      */
-    METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY(MicroCategory.INSTALLATION);
+    METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY(MicroCategory.INSTALLATION),
+
+    /**
+     * Checks that there is at least one zone linked to this device.
+     */
+    AT_LEAST_ONE_ZONE_LINKED(MicroCategory.ZONES);
+
 
     private MicroCategory category;
 

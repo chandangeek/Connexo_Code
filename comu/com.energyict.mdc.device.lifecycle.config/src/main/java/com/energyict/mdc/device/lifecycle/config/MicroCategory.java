@@ -16,5 +16,6 @@ public enum MicroCategory {
     DECOMMISSION,
     RETENTION,
     MONITORING,
-    MULTIELEMENT
+    MULTIELEMENT,
+    ZONES
 }

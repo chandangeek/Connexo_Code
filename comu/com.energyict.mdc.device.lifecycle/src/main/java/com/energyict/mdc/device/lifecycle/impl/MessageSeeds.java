@@ -47,6 +47,7 @@ public enum MessageSeeds implements MessageSeed {
     EFFECTIVE_TIMESTAMP_NOT_IN_RANGE(20002, Keys.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, "The transition date should be between {0} and {1}"),
     EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE(20003, Keys.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE, "The transition date {1} should be after the last state change {2} for device (name={0})"),
     NOT_ALL_DATA_VALID_FOR_DEVICE(20004, "microAction.exception.notAllDataValidForDeviceX", "Device {0} has still suspect values: Action is undone."),
+    AT_LEAST_ONE_ZONE_LINKED(20004, "microAction.exception.noZoneLinkedToDeviceX", "Device {0} has no zone linked.")
     ;
 
     private final int number;
