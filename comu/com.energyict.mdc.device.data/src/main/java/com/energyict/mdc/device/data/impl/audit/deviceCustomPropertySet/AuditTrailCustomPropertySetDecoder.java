@@ -128,13 +128,14 @@ public class AuditTrailCustomPropertySetDecoder extends AbstractDeviceAuditDecod
     }
 
     private Optional<AuditLogChange> getAuditLogChange(CustomPropertySetValues toCustomPropertySetValues, CustomPropertySetValues fromCustomPropertySetValues, PropertySpec propertySpec) {
-        String propertyName = propertySpec.getName();
-        if (!toCustomPropertySetValues.getProperty(propertyName).equals(fromCustomPropertySetValues.getProperty(propertyName))) {
+        Object toValue = convertCustomPropertySetValue(toCustomPropertySetValues, propertySpec);
+        Object fromValue = convertCustomPropertySetValue(fromCustomPropertySetValues, propertySpec);
+        if (!toValue.equals(fromValue)) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(propertySpec.getDisplayName());
             auditLogChange.setType(convertCustomPropertySetType(propertySpec));
-            auditLogChange.setValue(convertCustomPropertySetValue(toCustomPropertySetValues, propertySpec));
-            auditLogChange.setPreviousValue(convertCustomPropertySetValue(fromCustomPropertySetValues, propertySpec));
+            auditLogChange.setValue(toValue);
+            auditLogChange.setPreviousValue(fromValue);
             return Optional.of(auditLogChange);
         }
         return Optional.empty();
@@ -151,7 +152,7 @@ public class AuditTrailCustomPropertySetDecoder extends AbstractDeviceAuditDecod
     private Object convertCustomPropertySetValue(CustomPropertySetValues value, PropertySpec propertySpec) {
         String propertyName = propertySpec.getName();
         if (propertySpec.getValueFactory() instanceof InstantFactory) {
-            return value.getProperty(propertyName);
+            return Optional.ofNullable(value.getProperty(propertyName)).orElseGet(() -> Instant.EPOCH);
         }
         return Optional.ofNullable(value.getProperty(propertyName))
                 .map(Object::toString)
