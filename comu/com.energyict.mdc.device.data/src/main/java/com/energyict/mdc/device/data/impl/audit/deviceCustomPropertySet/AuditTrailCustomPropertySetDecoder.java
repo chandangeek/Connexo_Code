@@ -60,7 +60,8 @@ public class AuditTrailCustomPropertySetDecoder extends AbstractDeviceAuditDecod
         registeredCustomPropertySet
                 .filter(set -> set.getCustomPropertySet().isVersioned())
                 .ifPresent(set -> {
-                    CustomPropertySetValues customPropertySetValues = getCustomPropertySetValues(getCustomPropertySet().get(), device.get(), getAuditTrailReference().getModTimeEnd());
+                    CustomPropertySetValues customPropertySetValues = getCustomPropertySetValues(getCustomPropertySet().get(), device.get(),
+                            isContextObsolete() ? getAuditTrailReference().getModTimeEnd().minusMillis(1) : getAuditTrailReference().getModTimeEnd());
                     if (customPropertySetValues.getEffectiveRange().hasLowerBound()) {
                         builder.put("startTime", customPropertySetValues.getEffectiveRange().lowerEndpoint());
                     }
@@ -114,7 +115,8 @@ public class AuditTrailCustomPropertySetDecoder extends AbstractDeviceAuditDecod
         if (registeredCustomPropertySet.getCustomPropertySet().isVersioned()) {
             customPropertySetValues = customPropertySetService.getUniqueHistoryValuesForVersion(registeredCustomPropertySet.getCustomPropertySet(), device, at, at);
             if (customPropertySetValues.isEmpty()) {
-                customPropertySetValues = customPropertySetService.getUniqueValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, at);
+                customPropertySetValues = customPropertySetService.getUniqueValuesModifiedBetweenFor(registeredCustomPropertySet.getCustomPropertySet(), device, getAuditTrailReference().getModTimeStart(), getAuditTrailReference()
+                        .getModTimeEnd());
             }
         } else {
             customPropertySetValues = customPropertySetService.getUniqueHistoryValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, at);
@@ -151,7 +153,9 @@ public class AuditTrailCustomPropertySetDecoder extends AbstractDeviceAuditDecod
         if (propertySpec.getValueFactory() instanceof InstantFactory) {
             return value.getProperty(propertyName);
         }
-        return value.getProperty(propertyName).toString();
+        return Optional.ofNullable(value.getProperty(propertyName))
+                .map(Object::toString)
+                .orElseGet(() -> "");
     }
 
     private String convertCustomPropertySetType(PropertySpec propertySpec) {

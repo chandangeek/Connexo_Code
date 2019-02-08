@@ -140,7 +140,7 @@ Ext.define('Mdc.audit.controller.Audit', {
                 rendererLink = isRemoved == true ? value : '<a href="#/devices/' + record.get('auditReference').name + '/attributes">' + value + '</a>';
                 break;
             case 'DEVICE_CUSTOM_ATTRIBUTES':
-                rendererLink = isRemoved == true ? value : '<a href="#/devices/' + record.get('auditReference').name + '/attributes">' + me.formatDeviceCustomAttributeContext(record, value) + '</a>';
+                rendererLink = isRemoved == true ? me.formatDeviceCustomAttributeContext(record, value) : '<a href="#/devices/' + record.get('auditReference').name + '/attributes">' + me.formatDeviceCustomAttributeContext(record, value) + '</a>';
                 break;
             default:
                 rendererLink = value;

@@ -201,6 +201,25 @@ class ActiveCustomPropertySet {
     }
 
     @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> Optional<T> getVersionedValuesEntityModifiedBetweenFor(D businessObject, boolean ignorePrivileges, Instant start, Instant end, Object... additionalPrimaryKeyColumnValues) {
+        if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            Condition condition =
+                    this.addAdditionalPrimaryKeyColumnConditionsTo(
+                            where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
+                                    .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
+                                    .and(where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isGreaterThanOrEqual(start))
+                                    .and(where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isLessThanOrEqual(end)),
+                            additionalPrimaryKeyColumnValues);
+            return this.getValuesEntityFor(
+                    condition,
+                    () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " modified between " + start + " and " + end + " against business object " + businessObject);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getVersionedValuesHistoryEntityFor(D businessObject, boolean ignorePrivileges, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyColumnValues) {
         if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
             this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
@@ -208,9 +227,7 @@ class ActiveCustomPropertySet {
                     .at(at)
                     .find(Arrays.asList(
                             Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject),
-                            Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet),
-                            Operator.LESSTHANOREQUAL.compare(HardCodedFieldNames.INTERVAL.javaName() + ".start", effectiveTimestamp.toEpochMilli()),
-                            Operator.GREATERTHAN.compare(HardCodedFieldNames.INTERVAL.javaName() + ".end", effectiveTimestamp.toEpochMilli())))
+                            Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet)))
 
                     .stream()
                     .map(o -> ((JournalEntry<T>) o).get()).findFirst();

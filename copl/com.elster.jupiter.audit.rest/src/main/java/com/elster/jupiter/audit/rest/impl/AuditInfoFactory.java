@@ -5,6 +5,7 @@
 package com.elster.jupiter.audit.rest.impl;
 
 import com.elster.jupiter.audit.AuditDomainContextType;
+import com.elster.jupiter.audit.AuditOperationType;
 import com.elster.jupiter.audit.AuditTrail;
 import com.elster.jupiter.audit.rest.AuditInfo;
 import com.elster.jupiter.nls.Thesaurus;
@@ -21,8 +22,9 @@ public class AuditInfoFactory {
 
     public AuditInfo from(AuditTrail audit, Thesaurus thesaurus) {
         AuditInfo auditInfo = new AuditInfo();
-        AuditDomainContextType auditDomainContextType = audit.getContext();/*(audit.getOperation() == AuditOperationType.UPDATE) ?
-                audit.getContext() : AuditDomainContextType.NODOMAIN;*/
+        AuditDomainContextType auditDomainContextType =
+                (audit.getContext() == AuditDomainContextType.DEVICE_ATTRIBUTES) && (audit.getOperation() == AuditOperationType.DELETE) ?
+                        AuditDomainContextType.NODOMAIN : audit.getContext();
         auditInfo.id = audit.getId();
         auditInfo.domain = thesaurus.getString(audit.getDomain().name(), audit.getDomain().name());
         auditInfo.context = thesaurus.getString(auditDomainContextType.type(), getDefultTranslation(auditDomainContextType));
