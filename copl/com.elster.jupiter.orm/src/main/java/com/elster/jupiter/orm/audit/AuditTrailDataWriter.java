@@ -75,13 +75,9 @@ public class AuditTrailDataWriter<T> {
             List<DomainContextIdentifier> contextAuditIdentifiers = getContextAuditIdentifiers();
             resolveIncompleteContextIdentifier(object);
             contextAuditIdentifiers.stream()
-                    .filter(contextIdentifierEntry -> {
-                        return
-                                (contextIdentifierEntry.getDomain().compareToIgnoreCase(tableAudit.getDomain()) == 0) &&
-                                        (contextIdentifierEntry.getContext().compareToIgnoreCase(tableAudit.getContext()) == 0) &&
-                                        (contextIdentifierEntry.getPkDomainColumn() == getPkColumnByIndex(pkDomainColumns, 0)) &&
-                                        (contextIdentifierEntry.getPkContextColumn() == getPkColumnByIndex(pkContextColumns, 0));
-                    })
+                    .filter(contextIdentifierEntry -> (contextIdentifierEntry.getDomainContext() == tableAudit.getDomainContext()) &&
+                            (contextIdentifierEntry.getPkDomainColumn() == getPkColumnByIndex(pkDomainColumns, 0)) &&
+                            (contextIdentifierEntry.getPkContextColumn() == getPkColumnByIndex(pkContextColumns, 0)))
                     .findFirst()
                     .map(domainContextIdentifier -> {
                         try {
@@ -93,11 +89,10 @@ public class AuditTrailDataWriter<T> {
                     .map(DomainContextIdentifier::getId)
                     .orElseGet(() -> {
                         try {
-                            if (isTouch == false) {
+                            if (!isTouch) {
                                 Long nextVal = getNext(connection, "ADT_AUDIT_TRAILID");
                                 updateContextAuditIdentifiers(new DomainContextIdentifier().setId(nextVal)
-                                        .setDomain(tableAudit.getDomain())
-                                        .setContext(tableAudit.getContext())
+                                        .setDomainContext(tableAudit.getDomainContext())
                                         .setPkDomainColumn(getPkColumnByIndex(pkDomainColumns, 0))
                                         .setOperation(operation.ordinal())
                                         .setObject(object)
@@ -136,14 +131,12 @@ public class AuditTrailDataWriter<T> {
         try (Connection connection = getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(auditLog)) {
 
-                //ID, DOMAIN, CONTEXT, MODTIMESTART, MODTIMEEND, TABLENAME, PKCOLUMN, OPERATION, CREATETIME, USERNAME
+                //IID, DOMAIN, MODTIMESTART, MODTIMEEND, PKDOMAIN, PKCONTEXT, OPERATION, CREATETIME, USERNAME
                 int index = 1;
                 statement.setLong(index++, nextVal); // ID
-                statement.setString(index++, tableAudit.getDomain()); // domain
-                statement.setString(index++, tableAudit.getContext()); // context
+                statement.setLong(index++, tableAudit.getDomainContext()); // DOMAINCONTEXT
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMESTART
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMEEND
-                statement.setString(index++, tableAudit.getTouchTable().getName()); // table name
                 statement.setLong(index++, getPkColumnByIndex(pkDomainColumns, 0));
                 statement.setLong(index++, getPkColumnByIndex(pkContextColumns, 0));
                 statement.setLong(index++, operation.ordinal()); // operation
@@ -161,7 +154,7 @@ public class AuditTrailDataWriter<T> {
             try (PreparedStatement statement = connection.prepareStatement(auditLog)) {
                 int index = 1;
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMEEND
-                statement.setLong(index++, getPkColumnBy(domainContextIdentifier)); // PKCOLUMN
+                statement.setLong(index++, getPkColumnBy(domainContextIdentifier)); // PKCONTEXT
                 statement.setLong(index++, nextVal); // ID
                 statement.execute();
             }

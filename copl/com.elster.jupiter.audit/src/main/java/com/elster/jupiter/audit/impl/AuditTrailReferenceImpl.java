@@ -5,7 +5,6 @@
 package com.elster.jupiter.audit.impl;
 
 import com.elster.jupiter.audit.AuditDomainContextType;
-import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditTrail;
 import com.elster.jupiter.audit.AuditTrailReference;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
@@ -14,8 +13,7 @@ import java.time.Instant;
 
 public class AuditTrailReferenceImpl implements AuditTrailReference {
 
-    private AuditDomainType domain;
-    private AuditDomainContextType context;
+    private AuditDomainContextType domainContext;
     private Instant modTimeStart;
     private Instant modTimeEnd;
     private String tableName;
@@ -29,8 +27,7 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
 
     AuditTrailReferenceImpl from(AuditTrail auditTrail) {
         AuditTrailReferenceImpl atr = new AuditTrailReferenceImpl();
-        atr.setDomain(auditTrail.getDomain());
-        atr.setContext(auditTrail.getContext());
+        atr.setDomainContext(auditTrail.getDomainContext());
         atr.setModTimeStart(auditTrail.getModTimeStart());
         atr.setModTimeEnd(auditTrail.getModTimeEnd());
         atr.setPkDomain(auditTrail.getPkDomain());
@@ -40,13 +37,8 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
     }
 
     @Override
-    public AuditDomainType getDomain() {
-        return domain;
-    }
-
-    @Override
-    public AuditDomainContextType getContext() {
-        return context;
+    public AuditDomainContextType getDomainContext() {
+        return domainContext;
     }
 
     @Override
@@ -79,13 +71,10 @@ public class AuditTrailReferenceImpl implements AuditTrailReference {
         return operation;
     }
 
-    public void setDomain(AuditDomainType domain) {
-        this.domain = domain;
+    public void setDomainContext(AuditDomainContextType domainContext) {
+        this.domainContext = domainContext;
     }
 
-    public void setContext(AuditDomainContextType context) {
-        this.context = context;
-    }
 
     public void setModTimeStart(Instant modTimeStart) {
         this.modTimeStart = modTimeStart;

@@ -14,21 +14,17 @@ import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class TableAuditImpl implements TableAudit {
 
     List<ForeignKeyConstraint> foreignKeyConstraints = new ArrayList<ForeignKeyConstraint>();
-    private String domain;
-    private String context;
+    private Integer domainContext;
     private Optional<String> reverseReferenceMap = Optional.empty();
     private Optional<String> domainForeignKey = Optional.empty();
-    private Optional<String> contextForeignKey = Optional.empty();
     private Optional<String> contextReferenceColumn = Optional.empty();
     private final Reference<TableImpl<?>> table = ValueReference.absent();
 
@@ -47,13 +43,8 @@ public class TableAuditImpl implements TableAudit {
     }
 
     @Override
-    public String getDomain() {
-        return domain;
-    }
-
-    @Override
-    public String getContext() {
-        return context;
+    public Integer getDomainContext() {
+        return domainContext;
     }
 
     @Override
@@ -98,26 +89,6 @@ public class TableAuditImpl implements TableAudit {
     }
 
     @Override
-    public List<String> getReferences(Object object) {
-        if (foreignKeyConstraints.size() == 0) {
-            return Collections.singletonList(getReference(getTable().getPrimaryKeyColumns(), object));
-        }
-        try {
-            List<String> objectReferences = new ArrayList<>();
-            for (ForeignKeyConstraint foreignKeyConstraint : foreignKeyConstraints) {
-                String fieldName = foreignKeyConstraint.getFieldName();
-                object = ((Reference<?>) (((TableImpl) foreignKeyConstraint.getReferencedTable()).getDomainMapper().getField(object.getClass(), fieldName)
-                        .get(object))).getOptional().get();
-
-                objectReferences.add(getReference(foreignKeyConstraint.getReferencedTable().getPrimaryKeyColumns(), object));
-            }
-            return objectReferences;
-        } catch (IllegalAccessException ex) {
-            throw new IllegalStateException("");
-        }
-    }
-
-    @Override
     public Optional<Long> getReverseReferenceMap(Object object) {
         try {
             if (reverseReferenceMap.isPresent() && reverseReferenceMap.get().length() != 0) {
@@ -129,27 +100,6 @@ public class TableAuditImpl implements TableAudit {
             throw new IllegalStateException("");
         }
         return Optional.empty();
-    }
-
-    @Override
-    public String getDomainReferences(Object object) {
-        return getObjectReference(object, domainForeignKey);
-    }
-
-    @Override
-    public Object getDomainShortReference(Object object) {
-        return getDomainShortReference(object, domainForeignKey);
-    }
-
-    @Override
-    public String getContextReferences(Object object) {
-        return getObjectReference(object, contextForeignKey);
-    }
-
-    @Override
-    public String getObjectIndentifier(Object object) {
-        Stream<Column> columns = Stream.concat(getTable().getPrimaryKeyColumns().stream(), Arrays.stream(getTable().getVersionColumns()));
-        return getReference(columns.collect(Collectors.toList()), object);
     }
 
     private String getReference(List<? extends Column> columns, Object object) {
@@ -241,12 +191,6 @@ public class TableAuditImpl implements TableAudit {
         }
 
         @Override
-        public Builder domainReferences(ForeignKeyConstraint foreignKeyConstraint) {
-            tableAudit.foreignKeyConstraints.add(foreignKeyConstraint);
-            return this;
-        }
-
-        @Override
         public Builder domainReferences(String... foreignKeyConstraintList) {
             Table<?> table = tableAudit.getTable();
             for (String foreignKeyConstraint : foreignKeyConstraintList) {
@@ -257,6 +201,10 @@ public class TableAuditImpl implements TableAudit {
                         .orElseThrow(() -> new IllegalArgumentException("Cannot locate " + foreignKeyConstraint + " foreign key constraint in " + tableName + " table"));
                 tableAudit.foreignKeyConstraints.add(fkc);
                 table = fkc.getReferencedTable();
+            }
+
+            if (foreignKeyConstraintList.length!=0) {
+                tableAudit.domainForeignKey = Optional.of(foreignKeyConstraintList[foreignKeyConstraintList.length - 1]);
             }
             return this;
         }
@@ -278,26 +226,8 @@ public class TableAuditImpl implements TableAudit {
         }
 
         @Override
-        public Builder domain(String domain) {
-            tableAudit.domain = domain;
-            return this;
-        }
-
-        @Override
-        public Builder context(String subContext) {
-            tableAudit.context = subContext;
-            return this;
-        }
-
-        @Override
-        public TableAudit.Builder touchDomain(String domainForeignKey) {
-            tableAudit.domainForeignKey = Optional.of(domainForeignKey);
-            return this;
-        }
-
-        @Override
-        public TableAudit.Builder touchContext(String contextForeignKey) {
-            tableAudit.contextForeignKey = Optional.of(contextForeignKey);
+        public Builder domainContext(Integer domainContext) {
+            tableAudit.domainContext = domainContext;
             return this;
         }
 

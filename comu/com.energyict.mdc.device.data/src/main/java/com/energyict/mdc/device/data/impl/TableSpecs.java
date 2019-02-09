@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.metering.EndDevice;
@@ -165,12 +166,9 @@ public enum TableSpecs {
             table.unique("UK_DDC_DEVICE_NAME").on(name).since(version(10, 2, 1)).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
             table.audit(DDC_DEVICE.name())
-                    .domain("DEVICE")
-                    .context("DEVICE_ATTRIBUTES")
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
                     .domainReferences("FK_DDC_DEVICE_ENDDEVICE")
                     .reverseReferenceMap("amrId")
-                    .touchDomain("FK_DDC_DEVICE_ENDDEVICE")
-                    .touchContext("")
                     .build();
         }
     },
@@ -194,11 +192,8 @@ public enum TableSpecs {
                     .composition()
                     .add();
             table.audit(DDC_DEVICEPROTOCOLPROPERTY.name())
-                    .domain("DEVICE")
-                    .context("GENERAL_ATTRIBUTES")
+                    .domainContext(AuditDomainContextType.GENERAL_ATTRIBUTES.ordinal())
                     .domainReferences("FK_DDC_DEVICEPROTPROP_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
-                    .touchDomain("FK_DDC_DEVICE_ENDDEVICE")
-                    .touchContext("")
                     .build();
         }
     },

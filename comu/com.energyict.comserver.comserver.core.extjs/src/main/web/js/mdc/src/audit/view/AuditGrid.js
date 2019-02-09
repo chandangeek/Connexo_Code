@@ -35,7 +35,7 @@ Ext.define('Mdc.audit.view.AuditGrid', {
             {
                 header: Uni.I18n.translate('audit.entity', 'MDC', 'Entity'),
                 dataIndex: 'context',
-                flex: 5,
+                flex: 3,
                 renderer: function (value, metaData, record) {
                     return me.contextConvertorFn.call(me.scopeFn, value, record);
                 }

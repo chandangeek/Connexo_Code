@@ -5,8 +5,7 @@ import com.elster.jupiter.orm.TableAudit;
 public class DomainContextIdentifier {
 
     private Long id;
-    private String domain;
-    private String context;
+    private Integer domainContext;
     private String reference;
     private int operation;
     private Object object;
@@ -21,13 +20,8 @@ public class DomainContextIdentifier {
         return this;
     }
 
-    public DomainContextIdentifier setDomain(String domain) {
-        this.domain = domain;
-        return this;
-    }
-
-    public DomainContextIdentifier setContext(String context) {
-        this.context = context;
+    public DomainContextIdentifier setDomainContext(Integer domainContext) {
+        this.domainContext = domainContext;
         return this;
     }
 
@@ -65,12 +59,8 @@ public class DomainContextIdentifier {
         return id;
     }
 
-    public String getDomain() {
-        return domain;
-    }
-
-    public String getContext() {
-        return context;
+    public Integer getDomainContext() {
+        return domainContext;
     }
 
     public String getReference() {

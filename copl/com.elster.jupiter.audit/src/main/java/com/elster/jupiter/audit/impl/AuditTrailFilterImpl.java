@@ -15,6 +15,7 @@ import com.elster.jupiter.util.conditions.Where;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,7 @@ public class AuditTrailFilterImpl implements AuditTrailFilter {
 
     private Instant changedOnFrom = Instant.EPOCH;
     private Instant changedOnTo = Instant.EPOCH;
-    private List<String> categories = new ArrayList<>();
+    private List<AuditDomainContextType> categories = new ArrayList<>();
     private List<String> users = new ArrayList<>();
 
     private Condition condition = Condition.TRUE;
@@ -40,7 +41,7 @@ public class AuditTrailFilterImpl implements AuditTrailFilter {
             condition = condition.and(Where.where(AuditTrailImpl.Field.CREATETIME.fieldName()).isLessThanOrEqual(changedOnTo));
         }
         if (categories.size() > 0) {
-            condition = condition.and(Where.where(AuditTrailImpl.Field.DOMAIN.fieldName()).in(categories));
+            condition = condition.and(Where.where(AuditTrailImpl.Field.DOMAINCONTEXT.fieldName()).in(categories));
         }
         if (users.size() > 0) {
             condition = condition.and(Where.where(AuditTrailImpl.Field.USERNAME.fieldName()).in(users));
@@ -60,7 +61,11 @@ public class AuditTrailFilterImpl implements AuditTrailFilter {
 
     @Override
     public void setCategories(List<String> categories) {
-        this.categories.addAll(categories);
+        this.categories.addAll(
+                Arrays.stream(AuditDomainContextType.values())
+                    .filter(auditDomainContextType -> categories.contains(auditDomainContextType.domainType().name()))
+                    //.map(AuditDomainContextType::ordinal)
+                    .collect(Collectors.toList()));
     }
 
     @Override
@@ -69,14 +74,13 @@ public class AuditTrailFilterImpl implements AuditTrailFilter {
     }
 
     private AuditTrailFilter setContext(ThreadPrincipalService threadPrincipalService, AuditService auditService) {
-
-        List<String> domainContexts = ((AuditServiceImpl) auditService).getAuditTrailDecoderHandles().stream()
+        List<AuditDomainContextType> domainContexts = ((AuditServiceImpl) auditService).getAuditTrailDecoderHandles().stream()
                 .filter(auditTrailDecoderHandle ->
                         hasAtLeastOnePrivileges(auditTrailDecoderHandle.getPrivileges(), threadPrincipalService))
                 .map(AuditTrailDecoderHandle::getAuditDomainContextType)
-                .map(AuditDomainContextType::name)
+                //.map(AuditDomainContextType::ordinal)
                 .collect(Collectors.toList());
-        condition = condition.and(Where.where(AuditTrailImpl.Field.CONTEXT.fieldName()).in(domainContexts));
+        condition = condition.and(Where.where(AuditTrailImpl.Field.DOMAINCONTEXT.fieldName()).in(domainContexts));
         return this;
     }
 

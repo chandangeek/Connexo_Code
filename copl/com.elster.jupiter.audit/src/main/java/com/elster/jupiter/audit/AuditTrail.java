@@ -19,9 +19,7 @@ public interface AuditTrail {
 
     Instant getChangedOn();
 
-    AuditDomainType getDomain();
-
-    AuditDomainContextType getContext();
+    AuditDomainContextType getDomainContext();
 
     String getUser();
 

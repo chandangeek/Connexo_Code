@@ -13,9 +13,7 @@ import java.time.Instant;
 @ProviderType
 public interface AuditTrailReference {
 
-    AuditDomainType getDomain();
-
-    AuditDomainContextType getContext();
+    AuditDomainContextType getDomainContext();
 
     Instant getModTimeStart();
 

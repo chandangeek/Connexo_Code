@@ -6,6 +6,7 @@
 
 package com.elster.jupiter.audit.impl;
 
+import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.AuditTrail;
 import com.elster.jupiter.audit.AuditTrailDecoderHandle;
@@ -25,6 +26,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -40,6 +42,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(
         name = "com.elster.jupiter.audit",
@@ -87,7 +91,7 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
             upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME),
                     dataModel,
                     InstallerImpl.class,
-                    Collections.emptyMap());
+                    ImmutableMap.of(version(10, 6), UpgraderV10_6.class));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -159,11 +163,9 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
         auditTrailDecoderHandles.remove(auditTrailDecoderHandle);
     }
 
-    public List<AuditTrailDecoderHandle> getAuditTrailDecoderHandles(String domain, String context) {
+    public List<AuditTrailDecoderHandle> getAuditTrailDecoderHandles(AuditDomainContextType domainContext) {
         return auditTrailDecoderHandles.stream()
-                .filter(auditDecoderHandleEntry ->
-                        (auditDecoderHandleEntry.getAuditDomainContextType().domainType().name().compareToIgnoreCase(domain) == 0) &&
-                                (auditDecoderHandleEntry.getAuditDomainContextType().name().compareToIgnoreCase(context) == 0))
+                .filter(auditDecoderHandleEntry -> auditDecoderHandleEntry.getAuditDomainContextType() == domainContext)
                 .collect(Collectors.toList());
     }
 
