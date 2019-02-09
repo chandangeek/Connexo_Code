@@ -11,7 +11,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
     WRONG_METERMECHANISM_VALUE_EXCEPTION(1, Keys.WRONG_METERMECHANISM_VALUE_EXCEPTION, "''{0}'' attribute value of meter is not correct"),
-    FIELD_IS_REQUIRED(2, Keys.REQUIRED_FIELD, "This field is required", Level.SEVERE),;
+    FIELD_IS_REQUIRED(2, Keys.REQUIRED_FIELD, "This field is required", Level.SEVERE),
+    FIELD_TOO_LONG(3, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters");
 
 
     private final int number;
@@ -58,5 +59,6 @@ public enum MessageSeeds implements MessageSeed {
     public static final class Keys {
         public static final String WRONG_METERMECHANISM_VALUE_EXCEPTION = "IncorrectValuesForCustomValidations";
         public static final String REQUIRED_FIELD = "RequiredField";
+        public static final String FIELD_TOO_LONG = "FieldTooLong";
     }
 }

@@ -90,7 +90,7 @@ public class DeviceValidationImplTest {
     @Before
     public void setUp() {
         when(device.getId()).thenReturn(666L);
-        when(device.getMeter()).thenReturn(meterReference);
+        when(device.getMeterReference()).thenReturn(meterReference);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getValidationRuleSets()).thenReturn(Arrays.asList(ruleSet1, ruleSet2));
         when(rule1.getReadingTypes()).thenReturn(Collections.singleton(readingType1));
@@ -100,7 +100,7 @@ public class DeviceValidationImplTest {
         doReturn(Collections.singletonList(readingType1)).when(koreChannel3).getReadingTypes();
         doReturn(Collections.singletonList(readingType2)).when(koreChannel4).getReadingTypes();
 
-        when(device.getMeter()).thenReturn(meterReference);
+        when(device.getMeterReference()).thenReturn(meterReference);
         when(meterReference.get()).thenReturn(meter);
         when(meterReference.isPresent()).thenReturn(true);
         when(device.findKoreChannel(channel, NOW)).thenReturn(Optional.of(koreChannel));

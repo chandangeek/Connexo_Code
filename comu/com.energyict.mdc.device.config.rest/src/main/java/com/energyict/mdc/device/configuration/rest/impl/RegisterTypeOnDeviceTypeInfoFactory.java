@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.energyict.mdc.masterdata.MeasurementType;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,7 +46,7 @@ public class RegisterTypeOnDeviceTypeInfoFactory {
         info.isLinkedByActiveRegisterConfig = isLinkedByActiveRegisterSpec;
         info.isLinkedByInactiveRegisterConfig = isLinkedByInactiveRegisterSpec;
         if (registeredCustomPropertySet.isPresent()) {
-            info.customPropertySet = new DeviceTypeCustomPropertySetInfo(registeredCustomPropertySet.get());
+            info.customPropertySet = DeviceTypeCustomPropertySetInfo.from(Collections.singletonList(registeredCustomPropertySet.get())).get(0);
         }
         return info;
     }

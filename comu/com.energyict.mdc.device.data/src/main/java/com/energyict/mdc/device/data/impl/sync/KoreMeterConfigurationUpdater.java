@@ -74,7 +74,7 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
     }
 
     private Meter.MeterConfigurationBuilder meterconfigurationBuilderForRegisters() {
-        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter()
+        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeterReference()
                 .get()
                 .startingConfigurationOn(getStart());
         createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder);
@@ -93,7 +93,7 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
     }
 
     private Meter.MeterConfigurationBuilder meterconfigurationBuilderForChannels() {
-        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter()
+        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeterReference()
                 .get()
                 .startingConfigurationOn(getStart());
         getDevice().getDeviceConfiguration().getChannelSpecs().stream()

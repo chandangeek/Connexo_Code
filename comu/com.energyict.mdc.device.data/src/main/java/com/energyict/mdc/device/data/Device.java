@@ -10,6 +10,7 @@ import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -66,6 +67,8 @@ import java.util.function.Consumer;
 
 @ProviderType
 public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, HasName {
+
+    Meter getMeter();
 
     /**
      * Gets the receiver's Channels.

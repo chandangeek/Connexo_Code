@@ -220,4 +220,9 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     public String getDisplayName(TranslationKey key) {
         return this.thesaurus.getFormat(key).format();
     }
+
+    protected boolean isBetweenPeriodMod(Instant instant) {
+        return (instant.isAfter(getAuditTrailReference().getModTimeStart()) || instant.equals(getAuditTrailReference().getModTimeStart())) &&
+                (instant.isBefore(getAuditTrailReference().getModTimeEnd()) || instant.equals(getAuditTrailReference().getModTimeEnd()));
+    }
 }

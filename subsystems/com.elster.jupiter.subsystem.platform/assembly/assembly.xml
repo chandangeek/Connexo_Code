@@ -65,7 +65,7 @@
         </dependencySet>
         <dependencySet>
             <includes>
-                <include>org.apache.tomcat:tomcat:zip</include>
+                <include>org.apache.tomcat:tomcat:zip:connexo</include>
             </includes>
             <scope>provided</scope>
             <outputDirectory>partners</outputDirectory>

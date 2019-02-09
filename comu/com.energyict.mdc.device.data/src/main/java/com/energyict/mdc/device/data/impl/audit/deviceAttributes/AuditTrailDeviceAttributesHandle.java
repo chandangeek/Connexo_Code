@@ -35,6 +35,10 @@ public class AuditTrailDeviceAttributesHandle implements AuditTrailDecoderHandle
     private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
 
+    @SuppressWarnings("unused") // for OSGI
+    public AuditTrailDeviceAttributes() {
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;

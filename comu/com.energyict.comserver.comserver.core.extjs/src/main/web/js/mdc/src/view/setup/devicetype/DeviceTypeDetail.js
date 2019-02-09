@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
     ],
     deviceTypeId: null,
     purposeStore: null,
+    router: null,
 
     initComponent: function () {
         var me = this;
@@ -37,7 +38,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                         itemId: 'device-type-detail-action-menu',
                         privileges: Mdc.privileges.DeviceType.admin,
                         menu: {
-                            xtype: 'device-type-action-menu'
+                            xtype: 'device-type-action-menu',
+                            router: me.router
                         }
                     }
                 ]
@@ -122,6 +124,13 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                             return item ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
                                         },
                                         readOnly: true
+                                    },
+                                    {
+                                        xtype: 'custom-attribute-sets-placeholder-form',
+                                        itemId: 'custom-attribute-sets-placeholder-form-id',
+                                        actionMenuXtype: 'device-type-action-menu',
+                                        attributeSetType: 'devicetype',
+                                        router: me.router
                                     }
                                 ]
                             },
@@ -207,7 +216,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     }
                                 ]
                             }
-
                         ]
                     }
                 ]
