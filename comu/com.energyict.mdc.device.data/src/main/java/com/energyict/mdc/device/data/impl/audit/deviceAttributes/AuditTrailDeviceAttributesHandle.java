@@ -36,7 +36,7 @@ public class AuditTrailDeviceAttributesHandle implements AuditTrailDecoderHandle
     private volatile Thesaurus thesaurus;
 
     @SuppressWarnings("unused") // for OSGI
-    public AuditTrailDeviceAttributes() {
+    public AuditTrailDeviceAttributesHandle() {
     }
 
     @Reference

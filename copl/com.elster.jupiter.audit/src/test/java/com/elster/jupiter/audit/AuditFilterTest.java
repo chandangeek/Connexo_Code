@@ -71,27 +71,27 @@ public class AuditFilterTest {
         AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, auditService);
         auditTrailFilter.setChangedOnFrom(CHANGED_ON_FROM);
         auditTrailFilter.setChangedOnTo(CHANGED_ON_TO);
-        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("((context IN [%s]) AND createTime >= ?  AND createTime <= ? )", CONTEXT));
+        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("((domainContext IN [%s]) AND createTime >= ?  AND createTime <= ? )", CONTEXT));
     }
 
     @Test
     public void testAuditFilterWithCategories() {
         AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, auditService);
         auditTrailFilter.setCategories(Collections.singletonList(CATEGORY));
-        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("((context IN [%s]) AND (domain IN [%s]))", CONTEXT, CATEGORY));
+        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("(domainContext IN [%s])", CONTEXT));
     }
 
     @Test
     public void testAuditFilterWithChangedBy() {
         AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, auditService);
         auditTrailFilter.setChangedBy(Collections.singletonList(USER));
-        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("((context IN [%s]) AND (userName IN [%s]))", CONTEXT, USER));
+        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("((domainContext IN [%s]) AND (userName IN [%s]))", CONTEXT, USER));
     }
 
     @Test
     public void testZoneFilterWithNullZoneTypes() {
         AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, auditService);
-        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("(context IN [%s])", CONTEXT));
+        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("(domainContext IN [%s])", CONTEXT));
     }
 
 }
