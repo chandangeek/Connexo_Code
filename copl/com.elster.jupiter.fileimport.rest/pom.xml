@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>0.0.2-Hydra-SNAPSHOT</version>
+        <version>1.0.0-Hydra-SNAPSHOT</version>
     </parent>
     <artifactId>fileimport.rest</artifactId>
     <packaging>bundle</packaging>
