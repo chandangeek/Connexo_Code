@@ -93,8 +93,9 @@ public class DataMapperReader<T> implements TupleParser<T> {
         return findJournal(getPrimaryKeyFragments(keyValue), new Order[]{Order.descending(TableImpl.JOURNALTIMECOLUMNNAME)}, LockMode.NONE);
     }
 
-    List<JournalEntry<T>> findJournals(List<Comparison> comparisons) throws SQLException {
-        return findJournalComparison(comparisons, new Order[]{Order.descending(TableImpl.JOURNALTIMECOLUMNNAME)}, LockMode.NONE);
+    List<JournalEntry<T>> findJournals(Instant instant, List<Comparison> comparisons) throws SQLException {
+        return (instant == Instant.EPOCH) ? findJournalComparison(comparisons, new Order[]{Order.descending(TableImpl.JOURNALTIMECOLUMNNAME)}, LockMode.NONE) :
+                findJournalComparison(instant, comparisons, new Order[]{Order.descending(TableImpl.JOURNALTIMECOLUMNNAME)}, LockMode.NONE);
     }
 
     List<JournalEntry<T>> findJournals(Instant instant, Map<String, Object> valueMap) throws SQLException {
@@ -219,6 +220,29 @@ public class DataMapperReader<T> implements TupleParser<T> {
     private List<T> find(List<SqlFragment> fragments, Order[] orders, LockMode lockMode, MACEnforcementMode macEnforcementMode) throws SQLException {
         SqlBuilder builder = selectSql(fragments, orders, lockMode);
         return doFind(fragments, builder, macEnforcementMode);
+    }
+
+    private List<JournalEntry<T>> findJournalComparison(Instant instant, List<Comparison> comparisons, Order[] orders, LockMode lockMode) throws SQLException {
+
+        List<SqlFragment> fragments = new ArrayList<>();
+        getMapperType().addSqlFragment(fragments, dataMapper.getApi(), getAlias());
+
+        comparisons.forEach(comparison -> addFragments(fragments, comparison));
+
+        fragments.add(new SqlFragment() {
+            @Override
+            public int bind(PreparedStatement statement, int index) throws SQLException {
+                statement.setLong(index++, instant.toEpochMilli());
+                statement.setLong(index++, instant.toEpochMilli());
+                return index;
+            }
+
+            @Override
+            public String getText() {
+                return TableImpl.MODTIMECOLUMNAME + " <= ? and " + TableImpl.JOURNALTIMECOLUMNNAME + " > ? ";
+            }
+        });
+        return findJournal(fragments, orders, lockMode);
     }
 
     private List<JournalEntry<T>> findJournalComparison(List<Comparison> comparisons, Order[] orders, LockMode lockMode) throws SQLException {
@@ -526,6 +550,15 @@ public class DataMapperReader<T> implements TupleParser<T> {
             Comparison comparison = value == null ?
                     Operator.ISNULL.compare(fieldName) :
                     Operator.EQUAL.compare(fieldName, value);
+            fragments.add(mapping.asComparisonFragment(comparison, getAlias()));
+        }
+    }
+
+    private void addFragments(List<SqlFragment> fragments, Comparison comparison) {
+        FieldMapping mapping = getTable().getFieldMapping(comparison.getFieldName());
+        if (mapping == null) {
+            throw new IllegalArgumentException("Invalid field " + comparison.getFieldName());
+        } else {
             fragments.add(mapping.asComparisonFragment(comparison, getAlias()));
         }
     }

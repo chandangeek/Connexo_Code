@@ -62,24 +62,24 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
     }
 
     void endCurrentMeterConfigurationIfPresent() {
-        device.getMeter()
+        device.getMeterReference()
                 .get()
                 .getConfiguration(start)
                 .ifPresent(meterConfiguration -> meterConfiguration.endAt(start));
     }
 
     void endCurrentMeterActivationIfPresent() {
-        device.getMeter().get().getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(start));
+        device.getMeterReference().get().getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(start));
     }
 
     protected void obsoleteKoreDevice() {
-        if (device.getMeter().isPresent()) {
-            this.device.getMeter().get().makeObsolete();
+        if (device.getMeterReference().isPresent()) {
+            this.device.getMeterReference().get().makeObsolete();
         }
     }
 
     private Meter.MeterConfigurationBuilder meterconfigurationBuilder() {
-        Meter.MeterConfigurationBuilder meterConfigurationBuilder = device.getMeter()
+        Meter.MeterConfigurationBuilder meterConfigurationBuilder = device.getMeterReference()
                 .get()
                 .startingConfigurationOn(start);
         createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder);
@@ -192,19 +192,19 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         if (newUsagePoint.isPresent()) {
             Optional<MeterRole> meterRole = meterActivation.flatMap(MeterActivation::getMeterRole);
             if (meterRole.isPresent()) {
-                newMeterActivation = device.getMeter().get().activate(newUsagePoint.get(), meterRole.get(), end);
+                newMeterActivation = device.getMeterReference().get().activate(newUsagePoint.get(), meterRole.get(), end);
             } else {
-                newMeterActivation = device.getMeter().get().activate(newUsagePoint.get(), end);
+                newMeterActivation = device.getMeterReference().get().activate(newUsagePoint.get(), end);
             }
         } else if (meterActivation.flatMap(MeterActivation::getUsagePoint).isPresent()) {
-            newMeterActivation = device.getMeter()
+            newMeterActivation = device.getMeterReference()
                     .get()
                     .activate(
                             meterActivation.flatMap(MeterActivation::getUsagePoint).get(),
                             meterActivation.flatMap(MeterActivation::getMeterRole).get(),
                             end);
         } else {
-            newMeterActivation = device.getMeter().get().activate(end);
+            newMeterActivation = device.getMeterReference().get().activate(end);
         }
         meterActivation.flatMap(ma -> ma.getMultiplier(multiplierType))
                 .ifPresent(multiplier -> newMeterActivation.setMultiplier(multiplierType, multiplier));

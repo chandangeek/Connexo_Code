@@ -632,6 +632,8 @@ public class ResourceHelper {
         return device.getDeviceType().getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(registeredCustomPropertySet -> registeredCustomPropertySet.getCustomPropertySet()
+                        .getDomainClass().equals(Device.class))
                 .map(registeredCustomPropertySet -> this.getDeviceCustomPropertySetInfo(registeredCustomPropertySet, device))
                 .collect(Collectors.toList());
     }
@@ -783,7 +785,7 @@ public class ResourceHelper {
         }
         customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
                 .getPropertySpecs(), info), newRange);
-        device.save();
+        device.touchDevice();
     }
 
     @SuppressWarnings("unchecked")
@@ -794,7 +796,7 @@ public class ResourceHelper {
         }
         customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
                 .getPropertySpecs(), info));
-        device.save();
+        device.touchDevice();
     }
 
     @SuppressWarnings("unchecked")
@@ -806,7 +808,7 @@ public class ResourceHelper {
         Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
         customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet()
                 .getPropertySpecs(), info), newRange, effectiveTimestamp);
-        device.save();
+        device.touchDevice();
     }
 
     @SuppressWarnings("unchecked")
@@ -1296,7 +1298,7 @@ public class ResourceHelper {
 
     private String decodeInput(String input) {
         try {
-            input = URLDecoder.decode(input,"UTF-8");
+            input = URLDecoder.decode(input, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new UnderlyingIOException(e);
         }

@@ -34,6 +34,8 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -160,6 +162,7 @@ public class InMemoryIntegrationPersistence {
             this.transactionService = this.injector.getInstance(TransactionService.class);
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(AuditService.class);
+            injector.getInstance(MeteringZoneService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
@@ -257,7 +260,8 @@ public class InMemoryIntegrationPersistence {
                 new CalendarModule(),
                 new WebServicesModule(),
                 new AuditServiceModule(),
-                new FileImportModule()
+                new FileImportModule(),
+                new MeteringZoneModule()
         );
         if (this.deviceConfigurationService == null) {
             modules.add(new DeviceConfigurationModule());

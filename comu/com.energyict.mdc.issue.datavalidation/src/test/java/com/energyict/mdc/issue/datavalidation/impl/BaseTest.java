@@ -36,6 +36,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -193,7 +195,8 @@ public abstract class BaseTest {
                 new ServiceCallModule(),
                 new WebServicesModule(),
                 new AuditServiceModule(),
-                new FileImportModule()
+                new FileImportModule(),
+                new MeteringZoneModule()
         );
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -204,6 +207,7 @@ public abstract class BaseTest {
             injector.getInstance(MasterDataService.class);
             injector.getInstance(AuditService.class);
             injector.getInstance(IssueDataValidationService.class);
+            injector.getInstance(MeteringZoneService.class);
             ctx.commit();
         }
     }
