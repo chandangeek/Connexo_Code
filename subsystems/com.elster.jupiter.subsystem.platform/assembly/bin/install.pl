@@ -42,7 +42,7 @@ my $UPGRADE_PATH;
 my $UPGRADE_OLD_SERVICE_VERSION="";
 
 my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
-my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
+my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL, my $ENABLE_PARTITIONING;
 my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DB_USE_SERVICE_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD, my $FACTS_LICENSE;
 my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
@@ -198,6 +198,7 @@ sub read_config {
                 if ( "$val[0]" eq "jdbcUrl" )                       {$jdbcUrl=$val[1];}
                 if ( "$val[0]" eq "dbUserName" )                    {$dbUserName=$val[1];}
                 if ( "$val[0]" eq "dbPassword" )                    {$dbPassword=$val[1];}
+                if ( "$val[0]" eq "ENABLE_PARTITIONING" )           {$ENABLE_PARTITIONING=$val[1];}
                 if ( "$val[0]" eq "CONNEXO_SERVICE" )               {$CONNEXO_SERVICE=$val[1];}
                 if ( "$val[0]" eq "FACTS_DB_HOST" )                 {$FACTS_DB_HOST=$val[1];}
                 if ( "$val[0]" eq "FACTS_DB_PORT" )                 {$FACTS_DB_PORT=$val[1];}
@@ -241,6 +242,8 @@ sub read_config {
             chomp($dbUserName=<STDIN>);
             print "Please enter the database password: ";
             chomp($dbPassword=<STDIN>);
+            print "Do you want to enable database partitioning? (true/false) ";
+            chomp($ENABLE_PARTITIONING=<STDIN>);
             print "Please enter the Connexo http port: ";
             chomp($CONNEXO_HTTP_PORT=<STDIN>);
             print "Do you want to install Connexo as a daemon: (yes/no) ";
@@ -404,6 +407,7 @@ sub install_connexo {
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
+			add_to_file_if($config_file,"enable.partitioning=$ENABLE_PARTITIONING");
             if ("$ACTIVATE_SSO" eq "yes") {
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME/apps/multisense/index.html");
             } else {
@@ -1300,6 +1304,7 @@ sub perform_upgrade {
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$dbPassword");
+            add_to_file_if($config_file,"enable.partitioning=$ENABLE_PARTITIONING");
             if ("$INSTALL_FACTS" eq "yes") {
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
