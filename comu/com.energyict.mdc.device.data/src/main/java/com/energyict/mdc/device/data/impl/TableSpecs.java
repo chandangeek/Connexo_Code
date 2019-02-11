@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Encrypter;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
@@ -922,13 +923,23 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .map(PassiveCalendarImpl.Fields.CALENDAR.fieldName())
                     .add();
-            table.foreignKey("FK_DDC_PASSCAL_DEVICEMSG")
+            ForeignKeyConstraint oldKeyTypeConstraint = table.foreignKey("FK_DDC_PASSCAL_DEVICEMSG")
                     .on(deviceMessage)
                     .references(DDC_DEVICEMESSAGE.name())
                     .map(PassiveCalendarImpl.Fields.DEVICEMESSAGE.fieldName())
+                    .upTo(Version.version(10, 6))
+                    .add();
+            table.foreignKey("FK_DDC_PASSCAL_DEVICEMSG")
+                    .on(deviceMessage)
+                    .onDelete(CASCADE)
+                    .references(DDC_DEVICEMESSAGE.name())
+                    .map(PassiveCalendarImpl.Fields.DEVICEMESSAGE.fieldName())
+                    .since(Version.version(10, 6))
+                    .previously(oldKeyTypeConstraint)
                     .add();
         }
     },
+
     ADD_DDC_PASSIVE_CALENDAR_TO_DEVICE {
         @Override
         void addTo(DataModel dataModel, Encrypter encrypter) {
