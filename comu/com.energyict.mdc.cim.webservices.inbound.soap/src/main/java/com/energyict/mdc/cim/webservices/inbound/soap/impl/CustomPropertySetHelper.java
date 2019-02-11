@@ -6,14 +6,10 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.cps.OverlapCalculatorBuilder;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.cps.ValuesRangeConflict;
-import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
@@ -22,7 +18,6 @@ import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFau
 import com.energyict.mdc.device.data.Device;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -31,10 +26,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CustomPropertySetHelper {
@@ -42,6 +35,7 @@ public class CustomPropertySetHelper {
 
     private final CustomPropertySetService customPropertySetService;
     private final LoggerUtils loggerUtils;
+    private final CASConflictsSolver casConflictsSolver;
 
     private Clock clock;
 
@@ -51,6 +45,7 @@ public class CustomPropertySetHelper {
         this.customPropertySetService = customPropertySetService;
         this.clock = clock;
         loggerUtils = new LoggerUtils(LOGGER, thesaurus, faultMessageFactory);
+        casConflictsSolver = new CASConflictsSolver(customPropertySetService);
     }
 
     /**
@@ -89,34 +84,6 @@ public class CustomPropertySetHelper {
         return allFaults;
     }
 
-    private Range<Instant> solveConflictsForCreate(Device businessObject, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet,
-                                                   Range<Instant> range) {
-        OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject);
-        for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenCreating(range)) {
-            if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
-                range = getRangeToCreate(conflict.getConflictingRange().lowerEndpoint(), range.hasUpperBound() ? range.upperEndpoint() : Instant.EPOCH);
-            }
-            if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
-                range = getRangeToCreate(range.hasLowerBound() ? range.lowerEndpoint() : Instant.EPOCH,conflict.getConflictingRange().upperEndpoint());
-            }
-        }
-        return range;
-    }
-
-    private Range<Instant> getRangeToCreate(Instant startTime, Instant endTime) {
-        Optional<Instant> startTimeOptional = Optional.ofNullable(startTime);
-        Optional<Instant> endTimeOptional = Optional.ofNullable(endTime);
-        if (notDefinedOrIsInfinite(startTimeOptional) && notDefinedOrIsInfinite(endTimeOptional)) {
-            return Range.all();
-        } else if (notDefinedOrIsInfinite(startTimeOptional) && isNotInfinite(endTimeOptional)) {
-            return Range.lessThan(endTimeOptional.get());
-        } else if (notDefinedOrIsInfinite(endTimeOptional)) {
-            return Range.atLeast(startTimeOptional.get());
-        } else {
-            return Range.closedOpen(startTimeOptional.get(), endTimeOptional.get());
-        }
-    }
-
     /**
      * Sets values for CustomPropertySet on specific device logging detailed error messages if possible
      *
@@ -140,22 +107,10 @@ public class CustomPropertySetHelper {
             CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet = registeredCustomPropertySet.get().getCustomPropertySet();
 
             CustomPropertySetValues values = CustomPropertySetValues.empty();
-            setCASValues(device, newCustomProperySetInfo, serviceCall, faults, customPropertySet, values);
+            setCasValues(device, newCustomProperySetInfo, serviceCall, faults, customPropertySet, values);
             if (faults.isEmpty()) {
                 if (customPropertySet.isVersioned()) {
-                    //TODO what happens of from or end are infinite?
-                    Range<Instant> range = Ranges.closedOpen(newCustomProperySetInfo.getFromDate(), newCustomProperySetInfo.getEndDate());
-
-                    if (newCustomProperySetInfo.getVersionId() == null) {
-                        // add new
-                        range = solveConflictsForCreate(device, customPropertySet, range);
-                        customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range);
-                    } else {
-                        // modify existing TODO
-                        updateExistingVersion(device, customPropertySet, newCustomProperySetInfo, serviceCall, faults);
-//                        customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range,
-//                                newCustomProperySetInfo.getVersionId());
-                    }
+                    handleVersionedCas(device, newCustomProperySetInfo, serviceCall, faults, customPropertySet, values);
                 } else {
                     customPropertySetService.setValuesFor(customPropertySet, device, values);
                 }
@@ -168,7 +123,19 @@ public class CustomPropertySetHelper {
         }
     }
 
-    private void setCASValues(Device device, CustomPropertySetInfo newCustomProperySetInfo,
+    private void handleVersionedCas(Device device, CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall, List<FaultMessage> faults, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet, CustomPropertySetValues values) {
+        Range<Instant> range = Ranges.closedOpen(newCustomProperySetInfo.getFromDate(), newCustomProperySetInfo.getEndDate());
+        if (newCustomProperySetInfo.getVersionId() == null) {
+            range = casConflictsSolver.solveConflictsForCreate(device, customPropertySet, range);
+            customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range);
+        } else {
+            updateExistingVersion(device, customPropertySet, newCustomProperySetInfo, serviceCall, faults);
+//                        customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range,
+//                                newCustomProperySetInfo.getVersionId());
+        }
+    }
+
+    private void setCasValues(Device device, CustomPropertySetInfo newCustomProperySetInfo,
                               ServiceCall serviceCall, List<FaultMessage> faults,
                               CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet,
                               CustomPropertySetValues values) {
@@ -188,8 +155,7 @@ public class CustomPropertySetHelper {
     }
 
     private void updateExistingVersion(Device device, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet,
-                                       CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall, List<FaultMessage> faults)
-            throws FaultMessage {
+                                       CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall, List<FaultMessage> faults){
         Optional<Instant> startTime = Optional.ofNullable(newCustomProperySetInfo.getFromDate());
         Optional<Instant> endTime = Optional.ofNullable(newCustomProperySetInfo.getEndDate());
         Optional<Instant> versionId= Optional.ofNullable(newCustomProperySetInfo.getVersionId());
@@ -199,68 +165,12 @@ public class CustomPropertySetHelper {
             loggerUtils.logSevere(device, faults, serviceCall, MessageSeeds.NO_CUSTOM_ATTRIBUTE_VERSION,
                     DefaultDateTimeFormatters.shortDate().withShortTime().build().format(versionId.get().atZone(clock.getZone())));
         } else {
-            setCASValues(device, newCustomProperySetInfo, serviceCall, faults,  customPropertySet, existingValues);//updateAttributesValues(customPropertySet, newCustomProperySetInfo, existingValues);
+            setCasValues(device, newCustomProperySetInfo, serviceCall, faults,  customPropertySet, existingValues);
             if(!endTime.isPresent()){
                 endTime = Optional.of(Instant.EPOCH);
             }
-            Range<Instant> range = solveConflictsForUpdate(device, customPropertySet, startTime, endTime, versionId, existingValues);
+            Range<Instant> range = casConflictsSolver.solveConflictsForUpdate(device, customPropertySet, startTime, endTime, versionId, existingValues);
             customPropertySetService.setValuesVersionFor(customPropertySet, device, existingValues, range, versionId.get());
-        }
-    }
-
-    private boolean isNotInfinite(Optional<Instant> endTime) {
-        return endTime.isPresent() && !endTime.get().equals(Instant.EPOCH);
-    }
-
-    private boolean notDefinedOrIsInfinite(Optional<Instant> dateTime) {
-        return !dateTime.isPresent() || dateTime.get().equals(Instant.EPOCH);
-    }
-
-    private Range<Instant> solveConflictsForUpdate(Device device, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet,
-                       Optional<Instant> startTime, Optional<Instant> endTime, Optional<Instant> versionId, CustomPropertySetValues existingValues) {
-        Range<Instant> range = getRangeToUpdate(startTime, endTime, existingValues.getEffectiveRange());
-        OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, device);
-
-        for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenUpdating(versionId.get(), range)) {
-            if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
-                range = getRangeToUpdate(Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()), endTime, existingValues.getEffectiveRange());
-            }
-            if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
-                range = getRangeToUpdate(startTime, Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()), existingValues.getEffectiveRange());
-            }
-        }
-        return range;
-    }
-
-    private Range<Instant> getRangeToUpdate(Optional<Instant> startTime, Optional<Instant> endTime, Range<Instant> oldRange) {
-        if (!startTime.isPresent() && !endTime.isPresent()) {
-            return oldRange;
-        } else if (!startTime.isPresent()) {
-            if (oldRange.hasLowerBound()) {
-                if(!endTime.get().equals(Instant.EPOCH)) {
-                    return Range.closedOpen(oldRange.lowerEndpoint(), endTime.get());
-                } else {
-                    return Range.atLeast(oldRange.lowerEndpoint());
-                }
-            } else if (endTime.get().equals(Instant.EPOCH)) {
-                return Range.all();
-            } else {
-                return Range.lessThan(endTime.get());
-            }
-        } else if (!endTime.isPresent()) {
-            if (oldRange.hasUpperBound()) {
-                if(!startTime.get().equals(Instant.EPOCH)) {
-                    return Range.closedOpen(startTime.get(), oldRange.upperEndpoint());
-                } else {
-                    return Range.lessThan(oldRange.upperEndpoint());
-                }
-            } else if (startTime.get().equals(Instant.EPOCH)) {
-                return Range.all();
-            } else {
-                return Range.atLeast(startTime.get());
-            }
-        } else {
-            return getRangeToCreate(startTime.get(), endTime.get());
         }
     }
 
