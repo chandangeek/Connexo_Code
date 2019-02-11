@@ -4,7 +4,9 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.OverlapCalculatorBuilder;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
@@ -38,6 +40,8 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -50,6 +54,8 @@ import static org.mockito.Mockito.when;
 
 public class CreateDeviceTest extends AbstractMockMeterConfig {
     private com.energyict.mdc.device.data.DeviceBuilder deviceBuilder;
+    @Mock
+    private OverlapCalculatorBuilder overlapCalculatorBuilder;
 
     @Before
     public void setUp() throws Exception {
@@ -59,6 +65,9 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
                 .thenReturn(FakeBuilder.initBuilderStub(Collections.emptyList(), Finder.class));
         when(state.getName()).thenReturn(STATE_NAME);
         mockDevice();
+        when(customPropertySetService.calculateOverlapsFor(any(CustomPropertySet.class), any()))
+                .thenReturn(overlapCalculatorBuilder);
+        when(overlapCalculatorBuilder.whenCreating(any(Range.class))).thenReturn(Collections.emptyList());
     }
 
     @Test

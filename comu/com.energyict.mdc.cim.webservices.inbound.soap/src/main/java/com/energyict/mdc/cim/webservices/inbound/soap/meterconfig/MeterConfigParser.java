@@ -117,7 +117,7 @@ public class MeterConfigParser {
         CustomPropertySetInfo info = new CustomPropertySetInfo();
         info.setId(extractCpsId(meterName, customPropertySetIndex, cas));
         info.setVersionId(cas.getVersionId());
-        info.setUpdateRange(cas.isUpdateRange());
+      //  info.setUpdateRange(cas.isUpdateRange());
         info.setFromDate(cas.getFromDateTime());
         info.setEndDate(cas.getToDateTime());
         Map<String, String> attributes = new HashMap<>();
