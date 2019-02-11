@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -23,6 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
@@ -36,6 +38,8 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
@@ -62,6 +66,8 @@ public class DeviceBuilderTest {
 	private static final String MODEL_VERSION = "MODEL_VERSION";
 	private static final String OTHER_DEVICE_CONFIG_NAME = "OTHER_DEVICE_CONFIG_NAME";
 	private static final String CONFIG_EVENT_REASON = EventReason.CHANGE_MULTIPLIER.getReason();
+	private static final String CHANGE_STATUS_EVENT_REASON = EventReason.CHANGE_STATUS.getReason();
+	private static final String UNKNOWN_EVENT_REASON = "UNKNOWN_EVENT_REASON";
 	private static final String STATUS_VALUE = "STATUS_VALUE";
 	private static final String PUBLIC_KEY_LABEL = "PUBLIC_KEY_LABEL";
 	private static final String SYMMETRIC_KEY = "SYMMETRIC_KEY";
@@ -90,7 +96,7 @@ public class DeviceBuilderTest {
 	private DeviceType deviceType;
 
 	@Mock
-	private DeviceConfiguration deviceConfiguration;
+	private DeviceConfiguration deviceConfiguration, otherDeviceConfiguration;
 
 	@Mock
 	private Device device;
@@ -108,10 +114,19 @@ public class DeviceBuilderTest {
 	private FaultMessage faultMessage;
 
 	@Mock
-	private State status;
+	private State status, newStatus;
 
 	@Mock
 	private Batch batch;
+
+	@Mock
+	private ExecutableAction executableAction;
+
+	@Mock
+	private AuthorizedTransitionAction authorizedTransitionAction;
+
+	@Mock
+	private StateTransition stateTransition;
 
 	private MeterInfo meterInfo;
 
@@ -159,10 +174,17 @@ public class DeviceBuilderTest {
 		securityKeyInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY.getBytes());
 		securityInfo.setSecurityKeys(Arrays.asList(securityKeyInfo));
 		meterInfo.setSecurityInfo(securityInfo);
+		when(device.getmRID()).thenReturn(DEVICE_MRID);
 		when(device.getState()).thenReturn(status);
 		when(status.getName()).thenReturn(STATUS_VALUE);
+		when(newStatus.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
 		when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 		when(batchService.findOrCreateBatch(BATCH)).thenReturn(batch);
+		when(device.getDeviceType()).thenReturn(deviceType);
+		when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(Arrays.asList(executableAction));
+		when(executableAction.getAction()).thenReturn(authorizedTransitionAction);
+		when(authorizedTransitionAction.getStateTransition()).thenReturn(stateTransition);
+		when(stateTransition.getTo()).thenReturn(newStatus);
 	}
 
 	@Test
@@ -303,5 +325,73 @@ public class DeviceBuilderTest {
 		when(status.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
 		when(device.getName()).thenReturn(DEVICE_NAME);
 		testable.prepareChangeFrom(meterInfo).build();
+	}
+
+	@Test
+	public void testPrepareChangeFrom_DeviceNotFoundByMridException() throws FaultMessage {
+		when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.empty());
+		try {
+			testable.prepareChangeFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.NO_DEVICE_WITH_MRID,
+				DEVICE_MRID);
+	}
+
+	@Test
+	public void testPrepareChangeFrom_ChangeSecurityKeysAllowed_Success_StatusChange_findDeviceByName()
+			throws FaultMessage {
+		meterInfo.setmRID(null);
+		meterInfo.setDeviceConfigurationName(OTHER_DEVICE_CONFIG_NAME);
+		meterInfo.setConfigurationEventReason(CHANGE_STATUS_EVENT_REASON);
+		meterInfo.setStatusValue(DefaultState.IN_STOCK.getDefaultFormat());
+		when(deviceService.findDeviceByName(DEVICE_NAME)).thenReturn(Optional.of(device));
+		when(otherDeviceConfiguration.getName()).thenReturn(OTHER_DEVICE_CONFIG_NAME);
+		when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration, otherDeviceConfiguration));
+		testable.prepareChangeFrom(meterInfo).build();
+		verify(executableAction).execute(STATUS_EFFECTIVE_DATE, Collections.emptyList());
+	}
+
+	@Test
+	public void testPrepareChangeFrom_DeviceNotFoundByName() throws FaultMessage {
+		meterInfo.setmRID(null);
+		when(deviceService.findDeviceByName(DEVICE_NAME)).thenReturn(Optional.empty());
+		try {
+			testable.prepareChangeFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.NO_DEVICE_WITH_NAME,
+				DEVICE_NAME);
+	}
+
+	@Test
+	public void testPrepareChangeFrom_ChangeSecurityKeysAllowed_DeviceConfigurationNotFound() throws FaultMessage {
+		meterInfo.setmRID(null);
+		meterInfo.setDeviceConfigurationName(OTHER_DEVICE_CONFIG_NAME);
+		when(deviceService.findDeviceByName(DEVICE_NAME)).thenReturn(Optional.of(device));
+		try {
+			testable.prepareChangeFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME,
+				MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION, OTHER_DEVICE_CONFIG_NAME);
+	}
+
+	@Test
+	public void testPrepareChangeFrom_ChangeSecurityKeysAllowed_UnknownEventReason() throws FaultMessage {
+		meterInfo.setmRID(null);
+		meterInfo.setConfigurationEventReason(UNKNOWN_EVENT_REASON);
+		when(deviceService.findDeviceByName(DEVICE_NAME)).thenReturn(Optional.of(device));
+		when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration, otherDeviceConfiguration));
+		try {
+			testable.prepareChangeFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME,
+				MessageSeeds.NOT_VALID_CONFIGURATION_REASON, UNKNOWN_EVENT_REASON);
 	}
 }
