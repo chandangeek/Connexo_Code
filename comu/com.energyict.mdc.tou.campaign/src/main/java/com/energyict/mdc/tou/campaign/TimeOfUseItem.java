@@ -8,7 +8,6 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 public interface TimeOfUseItem {
@@ -18,5 +17,5 @@ public interface TimeOfUseItem {
 
     ServiceCall getServiceCall();
 
-    BigDecimal getParentServiceCallId();
+    long getParentServiceCallId();
 }

@@ -12,12 +12,11 @@ import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component(name = "com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceCallHandler", service = ServiceCallHandler.class,
-        property = "name=" + TimeOfUseCampaignServiceCallHandler.NAME, immediate = true)
 public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
 
     public static final String NAME = "TimeOfUseCampaignServiceCallHandler";
@@ -25,17 +24,9 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
 
     private volatile TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
 
-    public TimeOfUseCampaignServiceCallHandler() {
-        // for osgi
-    }
-
-    public TimeOfUseCampaignServiceCallHandler(TimeOfUseCampaignService timeOfUseCampaignService) {
-        this.timeOfUseCampaignService = ((TimeOfUseCampaignServiceImpl) timeOfUseCampaignService);
-    }
-
-    @Reference
-    public void setTimeOfUseCampaignService(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
-        this.timeOfUseCampaignService = timeOfUseCampaignService;
+    @Inject
+    public TimeOfUseCampaignServiceCallHandler(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
+        this.timeOfUseCampaignService=timeOfUseCampaignService;
     }
 
     @Override
@@ -67,6 +58,8 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
 
     public void onChildStateChange(ServiceCall parent, ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         switch (newState) {
+            case CREATED:
+
             case CANCELLED:
                 timeOfUseCampaignService.cancelCalendarSend(serviceCall);
             case FAILED:
@@ -109,6 +102,7 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
                 .stream()
                 .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED));
     }
+
 
 
 }

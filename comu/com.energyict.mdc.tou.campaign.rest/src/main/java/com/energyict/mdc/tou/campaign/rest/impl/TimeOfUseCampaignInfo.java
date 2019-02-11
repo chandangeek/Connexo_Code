@@ -19,14 +19,13 @@ public class TimeOfUseCampaignInfo {
     public String deviceGroup;
     public Instant activationStart;
     public Instant activationEnd;
-    public String timeBoundary;
     public Instant startedOn;
     public Instant finishedOn;
     public IdWithNameInfo calendar;
     public String activationOption;
     public Instant activationDate;
     public String updateType;
-    public long timeValidation;
+    public long validationTimeout;
     public List<PropertyInfo> properties;
     public long version;
 }

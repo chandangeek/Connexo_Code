@@ -11,7 +11,7 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     NO_TIME_OF_USE_CAMPAIGN_IS_FOUND(1, "NoTimeOfUseCampaignIsFound", "No time of use campaign is found."),
-
+    DEVICE_WITH_ID_NOT_FOUND(2, "DeviceWithIdNotFound", "Device with id {0} not found."),
     ;
 
     private final int number;

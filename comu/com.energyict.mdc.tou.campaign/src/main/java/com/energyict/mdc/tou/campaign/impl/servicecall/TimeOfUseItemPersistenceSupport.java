@@ -5,6 +5,7 @@ package com.energyict.mdc.tou.campaign.impl.servicecall;
 
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.Device;
@@ -60,6 +61,12 @@ public class TimeOfUseItemPersistenceSupport implements PersistenceSupport<Servi
 
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
+        table.column(TimeOfUseItemDomainExtension.FieldNames.PARENT_SERVICE_CALL.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(TimeOfUseItemDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName())
+                .notNull()
+                .add();
         Column device = table.column(TimeOfUseItemDomainExtension.FieldNames.DEVICE.databaseName())
                 .number()
                 .notNull()

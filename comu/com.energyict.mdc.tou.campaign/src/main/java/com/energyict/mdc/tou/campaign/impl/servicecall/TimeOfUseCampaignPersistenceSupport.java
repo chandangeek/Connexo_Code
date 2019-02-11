@@ -128,7 +128,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .references(DeviceType.class)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_TYPE.javaName())
                 .add();
-        table.unique("UK_"+TABLE_NAME+"_NAME").on(name).add();
+        table.unique("UK_" + TABLE_NAME + "_NAME").on(name).add();
     }
 
     @Override

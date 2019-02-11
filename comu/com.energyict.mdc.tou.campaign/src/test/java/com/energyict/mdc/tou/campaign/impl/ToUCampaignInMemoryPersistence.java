@@ -24,6 +24,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -99,7 +100,6 @@ public class ToUCampaignInMemoryPersistence {
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
-        //    bind(MeteringGroupsService.class).toInstance(mock(MeteringGroupsService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
@@ -152,7 +152,6 @@ public class ToUCampaignInMemoryPersistence {
                 new MasterDataModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new PluggableModule(),
-//                new ProtocolPluggableModule(),
                 new PkiModule(),
                 new WebServicesModule(),
                 new ValidationModule(),
@@ -162,10 +161,11 @@ public class ToUCampaignInMemoryPersistence {
                 new IssuesModule(),
                 new TasksModule(),
                 new SchedulingModule(),
-                new FileImportModule()
+                new FileImportModule(),
+                new MeteringZoneModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-//            injector.getInstance(MeteringGroupsService.class);
+            injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(CommandCustomPropertySet.class);
             injector.getInstance(CompletionOptionsCustomPropertySet.class);

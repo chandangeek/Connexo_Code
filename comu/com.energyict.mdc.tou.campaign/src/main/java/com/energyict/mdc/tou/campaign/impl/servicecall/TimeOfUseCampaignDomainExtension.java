@@ -25,21 +25,8 @@ import java.time.Instant;
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, TimeOfUseCampaign {
 
-    private Thesaurus thesaurus;
-
-    @Inject
-    public TimeOfUseCampaignDomainExtension(Thesaurus thesaurus) {
-        super();
-        this.thesaurus = thesaurus;
-    }
-
     public TimeOfUseCampaignDomainExtension() {
         super();
-    }
-
-    @Override
-    public long getVersion() {
-        return super.getVersion();
     }
 
     public enum FieldNames {

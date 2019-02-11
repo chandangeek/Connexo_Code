@@ -13,13 +13,13 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.tou.campaign.TimeOfUseItem;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, TimeOfUseItem {
 
     public enum FieldNames {
         DOMAIN("serviceCall", "service_call"),
+        PARENT_SERVICE_CALL("parentServiceCallId", "parentServiceCallId"),
         DEVICE("device", "device"),
         DEVICE_MESSAGE("deviceMessage", "device_message_id"),
         ;
@@ -45,7 +45,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
 
     @IsPresent
     private Reference<Device> device = Reference.empty();
-    private BigDecimal parentServiceCallId;
+    private long parentServiceCallId;
     private Reference<DeviceMessage> deviceMessage = Reference.empty();
 
     @Override
@@ -64,11 +64,11 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     }
 
     @Override
-    public BigDecimal getParentServiceCallId() {
+    public long getParentServiceCallId() {
         return parentServiceCallId;
     }
 
-    public void setParentServiceCallId(BigDecimal parentServiceCallId) {
+    public void setParentServiceCallId(long parentServiceCallId) {
         this.parentServiceCallId = parentServiceCallId;
     }
 
@@ -88,12 +88,14 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(domainInstance);
         this.setDevice((Device) propertyValues.getProperty(FieldNames.DEVICE.javaName()));
+        this.setParentServiceCallId((long) propertyValues.getProperty(FieldNames.PARENT_SERVICE_CALL.javaName()));
         this.setDeviceMessage((DeviceMessage) propertyValues.getProperty(FieldNames.DEVICE_MESSAGE.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.DEVICE.javaName(), this.getDevice());
+        propertySetValues.setProperty(FieldNames.PARENT_SERVICE_CALL.javaName(), this.getParentServiceCallId());
         propertySetValues.setProperty(FieldNames.DEVICE_MESSAGE.javaName(), this.getDeviceMessage().orElse(null));
     }
 

@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<ServiceCall, TimeOfUseCampaignDomainExtension> {
 
-    public static final String CUSTOM_PROPERTY_SET_NAME = "TimeOfUseCampaignPropertySet";
+    public static final String CUSTOM_PROPERTY_SET_ID = TimeOfUseCampaignDomainExtension.class.getName();
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
@@ -40,8 +40,13 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
     }
 
     @Override
+    public String getId() {
+        return CUSTOM_PROPERTY_SET_ID;
+    }
+
+    @Override
     public String getName() {
-        return TimeOfUseCampaignCustomPropertySet.class.getSimpleName();
+        return thesaurus.getFormat(TranslationKeys.TIME_OF_USE_CAMPAIGN_CPS).format();
     }
 
     @Override
@@ -85,62 +90,53 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
                 propertySpecService
                         .stringSpec()
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.NAME_OF_CAMPAIGN.javaName(), TranslationKeys.NAME_OF_CAMPAIGN)
-                        .describedAs(TranslationKeys.NAME_OF_CAMPAIGN)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish(),
                 propertySpecService
                         .referenceSpec(DeviceType.class)
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_TYPE.javaName(), TranslationKeys.DEVICE_TYPE)
-                        .describedAs(TranslationKeys.DEVICE_TYPE)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
                         .stringSpec()
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_GROUP.javaName(), TranslationKeys.DEVICE_GROUP)
-                        .describedAs(TranslationKeys.DEVICE_GROUP)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_START.javaName(), TranslationKeys.ACTIVATION_START)
-                        .describedAs(TranslationKeys.ACTIVATION_START)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_END.javaName(), TranslationKeys.ACTIVATION_END)
-                        .describedAs(TranslationKeys.ACTIVATION_END)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
                         .referenceSpec(Calendar.class)
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR.javaName(), TranslationKeys.CALENDAR)
-                        .describedAs(TranslationKeys.CALENDAR)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
                         .stringSpec()
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_OPTION.javaName(), TranslationKeys.ACTIVATION_OPTION)
-                        .describedAs(TranslationKeys.ACTIVATION_OPTION)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_DATE.javaName(), TranslationKeys.ACTIVATION_DATE)
-                        .describedAs(TranslationKeys.ACTIVATION_DATE)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
                         .stringSpec()
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.UPDATE_TYPE.javaName(), TranslationKeys.UPDATE_TYPE)
-                        .describedAs(TranslationKeys.UPDATE_TYPE)
                         .fromThesaurus(thesaurus)
                         .addValues(TranslationKeys.SPECIAL_DAYS.getKey(), TranslationKeys.FULL_CALENDAR.getKey()).markExhaustive()
                         .finish(),
                 propertySpecService
                         .longSpec()
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName(), TranslationKeys.VALIDATION_TIMEOUT)
-                        .describedAs(TranslationKeys.VALIDATION_TIMEOUT)
                         .fromThesaurus(thesaurus)
                         .finish()
         );

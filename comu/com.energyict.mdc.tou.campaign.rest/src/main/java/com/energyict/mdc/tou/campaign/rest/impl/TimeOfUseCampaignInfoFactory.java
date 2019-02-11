@@ -4,29 +4,59 @@
 
 package com.energyict.mdc.tou.campaign.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import javax.inject.Inject;
-import java.time.ZoneOffset;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+
+import static com.energyict.mdc.tou.campaign.rest.impl.RestUtil.getStatus;
 
 public class TimeOfUseCampaignInfoFactory {
 
-    TimeOfUseCampaignService timeOfUseCampaignService;
+    private final TimeOfUseCampaignService timeOfUseCampaignService;
+    private final Clock clock;
 
     @Inject
-    public TimeOfUseCampaignInfoFactory(TimeOfUseCampaignService timeOfUseCampaignService) {
+    public TimeOfUseCampaignInfoFactory(TimeOfUseCampaignService timeOfUseCampaignService, Clock clock) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
-
+        this.clock = clock;
     }
 
     public TimeOfUseCampaign build(TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
-        TimeOfUseCampaignBuilder timeOfUseCampaignBuilder = timeOfUseCampaignService.newToUbuilder(timeOfUseCampaignInfo.name,
-                ((Integer) timeOfUseCampaignInfo.deviceType.id).longValue(), timeOfUseCampaignInfo.deviceGroup, timeOfUseCampaignInfo.activationStart,
-                timeOfUseCampaignInfo.activationEnd, ((Integer) timeOfUseCampaignInfo.calendar.id).longValue(), timeOfUseCampaignInfo.activationOption,
-                timeOfUseCampaignInfo.activationDate, timeOfUseCampaignInfo.updateType, timeOfUseCampaignInfo.timeValidation);
+        Instant activationStart = timeOfUseCampaignInfo.activationStart;
+        Instant activationEnd = timeOfUseCampaignInfo.activationEnd;
+        if (forToday(activationStart)) {
+            if (activationStart.isAfter(activationEnd)) {
+                activationEnd = getToday(clock).plusSeconds(getSecondsInDays(1)).plusSeconds(activationEnd.getEpochSecond());
+            } else {
+                activationEnd = getToday(clock).plusSeconds(activationEnd.getEpochSecond());
+            }
+            activationStart = getToday(clock).plusSeconds(activationStart.getEpochSecond());
+
+        } else {
+            if (activationStart.isAfter(activationEnd)) {
+                activationEnd = getToday(clock).plusSeconds(getSecondsInDays(2)).plusSeconds(activationEnd.getEpochSecond());
+            } else {
+                activationEnd = getToday(clock).plusSeconds(getSecondsInDays(1)).plusSeconds(activationEnd.getEpochSecond());
+            }
+            activationStart = getToday(clock).plusSeconds(getSecondsInDays(1)).plusSeconds(activationStart.getEpochSecond());
+        }
+        TimeOfUseCampaignBuilder timeOfUseCampaignBuilder = timeOfUseCampaignService.newTouCampaignBuilder(timeOfUseCampaignInfo.name,
+                ((Number) timeOfUseCampaignInfo.deviceType.id).longValue(), ((Number) timeOfUseCampaignInfo.calendar.id).longValue())
+                .addDeviceGroup(timeOfUseCampaignInfo.deviceGroup)
+                .addActivationOption(timeOfUseCampaignInfo.activationOption)
+                .addActivationDate(timeOfUseCampaignInfo.activationDate)
+                .addUpdateType(timeOfUseCampaignInfo.updateType)
+                .addValidationTimeout(timeOfUseCampaignInfo.validationTimeout)
+                .addActivationTimeBoundaries(activationStart, activationEnd);
         return timeOfUseCampaignBuilder.create();
     }
 
@@ -37,15 +67,46 @@ public class TimeOfUseCampaignInfoFactory {
         timeOfUseCampaignInfo.deviceGroup = campaign.getDeviceGroup();
         timeOfUseCampaignInfo.activationStart = campaign.getActivationStart();
         timeOfUseCampaignInfo.activationEnd = campaign.getActivationEnd();
-        timeOfUseCampaignInfo.timeBoundary = "Between " + campaign.getActivationStart().atZone(ZoneOffset.systemDefault()).toString().substring(11, 16)
-                + " and " + campaign.getActivationEnd().atZone(ZoneOffset.systemDefault()).toString().substring(11, 16);
         timeOfUseCampaignInfo.calendar = new IdWithNameInfo(campaign.getCalendar().getId(), campaign.getCalendar().getName());
         timeOfUseCampaignInfo.updateType = campaign.getUpdateType();
         timeOfUseCampaignInfo.activationOption = campaign.getActivationOption();
         timeOfUseCampaignInfo.activationDate = campaign.getActivationDate();
-        timeOfUseCampaignInfo.timeValidation = campaign.getValidationTimeout();
+        timeOfUseCampaignInfo.validationTimeout = campaign.getValidationTimeout();
         timeOfUseCampaignInfo.id = campaign.getId();
         timeOfUseCampaignInfo.version = campaign.getVersion();
         return timeOfUseCampaignInfo;
+    }
+
+    public TimeOfUseCampaignInfo getOverviewCampaignInfo(TimeOfUseCampaign campaign, DefaultState status, Thesaurus thesaurus) {
+        TimeOfUseCampaignInfo info = from(campaign);
+        ServiceCall campaignsServiceCall = campaign.getServiceCall();
+        info.startedOn = campaignsServiceCall.getCreationTime();
+        info.finishedOn = (campaignsServiceCall.getState().equals(DefaultState.CANCELLED)
+                || campaignsServiceCall.getState().equals(DefaultState.SUCCESSFUL)) ? campaignsServiceCall.getLastModificationTime() : null;
+        info.status = status.equals(DefaultState.SUCCESSFUL) ? thesaurus.getString(TranslationKeys.STATUS_COMPLETED.getKey(), TranslationKeys.STATUS_COMPLETED.getDefaultFormat())
+                : thesaurus.getString(status.getKey(), status.getDefaultFormat());
+        info.devices = new ArrayList<>();
+        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.SUCCESSFUL, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.FAILED, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.REJECTED, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.ONGOING, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.PENDING, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.CANCELLED, thesaurus), 0L));
+        timeOfUseCampaignService.getChildrenStatusFromCampaign(campaign.getId()).forEach((deviceStatus, quantity) ->
+                info.devices.stream().filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.equals(getStatus(deviceStatus, thesaurus)))
+                        .findAny().ifPresent(devicesStatusAndQuantity -> devicesStatusAndQuantity.quantity = quantity));
+        return info;
+    }
+
+    private boolean forToday(Instant activationStart) {
+        return getToday(clock).plusSeconds(activationStart.getEpochSecond()).isAfter(clock.instant());
+    }
+
+    public static Instant getToday(Clock clock) {
+        return Instant.parse(clock.instant().toString().substring(0, 11) + "00:00:00Z");
+    }
+
+    public static long getSecondsInDays(int days) {
+        return days * 86400;
     }
 }

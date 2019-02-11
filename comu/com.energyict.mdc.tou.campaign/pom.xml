@@ -114,6 +114,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
+        </dependency>
         <!-- Testing -->
 
         <dependency>
@@ -144,11 +148,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>parties</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>fsm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -279,6 +278,11 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>devtools</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
