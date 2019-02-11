@@ -18,12 +18,11 @@ Ext.define('Mdc.zones.controller.Zones',{
     ],
 
     refs: [
-        {ref: 'deviceZoneDetails', selector: '#deviceZoneDetails'},
         {ref: 'devicesOfZoneGrid', selector: '#zone-details-devices-grid'},
         {ref: 'deviceZonePreview', selector: '#device-zone-preview'},
         {ref: 'deviceZonePreviewForm', selector: '#device-zone-preview-form'},
         {ref: 'editDeviceZoneMenuItem', selector: '#edit-device-zone'},
-        {ref: 'deviceZoneDetails', selector: '#deviceZoneDetailsForm'}
+        {ref: 'deviceZoneDetailsForm', selector: '#deviceZoneDetailsForm'}
     ],
 
     init: function () {
@@ -82,7 +81,7 @@ Ext.define('Mdc.zones.controller.Zones',{
 
     onRemoveDeviceZone: function(deviceRecord)
     {
-        var zoneRecord = this.getDeviceZoneDetails().getRecord();
+        var zoneRecord = this.getDeviceZoneDetailsForm().getRecord();
         this.removeDeviceZone(zoneRecord, deviceRecord);
     },
 
@@ -118,7 +117,7 @@ Ext.define('Mdc.zones.controller.Zones',{
 
     chooseActionGrid: function (menu, item) {
         var me = this,
-            zoneRecord = this.getDeviceZoneDetails().getRecord(),
+            zoneRecord = this.getDeviceZoneDetailsForm().getRecord(),
             deviceRecord = menu.record || this.getDevicesOfZoneGrid().getSelectionModel().getLastSelected();
 
         switch (item.action) {
@@ -132,7 +131,7 @@ Ext.define('Mdc.zones.controller.Zones',{
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        var zoneRecord =  this.getDeviceZoneDetails().getRecord();
+        var zoneRecord =  this.getDeviceZoneDetailsForm().getRecord();
         router.arguments.id = zoneRecord.get('id');
 
         switch (item.action) {
@@ -173,9 +172,9 @@ Ext.define('Mdc.zones.controller.Zones',{
 
     viewDevicesInSearch: function () {
         var me = this,
-            deviceZoneDetails = me.getDeviceZoneDetails(),
-            zoneTypeId = deviceZoneDetails.zoneTypeId,
-            zoneId = deviceZoneDetails.deviceZoneId,
+            deviceZoneDetailsForm = me.getDeviceZoneDetailsForm(),
+            zoneTypeId = deviceZoneDetailsForm.zoneTypeId,
+            zoneId = deviceZoneDetailsForm.deviceZoneId,
             search = me.getController('Mdc.controller.Search'),
             router = me.getController('Uni.controller.history.Router'),
             service = search.service, filters = [];
