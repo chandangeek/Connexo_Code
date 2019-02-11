@@ -173,11 +173,22 @@ Ext.define('Mdc.zones.controller.Zones',{
     viewDevicesInSearch: function () {
         var me = this,
             deviceZoneDetailsForm = me.getDeviceZoneDetailsForm(),
-            zoneTypeId = deviceZoneDetailsForm.zoneTypeId,
+            zoneTypeId = deviceZoneDetailsForm.getRecord().get("zoneTypeId"),
             zoneId = deviceZoneDetailsForm.deviceZoneId,
             search = me.getController('Mdc.controller.Search'),
             router = me.getController('Uni.controller.history.Router'),
             service = search.service, filters = [];
+
+
+        filters.push(new Ext.util.Filter({
+            property: 'device.zoneType',
+            value: [
+                {
+                    operator: "==",
+                    criteria: zoneTypeId
+                }],
+            id: 'device.zoneType'
+        }));
 
         filters.push(new Ext.util.Filter({
             property: 'device.zoneName',
@@ -187,15 +198,6 @@ Ext.define('Mdc.zones.controller.Zones',{
                     criteria: zoneId
                 }],
             id: 'device.zoneName'
-        }));
-        filters.push(new Ext.util.Filter({
-            property: 'device.zoneType',
-            value: [
-                {
-                    operator: "==",
-                    criteria: zoneTypeId
-                }],
-            id: 'device.zoneType'
         }));
 
         var domainsStore = service.getSearchDomainsStore();
