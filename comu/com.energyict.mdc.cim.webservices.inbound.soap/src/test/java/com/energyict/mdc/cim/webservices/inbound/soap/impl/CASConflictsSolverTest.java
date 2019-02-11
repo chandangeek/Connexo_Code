@@ -36,7 +36,7 @@ public class CASConflictsSolverTest {
     private static final Instant INSTANT_GAP_AFTER = new GregorianCalendar(2000, 5, 19).toInstant();
     private static final Instant VERSION_ID = new GregorianCalendar(2003, 4, 14).toInstant();
 
-    private static final Instant LATE_DATE = new GregorianCalendar(2008, 5, 19).toInstant();
+    private static final Instant LATE_DATE = new GregorianCalendar(2008, 2, 13).toInstant();
     private static final Instant EARLY_DATE = new GregorianCalendar(1980, 5, 19).toInstant();
 
     private CASConflictsSolver sut;
@@ -87,13 +87,18 @@ public class CASConflictsSolverTest {
         endTime = Optional.empty();
     }
 
-    private void prepareConflicts(ValuesRangeConflict... conflicts) {
+    private void prepareConflictsForCreate(ValuesRangeConflict... conflicts) {
         doReturn(Arrays.asList(conflicts)).when(overlapCalculatorBuilder).whenCreating(any(Range.class));
+    }
+
+    private void prepareConflictsForUpdate(ValuesRangeConflict... conflicts) {
+        doReturn(Arrays.asList(conflicts)).when(overlapCalculatorBuilder).whenUpdating(any(Instant.class),
+                any(Range.class));
     }
 
     @Test
     public void testSolveConflictsForCreate_NoConflicts() {
-        prepareConflicts();
+        prepareConflictsForCreate();
         newCustomProperySetInfo.setFromDate(EARLY_DATE);
         newCustomProperySetInfo.setEndDate(LATE_DATE);
 
@@ -104,7 +109,7 @@ public class CASConflictsSolverTest {
 
     @Test
     public void testSolveConflictsForCreate_GapAfter_EndTimeIsNull() {
-        prepareConflicts(conflictGapAfter);
+        prepareConflictsForCreate(conflictGapAfter);
 
         Range<Instant> result = sut.solveConflictsForCreate(device, customPropertySet, newCustomProperySetInfo);
 
@@ -113,7 +118,7 @@ public class CASConflictsSolverTest {
 
     @Test
     public void testSolveConflictsForCreate_GapAfter_EndTimeIsNotNull() {
-        prepareConflicts(conflictGapAfter);
+        prepareConflictsForCreate(conflictGapAfter);
         newCustomProperySetInfo.setEndDate(LATE_DATE);
 
         Range<Instant> result = sut.solveConflictsForCreate(device, customPropertySet, newCustomProperySetInfo);
@@ -123,7 +128,7 @@ public class CASConflictsSolverTest {
 
     @Test
     public void testSolveConflictsForCreate_GapBefore_EndTimeIsNull() {
-        prepareConflicts(conflictGapBefore);
+        prepareConflictsForCreate(conflictGapBefore);
 
         Range<Instant> result = sut.solveConflictsForCreate(device, customPropertySet, newCustomProperySetInfo);
 
@@ -132,7 +137,7 @@ public class CASConflictsSolverTest {
 
     @Test
     public void testSolveConflictsForCreate_GapBefore_EndTimeIsNotNull() {
-        prepareConflicts(conflictGapBefore);
+        prepareConflictsForCreate(conflictGapBefore);
         newCustomProperySetInfo.setFromDate(EARLY_DATE);
 
         Range<Instant> result = sut.solveConflictsForCreate(device, customPropertySet, newCustomProperySetInfo);
@@ -142,12 +147,20 @@ public class CASConflictsSolverTest {
 
     @Test
     public void testSolveConflictsForUpdate_NoConflicts() {
-        prepareConflicts();
-
         Range<Instant> result = sut.solveConflictsForUpdate(device, customPropertySet, startTime, endTime, VERSION_ID,
                 existingValues);
 
         assertEquals(Range.closedOpen(EARLY_DATE, LATE_DATE), result);
+    }
+
+    @Test
+    public void testSolveConflictsForUpdate__GapAfter_EndTimeIsNull() {
+        prepareConflictsForUpdate(conflictGapAfter);
+
+        Range<Instant> result = sut.solveConflictsForUpdate(device, customPropertySet, startTime, endTime, VERSION_ID,
+                existingValues);
+
+        assertEquals(Range.closedOpen(INSTANT_GAP_AFTER, LATE_DATE), result);
     }
 
 }
