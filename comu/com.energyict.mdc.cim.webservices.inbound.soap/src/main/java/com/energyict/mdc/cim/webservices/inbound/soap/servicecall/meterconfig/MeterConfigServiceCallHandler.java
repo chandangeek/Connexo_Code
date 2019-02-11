@@ -300,7 +300,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 	private CustomPropertySetHelper getCustomPropertySetHelper() {
 		if (customPropertySetHelper == null) {
 			customPropertySetHelper = new CustomPropertySetHelper(customPropertySetService, thesaurus,
-					getMessageFactory());
+					getMessageFactory(), clock);
 		}
 		return customPropertySetHelper;
 	}
