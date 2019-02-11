@@ -471,6 +471,7 @@ public class SingleThreadedScheduledComPortTest {
         }
     }
 
+    @Ignore
     @Test(timeout = 7000)
     public void testExecuteTasksInParallelWithConnectionSetupFailure() throws ConnectionException, InterruptedException {
         ComServerDAO comServerDAO = getMockedComServerDAO();
