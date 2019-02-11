@@ -7,6 +7,7 @@ import com.elster.jupiter.cps.OverlapCalculatorBuilder;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.device.data.Device;
 
 import com.google.common.collect.Range;
@@ -16,21 +17,24 @@ import java.util.Optional;
 
 public class CASConflictsSolver{
 
-    private CustomPropertySetService customPropertySetService;
+    private final CustomPropertySetService customPropertySetService;
 
     public CASConflictsSolver(CustomPropertySetService customPropertySetService){
         this.customPropertySetService = customPropertySetService;
     }
 
     public Range<Instant> solveConflictsForCreate(Device businessObject, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet,
-                                                  Range<Instant> range) {
+                                                  CustomPropertySetInfo newCustomProperySetInfo) {
         OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject);
+        Optional<Instant> startTime = Optional.ofNullable(newCustomProperySetInfo.getFromDate());
+        Optional<Instant> endTime = Optional.ofNullable(newCustomProperySetInfo.getEndDate());
+        Range<Instant> range = Ranges.closedOpen(newCustomProperySetInfo.getFromDate(), newCustomProperySetInfo.getEndDate());
         for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenCreating(range)) {
             if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
-                range = getRangeToCreate(conflict.getConflictingRange().lowerEndpoint(), range.hasUpperBound() ? range.upperEndpoint() : Instant.EPOCH);
+                range = getRangeToCreate(Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()), endTime);
             }
             if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
-                range = getRangeToCreate(range.hasLowerBound() ? range.lowerEndpoint() : Instant.EPOCH,conflict.getConflictingRange().upperEndpoint());
+                range = getRangeToCreate(startTime, Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()));
             }
         }
         return range;
@@ -52,9 +56,7 @@ public class CASConflictsSolver{
         return range;
     }
 
-    private Range<Instant> getRangeToCreate(Instant startTime, Instant endTime) {
-        Optional<Instant> startTimeOptional = Optional.ofNullable(startTime);
-        Optional<Instant> endTimeOptional = Optional.ofNullable(endTime);
+    private Range<Instant> getRangeToCreate(Optional<Instant> startTimeOptional, Optional<Instant> endTimeOptional) {
         if (notDefinedOrIsInfinite(startTimeOptional) && notDefinedOrIsInfinite(endTimeOptional)) {
             return Range.all();
         } else if (notDefinedOrIsInfinite(startTimeOptional) && isNotInfinite(endTimeOptional)) {
@@ -94,7 +96,7 @@ public class CASConflictsSolver{
                 return Range.atLeast(startTime.get());
             }
         } else {
-            return getRangeToCreate(startTime.get(), endTime.get());
+            return getRangeToCreate(startTime, endTime);
         }
     }
 

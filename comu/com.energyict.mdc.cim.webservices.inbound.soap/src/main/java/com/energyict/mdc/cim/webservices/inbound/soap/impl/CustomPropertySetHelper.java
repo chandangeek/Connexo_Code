@@ -124,9 +124,9 @@ public class CustomPropertySetHelper {
     }
 
     private void handleVersionedCas(Device device, CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall, List<FaultMessage> faults, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet, CustomPropertySetValues values) {
-        Range<Instant> range = Ranges.closedOpen(newCustomProperySetInfo.getFromDate(), newCustomProperySetInfo.getEndDate());
+
         if (newCustomProperySetInfo.getVersionId() == null) {
-            range = casConflictsSolver.solveConflictsForCreate(device, customPropertySet, range);
+            Range<Instant> range = casConflictsSolver.solveConflictsForCreate(device, customPropertySet, newCustomProperySetInfo);
             customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range);
         } else {
             updateExistingVersion(device, customPropertySet, newCustomProperySetInfo, serviceCall, faults);
