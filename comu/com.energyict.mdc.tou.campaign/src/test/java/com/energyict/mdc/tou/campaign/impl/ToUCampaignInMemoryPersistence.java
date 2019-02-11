@@ -21,9 +21,10 @@ import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -63,7 +64,6 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
@@ -162,7 +162,8 @@ public class ToUCampaignInMemoryPersistence {
                 new IssuesModule(),
                 new TasksModule(),
                 new SchedulingModule(),
-                new FileImportModule()
+                new FileImportModule(),
+                new MeteringZoneModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
 //            injector.getInstance(MeteringGroupsService.class);
@@ -173,7 +174,7 @@ public class ToUCampaignInMemoryPersistence {
             injector.getInstance(CommunicationTestServiceCallCustomPropertySet.class);
             injector.getInstance(TimeOfUseItemPropertySet.class);
             injector.getInstance(TimeOfUseCampaignService.class);
-
+            injector.getInstance(MeteringZoneService.class);
             ctx.commit();
         }
     }
