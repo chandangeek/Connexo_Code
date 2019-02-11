@@ -255,6 +255,7 @@ public class SecurityAccessorTypeResource {
             keyFunctionTypeBuilder.importCapability(securityAccessorTypeInfo.importCapability);
             keyFunctionTypeBuilder.renewCapability(securityAccessorTypeInfo.renewCapability);
             keyFunctionTypeBuilder.keySize(securityAccessorTypeInfo.keySize);
+            keyFunctionTypeBuilder.reversible(securityAccessorTypeInfo.isReversible);
         }
 
         SecurityAccessorType keyFunctionType = keyFunctionTypeBuilder.add();
@@ -309,6 +310,7 @@ public class SecurityAccessorTypeResource {
             updater.importCapabilty(securityAccessorTypeInfo.importCapability);
             updater.renewCapability(securityAccessorTypeInfo.renewCapability);
             updater.keySize(securityAccessorTypeInfo.keySize);
+            updater.reversible(securityAccessorTypeInfo.isReversible);
         }
         if (securityAccessorTypeInfo.duration != null && securityAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
             updater.duration(getDuration(securityAccessorTypeInfo));

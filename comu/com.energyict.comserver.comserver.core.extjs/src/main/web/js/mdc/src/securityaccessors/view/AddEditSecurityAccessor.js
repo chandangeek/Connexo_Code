@@ -290,6 +290,16 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                 },
                 {
                     xtype: 'checkboxfield',
+                    fieldLabel: Uni.I18n.translate('general.isReversible', 'MDC', 'Is reversible'),
+                    itemId: 'mdc-security-accessor-isReversible-checkbox',
+                    name: 'isReversible',
+                    hidden: true,
+                    checked: false,
+                    disabled: me.isEdit
+                }
+                ,
+                {
+                    xtype: 'checkboxfield',
                     fieldLabel: Uni.I18n.translate('general.manageCentrally', 'MDC', 'Manage centrally'),
                     itemId: 'mdc-security-accessor-manage-centrally-checkbox',
                     name: 'multiElementEnabled',

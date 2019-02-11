@@ -273,6 +273,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     delete accessorToAdd.data.label;
                     delete accessorToAdd.data.keySize;
                     delete accessorToAdd.data.hsmJssKeySize;
+                    delete accessorToAdd.data.isReversible;
                 }
                 return accessorToAdd.getData();
             }),
@@ -562,6 +563,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             view.down('#mdc-security-accessor-label-end-point-combobox').setRawValue(record.get('label'));
                             view.down('#mdc-security-key-size-combobox').setDisabled(false);
                             view.down('#mdc-security-key-size-combobox').setRawValue(record.get('keySize'));
+                            view.down('#mdc-security-accessor-isReversible-checkbox').setDisabled(false);
+
                         }
                         if (record.get('purpose').id === 'FILE_OPERATIONS') {
                             view.down('#mdc-security-accessor-purpose-file-operations').setValue(true);
@@ -668,6 +671,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             renewCapabiltyCombo = form.down('#mdc-security-accessor-renew-capability-combobox'),
             labelEndPointCombo = form.down('#mdc-security-accessor-label-end-point-combobox'),
             keySizeCombo = form.down('#mdc-security-key-size-combobox'),
+            isReversibleCheckBox = form.down('#mdc-security-accessor-isReversible-checkbox'),
+
             requiresDuration = newValue && newValue.requiresDuration,
             requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod;
 
@@ -678,6 +683,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             renewCapabiltyCombo.setVisible(true);
             labelEndPointCombo.setVisible(true);
             keySizeCombo.setVisible(true);
+            isReversibleCheckBox.setVisible(true);
         }
         else {
             hsmJssKeyTypeCombo.setVisible(false);
@@ -685,6 +691,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             renewCapabiltyCombo.setVisible(false);
             labelEndPointCombo.setVisible(false);
             keySizeCombo.setVisible(false);
+            isReversibleCheckBox.setVisible(false);
         }
         storageMethodCombo.setVisible(requiresKeyEncryptionMethod);
         storageMethodCombo.setDisabled(!requiresKeyEncryptionMethod);

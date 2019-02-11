@@ -16,15 +16,17 @@ public class HsmKeyType {
     private final SessionKeyCapability importCapability;
     private final SessionKeyCapability renewCapability;
     private final int keySize;
+    private final boolean isReversible;
 
 
 
-    public HsmKeyType(HsmJssKeyType hsmJssKeyType, String label, SessionKeyCapability importCapability, SessionKeyCapability renewCapability, int keySize) {
+    public HsmKeyType(HsmJssKeyType hsmJssKeyType, String label, SessionKeyCapability importCapability, SessionKeyCapability renewCapability, int keySize, boolean isReversible) {
         this.hsmJssKeyType = hsmJssKeyType;
         this.label = label;
         this.importCapability = importCapability;
         this.renewCapability = renewCapability;
         this.keySize = keySize;
+        this.isReversible = isReversible;
     }
 
     public HsmJssKeyType getHsmJssKeyType() {  return hsmJssKeyType; }
@@ -70,6 +72,7 @@ public class HsmKeyType {
         }
         HsmKeyType that = (HsmKeyType) o;
         return keySize == that.keySize &&
+                isReversible == that.isReversible &&
                 hsmJssKeyType == that.hsmJssKeyType &&
                 Objects.equals(label, that.label) &&
                 importCapability == that.importCapability &&
@@ -79,6 +82,10 @@ public class HsmKeyType {
     @Override
     public int hashCode() {
 
-        return Objects.hash(hsmJssKeyType, label, importCapability, renewCapability, keySize);
+        return Objects.hash(hsmJssKeyType, label, importCapability, renewCapability, keySize, isReversible);
+    }
+
+    public boolean isReversible() {
+        return isReversible;
     }
 }

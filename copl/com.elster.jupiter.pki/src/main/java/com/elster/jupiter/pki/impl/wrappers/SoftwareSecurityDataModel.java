@@ -21,6 +21,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_6SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableMap;
@@ -139,7 +140,8 @@ public class SoftwareSecurityDataModel {
                 Installer.class,
                 ImmutableMap.of(
                         version(10, 4, 2), V10_4_2SimpleUpgrader.class,
-                        version(10, 4, 3), UpgraderV10_4_3.class));
+                        version(10, 4, 3), UpgraderV10_4_3.class,
+                        version(10,4,4), V10_4_6SimpleUpgrader.class));
     }
 
     private void registerDataModel() {

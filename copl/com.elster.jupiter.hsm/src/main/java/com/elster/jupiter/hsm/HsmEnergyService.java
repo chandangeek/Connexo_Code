@@ -10,7 +10,9 @@ import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public interface HsmEnergyService {
+
     HsmEncryptedKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException;
 
     HsmRenewKey renewKey(RenewKeyRequest renewKeyRequest) throws HsmBaseException;
+
 }

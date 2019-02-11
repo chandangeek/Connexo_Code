@@ -6,6 +6,8 @@ import com.atos.worldline.jss.api.custom.energy.*;
 import com.atos.worldline.jss.api.key.*;
 import com.atos.worldline.jss.api.key.derivation.CertificateChainX509KeyDerivation;
 import com.atos.worldline.jss.api.key.derivation.KeyDerivation;
+
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.HsmProtocolService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
@@ -60,21 +62,18 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
 
     private volatile HsmConfigurationService hsmConfigurationService;
+    private volatile HsmEncryptionService hsmEncryptService;
+
+
 
     @Override
     public HsmEncryptedKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException {
-        try {
-            HsmConfiguration hsmConfiguration = hsmConfigurationService.getHsmConfiguration();
-            String encryptLabel = importKeyRequest.getImportLabel();
-
-            KeyImportResponse keyImportResponse = Energy.keyImport(importKeyRequest.getTransportKey(hsmConfiguration), importKeyRequest.getWrapperKeyAlgorithm().getHsmSpecs().getPaddingAlgorithm(), importKeyRequest.getDeviceKey(), new KeyLabel(encryptLabel), importKeyRequest.getImportSessionCapability()
-                    .toProtectedSessionKeyCapability());
-            ProtectedSessionKey psk = keyImportResponse.getProtectedSessionKey();
-            String kekLabel = ((KeyLabel) psk.getKek()).getValue();
-            return new HsmEncryptedKey(psk.getValue(), kekLabel);
-        } catch (FunctionFailedException e) {
-            throw new HsmBaseException(e);
+        HsmConfiguration hsmConfiguration = hsmConfigurationService.getHsmConfiguration();
+        if (importKeyRequest.getHsmKeyType().isReversible()) {
+            return new ReversibleKeyImporter().importKey(importKeyRequest, hsmConfiguration, hsmEncryptService);
         }
+        return new IreversibleKeyImporter().importKey(importKeyRequest, hsmConfiguration);
+
     }
 
     public HsmRenewKey renewKey(RenewKeyRequest renewKeyRequest) throws HsmBaseException {
@@ -109,12 +108,6 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
                 || renewKeyRequest.getHsmKeyType().getHsmJssKeyType().equals(HsmJssKeyType.HLSECRET);
     }
 
-
-
-    @Reference
-    public void setHsmConfigurationService(HsmConfigurationService hsmConfigurationService) {
-        this.hsmConfigurationService = hsmConfigurationService;
-    }
 
     private static KeyDerivation[] createKeyDerivationArray(Certificate[] certChain) {
         KeyDerivation[] keyDerivations = new KeyDerivation[certChain.length];
@@ -495,5 +488,17 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         return keyIDForAgree;
 
     }
+
+    @Reference
+    public void setHsmConfigurationService(HsmConfigurationService hsmConfigurationService) {
+        this.hsmConfigurationService = hsmConfigurationService;
+    }
+
+    @Reference
+    public void setHsmEncryptService(HsmEncryptionService hsmEncryptService) {
+        this.hsmEncryptService = hsmEncryptService;
+    }
+
+
 
 }
