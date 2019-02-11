@@ -13,42 +13,26 @@ public interface TableAudit {
 
     Table<?> getTable();
 
-    String getDomain();
-
-    String getContext();
+    Integer getDomainContext();
 
     List<Object> getDomainPkValues(Object object);
 
     List<Object> getContextPkValues(Object object);
 
-    String getDomainReferences(Object object);
-
-    Object getDomainShortReference(Object object);
-
-    String getContextReferences(Object object);
+    List<Object> getResersePkValues(Object object);
 
     Optional<Long> getReverseReferenceMap(Object object);
-
-    List<String> getReferences(Object object);
-
-    String getObjectIndentifier(Object object);
 
     Table getTouchTable();
 
     @ProviderType
     interface Builder {
 
-        Builder domain(String domain);
+        Builder domainContext(Integer domainContext);
 
-        Builder context(String context);
+        Builder domainReferences(String... foreignKeyConstraints);
 
-        Builder touchDomain(String domainForeignKey);
-
-        Builder touchContext(String contextForeignKey);
-
-        Builder references(ForeignKeyConstraint foreignKeyConstraint);
-
-        Builder references(String... foreignKeyConstraints);
+        Builder contextReferenceColumn(String contextReferenceColumn);
 
         Builder reverseReferenceMap(String reverseReferenceMap);
 

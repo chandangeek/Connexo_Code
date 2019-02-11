@@ -66,6 +66,8 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.search.UsagePointSearchDomain;
 import com.elster.jupiter.metering.imports.impl.MeteringImportsModule;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -442,7 +444,8 @@ public class DemoTest {
                 new DualControlModule(),
                 new DataQualityKpiModule(),
                 new SyntheticLoadProfileImportModule(),
-                new MeteringImportsModule()
+                new MeteringImportsModule(),
+                new MeteringZoneModule()
         );
 
         doPreparations();
@@ -815,6 +818,7 @@ public class DemoTest {
             injector.getInstance(DataVaultServiceImpl.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(AuditService.class);
+            injector.getInstance(MeteringZoneService.class);
             injector.getInstance(UsagePointLifeCycleService.class); // install default usage point life cycle
             initializeCustomPropertySets();
             createRequiredProtocols();

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -432,8 +433,9 @@ public enum TableSpecs {
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
             table.unique("UK_MTR_ENDDEVICE_NAME").on(nameColumn, obsoleteTime).since(version(10, 2, 1)).add();
             table.audit(MTR_ENDDEVICE.name())
-                    .domain("DEVICE")
-                    .context("DEVICE_ATTRIBUTES")
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    //.domain("DEVICE")
+                   // .context("DEVICE_ATTRIBUTES")
                     .build();
         }
     },
@@ -526,11 +528,8 @@ public enum TableSpecs {
                     .on(meterRoleIdColumn)
                     .add();
             table.audit(MTR_MULTIPLIERVALUE.name())
-                    .domain("DEVICE")
-                    .context("DEVICE_ATTRIBUTES")
-                    .references("FK_MTR_METERACTMETER")
-                    .touchDomain("FK_MTR_METERACTMETER")
-                    .touchContext("")
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainReferences("FK_MTR_METERACTMETER")
                     .build();
         }
     },

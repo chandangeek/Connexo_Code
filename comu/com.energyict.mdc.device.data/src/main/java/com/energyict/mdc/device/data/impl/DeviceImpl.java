@@ -1031,6 +1031,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public void touchDevice() {
+        this.touch();
+    }
+
+    @Override
     public MeterActivation activate(Instant start, UsagePoint usagePoint, MeterRole meterRole) {
         if (start == null || usagePoint == null || meterRole == null) {
             throw new IllegalArgumentException("All arguments are mandatory and can't be null.");
@@ -1391,7 +1396,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private Device getFirstJournalEntryAfter(Instant when) {
         return dataModel.mapper(Device.class)
-                .at(when)
+                .at(Instant.EPOCH)
                 .find(Arrays.asList(Operator.EQUAL.compare("ID", getId()), Operator.GREATERTHAN.compare("JOURNALTIME", when.toEpochMilli())))
                 .stream()
                 .min(Comparator.comparing(JournalEntry::getJournalTime))

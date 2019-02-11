@@ -33,7 +33,7 @@ public class AuditFilterTest {
 
     private static final Instant CHANGED_ON_FROM = LocalDate.of(2019, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
     private static final Instant CHANGED_ON_TO = LocalDate.of(2019, 2, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
-    private static final String CONTEXT = "CONTEXT";
+    private static final AuditDomainContextType CONTEXT = AuditDomainContextType.DEVICE_ATTRIBUTES;
     private static final String PRIVILEGE = "PRIVILEGE";
     private static final String CATEGORY = "CATEGORY";
     private static final String USER = "USER";
@@ -50,7 +50,7 @@ public class AuditFilterTest {
 
         when(auditService.getAuditTrailDecoderHandles()).thenReturn(Collections.singletonList(auditTrailDecoderHandle));
         when(auditTrailDecoderHandle.getPrivileges()).thenReturn(Collections.singletonList(PRIVILEGE));
-        when(auditTrailDecoderHandle.getContext()).thenReturn(CONTEXT);
+        when(auditTrailDecoderHandle.getAuditDomainContextType()).thenReturn(CONTEXT);
         setUpUserPrivileges();
     }
 
@@ -71,27 +71,27 @@ public class AuditFilterTest {
         AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, auditService);
         auditTrailFilter.setChangedOnFrom(CHANGED_ON_FROM);
         auditTrailFilter.setChangedOnTo(CHANGED_ON_TO);
-        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("((context IN [%s]) AND createTime >= ?  AND createTime <= ? )", CONTEXT));
+        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("((domainContext IN [%s]) AND createTime >= ?  AND createTime <= ? )", CONTEXT));
     }
 
     @Test
     public void testAuditFilterWithCategories() {
         AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, auditService);
         auditTrailFilter.setCategories(Collections.singletonList(CATEGORY));
-        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("((context IN [%s]) AND (domain IN [%s]))", CONTEXT, CATEGORY));
+        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("(domainContext IN [%s])", CONTEXT));
     }
 
     @Test
     public void testAuditFilterWithChangedBy() {
         AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, auditService);
         auditTrailFilter.setChangedBy(Collections.singletonList(USER));
-        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("((context IN [%s]) AND (userName IN [%s]))", CONTEXT, USER));
+        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("((domainContext IN [%s]) AND (userName IN [%s]))", CONTEXT, USER));
     }
 
     @Test
     public void testZoneFilterWithNullZoneTypes() {
         AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, auditService);
-        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("(context IN [%s])", CONTEXT));
+        assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("(domainContext IN [%s])", CONTEXT));
     }
 
 }

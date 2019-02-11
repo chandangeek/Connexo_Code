@@ -11,6 +11,7 @@ import com.elster.jupiter.audit.rest.AuditInfo;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class AuditInfoFactory {
@@ -21,13 +22,14 @@ public class AuditInfoFactory {
 
     public AuditInfo from(AuditTrail audit, Thesaurus thesaurus) {
         AuditInfo auditInfo = new AuditInfo();
-        AuditDomainContextType auditDomainContextType = (audit.getOperation() == AuditOperationType.UPDATE) ?
-                audit.getContext() : AuditDomainContextType.EMPTY;
+        AuditDomainContextType auditDomainContextType =
+                (audit.getDomainContext() == AuditDomainContextType.DEVICE_ATTRIBUTES) && (audit.getOperation() == AuditOperationType.DELETE) ?
+                        AuditDomainContextType.NODOMAIN : audit.getDomainContext();
         auditInfo.id = audit.getId();
-        auditInfo.domain = thesaurus.getString(audit.getDomain().name(), audit.getDomain().name());
-        auditInfo.context = thesaurus.getString(auditDomainContextType.type(), auditDomainContextType.name());
+        auditInfo.domain = thesaurus.getString(audit.getDomainContext().domainType().name(), audit.getDomainContext().domainType().name());
+        auditInfo.context = thesaurus.getString(auditDomainContextType.type(), getDefultTranslation(auditDomainContextType));
         auditInfo.contextType = auditDomainContextType;
-        auditInfo.domainType = audit.getDomain();
+        auditInfo.domainType = audit.getDomainContext().domainType();
         auditInfo.changedOn = audit.getChangedOn();
         auditInfo.operation = thesaurus.getString(audit.getOperation().name(), audit.getOperation().name());
         auditInfo.operationType = audit.getOperation().name();
@@ -39,5 +41,13 @@ public class AuditInfoFactory {
                 .sorted((auditLog1, auditLog2) -> auditLog1.getName().compareToIgnoreCase(auditLog2.getName()))
                 .collect(Collectors.toList());
         return auditInfo;
+    }
+
+    private String getDefultTranslation(AuditDomainContextType auditDomainContextType) {
+        return Arrays.stream(AuditDomainContextTranslationKeys.values())
+                .filter(auditDomainContextTranslationKeys -> auditDomainContextTranslationKeys.getKey().compareToIgnoreCase(auditDomainContextType.name()) == 0)
+                .findFirst()
+                .map(AuditDomainContextTranslationKeys::getDefaultFormat)
+                .orElseGet(() -> AuditDomainContextTranslationKeys.NODOMAIN.getDefaultFormat());
     }
 }

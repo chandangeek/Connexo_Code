@@ -11,13 +11,11 @@ import java.util.List;
 @ConsumerType
 public interface AuditTrailDecoderHandle {
 
-    String getDomain();
-
-    String getContext();
-
     List<String> getPrivileges();
 
     AuditDecoder getAuditDecoder(AuditTrailReference reference);
+
+    AuditDomainContextType getAuditDomainContextType();
 
 
 }

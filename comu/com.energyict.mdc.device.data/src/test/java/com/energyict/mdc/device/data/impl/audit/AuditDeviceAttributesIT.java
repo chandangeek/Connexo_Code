@@ -19,7 +19,7 @@ import com.elster.jupiter.users.Privilege;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.impl.TestProtocol;
-import com.energyict.mdc.device.data.impl.audit.deviceAttributes.AuditTrailDeviceAttributes;
+import com.energyict.mdc.device.data.impl.audit.deviceAttributes.AuditTrailDeviceAttributesHandle;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -73,7 +73,7 @@ public class AuditDeviceAttributesIT extends PersistenceIntegrationTest {
         device.setSerialNumber("00000000");
         device.save();
 
-        AuditTrailDeviceAttributes auditTrailDeviceAttributes = new AuditTrailDeviceAttributes();
+        AuditTrailDeviceAttributesHandle auditTrailDeviceAttributes = new AuditTrailDeviceAttributesHandle();
         auditTrailDeviceAttributes.setMeteringService(inMemoryPersistence.getMeteringService());
         auditTrailDeviceAttributes.setNlsService(inMemoryPersistence.getNlsService());
         auditTrailDeviceAttributes.setOrmService(inMemoryPersistence.getDataModel().getInstance(OrmService.class));
