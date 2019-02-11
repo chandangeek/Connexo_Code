@@ -8,13 +8,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>mdm.parent</artifactId>
-        <version>1.4.1${revision}</version>
-        <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
+        <version>1.0.0-Nessus-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdm.usagepoint.config</artifactId>
     <packaging>bundle</packaging>
-    <version>2.3.1${revision}</version>
     <name>[MDM] mdm.usagepoint.config [init UPC]</name>
     <description>
         Usage point configuration entities and services
@@ -210,6 +208,11 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>audit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

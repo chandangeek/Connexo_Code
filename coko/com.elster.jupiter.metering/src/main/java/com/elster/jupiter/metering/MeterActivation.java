@@ -8,12 +8,15 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.HasId;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public interface MeterActivation extends HasId, Effectivity, ReadingContainer {
 
     Optional<UsagePoint> getUsagePoint();
@@ -59,6 +62,8 @@ public interface MeterActivation extends HasId, Effectivity, ReadingContainer {
     void removeMultiplier(MultiplierType type);
 
     Map<MultiplierType, BigDecimal> getMultipliers();
+
+    Map<Instant, BigDecimal> getJournalMultipliers();
 
     Optional<BigDecimal> getMultiplier(MultiplierType type);
 

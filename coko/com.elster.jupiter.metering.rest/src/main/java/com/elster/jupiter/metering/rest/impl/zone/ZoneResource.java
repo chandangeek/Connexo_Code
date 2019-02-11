@@ -9,9 +9,10 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneFilter;
+import com.elster.jupiter.metering.zone.ZoneType;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -35,6 +36,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -42,16 +44,14 @@ import java.util.stream.Collectors;
 public class ZoneResource {
     private final MeteringZoneService meteringZoneService;
     private final TransactionService transactionService;
-    private final ExceptionFactory exceptionFactory;
     private final ZoneTypeInfoFactory zoneTypeInfoFactory;
     private final ZoneInfoFactory zoneInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public ZoneResource(MeteringZoneService meteringZoneService, TransactionService transactionService, ExceptionFactory exceptionFactory,
+    public ZoneResource(MeteringZoneService meteringZoneService, TransactionService transactionService,
                         ConcurrentModificationExceptionFactory conflictFactory, ZoneInfoFactory zoneInfoFactory, ZoneTypeInfoFactory zoneTypeInfoFactory) {
         this.meteringZoneService = meteringZoneService;
-        this.exceptionFactory = exceptionFactory;
         this.transactionService = transactionService;
         this.zoneInfoFactory = zoneInfoFactory;
         this.zoneTypeInfoFactory = zoneTypeInfoFactory;
@@ -80,8 +80,14 @@ public class ZoneResource {
             Privileges.Constants.ADMINISTRATE_ZONE})
     public PagedInfoList getZoneTypes(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey, @BeanParam JsonQueryParameters queryParameters) {
         return PagedInfoList.fromPagedList("types", meteringZoneService.getZoneTypes(appKey).stream()
+                .filter((ZoneType zoneType) ->
+                            meteringZoneService
+                            .getZones(appKey,
+                                    meteringZoneService.newZoneFilter()
+                                            .setZoneTypes(Collections.singletonList(zoneType.getId())))
+                            .find().size() != 0)
                 .sorted((zoneType1, zoneType2) -> zoneType1.getName().compareToIgnoreCase(zoneType2.getName()))
-                .map(zoneTypes -> zoneTypeInfoFactory.from(zoneTypes))
+                .map(zoneType -> zoneTypeInfoFactory.from(zoneType))
                 .collect(Collectors.toList()), queryParameters);
     }
 
@@ -128,7 +134,7 @@ public class ZoneResource {
             zone.save(); // don't touch zonetype
             context.commit();
         } catch (UnderlyingSQLFailedException | CommitException ex) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.ZONE_CREATING_FAIL);
+            throw new LocalizedFieldValidationException(MessageSeeds.ZONE_SAVING_FAIL, "zones", zoneInfo.name);
         }
         return Response.status(Response.Status.OK).build();
     }
@@ -166,10 +172,10 @@ public class ZoneResource {
     }
 
     private ZoneFilter getZoneFilter(JsonQueryFilter filter) {
-        ZoneFilter calendarFilter = meteringZoneService.newZoneFilter();
+        ZoneFilter zoneFilter = meteringZoneService.newZoneFilter();
         if (filter.hasProperty("zoneTypes")) {
-            calendarFilter.setZoneTypes(filter.getLongList("zoneTypes"));
+            zoneFilter.setZoneTypes(filter.getLongList("zoneTypes"));
         }
-        return calendarFilter;
+        return zoneFilter;
     }
 }

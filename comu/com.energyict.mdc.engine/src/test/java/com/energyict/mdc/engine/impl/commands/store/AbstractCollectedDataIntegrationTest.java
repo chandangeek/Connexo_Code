@@ -5,6 +5,8 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -28,6 +30,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -125,6 +129,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
     private static TopologyService topologyService;
     private static TransactionService transactionService;
     private static HsmEnergyService hsmEnergyService;
+    private static MeteringZoneService meteringZoneService;
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
 
@@ -149,6 +154,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new DomainUtilModule(),
                 new NlsModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new AppServiceModule(),
                 new UserModule(),
                 new BpmModule(),
@@ -203,7 +209,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new FirmwareModule(),
                 new CalendarModule(),
                 new TopologyModule(),
-                new PkiModule());
+                new PkiModule(),
+                new MeteringZoneModule());
         initializeTopModuleInATransaction();
     }
 
@@ -227,6 +234,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
 //                injector.getInstance(EngineService.class);
                 injector.getInstance(TopologyService.class);
                 injector.getInstance(EventService.class);
+                injector.getInstance(AuditService.class);
+                injector.getInstance(MeteringZoneService.class);
                 meteringService = injector.getInstance(MeteringService.class);
                 mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 masterDataService = injector.getInstance(MasterDataService.class);

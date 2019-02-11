@@ -16,8 +16,10 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.Interval;
@@ -27,6 +29,7 @@ import com.google.common.collect.Range;
 
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -82,6 +85,23 @@ class ActiveCustomPropertySet {
             return this.getValuesEntityFor(condition, () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " against business object " + businessObject);
         }
         else {
+            return Optional.empty();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> Optional<T> getNonVersionedValuesHistoryEntityFor(D businessObject, Instant at, Object... additionalPrimaryKeyColumnValues) {
+        if (this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+
+            return this.getMapper()
+                    .at(at)
+                    .find(Arrays.asList(
+                            Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject),
+                            Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet)))
+                    .stream()
+                    .map(o -> ((JournalEntry<T>) o).get()).findFirst();
+        } else {
             return Optional.empty();
         }
     }
@@ -181,8 +201,45 @@ class ActiveCustomPropertySet {
     }
 
     @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> Optional<T> getVersionedValuesEntityModifiedBetweenFor(D businessObject, boolean ignorePrivileges, Instant start, Instant end, Object... additionalPrimaryKeyColumnValues) {
+        if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            Condition condition =
+                    this.addAdditionalPrimaryKeyColumnConditionsTo(
+                            where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
+                                    .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
+                                    .and(where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isGreaterThanOrEqual(start))
+                                    .and(where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isLessThanOrEqual(end)),
+                            additionalPrimaryKeyColumnValues);
+            return this.getValuesEntityFor(
+                    condition,
+                    () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " modified between " + start + " and " + end + " against business object " + businessObject);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> Optional<T> getVersionedValuesHistoryEntityFor(D businessObject, boolean ignorePrivileges, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyColumnValues) {
+        if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            return this.getMapper()
+                    .at(at)
+                    .find(Arrays.asList(
+                            Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject),
+                            Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet)))
+
+                    .stream()
+                    .map(o -> ((JournalEntry<T>) o).get()).findFirst();
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(Condition condition, Supplier<String> errorMessageSupplier) {
         List<T> extensions = this.getMapper().select(condition);
+
         if (extensions.isEmpty()) {
             return Optional.empty();
         }

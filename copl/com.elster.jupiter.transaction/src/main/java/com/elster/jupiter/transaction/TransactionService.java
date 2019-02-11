@@ -16,7 +16,6 @@ public interface TransactionService {
 	 * Most clients should use the execute method, but the TransactionContext gives access to the tx statistics if needed
 	 */
 	TransactionContext getContext();
-
 	/*
 	 * Standard way of executing a transaction that returns a value. Any exception throw, by transaction.perform() will rollback
 	 * the tx and passed to caller.
@@ -49,4 +48,7 @@ public interface TransactionService {
 	 */
 	boolean isInTransaction();
 
+    default TransactionProperties getTransactionProperties() {
+        throw new UnsupportedOperationException();
+    }
 }

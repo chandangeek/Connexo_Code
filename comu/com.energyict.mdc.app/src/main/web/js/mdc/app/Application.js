@@ -34,7 +34,9 @@ Ext.define('MdcApp.Application', {
         'Dal.privileges.Alarm',
         'Mdc.privileges.RegisteredDevicesKpi',
         'Mdc.privileges.TaskManagement',
-        'Mdc.privileges.SecurityAccessor'
+        'Mdc.privileges.SecurityAccessor',
+        'Mdc.privileges.Audit',
+        'Tou.privileges.TouCampaign'
     ],
     controllers: [
         'MdcApp.controller.Main'

@@ -2701,7 +2701,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(17);
+        assertThat(model.<Number>get("$.total")).isEqualTo(19);
         List<String> privileges = model.get("$.privileges[*].name");
         assertThat(privileges).contains(
                 DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
@@ -2720,7 +2720,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
                 DevicePrivileges.DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION,
                 DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
-                DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
+                DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING,
+                DevicePrivileges.DEVICES_WIDGET_ZONES,
+                DevicePrivileges.DEVICES_ACTIONS_ZONES
         );
     }
 
@@ -2760,7 +2762,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(20);
+        assertThat(model.<Number>get("$.total")).isEqualTo(22);
         List<String> privileges = model.get("$.privileges[*].name");
         assertThat(privileges).contains(
                 DevicePrivileges.DEVICES_WIDGET_VALIDATION,
@@ -2782,7 +2784,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
                 DevicePrivileges.DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION,
                 DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
-                DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
+                DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING,
+                DevicePrivileges.DEVICES_WIDGET_ZONES,
+                DevicePrivileges.DEVICES_ACTIONS_ZONES
         );
     }
 
@@ -2837,6 +2841,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(registeredCustomPropertySet.isEditableByCurrentUser()).thenReturn(true);
         when(registeredCustomPropertySet.getId()).thenReturn(1L);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        doReturn(Device.class).when(customPropertySet).getDomainClass();
         MdcPropertyUtils mdcPropertyUtils = mock(MdcPropertyUtils.class);
         PropertyInfo propertyInfo = mock(PropertyInfo.class);
         PropertyValueInfo propertyValueInfo = mock(PropertyValueInfo.class);

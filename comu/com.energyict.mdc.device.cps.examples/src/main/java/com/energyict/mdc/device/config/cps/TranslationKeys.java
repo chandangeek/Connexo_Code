@@ -29,7 +29,12 @@ public enum TranslationKeys implements TranslationKey {
     SCI_PROPERTY_LOGICAL_REGISTER_NUMBER(ChannelSAPInfoCustomPropertySet.PREFIX + ".logicalRegisterNumber", "Logical register number"),
     SCI_PROPERTY_PROFILE_NUMBER(ChannelSAPInfoCustomPropertySet.PREFIX + ".profileNumber", "Profile number"),
     SCI_PROPERTY_IN_USE(ChannelSAPInfoCustomPropertySet.PREFIX + ".inUse", "In use"),
-    SCI_PROPERTY_BILLING_FACTOR(ChannelSAPInfoCustomPropertySet.PREFIX + ".billingFactor", "Billing factor"),;
+    SCI_PROPERTY_BILLING_FACTOR(ChannelSAPInfoCustomPropertySet.PREFIX + ".billingFactor", "Billing factor"),
+
+    DMI_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".name", "Manufacturer-info"),
+    DMI_DOMAIN_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".domain.name", "Device type"),
+    DMI_MANUFACTURER_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".manufacturername", "Manufacturer Name"),
+    DMI_MANUFACTURER_ID(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".manufacturerid", "Manufacturer Id");
 
     private final String key;
     private final String defaultFormat;

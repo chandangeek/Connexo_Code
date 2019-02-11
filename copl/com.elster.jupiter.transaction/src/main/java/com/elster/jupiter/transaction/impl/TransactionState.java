@@ -12,7 +12,7 @@ import com.elster.jupiter.util.time.StopWatch;
 
 import java.sql.Connection;
 import java.sql.SQLException;
- 
+
 class TransactionState implements Subscriber {	
 	private final TransactionServiceImpl  transactionService;
 	private Connection connection;
@@ -70,8 +70,8 @@ class TransactionState implements Subscriber {
 			fetchCount += event.getFetchCount();			
 		}
 	}
-	
-	@Override
+
+    @Override
 	public Class<?>[] getClasses() {
 		return new Class<?>[] { SqlEvent.class };
 	}

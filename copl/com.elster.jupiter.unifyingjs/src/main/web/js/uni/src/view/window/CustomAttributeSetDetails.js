@@ -5,6 +5,7 @@
 Ext.define('Uni.view.window.CustomAttributeSetDetails', {
     extend: 'Uni.view.window.Notification',
     xtype: 'custom-attribute-set-details',
+    itemId: 'custom-attribute-set-details-id',
     record: null,
 
     requires: [

@@ -100,6 +100,11 @@ public class DeviceProtocolPropertyImpl implements ServerDeviceProtocolPropertyF
         this.notifyUpdate();
     }
 
+    @Override
+    public long getVesion() {
+        return version;
+    }
+
     private void notifyUpdate() {
         DevicePropertyUpdateEventEnum
                 .stream()

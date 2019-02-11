@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.CalendarService;
@@ -258,6 +259,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                     new CustomPropertySetsModule(),
                     new CalendarModule(),
                     new WebServicesModule(),
+                    new AuditServiceModule(),
                     new FileImportModule()
             );
         } catch (Exception e) {

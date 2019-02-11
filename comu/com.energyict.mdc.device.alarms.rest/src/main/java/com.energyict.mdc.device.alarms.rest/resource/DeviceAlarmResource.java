@@ -721,11 +721,24 @@ public class DeviceAlarmResource extends BaseAlarmResource{
                 filter.setUnassignedWorkGroupSelected();
             }
         }
-        if(jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL) !=null){
-            filter.setStartCreateTime(jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL));
+        if(jsonFilter.getString(DeviceAlarmRestModuleConst.START_INTERVAL_FROM_TO) !=null){
+            String[] betweenRange = jsonFilter.getString(DeviceAlarmRestModuleConst.START_INTERVAL_FROM_TO).split("-");
+            if(betweenRange.length == 2) {
+                if(!"".equals(betweenRange[0])) {
+                    Long from = Long.valueOf(betweenRange[0]);
+                    filter.setStartCreateTime(from);
+                }
+                if(!"".equals(betweenRange[1])) {
+                    Long to = Long.valueOf(betweenRange[1]);
+                    filter.setEndCreateTime(to);
+                }
+            }
         }
-        if(jsonFilter.getLong(DeviceAlarmRestModuleConst.END_INTERVAL) !=null){
-            filter.setEndCreateTime(jsonFilter.getLong(DeviceAlarmRestModuleConst.END_INTERVAL));
+        if(jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL_FROM) !=null){
+            filter.setStartCreateTime(jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL_FROM));
+        }
+        if(jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL_TO) !=null){
+            filter.setEndCreateTime(jsonFilter.getLong(DeviceAlarmRestModuleConst.START_INTERVAL_TO));
         }
         getDueDates(jsonFilter).stream().forEach(dd -> filter.setDueDates(dd.startTime, dd.endTime));
         return filter;

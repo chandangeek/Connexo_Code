@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.imports.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -116,6 +117,7 @@ public class InMemoryIntegrationPersistence {
         modules.add(new PropertyValueInfoServiceModule());
         modules.add(new ServiceCallModule());
         modules.add(new WebServicesModule());
+        modules.add(new AuditServiceModule());
         modules.add(bootstrapModule);
 
         injector = Guice.createInjector(modules.toArray(new Module[modules.size()]));

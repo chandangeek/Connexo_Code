@@ -6,6 +6,7 @@ package com.elster.jupiter.customtask.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.customtask.CustomTask;
 import com.elster.jupiter.customtask.CustomTaskAction;
@@ -166,6 +167,7 @@ public class CustomTaskImplIT {
                     new EventsModule(),
                     new FileImportModule(),
                     new WebServicesModule(),
+                    new AuditServiceModule(),
                     new PartyModule(),
                     new DomainUtilModule(),
                     new UserModule(),

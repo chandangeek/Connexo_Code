@@ -208,6 +208,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_CRL_REQUEST_TASK(2181, "NoCrlRequestTask", "No CRL request task."),
     CAN_NOT_BE_EMPTY(2182, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
     UNKNOWN_PROPERTY(2183, Keys.UNKNOWN_PROPERTY, "Unknown property {name}"),
+    NO_SUCH_ZONE(2184, "NoSuchZone", "No zone with id {0}"),
+    ZONE_REMOVED(2185, "ZoneRemoved", "Zone {0} removed from {1}"),
 
     ;
 
