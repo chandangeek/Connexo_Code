@@ -80,6 +80,7 @@ import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -281,6 +282,7 @@ public class ToUCampaignServiceIT{
         assertThat(serviceCallService.getServiceCallFinder().find().get(0).getLogs().find().contains("campaign cancelled by user"));
     }
 
+    @Ignore
     @Test
     @Transactional
     public void cancelDeviceTest() {

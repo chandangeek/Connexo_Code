@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.tou.campaign.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -163,6 +165,7 @@ public class ToUCampaignInMemoryPersistence {
                 new TasksModule(),
                 new SchedulingModule(),
                 new FileImportModule(),
+                new AuditServiceModule(),
                 new MeteringZoneModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -175,6 +178,7 @@ public class ToUCampaignInMemoryPersistence {
             injector.getInstance(TimeOfUseItemPropertySet.class);
             injector.getInstance(TimeOfUseCampaignService.class);
             injector.getInstance(MeteringZoneService.class);
+            injector.getInstance(AuditService.class);
             ctx.commit();
         }
     }
