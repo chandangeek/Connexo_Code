@@ -37,6 +37,7 @@ public class CASConflictsSolverTest {
     private static final Instant VERSION_ID = new GregorianCalendar(2003, 4, 14).toInstant();
 
     private static final Instant LATE_DATE = new GregorianCalendar(2008, 2, 13).toInstant();
+    private static final Instant ANOTHER_LATE_DATE = new GregorianCalendar(2009, 0, 1).toInstant();
     private static final Instant EARLY_DATE = new GregorianCalendar(1980, 5, 19).toInstant();
 
     private CASConflictsSolver sut;
@@ -82,7 +83,6 @@ public class CASConflictsSolverTest {
         when(conflictGapBefore.getType()).thenReturn(ValuesRangeConflictType.RANGE_GAP_BEFORE);
         when(conflictGapBefore.getConflictingRange()).thenReturn(Range.atMost(INSTANT_GAP_BEFORE));
 
-        existingValues = CustomPropertySetValues.emptyDuring(Range.closedOpen(EARLY_DATE, LATE_DATE));
         startTime = Optional.empty();
         endTime = Optional.empty();
     }
@@ -147,6 +147,8 @@ public class CASConflictsSolverTest {
 
     @Test
     public void testSolveConflictsForUpdate_NoConflicts() {
+        prepareExistingValuesFromEarlyDateToLateDate();
+
         Range<Instant> result = sut.solveConflictsForUpdate(device, customPropertySet, startTime, endTime, VERSION_ID,
                 existingValues);
 
@@ -155,12 +157,77 @@ public class CASConflictsSolverTest {
 
     @Test
     public void testSolveConflictsForUpdate__GapAfter_EndTimeIsNull() {
+        prepareExistingValuesFromEarlyDateToLateDate();
         prepareConflictsForUpdate(conflictGapAfter);
 
         Range<Instant> result = sut.solveConflictsForUpdate(device, customPropertySet, startTime, endTime, VERSION_ID,
                 existingValues);
 
         assertEquals(Range.closedOpen(INSTANT_GAP_AFTER, LATE_DATE), result);
+    }
+
+    @Test
+    public void testSolveConflictsForUpdate__GapAfter_EndTimeIsNullAndConflicHasStartDateEpoch() {
+        prepareExistingValuesFromEarlyDateToLateDate();
+        prepareConflictsForUpdate(conflictGapAfter);
+        when(conflictGapAfter.getConflictingRange()).thenReturn(Range.closedOpen(Instant.EPOCH, INSTANT_GAP_AFTER));
+
+        Range<Instant> result = sut.solveConflictsForUpdate(device, customPropertySet, startTime, endTime, VERSION_ID,
+                existingValues);
+
+        assertEquals(Range.lessThan(LATE_DATE), result);
+    }
+
+    @Test
+    public void testSolveConflictsForUpdate__GapAfter_EndTimeIsNullAndExistingValuesRangeDoesNotHaveEndDate() {
+        existingValues = CustomPropertySetValues.emptyDuring(Range.atLeast(EARLY_DATE));
+        prepareConflictsForUpdate(conflictGapAfter);
+        // endTime = Optional.of(Instant.EPOCH);
+
+        Range<Instant> result = sut.solveConflictsForUpdate(device, customPropertySet, startTime, endTime, VERSION_ID,
+                existingValues);
+
+        assertEquals(Range.atLeast(INSTANT_GAP_AFTER), result);
+    }
+
+    private void prepareExistingValuesFromEarlyDateToLateDate() {
+        existingValues = CustomPropertySetValues.emptyDuring(Range.closedOpen(EARLY_DATE, LATE_DATE));
+    }
+
+    @Test
+    public void testSolveConflictsForUpdate__GapAfter_EndTimeIsNotEpoch() {
+        prepareExistingValuesFromEarlyDateToLateDate();
+        prepareConflictsForUpdate(conflictGapAfter);
+        endTime = Optional.of(ANOTHER_LATE_DATE);
+
+        Range<Instant> result = sut.solveConflictsForUpdate(device, customPropertySet, startTime, endTime, VERSION_ID,
+                existingValues);
+
+        assertEquals(Range.closedOpen(INSTANT_GAP_AFTER, ANOTHER_LATE_DATE), result);
+    }
+
+    @Test
+    public void testSolveConflictsForUpdate__GapAfter_EndTimeIsEpoch() {
+        prepareExistingValuesFromEarlyDateToLateDate();
+        prepareConflictsForUpdate(conflictGapAfter);
+        endTime = Optional.of(Instant.EPOCH);
+
+        Range<Instant> result = sut.solveConflictsForUpdate(device, customPropertySet, startTime, endTime, VERSION_ID,
+                existingValues);
+
+        assertEquals(Range.atLeast(INSTANT_GAP_AFTER), result);
+    }
+
+    @Test
+    public void testSolveConflictsForUpdate__GapAfter_EndTimeIsNullAndStartTimeIsEpochAndExistingValuesDoesNotHaveEndTime() {
+        existingValues = CustomPropertySetValues.emptyDuring(Range.atLeast(EARLY_DATE));
+        prepareConflictsForUpdate(conflictGapAfter);
+        when(conflictGapAfter.getConflictingRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+
+        Range<Instant> result = sut.solveConflictsForUpdate(device, customPropertySet, startTime, endTime, VERSION_ID,
+                existingValues);
+
+        assertEquals(Range.all(), result);
     }
 
 }

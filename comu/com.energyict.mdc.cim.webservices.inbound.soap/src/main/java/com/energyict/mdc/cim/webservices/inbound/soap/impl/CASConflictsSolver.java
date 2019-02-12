@@ -81,16 +81,11 @@ public class CASConflictsSolver {
         if (!startTime.isPresent() && !endTime.isPresent()) {
             return oldRange;
         } else if (!startTime.isPresent()) {
-            if (oldRange.hasLowerBound()) {
-                if (!endTime.get().equals(Instant.EPOCH)) {
-                    return Range.closedOpen(oldRange.lowerEndpoint(), endTime.get());
-                } else {
-                    return Range.atLeast(oldRange.lowerEndpoint());
-                }
-            } else if (endTime.get().equals(Instant.EPOCH)) {
-                return Range.all();
+            // existingValues.getEffectiveRange() always has lowerBound
+            if (!endTime.get().equals(Instant.EPOCH)) {
+                return Range.closedOpen(oldRange.lowerEndpoint(), endTime.get());
             } else {
-                return Range.lessThan(endTime.get());
+                return Range.atLeast(oldRange.lowerEndpoint());
             }
         } else if (!endTime.isPresent()) {
             if (oldRange.hasUpperBound()) {
