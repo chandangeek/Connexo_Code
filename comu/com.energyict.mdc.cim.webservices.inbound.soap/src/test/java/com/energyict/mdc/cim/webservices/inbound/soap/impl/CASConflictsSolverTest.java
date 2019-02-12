@@ -230,4 +230,16 @@ public class CASConflictsSolverTest {
         assertEquals(Range.all(), result);
     }
 
+    @Test
+    public void testSolveConflictsForUpdate__GapBefore_EndTimeIsNotEpoch() {
+        prepareExistingValuesFromEarlyDateToLateDate();
+        prepareConflictsForUpdate(conflictGapBefore);
+        endTime = Optional.of(ANOTHER_LATE_DATE);
+
+        Range<Instant> result = sut.solveConflictsForUpdate(device, customPropertySet, startTime, endTime, VERSION_ID,
+                existingValues);
+
+        assertEquals(Range.closedOpen(EARLY_DATE, INSTANT_GAP_BEFORE), result);
+    }
+
 }
