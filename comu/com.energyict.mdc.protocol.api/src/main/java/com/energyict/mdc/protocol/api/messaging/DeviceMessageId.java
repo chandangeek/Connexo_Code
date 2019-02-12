@@ -889,6 +889,7 @@ public enum DeviceMessageId {
 
     public static Set<DeviceMessageId> needsImageIdentifier(){
         return EnumSet.of(
+                DeviceMessageId.FIRMWARE_UPGRADE_DATA_CONCENTRATOR_MULTICAST_FIRMWARE_UPGRADE,
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER,
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER,
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER,

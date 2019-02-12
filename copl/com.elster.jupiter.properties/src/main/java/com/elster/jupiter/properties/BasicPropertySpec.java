@@ -158,7 +158,7 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
     @SuppressWarnings("unchecked")
     private boolean isPossibleValue(Object value, ValueFactory valueFactory) {
         Object dbValue = valueFactory.valueToDatabase(value);
-        return getPossibleValues()
+        return dbValue.equals(valueFactory.valueToDatabase(getPossibleValues().getDefault())) || getPossibleValues()
                 .getAllValues()
                 .stream()
                 .map(valueFactory::valueToDatabase)
