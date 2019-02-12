@@ -26,13 +26,12 @@ public class CASConflictsSolver {
 
     public Range<Instant> solveConflictsForCreate(Device businessObject,
             CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet,
-            CustomPropertySetInfo newCustomProperySetInfo) {
+                                                  Instant fromDate, Instant endDate) {
         OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService
                 .calculateOverlapsFor(customPropertySet, businessObject);
-        Optional<Instant> startTime = Optional.ofNullable(newCustomProperySetInfo.getFromDate());
-        Optional<Instant> endTime = Optional.ofNullable(newCustomProperySetInfo.getEndDate());
-        Range<Instant> range = Ranges.closedOpen(newCustomProperySetInfo.getFromDate(),
-                newCustomProperySetInfo.getEndDate());
+        Optional<Instant> startTime = Optional.ofNullable(fromDate);
+        Optional<Instant> endTime = Optional.ofNullable(endDate);
+        Range<Instant> range = Ranges.closedOpen(fromDate, endDate);
         for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenCreating(range)) {
             if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
                 range = getRangeToCreate(Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()), endTime);

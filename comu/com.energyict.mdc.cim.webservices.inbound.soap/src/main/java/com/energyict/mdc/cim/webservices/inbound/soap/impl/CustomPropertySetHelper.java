@@ -109,19 +109,20 @@ public class CustomPropertySetHelper {
 
             CustomPropertySetValues values = CustomPropertySetValues.empty();
             setCasValues(device, newCustomProperySetInfo, serviceCall, faults, customPropertySet, values);
-            if (faults.isEmpty()) {
-                if (customPropertySet.isVersioned()) {
-                    handleVersionedCas(device, newCustomProperySetInfo, serviceCall, faults, customPropertySet, values);
-                } else {
-                    customPropertySetService.setValuesFor(customPropertySet, device, values);
-                }
+            if (!faults.isEmpty()) {
+                return faults;
             }
-            return faults;
+            if (customPropertySet.isVersioned()) {
+                handleVersionedCas(device, newCustomProperySetInfo, serviceCall, faults, customPropertySet, values);
+            } else {
+                customPropertySetService.setValuesFor(customPropertySet, device, values);
+            }
         } catch (Exception ex) {
             loggerUtils.logException(device, faults, serviceCall, ex,
                     MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, newCustomProperySetInfo.getId());
             return faults;
         }
+        return faults;
     }
 
     private void handleVersionedCas(Device device, CustomPropertySetInfo newCustomProperySetInfo,
@@ -130,14 +131,34 @@ public class CustomPropertySetHelper {
             CustomPropertySetValues values) {
 
         if (newCustomProperySetInfo.getVersionId() == null) {
-            Range<Instant> range = casConflictsSolver.solveConflictsForCreate(device, customPropertySet,
-                    newCustomProperySetInfo);
-            customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range);
+            createNewVersion(device, newCustomProperySetInfo, serviceCall, faults, customPropertySet, values);
         } else {
             updateExistingVersion(device, customPropertySet, newCustomProperySetInfo, serviceCall, faults);
-            // customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range,
-            // newCustomProperySetInfo.getVersionId());
         }
+    }
+
+    private Instant getFromDate(Device device, CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall, List<FaultMessage> faults){
+        Instant fromDate = newCustomProperySetInfo.getFromDate();
+        if (fromDate == null && !newCustomProperySetInfo.isUpdateRange()) {
+            loggerUtils.logSevere(device, faults, serviceCall, MessageSeeds.START_DATE_LOWER_CREATED_DATE,
+                    device.getName());
+            return null;
+        }
+        if (fromDate == null){
+            return device.getCreateTime();
+        }
+        return fromDate;
+    }
+
+    private void createNewVersion(Device device, CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall, List<FaultMessage> faults,
+                                  CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet, CustomPropertySetValues values) {
+        Instant fromDate = getFromDate(device, newCustomProperySetInfo, serviceCall, faults);
+        if(!faults.isEmpty()){
+            return;
+        }
+        Range<Instant> range = casConflictsSolver.solveConflictsForCreate(device, customPropertySet,
+            fromDate, newCustomProperySetInfo.getEndDate());
+        customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range);
     }
 
     private void setCasValues(Device device, CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall,
