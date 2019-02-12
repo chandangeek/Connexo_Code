@@ -81,31 +81,43 @@ public class CASConflictsSolver {
         if (!startTime.isPresent() && !endTime.isPresent()) {
             return oldRange;
         } else if (!startTime.isPresent()) {
-            // existingValues.getEffectiveRange() always has lowerBound
-            if (!endTime.get().equals(Instant.EPOCH)) {
-                return Range.closedOpen(oldRange.lowerEndpoint(), endTime.get());
-            } else {
-                return Range.atLeast(oldRange.lowerEndpoint());
-            }
+            return getRangeWhenNoNewStartDate(endTime, oldRange);
         } else if (!endTime.isPresent()) {
-            if (oldRange.hasUpperBound()) {
-                if (!startTime.get().equals(Instant.EPOCH)) {
-                    return Range.closedOpen(startTime.get(), oldRange.upperEndpoint());
-                } else {
-                    return Range.lessThan(oldRange.upperEndpoint());
-                }
-            } else if (startTime.get().equals(Instant.EPOCH)) {
-                return Range.all();
-            } else {
-                return Range.atLeast(startTime.get());
-            }
+            return getRangeWhenNoNewEndDate(startTime, oldRange);
         } else {
             return getRangeToCreate(startTime, endTime);
         }
     }
 
-    private boolean isNotInfinite(Optional<Instant> endTime) {
-        return endTime.isPresent() && !endTime.get().equals(Instant.EPOCH);
+    private Range<Instant> getRangeWhenNoNewStartDate(Optional<Instant> endTime, Range<Instant> oldRange) {
+        // existingValues.getEffectiveRange() always has lowerBound
+        if (!endTime.get().equals(Instant.EPOCH)) {
+            return Range.closedOpen(oldRange.lowerEndpoint(), endTime.get());
+        } else {
+            return Range.atLeast(oldRange.lowerEndpoint());
+        }
+    }
+
+    private Range<Instant> getRangeWhenNoNewEndDate(Optional<Instant> startTime, Range<Instant> oldRange) {
+        if (oldRange.hasUpperBound()) {
+            return getRangeWhenOldEndDateExists(startTime, oldRange);
+        } else if (startTime.get().equals(Instant.EPOCH)) {
+            return Range.all();
+        } else {
+            return Range.atLeast(startTime.get());
+        }
+    }
+
+    private Range<Instant> getRangeWhenOldEndDateExists(Optional<Instant> startTime, Range<Instant> oldRange) {
+        if (!startTime.get().equals(Instant.EPOCH)) {
+            return Range.closedOpen(startTime.get(), oldRange.upperEndpoint());
+        } else {
+            return Range.lessThan(oldRange.upperEndpoint());
+        }
+    }
+
+    private boolean isNotInfinite(Optional<Instant> dateTime) {
+        return dateTime.isPresent() && !dateTime.get().equals(Instant.EPOCH);
     }
 
     private boolean notDefinedOrIsInfinite(Optional<Instant> dateTime) {
