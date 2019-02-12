@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -145,6 +146,9 @@ public class DeviceLifeCycleChangeEventsTest {
 
     @Mock
     private ConnectionTaskService connectionTaskService;
+
+    @Mock
+    private MeteringZoneService meteringZoneService;
 
     @Before
     public void initializeMocks() {
@@ -355,7 +359,7 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.deviceConfigurationService,
                 deviceService,
                 lockService,
-                securityManagementService, connectionTaskService)
+                securityManagementService, connectionTaskService, meteringZoneService)
                 .initialize(this.deviceConfiguration, "Hello world", Instant.now());
         device.save();
         return device;

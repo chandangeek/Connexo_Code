@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
@@ -51,7 +52,7 @@ public class Installer implements FullInstaller {
     static final String COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME = "Recalculate communication schedules";
     public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME = "COMSCHED_BATCH_OBSOLETE";
     static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME = "Handle obsolete communication schedules";
-    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+    static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
     private final UserService userService;
@@ -60,11 +61,13 @@ public class Installer implements FullInstaller {
     private final InstallerV10_2Impl installerV10_2;
     private final PrivilegesProviderV10_3 privilegesProviderV10_3;
     private final PrivilegesProviderV10_4_1 privilegesProviderV10_4_1;
+    private final PrivilegesProviderV10_6 privilegesProviderV10_6;
     private final TaskService taskService;
 
     @Inject
     public Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService, TaskService taskService,
-                     InstallerV10_2Impl installerV10_2, PrivilegesProviderV10_3 privilegesProviderV10_3, PrivilegesProviderV10_4_1 privilegesProviderV10_4_1) {
+                     InstallerV10_2Impl installerV10_2, PrivilegesProviderV10_3 privilegesProviderV10_3, PrivilegesProviderV10_4_1 privilegesProviderV10_4_1,
+                     PrivilegesProviderV10_6 privilegesProviderV10_6) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
@@ -74,6 +77,7 @@ public class Installer implements FullInstaller {
         this.installerV10_2 = installerV10_2;
         this.privilegesProviderV10_3 = privilegesProviderV10_3;
         this.privilegesProviderV10_4_1 = privilegesProviderV10_4_1;
+        this.privilegesProviderV10_6 = privilegesProviderV10_6;
     }
 
     @Override
@@ -119,6 +123,7 @@ public class Installer implements FullInstaller {
         userService.addModulePrivileges(installerV10_2);
         userService.addModulePrivileges(privilegesProviderV10_3);
         userService.addModulePrivileges(privilegesProviderV10_4_1);
+        userService.addModulePrivileges(privilegesProviderV10_6);
     }
 
     private void addJupiterEventSubscribers() {
@@ -165,6 +170,7 @@ public class Installer implements FullInstaller {
         this.createMessageHandler(defaultQueueTableSpec, CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_DESTINATION_NAME, SubscriberTranslationKeys.CERTIFICATE_RENEWAL_TASK_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_DESTINATION_NAME, SubscriberTranslationKeys.KEY_RENEWAL_TASK_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, CrlRequestHandlerFactory.CRL_REQUEST_TASK_DESTINATION_NAME, SubscriberTranslationKeys.CRL_REQUEST_TASK_SUBSCRIBER);
+        this.createMessageHandler(defaultQueueTableSpec, MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION, SubscriberTranslationKeys.ZONE_SUBSCRIBER);
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, TranslationKey nameKey) {

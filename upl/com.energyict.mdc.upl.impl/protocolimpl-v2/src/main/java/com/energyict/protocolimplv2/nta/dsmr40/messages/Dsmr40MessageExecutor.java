@@ -166,7 +166,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
     }
 
-    private void changeAuthenticationLevel(OfflineDeviceMessage pendingMessage, int type, boolean enable) throws IOException {
+    protected void changeAuthenticationLevel(OfflineDeviceMessage pendingMessage, int type, boolean enable) throws IOException {
         int newAuthLevel = getIntegerAttribute(pendingMessage);
         if (newAuthLevel != -1) {
             Data config = getCosemObjectFactory().getData(OBISCODE_CONFIGURATION_OBJECT);

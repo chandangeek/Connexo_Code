@@ -22,6 +22,10 @@ Ext.define('Uni.view.form.CustomAttributeSetDetails', {
             fieldLabel: Uni.I18n.translate('general.name', 'UNI', 'Name')
         },
         {
+            name: 'domainName',
+            fieldLabel: Uni.I18n.translate('customattributesets.type', 'UNI', 'Type')
+        },
+        {
             fieldLabel: Uni.I18n.translate('customattributesets.timeSliced', 'UNI', 'Time-sliced'),
             name: 'isVersioned',
             renderer: function (value) {

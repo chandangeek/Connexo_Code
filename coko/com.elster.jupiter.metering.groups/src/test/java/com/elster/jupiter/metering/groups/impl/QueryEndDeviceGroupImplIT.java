@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -139,7 +141,8 @@ public class QueryEndDeviceGroupImplIT {
                     new DataVaultModule(),
                     new TaskModule(),
                     new CustomPropertySetsModule(),
-                    new WebServicesModule()
+                    new WebServicesModule(),
+                    new AuditServiceModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -148,7 +151,7 @@ public class QueryEndDeviceGroupImplIT {
                     injector.getInstance(FiniteStateMachineService.class);
                     injector.getInstance(MeteringGroupsService.class);
                     injector.getInstance(MeteringService.class);
-
+            injector.getInstance(AuditService.class);
                     when(searchDomain.getId()).thenReturn("Device");
                     injector.getInstance(SearchService.class).register(searchDomain);
 

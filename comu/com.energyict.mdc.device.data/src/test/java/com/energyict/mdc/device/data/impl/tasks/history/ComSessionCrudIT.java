@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -30,6 +32,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.impl.ZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -229,7 +232,9 @@ public class ComSessionCrudIT {
                     new TaskModule(),
                     new CalendarModule(),
                     new WebServicesModule(),
-                    new FileImportModule());
+                    new AuditServiceModule(),
+                    new FileImportModule(),
+                    new ZoneModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -255,6 +260,7 @@ public class ComSessionCrudIT {
             engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             taskService = injector.getInstance(TaskService.class);
+            injector.getInstance(AuditService.class);
             ctx.commit();
         }
     }

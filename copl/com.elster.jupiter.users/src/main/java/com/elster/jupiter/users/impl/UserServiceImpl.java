@@ -446,7 +446,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     public Optional<Resource> getResource(String resourceName) {
-        return resourceFactory().getOptional(resourceName);
+        return resourceFactory().getUnique("name", resourceName);
     }
 
     @Override

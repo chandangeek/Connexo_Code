@@ -12,6 +12,7 @@ Ext.define('Mdc.devicetypecustomattributes.model.CustomAttributeSet', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string'},
+        {name: 'domainName', type: 'string'},
         {name: 'isVersioned', type: 'boolean'},
         {name: 'viewPrivileges', type: 'auto'},
         {name: 'editPrivileges', type: 'auto'},

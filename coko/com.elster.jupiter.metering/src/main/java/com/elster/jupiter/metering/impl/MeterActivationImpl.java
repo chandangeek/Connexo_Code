@@ -46,6 +46,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -498,6 +499,18 @@ public final class MeterActivationImpl implements IMeterActivation {
     public Map<MultiplierType, BigDecimal> getMultipliers() {
         return multipliers.stream()
                 .collect(Collectors.toMap(MultiplierValue::getType, MultiplierValue::getValue));
+    }
+
+    //@Override
+    public Map<Instant, BigDecimal> getJournalMultipliers() {
+        Map<Instant, BigDecimal> journalMultipliers = new HashMap<>();
+        multipliers.stream()
+                .map(multiplierValue -> multiplierValue.getHistory())
+                .flatMap(List::stream)
+                .forEach(multiplierValueJournalEntry -> journalMultipliers.put(multiplierValueJournalEntry.getJournalTime(), multiplierValueJournalEntry.get().getValue()));
+        return journalMultipliers;
+
+
     }
 
     @Override

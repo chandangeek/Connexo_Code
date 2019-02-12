@@ -4,10 +4,12 @@
 
 package com.energyict.mdc.device.config.cps;
 
+import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.HardCodedFieldNames;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.ViewPrivilege;
@@ -153,6 +155,15 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                     .findFirst()
                     .map(Fields::name)
                     .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
+
+        @Override
+        public void addAudit(Table table) {
+            table.audit("")
+                    .domainContext(AuditDomainContextType.DEVICE_CUSTOM_ATTRIBUTES.ordinal())
+                    .domainReferences(domainForeignKeyName(), "FK_DDC_DEVICE_ENDDEVICE")
+                    .contextReferenceColumn(HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
+                    .build();
         }
     }
 

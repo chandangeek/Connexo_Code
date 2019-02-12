@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
@@ -58,6 +59,8 @@ public abstract class AbstractMockActivator {
     protected User user;
     @Mock
     protected UsagePointLifeCycleService usagePointLifeCycleService;
+    @Mock
+    protected CustomPropertySetService customPropertySetService;
 
     private CIMInboundSoapEndpointsActivator activator;
 
@@ -86,6 +89,7 @@ public abstract class AbstractMockActivator {
         activator.setMetrologyConfigurationService(metrologyConfigurationService);
         activator.setUserService(userService);
         activator.setUsagePointLifeCycleService(usagePointLifeCycleService);
+        activator.setCustomPropertySetService(customPropertySetService);
         activator.activate(mock(BundleContext.class));
     }
 

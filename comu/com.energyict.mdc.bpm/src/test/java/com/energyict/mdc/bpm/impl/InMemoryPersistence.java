@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.bpm.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
@@ -28,6 +29,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -199,7 +201,9 @@ public class InMemoryPersistence {
                 new CalendarModule(),
                 new PkiModule(),
                 new WebServicesModule(),
-                new FileImportModule()
+                new AuditServiceModule(),
+                new FileImportModule(),
+                new MeteringZoneModule()
         );
     }
 

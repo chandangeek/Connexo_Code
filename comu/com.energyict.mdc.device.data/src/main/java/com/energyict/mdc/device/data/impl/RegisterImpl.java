@@ -153,8 +153,8 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         Map<ReadingRecord, List<ReadingQualityRecord>> mapReadingQualityRecord = new HashMap<>();
         readings.stream().forEach(readingRecord -> mapReadingQualityRecord.put(readingRecord, new ArrayList<>()));
 
-        List<? extends ReadingQualityRecord> readingQualities = this.device.getMeter().get().getReadingQualities(interval);
-        List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal = this.device.getMeter().get().getReadingQualitiesJournal(interval,
+        List<? extends ReadingQualityRecord> readingQualities = this.device.getMeterReference().get().getReadingQualities(interval);
+        List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal = this.device.getMeterReference().get().getReadingQualitiesJournal(interval,
                 Collections.singletonList(register.getRegisterSpec().getRegisterType().getReadingType()),
                 readings.stream().map(r -> ((JournaledRegisterReadingRecord) r).getChannel()).distinct().collect(Collectors.toList()));
         List<ReadingQualityRecord> allReadingQuality = readingQualities.stream()

@@ -9,12 +9,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>1.0.0-Nessus-SNAPSHOT</version>
+
     </parent>
 
     <artifactId>mdc.device.cps.examples</artifactId>
-    <version>2.2.3${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.cps.examples</name>
     <description>
@@ -92,7 +91,10 @@
              <groupId>com.elster.jupiter</groupId>
              <artifactId>search</artifactId>
          </dependency>
-
+         <dependency>
+             <groupId>com.elster.jupiter</groupId>
+             <artifactId>audit</artifactId>
+         </dependency>
     <!-- Testing -->
     <dependency>
       <groupId>com.elster.jupiter</groupId>

@@ -61,7 +61,7 @@ public class SynchDeviceWithKoreForConfigurationChange extends AbstractSyncDevic
                 .equals(generalizedStartDate)) {
             meterActivation = device.getKoreHelper().getCurrentMeterActivation();
         } else {
-            meterActivation = Optional.of(getDevice().getMeter().get().getMeterActivation(generalizedStartDate).get());
+            meterActivation = Optional.of(getDevice().getMeterReference().get().getMeterActivation(generalizedStartDate).get());
         }
         if (meterActivation.isPresent() && meterActivation.get().getStart().compareTo(generalizedStartDate) < 0) {
             meterActivation = Optional.of(endMeterActivationAndRestart(generalizedStartDate, meterActivation, Optional.empty()));

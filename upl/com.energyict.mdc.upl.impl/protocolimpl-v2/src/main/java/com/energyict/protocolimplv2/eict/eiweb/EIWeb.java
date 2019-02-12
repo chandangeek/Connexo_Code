@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
@@ -102,11 +103,17 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Collections.singletonList(getPhoneNumberPropertySpec());
+        return Arrays.asList(
+                getPhoneNumberPropertySpec(),
+                getCallHomeIdPropertySpec());
     }
 
     private PropertySpec getPhoneNumberPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER, false, PropertyTranslationKeys.V2_EICT_PHONE_NUMBER, this.propertySpecService::stringSpec).finish();
+    }
+
+    private PropertySpec getCallHomeIdPropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, true, com.energyict.mdc.channels.nls.PropertyTranslationKeys.CTR_INBOUND_DIAL_HOME_ID, this.propertySpecService::stringSpec).finish();
     }
 
     @Override

@@ -56,20 +56,24 @@ public enum MessageSeeds implements MessageSeed {
     NO_METROLOGYCONFIG_FOR_USAGEPOINT(2019, "NoMetrologyConfigForUsagePoint", "Usage point {0} doesn''t have a link to metrology configuration."),
     UNSATISFIED_READING_TYPE_REQUIREMENTS(2020, "UnsatisfiedReadingTypeRequirments", "Meters don''t provide reading types specified in the metrology contract."),
     MORE_THAN_ONE_METROLOGY_CONFIGURATION_SPECIFIED(2021, "MoreThanOneMetrologyConfigurationSpecified", "Metrology requirement can''t accept more than one metrology configuration."),
+    INVALID_RANGE(2022, "InvalidRange", "Start time exceeds end time of custom attribute set {0}."),
+    START_DATE_LOWER_CREATED_DATE(2023, "StartDateLowerCreatedDate", "Start date of custom attribute set {0} must be greater than or equal to creation date of usage point {1}."),
+    NO_CUSTOMATTRIBUTE_VERSION(2024, "NoCustomAttributeVersion", "Custom attribute set version with start date {0} isn''t found."),
+    NO_CUSTOMATTRIBUTE(2025, "NoCustomAttribute", "Can''t find custom attribute set {0}."),
+    WRONG_QUANTITY_FORMAT(2026, "WrongQuantitiyFormat", "Wrong unit format for attribute {0}. Supported multipliers: {1}, supported units: {2}."),
+    WRONG_ENUM_FORMAT(2027, "WrongEnumFormat", "Wrong enumeration value for attribute {0}. Possible values: {1}."),
+    MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE(2028, "MissingRequiredCustomAttributeValue", "Attribute {0} is required on custom attribute set {1}."),
 
     // meter readings
     UNABLE_TO_GET_READINGS(3001, "UnableToGetReadings", "Unable to get readings"),
     NO_PURPOSES_WITH_NAMES(3002, "NoPurposesWithNames", "No metrology purposes are found for names: {0}."),
     INVALID_OR_EMPTY_TIME_PERIOD(3003, "InvalidOrEmptyTimePeriod",
             "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
-    END_DEVICES_NOT_FOUND(3005, "NoDevicesFound", "''{0}'' device(s) have not been found.", Level.WARNING),
-    NO_END_DEVICES(30011, "NoDevices", "No devices have been found."),
-
-    NO_END_DEVICE_WITH_MRID(3012, "NoEndDeviceWithMRID", "No end device is found by MRID ''{0}''."),
-    NO_END_DEVICE_WITH_NAME(3013, "NoEndDeviceWithName", "No end device is found by name ''{0}''."),
-    NO_READING_TYPES(30014, "NoReadingTypes", "There are no reading type(s) in the system."),
-    READING_TYPES_NOT_FOUND(30015, "ReadingTypesNotFound", "Reading type(s) not found in the system: ''{0}''", Level.WARNING),
-    READING_TYPES_NOT_FOUND_ON_DEVICE(30016, "ReadingTypesNotFoundOnDevice", "Reading type(s) not found on device ''{0}'': ''{1}''", Level.WARNING),
+    END_DEVICES_NOT_FOUND(3004, "NoDevicesFound", "''{0}'' device(s) have not been found.", Level.WARNING),
+    NO_END_DEVICES(3005, "NoDevices", "No devices have been found."),
+    NO_READING_TYPES(3006, "NoReadingTypes", "There are no reading type(s) in the system."),
+    READING_TYPES_NOT_FOUND(3007, "ReadingTypesNotFound", "Reading type(s) not found in the system: ''{0}''", Level.WARNING),
+    READING_TYPES_NOT_FOUND_ON_DEVICE(3008, "ReadingTypesNotFoundOnDevice", "Reading type(s) not found on device ''{0}'': ''{1}''", Level.WARNING),
 
 
     // master data linkage

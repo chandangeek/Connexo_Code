@@ -78,7 +78,8 @@ public class MdcAppInstaller {
                         version(10, 2), UpgraderV10_2.class,
                         version(10, 3), UpgraderV10_3.class,
                         version(10, 4), UpgraderV10_4.class,
-                        version(10, 4, 1), UpgraderV10_4_1.class
+                        version(10, 4, 1), UpgraderV10_4_1.class,
+                        version(10, 6), UpgraderV10_6.class
                 )
         );
     }
@@ -254,7 +255,10 @@ public class MdcAppInstaller {
 
                     //data quality kpi
                     com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
-                    com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS
+                    com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS,
+
+                    //Time of use campaigns
+                    com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS
             };
         }
     }

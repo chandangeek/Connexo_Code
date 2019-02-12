@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -27,6 +29,8 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -127,6 +131,7 @@ public class InMemoryPersistence {
     private LicenseService licenseService;
     private HttpService httpService;
     private Thesaurus thesaurus;
+    private MeteringZoneService meteringZoneService;
 
     public void initializeDatabase(String testName, boolean showSqlLogging) {
         this.initializeMocks(testName);
@@ -178,7 +183,9 @@ public class InMemoryPersistence {
                 new CalendarModule(),
                 new PkiModule(),
                 new WebServicesModule(),
-                new FileImportModule()
+                new AuditServiceModule(),
+                new FileImportModule(),
+                new MeteringZoneModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
@@ -198,11 +205,13 @@ public class InMemoryPersistence {
             injector.getInstance(DeviceService.class);
             injector.getInstance(EventService.class);
             injector.getInstance(ProtocolPluggableService.class);
+            injector.getInstance(AuditService.class);
             this.injector.getInstance(EndPointConfigurationService.class);
             this.injector.getInstance(WebServicesService.class);
             injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.firmwareService = spy((FirmwareServiceImpl) injector.getInstance(FirmwareService.class));
             this.dataModel = firmwareService.getDataModel();
+            this.meteringZoneService = injector.getInstance(MeteringZoneService.class);
             ctx.commit();
         }
     }

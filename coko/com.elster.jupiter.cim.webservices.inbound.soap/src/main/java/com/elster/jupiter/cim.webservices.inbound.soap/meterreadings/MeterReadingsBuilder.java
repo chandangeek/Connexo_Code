@@ -89,20 +89,6 @@ public class MeterReadingsBuilder {
         this.faultMessageFactory = faultMessageFactory;
     }
 
-    MeterReadingsBuilder fromEndDeviceWithMRID(String mRID) throws FaultMessage {
-        endDevices = new ArrayList<>();
-        endDevices.add(meteringService.findEndDeviceByMRID(mRID)
-                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_DEVICE_WITH_MRID, mRID)));
-        return this;
-    }
-
-     MeterReadingsBuilder fromEndDeviceWithName(String name) throws FaultMessage {
-        endDevices = new ArrayList<>();
-        endDevices.add(meteringService.findEndDeviceByName(name)
-                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_DEVICE_WITH_NAME, name)));
-        return this;
-    }
-
     public MeterReadingsBuilder withEndDevices(List<EndDevice> endDevices) {
         this.endDevices = endDevices;
         return this;

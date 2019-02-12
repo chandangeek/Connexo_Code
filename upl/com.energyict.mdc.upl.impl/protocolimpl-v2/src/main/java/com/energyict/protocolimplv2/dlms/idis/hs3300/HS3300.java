@@ -61,6 +61,7 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.messages.HS3300Messaging;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.properties.HS3300ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.properties.HS3300Properties;
+import com.energyict.protocolimplv2.dlms.idis.hs3300.registers.HS3300RegisterFactory;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
@@ -91,6 +92,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     private HS3300Messaging deviceMessaging;
     private HS3300Cache deviceCache;
+    private HS3300RegisterFactory registerFactory;
 
     public HS3300(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
                   TariffCalendarExtractor calendarExtractor, NlsService nlsService, Converter converter,
@@ -300,7 +302,14 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        return null;
+        return getRegisterFactory().readRegisters(registers);
+    }
+
+    protected HS3300RegisterFactory getRegisterFactory() {
+        if (this.registerFactory == null) {
+            this.registerFactory = new HS3300RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return registerFactory;
     }
 
     /**

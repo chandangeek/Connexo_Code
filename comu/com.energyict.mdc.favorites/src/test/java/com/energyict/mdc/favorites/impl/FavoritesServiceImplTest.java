@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.favorites.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -30,6 +32,8 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -125,6 +129,7 @@ public class FavoritesServiceImplTest {
     private static User user, user1;
     private static Device device, device1;
     private static EndDeviceGroup endDeviceGroup, endDeviceGroup1;
+    private static MeteringZoneService meteringZoneService;
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -198,7 +203,9 @@ public class FavoritesServiceImplTest {
                 new CalendarModule(),
                 new PkiModule(),
                 new WebServicesModule(),
-                new FileImportModule()
+                new AuditServiceModule(),
+                new FileImportModule(),
+                new MeteringZoneModule()
         );
         try (TransactionContext ctx = getTransactionService().getContext()) {
             userService = injector.getInstance(UserService.class);
@@ -209,11 +216,12 @@ public class FavoritesServiceImplTest {
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
             injector.getInstance(FiniteStateMachineService.class);
+            meteringZoneService = injector.getInstance(MeteringZoneService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
             deviceService = injector.getInstance(DeviceService.class);
             favoritesService = injector.getInstance(FavoritesService.class);
-
+            injector.getInstance(AuditService.class);
             labelCategory = favoritesService.createLabelCategory("test.label.category");
 
             user = userService.createUser("user", "user descr");

@@ -91,7 +91,7 @@ public class MeterReadingDataSelectorImplTest {
     private static final ZonedDateTime UPDATED_WINDOW_END = ZonedDateTime.of(2014, 5, 25, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final Range<Instant> UPDATE_WINDOW_INTERVAL = Range.openClosed(UPDATED_WINDOW_START.toInstant(), UPDATED_WINDOW_END.toInstant());
     public static final String READING_TYPE_MRID = "1.0.0.21.12.0.0.0";
-    public static final String END_DEVICE_GROUP_ID = "12" ;  // lori
+    public static final String END_DEVICE_GROUP_ID = "12" ;
 
     @Rule
     public TestRule useAnUncommonZoneId = Using.timeZoneOfMcMurdo();
@@ -168,9 +168,9 @@ public class MeterReadingDataSelectorImplTest {
                 .when(dataModel).getInstance(MeterReadingItemDataSelector.class);
         doAnswer(invocation -> new FakeRefAny(invocation.getArguments()[0])).when(dataModel).asRefAny(any());
 
-        endDeviceGroup = mock(EndDeviceGroup.class);   //lori begin
+        endDeviceGroup = mock(EndDeviceGroup.class);
         when(endDeviceGroup.getId()).thenReturn(2L);
-        when(endDeviceGroup.getName()).thenReturn("groupLOri");   //lori end
+        when(endDeviceGroup.getName()).thenReturn("groupLOri");
         when(meteringGroupsService.findEndDeviceGroup(anyLong())).thenReturn(Optional.of(endDeviceGroup)); //dragos
 
         when(threadPrincipalService.getLocale()).thenReturn(Locale.US);
@@ -397,7 +397,7 @@ public class MeterReadingDataSelectorImplTest {
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
 
         MeterReadingSelectorConfigImpl selectorConfig = MeterReadingSelectorConfigImpl.from(dataModel, task, exportPeriod);
-        //when(selectorConfig.getEndDeviceGroup().getId()).thenReturn(END_DEVICE_GROUP_ID);  //lori
+        //when(selectorConfig.getEndDeviceGroup().getId()).thenReturn(END_DEVICE_GROUP_ID);
         selectorConfig.startUpdate()
                 .setEndDeviceGroup(endDeviceGroup)
                 .addReadingType(readingType)

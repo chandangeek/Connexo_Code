@@ -11,4 +11,5 @@ Private-Package: com.elster.jupiter.orm.impl,\
 Export-Package: com.elster.jupiter.orm,\
 	com.elster.jupiter.orm.callback,\
 	com.elster.jupiter.orm.associations, \
+	com.elster.jupiter.orm.audit, \
 	com.elster.jupiter.orm.schema

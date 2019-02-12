@@ -14,6 +14,7 @@ import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,7 +49,7 @@ public class LoadProfileTypeOnDeviceTypeInfoFactory {
         info.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
         Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = deviceType.getLoadProfileTypeCustomPropertySet(loadProfileType);
         if (registeredCustomPropertySet.isPresent()) {
-            info.customPropertySet = new DeviceTypeCustomPropertySetInfo(registeredCustomPropertySet.get());
+            info.customPropertySet = DeviceTypeCustomPropertySetInfo.from(Collections.singletonList(registeredCustomPropertySet.get())).get(0);
         }
         return info;
     }
