@@ -31,7 +31,7 @@ Ext.define('Tou.controller.History', {
                         },
                         toucampaign: {
                             title: Uni.I18n.translate('tou.campaigns.touCampaign', 'TOU', 'ToU campaign'),
-                            route: '{touCampaignName}',
+                            route: '{touCampaignId}',
                             controller: 'Tou.controller.Detail',
                             action: 'showDetail',
                             privileges: Tou.privileges.TouCampaign.view,

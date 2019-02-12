@@ -22,7 +22,7 @@ Ext.define('Tou.view.Grid', {
                 flex: 2,
                 renderer: function (value, metaData, record) {
                     return value ? '<a href="' + me.router.getRoute('workspace/toucampaigns/toucampaign').buildUrl({
-                        touCampaignName: value
+                        touCampaignId: record.getId()
                     }) + '">' + Ext.String.htmlEncode(value) + '</a>' : '-';
                 }
             }, {
