@@ -23,14 +23,13 @@ public enum TableSpecs {
             table.map(AuditTrailImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.since(version(10, 6));
-            table.column("DOMAIN").varChar(NAME_LENGTH).notNull().map(AuditTrailImpl.Field.DOMAIN.fieldName()).add();
-            table.column("CONTEXT").varChar(NAME_LENGTH).notNull().map(AuditTrailImpl.Field.CONTEXT.fieldName()).add();
+            table.column("DOMAINCONTEXT").number().conversion(NUMBER2ENUM).notNull().map(AuditTrailImpl.Field.DOMAINCONTEXT.fieldName()).add();
             table.column("MODTIMESTART").number().conversion(NUMBER2INSTANT).notNull().map(AuditTrailImpl.Field.MODTIMESTART.fieldName()).add();
             table.column("MODTIMEEND").number().conversion(NUMBER2INSTANT).notNull().map(AuditTrailImpl.Field.MODTIMEEND.fieldName()).add();
-            table.column("TABLENAME").varChar(NAME_LENGTH).notNull().map(AuditTrailImpl.Field.TABLENAME.fieldName()).add();
-            table.column("PKCOLUMN").number().notNull().conversion(NUMBER2LONG).map(AuditTrailImpl.Field.PKCOLUMN.fieldName()).add();
-            table.column("OPERATION").number().conversion(NUMBER2ENUM).map(AuditTrailImpl.Field.OPERATION.fieldName()).add();
-            table.column("CREATETIME").number().conversion(NUMBER2INSTANT).map(AuditTrailImpl.Field.CREATETIME.fieldName()).add();
+            table.column("PKDOMAIN").number().notNull().conversion(NUMBER2LONG).map(AuditTrailImpl.Field.PKDOMAIN.fieldName()).add();
+            table.column("PKCONTEXT").number().notNull().conversion(NUMBER2LONG).map(AuditTrailImpl.Field.PKCONTEXT.fieldName()).add();
+            table.column("OPERATION").number().conversion(NUMBER2ENUM).notNull().map(AuditTrailImpl.Field.OPERATION.fieldName()).add();
+            table.column("CREATETIME").number().conversion(NUMBER2INSTANT).notNull().map(AuditTrailImpl.Field.CREATETIME.fieldName()).add();
             table.column("USERNAME").varChar(NAME_LENGTH).notNull().map(AuditTrailImpl.Field.USERNAME.fieldName()).add();
             table.primaryKey("ADT_PK_AUDIT_TAIL").on(idColumn).add();
         }

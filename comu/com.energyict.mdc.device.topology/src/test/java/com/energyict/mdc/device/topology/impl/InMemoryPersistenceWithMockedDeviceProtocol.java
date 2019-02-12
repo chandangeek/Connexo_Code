@@ -31,6 +31,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -170,6 +172,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private InMemoryBootstrapModule bootstrapModule;
     private MessageService messageService;
     private Thesaurus thesaurus;
+    private MeteringZoneService meteringZoneService;
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
         this(Clock.systemDefaultZone());
@@ -259,7 +262,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new CalendarModule(),
                 new WebServicesModule(),
                 new AuditServiceModule(),
-                new FileImportModule()
+                new FileImportModule(),
+                new MeteringZoneModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
@@ -287,6 +291,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.schedulingService = injector.getInstance(SchedulingService.class);
             this.topologyService = injector.getInstance(TopologyService.class);
             this.dataModel = this.createNewDeviceDataService(injector);
+            this.meteringZoneService = injector.getInstance(MeteringZoneService.class);
             ctx.commit();
         }
     }

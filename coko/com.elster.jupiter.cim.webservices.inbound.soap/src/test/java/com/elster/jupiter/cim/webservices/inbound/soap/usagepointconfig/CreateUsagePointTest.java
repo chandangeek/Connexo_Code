@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointConnectionState;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -126,6 +127,8 @@ public class CreateUsagePointTest extends AbstractMockActivator {
     private ElectricityDetail electricityDetail;
     @Mock
     private UsagePointConnectionState usagePointConnectionState;
+    @Mock
+    private UsagePointCustomPropertySetExtension usagePointCustomPropertySetExtension;
 
     private static void assertReadingType1(ch.iec.tc57._2011.usagepointconfig.ReadingType rt) {
         assertThat(rt.getMRID()).isEqualTo("MRID1");
@@ -258,6 +261,8 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(usagePoint.getInstallationTime()).thenReturn(CREATION_DATE);
         when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.of(usagePointConnectionState));
         when(usagePointConnectionState.getConnectionState()).thenReturn(ConnectionState.CONNECTED);
+        when(usagePoint.forCustomProperties()).thenReturn(usagePointCustomPropertySetExtension);
+        when(usagePointCustomPropertySetExtension.getAllPropertySets()).thenReturn(Collections.emptyList());
     }
 
     @Test

@@ -6,7 +6,6 @@ package com.energyict.mdc.device.data.impl.audit.deviceProtocol;
 
 import com.elster.jupiter.audit.AuditDecoder;
 import com.elster.jupiter.audit.AuditDomainContextType;
-import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditTrailDecoderHandle;
 import com.elster.jupiter.audit.AuditTrailReference;
 import com.elster.jupiter.metering.MeteringService;
@@ -24,7 +23,9 @@ import java.util.List;
         name = "com.energyict.mdc.device.data.audit.deviceProtocol",
         service = {AuditTrailDecoderHandle.class},
         immediate = true)
-public class AuditTrailDeviceProtocol implements AuditTrailDecoderHandle {
+public class AuditTrailDeviceProtocolHandle implements AuditTrailDecoderHandle {
+
+    private final AuditDomainContextType auditDomainContextType = AuditDomainContextType.GENERAL_ATTRIBUTES;
 
     private volatile OrmService ormService;
     private volatile PropertyValueInfoService propertyValueInfoService;
@@ -52,13 +53,8 @@ public class AuditTrailDeviceProtocol implements AuditTrailDecoderHandle {
     }
 
     @Override
-    public String getDomain() {
-        return AuditDomainType.DEVICE.name();
-    }
-
-    @Override
-    public String getContext() {
-        return AuditDomainContextType.GENERAL_ATTRIBUTES.name();
+    public AuditDomainContextType getAuditDomainContextType() {
+        return auditDomainContextType;
     }
 
     @Override
