@@ -54,8 +54,8 @@ public final class CustomPropertySetInfo {
         this.versionId = versionId;
     }
 
-    public boolean isUpdateRange() {
-        return this.updateRange;
+    public Boolean isUpdateRange() {
+        return updateRange;
     }
 
     public void setUpdateRange(Boolean updateRange) {
