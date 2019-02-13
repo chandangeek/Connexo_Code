@@ -111,7 +111,7 @@ public class CASConflictsSolverTest {
     public void testSolveConflictsForCreate_GapAfter_EndTimeIsNull() {
         prepareConflictsForCreate(conflictGapAfter);
 
-        Range<Instant> result = sut.solveConflictsForCreate(device, customPropertySet, EARLY_DATE, LATE_DATE);
+        Range<Instant> result = sut.solveConflictsForCreate(device, customPropertySet, null, null);
 
         assertEquals(Range.atLeast(INSTANT_GAP_AFTER), result);
     }
@@ -130,7 +130,7 @@ public class CASConflictsSolverTest {
     public void testSolveConflictsForCreate_GapBefore_EndTimeIsNull() {
         prepareConflictsForCreate(conflictGapBefore);
 
-        Range<Instant> result = sut.solveConflictsForCreate(device, customPropertySet, EARLY_DATE, LATE_DATE);
+        Range<Instant> result = sut.solveConflictsForCreate(device, customPropertySet, null, null);
 
         assertEquals(Range.lessThan(INSTANT_GAP_BEFORE), result);
     }
