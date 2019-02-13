@@ -14,6 +14,8 @@ import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
+import ch.iec.tc57._2011.meterconfig.Zone;
+
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
@@ -23,6 +25,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -48,6 +51,7 @@ public class MeterConfigParser {
                 meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
                 meterInfo.setShipmentDate(extractShipmentDate(meter));
                 meterInfo.setDeviceType(extractDeviceTypeName(meter));
+                meterInfo.setZones(extractDeviceZones(meter, endDeviceFunctions));
                 break;
             case UPDATE:
                 meterInfo.setDeviceName(extractDeviceNameForUpdate(meter));
@@ -56,6 +60,7 @@ public class MeterConfigParser {
                 meterInfo.setStatusValue(extractStatusValue(meter).orElse(null));
                 meterInfo.setStatusEffectiveDate(extractConfigurationEffectiveDate(meter).orElse(null));
                 meterInfo.setMultiplierEffectiveDate(extractConfigurationEffectiveDate(meter).orElse(null));
+                meterInfo.setZones(extractDeviceZones(meter, endDeviceFunctions));
                 break;
         }
 
@@ -202,6 +207,22 @@ public class MeterConfigParser {
     public Optional<Instant> extractConfigurationEffectiveDate(Meter meter) throws FaultMessage {
         return extractConfigurationEvent(meter)
                 .map(ConfigurationEvent::getEffectiveDateTime);
+    }
+
+    public List<Zone> extractDeviceZones(Meter meter, List<SimpleEndDeviceFunction> endDeviceFunctions) throws FaultMessage {
+        String comFuncReference = extractEndDeviceFunctionRef(meter);
+        SimpleEndDeviceFunction endDeviceFunction = endDeviceFunctions
+                .stream()
+                .filter(endDeviceFunc -> comFuncReference.equals(endDeviceFunc.getMRID()))
+                .findAny()
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND,
+                        "MeterConfig.Meter.SimpleEndDeviceFunction", "MeterConfig.SimpleEndDeviceFunction"));
+        if(endDeviceFunction.getZones() !=  null)
+            return Optional.ofNullable(endDeviceFunction.getZones().getZone())
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.MISSING_ELEMENT,
+                        "MeterConfig.SimpleEndDeviceFunction[" + endDeviceFunctions.indexOf(endDeviceFunction) + "].zones"));
+
+        return new ArrayList<>();
     }
 
     private Optional<EndDeviceInfo> extractEndDeviceInfo(Meter meter) {
