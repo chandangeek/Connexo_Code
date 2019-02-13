@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.cim.webservices.outbound.soap.sendmeterconfig;
 
@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 
 @Singleton
 @Component(
-        name = "com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator",
+        name = "com.energyict.mdc.cim.webservices.outbound.soap.WebServiceActivator",
         service = {WebServiceActivator.class},
         property = {"name=" + WebServiceActivator.COMPONENT_NAME},
         immediate = true)

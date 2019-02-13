@@ -1,12 +1,9 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.cim.webservices.outbound.soap.sendmeterconfig;
 
-import ch.iec.tc57._2011.meterconfig.*;
-import com.elster.connexo._2017.schema.customattributes.Attribute;
-import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -16,13 +13,23 @@ import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.upl.TypedProperties;
+
+import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
+import ch.iec.tc57._2011.meterconfig.Manufacturer;
+import ch.iec.tc57._2011.meterconfig.Meter;
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfig.MeterMultiplier;
+import ch.iec.tc57._2011.meterconfig.Name;
+import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
+import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
+import ch.iec.tc57._2011.meterconfig.Status;
+import com.elster.connexo._2017.schema.customattributes.Attribute;
+import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import sun.util.calendar.ZoneInfo;
 
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -83,7 +90,7 @@ public class GetMeterConfigFactoryImpl implements GetMeterConfigFactory {
                 Attribute attr = new Attribute();
                 attr.setName(propertySpec.getName());
                 Object propertyValue = getPropertyValue(propertySpec, deviceProperties, deviceProperties.getLocalValue(propertySpec.getName()) != null ? deviceProperties::getLocalValue : null);
-                attr.setValue(convertPropertyValue(propertyValue));
+                attr.setValue(convertPropertyValue(propertySpec, propertyValue));
                 attributeSet.getAttribute().add(attr);
             }
             generalList.add(attributeSet);
@@ -107,67 +114,54 @@ public class GetMeterConfigFactoryImpl implements GetMeterConfigFactory {
         if (domainValue == null) {
             domainValue = deviceProperties == null ? null : deviceProperties.getInheritedValue(propertySpec.getName());
             if (domainValue == null) {
-                return propertySpec.getPossibleValues() == null ? null : propertySpec.getPossibleValues().getDefault();
+                return getDefaultPropertyValue(propertySpec);
             }
         }
         return domainValue;
     }
 
     private CustomAttributeSet convertToCustomAttributeSet(RegisteredCustomPropertySet registeredCustomPropertySet, Device device) {
-        CustomAttributeSet customAttribute = new CustomAttributeSet();
+        CustomAttributeSet customAttributeSet = new CustomAttributeSet();
         CustomPropertySetValues values = null;
         CustomPropertySet propertySet = registeredCustomPropertySet.getCustomPropertySet();
         if (!propertySet.isVersioned()) {
             values = customPropertySetService.getUniqueValuesFor(propertySet, device);
         } else {
-            values = customPropertySetService.getUniqueValuesFor(propertySet, device, this.clock.instant());
+            values = customPropertySetService.getUniqueValuesFor(propertySet, device, clock.instant());
         }
-        if (values == null || values.isEmpty()) {
-            List<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
-            customAttribute.setId(propertySet.getName());
-            for (PropertySpec propertySpec : propertySpecs) {
-                Attribute attr = new Attribute();
-                attr.setName(propertySpec.getName());
-                Object propertyValue = getPropertyValue(propertySpec, null, null);
-                attr.setValue(convertPropertyValue(propertyValue));
-                customAttribute.getAttribute().add(attr);
-            }
-        } else {
-            setAttrToCustomAttribute(propertySet, values, customAttribute);
-        }
-        return customAttribute;
-    }
-
-    private void setAttrToCustomAttribute(CustomPropertySet propertySet, CustomPropertySetValues values, CustomAttributeSet customAttribute) {
-        customAttribute.setId(propertySet.getName());
-        for (String property : values.propertyNames()) {
+        List<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
+        customAttributeSet.setId(propertySet.getId());
+        for (PropertySpec propertySpec : propertySpecs) {
             Attribute attr = new Attribute();
-            attr.setName(property);
-            attr.setValue(convertPropertyValue(values.getProperty(property)));
-            customAttribute.getAttribute().add(attr);
-            if (propertySet.isVersioned()) {
+            attr.setName(propertySpec.getName());
+            Object value = (values == null)?null:values.getProperty(propertySpec.getName());
+            if (value == null) {
+                Object propertyValue = getDefaultPropertyValue(propertySpec);
+                attr.setValue(convertPropertyValue(propertySpec, propertyValue));
+                customAttributeSet.getAttribute().add(attr);
+            } else {
+                attr.setValue(convertPropertyValue(propertySpec, value));
+                customAttributeSet.getAttribute().add(attr);
+            }
+            if (propertySet.isVersioned() && values != null) {
                 if (values.getEffectiveRange().hasLowerBound()) {
-                    customAttribute.setFromDateTime(values.getEffectiveRange().lowerEndpoint());
-                } else {
-                    customAttribute.setFromDateTime(null);
+                    customAttributeSet.setFromDateTime(values.getEffectiveRange().lowerEndpoint());
+                    customAttributeSet.setVersionId(values.getEffectiveRange().lowerEndpoint());
                 }
                 if (values.getEffectiveRange().hasUpperBound()) {
-                    customAttribute.setToDateTime(values.getEffectiveRange().upperEndpoint());
-                } else {
-                    customAttribute.setToDateTime(null);
+                    customAttributeSet.setToDateTime(values.getEffectiveRange().upperEndpoint());
                 }
             }
         }
+        return customAttributeSet;
     }
 
-    private String convertPropertyValue(Object value) {
-        if (value == null) {
-            return "null";
-        } else if (value instanceof ZoneInfo) {
-            return ((ZoneInfo)value).getID();
-        } else {
-            return String.valueOf(value);
-        }
+    private Object getDefaultPropertyValue(PropertySpec propertySpec) {
+        return propertySpec.getPossibleValues() == null ? null : propertySpec.getPossibleValues().getDefault();
+    }
+
+    private String convertPropertyValue(PropertySpec spec, Object value) {
+        return spec.getValueFactory().toStringValue(value);
     }
 
     private EndDeviceInfo getEndDeviceInfo(Device device) {

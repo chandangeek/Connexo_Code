@@ -1,21 +1,26 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.cim.webservices.outbound.soap.sendmeterconfig;
 
-import ch.iec.tc57._2011.getmeterconfigmessage.GetMeterConfigEventMessageType;
-import ch.iec.tc57._2011.getmeterconfigmessage.GetMeterConfigPayloadType;
-import ch.iec.tc57._2011.getmeterconfigmessage.ObjectFactory;
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.schema.message.*;
-import ch.iec.tc57._2011.sendmeterconfig.FaultMessage;
-import ch.iec.tc57._2011.sendmeterconfig.MeterConfigPort;
-import ch.iec.tc57._2011.sendmeterconfig.SendMeterConfig;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.energyict.mdc.cim.webservices.inbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.inbound.soap.SendMeterConfigService;
 import com.energyict.mdc.device.data.Device;
+
+import ch.iec.tc57._2011.getmeterconfigmessage.GetMeterConfigEventMessageType;
+import ch.iec.tc57._2011.getmeterconfigmessage.GetMeterConfigPayloadType;
+import ch.iec.tc57._2011.getmeterconfigmessage.ObjectFactory;
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.schema.message.ErrorType;
+import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.Name;
+import ch.iec.tc57._2011.schema.message.ObjectType;
+import ch.iec.tc57._2011.schema.message.ReplyType;
+import ch.iec.tc57._2011.sendmeterconfig.FaultMessage;
+import ch.iec.tc57._2011.sendmeterconfig.MeterConfigPort;
+import ch.iec.tc57._2011.sendmeterconfig.SendMeterConfig;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
