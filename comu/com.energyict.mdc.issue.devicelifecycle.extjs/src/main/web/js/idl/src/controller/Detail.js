@@ -8,7 +8,7 @@ Ext.define('Idl.controller.Detail', {
     stores: [
         'Isu.store.IssueActions',
         'Isu.store.Clipboard',
-        'Idl.store.NonEstimatedDataStore',
+        'Idl.store.TransitionStore',
         'Mdc.store.Estimators'
     ],
 
@@ -19,12 +19,11 @@ Ext.define('Idl.controller.Detail', {
 
     views: [
         'Idl.view.Detail',
-        'Idl.view.NonEstimatedDataGrid',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.devicechannels.ReadingEstimationWindow'
     ],
 
-    nonEstimatedDataStore: 'Idl.store.NonEstimatedDataStore',
+    transitionStore: 'Idl.store.TransitionStore',
 
     constructor: function () {
         var me = this;
@@ -36,7 +35,7 @@ Ext.define('Idl.controller.Detail', {
             },
             {
                 ref: 'detailForm',
-                selector: 'data-validation-issue-detail data-validation-issue-detail-form'
+                selector: 'data-validation-issue-detail device-lifecycle-issue-detail-form'
             },
             {
                 ref: 'commentsPanel',

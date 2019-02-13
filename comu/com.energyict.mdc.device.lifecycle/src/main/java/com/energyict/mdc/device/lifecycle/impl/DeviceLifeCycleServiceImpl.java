@@ -25,6 +25,8 @@ import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -95,6 +97,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private Thesaurus thesaurus;
     private volatile MeteringService meteringService;
     private volatile EventService eventService;
+    private volatile TransactionService transactionService;
 
     // For OSGi purposes
     public DeviceLifeCycleServiceImpl() {
@@ -112,7 +115,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                                       UserService userService,
                                       Clock clock,
                                       LicenseService licenseService,
-                                      MeteringService meteringService, EventService eventService) {
+                                      MeteringService meteringService, EventService eventService, TransactionService transactionService) {
         this();
         this.setNlsService(nlsService);
         this.setThreadPrincipalService(threadPrincipalService);
@@ -124,6 +127,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.setClock(clock);
         this.setLicenseService(licenseService);
         this.setMeteringService(meteringService);
+        this.setTransactionService(transactionService);
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Reference
@@ -543,8 +552,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     @TransactionRequired
     private void postEvent(AuthorizedAction action, Device device, String cause) {
-        eventService.postEvent(EventType.TRANSITION_FAILED.topic(),
-                TransitionFailedEventInfo.forFailure(action, device, cause, Instant.now(clock)));
+        try (TransactionContext context = transactionService.getContext()) {
+            eventService.postEvent(EventType.TRANSITION_FAILED.topic(),
+                    TransitionFailedEventInfo.forFailure(action, device, cause, Instant.now(clock)));
+            context.commit();
+        }
+
     }
 
     public String getLocalizedMessage(MessageSeed seed, String message) {

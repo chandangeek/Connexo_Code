@@ -7,7 +7,7 @@ Ext.define('Idl.view.DetailForm', {
     requires: [
         'Mdc.privileges.Device'
     ],
-    alias: 'widget.data-validation-issue-detail-form',
+    alias: 'widget.device-lifecycle-issue-detail-form',
     layout: 'column',
     defaults: {
         xtype: 'container',
@@ -26,9 +26,14 @@ Ext.define('Idl.view.DetailForm', {
                 },
                 items: [
                     {
-                        itemId: 'data-validation-issue-id',
+                        itemId: 'device-lifecycle-issue-id',
                         fieldLabel: Uni.I18n.translate('general.title.issueId', 'IDL', 'ID'),
                         name: 'issueId'
+                    },
+                    {
+                        itemId: 'device-lifecycle-issue-reason',
+                        fieldLabel: Uni.I18n.translate('general.title.reson', 'IDL', 'Reason'),
+                        name: 'reason_name'
                     },
                     {
                         itemId: 'data-validation-issue-detail-usage-point',
@@ -36,7 +41,7 @@ Ext.define('Idl.view.DetailForm', {
                         name: 'usage_point'
                     },
                     {
-                        itemId: 'data-validation-issue-detail-device',
+                        itemId: 'device-lifecycle-issue-detail-device',
                         fieldLabel: Uni.I18n.translate('general.title.device', 'IDL', 'Device'),
                         name: 'device',
                         renderer: function (value) {
@@ -54,7 +59,12 @@ Ext.define('Idl.view.DetailForm', {
 
                             return result;
                         }
-                    }
+                    },
+                    {
+                        itemId: 'device-lifecycle-issue-detail-location',
+                        fieldLabel: Uni.I18n.translate('general.title.location', 'IDL', 'Location'),
+                        name: 'device_location'
+                    },
                 ]
             },
             {
@@ -64,7 +74,7 @@ Ext.define('Idl.view.DetailForm', {
                 },
                 items: [
                     {
-                        itemId: 'data-validation-issue-detail-status',
+                        itemId: 'device-lifecycle-issue-detail-status',
                         fieldLabel: Uni.I18n.translate('general.title.status', 'IDL', 'Status'),
                         name: 'status',
                         afterSubTpl: '<span id="issue-status-field-sub-tpl" class="field-additional-info" style="color: #686868;"></span>',
@@ -73,7 +83,7 @@ Ext.define('Idl.view.DetailForm', {
                         }
                     },
                     {
-                        itemId: 'data-validation-issue-detail-due-date',
+                        itemId: 'device-lifecycle-issue-detail-due-date',
                         fieldLabel: Uni.I18n.translate('general.title.dueDate', 'IDL', 'Due date'),
                         name: 'dueDate',
                         renderer: function (value) {
@@ -81,12 +91,12 @@ Ext.define('Idl.view.DetailForm', {
                         }
                     },
                     {
-                        itemId: 'data-validation-issue-detail-priority',
+                        itemId: 'device-lifecycle-issue-detail-priority',
                         fieldLabel: Uni.I18n.translate('general.title.priority', 'IDL', 'Priority'),
                         name: 'priority'
                     },
                     {
-                        itemId: 'data-validation-issue-detail-workgroup',
+                        itemId: 'device-lifecyclen-issue-detail-workgroup',
                         fieldLabel: Uni.I18n.translate('general.title.workgroup', 'IDL', 'Workgroup'),
                         name: 'workGroupAssignee',
                         renderer: function (value) {
@@ -94,7 +104,7 @@ Ext.define('Idl.view.DetailForm', {
                         }
                     },
                     {
-                        itemId: 'data-validation-issue-detail-assignee',
+                        itemId: 'device-lifecycle-issue-detail-assignee',
                         fieldLabel: Uni.I18n.translate('general.title.user', 'IDL', 'User'),
                         name: 'userAssignee',
                         renderer: function (value) {
@@ -102,7 +112,7 @@ Ext.define('Idl.view.DetailForm', {
                         }
                     },
                     {
-                        itemId: 'data-validation-issue-detail-creation-date',
+                        itemId: 'device-lifecycle-issue-detail-creation-date',
                         fieldLabel: Uni.I18n.translate('general.title.creationDate', 'IDL', 'Creation date'),
                         name: 'creationDate',
                         renderer: function (value) {
