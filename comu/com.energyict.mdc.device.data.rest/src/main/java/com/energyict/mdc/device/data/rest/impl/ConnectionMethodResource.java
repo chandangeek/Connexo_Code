@@ -105,7 +105,11 @@ public class ConnectionMethodResource {
         switch (connectionMethodInfo.status) {
             case ACTIVE:
                 if (!hasAllRequiredProps(task)) {
-                    throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINDED);
+                    if (isOutboundTLS(task)) {
+                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINDED_TLS);
+                    } else {
+                        throw exceptionFactory.newException(Response.Status.PRECONDITION_FAILED, MessageSeeds.NOT_ALL_PROPS_ARE_DEFINDED);
+                    }
                 } else if(!task.isActive()){
                     task.activate();
             }
@@ -128,10 +132,17 @@ public class ConnectionMethodResource {
         ///if the communication is SERIAL don't check the props: host name and portPool
         if (task.getComPortPool().getComPortType().equals(ComPortType.SERIAL))
             return true;
-
-
         List<ConnectionTaskProperty> props = task.getProperties();
+
+        //for Outbound TLS only
+        if(isOutboundTLS(task) && !getConnnectionTaskProperty(props, "ServerTLSCertificate").isPresent()) {
+            return false;
+        }
         return  (getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent());
+    }
+
+    private boolean isOutboundTLS(ConnectionTask<?,?> task) {
+        return task.getPluggableClass().getName().equals("Outbound TLS");
     }
 
     private Optional<ConnectionTaskProperty> getConnnectionTaskProperty(List<ConnectionTaskProperty> properties, String name) {

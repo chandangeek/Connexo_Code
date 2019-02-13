@@ -431,6 +431,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (Objects.isNull(scheduledConnectionTask.getComPortPool()) || Objects.isNull(scheduledConnectionTask.getProperty("host")) || Objects.isNull(scheduledConnectionTask.getProperty("portNumber"))) {
             scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
         }
+        if (scheduledConnectionTask.getPluggableClass().getName().equals("Outbound TLS") && Objects.isNull(scheduledConnectionTask.getProperty("ServerTLSCertificate"))) {
+            scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
+        }
     }
 
     private String generateMRID() {
