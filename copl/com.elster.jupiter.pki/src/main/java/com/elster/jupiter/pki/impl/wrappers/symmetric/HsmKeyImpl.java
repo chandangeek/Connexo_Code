@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
-import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
@@ -41,7 +40,6 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     private final Clock clock;
     private final Thesaurus thesaurus;
     private final HsmEnergyService hsmEnergyService;
-    protected final HsmEncryptionService hsmEncryptionService;
 
 
     private String label;
@@ -52,13 +50,12 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
 
     @Inject
     HsmKeyImpl(PropertySpecService propertySpecService,
-               DataModel dataModel, Clock clock, Thesaurus thesaurus, HsmEnergyService hsmEnergyService, HsmEncryptionService hsmEncryptionService) {
+               DataModel dataModel, Clock clock, Thesaurus thesaurus, HsmEnergyService hsmEnergyService) {
         super(dataModel);
         this.propertySpecService = propertySpecService;
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.hsmEnergyService = hsmEnergyService;
-        this.hsmEncryptionService = hsmEncryptionService;
     }
 
     HsmKeyImpl init(KeyType keyType, TimeDuration timeDuration, String label, HsmJssKeyType hsmJssKeyType) {

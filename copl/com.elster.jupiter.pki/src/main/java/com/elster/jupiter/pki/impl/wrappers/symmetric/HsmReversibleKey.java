@@ -11,8 +11,11 @@ import java.time.Clock;
 
 public class HsmReversibleKey extends HsmKeyImpl {
 
+    private final HsmEncryptionService hsmEncryptionService;
+
     HsmReversibleKey(PropertySpecService propertySpecService, DataModel dataModel, Clock clock, Thesaurus thesaurus, HsmEnergyService hsmEnergyService, HsmEncryptionService hsmEncryptionService) {
-        super(propertySpecService, dataModel, clock, thesaurus, hsmEnergyService, hsmEncryptionService);
+        super(propertySpecService, dataModel, clock, thesaurus, hsmEnergyService);
+        this.hsmEncryptionService = hsmEncryptionService;
     }
 
     /**

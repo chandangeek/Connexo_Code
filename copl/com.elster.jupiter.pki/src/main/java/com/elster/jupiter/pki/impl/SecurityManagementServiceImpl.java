@@ -12,6 +12,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -142,6 +143,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     private volatile MessageService messageService;
     private volatile FileImportService fileImportService;
     private volatile HsmEnergyService hsmEnergyService;
+    private volatile HsmEncryptionService hsmEncryptionService;
 
     @Inject
     public SecurityManagementServiceImpl(OrmService ormService,
@@ -154,7 +156,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                                          QueryService queryService,
                                          MessageService messageService,
                                          FileImportService fileImportService,
-                                         HsmEnergyService hsmEnergyService) {
+                                         HsmEnergyService hsmEnergyService,
+                                         HsmEncryptionService hsmEncryptionService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -165,7 +168,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         this.setQueryService(queryService);
         this.setMessageService(messageService);
         this.setFileImportService(fileImportService);
-        this.setHSMEnergyService(hsmEnergyService);
+        this.setHsmEnergyService(hsmEnergyService);
+        this.setHsmEncryptionService(hsmEncryptionService);
         this.activate();
     }
 
@@ -257,9 +261,15 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Reference
-    public void setHSMEnergyService(HsmEnergyService hsmEnergyService) {
+    public void setHsmEnergyService(HsmEnergyService hsmEnergyService) {
         this.hsmEnergyService = hsmEnergyService;
     }
+
+    @Reference
+    public void setHsmEncryptionService(HsmEncryptionService hsmEncryptionService) {
+        this.hsmEncryptionService = hsmEncryptionService;
+    }
+
 
     @Reference
     public void setUserService(UserService userService) {
@@ -345,6 +355,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 bind(FileImportService.class).toInstance(fileImportService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(HsmEnergyService.class).toInstance(hsmEnergyService);
+                bind(HsmEncryptionService.class).toInstance(hsmEncryptionService);
             }
         };
     }
@@ -620,6 +631,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
+
 
     class ClientCertificateWrapperBuilder implements SecurityManagementService.ClientCertificateWrapperBuilder {
         private final ClientCertificateWrapper underConstruction;

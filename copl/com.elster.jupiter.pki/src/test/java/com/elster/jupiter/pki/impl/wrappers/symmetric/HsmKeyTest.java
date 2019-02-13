@@ -73,11 +73,6 @@ public class HsmKeyTest {
     private Validator validator;
     @Mock
     private HsmEnergyService hsmEnergyService;
-    @Mock
-    private HsmEncryptionService hsmEncryptionService;
-    @Mock
-    private HsmKeyType hsmKeyType;
-
 
 
     @Rule
@@ -94,7 +89,7 @@ public class HsmKeyTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(anyObject(), any(Class.class))).thenReturn(new HashSet<>());
 
-        this.hsmKeyUnderTest = new HsmKeyImpl(propertySpecService, dataModel, clock, thesaurus, hsmEnergyService, hsmEncryptionService);
+        this.hsmKeyUnderTest = new HsmKeyImpl(propertySpecService, dataModel, clock, thesaurus, hsmEnergyService);
         this.hsmKeyUnderTest.init(keyType, new TimeDuration(1, TimeDuration.TimeUnit.DAYS), LABEL, HsmJssKeyType.AES);
     }
 
