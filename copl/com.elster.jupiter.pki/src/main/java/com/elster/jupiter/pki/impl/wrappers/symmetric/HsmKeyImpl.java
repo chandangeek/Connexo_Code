@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
-import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
@@ -22,12 +21,12 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeDuration;
 
-import aQute.bnd.build.Run;
 
 import javax.inject.Inject;
 import javax.xml.bind.DatatypeConverter;
 import java.time.Clock;
 import java.time.ZonedDateTime;
+import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +37,6 @@ import static java.util.stream.Collectors.toList;
 public class HsmKeyImpl extends KeyImpl implements HsmKey {
 
 
-    protected final DataVaultService dataVaultService;
     private final PropertySpecService propertySpecService;
     private final Clock clock;
     private final Thesaurus thesaurus;
@@ -53,10 +51,9 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
 
 
     @Inject
-    HsmKeyImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService,
+    HsmKeyImpl(PropertySpecService propertySpecService,
                DataModel dataModel, Clock clock, Thesaurus thesaurus, HsmEnergyService hsmEnergyService, HsmEncryptionService hsmEncryptionService) {
         super(dataModel);
-        this.dataVaultService = dataVaultService;
         this.propertySpecService = propertySpecService;
         this.clock = clock;
         this.thesaurus = thesaurus;
@@ -90,7 +87,7 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     @Override
     public void setKey(byte[] key, String label) {
         validateSetKey(key, label);
-        super.setEncryptedKey(dataVaultService.encrypt(key));
+        super.setEncryptedKey(Base64.getEncoder().encodeToString(key));
         this.setLabel(label);
         this.save();
     }
@@ -105,15 +102,17 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
 
     @Override
     public byte[] getKey() {
-        return dataVaultService.decrypt(super.getEncryptedKey());
+        if (super.getEncryptedKey()==null) {
+            return null;
+        }
+        return Base64.getDecoder().decode(super.getEncryptedKey());
     }
 
     @Override
     public void generateValue(SecurityAccessorType securityAccessorType, HsmKey masterKey) {
         try {
             HsmRenewKey hsmRenewKey = hsmEnergyService.renewKey(new RenewKeyRequest(masterKey.getKey(), masterKey.getLabel(), securityAccessorType.getHsmKeyType()));
-            this.label = hsmRenewKey.getKeyLabel();
-            super.setEncryptedKey(dataVaultService.encrypt(hsmRenewKey.getEncryptedKey()));
+            this.setKey(hsmRenewKey.getEncryptedKey(), hsmRenewKey.getKeyLabel());
             this.setSmartMeterKey(hsmRenewKey.getSmartMeterKey());
             this.save();
         } catch (HsmBaseException e) {
@@ -161,11 +160,11 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
         if (smartMeterKey == null || smartMeterKey.isEmpty()) {
             return null;
         }
-        return dataVaultService.decrypt(smartMeterKey);
+        return Base64.getDecoder().decode(smartMeterKey);
     }
 
     public void setSmartMeterKey(byte[] smartMeterKey) {
-        this.smartMeterKey = dataVaultService.encrypt(smartMeterKey);
+        this.smartMeterKey = Base64.getEncoder().encodeToString(smartMeterKey);
         this.save();
     }
 

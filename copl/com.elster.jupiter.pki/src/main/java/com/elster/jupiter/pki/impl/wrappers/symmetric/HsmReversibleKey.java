@@ -1,6 +1,5 @@
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
-import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
@@ -12,8 +11,8 @@ import java.time.Clock;
 
 public class HsmReversibleKey extends HsmKeyImpl {
 
-    HsmReversibleKey(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Clock clock, Thesaurus thesaurus, HsmEnergyService hsmEnergyService, HsmEncryptionService hsmEncryptionService) {
-        super(dataVaultService, propertySpecService, dataModel, clock, thesaurus, hsmEnergyService, hsmEncryptionService);
+    HsmReversibleKey(PropertySpecService propertySpecService, DataModel dataModel, Clock clock, Thesaurus thesaurus, HsmEnergyService hsmEnergyService, HsmEncryptionService hsmEncryptionService) {
+        super(propertySpecService, dataModel, clock, thesaurus, hsmEnergyService, hsmEncryptionService);
     }
 
     /**
