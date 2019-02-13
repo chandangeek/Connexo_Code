@@ -13,6 +13,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -35,7 +37,9 @@ import java.util.List;
 import java.util.Set;
 
 
-@Component(name = "com.energyict.mdc.tou.campaign.rest", service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/tou", "app=MDC", "name=" + TimeOfUseApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mdc.tou.campaign.rest",
+        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        immediate = true, property = {"alias=/tou", "app=MDC", "name=" + TimeOfUseApplication.COMPONENT_NAME})
 public class TimeOfUseApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
     public static final String COMPONENT_NAME = "TUR";
@@ -80,7 +84,7 @@ public class TimeOfUseApplication extends Application implements TranslationKeyP
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Collections.emptyList();
+        return Arrays.asList(TranslationKeys.values());
     }
 
     @Reference
@@ -127,6 +131,11 @@ public class TimeOfUseApplication extends Application implements TranslationKeyP
             bind(TimeOfUseCampaignInfoFactory.class).to(TimeOfUseCampaignInfoFactory.class);
             bind(deviceService).to(DeviceService.class);
             bind(clock).to(Clock.class);
+            bind(DeviceInCampaignInfoFactory.class).to(DeviceInCampaignInfoFactory.class);
+            bind(DeviceTypeAndOptionsInfoFactory.class).to(DeviceTypeAndOptionsInfoFactory.class);
+            bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
         }
     }
 }

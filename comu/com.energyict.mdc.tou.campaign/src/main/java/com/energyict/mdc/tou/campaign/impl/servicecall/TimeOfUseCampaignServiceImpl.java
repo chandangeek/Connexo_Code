@@ -370,15 +370,15 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
             if (notAddedDevicesBecauseDifferentType > 0) {
                 serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_DIFFERENT_TYPE).format(notAddedDevicesBecauseDifferentType));
             }
-            if (numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN) > 0) {
+            if (numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN) != null) {
                 serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN)
                         .format(numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN)));
             }
-            if (numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR) > 0) {
+            if (numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR) != null) {
                 serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR)
                         .format(numberOfDevices.get(MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR)));
             }
-            if (numberOfDevices.get(MessageSeeds.DEVICE_WAS_ADDED) == 0) {
+            if (numberOfDevices.get(MessageSeeds.DEVICE_WAS_ADDED) == null) {
                 serviceCallService.lockServiceCall(serviceCall.getId());
                 if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
                     serviceCall.requestTransition(DefaultState.CANCELLED);
@@ -548,7 +548,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         List<String> states = new ArrayList<>();
         states.add(DefaultState.ONGOING.getKey());
         states.add(DefaultState.PENDING.getKey());
-        return streamDevicesInCampaigns().join(ServiceCall.class).join(State.class)
+        return streamDevicesInCampaigns().join(ServiceCall.class).join(ServiceCall.class).join(State.class)
                 .filter(Where.where("device").isEqualTo(device))
                 .filter(Where.where("serviceCall.parent.state.name").in(states)).findAny().map(TimeOfUseItem::getServiceCall);
     }

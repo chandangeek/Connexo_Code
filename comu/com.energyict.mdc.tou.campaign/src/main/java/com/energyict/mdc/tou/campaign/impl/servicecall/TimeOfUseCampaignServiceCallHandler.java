@@ -7,10 +7,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
@@ -26,7 +22,7 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
 
     @Inject
     public TimeOfUseCampaignServiceCallHandler(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
-        this.timeOfUseCampaignService=timeOfUseCampaignService;
+        this.timeOfUseCampaignService = timeOfUseCampaignService;
     }
 
     @Override
@@ -58,8 +54,6 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
 
     public void onChildStateChange(ServiceCall parent, ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         switch (newState) {
-            case CREATED:
-
             case CANCELLED:
                 timeOfUseCampaignService.cancelCalendarSend(serviceCall);
             case FAILED:
@@ -102,7 +96,6 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
                 .stream()
                 .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED));
     }
-
 
 
 }

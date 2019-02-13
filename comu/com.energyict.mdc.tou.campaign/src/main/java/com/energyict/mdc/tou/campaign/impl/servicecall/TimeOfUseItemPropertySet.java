@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, TimeOfUseItemDomainExtension> {
 
-    public static final String CUSTOM_PROPERTY_SET_NAME = "TimeOfUseItemPropertySet";
+    public static final String CUSTOM_PROPERTY_SET_ID = TimeOfUseItemDomainExtension.class.getName();
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
@@ -40,8 +40,13 @@ public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, 
     }
 
     @Override
+    public String getId() {
+        return CUSTOM_PROPERTY_SET_ID;
+    }
+
+    @Override
     public String getName() {
-        return TimeOfUseItemPropertySet.class.getSimpleName();
+        return thesaurus.getFormat(TranslationKeys.TIME_OF_USE_CAMPAIGN_CPS).format();
     }
 
     @Override

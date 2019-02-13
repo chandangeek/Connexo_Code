@@ -8,10 +8,6 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
-
-import org.osgi.service.component.annotations.Component;
-
 import javax.inject.Inject;
 
 public class TimeOfUseItemServiceCallHandler implements ServiceCallHandler {
@@ -37,7 +33,6 @@ public class TimeOfUseItemServiceCallHandler implements ServiceCallHandler {
 
         switch (newState) {
             case PENDING:
-//                timeOfUseCampaignService.createItemsOnCampaign();
                 break;
             case ONGOING:
                 break;

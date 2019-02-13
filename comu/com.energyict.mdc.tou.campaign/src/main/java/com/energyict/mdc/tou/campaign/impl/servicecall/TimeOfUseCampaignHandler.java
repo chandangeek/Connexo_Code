@@ -47,10 +47,6 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
         setClock(clock);
     }
 
-    public TimeOfUseCampaignHandler() {
-        super(LocalEvent.class);
-    }
-
     @Override
     protected void onEvent(LocalEvent event, Object... eventDetails) {
         if (event.getType().getTopic().equals(EventType.MANUAL_COMTASKEXECUTION_STARTED.topic())
