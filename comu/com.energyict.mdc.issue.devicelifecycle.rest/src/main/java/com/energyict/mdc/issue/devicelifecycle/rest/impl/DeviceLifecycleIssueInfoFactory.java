@@ -81,9 +81,7 @@ public class DeviceLifecycleIssueInfoFactory implements InfoFactory<IssueDeviceL
 
             FailedTransitionInfo transitionInfo = new FailedTransitionInfo();
             transitionInfo.lifecycle = new IdWithNameInfo(failedTransition.getLifecycle().getId(), failedTransition.getLifecycle().getName());
-            transitionInfo.transition = new IdWithNameInfo(failedTransition.getTransition().getId(), failedTransition.getTransition().getName().isPresent() ? failedTransition.getTransition()
-                    .getName()
-                    .get() : null);
+            transitionInfo.transition = new IdWithNameInfo(failedTransition.getTransition().getId(), failedTransition.getTransition().getName(thesaurus));
             transitionInfo.from = new IdWithNameInfo(failedTransition.getFrom().getId(), failedTransition.getFrom().getName());
             transitionInfo.to = new IdWithNameInfo(failedTransition.getTo().getId(), failedTransition.getTo().getName());
             transitionInfo.cause = failedTransition.getCause();
