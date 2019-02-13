@@ -97,7 +97,7 @@ public class ImportKeyRequest {
             case AES:
                 return new AESDeviceKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmKeyType.getKeySize(), deviceKeyValue);
             case AUTHENTICATION:
-                return new AuthenticationKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmKeyType.getKeySize(), deviceKeyValue);
+                return new AuthenticationKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(),  deviceKeyValue);
             case HLSECRET:
                 return new HLSecret(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmKeyType.getKeySize(), deviceKeyValue);
             default:
