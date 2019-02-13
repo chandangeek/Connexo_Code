@@ -20,6 +20,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -540,6 +541,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         return amrSystem.findMeter(String.valueOf(device.getId())).map(EndDevice.class::cast);
     }
 
+    @TransactionRequired
     private void postEvent(AuthorizedAction action, Device device, String cause) {
         eventService.postEvent(EventType.TRANSITION_FAILED.topic(),
                 TransitionFailedEventInfo.forFailure(action, device, cause, Instant.now(clock)));
