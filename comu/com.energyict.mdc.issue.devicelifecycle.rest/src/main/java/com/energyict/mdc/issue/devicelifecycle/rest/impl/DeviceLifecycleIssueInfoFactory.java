@@ -33,19 +33,22 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.energyict.mdc.issue.devicelifecycle.rest.impl.DeviceLifecycleIssueInfo.FailedTransitionDataInfo;
+import static com.energyict.mdc.issue.devicelifecycle.rest.impl.IssueDeviceLifecycleApplication.ISSUEDEVICELIFECYCLE_REST_COMPONENT;
 
 @Component(name = "issue.devicelifecycle.info.factory", service = {InfoFactory.class}, immediate = true)
 public class DeviceLifecycleIssueInfoFactory implements InfoFactory<IssueDeviceLifecycle> {
 
     private DeviceService deviceService;
+    private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
 
     public DeviceLifecycleIssueInfoFactory() {
     }
 
     @Inject
-    public DeviceLifecycleIssueInfoFactory(DeviceService deviceService) {
+    public DeviceLifecycleIssueInfoFactory(DeviceService deviceService, Thesaurus thesaurus) {
         this.deviceService = deviceService;
+        this.thesaurus = thesaurus;
     }
 
     @Reference
@@ -55,8 +58,10 @@ public class DeviceLifecycleIssueInfoFactory implements InfoFactory<IssueDeviceL
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueDeviceLifecycleService.COMPONENT_NAME, Layer.DOMAIN)
-                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
+        this.nlsService = nlsService;
+        Thesaurus domainThesaurus = nlsService.getThesaurus(IssueDeviceLifecycleService.COMPONENT_NAME, Layer.DOMAIN);
+        Thesaurus restThesaurus = nlsService.getThesaurus(ISSUEDEVICELIFECYCLE_REST_COMPONENT, Layer.REST);
+        this.thesaurus = domainThesaurus.join(restThesaurus);
     }
 
     public DeviceLifecycleIssueInfo asInfo(IssueDeviceLifecycle issue, Class<? extends DeviceInfo> deviceInfoClass) {

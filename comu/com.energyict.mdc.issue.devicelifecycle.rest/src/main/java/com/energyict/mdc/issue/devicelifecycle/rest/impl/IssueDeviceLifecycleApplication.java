@@ -79,8 +79,9 @@ public class IssueDeviceLifecycleApplication extends Application {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(IssueDeviceLifecycleService.COMPONENT_NAME, Layer.DOMAIN)
-                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
+        Thesaurus domainThesaurus = nlsService.getThesaurus(IssueDeviceLifecycleService.COMPONENT_NAME, Layer.DOMAIN);
+        Thesaurus restThesaurus = nlsService.getThesaurus(ISSUEDEVICELIFECYCLE_REST_COMPONENT, Layer.REST);
+        this.thesaurus = domainThesaurus.join(restThesaurus);
     }
 
     @Reference
