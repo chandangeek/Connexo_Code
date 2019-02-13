@@ -208,7 +208,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         }
         context.commit();
 
-        /// no meter readings on sync reply! It's  built in parent service call
+        /// no meter readings on sync reply! It's built in parent service call
         MeterReadings meterReadings = null;
         return getMeterReadingsResponseMessageType(meterReadings, errorTypes);
     }
@@ -237,7 +237,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
             notFoundReadingTypesOnDevices
                     .forEach((device, readingTypesMessase) ->
                             errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_NOT_FOUND_ON_DEVICE, device, readingTypesMessase
-                            )));
+                    )));
         }
         return errorTypes;
     }

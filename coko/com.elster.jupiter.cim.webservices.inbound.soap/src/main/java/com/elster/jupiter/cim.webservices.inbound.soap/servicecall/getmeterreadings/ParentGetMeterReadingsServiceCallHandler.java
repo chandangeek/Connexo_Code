@@ -47,7 +47,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Parent service call is switched to state " + newState.getDefaultFormat());
         switch (newState) {
-            case ONGOING:
+            case ONGOING: // normally result collection is performed when state is changed PAUSED --> ONGOING
                 if (oldState == DefaultState.PAUSED) {
                     collectAndSendResult(serviceCall);
                 }
