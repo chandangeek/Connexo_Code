@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -102,6 +103,11 @@ public class SecurityHelperTest {
 	@Mock
 	private ServiceCall serviceCall;
 
+	@Mock
+	private FaultMessage faultMessage;
+
+	private SecurityKeyInfo securityInfo;
+
 	private SecurityHelper testable;
 
 	@Before
@@ -128,15 +134,15 @@ public class SecurityHelperTest {
 		when(securityAccessorType.getKeyType()).thenReturn(keyType);
 		when(keyType.getKeyAlgorithm()).thenReturn(KEY_ALGORITHM);
 		testable = new SecurityHelper(hsmEnergyService, securityManagementService, faultMessageFactory, thesaurus);
-	}
-
-	@Test
-	public void testAddKeysHsmSuccess() throws HsmBaseException {
-		final SecurityKeyInfo securityInfo = new SecurityKeyInfo();
+		securityInfo = new SecurityKeyInfo();
 		securityInfo.setPublicKeyLabel(PUBLIC_KEY_LABEL);
 		securityInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY);
 		securityInfo.setSecurityAccessorName(SECURITY_ACCESSOR_NAME);
 		securityInfo.setSymmetricKey(SYMMETRIC_KEY);
+	}
+
+	@Test
+	public void testAddKeysHsmSuccessServiceCall() throws HsmBaseException {
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
@@ -164,11 +170,36 @@ public class SecurityHelperTest {
 	}
 
 	@Test
+	public void testAddKeysHsmSuccessNoServiceCall() throws HsmBaseException {
+		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
+		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
+		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
+		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
+		when(securityAccessor.getActualValue()).thenReturn(Optional.empty());
+		ArgumentCaptor<ImportKeyRequest> captor = ArgumentCaptor.forClass(ImportKeyRequest.class);
+		when(hsmEnergyService.importKey(Mockito.notNull(ImportKeyRequest.class))).thenReturn(hsmEncryptedKey);
+		when(securityManagementService.newSymmetricKeyWrapper(securityAccessorType)).thenReturn(hsmKey);
+		List<FaultMessage> faults = testable.addSecurityKeys(device, securityInfoList);
+		assertTrue(faults.isEmpty());
+		verify(hsmEnergyService).importKey(captor.capture());
+		ImportKeyRequest value = captor.getValue();
+		assertEquals(PUBLIC_KEY_LABEL, Whitebox.getInternalState(value, "wrapperKeyLabel"));
+		assertEquals(AsymmetricAlgorithm.RSA_15, Whitebox.getInternalState(value, "wrapperKeyAlgorithm"));
+		assertEquals(SYMMETRIC_KEY, Whitebox.getInternalState(value, "encryptedTransportKey"));
+		assertEquals(SymmetricAlgorithm.AES_256_CBC, Whitebox.getInternalState(value, "deviceKeyAlgorhitm"));
+		assertArrayEquals(getCipher(SECURITY_ACCESSOR_KEY),
+				(byte[]) Whitebox.getInternalState(value, "deviceKeyValue"));
+		assertArrayEquals(getInitializationVector(SECURITY_ACCESSOR_KEY),
+				(byte[]) Whitebox.getInternalState(value, "deviceKeyInitialVector"));
+		assertEquals(hsmKeyType, Whitebox.getInternalState(value, "hsmKeyType"));
+		verify(hsmKey).setKey(HSM_ENCRYPTED_KEY, HSM_KEY_LABEL);
+		verify(securityAccessor).setActualValue(hsmKey);
+		verify(securityAccessor).save();
+	}
+
+	@Test
 	public void testAddKeysNoHsmSuccessSymmetricKey() throws HsmBaseException {
-		final SecurityKeyInfo securityInfo = new SecurityKeyInfo();
 		securityInfo.setPublicKeyLabel(null);
-		securityInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY);
-		securityInfo.setSecurityAccessorName(SECURITY_ACCESSOR_NAME);
 		securityInfo.setSymmetricKey(null);
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
@@ -186,10 +217,7 @@ public class SecurityHelperTest {
 
 	@Test
 	public void testAddKeysNoHsmSuccessPassphrase() throws HsmBaseException {
-		final SecurityKeyInfo securityInfo = new SecurityKeyInfo();
 		securityInfo.setPublicKeyLabel(null);
-		securityInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY);
-		securityInfo.setSecurityAccessorName(SECURITY_ACCESSOR_NAME);
 		securityInfo.setSymmetricKey(null);
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
@@ -204,6 +232,91 @@ public class SecurityHelperTest {
 		verify(plaintextPassphrase).setPassphrase(new String(SECURITY_ACCESSOR_KEY));
 		verify(securityAccessor).setActualValue(plaintextPassphrase);
 		verify(securityAccessor).save();
+	}
+
+	@Test
+	public void testAddKeysHsmServiceCall_NoSecurityAccessorType() throws HsmBaseException {
+		when(faultMessageFactory.meterConfigFaultMessageSupplier(DEVICE_NAME,
+				MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, DEVICE_NAME, SECURITY_ACCESSOR_NAME))
+						.thenReturn(() -> faultMessage);
+		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
+		when(deviceType.getSecurityAccessorTypes()).thenReturn(new ArrayList<>());
+		List<FaultMessage> faults = testable.addSecurityKeys(device, securityInfoList, serviceCall);
+		assertEquals(1, faults.size());
+		assertEquals(faultMessage, faults.get(0));
+	}
+
+	@Test
+	public void testAddKeysHsmServiceCall_HsmBaseExceptionThrown() throws HsmBaseException {
+		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
+		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
+		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
+		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.empty());
+		when(hsmEnergyService.importKey(Mockito.notNull(ImportKeyRequest.class)))
+				.thenThrow(new HsmBaseException("HsmBaseException"));
+		when(faultMessageFactory.meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.CANNOT_IMPORT_KEY_TO_HSM,
+				DEVICE_NAME, SECURITY_ACCESSOR_NAME)).thenReturn(() -> faultMessage);
+		List<FaultMessage> faults = testable.addSecurityKeys(device, securityInfoList, serviceCall);
+		assertEquals(1, faults.size());
+		assertEquals(faultMessage, faults.get(0));
+	}
+
+	@Test
+	public void testAddKeysHsmNoServiceCall_HsmBaseExceptionThrown() throws HsmBaseException {
+		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
+		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
+		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
+		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.empty());
+		when(hsmEnergyService.importKey(Mockito.notNull(ImportKeyRequest.class)))
+				.thenThrow(new HsmBaseException("HsmBaseException"));
+		when(faultMessageFactory.meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.CANNOT_IMPORT_KEY_TO_HSM,
+				DEVICE_NAME, SECURITY_ACCESSOR_NAME)).thenReturn(() -> faultMessage);
+		List<FaultMessage> faults = testable.addSecurityKeys(device, securityInfoList);
+		assertEquals(1, faults.size());
+		assertEquals(faultMessage, faults.get(0));
+	}
+
+	@Test
+	public void testAddKeysHsmNoServiceCall_PublicKeyNull() throws HsmBaseException {
+		securityInfo.setPublicKeyLabel(null);
+		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
+		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
+		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
+		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
+		when(faultMessageFactory.meterConfigFaultMessageSupplier(DEVICE_NAME,
+				MessageSeeds.BOTH_PUBLIC_AND_SYMMETRIC_KEYS_SHOULD_BE_SPECIFIED)).thenReturn(() -> faultMessage);
+		List<FaultMessage> faults = testable.addSecurityKeys(device, securityInfoList);
+		assertEquals(1, faults.size());
+		assertEquals(faultMessage, faults.get(0));
+	}
+
+	@Test
+	public void testAddKeysHsmNoServiceCall_SymmetricKeyNull() throws HsmBaseException {
+		securityInfo.setSymmetricKey(null);
+		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
+		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
+		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
+		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
+		when(faultMessageFactory.meterConfigFaultMessageSupplier(DEVICE_NAME,
+				MessageSeeds.BOTH_PUBLIC_AND_SYMMETRIC_KEYS_SHOULD_BE_SPECIFIED)).thenReturn(() -> faultMessage);
+		List<FaultMessage> faults = testable.addSecurityKeys(device, securityInfoList);
+		assertEquals(1, faults.size());
+		assertEquals(faultMessage, faults.get(0));
+	}
+
+	@Test
+	public void testAddKeysHsmNoServiceCall_RuntimeExceptionThrown() throws HsmBaseException {
+		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
+		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
+		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
+		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.empty());
+		when(hsmEnergyService.importKey(Mockito.notNull(ImportKeyRequest.class))).thenThrow(NullPointerException.class);
+		when(faultMessageFactory.meterConfigFaultMessageSupplier(DEVICE_NAME,
+				MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT, DEVICE_NAME, SECURITY_ACCESSOR_NAME))
+						.thenReturn(() -> faultMessage);
+		List<FaultMessage> faults = testable.addSecurityKeys(device, securityInfoList);
+		assertEquals(1, faults.size());
+		assertEquals(faultMessage, faults.get(0));
 	}
 
 	private byte[] getInitializationVector(byte[] encryptedKey) {

@@ -55,6 +55,7 @@ public class DeviceBuilderTest {
 
 	private static final BigDecimal MULTIPLIER = new BigDecimal("123");
 
+	private static final long ID = 123, OTHER_ID = 456;
 	private static final String DEVICE_MRID = "DEVICE_MRID";
 	private static final String DEVICE_TYPE = "DEVICE_TYPE";
 	private static final String DEVICE_CONFIG_NAME = "DEVICE_CONFIG_NAME";
@@ -99,7 +100,7 @@ public class DeviceBuilderTest {
 	private DeviceConfiguration deviceConfiguration, otherDeviceConfiguration;
 
 	@Mock
-	private Device device;
+	private Device device, otherDevice;
 
 	@Mock
 	private Finder<Device> deviceFinder;
@@ -157,6 +158,8 @@ public class DeviceBuilderTest {
 		when(deviceService.newDeviceBuilder(deviceConfiguration, DEVICE_NAME, SHIPMENT_DATE)).thenReturn(deviceBuilder);
 		when(faultMessageFactory.meterConfigFaultMessageSupplier(Mockito.eq(DEVICE_NAME),
 				Mockito.notNull(MessageSeeds.class), Mockito.anyVararg())).thenReturn(supplier);
+		when(faultMessageFactory.meterConfigFaultMessageSupplier(Mockito.isNull(String.class),
+				Mockito.notNull(MessageSeeds.class), Mockito.anyVararg())).thenReturn(supplier);
 		when(supplier.get()).thenReturn(faultMessage);
 		meterInfo.setmRID(DEVICE_MRID);
 		meterInfo.setConfigurationEventReason(CONFIG_EVENT_REASON);
@@ -174,6 +177,7 @@ public class DeviceBuilderTest {
 		securityKeyInfo.setSecurityAccessorKey(SECURITY_ACCESSOR_KEY.getBytes());
 		securityInfo.setSecurityKeys(Arrays.asList(securityKeyInfo));
 		meterInfo.setSecurityInfo(securityInfo);
+		when(device.getId()).thenReturn(ID);
 		when(device.getmRID()).thenReturn(DEVICE_MRID);
 		when(device.getState()).thenReturn(status);
 		when(status.getName()).thenReturn(STATUS_VALUE);
@@ -250,6 +254,13 @@ public class DeviceBuilderTest {
 	@Test
 	public void testPrepareChangeFrom_ChangeSecurityKeysAllowed_Success_NonDefaultState() throws FaultMessage {
 		testable.prepareChangeFrom(meterInfo).build();
+		verify(device).setName(DEVICE_NAME);
+		verify(device).setSerialNumber(DEVICE_SERIAL_NUMBER);
+		verify(device).setModelNumber(MODEL_NUMBER);
+		verify(device).setModelVersion(MODEL_VERSION);
+		verify(device).setManufacturer(MANUFACTURER);
+		verify(device).save();
+		verify(batch).addDevice(device);
 	}
 
 	@Test
@@ -393,5 +404,52 @@ public class DeviceBuilderTest {
 		}
 		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME,
 				MessageSeeds.NOT_VALID_CONFIGURATION_REASON, UNKNOWN_EVENT_REASON);
+	}
+
+	@Test
+	public void testPrepareChangeFrom_NoSecurityKeysToUpdate_Success_StatusChange_findDeviceBySerialNumber()
+			throws FaultMessage {
+		meterInfo.setmRID(null);
+		meterInfo.setDeviceName(null);
+		meterInfo.getSecurityInfo().setSecurityKeys(new ArrayList<>());
+		when(deviceService.findDevicesBySerialNumber(DEVICE_SERIAL_NUMBER)).thenReturn(Arrays.asList(device));
+		testable.prepareChangeFrom(meterInfo).build();
+		verify(device).setSerialNumber(DEVICE_SERIAL_NUMBER);
+		verify(device).setModelNumber(MODEL_NUMBER);
+		verify(device).setModelVersion(MODEL_VERSION);
+		verify(device).setManufacturer(MANUFACTURER);
+		verify(device).save();
+		verify(batch).addDevice(device);
+	}
+
+	@Test
+	public void testPrepareChangeFrom_DeviceNotFouldBySerialNumber() throws FaultMessage {
+		meterInfo.setmRID(null);
+		meterInfo.setDeviceName(null);
+		when(deviceService.findDevicesBySerialNumber(DEVICE_SERIAL_NUMBER)).thenReturn(new ArrayList<>());
+		try {
+			testable.prepareChangeFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(null, MessageSeeds.NO_DEVICE_WITH_SERIAL_NUMBER,
+				DEVICE_SERIAL_NUMBER);
+	}
+
+	@Test
+	public void testPrepareChangeFrom_NoSecurityKeysToUpdate_FoundBySerialNumber_DeviceNameNotUniqueException()
+			throws FaultMessage {
+		meterInfo.setmRID(null);
+		meterInfo.setDeviceName(null);
+		meterInfo.getSecurityInfo().setSecurityKeys(new ArrayList<>());
+		when(deviceFinder.find()).thenReturn(Arrays.asList(otherDevice));
+		when(otherDevice.getId()).thenReturn(OTHER_ID);
+		when(deviceService.findDevicesBySerialNumber(DEVICE_SERIAL_NUMBER)).thenReturn(Arrays.asList(device));
+		try {
+			testable.prepareChangeFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(null, MessageSeeds.NAME_MUST_BE_UNIQUE);
 	}
 }
