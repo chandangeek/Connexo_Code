@@ -18,6 +18,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 import javax.validation.constraints.Size;
+
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -43,7 +44,11 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String baseUser;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    // group which contains all groups as children so we can check them when checking which groups a specific user belongs to
     private String baseGroup;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    // group which contains users we are interested in
+    private String groupName;
     private Long trustStoreId;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String certificateAlias;
@@ -101,7 +106,7 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
 
     @Override
     public void setSecurity(String security){
-        this.securityProtocol = security;
+        securityProtocol = security;
     }
 
     @Override
@@ -180,6 +185,14 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
         userService.getTrustedKeyStoreForUserDirectory(this).ifPresent(sslSecurityProperties::setTrustedStore);
         userService.getKeyStoreForUserDirectory(this, null).ifPresent(sslSecurityProperties::setKeyStore);
         return sslSecurityProperties;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
 }
