@@ -217,10 +217,27 @@ public class MeterConfigParser {
                 .findAny()
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND,
                         "MeterConfig.Meter.SimpleEndDeviceFunction", "MeterConfig.SimpleEndDeviceFunction"));
-        if(endDeviceFunction.getZones() !=  null)
-            return Optional.ofNullable(endDeviceFunction.getZones().getZone())
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.MISSING_ELEMENT,
-                        "MeterConfig.SimpleEndDeviceFunction[" + endDeviceFunctions.indexOf(endDeviceFunction) + "].zones"));
+
+        if(endDeviceFunction.getZones() !=  null) {
+            endDeviceFunction.getZones().getZone()
+                    .stream()
+                    .findAny()
+                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.EMPTY_LIST,
+                            "MeterConfig.SimpleEndDeviceFunction[" + endDeviceFunctions.indexOf(endDeviceFunction) + "].Zones"));
+
+            if(endDeviceFunction.getZones().getZone().size() != endDeviceFunction.getZones().getZone().stream().map(Zone::getZoneType).distinct().count())
+               throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.IS_NOT_ALLOWED_TO_HAVE_DUPLICATED_ZONE_TYPES).get();
+
+            if(endDeviceFunction.getZones().getZone().stream().filter(zone->zone.getZoneName() == null || zone.getZoneName().isEmpty()).findAny().isPresent())
+                throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY,
+                        "MeterConfig.Meter.SimpleEndDeviceFunction.Zones.Zone.zoneName").get();
+
+            if(endDeviceFunction.getZones().getZone().stream().filter(zone->zone.getZoneType() == null || zone.getZoneType().isEmpty()).findAny().isPresent())
+                throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY,
+                        "MeterConfig.Meter.SimpleEndDeviceFunction.Zones.Zone.zoneType").get();
+
+            return endDeviceFunction.getZones().getZone();
+        }
 
         return new ArrayList<>();
     }

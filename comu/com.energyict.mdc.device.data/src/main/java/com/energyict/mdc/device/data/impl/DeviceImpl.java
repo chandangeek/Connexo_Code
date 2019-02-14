@@ -686,7 +686,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (zoneType.isPresent()) {
                 Optional<Zone> zone = meteringZoneService.getZoneByName(zoneName, zoneType.get().getId());
                 if (zone.isPresent()) {
-                   if(!meteringZoneService.getByEndDevice(meter.get()).stream().filter(endDeviceZone -> endDeviceZone.getZone() != zone.get()).findAny().isPresent()) {
+                   if(!meteringZoneService.getByEndDevice(meter.get()).stream().filter(endDeviceZone -> endDeviceZone.getZone().getId() == zone.get().getId()).findAny().isPresent()) {
                        meteringZoneService.newEndDeviceZoneBuilder()
                                .withEndDevice(meter.get())
                                .withZone(zone.get())
