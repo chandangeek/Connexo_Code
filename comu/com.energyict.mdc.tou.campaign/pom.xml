@@ -114,6 +114,7 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging</artifactId>
         </dependency>
+
         <!-- Testing -->
 
         <dependency>
@@ -279,6 +280,11 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>audit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
