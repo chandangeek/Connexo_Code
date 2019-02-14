@@ -4,6 +4,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceBuilder;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import java.math.BigDecimal;
@@ -25,7 +26,7 @@ public class DeviceBuilderImpl implements DeviceBuilder {
     private Integer yearOfCertification;
 
     private DeviceDataModelService deviceDataModelService;
-    private Multimap<String, String> zones;
+    private Multimap<String, String> zones = ArrayListMultimap.create();
 
     public DeviceBuilderImpl(DeviceConfiguration deviceConfiguration, String name, Instant startDate, DeviceDataModelService deviceDataModelService) {
         this.deviceConfiguration = deviceConfiguration;
