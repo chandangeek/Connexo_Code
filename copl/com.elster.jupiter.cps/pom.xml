@@ -77,6 +77,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>events</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -109,5 +113,6 @@
             <artifactId>datavault</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 </project>
