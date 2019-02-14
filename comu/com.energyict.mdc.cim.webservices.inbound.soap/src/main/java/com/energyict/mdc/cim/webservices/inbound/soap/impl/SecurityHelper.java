@@ -16,7 +16,6 @@ import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.device.data.Device;
@@ -28,9 +27,9 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SecurityHelper {
@@ -41,17 +40,14 @@ public class SecurityHelper {
 
 	private final SecurityManagementService securityManagementService;
 
-	private final MeterConfigFaultMessageFactory faultMessageFactory;
-
-	private final Thesaurus thesaurus;
+	private final LoggerUtils loggerUtils;
 
 	@Inject
 	public SecurityHelper(HsmEnergyService hsmEnergyService, SecurityManagementService securityManagementService,
 			MeterConfigFaultMessageFactory faultMessageFactory, Thesaurus thesaurus) {
 		this.hsmEnergyService = hsmEnergyService;
 		this.securityManagementService = securityManagementService;
-		this.faultMessageFactory = faultMessageFactory;
-		this.thesaurus = thesaurus;
+		this.loggerUtils = new LoggerUtils(LOGGER, thesaurus, faultMessageFactory);
 	}
 
 	public List<FaultMessage> addSecurityKeys(Device device, List<SecurityKeyInfo> securityInfoList) {
@@ -61,22 +57,24 @@ public class SecurityHelper {
 	public List<FaultMessage> addSecurityKeys(Device device, List<SecurityKeyInfo> securityInfoList,
 			ServiceCall serviceCall) {
 		List<FaultMessage> allFaults = new ArrayList<>();
-		if (securityInfoList != null && !securityInfoList.isEmpty()) {
-			for (SecurityKeyInfo securityInfo : securityInfoList) {
-				try {
-					logInfo(serviceCall, MessageSeeds.IMPORTING_SECURITY_KEY_FOR_DEVICE, device.getName(),
-							securityInfo.getSecurityAccessorName());
-					List<FaultMessage> faults = addKey(device, securityInfo, serviceCall);
-					if (faults != null && !faults.isEmpty()) {
-						allFaults.addAll(faults);
-					}
-				} catch (Exception e) {
-					logException(device, allFaults, serviceCall, e, MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT,
-							device.getName(), securityInfo.getSecurityAccessorName());
-				}
-			}
-		}
+		Optional.ofNullable(securityInfoList)
+				.orElseGet(Collections::emptyList)
+				.stream().forEach(securityInfo -> handleSecurityInfo(device, serviceCall, allFaults, securityInfo));
 		return allFaults;
+	}
+
+	private void handleSecurityInfo(Device device, ServiceCall serviceCall, List<FaultMessage> allFaults, SecurityKeyInfo securityInfo) {
+		try {
+			loggerUtils.logInfo(serviceCall, MessageSeeds.IMPORTING_SECURITY_KEY_FOR_DEVICE, device.getName(),
+					securityInfo.getSecurityAccessorName());
+			List<FaultMessage> faults = addKey(device, securityInfo, serviceCall);
+			if (faults != null && !faults.isEmpty()) {
+				allFaults.addAll(faults);
+			}
+		} catch (Exception e) {
+			loggerUtils.logException(device, allFaults, serviceCall, e, MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT,
+					device.getName(), securityInfo.getSecurityAccessorName());
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -88,51 +86,60 @@ public class SecurityHelper {
 		if (optionalSecurityAccessorType.isPresent()) {
 			securityAccessorType = optionalSecurityAccessorType.get();
 		} else {
-			logSevere(device, faults, serviceCall, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE,
+			loggerUtils.logSevere(device, faults, serviceCall, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE,
 					device.getName(), securityInfo.getSecurityAccessorName());
 			return faults;
 		}
-		@SuppressWarnings("rawtypes")
-		Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
-		final SecurityAccessor securityAccessor = securityAccessorOptional
+
+		final SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType)
 				.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
+
 		if (securityInfo.getPublicKeyLabel() != null && securityInfo.getSymmetricKey() != null) {
-			// HSM
-			AsymmetricAlgorithm wrapperKeyAlgorithm = getAsymmetricAlgorithm();
-			SymmetricAlgorithm symmetricAlgorithm = getSymmetricAlgorithm();
-			final byte[] initializationVector = getInitializationVector(securityInfo.getSecurityAccessorKey());
-			final byte[] cipher = getCipher(securityInfo.getSecurityAccessorKey());
-			ImportKeyRequest importKeyRequest = new ImportKeyRequest(securityInfo.getPublicKeyLabel(),
-					wrapperKeyAlgorithm, securityInfo.getSymmetricKey(), symmetricAlgorithm, cipher,
-					initializationVector, securityAccessorType.getHsmKeyType());
-			HsmEncryptedKey hsmEncryptedKey = null;
-			try {
-				hsmEncryptedKey = hsmEnergyService.importKey(importKeyRequest);
-			} catch (HsmBaseException hsmEx) {
-				logException(device, faults, serviceCall, hsmEx, MessageSeeds.CANNOT_IMPORT_KEY_TO_HSM,
-						device.getName(), securityInfo.getSecurityAccessorName());
-				return faults;
-			}
-			HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
-			hsmKey.setKey(hsmEncryptedKey.getEncryptedKey(), hsmEncryptedKey.getKeyLabel());
-			securityAccessor.setActualValue(hsmKey);
-			securityAccessor.save();
+			handleEncryptedKey(device, securityInfo, serviceCall, faults, securityAccessorType, securityAccessor);
 		} else if (securityInfo.getPublicKeyLabel() == null && securityInfo.getSymmetricKey() == null) {
-			SecurityValueWrapper wrapperValue;
-			if (securityAccessorType.getKeyType().getKeyAlgorithm() != null) {
-				wrapperValue = createPlaintextSymmetricKeyWrapper(securityInfo.getSecurityAccessorKey(),
-						securityAccessorType);
-			} else {
-				wrapperValue = createPlaintextPassphraseWrapper(securityInfo.getSecurityAccessorKey(),
-						securityAccessorType);
-			}
-			securityAccessor.setActualValue(wrapperValue);
-			securityAccessor.save();
+			handlePlaintextKey(securityAccessorType, securityAccessor, securityInfo.getSecurityAccessorKey());
 		} else {
-			logSevere(device, faults, serviceCall, MessageSeeds.BOTH_PUBLIC_AND_SYMMETRIC_KEYS_SHOULD_BE_SPECIFIED);
-			return faults;
+			loggerUtils.logSevere(device, faults, serviceCall, MessageSeeds.BOTH_PUBLIC_AND_SYMMETRIC_KEYS_SHOULD_BE_SPECIFIED);
 		}
 		return faults;
+	}
+
+	private void handlePlaintextKey(SecurityAccessorType securityAccessorType, SecurityAccessor securityAccessor, byte[] securityAccessorKey) {
+		SecurityValueWrapper wrapperValue;
+		if (securityAccessorType.getKeyType().getKeyAlgorithm() != null) {
+			wrapperValue = createPlaintextSymmetricKeyWrapper(securityAccessorKey,
+					securityAccessorType);
+		} else {
+			wrapperValue = createPlaintextPassphraseWrapper(securityAccessorKey,
+					securityAccessorType);
+		}
+		securityAccessor.setActualValue(wrapperValue);
+		securityAccessor.save();
+	}
+
+	private void handleEncryptedKey(Device device, SecurityKeyInfo securityInfo, ServiceCall serviceCall, List<FaultMessage> faults, SecurityAccessorType securityAccessorType, SecurityAccessor securityAccessor) {
+		HsmEncryptedKey hsmEncryptedKey = null;
+		try {
+			hsmEncryptedKey = hsmEnergyService.importKey(createImportKeyRequest(securityInfo, securityAccessorType));
+		} catch (HsmBaseException hsmEx) {
+			loggerUtils.logException(device, faults, serviceCall, hsmEx, MessageSeeds.CANNOT_IMPORT_KEY_TO_HSM,
+					device.getName(), securityInfo.getSecurityAccessorName());
+			return;
+		}
+		securityAccessor.setActualValue(prepareHsmKey(securityAccessorType, hsmEncryptedKey));
+		securityAccessor.save();
+	}
+
+	private HsmKey prepareHsmKey(SecurityAccessorType securityAccessorType, HsmEncryptedKey hsmEncryptedKey) {
+		HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
+		hsmKey.setKey(hsmEncryptedKey.getEncryptedKey(), hsmEncryptedKey.getKeyLabel());
+		return hsmKey;
+	}
+
+	private ImportKeyRequest createImportKeyRequest(SecurityKeyInfo securityInfo, SecurityAccessorType securityAccessorType) {
+		return new ImportKeyRequest(securityInfo.getPublicKeyLabel(),
+				getAsymmetricAlgorithm(), securityInfo.getSymmetricKey(), getSymmetricAlgorithm(), getCipher(securityInfo.getSecurityAccessorKey()),
+				getInitializationVector(securityInfo.getSecurityAccessorKey()), securityAccessorType.getHsmKeyType());
 	}
 
 	private Optional<SecurityAccessorType> getSecurityAccessorType(Device device, String securityAccessorName) {
@@ -140,7 +147,7 @@ public class SecurityHelper {
 				.filter(kat -> kat.getName().equals(securityAccessorName)).findAny();
 	}
 
-	public PlaintextSymmetricKey createPlaintextSymmetricKeyWrapper(byte[] bytes,
+	private PlaintextSymmetricKey createPlaintextSymmetricKeyWrapper(byte[] bytes,
 			SecurityAccessorType securityAccessorType) {
 		PlaintextSymmetricKey instance = (PlaintextSymmetricKey) securityManagementService
 				.newSymmetricKeyWrapper(securityAccessorType);
@@ -149,7 +156,7 @@ public class SecurityHelper {
 		return instance;
 	}
 
-	public PlaintextPassphrase createPlaintextPassphraseWrapper(byte[] bytes,
+	private PlaintextPassphrase createPlaintextPassphraseWrapper(byte[] bytes,
 			SecurityAccessorType securityAccessorType) {
 		PlaintextPassphrase instance = (PlaintextPassphrase) securityManagementService
 				.newPassphraseWrapper(securityAccessorType);
@@ -175,33 +182,5 @@ public class SecurityHelper {
 		byte[] cipher = new byte[encryptedKey.length - 16];
 		System.arraycopy(encryptedKey, 16, cipher, 0, encryptedKey.length - 16);
 		return cipher;
-	}
-
-	private void logInfo(ServiceCall serviceCall, MessageSeeds messageSeeds, Object... args) {
-		if (serviceCall != null) {
-			serviceCall.log(LogLevel.INFO, messageSeeds.translate(thesaurus, args));
-		} else {
-			LOGGER.log(Level.INFO, messageSeeds.translate(thesaurus, args));
-		}
-	}
-
-	private void logSevere(Device device, List<FaultMessage> faults, ServiceCall serviceCall, MessageSeeds messageSeeds,
-			Object... args) {
-		if (serviceCall != null) {
-			serviceCall.log(LogLevel.SEVERE, messageSeeds.translate(thesaurus, args));
-		} else {
-			LOGGER.log(Level.SEVERE, messageSeeds.translate(thesaurus, args));
-		}
-		faults.add(faultMessageFactory.meterConfigFaultMessageSupplier(device.getName(), messageSeeds, args).get());
-	}
-
-	private void logException(Device device, List<FaultMessage> faults, ServiceCall serviceCall, Exception ex,
-			MessageSeeds messageSeeds, Object... args) {
-		if (serviceCall != null) {
-			serviceCall.log(messageSeeds.translate(thesaurus, args), ex);
-		} else {
-			LOGGER.log(Level.SEVERE, messageSeeds.translate(thesaurus, args), ex);
-		}
-		faults.add(faultMessageFactory.meterConfigFaultMessageSupplier(device.getName(), messageSeeds, args).get());
 	}
 }

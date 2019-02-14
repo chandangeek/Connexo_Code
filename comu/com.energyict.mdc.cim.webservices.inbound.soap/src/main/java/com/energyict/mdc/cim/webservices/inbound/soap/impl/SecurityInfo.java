@@ -1,7 +1,6 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import java.util.List;
-import java.util.Optional;
 
 public class SecurityInfo {
 
