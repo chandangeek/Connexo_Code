@@ -6,8 +6,6 @@ package com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.ValueParserException;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.XsdQuantityConverter;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -870,23 +868,16 @@ class UsagePointBuilder {
     }
 
     private void validateCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, CustomAttributeSet data) throws FaultMessage {
-        List<CustomPropertySet> customPropertySets = usagePoint.forCustomProperties().getAllPropertySets().stream()
+        Optional<CustomPropertySet> customPropertySet = usagePoint.forCustomProperties().getAllPropertySets().stream()
                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                 .filter(cps -> data.getId().equalsIgnoreCase(cps.getId()))
-                .collect(Collectors.toList());
-        checkUnusedCustomPropertySets(customPropertySets, data);
-        for (CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet : customPropertySets) {
-            validateCustomPropertySetValues(customPropertySet, usagePoint, data, null);
-        }
-    }
-
-    private void checkUnusedCustomPropertySets(List<CustomPropertySet> customPropertySets, CustomAttributeSet data) throws FaultMessage {
-        boolean wrongCustomPropertySets = customPropertySets.stream().noneMatch(cps -> data.getId().equalsIgnoreCase(cps.getId()));
-        if (wrongCustomPropertySets) {
+                .findFirst();
+        if (customPropertySet.isPresent()) {
+            validateCustomPropertySetValues(customPropertySet.get(), usagePoint, data, null);
+        } else {
             throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                     MessageSeeds.NO_CUSTOMATTRIBUTE, data.getId()).get();
         }
-
     }
 
     private void validateCustomPropertySetValues(CustomPropertySet customPropertySet, Object businessObject, CustomAttributeSet data, Object additionalPrimaryKey) throws FaultMessage {
@@ -927,9 +918,10 @@ class UsagePointBuilder {
     private void validateCreateOrUpdateCustomAttributeValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, CustomPropertySetValues values) throws FaultMessage {
         if (values != null) {
             for (PropertySpec spec : customPropertySet.getPropertySpecs()) {
-                if (findCustomAttributeKey(customPropertySet, data, spec).isPresent()) {
-                    values.setProperty(spec.getName(), findValue(customPropertySet, spec, data));
-                };
+                Optional value = findValue(customPropertySet, spec, data);
+                if (value.isPresent()) {
+                    values.setProperty(spec.getName(), value.get());
+                }
             }
             validateMandatoryCustomProperties(customPropertySet, values);
             validatePossibleValues(customPropertySet, values, data);
@@ -957,50 +949,28 @@ class UsagePointBuilder {
 
     private CustomPropertySetValues updateValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, CustomPropertySetValues values) throws FaultMessage {
         for (PropertySpec spec : customPropertySet.getPropertySpecs()) {
-            if (findCustomAttributeKey(customPropertySet, data, spec).isPresent()) {
-                values.setProperty(spec.getName(), findValue(customPropertySet, spec, data));
-            };
+            Optional value = findValue(customPropertySet, spec, data);
+            if (value.isPresent()) {
+                values.setProperty(spec.getName(), value.get());
+            }
         }
         return values;
 
     }
 
-    private Object findValue(CustomPropertySet<Object,? extends PersistentDomainExtension> customPropertySet, PropertySpec spec, CustomAttributeSet data) throws FaultMessage {
+    private Optional<Object> findValue(CustomPropertySet<Object,? extends PersistentDomainExtension> customPropertySet, PropertySpec spec, CustomAttributeSet data) throws FaultMessage {
         if (data.getId().equalsIgnoreCase(customPropertySet.getId())) {
             for (Attribute attr : data.getAttribute()) {
                 if (attr.getName().equalsIgnoreCase(spec.getName())) {
-                    return convertValues(spec, attr.getValue());
-                }
-            }
-        }
-        return null;
-    }
-
-    private Object convertValues(PropertySpec spec, String value) throws FaultMessage {
-        if (spec.getValueFactory().getValueType().equals(Quantity.class)) {
-            try {
-                return XsdQuantityConverter.unmarshal(value);
-            } catch (ValueParserException e) {
-                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.WRONG_QUANTITY_FORMAT,
-                        spec.getName(),
-                        spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getMultiplier())).collect(Collectors.joining(",")),
-                        spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getUnit())).collect(Collectors.joining(","))).get();
-            }
-        } else {
-            return value;
-        }
-    }
-
-    private Optional<String> findCustomAttributeKey(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, PropertySpec spec) {
-        if (data.getId().equalsIgnoreCase(customPropertySet.getId())) {
-            for (Attribute attr : data.getAttribute()) {
-                if (attr.getName().equalsIgnoreCase(spec.getName())) {
-                    return Optional.of(attr.getName());
+                    return Optional.of(convertValues(spec, attr.getValue()));
                 }
             }
         }
         return Optional.empty();
+    }
+
+    private Object convertValues(PropertySpec spec, String value) {
+        return spec.getValueFactory().fromStringValue(value);
     }
 
     private void addCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, CustomAttributeSet data) throws FaultMessage {

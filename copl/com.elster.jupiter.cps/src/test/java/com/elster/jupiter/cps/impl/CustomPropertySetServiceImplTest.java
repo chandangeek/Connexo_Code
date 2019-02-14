@@ -13,6 +13,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -167,6 +168,8 @@ public class CustomPropertySetServiceImplTest {
     private SearchService searchService;
     @Mock
     private UpgradeService upgradeService;
+    @Mock
+    private EventService eventService;
 
     @Before
     public void initializeMocks() {
@@ -1149,6 +1152,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setThreadPrincipalService(this.threadPrincipalService);
         testInstance.setSearchService(searchService);
         testInstance.setUpgradeService(upgradeService);
+        testInstance.setEventService(eventService);
         testInstance.activate();
         return testInstance;
     }
