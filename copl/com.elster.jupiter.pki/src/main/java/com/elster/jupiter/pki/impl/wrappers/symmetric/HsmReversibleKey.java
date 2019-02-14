@@ -25,7 +25,7 @@ public class HsmReversibleKey extends HsmKeyImpl {
     @Override
     public byte[] getKey() {
         try {
-            return hsmEncryptionService.decrypt(super.getKey(), super.getLabel());
+            return hsmEncryptionService.symmetricDecrypt(super.getKey(), super.getLabel());
         } catch (HsmBaseException e) {
             throw new RuntimeException(e);
         }
@@ -40,7 +40,7 @@ public class HsmReversibleKey extends HsmKeyImpl {
     public void setKey(byte[] key, String label) {
         try {
             super.validateSetKey(key, label);
-            super.setKey(this.hsmEncryptionService.encrypt(key, label), label);
+            super.setKey(this.hsmEncryptionService.symmetricEncrypt(key, label), label);
         } catch (HsmBaseException e) {
             throw new RuntimeException(e);
         }
