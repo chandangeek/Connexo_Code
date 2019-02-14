@@ -35,6 +35,13 @@ import java.util.concurrent.Executors;
 
 public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
 
+    private final static String MANUAL_COMTASKEXECUTION_STARTED = "com/energyict/mdc/device/data/manualcomtaskexecution/STARTED";
+    private final static String MANUAL_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/manualcomtaskexecution/COMPLETED";
+    private final static String MANUAL_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/manualcomtaskexecution/FAILED";
+    private final static String SCHEDULED_COMTASKEXECUTION_STARTED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/STARTED";
+    private final static String SCHEDULED_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/COMPLETED";
+    private final static String SCHEDULED_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/FAILED";
+    private final static String TOU_CAMPAIGN_EDITED = "com/energyict/mdc/tou/campaign/toucampaign/EDITED";
     private TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
     private Clock clock;
     private ServiceCallService serviceCallService;
@@ -49,17 +56,24 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
 
     @Override
     protected void onEvent(LocalEvent event, Object... eventDetails) {
-        if (event.getType().getTopic().equals(EventType.MANUAL_COMTASKEXECUTION_STARTED.topic())
-                || event.getType().getTopic().equals(EventType.SCHEDULED_COMTASKEXECUTION_STARTED.topic())) {
-            processEvent(event, this::onComTaskStarted);
-        } else if (event.getType().getTopic().equals(EventType.MANUAL_COMTASKEXECUTION_COMPLETED.topic())
-                || event.getType().getTopic().equals(EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED.topic())) {
-            processEvent(event, this::onComTaskCompleted);
-        } else if (event.getType().getTopic().equals(EventType.MANUAL_COMTASKEXECUTION_FAILED.topic())
-                || event.getType().getTopic().equals(EventType.SCHEDULED_COMTASKEXECUTION_FAILED.topic())) {
-            processEvent(event, this::onComTaskFailed);
-        } else if (event.getType().getTopic().equals(com.energyict.mdc.tou.campaign.impl.EventType.TOU_CAMPAIGN_EDITED.topic())) {
-            CompletableFuture.runAsync(() -> timeOfUseCampaignService.editCampaignItems((TimeOfUseCampaign) event.getSource()), Executors.newSingleThreadExecutor());
+        switch (event.getType().getTopic()) {
+            case MANUAL_COMTASKEXECUTION_STARTED:
+            case SCHEDULED_COMTASKEXECUTION_STARTED:
+                processEvent(event, this::onComTaskStarted);
+                break;
+            case MANUAL_COMTASKEXECUTION_COMPLETED:
+            case SCHEDULED_COMTASKEXECUTION_COMPLETED:
+                processEvent(event, this::onComTaskCompleted);
+                break;
+            case MANUAL_COMTASKEXECUTION_FAILED:
+            case SCHEDULED_COMTASKEXECUTION_FAILED:
+                processEvent(event, this::onComTaskFailed);
+                break;
+            case TOU_CAMPAIGN_EDITED:
+                CompletableFuture.runAsync(() -> timeOfUseCampaignService.editCampaignItems((TimeOfUseCampaign) event.getSource()), Executors.newSingleThreadExecutor());
+                break;
+            default:
+                break;
         }
     }
 
@@ -274,26 +288,6 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
             timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.ACTIVE_VERIFICATION_TASK_NOT_FOUND, LogLevel.SEVERE);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
-    }
-
-    public enum EventType {
-        MANUAL_COMTASKEXECUTION_STARTED("manualcomtaskexecution/STARTED"),
-        MANUAL_COMTASKEXECUTION_COMPLETED("manualcomtaskexecution/COMPLETED"),
-        MANUAL_COMTASKEXECUTION_FAILED("manualcomtaskexecution/FAILED"),
-        SCHEDULED_COMTASKEXECUTION_STARTED("scheduledcomtaskexecution/STARTED"),
-        SCHEDULED_COMTASKEXECUTION_COMPLETED("scheduledcomtaskexecution/COMPLETED"),
-        SCHEDULED_COMTASKEXECUTION_FAILED("scheduledcomtaskexecution/FAILED");
-        String topic;
-        private static final String NAMESPACE = "com/energyict/mdc/device/data/";
-
-        EventType(String topic) {
-            this.topic = topic;
-        }
-
-        public String topic() {
-            return NAMESPACE + topic;
-        }
-
     }
 
     private boolean withVerification(TimeOfUseCampaign timeOfUseCampaign) {

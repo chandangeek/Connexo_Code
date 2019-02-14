@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("/touCampaigns")
+@Path("/toucampaigns")
 public class TimeOfUseCampaignResource {
 
     private final TimeOfUseCampaignService timeOfUseCampaignService;
@@ -178,16 +178,6 @@ public class TimeOfUseCampaignResource {
                         .withActualVersion(() -> getCurrentCampaignVersion(timeOfUseCampaignInfo.id))
                         .supplier());
         timeOfUseCampaignService.cancelCampaign(id);
-        return Response.ok().build();
-    }
-
-    @PUT
-    @Transactional
-    @Path("/{id}/delete")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
-    public Response deleteCampaign(@PathParam("id") long id) {
-        timeOfUseCampaignService.deleteCampaign(id);
         return Response.ok().build();
     }
 
