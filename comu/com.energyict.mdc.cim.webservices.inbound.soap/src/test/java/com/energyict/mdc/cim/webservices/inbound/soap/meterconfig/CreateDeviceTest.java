@@ -33,6 +33,8 @@ import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -53,12 +55,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class CreateDeviceTest extends AbstractMockMeterConfig {
+
     private com.energyict.mdc.device.data.DeviceBuilder deviceBuilder;
     @Mock
     private OverlapCalculatorBuilder overlapCalculatorBuilder;
 
     @Before
     public void setUp() throws Exception {
+
         deviceBuilder = FakeBuilder.initBuilderStub(device, com.energyict.mdc.device.data.DeviceBuilder.class);
         when(deviceService.newDeviceBuilder(deviceConfiguration, DEVICE_NAME, RECEIVED_DATE)).thenReturn(deviceBuilder);
         when(deviceService.findAllDevices(any(Condition.class)))

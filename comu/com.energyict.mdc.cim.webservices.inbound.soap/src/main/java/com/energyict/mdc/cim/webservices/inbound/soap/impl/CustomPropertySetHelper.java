@@ -23,6 +23,7 @@ import javax.inject.Inject;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -137,28 +138,22 @@ public class CustomPropertySetHelper {
         }
     }
 
-    private Instant getFromDate(Device device, CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall, List<FaultMessage> faults){
-        Instant fromDate = newCustomProperySetInfo.getFromDate();
-        if (fromDate == null && !newCustomProperySetInfo.isUpdateRange()) {
-            loggerUtils.logSevere(device, faults, serviceCall, MessageSeeds.START_DATE_LOWER_CREATED_DATE,
-                    device.getName());
-            return null;
-        }
-        if (fromDate == null){
-            return device.getCreateTime();
-        }
-        return fromDate;
-    }
-
     private void createNewVersion(Device device, CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall, List<FaultMessage> faults,
                                   CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet, CustomPropertySetValues values) {
-        Instant fromDate = getFromDate(device, newCustomProperySetInfo, serviceCall, faults);
-        if(!faults.isEmpty()){
+        Instant fromDate = newCustomProperySetInfo.getFromDate();
+        if (fromDate == null || fromDateBeforeDevice(device, fromDate)) {
+            loggerUtils.logSevere(device, faults, serviceCall, MessageSeeds.START_DATE_LOWER_CREATED_DATE,
+                    device.getName());
             return;
         }
         Range<Instant> range = casConflictsSolver.solveConflictsForCreate(device, customPropertySet,
             fromDate, newCustomProperySetInfo.getEndDate());
         customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range);
+    }
+
+    private boolean fromDateBeforeDevice(Device device, Instant fromDate) {
+        return device.getLifecycleDates().getReceivedDate().isPresent() &&
+                fromDate.truncatedTo(ChronoUnit.DAYS).isBefore(device.getLifecycleDates().getReceivedDate().get().truncatedTo(ChronoUnit.DAYS));
     }
 
     private void setCasValues(Device device, CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall,
@@ -193,12 +188,19 @@ public class CustomPropertySetHelper {
                             .format(versionId.atZone(clock.getZone())));
         } else {
             setCasValues(device, newCustomProperySetInfo, serviceCall, faults, customPropertySet, existingValues);
-            if (!endTime.isPresent()) {
-                endTime = Optional.of(Instant.EPOCH);
+            if(newCustomProperySetInfo.isUpdateRange()) {
+                if(!startTime.isPresent()){
+                    startTime = Optional.of(device.getCreateTime());
+                }
+                if (!endTime.isPresent()) {
+                    endTime = Optional.of(Instant.EPOCH);
+                }
+                Range<Instant> range = casConflictsSolver.solveConflictsForUpdate(device, customPropertySet, startTime,
+                        endTime, versionId, existingValues);
+                customPropertySetService.setValuesVersionFor(customPropertySet, device, existingValues, range, versionId);
+            }else{
+                customPropertySetService.setValuesVersionFor(customPropertySet, device, existingValues, existingValues.getEffectiveRange(), versionId);
             }
-            Range<Instant> range = casConflictsSolver.solveConflictsForUpdate(device, customPropertySet, startTime,
-                    endTime, versionId, existingValues);
-            customPropertySetService.setValuesVersionFor(customPropertySet, device, existingValues, range, versionId);
         }
     }
 

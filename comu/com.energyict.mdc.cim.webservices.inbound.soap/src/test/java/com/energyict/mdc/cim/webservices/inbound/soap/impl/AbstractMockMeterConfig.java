@@ -13,6 +13,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Batch;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 
 import ch.iec.tc57._2011.meterconfig.ConfigurationEvent;
@@ -90,6 +91,8 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     protected CustomPropertySet customNonVersionedPropertySet;
     @Mock
     protected CustomPropertySet customVersionedPropertySet;
+    @Mock
+    private CIMLifecycleDates lifecycleDates;
 
     protected void mockDeviceType() {
         when(deviceType.getName()).thenReturn(DEVICE_TYPE_NAME);
@@ -128,6 +131,7 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     }
 
     protected void mockDevice() {
+        when(device.getCreateTime()).thenReturn(RECEIVED_DATE);
         when(device.getmRID()).thenReturn(DEVICE_MRID);
         when(device.getName()).thenReturn(DEVICE_NAME);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -140,6 +144,12 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         when(device.getMultiplier()).thenReturn(BigDecimal.valueOf(MULTIPLIER));
         when(device.getState()).thenReturn(state);
         mockDeviceConfiguration();
+        mockLifeCycleDates();
+    }
+
+    private void mockLifeCycleDates() {
+        when(lifecycleDates.getReceivedDate()).thenReturn(Optional.of(RECEIVED_DATE));
+        when(device.getLifecycleDates()).thenReturn(lifecycleDates);
     }
 
     protected SimpleEndDeviceFunction createDefaultEndDeviceFunction() {
@@ -253,7 +263,7 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
 
     protected CustomAttributeSet createVersionedCustomPropertySet() {
         CustomAttributeSet customAttributeSet = createCustomAttributeSet(VERSIONED_CPS_ID);
-        customAttributeSet.setFromDateTime(Instant.now());
+        customAttributeSet.setFromDateTime(RECEIVED_DATE.plusSeconds(10));
         return customAttributeSet;
     }
 
