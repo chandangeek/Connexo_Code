@@ -533,7 +533,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.upgradeService).register(eq(InstallIdentifier.identifier("Example", VERSIONED_CUSTOM_PROPERTY_SET_ADD_COMPONENT_ID)), eq(versionedCustomPropertySetWithAdditionalKeyDataModel), any(), any());
     }
 
-    @Test(timeout = 5000)
+    @Test(timeout = 10000)
     public void addCustomPropertySetsWhileActivating() throws InterruptedException {
         when(this.serviceDataModel.isInstalled()).thenReturn(false);
         CustomPropertySetServiceImpl testInstance = new CustomPropertySetServiceImpl();
