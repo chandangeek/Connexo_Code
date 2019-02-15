@@ -398,7 +398,7 @@ public class CustomPropertySetServiceImplIT {
         service.setTransactionService(this.transactionService);
         service.setSearchService(mock(SearchService.class));
         service.setUserService(userService);
-        service.setEventService(mock(EventService.class));
+        service.setEventService(eventService);
         service.setUpgradeService(UpgradeModule.FakeUpgradeService.getInstance());
 
         /* Create 3 threads that will wait on CountdownLatch to start simultaneously
