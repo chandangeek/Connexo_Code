@@ -38,12 +38,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
+import java.util.Optional;
 
 @LiteralSql
 @UniqueFirmwareVersionByType(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 @IsValidStatusTransfer(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.STATE_TRANSFER_NOT_ALLOWED + "}")
 @IsFileRequired(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @IsStatusRequired(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+@CorrectFirmwareDependencies(groups = {Save.Create.class, Save.Update.class})
 public final class FirmwareVersionImpl implements FirmwareVersion {
     private final Thesaurus thesaurus;
     private final DataModel dataModel;
@@ -76,6 +78,9 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     @SuppressWarnings("unused")
     private long version;
     private FirmwareStatus oldFirmwareStatus;
+
+    private Reference<FirmwareVersion> meterFirmwareDependency = ValueReference.absent();
+    private Reference<FirmwareVersion> communicationFirmwareDependency = ValueReference.absent();
 
     @Inject
     public FirmwareVersionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
@@ -254,6 +259,7 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         }
     }
 
+    @Override
     public Instant getModTime() {
         return modTime;
     }
@@ -292,8 +298,28 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         return rank;
     }
 
-    public void setRank(int rank) {
+    void setRank(int rank) {
         this.rank = rank;
+    }
+
+    @Override
+    public Optional<FirmwareVersion> getMeterFirmwareDependency() {
+        return meterFirmwareDependency.getOptional();
+    }
+
+    @Override
+    public void setMeterFirmwareDependency(FirmwareVersion meterFirmwareDependency) {
+        this.meterFirmwareDependency.set(meterFirmwareDependency);
+    }
+
+    @Override
+    public Optional<FirmwareVersion> getCommunicationFirmwareDependency() {
+        return communicationFirmwareDependency.getOptional();
+    }
+
+    @Override
+    public void setCommunicationFirmwareDependency(FirmwareVersion communicationFirmwareDependency) {
+        this.communicationFirmwareDependency.set(communicationFirmwareDependency);
     }
 
     @Override
@@ -315,7 +341,9 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         FIRMWARESTATUS("firmwareStatus"),
         FIRMWAREFILE("firmwareFile"),
         IMAGEIDENTIFIER("imageIdentifier"),
-        RANK("rank");
+        RANK("rank"),
+        METER_FW_DEP("meterFirmwareDependency"),
+        COM_FW_DEP("communicationFirmwareDependency");
 
         private final String javaFieldName;
 
@@ -355,6 +383,18 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         }
 
         @Override
+        public FirmwareVersionBuilder setCommunicationFirmwareDependency(FirmwareVersion communicationFirmwareDependency) {
+            underConstruction.setCommunicationFirmwareDependency(communicationFirmwareDependency);
+            return this;
+        }
+
+        @Override
+        public FirmwareVersionBuilder setMeterFirmwareDependency(FirmwareVersion meterFirmwareDependency) {
+            underConstruction.setMeterFirmwareDependency(meterFirmwareDependency);
+            return this;
+        }
+
+        @Override
         public FirmwareVersion create() {
             DeviceType deviceType = underConstruction.getDeviceType();
             underConstruction.deviceConfigurationService.findAndLockDeviceType(deviceType.getId())
@@ -365,6 +405,7 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
 
         @Override
         public void validate() {
+            setRank(underConstruction.getDeviceType());
             underConstruction.validate();
         }
 

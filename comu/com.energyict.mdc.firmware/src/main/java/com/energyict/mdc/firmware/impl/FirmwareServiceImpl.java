@@ -77,6 +77,7 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -320,6 +321,9 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         }
         if (!filter.getFirmwareTypes().isEmpty()) {
             condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).in(filter.getFirmwareTypes()));
+        }
+        if (!Range.<Integer>all().equals(filter.getRankRange())) {
+            condition = condition.and(where(FirmwareVersionImpl.Fields.RANK.fieldName()).in(filter.getRankRange()));
         }
         return DefaultFinder.of(FirmwareVersion.class, condition, dataModel).sorted(FirmwareVersionImpl.Fields.RANK.fieldName(), false);
     }
@@ -850,5 +854,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
             }
         }
         dataModel.mapper(FirmwareVersionImpl.class).update(toUpdate, FirmwareVersionImpl.Fields.RANK.fieldName());
+        // need to validate the operation after changing ranks because objects are re-read from DB for validation
+        dataModel.getInstance(FirmwareDependenciesValidator.class).validateDependencyRanks(toUpdate);
     }
 }

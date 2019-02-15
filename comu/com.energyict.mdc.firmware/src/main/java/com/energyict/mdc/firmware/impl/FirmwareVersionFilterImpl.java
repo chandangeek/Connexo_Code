@@ -9,9 +9,13 @@ import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
+
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Implementation of {@link FirmwareVersionFilter}
@@ -19,40 +23,57 @@ import java.util.List;
 public class FirmwareVersionFilterImpl implements FirmwareVersionFilter {
 
     private DeviceType deviceType;
-    private List<FirmwareType> firmwareTypes = new ArrayList<>();
-    private List<FirmwareStatus> firmwareStatuses = new ArrayList<>();
-    private List<String> firmwareVersions = new ArrayList<>();
+    private Set<FirmwareType> firmwareTypes = new HashSet<>();
+    private Set<FirmwareStatus> firmwareStatuses = new HashSet<>();
+    private Set<String> firmwareVersions = new HashSet<>();
+    private Range<Integer> rankRange = Range.all();
 
     public FirmwareVersionFilterImpl(DeviceType deviceType) {
         this.deviceType = deviceType;
     }
 
+    @Override
     public DeviceType getDeviceType() {
         return this.deviceType;
     }
 
-    public void addFirmwareTypes(List<FirmwareType> firmwareTypes) {
+    @Override
+    public void addFirmwareTypes(Collection<FirmwareType> firmwareTypes) {
         this.firmwareTypes.addAll(firmwareTypes);
     }
 
-    public void addFirmwareStatuses(List<FirmwareStatus> firmwareStatuses) {
+    @Override
+    public void addFirmwareStatuses(Collection<FirmwareStatus> firmwareStatuses) {
         this.firmwareStatuses.addAll(firmwareStatuses);
     }
 
-    public void addFirmwareVersions(List<String> firmwareVersions) {
+    @Override
+    public void addFirmwareVersions(Collection<String> firmwareVersions) {
         this.firmwareVersions.addAll(firmwareVersions);
     }
 
+    @Override
     public List<String> getFirmwareVersions() {
-        return Collections.unmodifiableList(firmwareVersions);
+        return ImmutableList.copyOf(firmwareVersions);
     }
 
+    @Override
     public List<FirmwareType> getFirmwareTypes() {
-        return Collections.unmodifiableList(this.firmwareTypes);
+        return ImmutableList.copyOf(this.firmwareTypes);
     }
 
+    @Override
     public List<FirmwareStatus> getFirmwareStatuses() {
-        return Collections.unmodifiableList(this.firmwareStatuses);
+        return ImmutableList.copyOf(this.firmwareStatuses);
     }
 
+    @Override
+    public void setRankRange(Range<Integer> rankRange) {
+        this.rankRange = rankRange;
+    }
+
+    @Override
+    public Range<Integer> getRankRange() {
+        return rankRange;
+    }
 }

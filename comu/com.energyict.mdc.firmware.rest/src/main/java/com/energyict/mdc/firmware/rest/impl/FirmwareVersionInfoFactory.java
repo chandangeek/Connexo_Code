@@ -5,6 +5,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
@@ -37,6 +38,8 @@ public class FirmwareVersionInfoFactory {
             info.imageIdentifier = firmwareVersion.getImageIdentifier();
         }
         info.rank = firmwareVersion.getRank();
+        firmwareVersion.getMeterFirmwareDependency().ifPresent(fw -> info.meterFirmwareDependency = new IdWithNameInfo(fw.getId(), fw.getFirmwareVersion()));
+        firmwareVersion.getCommunicationFirmwareDependency().ifPresent(fw -> info.communicationFirmwareDependency = new IdWithNameInfo(fw.getId(), fw.getFirmwareVersion()));
         return info;
     }
 

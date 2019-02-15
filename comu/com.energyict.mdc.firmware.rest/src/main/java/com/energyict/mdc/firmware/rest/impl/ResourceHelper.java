@@ -13,6 +13,7 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -20,7 +21,10 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -37,6 +41,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ResourceHelper {
+    private static final String FILTER_STATUS_PARAMETER = "firmwareStatus";
+    private static final String FILTER_TYPE_PARAMETER = "firmwareType";
+
     private final ExceptionFactory exceptionFactory;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -93,9 +100,13 @@ public class ResourceHelper {
     }
 
     public FirmwareVersion lockFirmwareVersionOrThrowException(FirmwareVersionInfo info) {
-        return getLockedFirmwareVersionById(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.firmwareVersion)
-                        .withActualVersion(() -> getCurrentFirmwareVersionVersion(info.id))
+        return lockFirmwareVersionOrThrowException(info.id, info.version, info.firmwareVersion);
+    }
+
+    public FirmwareVersion lockFirmwareVersionOrThrowException(long id, long version, String fwVersion) {
+        return getLockedFirmwareVersionById(id, version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(fwVersion)
+                        .withActualVersion(() -> getCurrentFirmwareVersionVersion(id))
                         .supplier());
     }
 
@@ -127,7 +138,7 @@ public class ResourceHelper {
     /**
      * Returns the appropriate DeviceMessageId which corresponds with the uploadOption
      */
-    public DeviceMessageId findFirmwareMessageIdOrThrowException(DeviceType deviceType, String uploadOption,  FirmwareVersion firmwareVersion) {
+    public DeviceMessageId findFirmwareMessageIdOrThrowException(DeviceType deviceType, String uploadOption, FirmwareVersion firmwareVersion) {
         return firmwareService.bestSuitableFirmwareUpgradeMessageId(deviceType, findProtocolSupportedFirmwareOptionsOrThrowException(uploadOption), firmwareVersion)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
     }
@@ -153,7 +164,7 @@ public class ResourceHelper {
         if (deviceInFirmwareCampaign.isPresent()) {
             firmwareService.cancelFirmwareUploadForDevice(device);
             deviceInFirmwareCampaign.get().cancel();
-            return Optional.of(new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.get(),thesaurus));
+            return Optional.of(new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.get(), thesaurus));
         } else {
             return Optional.empty();
         }
@@ -164,7 +175,7 @@ public class ResourceHelper {
         if (deviceInFirmwareCampaign.isPresent()) {
             firmwareService.retryFirmwareUploadForDevice(deviceInFirmwareCampaign.get());
             deviceInFirmwareCampaign.get().retry();
-            return Optional.of(new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.get(),thesaurus));
+            return Optional.of(new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.get(), thesaurus));
         } else {
             return Optional.empty();
         }
@@ -181,13 +192,13 @@ public class ResourceHelper {
         return getCertificatesWithFileOperations().stream().filter(sa -> sa.getKeyAccessorType().getId() == id).findAny();
     }
 
-   public void deleteSecurityAccessorForSignatureValidation(long deviceTypeId) {
-       Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
-       Optional<SecurityAccessor> securityAccessor = findSecurityAccessorForSignatureValidation(deviceTypeId);
-       if (deviceType.isPresent() && securityAccessor.isPresent()) {
-           firmwareService.deleteSecurityAccessorForSignatureValidation(deviceType.get(), securityAccessor.get());
-       }
-   }
+    public void deleteSecurityAccessorForSignatureValidation(long deviceTypeId) {
+        Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
+        Optional<SecurityAccessor> securityAccessor = findSecurityAccessorForSignatureValidation(deviceTypeId);
+        if (deviceType.isPresent() && securityAccessor.isPresent()) {
+            firmwareService.deleteSecurityAccessorForSignatureValidation(deviceType.get(), securityAccessor.get());
+        }
+    }
 
     public void addSecurityAccessorForSignatureValidation(long securityAccessorId, long deviceTypeId) {
         Optional<DeviceType> deviceType = deviceConfigurationService.findDeviceType(deviceTypeId);
@@ -206,8 +217,8 @@ public class ResourceHelper {
     }
 
     public void checkFirmwareVersion(DeviceType deviceType, SecurityAccessor securityAccessor, byte[] firmwareFile) {
-        if(securityAccessor.getActualValue().isPresent()
-                && ((CertificateWrapper)securityAccessor.getActualValue().get()).getExpirationTime().filter(e -> e.isBefore(clock.instant())).isPresent()){
+        if (securityAccessor.getActualValue().isPresent()
+                && ((CertificateWrapper) securityAccessor.getActualValue().get()).getExpirationTime().filter(e -> e.isBefore(clock.instant())).isPresent()) {
             throw new LocalizedFieldValidationException(MessageSeeds.SECURITY_ACCESSOR_EXPIRED, "firmwareFile");
         }
         if (deviceType.getDeviceProtocolPluggableClass().filter(p -> p.getDeviceProtocol().firmwareSignatureCheckSupported()).isPresent()) {
@@ -234,12 +245,32 @@ public class ResourceHelper {
     }
 
     private Optional<Long> convertObjectToLong(Object object) {
-        if (object == null){
+        if (object == null) {
             return Optional.empty();
         }
         String str = String.valueOf(object);
         return Optional.of(Long.parseLong(str));
     }
 
+    public FirmwareVersionFilter getFirmwareFilter(JsonQueryFilter filter, DeviceType deviceType) {
+        FirmwareVersionFilter firmwareVersionFilter = firmwareService.filterForFirmwareVersion(deviceType);
 
+        if (filter.hasFilters()) {
+            if (filter.hasProperty(FILTER_STATUS_PARAMETER)) {
+                List<String> stringFirmwareStatuses = filter.getStringList(FILTER_STATUS_PARAMETER);
+                List<FirmwareStatus> firmwareStatuses = stringFirmwareStatuses.stream().map(FirmwareStatusFieldAdapter.INSTANCE::unmarshal).collect(Collectors.toList());
+                if (!firmwareStatuses.isEmpty()) {
+                    firmwareVersionFilter.addFirmwareStatuses(firmwareStatuses);
+                }
+            }
+            if (filter.hasProperty(FILTER_TYPE_PARAMETER)) {
+                List<String> stringFirmwareTypes = filter.getStringList(FILTER_TYPE_PARAMETER);
+                List<FirmwareType> firmwareTypes = stringFirmwareTypes.stream().map(FirmwareTypeFieldAdapter.INSTANCE::unmarshal).collect(Collectors.toList());
+                if (!firmwareTypes.isEmpty()) {
+                    firmwareVersionFilter.addFirmwareTypes(firmwareTypes);
+                }
+            }
+        }
+        return firmwareVersionFilter;
+    }
 }

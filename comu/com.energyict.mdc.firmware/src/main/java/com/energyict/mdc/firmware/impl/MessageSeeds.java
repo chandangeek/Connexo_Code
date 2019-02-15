@@ -33,8 +33,11 @@ public enum MessageSeeds implements MessageSeed {
     UPLOADED_FIRMWARE_RANK_BELOW_CURRENT(20, "UploadedFirmwareRankBelowCurrent", "Uploaded firmware has a lower rank than current.", Level.WARNING),
     MASTER_FIRMWARE_NOT_LATEST(21, "MasterFirmwareNotLatest", "Master device doesn''t have the latest firmware.", Level.WARNING),
     CURRENT_FIRMWARE_IS_GHOST(22, "CurrentFirmwareIsGhost", "There is firmware with ghost status on the device.", Level.WARNING),
-    INVALID_FIRMWARE_VERSIONS_PERMUTATION(23, "InvalidFirmwareVersionsPermutation", "The permutation of firmware versions isn''t valid. Their list may have changed since the page was last updated.", Level.SEVERE)
-    ;
+    INVALID_FIRMWARE_VERSIONS_PERMUTATION(23, "InvalidFirmwareVersionsPermutation", "The permutation of firmware versions isn''t valid. Their list may have changed since the page was last updated.", Level.SEVERE),
+    WRONG_FIRMWARE_TYPE_FOR_METER_FW_DEPENDENCY(24, "WrongFirmwareTypeForMeterFWDependency", "{0} ''{1}'' can''t be selected as a minimal level meter firmware for ''{2}''.", Level.SEVERE),
+    WRONG_FIRMWARE_TYPE_FOR_COM_FW_DEPENDENCY(25, "WrongFirmwareTypeForComFWDependency", "{0} ''{1}'' can''t be selected as a minimal communication firmware for ''{2}''.", Level.SEVERE),
+    WRONG_RANK_FOR_METER_FW_DEPENDENCY(26, "WrongRankForMeterFWDependency", "Firmware ''{0}'' can''t have dependency on minimal level meter firmware ''{1}'' with a higher rank.", Level.SEVERE),
+    WRONG_RANK_FOR_COM_FW_DEPENDENCY(27, "WrongRankForComFWDependency", "Firmware ''{0}'' can''t have dependency on minimal communication firmware ''{1}'' with a higher rank.", Level.SEVERE);
 
     private final int number;
     private final String key;

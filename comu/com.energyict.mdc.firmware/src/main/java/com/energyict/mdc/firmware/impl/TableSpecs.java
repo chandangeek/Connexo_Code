@@ -50,6 +50,8 @@ public enum TableSpecs {
                     .since(Version.version(10, 6))
                     .installValue("0")
                     .add();
+            Column meterFWDependency = table.column(FirmwareVersionImpl.Fields.METER_FW_DEP.name()).number().since(Version.version(10, 6)).add();
+            Column communicationFWDependency = table.column(FirmwareVersionImpl.Fields.COM_FW_DEP.name()).number().since(Version.version(10, 6)).add();
             table.primaryKey("FWC_PK_FIRMWARE").on(idColumn).add();
             table.foreignKey("FWC_FK_DEVICETYPE")
                     .on(deviceTypeColumn)
@@ -58,6 +60,18 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .add();
             table.unique("FWC_UK_VERSIONTYPE").on(firmwareVersion, firmwareType, deviceTypeColumn).add();
+            table.foreignKey("FWC_FK_FW_METER_FW_DEP")
+                    .on(meterFWDependency)
+                    .references(FirmwareVersion.class)
+                    .map(FirmwareVersionImpl.Fields.METER_FW_DEP.fieldName())
+                    .since(Version.version(10, 6))
+                    .add();
+            table.foreignKey("FWC_FK_FW_COM_FW_DEP")
+                    .on(communicationFWDependency)
+                    .references(FirmwareVersion.class)
+                    .map(FirmwareVersionImpl.Fields.COM_FW_DEP.fieldName())
+                    .since(Version.version(10, 6))
+                    .add();
         }
     },
 

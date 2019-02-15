@@ -11,6 +11,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.io.InputStream;
 import java.time.Instant;
+import java.util.Optional;
 
 @ProviderType
 public interface FirmwareVersion extends BaseFirmwareVersion {
@@ -61,6 +62,14 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
     void setImageIdentifier(String imageIdentifier);
 
     int getRank();
+
+    Optional<FirmwareVersion> getMeterFirmwareDependency();
+
+    void setMeterFirmwareDependency(FirmwareVersion meterFirmwareDependency);
+
+    Optional<FirmwareVersion> getCommunicationFirmwareDependency();
+
+    void setCommunicationFirmwareDependency(FirmwareVersion communicationFirmwareDependency);
 
     default int compareTo(FirmwareVersion o) {
         return compare(this, o);

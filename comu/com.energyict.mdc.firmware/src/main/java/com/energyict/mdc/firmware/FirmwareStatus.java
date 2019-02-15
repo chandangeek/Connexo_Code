@@ -5,9 +5,9 @@
 package com.energyict.mdc.firmware;
 
 public enum FirmwareStatus {
-    // The order defines how firmware check options are displayed in UI
-    FINAL("final"),
+    // The order defines the order of statuses & related firmware check options in UI
     TEST("test"),
+    FINAL("final"),
     GHOST("ghost"),
     DEPRECATED("deprecated");
 
