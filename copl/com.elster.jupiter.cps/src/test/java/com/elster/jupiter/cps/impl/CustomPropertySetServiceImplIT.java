@@ -13,8 +13,11 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.Column;
@@ -81,6 +84,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -98,6 +102,7 @@ public class CustomPropertySetServiceImplIT {
     private Clock clock;
     @Mock
     private TimeService timeService;
+    private MessageService messageService;
     private UserService userService;
     private DataVaultService dataVaultService;
     private User principal;
@@ -120,6 +125,7 @@ public class CustomPropertySetServiceImplIT {
         this.injector = Guice.createInjector(
                 new MockModule(),
                 this.bootstrapModule,
+                new InMemoryMessagingModule(),
                 new ThreadSecurityModule(principal),
                 new NlsModule(),
                 new PubSubModule(),
@@ -129,8 +135,15 @@ public class CustomPropertySetServiceImplIT {
                 new CustomPropertySetsModule(),
                 new UtilModule(this.clock),
                 new EventsModule(),
+                new DomainUtilModule(),
                 new SearchModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(NlsService.class);
+            ctx.commit();
+        }
+        this.messageService = injector.getInstance(MessageService.class);
+        this.eventService = injector.getInstance(EventService.class);
         this.createTestInstance();
     }
 
@@ -141,7 +154,6 @@ public class CustomPropertySetServiceImplIT {
         this.dataVaultService = mock(DataVaultService.class);
         this.userService = mock(UserService.class);
         this.principal = mock(User.class);
-        this.eventService = mock(EventService.class);
         when(this.principal.getName()).thenReturn(testName);
     }
 
@@ -1290,6 +1302,7 @@ public class CustomPropertySetServiceImplIT {
         when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
         privileges.add(viewPrivilege);
         when(this.principal.getPrivileges()).thenReturn(privileges);
+        when(this.principal.getPrivileges(anyString())).thenReturn(privileges);
     }
 
     private abstract class LatchDrivenRunnable implements Runnable {
