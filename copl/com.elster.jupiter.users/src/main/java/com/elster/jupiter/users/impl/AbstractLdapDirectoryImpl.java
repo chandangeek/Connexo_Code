@@ -18,6 +18,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 import javax.validation.constraints.Size;
+
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -44,6 +45,8 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     private String baseUser;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String baseGroup;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    private String groupName;
     private Long trustStoreId;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String certificateAlias;
@@ -101,7 +104,7 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
 
     @Override
     public void setSecurity(String security){
-        this.securityProtocol = security;
+        securityProtocol = security;
     }
 
     @Override
@@ -180,6 +183,21 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
         userService.getTrustedKeyStoreForUserDirectory(this).ifPresent(sslSecurityProperties::setTrustedStore);
         userService.getKeyStoreForUserDirectory(this, null).ifPresent(sslSecurityProperties::setKeyStore);
         return sslSecurityProperties;
+    }
+
+    protected String getBase() {
+        return getGroupName() == null ? getBaseUser() : getGroupName();
+    }
+
+
+    @Override
+    public String getGroupName() {
+        return groupName;
+    }
+
+    @Override
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
 }

@@ -50,6 +50,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -84,7 +85,7 @@ public class UserDirectoryResource {
         List<LdapUserDirectory> ldapUserDirectories = new ArrayList<>();
         for(int i=0; i<userDirectory.size();i++){
             try {
-                ldapUserDirectories.add((LdapUserDirectory) userDirectory.get(i));
+                ldapUserDirectories.add(userDirectory.get(i));
             }catch (ClassCastException e ){
                 Optional<UserDirectory> usr = userService.findUserDirectory("Local");
                 if(usr.isPresent()){
@@ -130,6 +131,7 @@ public class UserDirectoryResource {
             ldapUserDirectory.setBackupUrl(info.backupUrl);
             ldapUserDirectory.setDefault(info.isDefault);
             ldapUserDirectory.setManageGroupsInternal(true);
+            ldapUserDirectory.setGroupName(info.groupName);
             ldapUserDirectory.update();
             if (!(info.securityProtocol == null || info.securityProtocol.toUpperCase().contains("NONE")) && (info.trustStore != null || info.certificateAlias != null)) {
                 CertificateWrapper certificate = null;
@@ -184,6 +186,7 @@ public class UserDirectoryResource {
                     ldapUserDirectory.setBaseUser(info.baseUser);
                     ldapUserDirectory.setDefault(info.isDefault);
                     ldapUserDirectory.setType(info.type);
+                    ldapUserDirectory.setGroupName(info.groupName);
                     if (info.securityProtocol == null || info.securityProtocol.toUpperCase().contains("NONE")) {
                         securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory).ifPresent(DirectoryCertificateUsage::delete);
                     } else if (info.trustStore != null || info.certificateAlias != null) {

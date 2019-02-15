@@ -38,4 +38,8 @@ public interface LdapUserDirectory extends UserDirectory {
 
     void setBaseGroup(String baseGroup);
 
+    String getGroupName();
+
+    void setGroupName(String groupName);
+
 }

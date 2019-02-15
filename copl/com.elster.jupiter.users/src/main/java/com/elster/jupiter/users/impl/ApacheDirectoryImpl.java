@@ -26,6 +26,7 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.StartTlsRequest;
 import javax.naming.ldap.StartTlsResponse;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +73,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             DirContext context = new InitialDirContext(env);
             String[] attrIDs = {"cn"};
             SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, attrIDs, true, true);
-            NamingEnumeration<SearchResult> answer = context.search(getBaseGroup(), "(&(objectClass=groupOfNames)(member=uid=" + user.getName() + "," + getBaseUser() + "))", controls);
+            NamingEnumeration<SearchResult> answer = context.search(getBaseGroup(), "(&(objectClass=groupOfNames)(member=uid=" + user.getName() + "," + getBase() + "))", controls);
             while (answer.hasMore()) {
                 Group group = userService.findOrCreateGroup(answer.next().getAttributes().get("cn").get().toString());
                 groupList.add(group);
@@ -103,7 +104,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
-        env.put(Context.SECURITY_PRINCIPAL, "uid=" + name + "," + getBaseUser());
+        putSecurityPrincipal(name, env);
         env.put(Context.SECURITY_CREDENTIALS, password);
         try {
             new InitialDirContext(env);
@@ -127,7 +128,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
-        env.put(Context.SECURITY_PRINCIPAL, "uid=" + name + "," + getBaseUser());
+        putSecurityPrincipal(name, env);
         env.put(Context.SECURITY_CREDENTIALS, password);
         env.put(Context.SECURITY_PROTOCOL, "ssl");
         env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
@@ -160,7 +161,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
             tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
-            env.put(Context.SECURITY_PRINCIPAL, "uid=" + name + "," + getBaseUser());
+            putSecurityPrincipal(name, env);
             env.put(Context.SECURITY_CREDENTIALS, password);
             return findUser(name);
         } catch (NumberFormatException | IOException | NamingException e) {
@@ -214,14 +215,14 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         List<LdapUser> ldapUsers = new ArrayList<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
-        env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
+        putSecurityPrincipal(env);
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         try {
             String userName;
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
+            NamingEnumeration results = ctx.search(getBase(), "(objectclass=person)", controls);
             while (results.hasMore()) {
                 LdapUser ldapUser = new LdapUserImpl();
                 SearchResult searchResult = (SearchResult) results.next();
@@ -256,7 +257,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.putAll(commonEnvLDAP);
         List<LdapUser> ldapUsers = new ArrayList<>();
         env.put(Context.PROVIDER_URL, urls.get(0));
-        env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
+        putSecurityPrincipal(env);
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         env.put(Context.SECURITY_PROTOCOL, "ssl");
         env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
@@ -267,7 +268,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
+            NamingEnumeration results = ctx.search(getBase(), "(objectclass=person)", controls);
             while (results.hasMore()) {
                 LdapUser ldapUser = new LdapUserImpl();
                 SearchResult searchResult = (SearchResult) results.next();
@@ -307,11 +308,11 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
             tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
-            env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
+            putSecurityPrincipal(env);
             env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
+            NamingEnumeration results = ctx.search(getBase(), "(objectclass=person)", controls);
             while (results.hasMore()) {
                 LdapUser ldapUser = new LdapUserImpl();
                 SearchResult searchResult = (SearchResult) results.next();
@@ -352,13 +353,13 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
-        env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
+        putSecurityPrincipal(env);
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         try {
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-            NamingEnumeration results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
+            NamingEnumeration results = ctx.search(getBase(), "(uid=" + user + ")", controls);
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
@@ -389,7 +390,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
-        env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
+        putSecurityPrincipal(env);
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         env.put(Context.SECURITY_PROTOCOL, "ssl");
         env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
@@ -399,7 +400,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
+            NamingEnumeration results = ctx.search(getBase(), "(uid=" + user + ")", controls);
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
@@ -436,11 +437,11 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
             tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
-            env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
+            putSecurityPrincipal(env);
             env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
+            NamingEnumeration results = ctx.search(getBase(), "(uid=" + user + ")", controls);
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
@@ -488,4 +489,13 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             return false;
         }
     }
+
+    private void putSecurityPrincipal(Hashtable<String, Object> env) {
+        putSecurityPrincipal(getDirectoryUser(), env);
+    }
+
+    private void putSecurityPrincipal(String name, Hashtable<String, Object> env) {
+        env.put(Context.SECURITY_PRINCIPAL, "uid=" + name + "," + getBase());
+    }
+
 }

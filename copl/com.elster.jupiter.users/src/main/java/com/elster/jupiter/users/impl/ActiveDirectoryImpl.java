@@ -27,6 +27,7 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.StartTlsRequest;
 import javax.naming.ldap.StartTlsResponse;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,7 +71,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             DirContext context = new InitialDirContext(createEnvironment(getUrl(), getDirectoryUser(), getPasswordDecrypt()));
             String attrIDs[] = {"memberOf"};
             SearchControls controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, attrIDs, true, true);
-            NamingEnumeration<SearchResult> answer = context.search(getBaseUser(), "(&(objectClass=person)(userPrincipalName=" + user.getName() + "@" + getRealDomain(getBaseUser()) + "))", controls);
+            NamingEnumeration<SearchResult> answer = context.search(getBase(), "(&(objectClass=person)(userPrincipalName=" + user.getName() + "@" + getRealDomain(getBase()) + "))", controls);
             while (answer.hasMoreElements()) {
                 Attributes attrs = answer.nextElement().getAttributes();
                 NamingEnumeration<? extends Attribute> e = attrs.getAll();
@@ -107,7 +108,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         LOGGER.info("AUTH: No security applied\n");
 
         try {
-            new InitialDirContext(createEnvironment(urls.get(0), name + "@" + getRealDomain(getBaseUser()), password));
+            new InitialDirContext(createEnvironment(urls.get(0), getUserNameForAuthentication(name), password));
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
             LOGGER.severe("AUTH: Simple authetication failed\n");
@@ -121,11 +122,16 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
+    private String getUserNameForAuthentication(String name) {
+        String base = getBase();
+        return name + "@" + getRealDomain(base);
+    }
+
     private Optional<User> authenticateSSL(String name, String password, List<String> urls, SslSecurityProperties sslSecurityProperties) {
         LOGGER.info("AUTH: SSL applied\n");
 
         try {
-            new InitialDirContext(createEnvironment(urls.get(0), name + "@" + getRealDomain(getBaseUser()), password, "ssl", sslSecurityProperties));
+            new InitialDirContext(createEnvironment(urls.get(0), getUserNameForAuthentication(name), password, "ssl", sslSecurityProperties));
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
             LOGGER.severe("AUTH: SSL authetication failed\n");
@@ -144,7 +150,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
         StartTlsResponse tls = null;
         try {
-            LdapContext ctx = new InitialLdapContext(createEnvironment(urls.get(0), name + "@" + getRealDomain(getBaseUser()), password), null);
+            LdapContext ctx = new InitialLdapContext(createEnvironment(urls.get(0), getUserNameForAuthentication(name), password), null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
@@ -264,7 +270,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         List<LdapUser> ldapUsers = new ArrayList<>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
+        NamingEnumeration results = ctx.search(getBase(), "(objectclass=person)", controls);
         while (results.hasMore()) {
             LdapUser ldapUser = new LdapUserImpl();
             SearchResult searchResult = (SearchResult) results.next();
@@ -338,7 +344,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     private boolean getUserStatusFromContext(String user, DirContext context) throws NamingException {
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration results = context.search(getBaseUser(), "(sAMAccountName=" + user + ")", controls);
+        NamingEnumeration results = context.search(getBase(), "(sAMAccountName=" + user + ")", controls);
         while (results.hasMore()) {
             SearchResult searchResult = (SearchResult) results.next();
             Attributes attributes = searchResult.getAttributes();
