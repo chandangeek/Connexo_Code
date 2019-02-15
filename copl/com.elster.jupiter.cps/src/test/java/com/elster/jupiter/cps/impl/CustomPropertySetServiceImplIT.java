@@ -14,6 +14,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.Column;
@@ -104,6 +105,7 @@ public class CustomPropertySetServiceImplIT {
     private TransactionService transactionService;
     private ThreadPrincipalService threadPrincipalService;
     private InMemoryBootstrapModule bootstrapModule;
+    private EventService eventService;
 
     private Injector injector;
     private CustomPropertySetServiceImpl testInstance;
@@ -126,6 +128,7 @@ public class CustomPropertySetServiceImplIT {
                 new BasicPropertiesModule(),
                 new CustomPropertySetsModule(),
                 new UtilModule(this.clock),
+                new EventsModule(),
                 new SearchModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
         this.createTestInstance();
@@ -138,6 +141,7 @@ public class CustomPropertySetServiceImplIT {
         this.dataVaultService = mock(DataVaultService.class);
         this.userService = mock(UserService.class);
         this.principal = mock(User.class);
+        this.eventService = mock(EventService.class);
         when(this.principal.getName()).thenReturn(testName);
     }
 
