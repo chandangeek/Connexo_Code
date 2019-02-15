@@ -154,7 +154,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                                UserService userService,
                                CommunicationTaskService communicationTaskService,
                                PropertySpecService propertySpecService,
-                               UpgradeService upgradeService) {
+                               UpgradeService upgradeService,
+                               TopologyService topologyService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -169,6 +170,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         setCommunicationTaskService(communicationTaskService);
         setPropertySpecService(propertySpecService);
         setUpgradeService(upgradeService);
+        setTopologyService(topologyService);
         activate();
     }
 

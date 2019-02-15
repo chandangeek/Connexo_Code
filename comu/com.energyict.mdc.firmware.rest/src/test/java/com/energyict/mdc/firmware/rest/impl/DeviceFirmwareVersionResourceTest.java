@@ -16,14 +16,16 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -95,10 +97,10 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         JsonModel jsonModel = JsonModel.create(json);
 
         assertThat(jsonModel.<List<?>>get("$.firmwares")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
-        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion.firmwareVersion")).isEqualTo(METER_VERSION);
-        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("communication");
-        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion")).isNull();
+        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo(METER_VERSION);
+        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("communication");
+        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion")).isNull();
     }
 
     @Test
@@ -119,10 +121,10 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         JsonModel jsonModel = JsonModel.create(json);
 
         assertThat(jsonModel.<List<?>>get("$.firmwares")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
-        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion.firmwareVersion")).isEqualTo(METER_VERSION);
-        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("communication");
-        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo(communicationVersion);
+        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo(METER_VERSION);
+        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("communication");
+        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion.firmwareVersion")).isEqualTo(communicationVersion);
     }
 
 }
