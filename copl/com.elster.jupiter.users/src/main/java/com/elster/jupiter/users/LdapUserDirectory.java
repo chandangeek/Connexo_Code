@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.users;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface LdapUserDirectory extends UserDirectory {
 
     void setDirectoryUser(String directoryUser);
