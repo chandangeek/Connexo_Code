@@ -49,4 +49,14 @@ public class ActiveConnectionAvailable extends TranslatableServerMicroCheck {
                 .filter(each -> each.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE))
                 .findAny();
     }
+
+    @Override
+    public String getKey() {
+        return null;
+    }
+
+    @Override
+    public String getCategory() {
+        return null;
+    }
 }

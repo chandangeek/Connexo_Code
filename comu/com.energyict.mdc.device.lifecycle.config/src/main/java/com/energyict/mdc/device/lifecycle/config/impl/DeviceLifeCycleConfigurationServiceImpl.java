@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -38,24 +37,16 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
-import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
 
+import com.energyict.mdc.device.lifecycle.config.*;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -69,6 +60,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -86,9 +78,12 @@ import static com.elster.jupiter.util.conditions.Where.where;
         TranslationKeyProvider.class, MessageSeedProvider.class, IssueCreationValidator.class},
         property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, TranslationKeyProvider, MessageSeedProvider, IssueCreationValidator {
+public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService,
+        TranslationKeyProvider, MessageSeedProvider, IssueCreationValidator {
 
     private static final Logger LOGGER = Logger.getLogger(DeviceLifeCycleConfigurationServiceImpl.class.getName());
+
+    private final Set<Privilege> privileges = new HashSet<>();
 
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
@@ -97,8 +92,9 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private volatile EventService eventService;
     private volatile UpgradeService upgradeService;
     private volatile MeteringService meteringService;
-    private Thesaurus thesaurus;
-    private final Set<Privilege> privileges = new HashSet<>();
+    private volatile Thesaurus thesaurus;
+
+    private List<DeviceMicroCheckFactory> microCheckFactories = new CopyOnWriteArrayList<>();
 
     // For OSGi purposes
     public DeviceLifeCycleConfigurationServiceImpl() {
@@ -107,7 +103,9 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, FiniteStateMachineService stateMachineService, EventService eventService, UpgradeService upgradeService, MeteringService meteringService) {
+    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService,
+                                                   FiniteStateMachineService stateMachineService, EventService eventService,
+                                                   UpgradeService upgradeService, MeteringService meteringService) {
         this();
         setOrmService(ormService);
         setUserService(userService);
@@ -207,8 +205,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private void initializePrivileges() {
         this.privileges.clear();
         this.userService
-            .getPrivileges()
-            .forEach(this::addPrivilegeIfFound);
+                .getPrivileges()
+                .forEach(this::addPrivilegeIfFound);
     }
 
     private void addPrivilegeIfFound(Privilege privilege) {
@@ -254,21 +252,20 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         if (sourceAction instanceof AuthorizedBusinessProcessAction) {
             AuthorizedBusinessProcessAction sourceBusinessProcessAction = (AuthorizedBusinessProcessAction) sourceAction;
             builder
-                .newCustomAction(
-                    clonedFiniteStateMachine.getState(sourceBusinessProcessAction.getState().getName()).get(),
-                    sourceBusinessProcessAction.getName(),
-                    sourceBusinessProcessAction.getTransitionBusinessProcess())
-                .addAllLevels(sourceBusinessProcessAction.getLevels())
-                .complete();
-        }
-        else {
+                    .newCustomAction(
+                            clonedFiniteStateMachine.getState(sourceBusinessProcessAction.getState().getName()).get(),
+                            sourceBusinessProcessAction.getName(),
+                            sourceBusinessProcessAction.getTransitionBusinessProcess())
+                    .addAllLevels(sourceBusinessProcessAction.getLevels())
+                    .complete();
+        } else {
             AuthorizedTransitionAction sourceAuthorizedTransitionAction = (AuthorizedTransitionAction) sourceAction;
             builder
-                .newTransitionAction(this.findClonedTransition(sourceAuthorizedTransitionAction.getStateTransition(), clonedFiniteStateMachine))
-                .addAllChecks(sourceAuthorizedTransitionAction.getChecks())
-                .addAllActions(sourceAuthorizedTransitionAction.getActions())
-                .addAllLevels(sourceAuthorizedTransitionAction.getLevels())
-                .complete();
+                    .newTransitionAction(this.findClonedTransition(sourceAuthorizedTransitionAction.getStateTransition(), clonedFiniteStateMachine))
+                    .addAllChecks(sourceAuthorizedTransitionAction.getChecks().stream().map(MicroCheckNew::getKey).collect(Collectors.toSet()))
+                    .addAllActions(sourceAuthorizedTransitionAction.getActions())
+                    .addAllLevels(sourceAuthorizedTransitionAction.getLevels())
+                    .complete();
         }
     }
 
@@ -294,17 +291,15 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public Optional<DeviceLifeCycle> findDeviceLifeCycleByName(String name) {
-        Condition condition =       where(DeviceLifeCycleImpl.Fields.NAME.fieldName()).isEqualTo(name)
-                               .and(where(DeviceLifeCycleImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).isNull());
+        Condition condition = where(DeviceLifeCycleImpl.Fields.NAME.fieldName()).isEqualTo(name)
+                .and(where(DeviceLifeCycleImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).isNull());
         List<DeviceLifeCycle> deviceLifeCycles = this.dataModel.query(DeviceLifeCycle.class).select(condition);
         // Expecting at most one
         if (deviceLifeCycles.isEmpty()) {
             return Optional.empty();
-        }
-        else if (deviceLifeCycles.size() > 1) {
+        } else if (deviceLifeCycles.size() > 1) {
             throw new NotUniqueException(name);
-        }
-        else {
+        } else {
             return Optional.of(deviceLifeCycles.get(0));
         }
     }
@@ -327,7 +322,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public Optional<Privilege> findInitiateActionPrivilege(String privilegeName) {
-        if(this.privileges.isEmpty()){
+        if (this.privileges.isEmpty()) {
             this.initializePrivileges();
         }
         return this.privileges
@@ -336,7 +331,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                 .findAny();
     }
 
-    public Map<Locale, String> getAllTranslationsForKey(String translationKey){
+    public Map<Locale, String> getAllTranslationsForKey(String translationKey) {
         return userService.getUserPreferencesService().getSupportedLocales()
                 .stream()
                 .collect(Collectors.toMap(Function.identity(), locale -> thesaurus.getString(locale, translationKey, translationKey)));
@@ -384,14 +379,12 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                         TransitionBusinessProcessImpl.Fields.PROCESS_ID.fieldName(), processId);
         if (businessProcesses.isEmpty()) {
             throw new UnknownTransitionBusinessProcessException(this.thesaurus, MessageSeeds.NO_SUCH_PROCESS, deploymentId, processId);
-        }
-        else {
+        } else {
             Condition condition = Where.where(AuthorizedActionImpl.Fields.PROCESS.fieldName()).in(businessProcesses);
             List<AuthorizedBusinessProcessAction> actions = this.dataModel.mapper(AuthorizedBusinessProcessAction.class).select(condition);
             if (actions.isEmpty()) {
                 businessProcesses.forEach(this.dataModel::remove);
-            }
-            else {
+            } else {
                 throw new TransitionBusinessProcessInUseException(this.thesaurus, MessageSeeds.TRANSITION_PROCESS_IN_USE, businessProcesses.get(0));
             }
         }
@@ -420,7 +413,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         );
     }
 
-    public boolean isValidCreationEvent(IssueEvent issueEvent){
+    public boolean isValidCreationEvent(IssueEvent issueEvent) {
         EnumSet<EndDeviceStage> restrictedStages = EnumSet.of(EndDeviceStage.PRE_OPERATIONAL, EndDeviceStage.POST_OPERATIONAL);
         Optional<EndDevice> endDevice = issueEvent.getEndDevice();
         if (endDevice.isPresent()) {
@@ -440,5 +433,32 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Override
     public String getStageDisplayName(EndDeviceStage stage) {
         return this.thesaurus.getString(EndDeviceStageTranslationKey.prefix + stage.getKey(), stage.getKey());
+    }
+
+    @Override
+    public Set<MicroCheckNew> getMicroChecks() {
+        return this.microCheckFactories.stream()
+                .flatMap(factory -> factory.getAllChecks().stream())
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Optional<MicroCheckNew> getMicroCheckByKey(String microCheckKey) {
+        return this.microCheckFactories.stream()
+                .map(factory -> factory.from(microCheckKey))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
+    }
+
+    @Override
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addMicroCheckFactory(DeviceMicroCheckFactory microCheckFactory) {
+        this.microCheckFactories.add(microCheckFactory);
+    }
+
+    @Override
+    public void removeMicroCheckFactory(DeviceMicroCheckFactory microCheckFactory) {
+        this.microCheckFactories.remove(microCheckFactory);
     }
 }

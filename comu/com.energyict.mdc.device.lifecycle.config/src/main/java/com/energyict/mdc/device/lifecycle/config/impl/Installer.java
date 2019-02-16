@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -30,14 +29,13 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -53,8 +51,6 @@ import java.util.stream.Stream;
  * @since 2015-03-11 (10:56)
  */
 class Installer implements FullInstaller, PrivilegesProvider {
-
-    public static final String PRIVILEGES_COMPONENT = "MDC";
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -137,7 +133,6 @@ class Installer implements FullInstaller, PrivilegesProvider {
         DeviceLifeCycleBuilder builder = this.deviceLifeCycleConfigurationService.newDeviceLifeCycleUsing(name, defaultStateMachine);
         defaultStateMachine
                 .getTransitions()
-                .stream()
                 .forEach(t -> this.addAsAction(t, builder));
         DeviceLifeCycle defaultLifeCycle = builder.complete();
         defaultLifeCycle.save();
@@ -216,12 +211,15 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .complete();
     }
 
-    private Set<MicroCheck> applicableChecksFor(StateTransition transition) {
-        return TransitionType.from(transition).get().requiredChecks();
+    //TODO: Refactoring
+    private Set<String> applicableChecksFor(StateTransition transition) {
+        return deviceLifeCycleConfigurationService.getMicroChecks()
+                .stream()
+                .map(MicroCheckNew::getKey)
+                .collect(Collectors.toSet());
     }
 
     private Set<MicroAction> applicableActionsFor(StateTransition transition) {
         return TransitionType.from(transition).get().requiredActions();
     }
-
 }

@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
@@ -15,7 +14,6 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 
 import aQute.bnd.annotation.ProviderType;
@@ -47,7 +45,8 @@ public interface DeviceLifeCycleService {
     enum MicroActionPropertyName {
         LAST_CHECKED(Keys.LAST_CHECKED_TIMESTAMP_PROPERTY_NAME),
         MULTIPLIER(MicroActionTranslationKey.Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.SET_MULTIPLIER),
-        USAGE_POINT(MicroActionTranslationKey.Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.LINK_TO_USAGE_POINT),;
+        USAGE_POINT(MicroActionTranslationKey.Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.LINK_TO_USAGE_POINT),
+        ;
 
         private String key;
 
@@ -78,7 +77,7 @@ public interface DeviceLifeCycleService {
      * against the specified {@link Device} that relates to
      * the specified {@link StateTransitionEventType}.
      *
-     * @param device The Device
+     * @param device    The Device
      * @param eventType The StateTransitionEventType
      * @return The ExecutableAction
      */
@@ -105,7 +104,7 @@ public interface DeviceLifeCycleService {
      * the PropertySpec and will throw an {@link InvalidValueException}
      * when that is not the case.
      *
-     * @param value The value
+     * @param value        The value
      * @param propertySpec The PropertySpec
      * @return The ExecutableActionProperty
      * @throws InvalidValueException Thrown when the value is not compatible with the PropertySpec
@@ -124,10 +123,10 @@ public interface DeviceLifeCycleService {
      * {@link MicroAction}s that are configured on the AuthorizedTransitionAction</li>
      * </ul>
      *
-     * @param action The AuthorizedTransitionAction
-     * @param device The Device
+     * @param action             The AuthorizedTransitionAction
+     * @param device             The Device
      * @param effectiveTimestamp The point in time when this transition will become effective, i.e. when the resulting state change will become effective
-     * @param properties The properties for all the MicroAction that are configured on the AuthorizedTransitionAction  @see AuthorizedTransitionAction#getLevels()
+     * @param properties         The properties for all the MicroAction that are configured on the AuthorizedTransitionAction  @see AuthorizedTransitionAction#getLevels()
      * @throws SecurityException Thrown when the current user is not allowed to execute this action
      * @see AuthorizedTransitionAction#getActions()
      * @see DeviceLifeCycleService#getPropertySpecsFor(MicroAction)
@@ -147,8 +146,8 @@ public interface DeviceLifeCycleService {
      * <li>Only the system is allowed to execute the action when no levels are configured</li>
      * </ul>
      *
-     * @param action The AuthorizedBusinessProcessAction
-     * @param device The Device
+     * @param action             The AuthorizedBusinessProcessAction
+     * @param device             The Device
      * @param effectiveTimestamp The point in time when this transition will become effective, i.e. when the resulting state change will become effective
      * @throws SecurityException Thrown when the current user is not allowed to execute this action
      * @see AuthorizedBusinessProcessAction#getLevels()
@@ -159,17 +158,11 @@ public interface DeviceLifeCycleService {
      * Triggers a new {@link StateTransitionTriggerEvent} for the
      * {@link CustomStateTransitionEventType event type} and the {@link Device}.
      *
-     * @param eventType The CustomStateTransitionEventType
-     * @param device The Device
+     * @param eventType          The CustomStateTransitionEventType
+     * @param device             The Device
      * @param effectiveTimestamp The point in time when the resulting state change should become effective
      */
     void triggerEvent(CustomStateTransitionEventType eventType, Device device, Instant effectiveTimestamp);
-
-    String getName(MicroCheck microCheck);
-
-    String getDescription(MicroCheck microCheck);
-
-    String getCategoryName(MicroCheck microCheck);
 
     String getName(MicroAction microAction);
 

@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -53,7 +52,6 @@ public class AllDataValid extends TranslatableServerMicroCheck {
                 MessageSeeds.ALL_DATA_VALID,
                 MicroCheck.ALL_DATA_VALID);
     }
-
 
     @Override
     protected MicroCheck getMicroCheck() {

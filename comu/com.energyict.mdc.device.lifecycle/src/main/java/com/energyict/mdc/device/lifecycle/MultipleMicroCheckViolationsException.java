@@ -6,6 +6,7 @@ package com.energyict.mdc.device.lifecycle;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Models the exceptional situation that occurs when
  * an {@link com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction}
- * is executed by the user but some of the {@link com.energyict.mdc.device.lifecycle.config.MicroCheck}s
+ * is executed by the user but some of the {@link MicroCheck}s
  * that are configured on the action failed.
  *
  * @author Rudi Vankeirsbilck (rudi)

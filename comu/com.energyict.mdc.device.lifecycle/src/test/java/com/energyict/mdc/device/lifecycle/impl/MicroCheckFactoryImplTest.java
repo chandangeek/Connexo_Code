@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link MicroCheckFactoryImpl} component.
+ * Tests the {@link DeviceMicroCheckFactoryImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-16 (16:52)
@@ -62,7 +63,7 @@ public class MicroCheckFactoryImplTest {
 
     @Test
     public void allMicroChecksAreCovered() {
-        MicroCheckFactoryImpl factory = this.getTestInstance();
+        DeviceMicroCheckFactoryImpl factory = this.getTestInstance();
 
         for (MicroCheck microCheck : MicroCheck.values()) {
             // Business method
@@ -74,8 +75,8 @@ public class MicroCheckFactoryImplTest {
 
     }
 
-    private MicroCheckFactoryImpl getTestInstance() {
-        return new MicroCheckFactoryImpl(this.nlsService, this.topologyService, this.multiElementDeviceService, this.validationService, meteringService);
+    private DeviceMicroCheckFactoryImpl getTestInstance() {
+        return new DeviceMicroCheckFactoryImpl(this.nlsService, this.topologyService, this.multiElementDeviceService, this.validationService, meteringService);
     }
 
 }

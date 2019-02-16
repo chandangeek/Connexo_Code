@@ -52,6 +52,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 
+import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -110,7 +111,7 @@ public class DeviceLifeCycleServiceImplTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private ServerMicroCheckFactory microCheckFactory;
+    private DeviceMicroCheckFactory microCheckFactory;
     @Mock
     private ServerMicroActionFactory microActionFactory;
     @Mock

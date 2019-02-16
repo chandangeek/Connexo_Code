@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -27,13 +26,13 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
 
 import com.google.common.base.Strings;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -530,7 +529,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -548,7 +547,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction.getVersion()).isNotNull();
         assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
-        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(transitionAction.getChecks()).containsOnly(new TestMicroCheck());
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION);
     }
 
@@ -593,7 +592,7 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -610,7 +609,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction.getVersion()).isNotNull();
         assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
-        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(transitionAction.getChecks()).containsOnly(new TestMicroCheck());
         assertThat(transitionAction.getActions()).isEmpty();
     }
 
@@ -629,7 +628,7 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAction(MicroAction.ENABLE_VALIDATION)
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
@@ -648,7 +647,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction.getVersion()).isNotNull();
         assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
-        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(transitionAction.getChecks()).containsOnly(new TestMicroCheck());
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION);
     }
 
@@ -719,7 +718,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAllActions(EnumSet.of(MicroAction.ENABLE_VALIDATION, MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS))
-                .addAllChecks(EnumSet.of(MicroCheck.DEFAULT_CONNECTION_AVAILABLE, MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE))
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -739,7 +738,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction.getVersion()).isNotNull();
         assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
-        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE, MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
+        assertThat(transitionAction.getChecks()).containsOnly(new TestMicroCheck());
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION, MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS);
     }
 
@@ -752,7 +751,7 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = service.newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAction(MicroAction.ENABLE_VALIDATION)
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
@@ -773,7 +772,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction.getVersion()).isNotNull();
         assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
-        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(transitionAction.getChecks()).containsOnly(new TestMicroCheck());
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION);
     }
 
@@ -811,7 +810,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -835,7 +834,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction.getVersion()).isNotNull();
         assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
-        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(transitionAction.getChecks()).containsOnly(new TestMicroCheck());
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION);
     }
 
@@ -848,7 +847,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -876,7 +875,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction.getVersion()).isNotNull();
         assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
-        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(transitionAction.getChecks()).containsOnly(new TestMicroCheck());
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION);
     }
 
@@ -889,7 +888,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -900,7 +899,7 @@ public class DeviceLifeCycleIT {
         deviceLifeCycleUpdater
                 .transitionAction(stateTransition)
                 .clearChecks()
-                .addCheck(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .complete();
         deviceLifeCycleUpdater.complete().save();
 
@@ -911,7 +910,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction.getModifiedTimestamp()).isNotNull();
         assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
-        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
+        assertThat(transitionAction.getChecks()).containsOnly(new TestMicroCheck());
         // Assert that all other attributes have not changed
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION);
         assertThat(authorizedAction.getDeviceLifeCycle().getId()).isEqualTo(deviceLifeCycle.getId());
@@ -930,7 +929,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -950,7 +949,7 @@ public class DeviceLifeCycleIT {
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
         assertThat(transitionAction.getActions()).isEmpty();
         // Assert that all other attributes have not changed
-        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(transitionAction.getChecks()).containsOnly(new TestMicroCheck());
         assertThat(authorizedAction.getDeviceLifeCycle().getId()).isEqualTo(deviceLifeCycle.getId());
         assertThat(authorizedAction.getLevels()).containsOnly(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO);
         assertThat(authorizedAction.getCreationTimestamp()).isNotNull();
@@ -967,7 +966,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -991,7 +990,7 @@ public class DeviceLifeCycleIT {
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.DISABLE_VALIDATION);
         // Assert that all other attributes have not changed
-        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(transitionAction.getChecks()).containsOnly(new TestMicroCheck());
         assertThat(authorizedAction.getDeviceLifeCycle().getId()).isEqualTo(deviceLifeCycle.getId());
         assertThat(authorizedAction.getLevels()).containsOnly(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO);
         assertThat(authorizedAction.getCreationTimestamp()).isNotNull();
@@ -1008,7 +1007,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1032,7 +1031,7 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION);
-        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(transitionAction.getChecks()).containsOnly(new TestMicroCheck());
         assertThat(authorizedAction.getDeviceLifeCycle().getId()).isEqualTo(deviceLifeCycle.getId());
         assertThat(authorizedAction.getLevels()).containsOnly(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO);
         assertThat(authorizedAction.getCreationTimestamp()).isNotNull();
@@ -1049,7 +1048,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1074,7 +1073,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1097,7 +1096,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1121,7 +1120,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1144,7 +1143,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1167,7 +1166,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1196,7 +1195,7 @@ public class DeviceLifeCycleIT {
         builder
                 .newTransitionAction(stateTransition)
                 .addAction(MicroAction.ENABLE_VALIDATION)
-                .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1240,5 +1239,4 @@ public class DeviceLifeCycleIT {
     private DeviceLifeCycleConfigurationService getTestService() {
         return inMemoryPersistence.getDeviceLifeCycleConfigurationService();
     }
-
 }

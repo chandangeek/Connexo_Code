@@ -183,7 +183,7 @@ public class DeviceLifeCycleActionResource {
             @BeanParam JsonQueryParameters queryParams) {
         Optional<TransitionType> defaultTransition = getDefaultTransition(deviceLifeCycleId, fromStateId, toStateId);
         Set<MicroActionAndCheckInfo> microChecks = new TreeSet<>(Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name)
-                .thenComparing(Comparator.comparing(obj -> obj.name)));
+                .thenComparing(obj -> obj.name));
         if (defaultTransition.isPresent()){
             defaultTransition.get().optionalChecks()
                     .stream()

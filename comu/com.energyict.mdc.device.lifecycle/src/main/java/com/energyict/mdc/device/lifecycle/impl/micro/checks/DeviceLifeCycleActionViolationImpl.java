@@ -1,27 +1,21 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
-/**
- * Provides an implementation for the {@link DeviceLifeCycleActionViolation} interface.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-14 (15:35)
- */
 public class DeviceLifeCycleActionViolationImpl implements DeviceLifeCycleActionViolation {
 
     private final Thesaurus thesaurus;
     private final MessageSeeds messageSeed;
-    private final MicroCheck microCheck;
+    private final ServerMicroCheck microCheck;
 
-    public DeviceLifeCycleActionViolationImpl(Thesaurus thesaurus, MessageSeeds messageSeed, MicroCheck microCheck) {
+    public DeviceLifeCycleActionViolationImpl(Thesaurus thesaurus, MessageSeeds messageSeed,
+                                              ServerMicroCheck microCheck) {
         super();
         this.thesaurus = thesaurus;
         this.messageSeed = messageSeed;
@@ -29,7 +23,7 @@ public class DeviceLifeCycleActionViolationImpl implements DeviceLifeCycleAction
     }
 
     @Override
-    public MicroCheck getCheck() {
+    public ServerMicroCheck getCheck() {
         return this.microCheck;
     }
 
@@ -37,5 +31,4 @@ public class DeviceLifeCycleActionViolationImpl implements DeviceLifeCycleAction
     public String getLocalizedMessage() {
         return this.thesaurus.getFormat(this.messageSeed).format();
     }
-
 }

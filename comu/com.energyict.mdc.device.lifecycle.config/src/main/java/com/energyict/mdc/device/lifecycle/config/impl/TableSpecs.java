@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -76,7 +75,6 @@ public enum TableSpecs {
             Column deviceLifeCycle = table.column("DEVICELIFECYCLE").number().notNull().add();
             table.column("LEVELBITS").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(AuthorizedActionImpl.Fields.LEVELS.fieldName()).add();
             // AuthorizedTransitionAction
-            table.column("CHECKBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.CHECKS.fieldName()).add();
             table.column("ACTIONBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.ACTIONS.fieldName()).add();
             // AuthorizedStandardTransitionAction
             Column stateTransition = table.column("STATETRANSITION").number().add();
@@ -109,8 +107,29 @@ public enum TableSpecs {
                     .map(AuthorizedActionImpl.Fields.PROCESS.fieldName())
                     .add();
         }
-    };
+    },
+
+    DLD_TRANSITION_CHECKS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<DeviceAuthorizedActionMicroCheckUsageImpl> table = dataModel.addTable(this.name(), DeviceAuthorizedActionMicroCheckUsageImpl.class);
+            table.map(DeviceAuthorizedActionMicroCheckUsageImpl.class);
+            table.setJournalTableName(name() + "JRNL");
+            Column transition = table.column("TRANSITION").number().notNull().add();
+            Column check = table.column("MICRO_CHECK").varChar().map(DeviceAuthorizedActionMicroCheckUsageImpl.Fields.MICRO_CHECK.fieldName()).notNull().add();
+
+            table.primaryKey("PK_DLD_TRANSITION_CHECKS").on(transition, check).add();
+            table.foreignKey("FK_DLD_CHECK_2_TRANS")
+                    .on(transition)
+                    .references(AuthorizedAction.class)
+                    .map(DeviceAuthorizedActionMicroCheckUsageImpl.Fields.TRANSITION.fieldName())
+                    .reverseMap(AuthorizedActionImpl.Fields.CHECKS.fieldName())
+                    .composition()
+                    .add();
+        }
+    },
+
+    ;
 
     abstract void addTo(DataModel dataModel);
-
 }

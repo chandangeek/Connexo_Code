@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
@@ -26,7 +25,6 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
@@ -45,7 +43,6 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
@@ -70,25 +67,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Provides an implementation for the {@link DeviceLifeCycleService} interface.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-03-20 (15:57)
- */
-@Component(name = "com.energyict.device.lifecycle", service = {DeviceLifeCycleService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=" + DeviceLifeCycleService.COMPONENT_NAME)
+@Component(name = "com.energyict.device.lifecycle",
+        service = {DeviceLifeCycleService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        property = "name=" + DeviceLifeCycleService.COMPONENT_NAME)
 @SuppressWarnings("unused")
 public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile PropertySpecService propertySpecService;
-    private volatile ServerMicroCheckFactory microCheckFactory;
     private volatile ServerMicroActionFactory microActionFactory;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile UserService userService;
     private volatile Clock clock;
     private volatile LicenseService licenseService;
-    private Thesaurus thesaurus;
+    private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
 
     // For OSGi purposes
@@ -101,7 +93,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     public DeviceLifeCycleServiceImpl(NlsService nlsService,
                                       ThreadPrincipalService threadPrincipalService,
                                       PropertySpecService propertySpecService,
-                                      ServerMicroCheckFactory microCheckFactory,
                                       ServerMicroActionFactory microActionFactory,
                                       DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                       UserService userService,
@@ -112,7 +103,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.setNlsService(nlsService);
         this.setThreadPrincipalService(threadPrincipalService);
         this.setPropertySpecService(propertySpecService);
-        this.setMicroCheckFactory(microCheckFactory);
         this.setMicroActionFactory(microActionFactory);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.setUserService(userService);
@@ -139,11 +129,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
-    }
-
-    @Reference
-    public void setMicroCheckFactory(ServerMicroCheckFactory microCheckFactory) {
-        this.microCheckFactory = microCheckFactory;
     }
 
     @Reference
@@ -403,32 +388,32 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void executeMicroChecks(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp) throws DeviceLifeCycleActionViolationException {
-        List<DeviceLifeCycleActionViolation> violations =
-                action.getChecks()
-                        .stream()
-                        .map(this.microCheckFactory::from)
-                        .map(microCheck -> this.execute(microCheck, device, effectiveTimestamp))
-                        .flatMap(Functions.asStream())
-                        .collect(Collectors.toList());
-        if(licenseService.getLicensedApplicationKeys().contains("INS")) {
-            microCheckFactory.from(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
-                    .evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
-                    .ifPresent(violations::add);
-        }
+        List<DeviceLifeCycleActionViolation> violations = action.getChecks()
+                .stream()
+                .filter(check -> check instanceof ServerMicroCheck)
+                .map(ServerMicroCheck.class::cast)
+                .map(check -> check.evaluate(device, effectiveTimestamp))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+        //TODO: Refactoring required
+//        if (licenseService.getLicensedApplicationKeys().contains("INS")) {
+//            microCheckFactory.from(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
+//                    .evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
+//                    .ifPresent(violations::add);
+//        }
         if (!violations.isEmpty()) {
             throw new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
         }
     }
-
-
 
     /**
      * Executes the {@link ServerMicroCheck} against the {@link Device}
      * and returns a {@link DeviceLifeCycleActionViolation}
      * when the ServerMicroCheck fails.
      *
-     * @param check The ServerMicroCheck
-     * @param device The Device
+     * @param check              The ServerMicroCheck
+     * @param device             The Device
      * @param effectiveTimestamp The effective timestamp of the transition
      * @return The violation or an empty Optional if the ServerMicroCheck succeeds
      */
@@ -463,16 +448,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     @Override
-    public String getName(MicroCheck microCheck) {
-        return this.microCheckFactory.from(microCheck).getName();
-    }
-
-    @Override
-    public String getDescription(MicroCheck microCheck) {
-        return this.microCheckFactory.from(microCheck).getDescription();
-    }
-
-    @Override
     public String getName(MicroAction microAction) {
         return this.microActionFactory.from(microAction).getName();
     }
@@ -480,11 +455,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Override
     public String getDescription(MicroAction microAction) {
         return this.microActionFactory.from(microAction).getDescription();
-    }
-
-    @Override
-    public String getCategoryName(MicroCheck microCheck) {
-        return this.microCheckFactory.from(microCheck).getCategoryName();
     }
 
     @Override

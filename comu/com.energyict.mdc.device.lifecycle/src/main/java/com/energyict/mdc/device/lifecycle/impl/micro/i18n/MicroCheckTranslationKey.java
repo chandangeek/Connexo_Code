@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * Contains translation keys for the {@link com.energyict.mdc.device.lifecycle.config.MicroCheck}s.
+ * Contains translation keys for the {@link MicroCheck}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-06-22 (11:17)

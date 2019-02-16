@@ -1,25 +1,15 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle;
 
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
-/**
- * Models a violation of one of the {@link MicroCheck}s
- * that are configured on an {@link com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction}.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-03-20 (16:21)
- */
 @ProviderType
 public interface DeviceLifeCycleActionViolation {
 
-    public MicroCheck getCheck();
+    ServerMicroCheck getCheck();
 
-    public String getLocalizedMessage();
-
+    String getLocalizedMessage();
 }

@@ -12,6 +12,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
@@ -37,7 +39,7 @@ public class DeviceLifeCycleModule extends AbstractModule {
         requireBinding(TransactionService.class);
         requireBinding(DeviceLifeCycleConfigurationService.class);
         requireBinding(MetrologyConfigurationService.class);
-        bind(ServerMicroCheckFactory.class).to(MicroCheckFactoryImpl.class).in(Scopes.SINGLETON);
+        bind(DeviceMicroCheckFactory.class).to(DeviceMicroCheckFactoryImpl.class).in(Scopes.SINGLETON);
         bind(ServerMicroActionFactory.class).to(MicroActionFactoryImpl.class).in(Scopes.SINGLETON);
         bind(DeviceLifeCycleService.class).to(DeviceLifeCycleServiceImpl.class).in(Scopes.SINGLETON);
     }

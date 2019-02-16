@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.fsm.State;
@@ -14,7 +13,6 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 
 import java.util.Set;
@@ -123,19 +121,8 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
         }
 
         @Override
-        public AuthorizedTransitionActionBuilder addCheck(MicroCheck check, MicroCheck... otherChecks) {
-            this.getUnderConstruction().add(check);
-            for (MicroCheck otherCheck : otherChecks) {
-                this.getUnderConstruction().add(otherCheck);
-            }
-            return this;
-        }
-
-        @Override
-        public AuthorizedTransitionActionBuilder addAllChecks(Set<MicroCheck> checks) {
-            for (MicroCheck check : checks) {
-                this.getUnderConstruction().add(check);
-            }
+        public AuthorizedTransitionActionBuilder addAllChecks(Set<String> checks) {
+            this.getUnderConstruction().add(checks);
             return this;
         }
 
@@ -155,6 +142,5 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
             }
             return this;
         }
-
     }
 }
