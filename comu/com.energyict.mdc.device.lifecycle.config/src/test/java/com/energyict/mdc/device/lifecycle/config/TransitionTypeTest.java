@@ -115,11 +115,10 @@ public class TransitionTypeTest {
     }
     @Test
     public void testOptionalPreTransitionChecksActivate(){
-        assertThat(TransitionType.ACTIVATE.optionalChecks()).hasSize(6);
+        assertThat(TransitionType.ACTIVATE.optionalChecks()).hasSize(5);
         assertThat(TransitionType.ACTIVATE.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
         assertThat(TransitionType.ACTIVATE.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE);
         assertThat(TransitionType.ACTIVATE.optionalChecks()).contains(MicroCheck.SLAVE_DEVICE_HAS_GATEWAY);
-        assertThat(TransitionType.ACTIVATE.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE);
         assertThat(TransitionType.ACTIVATE.optionalChecks()).contains(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
         assertThat(TransitionType.ACTIVATE.optionalChecks()).contains(MicroCheck.LINKED_WITH_USAGE_POINT);
     }
@@ -150,10 +149,7 @@ public class TransitionTypeTest {
     }
     @Test
     public void testOptionalPreTransitionChecksDeactivate(){
-        assertThat(TransitionType.DEACTIVATE.optionalChecks()).hasSize(3);
-        assertThat(TransitionType.DEACTIVATE.optionalChecks()).contains(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
-        assertThat(TransitionType.DEACTIVATE.optionalChecks()).contains(MicroCheck.ALL_DATA_VALIDATED);
-        assertThat(TransitionType.DEACTIVATE.optionalChecks()).contains(MicroCheck.ALL_DATA_VALID);
+        assertThat(TransitionType.DEACTIVATE.optionalChecks()).hasSize(0);
     }
     @Test
     public void testMandatoryPreTransitionActionsDeActivate(){
@@ -175,11 +171,7 @@ public class TransitionTypeTest {
     }
     @Test
     public void testOptionalPreTransitionChecksDeactivateAndDecommission(){
-        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).hasSize(6);
-        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
-        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
-        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_DATA_VALIDATED);
-        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_DATA_VALID);
+        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).hasSize(2);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.NO_ACTIVE_SERVICE_CALLS);
         assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES);
     }
@@ -209,11 +201,7 @@ public class TransitionTypeTest {
 
     @Test
     public void testOptionalPreTransitionChecksDecommission(){
-        assertThat(TransitionType.DECOMMISSION.optionalChecks()).hasSize(6);
-        assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
-        assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
-        assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_DATA_VALIDATED);
-        assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_DATA_VALID);
+        assertThat(TransitionType.DECOMMISSION.optionalChecks()).hasSize(2);
         assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.NO_ACTIVE_SERVICE_CALLS);
         assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES);
     }
@@ -245,11 +233,10 @@ public class TransitionTypeTest {
     }
     @Test
     public void testOptionalPreTransitionChecksInstallAndActivate(){
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalChecks()).hasSize(6);
+        assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalChecks()).hasSize(5);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalChecks()).contains(MicroCheck.SLAVE_DEVICE_HAS_GATEWAY);
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalChecks()).contains(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.optionalChecks()).contains(MicroCheck.LINKED_WITH_USAGE_POINT);
     }
@@ -279,11 +266,10 @@ public class TransitionTypeTest {
     }
     @Test
     public void testOptionalPreTransitionChecksInstallAndActivateWithoutCommissioning(){
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalChecks()).hasSize(6);
+        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalChecks()).hasSize(5);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalChecks()).contains(MicroCheck.SLAVE_DEVICE_HAS_GATEWAY);
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalChecks()).contains(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.optionalChecks()).contains(MicroCheck.LINKED_WITH_USAGE_POINT);
     }
@@ -314,11 +300,10 @@ public class TransitionTypeTest {
     }
     @Test
     public void testOptionalPreTransitionChecksInstallInactive(){
-        assertThat(TransitionType.INSTALL_INACTIVE.optionalChecks()).hasSize(6);
+        assertThat(TransitionType.INSTALL_INACTIVE.optionalChecks()).hasSize(5);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalChecks()).contains(MicroCheck.SLAVE_DEVICE_HAS_GATEWAY);
-        assertThat(TransitionType.INSTALL_INACTIVE.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalChecks()).contains(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
         assertThat(TransitionType.INSTALL_INACTIVE.optionalChecks()).contains(MicroCheck.LINKED_WITH_USAGE_POINT);
     }
@@ -351,11 +336,10 @@ public class TransitionTypeTest {
     }
     @Test
     public void testOptionalPreTransitionChecksInstallInactiveFromInStock(){
-        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalChecks()).hasSize(6);
+        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalChecks()).hasSize(5);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalChecks()).contains(MicroCheck.SLAVE_DEVICE_HAS_GATEWAY);
-        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalChecks()).contains(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.optionalChecks()).contains(MicroCheck.LINKED_WITH_USAGE_POINT);
     }
@@ -424,11 +408,10 @@ public class TransitionTypeTest {
     }
     @Test
     public void testOptionalPreTransitionChecksCommission(){
-        assertThat(TransitionType.COMMISSION.optionalChecks()).hasSize(5);
+        assertThat(TransitionType.COMMISSION.optionalChecks()).hasSize(4);
         assertThat(TransitionType.COMMISSION.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
         assertThat(TransitionType.COMMISSION.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE);
         assertThat(TransitionType.COMMISSION.optionalChecks()).contains(MicroCheck.SLAVE_DEVICE_HAS_GATEWAY);
-        assertThat(TransitionType.COMMISSION.optionalChecks()).contains(MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE);
         assertThat(TransitionType.COMMISSION.optionalChecks()).contains(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
     }
     @Test
@@ -464,5 +447,4 @@ public class TransitionTypeTest {
                 .isTrue();
         assertThat(transitionType.get()).isEqualTo(expectedTransitionType);
     }
-
 }

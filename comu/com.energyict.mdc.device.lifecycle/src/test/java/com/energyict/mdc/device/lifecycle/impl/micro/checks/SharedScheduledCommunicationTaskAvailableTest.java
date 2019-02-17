@@ -7,7 +7,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
+import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.time.Instant;
@@ -44,7 +44,7 @@ public class SharedScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Collections.emptyList());
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -65,7 +65,7 @@ public class SharedScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -82,7 +82,7 @@ public class SharedScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -106,7 +106,7 @@ public class SharedScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2, cte3));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();

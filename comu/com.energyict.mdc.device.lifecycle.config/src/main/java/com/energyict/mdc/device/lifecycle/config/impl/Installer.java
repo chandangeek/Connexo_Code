@@ -211,10 +211,10 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .complete();
     }
 
-    //TODO: Refactoring
     private Set<String> applicableChecksFor(StateTransition transition) {
         return deviceLifeCycleConfigurationService.getMicroChecks()
                 .stream()
+                .filter(microCheck -> microCheck.isApplicableForTransition(transition.getFrom(), transition.getTo()))
                 .map(MicroCheckNew::getKey)
                 .collect(Collectors.toSet());
     }

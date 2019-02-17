@@ -1,19 +1,14 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,9 +22,6 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link DeviceMicroCheckFactoryImpl} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-16 (16:52)
  */
 @RunWith(MockitoJUnitRunner.class)
 public class MicroCheckFactoryImplTest {
@@ -38,14 +30,6 @@ public class MicroCheckFactoryImplTest {
     private Thesaurus thesaurus;
     @Mock
     private NlsService nlsService;
-    @Mock
-    private TopologyService topologyService;
-    @Mock
-    private MultiElementDeviceService multiElementDeviceService;
-    @Mock
-    private ValidationService validationService;
-    @Mock
-    private MeteringService meteringService;
 
     @Before
     public void initializeMocks() {
@@ -72,11 +56,9 @@ public class MicroCheckFactoryImplTest {
             // Asserts
             assertThat(serverMicroCheck).as("MicroCheckFactoryImpl returns null for " + microCheck).isNotNull();
         }
-
     }
 
     private DeviceMicroCheckFactoryImpl getTestInstance() {
-        return new DeviceMicroCheckFactoryImpl(this.nlsService, this.topologyService, this.multiElementDeviceService, this.validationService, meteringService);
+        return new DeviceMicroCheckFactoryImpl();
     }
-
 }

@@ -6,7 +6,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
+import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.time.Instant;
@@ -40,7 +40,7 @@ public class AllIssuesAreClosedTest {
         AllIssuesAreClosed microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -53,7 +53,7 @@ public class AllIssuesAreClosedTest {
         AllIssuesAreClosed microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();

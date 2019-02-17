@@ -16,7 +16,6 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationExceptio
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 
 import java.time.Instant;
 import java.util.Collections;

@@ -28,7 +28,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
+import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotAfterLastStateChangeException;
@@ -44,10 +44,8 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
-
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.MicroCheckTranslationKeys;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionTranslationKey;
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -171,7 +169,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         return Stream.of(
                 Arrays.stream(MicroCategoryTranslationKey.values()),
                 Arrays.stream(MicroActionTranslationKey.values()),
-                Arrays.stream(MicroCheckTranslationKey.values()),
+                Arrays.stream(MicroCheckTranslationKeys.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
@@ -388,7 +386,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void executeMicroChecks(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp) throws DeviceLifeCycleActionViolationException {
-        List<DeviceLifeCycleActionViolation> violations = action.getChecks()
+        List<EvaluableMicroCheckViolation> violations = action.getChecks()
                 .stream()
                 .filter(check -> check instanceof ServerMicroCheck)
                 .map(ServerMicroCheck.class::cast)
@@ -396,12 +394,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
-        //TODO: Refactoring required
-//        if (licenseService.getLicensedApplicationKeys().contains("INS")) {
+        if (licenseService.getLicensedApplicationKeys().contains("INS")) {
+            //TODO: Refactoring required
 //            microCheckFactory.from(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
 //                    .evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
 //                    .ifPresent(violations::add);
-//        }
+        }
         if (!violations.isEmpty()) {
             throw new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
         }
@@ -409,7 +407,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     /**
      * Executes the {@link ServerMicroCheck} against the {@link Device}
-     * and returns a {@link DeviceLifeCycleActionViolation}
+     * and returns a {@link EvaluableMicroCheckViolation}
      * when the ServerMicroCheck fails.
      *
      * @param check              The ServerMicroCheck
@@ -417,7 +415,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
      * @param effectiveTimestamp The effective timestamp of the transition
      * @return The violation or an empty Optional if the ServerMicroCheck succeeds
      */
-    private Optional<DeviceLifeCycleActionViolation> execute(ServerMicroCheck check, Device device, Instant effectiveTimestamp) {
+    private Optional<EvaluableMicroCheckViolation> execute(ServerMicroCheck check, Device device, Instant effectiveTimestamp) {
         return check.evaluate(device, effectiveTimestamp);
     }
 

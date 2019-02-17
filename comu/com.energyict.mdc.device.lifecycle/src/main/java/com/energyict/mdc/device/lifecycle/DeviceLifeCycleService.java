@@ -14,7 +14,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionTranslationKey;
 
 import aQute.bnd.annotation.ProviderType;
 

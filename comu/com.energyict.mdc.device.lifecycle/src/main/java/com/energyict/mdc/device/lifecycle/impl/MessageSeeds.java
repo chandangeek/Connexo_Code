@@ -27,18 +27,17 @@ public enum MessageSeeds implements MessageSeed {
     MULTIPLE_MICRO_CHECKS_FAILED(10000, Keys.MULTIPLE_MICRO_CHECKS_FAILED, "Action cannot be triggered because the following checks have failed: {0}"),
     DEFAULT_CONNECTION_AVAILABLE(10001, MicroCheck.DEFAULT_CONNECTION_AVAILABLE, "There should at least be a default connection task"),
     AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(10002, MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE, "At least one communication task has been scheduled"),
-    ALL_LOAD_PROFILE_DATA_COLLECTED(10003, MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED, "All the data on the device must have been collected"),
+
     GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID(10004, MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID, "All mandatory general protocol properties should be valid and specified"),
     PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID(10005, MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID, "All mandatory protocol dialect properties should be valid and specified"),
     SECURITY_PROPERTIES_ARE_ALL_VALID(10006, MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID, "All mandatory security properties should be valid and specified"),
     CONNECTION_PROPERTIES_ARE_ALL_VALID(10008, MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID, "All mandatory connection method properties should be valid and specified"),
     SLAVE_DEVICE_HAS_GATEWAY(10009, MicroCheck.SLAVE_DEVICE_HAS_GATEWAY, "A slave device must have a gateway device"),
     LINKED_WITH_USAGE_POINT(10010, MicroCheck.LINKED_WITH_USAGE_POINT, "A device must be linked to a usage point"),
-    ALL_ISSUES_AND_ALARMS_ARE_CLOSED(10011, MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED, "All issues and alarms must have been closed or resolved on the device"),
+
     AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE(10012, MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE, "At least one shared communication schedule should be available on the device"),
-    ALL_DATA_VALID(10013, MicroCheck.ALL_DATA_VALID, "All the collected data on the device must be valid"),
-    ALL_DATA_VALIDATED(10014, MicroCheck.ALL_DATA_VALIDATED, "All the collected data on the device is validated"),
-    AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(10015, MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "There should at least one active connection on the device"),
+
+
     NO_ACTIVE_SERVICE_CALLS(10016, MicroCheck.NO_ACTIVE_SERVICE_CALLS, "There should not be any active service calls on the device"),
     NO_LINKED_MULTI_ELEMENT_SLAVES(10017, MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES, "There can't be any operational multi-element slaves linked with this device"),
     METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY(10018, MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY, "This device is linked to an usage point and cannot be moved from its operational life cycle stage. A metrology configuration is active on the usage point at the moment of the life cycle transition."),

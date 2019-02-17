@@ -7,13 +7,17 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
+import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Provides an implementation for the {@link ServerMicroCheck} interface
@@ -34,7 +38,7 @@ public class DefaultConnectionTaskAvailable extends TranslatableServerMicroCheck
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
         if (!anyDefaultConnectionTask(device).isPresent()) {
             return Optional.of(
                     new DeviceLifeCycleActionViolationImpl(
@@ -53,6 +57,15 @@ public class DefaultConnectionTaskAvailable extends TranslatableServerMicroCheck
                 .stream()
                 .filter(ConnectionTask::isDefault)
                 .findAny();
+    }
+    @Override
+    public Set<DefaultTransition> getOptionalDefaultTransitions() {
+        return EnumSet.of();
+    }
+
+    @Override
+    public Set<DefaultTransition> getRequiredDefaultTransitions() {
+        return Collections.emptySet();
     }
 
 }

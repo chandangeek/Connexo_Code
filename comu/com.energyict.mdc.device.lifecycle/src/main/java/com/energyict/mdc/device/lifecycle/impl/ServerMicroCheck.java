@@ -5,7 +5,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
+import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
 
@@ -23,18 +23,18 @@ public interface ServerMicroCheck extends MicroCheckNew {
 
     /**
      * Evaluates this {@link MicroCheck} against the {@link Device}
-     * and returns an appropriate {@link DeviceLifeCycleActionViolation}
+     * and returns an appropriate {@link EvaluableMicroCheckViolation}
      * when it fails.
      *
      * @param device             The Device
      * @param effectiveTimestamp The effective timestamp of the transition
      * @return The violation if the check fails
      */
-    Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp);
+    Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp);
 
     /**
      * Evaluates this {@link MicroCheck} against the {@link Device}
-     * and returns an appropriate {@link DeviceLifeCycleActionViolation}
+     * and returns an appropriate {@link EvaluableMicroCheckViolation}
      * when it fails.
      *
      * @param device             The Device
@@ -42,7 +42,7 @@ public interface ServerMicroCheck extends MicroCheckNew {
      * @param state              The new target state
      * @return The violation if the check fails
      */
-    default Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
+    default Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
         return evaluate(device, effectiveTimestamp);
     }
 }

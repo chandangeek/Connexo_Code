@@ -7,7 +7,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
+import com.energyict.mdc.device.lifecycle.impl.MicroCategoryTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
 
 public abstract class ConsolidatedServerMicroCheck implements ServerMicroCheck {

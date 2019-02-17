@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.audit.impl.AuditServiceModule;
@@ -45,7 +44,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -146,7 +144,9 @@ public class InMemoryPersistence {
             this.injector.getInstance(MeteringDataModelService.class);
             this.lifeCycleService = this.injector.getInstance(DeviceLifeCycleConfigurationServiceImpl.class);
             this.dataModel = this.lifeCycleService.getDataModel();
-            this.lifeCycleService.addMicroCheckFactory(new TestMicroCheck.Factory());
+            TestMicroCheck.Factory factory = new TestMicroCheck.Factory();
+            factory.setDataModel(this.dataModel);
+            this.lifeCycleService.addMicroCheckFactory(factory);
             ctx.commit();
         }
     }
@@ -200,7 +200,5 @@ public class InMemoryPersistence {
             bind(PropertySpecService.class).toInstance(propertySpecService);
             bind(HttpService.class).toInstance(mock(HttpService.class));
         }
-
     }
-
 }

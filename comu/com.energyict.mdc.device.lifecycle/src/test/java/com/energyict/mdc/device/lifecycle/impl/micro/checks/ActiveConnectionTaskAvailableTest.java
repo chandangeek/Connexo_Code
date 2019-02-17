@@ -1,15 +1,13 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -27,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ActiveConnectionAvailable} component.
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ActiveConnectionTaskAvailableTest {
@@ -42,11 +39,11 @@ public class ActiveConnectionTaskAvailableTest {
         ActiveConnectionAvailable microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -59,11 +56,11 @@ public class ActiveConnectionTaskAvailableTest {
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(ct1, ct2));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -74,7 +71,7 @@ public class ActiveConnectionTaskAvailableTest {
         when(this.device.getConnectionTasks()).thenReturn(Collections.singletonList(ct1));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -90,14 +87,15 @@ public class ActiveConnectionTaskAvailableTest {
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(ct1, ct2));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
     }
 
     private ActiveConnectionAvailable getTestInstance() {
-        return new ActiveConnectionAvailable(this.thesaurus);
+        ActiveConnectionAvailable activeConnectionAvailable = new ActiveConnectionAvailable();
+        activeConnectionAvailable.setThesaurus(this.thesaurus);
+        return activeConnectionAvailable;
     }
-
 }

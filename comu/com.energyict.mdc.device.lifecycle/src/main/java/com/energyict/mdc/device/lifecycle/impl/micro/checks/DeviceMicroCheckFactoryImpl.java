@@ -16,7 +16,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component(name = "com.energyict.device.lifecycle.micro.check.factory", service = DeviceMicroCheckFactory.class)
+@Component(name = "com.energyict.device.lifecycle.micro.check.factory",
+        service = DeviceMicroCheckFactory.class,
+        immediate = true)
 @SuppressWarnings("unused")
 public class DeviceMicroCheckFactoryImpl implements DeviceMicroCheckFactory {
 
@@ -24,14 +26,13 @@ public class DeviceMicroCheckFactoryImpl implements DeviceMicroCheckFactory {
 
     private final Map<String, Class<? extends MicroCheckNew>> microCheckMapping = new HashMap<>();
 
-    public DeviceMicroCheckFactoryImpl(DataModel dataModel) {
-        this.dataModel = dataModel;
-        addMicroCheckMappings();
+    public DeviceMicroCheckFactoryImpl() {
+        // For OSGi purposes only
     }
 
     private void addMicroCheckMappings() {
-//        addMicroCheckMapping(MetrologyConfigurationIsDefinedCheck.class);
-//        addMicroCheckMapping(MeterRolesAreSpecifiedCheck.class);
+        addMicroCheckMapping(ActiveConnectionAvailable.class);
+        addMicroCheckMapping(AllDataValid.class);
     }
 
     private void addMicroCheckMapping(Class<? extends ServerMicroCheck> clazz) {
@@ -49,5 +50,11 @@ public class DeviceMicroCheckFactoryImpl implements DeviceMicroCheckFactory {
         return this.microCheckMapping.values().stream()
                 .map(this.dataModel::getInstance)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void setDataModel(DataModel dataModel) {
+        this.dataModel = dataModel;
+        addMicroCheckMappings();
     }
 }

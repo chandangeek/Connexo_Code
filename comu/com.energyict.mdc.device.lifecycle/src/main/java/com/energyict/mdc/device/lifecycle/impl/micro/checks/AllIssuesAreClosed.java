@@ -1,50 +1,39 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
+import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
+import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
- * Provides an implementation for the {@link ServerMicroCheck} interface
- * that checks that all {@link com.elster.jupiter.issue.share.entity.Issue}s
- * on a device are closed.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-17 (12:47)
+ * Checks that all Issue's on a device are closed.
  */
 public class AllIssuesAreClosed extends TranslatableServerMicroCheck {
 
-    public AllIssuesAreClosed(Thesaurus thesaurus) {
-        super(thesaurus);
+    @Override
+    public String getCategory() {
+        return MicroCategory.ISSUES.name();
     }
 
     @Override
-    protected MicroCheck getMicroCheck() {
-        return MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
+    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
+        return device.hasOpenIssues() ?
+                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_ALL_ISSUES_AND_ALARMS_ARE_CLOSED) :
+                Optional.empty();
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        if (device.hasOpenIssues()) {
-            return Optional.of(
-                    new DeviceLifeCycleActionViolationImpl(
-                            this.thesaurus,
-                            MessageSeeds.ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
-                            MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED));
-        }
-        else {
-            return Optional.empty();
-        }
+    public Set<DefaultTransition> getOptionalDefaultTransitions() {
+        return EnumSet.of(
+                DefaultTransition.DEACTIVATE_AND_DECOMMISSION,
+                DefaultTransition.DECOMMISSION);
     }
-
 }

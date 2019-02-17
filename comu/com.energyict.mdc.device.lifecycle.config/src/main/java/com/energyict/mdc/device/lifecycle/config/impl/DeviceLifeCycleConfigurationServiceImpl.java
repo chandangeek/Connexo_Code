@@ -452,8 +452,9 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Override
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.STATIC)
     public void addMicroCheckFactory(DeviceMicroCheckFactory microCheckFactory) {
+        microCheckFactory.setDataModel(dataModel);
         this.microCheckFactories.add(microCheckFactory);
     }
 

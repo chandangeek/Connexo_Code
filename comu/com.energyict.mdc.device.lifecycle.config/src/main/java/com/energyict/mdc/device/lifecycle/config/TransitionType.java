@@ -28,7 +28,6 @@ public enum TransitionType {
                     MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
                     MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
         }
         @Override
@@ -60,7 +59,6 @@ public enum TransitionType {
                     MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
                     MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
         }
@@ -96,7 +94,6 @@ public enum TransitionType {
                     MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
                     MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
         }
@@ -135,7 +132,6 @@ public enum TransitionType {
                     MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
                     MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
         }
@@ -173,7 +169,6 @@ public enum TransitionType {
                     MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
                     MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
         }
@@ -212,7 +207,6 @@ public enum TransitionType {
                     MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
                     MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
         }
@@ -246,13 +240,6 @@ public enum TransitionType {
     },
     DEACTIVATE(DefaultState.ACTIVE, DefaultState.INACTIVE) {
         @Override
-        public Set<MicroCheck> optionalChecks() {
-            return EnumSet.of(
-                    MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
-                    MicroCheck.ALL_DATA_VALIDATED,
-                    MicroCheck.ALL_DATA_VALID);
-        }
-        @Override
         public Set<MicroCheck> requiredChecks() {
             return EnumSet.of(
                     MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
@@ -276,10 +263,6 @@ public enum TransitionType {
         @Override
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
-                    MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
-                    MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
-                    MicroCheck.ALL_DATA_VALIDATED,
-                    MicroCheck.ALL_DATA_VALID,
                     MicroCheck.NO_ACTIVE_SERVICE_CALLS,
                     MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES);
         }
@@ -304,10 +287,7 @@ public enum TransitionType {
     DECOMMISSION(DefaultState.INACTIVE, DefaultState.DECOMMISSIONED) {
         @Override
         public Set<MicroCheck> optionalChecks() {
-            return EnumSet.of(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
-                    MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
-                    MicroCheck.ALL_DATA_VALIDATED,
-                    MicroCheck.ALL_DATA_VALID,
+            return EnumSet.of(
                     MicroCheck.NO_ACTIVE_SERVICE_CALLS,
                     MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES);
         }

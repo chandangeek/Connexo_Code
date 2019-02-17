@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -12,8 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -58,11 +56,11 @@ public class AllDataValidTest {
         doReturn(Optional.empty()).when(this.device).getCurrentMeterActivation();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_DATA_VALID);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -73,14 +71,14 @@ public class AllDataValidTest {
         when(validationService.validationEnabled(meter)).thenReturn(false);
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
     }
 
     @Test
-    public void deviceWithMeterActivationWithAllDataValid(){
+    public void deviceWithMeterActivationWithAllDataValid() {
         AllDataValid microCheck = this.getTestInstance();
         doReturn(Optional.of(meterActivation)).when(this.device).getCurrentMeterActivation();
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
@@ -88,15 +86,16 @@ public class AllDataValidTest {
         when(validationService.validationEnabled(meter)).thenReturn(true);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
         when(validationEvaluator.areSuspectsPresent(Collections.singleton(QualityCodeSystem.MDC), channelsContainer)).thenReturn(false);
+
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
     }
 
     @Test
-    public void deviceWithMeterActivationWithNotAllDataValid(){
+    public void deviceWithMeterActivationWithNotAllDataValid() {
         AllDataValid microCheck = this.getTestInstance();
         doReturn(Optional.of(meterActivation)).when(this.device).getCurrentMeterActivation();
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
@@ -104,15 +103,18 @@ public class AllDataValidTest {
         when(validationService.validationEnabled(meter)).thenReturn(true);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
         when(validationEvaluator.areSuspectsPresent(Collections.singleton(QualityCodeSystem.MDC), channelsContainer)).thenReturn(true);
+
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_DATA_VALID);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     private AllDataValid getTestInstance() {
-        return new AllDataValid(this.validationService, this.thesaurus);
+        AllDataValid allDataValid = new AllDataValid();
+        allDataValid.setThesaurus(this.thesaurus);
+        allDataValid.setValidationService(this.validationService);
+        return allDataValid;
     }
-
 }

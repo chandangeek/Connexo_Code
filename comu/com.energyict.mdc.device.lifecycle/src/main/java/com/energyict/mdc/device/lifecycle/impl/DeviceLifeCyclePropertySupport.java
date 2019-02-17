@@ -11,7 +11,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionTranslationKey;
 
 import java.math.BigDecimal;
 import java.time.Instant;

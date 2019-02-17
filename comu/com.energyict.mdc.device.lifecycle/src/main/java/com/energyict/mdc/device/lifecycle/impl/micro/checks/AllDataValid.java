@@ -5,56 +5,52 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
+import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
+import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
- * Provides an implementation for the {@link ServerMicroCheck} interface
- * that checks that all collected data in both load profiles and registers is valid.
+ * Checks that all collected data in both load profiles and registers is valid.
  * The actual check is done by comparing the last reading timestamp
  * of all profiles and registers against the last checked.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-05-13 (11:24)
  */
 public class AllDataValid extends TranslatableServerMicroCheck {
 
-    private final ValidationService validationService;
+    private ValidationService validationService;
 
-    public AllDataValid(ValidationService validationService, Thesaurus thesaurus) {
-        super(thesaurus);
+    @Inject
+    public final void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        Optional<? extends MeterActivation> current = device.getCurrentMeterActivation();
-        if (!current.isPresent()
-                || validationService.validationEnabled(current.get().getMeter().get())
-                && validationService.getEvaluator().areSuspectsPresent(Collections.singleton(QualityCodeSystem.MDC), current.get().getChannelsContainer())) {
-            return Optional.of(newViolation());
-        }
-        return Optional.empty();
-    }
-
-    private DeviceLifeCycleActionViolationImpl newViolation() {
-        return new DeviceLifeCycleActionViolationImpl(
-                this.thesaurus,
-                MessageSeeds.ALL_DATA_VALID,
-                MicroCheck.ALL_DATA_VALID);
+    public String getCategory() {
+        return MicroCategory.VALIDATION.name();
     }
 
     @Override
-    protected MicroCheck getMicroCheck() {
-        return MicroCheck.ALL_DATA_VALID;
+    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
+        Optional<? extends MeterActivation> current = device.getCurrentMeterActivation();
+        return !current.isPresent() || validationService.validationEnabled(current.get().getMeter().get()) &&
+                validationService.getEvaluator().areSuspectsPresent(Collections.singleton(QualityCodeSystem.MDC),
+                        current.get().getChannelsContainer()) ?
+                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_ALL_DATA_VALID) : Optional.empty();
+    }
+
+    @Override
+    public Set<DefaultTransition> getOptionalDefaultTransitions() {
+        return EnumSet.of(
+                DefaultTransition.DEACTIVATE,
+                DefaultTransition.DEACTIVATE_AND_DECOMMISSION,
+                DefaultTransition.DECOMMISSION);
     }
 }
