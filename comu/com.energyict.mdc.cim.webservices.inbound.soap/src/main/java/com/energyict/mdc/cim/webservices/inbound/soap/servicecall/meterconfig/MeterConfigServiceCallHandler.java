@@ -184,7 +184,6 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private void processDevice(ServiceCall serviceCall, MeterInfo meterInfo, Device device) throws FaultMessage {
         List<FaultMessage> faultsForCreate = processCustomAttributeSets(serviceCall, device, meterInfo);
         if (!faultsForCreate.isEmpty()) {
-            // TODO send first reason?
             throw faultsForCreate.get(0);
         }
         faultsForCreate = processSecurityKeys(serviceCall, device, meterInfo);
