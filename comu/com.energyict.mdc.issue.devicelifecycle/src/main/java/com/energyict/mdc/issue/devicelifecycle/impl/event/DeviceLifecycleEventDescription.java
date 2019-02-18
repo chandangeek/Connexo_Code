@@ -39,7 +39,7 @@ public enum DeviceLifecycleEventDescription {
     }
     
     public boolean matches(Map<?, ?> map) {
-        String topic = (String) map.get(EventConstants.EVENT_TOPIC);
+        String topic = (String) map.get("event.topics");
         return this.topic.equalsIgnoreCase(topic);
     }
 }

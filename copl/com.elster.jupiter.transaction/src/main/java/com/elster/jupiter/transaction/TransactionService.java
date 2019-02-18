@@ -5,6 +5,7 @@
 package com.elster.jupiter.transaction;
 
 import aQute.bnd.annotation.ProviderType;
+import com.sun.xml.internal.bind.v2.TODO;
 
 @ProviderType
 public interface TransactionService {
@@ -39,6 +40,18 @@ public interface TransactionService {
 	 * TransactionBuilder provides an easy interface to setup the security context before executing a tx
 	 */
 	TransactionBuilder builder();
+
+
+	/*
+	This is due to an architectural limitation
+	Provides a means to force rollback in certain specific cases. Avoid overriding/using this method unless necessary.
+	Exceptions should never be used as a means of controlling workflow (i.e. mdc.device.lifecycle)
+	TODO - on improvements stories do a refactor on all sections of code that use unsafe/non-atomic/stale data prone coding practices to manage transactions. Remove this method from interface before merge into master
+	*/
+
+	default TransactionEvent rollback() {
+		throw new UnsupportedOperationException("Not supported");
+	};
 
 	/**
 	 * Indicates if there is a transaction running or not.
