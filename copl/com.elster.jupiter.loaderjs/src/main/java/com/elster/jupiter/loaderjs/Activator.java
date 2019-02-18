@@ -14,7 +14,7 @@ import org.osgi.framework.ServiceRegistration;
 public class Activator implements BundleActivator {
 
     public static final String HTTP_RESOURCE_ALIAS = "/ldr";
-    public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/ldr";
+    public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/ldr/build";
 
     private volatile ServiceRegistration<HttpResource> registration;
 

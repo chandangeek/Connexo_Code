@@ -71,9 +71,10 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         List<Group> groupList = new ArrayList<>();
         try {
             DirContext context = new InitialDirContext(env);
-            String[] attrIDs = {"cn"};
+            String[] attrIDs = { "cn" };
             SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, attrIDs, true, true);
-            NamingEnumeration<SearchResult> answer = context.search(getBaseGroup(), "(&(objectClass=groupOfNames)(member=uid=" + user.getName() + "," + getBase() + "))", controls);
+            NamingEnumeration<SearchResult> answer = context.search(getBaseGroup(),
+                    "(&(objectClass=groupOfNames)(member=uid=" + user.getName() + "," + getBase() + "))", controls);
             while (answer.hasMore()) {
                 Group group = userService.findOrCreateGroup(answer.next().getAttributes().get("cn").get().toString());
                 groupList.add(group);
@@ -123,7 +124,8 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
-    private Optional<User> authenticateSSL(String name, String password, List<String> urls, SslSecurityProperties sslSecurityProperties) {
+    private Optional<User> authenticateSSL(String name, String password, List<String> urls,
+            SslSecurityProperties sslSecurityProperties) {
         LOGGER.info("AUTH: SSL applied\n");
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
@@ -132,7 +134,8 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.SECURITY_CREDENTIALS, password);
         env.put(Context.SECURITY_PROTOCOL, "ssl");
         env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
-        ManagedSSLSocketFactory.setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, "SSL")));
+        ManagedSSLSocketFactory
+                .setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, "SSL")));
         Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
         try {
             new InitialDirContext(env);
@@ -150,7 +153,8 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
-    private Optional<User> authenticateTLS(String name, String password, List<String> urls, SslSecurityProperties sslSecurityProperties) {
+    private Optional<User> authenticateTLS(String name, String password, List<String> urls,
+            SslSecurityProperties sslSecurityProperties) {
         LOGGER.info("AUTH: TLS applied\n");
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
@@ -218,29 +222,8 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         putSecurityPrincipal(env);
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         try {
-            String userName;
             DirContext ctx = new InitialDirContext(env);
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBase(), "(objectclass=person)", controls);
-            while (results.hasMore()) {
-                LdapUser ldapUser = new LdapUserImpl();
-                SearchResult searchResult = (SearchResult) results.next();
-                Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("uid") != null) {
-                    userName = attributes.get("uid").get().toString();
-                    ldapUser.setUsername(userName);
-                    ldapUser.setStatus(true);
-                    if (attributes.get("pwdAccountLockedTime") != null) {
-                        if ("000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
-                            ldapUser.setStatus(false);
-                        }
-                    }
-                    ldapUsers.add(ldapUser);
-                }
-
-            }
-            return ldapUsers;
+            return doGetLdapUsers(ldapUsers, ctx);
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
@@ -251,7 +234,6 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
-
     private List<LdapUser> getLdapUsersSSL(List<String> urls, SslSecurityProperties sslSecurityProperties) {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
@@ -261,20 +243,34 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         env.put(Context.SECURITY_PROTOCOL, "ssl");
         env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
-        ManagedSSLSocketFactory.setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, "SSL")));
+        ManagedSSLSocketFactory
+                .setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, "SSL")));
         Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
         try {
-            String userName;
             DirContext ctx = new InitialDirContext(env);
+            return doGetLdapUsers(ldapUsers, ctx);
+        } catch (NumberFormatException | NamingException e) {
+            if (urls.size() > 1) {
+                urls.remove(0);
+                return getLdapUsersSSL(urls, sslSecurityProperties);
+            } else {
+                throw new LdapServerException(userService.getThesaurus());
+            }
+        }
+    }
+
+    private List<LdapUser> doGetLdapUsers(List<LdapUser> ldapUsers, DirContext ctx) throws NamingException {
+         if (getBaseUser() != null) {
             SearchControls controls = new SearchControls();
+
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBase(), "(objectclass=person)", controls);
+            NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
             while (results.hasMore()) {
                 LdapUser ldapUser = new LdapUserImpl();
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if (attributes.get("uid") != null) {
-                    userName = attributes.get("uid").get().toString();
+                    String userName = attributes.get("uid").get().toString();
                     ldapUser.setUsername(userName);
                     ldapUser.setStatus(true);
                     if (attributes.get("pwdAccountLockedTime") != null) {
@@ -285,15 +281,13 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                     ldapUsers.add(ldapUser);
                 }
             }
-            return ldapUsers;
-        } catch (NumberFormatException | NamingException e) {
-            if (urls.size() > 1) {
-                urls.remove(0);
-                return getLdapUsersSSL(urls, sslSecurityProperties);
-            } else {
-                throw new LdapServerException(userService.getThesaurus());
-            }
+        } else {
+            Object answer = ctx.lookup(getGroupName());
+            System.out.println(answer);
+
         }
+
+        return ldapUsers;
     }
 
     private List<LdapUser> getLdapUsersTLS(List<String> urls, SslSecurityProperties sslSecurityProperties) {
@@ -310,26 +304,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
             putSecurityPrincipal(env);
             env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBase(), "(objectclass=person)", controls);
-            while (results.hasMore()) {
-                LdapUser ldapUser = new LdapUserImpl();
-                SearchResult searchResult = (SearchResult) results.next();
-                Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("uid") != null) {
-                    userName = attributes.get("uid").get().toString();
-                    ldapUser.setUsername(userName);
-                    ldapUser.setStatus(true);
-                    if (attributes.get("pwdAccountLockedTime") != null) {
-                        if ("000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
-                            ldapUser.setStatus(false);
-                        }
-                    }
-                    ldapUsers.add(ldapUser);
-                }
-            }
-            return ldapUsers;
+            return doGetLdapUsers(ldapUsers, ctx);
         } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
@@ -348,7 +323,6 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
-
     private boolean getLdapUserStatusSimple(String user, List<String> urls) {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
@@ -363,15 +337,15 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
-                if(attributes.get("uid")!=null) {
-                    if(attributes.get("uid").toString().equals("uid: "+user)) {
+                if (attributes.get("uid") != null) {
+                    if (attributes.get("uid").toString().equals("uid: " + user)) {
                         if (attributes.get("pwdAccountLockedTime") != null) {
                             return !"000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString());
                         }
-                    }else{
+                    } else {
                         return false;
                     }
-                }else{
+                } else {
                     return false;
                 }
             }
@@ -394,7 +368,8 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         env.put(Context.SECURITY_PROTOCOL, "ssl");
         env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
-        ManagedSSLSocketFactory.setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, "SSL")));
+        ManagedSSLSocketFactory
+                .setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, "SSL")));
         Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
         try {
             DirContext ctx = new InitialDirContext(env);
@@ -404,15 +379,15 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
-                if(attributes.get("uid")!=null) {
-                    if(attributes.get("uid").toString().equals("uid: "+user)) {
+                if (attributes.get("uid") != null) {
+                    if (attributes.get("uid").toString().equals("uid: " + user)) {
                         if (attributes.get("pwdAccountLockedTime") != null) {
                             return !"000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString());
                         }
-                    }else{
+                    } else {
                         return false;
                     }
-                }else{
+                } else {
                     return false;
                 }
             }
@@ -445,15 +420,15 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
-                if(attributes.get("uid")!=null) {
-                    if(attributes.get("uid").toString().equals("uid: "+user)) {
+                if (attributes.get("uid") != null) {
+                    if (attributes.get("uid").toString().equals("uid: " + user)) {
                         if (attributes.get("pwdAccountLockedTime") != null) {
                             return !"000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString());
                         }
-                    }else{
+                    } else {
                         return false;
                     }
-                }else{
+                } else {
                     return false;
                 }
             }
@@ -495,7 +470,13 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private void putSecurityPrincipal(String name, Hashtable<String, Object> env) {
-        env.put(Context.SECURITY_PRINCIPAL, "uid=" + name + "," + getBase());
+        String principal;
+        if (getBaseUser() != null) {
+            principal = "uid=" + name + "," + getBaseUser();
+        } else {
+            principal = name;
+        }
+        env.put(Context.SECURITY_PRINCIPAL, principal);
     }
 
 }
