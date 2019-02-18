@@ -55,6 +55,7 @@ import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
 
 import aQute.bnd.annotation.ProviderType;
 import com.energyict.obis.ObisCode;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -224,6 +225,11 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
     void setProtocolProperty(String name, Object value);
 
     void removeProtocolProperty(String name);
+
+    void addZone(String zoneName, String zoneTypeName);
+    void removeZonesOnDevice();
+
+    Multimap<String,String> getZones();
 
     /**
      * Resolve the security accessors and their types to their actual values (if present) and return them as TypedProperties.

@@ -173,6 +173,11 @@ public class MeteringZoneServiceImpl implements MeteringZoneService, Translation
     }
 
     @Override
+    public Optional<Zone> getZoneByName(String zoneName, long zoneType) {
+        return dataModel.mapper(Zone.class).select(where("name").isEqualTo(zoneName).and(where("zoneTypeId").isEqualToIgnoreCase(zoneType))).stream().findFirst();
+    }
+
+    @Override
     public Optional<Zone> getAndLockZone(long id, long version) {
         return dataModel.mapper(Zone.class).lockObjectIfVersion(version, id);
     }

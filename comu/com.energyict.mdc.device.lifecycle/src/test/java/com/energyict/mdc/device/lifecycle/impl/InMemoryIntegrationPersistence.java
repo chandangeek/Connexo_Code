@@ -220,8 +220,8 @@ public class InMemoryIntegrationPersistence {
                 new DeviceLifeCycleModule(),
                 new CustomPropertySetsModule(),
                 new CalendarModule(),
-                new MeteringZoneModule(),
-                new PkiModule());
+                new PkiModule(),
+                new MeteringZoneModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.transactionService = this.injector.getInstance(TransactionService.class);
