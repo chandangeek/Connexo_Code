@@ -58,19 +58,19 @@ public class EncryptImportSampleTest {
             IllegalBlockSizeException,
             InvalidKeySpecException {
 
-        Message deviceKeyEncryptionKey = new Message("PasswordPasswordPasswordPassword");
+        Message wrapperKey = new Message("PasswordPasswordPasswordPassword");
         Message initVector = new Message("0123456789ABCDEF");
         Message deviceKey = new Message("Password");
 
 
         // including IV and encrypted key
-        String encryptedDeviceKey = doDeviceKeys(deviceKey, initVector, deviceKeyEncryptionKey);
-        String wrappedKey = doWrapperKey(deviceKeyEncryptionKey);
+        String encryptedDeviceKey = encryptDeviceKey(deviceKey, initVector, wrapperKey);
+        String encryptedWrapperKey = encryptWrapperKey(wrapperKey);
 
-        writeToFile(wrappedKey, encryptedDeviceKey);
+        writeToFile(encryptedWrapperKey, encryptedDeviceKey);
     }
 
-    private String doWrapperKey(Message encryptionPassword) throws
+    private String encryptWrapperKey(Message encryptionPassword) throws
             NoSuchPaddingException,
             NoSuchAlgorithmException,
             BadPaddingException,
@@ -83,7 +83,7 @@ public class EncryptImportSampleTest {
 
     }
 
-    private String doDeviceKeys(Message message, Message initVector,Message encryptionKey ) throws
+    private String encryptDeviceKey(Message message, Message initVector, Message encryptionKey ) throws
             IOException,
             InvalidKeyException,
             NoSuchAlgorithmException,
@@ -99,8 +99,12 @@ public class EncryptImportSampleTest {
     private synchronized void writeToFile(String wrappedKey, String fullDeviceKey) throws FileNotFoundException {
         File f = new File(ENCRYPT_OUT);
         try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), Charset.defaultCharset()))) {
-            pw.println("Wrapper key:" + wrappedKey);
-            pw.println("Device Password:" + fullDeviceKey);
+            String wrapperKeyTxt = "Wrapper key:" + wrappedKey;
+            System.out.println(wrapperKeyTxt);
+            pw.println(wrapperKeyTxt);
+            String deviceKeyTxt = "Device Password:" + fullDeviceKey;
+            System.out.println(deviceKeyTxt);
+            pw.println(deviceKeyTxt);
         }
     }
 
