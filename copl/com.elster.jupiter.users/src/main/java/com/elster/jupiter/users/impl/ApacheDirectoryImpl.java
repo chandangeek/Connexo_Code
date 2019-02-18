@@ -500,7 +500,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     private void putSecurityPrincipal(String name, Hashtable<String, Object> env) {
         String principal;
-        if (getBaseUser() != null) {
+        if (getGroupName() == null) {
             principal = "uid=" + name + "," + getBaseUser();
         } else {
             principal = name;
