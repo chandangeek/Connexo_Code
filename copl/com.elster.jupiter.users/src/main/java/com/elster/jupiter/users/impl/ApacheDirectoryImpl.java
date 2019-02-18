@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
@@ -216,14 +217,13 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     private List<LdapUser> getLdapUsersSimple(List<String> urls) {
         Hashtable<String, Object> env = new Hashtable<>();
-        List<LdapUser> ldapUsers = new ArrayList<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
         putSecurityPrincipal(env);
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         try {
             DirContext ctx = new InitialDirContext(env);
-            return doGetLdapUsers(ldapUsers, ctx);
+            return doGetLdapUsers(ctx);
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
@@ -237,7 +237,6 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     private List<LdapUser> getLdapUsersSSL(List<String> urls, SslSecurityProperties sslSecurityProperties) {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
-        List<LdapUser> ldapUsers = new ArrayList<>();
         env.put(Context.PROVIDER_URL, urls.get(0));
         putSecurityPrincipal(env);
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
@@ -248,7 +247,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
         try {
             DirContext ctx = new InitialDirContext(env);
-            return doGetLdapUsers(ldapUsers, ctx);
+            return doGetLdapUsers(ctx);
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
@@ -259,44 +258,74 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
-    private List<LdapUser> doGetLdapUsers(List<LdapUser> ldapUsers, DirContext ctx) throws NamingException {
-         if (getBaseUser() != null) {
-            SearchControls controls = new SearchControls();
-
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
-            while (results.hasMore()) {
-                LdapUser ldapUser = new LdapUserImpl();
-                SearchResult searchResult = (SearchResult) results.next();
-                Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("uid") != null) {
-                    String userName = attributes.get("uid").get().toString();
-                    ldapUser.setUsername(userName);
-                    ldapUser.setStatus(true);
-                    if (attributes.get("pwdAccountLockedTime") != null) {
-                        if ("000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
-                            ldapUser.setStatus(false);
-                        }
-                    }
-                    ldapUsers.add(ldapUser);
-                }
-            }
-        } else {
-            Object answer = ctx.lookup(getGroupName());
-            System.out.println(answer);
-
+    private List<LdapUser> doGetLdapUsers(DirContext ctx) throws NamingException {
+        if (getGroupName() != null) {
+            return doGetLdapUsersFromGroupName(ctx);
         }
+        return doGetLdapUsersFromBaseUser(ctx);
+    }
 
+    private List<LdapUser> doGetLdapUsersFromGroupName(DirContext ctx) throws NamingException {
+        // https://issues.apache.org/jira/browse/DIRSERVER-1844 ApacheDS does not support memberOf virtual attribute
+        // so we read group attributes "member" and find users one by one
+        List<LdapUser> ldapUsers = new ArrayList<>();
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope(SearchControls.OBJECT_SCOPE);
+        NamingEnumeration groupEnumeration = ctx.search(getGroupName(), "(objectClass=groupOfNames)", controls);
+        if (groupEnumeration.hasMore()) {
+            SearchResult groupSearchResult = (SearchResult) groupEnumeration.next();
+            Attributes groupAttributes = groupSearchResult.getAttributes();
+            Attribute memberAttribute = groupAttributes.get("member");
+            NamingEnumeration<?> membersEnumeration = memberAttribute.getAll();
+            while (membersEnumeration.hasMore()) {
+                String userDN = (String) membersEnumeration.next();
+                findAndAddUser(userDN, ldapUsers, ctx);
+            }
+        }
         return ldapUsers;
+    }
+
+    private List<LdapUser> doGetLdapUsersFromBaseUser(DirContext ctx) throws NamingException {
+        List<LdapUser> ldapUsers = new ArrayList<>();
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
+        while (results.hasMore()) {
+            addUser(results, ldapUsers);
+        }
+        return ldapUsers;
+    }
+
+    private void addUser(NamingEnumeration results, List<LdapUser> ldapUsers) throws NamingException {
+        SearchResult searchResult = (SearchResult) results.next();
+        Attributes attributes = searchResult.getAttributes();
+        if (attributes.get("uid") != null) {
+            LdapUser ldapUser = new LdapUserImpl();
+            String userName = attributes.get("uid").get().toString();
+            ldapUser.setUsername(userName);
+            ldapUser.setStatus(true);
+            if (attributes.get("pwdAccountLockedTime") != null
+                    && "000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
+                ldapUser.setStatus(false);
+            }
+            ldapUsers.add(ldapUser);
+        }
+    }
+
+    private void findAndAddUser(String userDN, List<LdapUser> ldapUsers, DirContext ctx) throws NamingException {
+        SearchControls userControls = new SearchControls();
+        userControls.setSearchScope(SearchControls.OBJECT_SCOPE);
+        NamingEnumeration userEnumeration = ctx.search(userDN, "(objectClass=person)", userControls);
+        if (userEnumeration.hasMore()) {
+            addUser(userEnumeration, ldapUsers);
+        }
     }
 
     private List<LdapUser> getLdapUsersTLS(List<String> urls, SslSecurityProperties sslSecurityProperties) {
         Hashtable<String, Object> env = new Hashtable<>();
-        List<LdapUser> ldapUsers = new ArrayList<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
         try {
-            String userName;
             LdapContext ctx = new InitialLdapContext(env, null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
@@ -304,7 +333,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
             putSecurityPrincipal(env);
             env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-            return doGetLdapUsers(ldapUsers, ctx);
+            return doGetLdapUsers(ctx);
         } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
