@@ -3,7 +3,7 @@ package com.elster.jupiter.hsm.impl;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
+import com.elster.jupiter.hsm.model.keys.HsmReversibleKey;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
 
 import javax.crypto.BadPaddingException;
@@ -18,12 +18,12 @@ import java.security.InvalidKeyException;
 
 public class ReversibleKeyImporter {
 
-    public HsmEncryptedKey importKey(ImportKeyRequest importKeyRequest, HsmConfiguration hsmConfiguration, HsmEncryptionService encryptService) throws HsmBaseException {
+    public HsmReversibleKey importKey(ImportKeyRequest importKeyRequest, HsmConfiguration hsmConfiguration, HsmEncryptionService encryptService) throws HsmBaseException {
         byte[] wrapperKey = encryptService.asymmetricDecrypt(importKeyRequest.getWrapLabel(hsmConfiguration), importKeyRequest.getTransportKey(hsmConfiguration)
                 .getValue(), importKeyRequest.getWrapperKeyAlgorithm().getHsmSpecs().getPaddingAlgorithm());
 
         byte[] plainKey = decrypt(importKeyRequest, wrapperKey);
-        return new HsmEncryptedKey(encryptService.symmetricEncrypt(plainKey, importKeyRequest.getStorageLabel()), importKeyRequest.getStorageLabel());
+        return new HsmReversibleKey(plainKey, importKeyRequest.getStorageLabel());
     }
 
 

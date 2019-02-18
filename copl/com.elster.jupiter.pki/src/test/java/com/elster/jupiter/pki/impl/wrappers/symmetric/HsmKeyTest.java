@@ -5,7 +5,6 @@
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
@@ -144,8 +143,8 @@ public class HsmKeyTest {
 
         hsmKeyUnderTest.generateValue(securityAccesorType, currentKey);
         // new label comes from hsm key type
-        Assert.assertEquals(hsmRenewKey.getKeyLabel(), hsmKeyUnderTest.getLabel());
-        Assert.assertArrayEquals(hsmRenewKey.getEncryptedKey(), hsmKeyUnderTest.getKey());
+        Assert.assertEquals(hsmRenewKey.getLabel(), hsmKeyUnderTest.getLabel());
+        Assert.assertArrayEquals(hsmRenewKey.getKey(), hsmKeyUnderTest.getKey());
         Assert.assertArrayEquals(hsmRenewKey.getSmartMeterKey(), hsmKeyUnderTest.getSmartMeterKey());
     }
 

@@ -109,7 +109,7 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     public void generateValue(SecurityAccessorType securityAccessorType, HsmKey masterKey) {
         try {
             HsmRenewKey hsmRenewKey = hsmEnergyService.renewKey(new RenewKeyRequest(masterKey.getKey(), masterKey.getLabel(), securityAccessorType.getHsmKeyType()));
-            this.setKey(hsmRenewKey.getEncryptedKey(), hsmRenewKey.getKeyLabel());
+            this.setKey(hsmRenewKey.getKey(), hsmRenewKey.getLabel());
             this.setSmartMeterKey(hsmRenewKey.getSmartMeterKey());
             this.save();
         } catch (HsmBaseException e) {

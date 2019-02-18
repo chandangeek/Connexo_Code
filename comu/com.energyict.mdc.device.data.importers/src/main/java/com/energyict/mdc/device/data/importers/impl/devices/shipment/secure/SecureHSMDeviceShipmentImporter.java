@@ -10,7 +10,6 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
@@ -22,7 +21,6 @@ import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.NamedEncryptedDataType;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.WrapKey;
-import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.exception.ImportFailedException;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.exception.InvalidAlgorithm;
 
 import java.util.Arrays;
@@ -58,7 +56,7 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
         if (optionalSecurityAccessorType.isPresent()) {
             SecurityAccessorType securityAccessorType = optionalSecurityAccessorType.get();
             ImportKeyRequest ikr = new ImportKeyRequest(wrapperkeyLabel, wrapperKeyAlgorithm, wrapKeyMap.get(wrapperkeyLabel).getSymmetricKey().getCipherData().getCipherValue(), symmetricAlgorithm, deviceKeyBytes, initVector, securityAccessorType.getHsmKeyType());
-            HsmEncryptedKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
+            com.elster.jupiter.hsm.model.keys.HsmKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
 
             Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
             if (securityAccessorOptional.flatMap(SecurityAccessor::getActualValue).isPresent()) {
@@ -66,7 +64,7 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
             } else {
                 SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
                 HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
-                hsmKey.setKey(hsmEncryptedKey.getEncryptedKey(), hsmEncryptedKey.getKeyLabel());
+                hsmKey.setKey(hsmEncryptedKey.getKey(), hsmEncryptedKey.getLabel());
                 securityAccessor.setActualValue(hsmKey);
                 securityAccessor.save();
             }

@@ -25,11 +25,11 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     @Override
     public byte[] symmetricEncrypt(byte[] bytes, String label) throws HsmBaseException {
-            return encrypt(bytes, label, null, DEFAULT_CHAINING, DEFAULT_PADDING);
+            return symmetricEncrypt(bytes, label, null, DEFAULT_CHAINING, DEFAULT_PADDING);
     }
 
     @Override
-    public byte[] encrypt(byte[] bytes, String label, byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
+    public byte[] symmetricEncrypt(byte[] bytes, String label, byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
         try {
             return Symmetric.encrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, bytes, getIcv(icv), paddingAlgorithm, chainingMode).getData();
         } catch (FunctionFailedException e) {

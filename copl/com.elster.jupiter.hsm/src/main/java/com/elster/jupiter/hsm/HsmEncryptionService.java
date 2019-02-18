@@ -12,7 +12,7 @@ public interface HsmEncryptionService {
 
     byte[] symmetricEncrypt(byte[] bytes, String label) throws HsmBaseException;
 
-    byte[] encrypt(byte[] bytes, String label, byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException;
+    byte[] symmetricEncrypt(byte[] bytes, String label, byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException;
 
     byte[] symmetricDecrypt(byte[] cipher, String label) throws HsmBaseException;
 
