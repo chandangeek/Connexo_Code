@@ -277,7 +277,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
 								itemId: 'rdo-user-dn-type-udn',
                                 boxLabel: Uni.I18n.translate('userDirectories.dnType.userBaseDN', 'USR', 'User base DN'),
                                 inputValue: 'UDN',
-								//checked: true
+								checked: true
                             },
                             {
 								itemId: 'rdo-user-dn-type-gdn',
