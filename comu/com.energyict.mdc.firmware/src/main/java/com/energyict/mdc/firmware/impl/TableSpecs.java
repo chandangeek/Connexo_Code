@@ -42,7 +42,7 @@ public enum TableSpecs {
             table.column("FIRMWAREFILE").blob().map(FirmwareVersionImpl.Fields.FIRMWAREFILE.fieldName()).add();
             table.column("IMAGEIDENTIFIER").varChar(80).map(FirmwareVersionImpl.Fields.IMAGEIDENTIFIER.fieldName()).add().since(version(10, 4));
             table.addAuditColumns();
-            table.column(FirmwareVersionImpl.Fields.RANK.name())
+            Column rankColumn = table.column(FirmwareVersionImpl.Fields.RANK.name())
                     .number()
                     .notNull()
                     .conversion(ColumnConversion.NUMBER2INT)
@@ -60,6 +60,7 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .add();
             table.unique("FWC_UK_VERSIONTYPE").on(firmwareVersion, firmwareType, deviceTypeColumn).add();
+            table.index("FWC_IDX_FW_BY_RANK").on(deviceTypeColumn, rankColumn).compress(1).add().since(Version.version(10, 6));
             table.foreignKey("FWC_FK_FW_METER_FW_DEP")
                     .on(meterFWDependency)
                     .references(FirmwareVersion.class)
