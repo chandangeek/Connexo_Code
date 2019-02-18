@@ -70,7 +70,6 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     private static final String USAGE_POINTS_LIST_ITEM = GET_METER_READINGS_ITEM + ".UsagePoint";
     private static final String END_DEVICE_LIST_ITEM = GET_METER_READINGS_ITEM + ".EndDevice";
     private static final String USAGE_POINT_ITEM = USAGE_POINTS_LIST_ITEM + "[0]";
-    private static final String END_DEVICE_ITEM = END_DEVICE_LIST_ITEM + "[0]";
     private static final String USAGE_POINT_MRID = USAGE_POINT_ITEM + ".mRID";
     private static final String USAGE_POINT_NAME_ITEMS = USAGE_POINT_ITEM
             + ".Names[?(@.NameType.name=='" + UsagePointNameTypeEnum.USAGE_POINT_NAME.getNameType() + "')]";
@@ -121,7 +120,10 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         try (TransactionContext context = transactionService.getContext()) {
             GetMeterReadings getMeterReadings = Optional.ofNullable(getMeterReadingsRequestMessage.getRequest().getGetMeterReadings())
                     .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, GET_METER_READINGS_ITEM));
-            Boolean async = getMeterReadingsRequestMessage.getHeader().isAsyncReplyFlag();
+            Boolean async = null;
+            if (getMeterReadingsRequestMessage.getHeader() != null) {
+                async = getMeterReadingsRequestMessage.getHeader().isAsyncReplyFlag();
+            }
             checkGetMeterReading(getMeterReadings, async);
 
             // run async
@@ -273,9 +275,9 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         if (getMeterReadings.getReadingType().isEmpty()) {
             throw(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, READING_TYPES_LIST_ITEM).get());
         }
-        if (getMeterReadings.getEndDevice().isEmpty()) {
-            throw(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, END_DEVICE_LIST_ITEM)).get();
-        }
+//        if (getMeterReadings.getEndDevice().isEmpty()) {
+//            throw(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, END_DEVICE_LIST_ITEM)).get();
+//        }
         checkSources(getMeterReadings.getReading(), async);
     }
 
@@ -318,11 +320,17 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     }
 
     private boolean isMissingElement(String element, String elementName) throws FaultMessage {
+        if (element == null) {
+            return true;
+        }
         checkElement( element, MessageSeeds.MISSING_ELEMENT, elementName);
         return false;
     }
 
     private boolean isEmptyElement(String element, String elementName) throws FaultMessage {
+        if (element == null) {
+            return true;
+        }
         checkElement( element, MessageSeeds.EMPTY_ELEMENT, elementName);
         return false;
     }

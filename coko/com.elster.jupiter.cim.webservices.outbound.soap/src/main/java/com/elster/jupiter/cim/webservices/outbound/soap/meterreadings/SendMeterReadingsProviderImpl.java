@@ -27,9 +27,7 @@ import javax.xml.ws.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,7 +43,6 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
     private static final String NOUN = "MeterReadings";
     private static final String URL = "url";
 
-//    private final List<MeterReadingsPort> meterReadingsPortServices = new CopyOnWriteArrayList<>();
     private final Map<String, MeterReadingsPort> meterReadingsPorts = new ConcurrentHashMap<>();
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ObjectFactory meterReadingsMessageObjectFactory = new ObjectFactory();
@@ -136,7 +133,8 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
             LOGGER.log(Level.SEVERE, faultMessage.getLocalizedMessage(), faultMessage);
             return false;
         }
-        if (ReplyType.Result.OK != meterReadingsResponseMessageType.getReply().getResult()) {
+        if (meterReadingsResponseMessageType == null
+                || ReplyType.Result.OK != meterReadingsResponseMessageType.getReply().getResult()) {
             return false;
         }
         return true;

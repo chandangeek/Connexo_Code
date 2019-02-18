@@ -4,7 +4,12 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
+import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
@@ -12,6 +17,10 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -19,16 +28,19 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
 
 import org.osgi.framework.BundleContext;
 
 import java.time.Clock;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,6 +73,24 @@ public abstract class AbstractMockActivator {
     protected UsagePointLifeCycleService usagePointLifeCycleService;
     @Mock
     protected CustomPropertySetService customPropertySetService;
+    @Mock
+    protected EndPointConfigurationService endPointConfigurationService;
+    @Mock
+    protected WebServicesService webServicesService;
+    @Mock
+    protected ServiceCallService serviceCallService;
+    @Mock
+    protected MessageService messageService;
+    @Mock
+    protected JsonService jsonService;
+    @Mock
+    protected SendMeterReadingsProvider sendMeterReadingsProvider;
+    @Mock
+    private ServiceCallType serviceCallType;
+    @Mock
+    private QueueTableSpec queueTableSpec;
+    @Mock
+    DestinationSpec destinationSpec;
 
     private CIMInboundSoapEndpointsActivator activator;
 
@@ -68,6 +98,7 @@ public abstract class AbstractMockActivator {
     public void init() {
         initMocks();
         initActivator();
+
     }
 
     private void initMocks() {
@@ -76,6 +107,14 @@ public abstract class AbstractMockActivator {
         when(transactionService.getContext()).thenReturn(transactionContext);
 
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
+
+        when(serviceCallService.findServiceCallType(anyString(), anyString())).thenReturn(Optional.of(serviceCallType));
+        when(messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION)).thenReturn(Optional.of(destinationSpec));
+        when(messageService.getQueueTableSpec(ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME)).thenReturn(Optional.of(queueTableSpec));
+
+//        when(webServicesService.isPublished(anyObject())).thenReturn(true);
+
+
     }
 
     private void initActivator() {
@@ -90,6 +129,12 @@ public abstract class AbstractMockActivator {
         activator.setUserService(userService);
         activator.setUsagePointLifeCycleService(usagePointLifeCycleService);
         activator.setCustomPropertySetService(customPropertySetService);
+        activator.setEndPointConfigurationService(endPointConfigurationService);
+        activator.setWebServicesService(webServicesService);
+        activator.setServiceCallService(serviceCallService);
+        activator.setMessageService(messageService);
+        activator.setJsonService(jsonService);
+        activator.setSendMeterReadingsProvider(sendMeterReadingsProvider);
         activator.activate(mock(BundleContext.class));
     }
 

@@ -10,6 +10,7 @@ import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsEventMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.sendmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.sendmeterreadings.MeterReadingsPort;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import java.util.HashMap;
@@ -49,8 +50,7 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         mockIntervalReadings();
 
         SendMeterReadingsProviderImpl provider = new SendMeterReadingsProviderImpl();
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("url", "some_url");
+        Map<String, Object> properties = ImmutableMap.of("url", "some_url");
         provider.addMeterReadingsPorts(meterReadingsPort, properties);
 
         provider.call(listReadingInfo, HeaderType.Verb.CREATED);

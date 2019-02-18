@@ -52,7 +52,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -160,8 +159,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     }
 
     private void registerHandlers() {
-        Map<String, Object> options = new HashMap<>();
-        options.put("name", ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
+        Map<String, Object> options = ImmutableMap.of("name", ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
         serviceCallService.addServiceCallHandler(dataModel.getInstance(ParentGetMeterReadingsServiceCallHandler.class),
                 options);
     }

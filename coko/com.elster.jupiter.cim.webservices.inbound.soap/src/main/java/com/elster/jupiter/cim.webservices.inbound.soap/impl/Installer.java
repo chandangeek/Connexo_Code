@@ -80,8 +80,7 @@ public class Installer implements FullInstaller {
 
     private void createDestinationSpecs() {
         if (messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION).isPresent()) {
-            throw new IllegalStateException(MessageFormat.format("Destination specification ''{0}'' already exists",
-                    ReadMeterChangeMessageHandlerFactory.DESTINATION));
+            return;
         }
         Optional<QueueTableSpec> queueTableSpec = messageService
                 .getQueueTableSpec(ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME);

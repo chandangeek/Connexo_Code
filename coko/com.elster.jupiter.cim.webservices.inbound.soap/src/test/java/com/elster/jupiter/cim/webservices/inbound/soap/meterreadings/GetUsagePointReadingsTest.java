@@ -20,6 +20,7 @@ import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -29,6 +30,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -64,6 +66,7 @@ import java.time.Instant;
 import java.time.Month;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
@@ -446,6 +449,15 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         when(mock.getUnit()).thenReturn(regular ? ReadingTypeUnit.WATTHOUR : ReadingTypeUnit.WATT);
     }
 
+    private void mockFindReadingTypes(ReadingType... readingTypes){
+        Finder finder = mock(Finder.class);
+        ArgumentCaptor<ReadingTypeFilter> readingTypeFilterArgumentCaptor = ArgumentCaptor.forClass(ReadingTypeFilter.class);
+        when(meteringService.findReadingTypes(readingTypeFilterArgumentCaptor.capture())).thenReturn(finder);
+        List<ReadingType> readings = new ArrayList<>();
+        readings.addAll(Arrays.asList(readingTypes));
+        when(finder.find()).thenReturn(readings);
+    }
+
     private void mockChannelContainers() {
         mockAggregatedChannels();
         when(billingContainer1.getInterval()).thenReturn(Interval.of(Range.openClosed(MAY_1ST.minusMonths(1).toInstant(), mayDay(9))));
@@ -619,14 +631,17 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     public void testEndDevice() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
-        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest().get();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .get();
         meterReadingsRequestType.getGetMeterReadings().getEndDevice().add(new EndDevice());
         getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
-                MessageSeeds.UNSUPPORTED_ELEMENT.getErrorCode(),
-                "Element 'EndDevice' under 'GetMeterReadings' is not supported.");
+                MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
+                "Either element 'mRID' or 'Names' is required under 'GetMeterReadings.EndDevice[0]' for identification purpose.");
     }
 
     @Test
@@ -661,7 +676,10 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     public void testNoUsagePoints() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
-        getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest().get());
+        getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest()
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .get());
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -673,7 +691,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     public void testEmptyUsagePointMRID() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
-        getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest().withUsagePoint(" \t \n \r ", USAGE_POINT_NAME).get());
+        getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest()
+                .withUsagePoint(" \t \n \r ", USAGE_POINT_NAME)
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .get());
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -685,7 +707,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     public void testUsagePointIsNotFoundByMRID() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
-        getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest().withUsagePoint(ANOTHER_MRID, USAGE_POINT_NAME).get());
+        getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest()
+                .withUsagePoint(ANOTHER_MRID, USAGE_POINT_NAME)
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .get());
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -697,7 +723,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     public void testEmptyUsagePointIdentifyingName() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
-        getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest().withUsagePoint(null, " \r \n \t ").get());
+        getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest()
+                .withUsagePoint(null, " \r \n \t ")
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .get());
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -709,7 +739,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     public void testSeveralUsagePointIdentifyingNames() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
-        GetMeterReadingsRequestType request = GetMeterReadingsRequestBuilder.createRequest().withUsagePoint(null, USAGE_POINT_NAME).get();
+        GetMeterReadingsRequestType request = GetMeterReadingsRequestBuilder.createRequest()
+                .withUsagePoint(null, USAGE_POINT_NAME)
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .get();
         Name another = GetMeterReadingsRequestBuilder.name(ANOTHER_NAME, UsagePointNameTypeEnum.USAGE_POINT_NAME.getNameType()).orElse(null);
         request.getGetMeterReadings().getUsagePoint().get(0).getNames().add(another);
         getMeterReadingsRequestMessage.setRequest(request);
@@ -724,7 +758,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     public void testNoMRIDAndNameInUsagePoint() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
-        getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest().withUsagePoint(null, null).get());
+        getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest()
+                .withUsagePoint(null, null)
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .get());
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -736,7 +774,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     public void testUsagePointIsNotFoundByName() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
-        getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest().withUsagePoint(null, ANOTHER_NAME).get());
+        getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest()
+                .withUsagePoint(null, ANOTHER_NAME)
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .get());
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -750,6 +792,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
         getMeterReadingsRequestMessage.setRequest(GetMeterReadingsRequestBuilder.createRequest()
                 .withUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME)
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
                 .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .withReadingType("\t\n \t\r", DAILY_FULL_ALIAS_NAME)
                 .get());
@@ -769,6 +812,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withReadingType(null, DAILY_FULL_ALIAS_NAME)
                 .withReadingType(DAILY_MRID, null)
                 .withReadingType(null, "\r \n \t")
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
                 .get());
 
         // Business method & assertions
@@ -784,6 +828,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         GetMeterReadingsRequestType request = GetMeterReadingsRequestBuilder.createRequest()
                 .withUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME)
                 .withReadingType(null, DAILY_FULL_ALIAS_NAME)
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
                 .get();
         Name oneMoreName = GetMeterReadingsRequestBuilder.name(DAILY_MRID).orElse(null);
         request.getGetMeterReadings().getReadingType().get(0).getNames().add(oneMoreName);
@@ -805,6 +850,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withReadingType(DAILY_MRID, null)
                 .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .withReadingType(null, null)
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
                 .get());
 
         // Business method & assertions
@@ -834,9 +880,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         GetMeterReadingsRequestType request = GetMeterReadingsRequestBuilder.createRequest()
                 .withUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME)
                 .withTimePeriod(MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .get();
         request.getGetMeterReadings().getReading().get(0).setTimePeriod(null);
         getMeterReadingsRequestMessage.setRequest(request);
+        mockFindReadingTypes(dailyReadingType);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -852,8 +900,10 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME)
                 .withTimePeriod(MAY_1ST.toInstant(), JUNE_1ST.toInstant())
                 .withTimePeriod(null, JULY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
+        mockFindReadingTypes(dailyReadingType);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -870,13 +920,14 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withTimePeriod(null, MAY_1ST.toInstant(), JUNE_1ST.toInstant())
                 .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
                 .withTimePeriod(ReadingSourceEnum.HYBRID.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.UNSUPPORTED_VALUE.getErrorCode(),
-                "Element 'GetMeterReadings.Reading[2].source' contains unsupported value 'Hybrid'. Must be one of: 'System'.");
+                "Element 'GetMeterReadings.Reading.source' contains unsupported value 'Hybrid'. Must be one of: System.");
     }
 
     @Test
@@ -889,13 +940,14 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
                 .withTimePeriod(null, JUNE_1ST.toInstant(), JULY_1ST.toInstant())
                 .withTimePeriod(ReadingSourceEnum.METER.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.UNSUPPORTED_VALUE.getErrorCode(),
-                "Element 'GetMeterReadings.Reading[3].source' contains unsupported value 'Meter'. Must be one of: 'System'.");
+                "Element 'GetMeterReadings.Reading.source' contains unsupported value 'Meter'. Must be one of: System.");
     }
 
     @Test
@@ -906,8 +958,10 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME)
                 .withTimePeriod(MAY_1ST.toInstant(), JUNE_1ST.toInstant())
                 .withTimePeriod(JULY_1ST.toInstant(), JUNE_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
+        mockFindReadingTypes(dailyReadingType);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -923,8 +977,10 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME)
                 .withTimePeriod(MAY_1ST.toInstant(), null)
                 .withTimePeriod(JULY_1ST.toInstant(), null)
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
+        mockFindReadingTypes(dailyReadingType);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -939,8 +995,10 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         GetMeterReadingsRequestType request = GetMeterReadingsRequestBuilder.createRequest()
                 .withUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME)
                 .withTimePeriod(MAY_1ST.toInstant(), MAY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
+        mockFindReadingTypes(min15ReadingType);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -955,8 +1013,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         GetMeterReadingsRequestType request = GetMeterReadingsRequestBuilder.createRequest()
                 .withUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME, "Yo", "Billing", "Brother", "C'mon", "Gimme", "Information")
                 .withTimePeriod(MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
+
+        mockFindReadingTypes(dailyReadingType);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -980,9 +1041,10 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withUsagePoint(USAGE_POINT_MRID, ANOTHER_NAME, "Billing", "Information")
                 .withTimePeriod(MAY_1ST.toInstant(), null)
                 .withTimePeriod(JUNE_1ST.toInstant(), JULY_1ST.toInstant())
-                .withReadingTypeMRIDs(BULK_MRID, DAILY_MRID)
+                .withReadingTypeMRIDs(DAILY_MRID)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
+        mockFindReadingTypes(dailyReadingType);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -1004,9 +1066,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withUsagePoint(USAGE_POINT_MRID, ANOTHER_NAME, "Billing", "Information")
                 .withTimePeriod(MAY_1ST.toInstant(), null)
                 .withTimePeriod(JUNE_1ST.toInstant(), JULY_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .withReadingTypeMRIDs(BULK_MRID, DAILY_MRID)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
+        mockFindReadingTypes(dailyReadingType);
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
@@ -1028,6 +1092,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withReadingTypeFullAliasNames(DAILY_FULL_ALIAS_NAME)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
+        mockFindReadingTypes(dailyReadingType);
 
         // Business method
         MeterReadingsResponseMessageType response = getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage);
@@ -1082,8 +1147,13 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         GetMeterReadingsRequestType request = GetMeterReadingsRequestBuilder.createRequest()
                 .withUsagePoint(null, USAGE_POINT_NAME)
                 .withTimePeriod(MAY_1ST.toInstant(), null)
+                .withReadingTypeMRIDs(BULK_MRID)
+                .withReadingTypeMRIDs(MONTHLY_MRID)
+                .withReadingTypeMRIDs(DAILY_MRID)
+                .withReadingTypeMRIDs(MIN15_MRID)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
+        mockFindReadingTypes(dailyReadingType, registerReadingType, monthlyReadingType, min15ReadingType);
 
         // Business method
         MeterReadingsResponseMessageType response = getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage);
@@ -1156,10 +1226,12 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
         GetMeterReadingsRequestType request = GetMeterReadingsRequestBuilder.createRequest()
                 .withUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME)
+                .withReadingTypeMRIDs(BULK_MRID)
                 .withTimePeriod(MAY_1ST.toInstant(), mayDay(9)) // only effectiveMC1 matches,
                 // but its only channel has neither readings nor qualities in this period
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
+        mockFindReadingTypes(min15ReadingType);
 
         // Business method
         MeterReadingsResponseMessageType response = getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage);
@@ -1179,12 +1251,14 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     public void testSuccessCaseWithTimePeriodNotMatchingWithContainer() throws Exception {
         mockEffectiveMetrologyConfigurationsWithData();
         when(checkContainer.getChannels()).thenReturn(Collections.emptyList());
+        mockFindReadingTypes(min15ReadingType);
 
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
         GetMeterReadingsRequestType request = GetMeterReadingsRequestBuilder.createRequest()
                 .withUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME)
                 .withTimePeriod(mayDay(9), mayDay(10)) // only matches with checkContainer that has no channels
+                .withReadingTypeMRIDs(BULK_MRID)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
 
@@ -1216,6 +1290,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
+        mockFindReadingTypes(dailyReadingType);
 
         // Business method
         MeterReadingsResponseMessageType response = getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage);
