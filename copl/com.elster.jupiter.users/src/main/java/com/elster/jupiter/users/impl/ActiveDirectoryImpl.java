@@ -361,7 +361,12 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     private boolean getUserStatusFromContext(String user, DirContext context) throws NamingException {
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration results = context.search(getBase(), "(sAMAccountName=" + user + ")", controls);
+        NamingEnumeration results;
+        if (getGroupName() == null) {
+            results = context.search(getBase(), "(sAMAccountName=" + user + ")", controls);
+        } else {
+            results = context.search("", "(&(objectClass=person)(sAMAccountName=" + user + "))", controls);
+        }
         while (results.hasMore()) {
             SearchResult searchResult = (SearchResult) results.next();
             Attributes attributes = searchResult.getAttributes();

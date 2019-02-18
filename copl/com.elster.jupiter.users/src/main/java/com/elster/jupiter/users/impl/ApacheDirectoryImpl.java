@@ -361,8 +361,14 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         try {
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
-            controls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-            NamingEnumeration results = ctx.search(getBase(), "(uid=" + user + ")", controls);
+            NamingEnumeration results;
+            if (getGroupName() == null) {
+                controls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+                results = ctx.search(getBase(), "(uid=" + user + ")", controls);
+            } else {
+                controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+                results = ctx.search("", "(&(objectClass=person)(uid=" + user + "))", controls);
+            }
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
