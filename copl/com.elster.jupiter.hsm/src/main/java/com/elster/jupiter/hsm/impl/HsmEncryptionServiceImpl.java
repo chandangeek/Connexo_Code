@@ -10,7 +10,6 @@ import com.atos.worldline.jss.api.basecrypto.Asymmetric;
 import com.atos.worldline.jss.api.basecrypto.ChainingMode;
 import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
 import com.atos.worldline.jss.api.basecrypto.Symmetric;
-import com.atos.worldline.jss.api.basecrypto.SymmetricResponse;
 import com.atos.worldline.jss.api.key.KeyLabel;
 import com.atos.worldline.jss.api.key.derivation.KeyDerivation;
 
