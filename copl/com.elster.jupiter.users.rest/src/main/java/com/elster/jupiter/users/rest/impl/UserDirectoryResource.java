@@ -25,7 +25,6 @@ import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
 import com.elster.jupiter.users.rest.LdapUsersInfo;
 import com.elster.jupiter.users.rest.LdapUsersInfos;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
@@ -81,11 +80,11 @@ public class UserDirectoryResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public UserDirectoryInfos getUserDirectory(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<AbstractLdapDirectoryImpl> userDirectory = (List<AbstractLdapDirectoryImpl>)(List<?>)getUserDirectoriesQuery().select(queryParameters, Order.ascending("domain").toLowerCase());
+        List<UserDirectory> userDirectory = getUserDirectoriesQuery().select(queryParameters, Order.ascending("domain").toLowerCase());
         List<LdapUserDirectory> ldapUserDirectories = new ArrayList<>();
         for(int i=0; i<userDirectory.size();i++){
             try {
-                ldapUserDirectories.add(userDirectory.get(i));
+                 ldapUserDirectories.add((LdapUserDirectory)userDirectory.get(i));
             }catch (ClassCastException e ){
                 Optional<UserDirectory> usr = userService.findUserDirectory("Local");
                 if(usr.isPresent()){
