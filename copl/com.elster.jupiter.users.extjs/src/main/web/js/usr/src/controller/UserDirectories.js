@@ -106,6 +106,8 @@ Ext.define('Usr.controller.UserDirectories', {
         previewForm.loadRecord(record);
         previewForm.down('#protocol-source-certificates').setVisible(record.get('certificateAlias'));
         previewForm.down('#protocol-source-trustStores').setVisible(record.get('trustStore'));
+		previewForm.down('#usr-user-directory-user-base-dn').setVisible(record.get('baseUser') || !record.get('groupName'));
+		previewForm.down('#usr-user-directory-user-group-dn').setVisible(record.get('groupName'));
         preview.down('usr-user-directory-action-menu').record = record;
         preview.down('#btn-user-directory-preview-action-menu').setVisible(!(record.get('id') === 0 && record.get('isDefault')));
         Ext.resumeLayouts();
@@ -213,6 +215,13 @@ Ext.define('Usr.controller.UserDirectories', {
                     userDirectoryRecord.set('certificateAlias', null);
                 }
             }
+			
+			var dnTypeValue = userDirectoryRecord.get('dnType');
+			if (dnTypeValue === 'GDN') {
+				userDirectoryRecord.set('baseUser', null);
+			} else if(dnTypeValue === 'UDN') {
+				userDirectoryRecord.set('groupName', null);
+			}
 
             userDirectoryRecord.set('securityProtocolInfo', {
                 name: addUserDirectoryForm.down('#cbo-security-protocol').getValue()
