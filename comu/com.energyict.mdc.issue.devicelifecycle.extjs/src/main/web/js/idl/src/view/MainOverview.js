@@ -21,7 +21,7 @@ Ext.define('Idl.view.MainOverview', {
     content: [
         {
             ui: 'large',
-            title: Uni.I18n.translate('issue.workspace.datavalidation', 'IDL', 'Data validation'),
+            title: Uni.I18n.translate('issue.workspace.devicelifecycle', 'IDL', 'Device lifecycle'),
             flex: 1
         }
     ]

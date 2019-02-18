@@ -4,13 +4,13 @@
 
 Ext.define('Idl.view.Detail', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.data-validation-issue-detail',
+    alias: 'widget.device-lifecycle-issue-detail',
     requires: [
         'Isu.view.issues.DetailTop',
         'Idl.view.DetailForm',
         'Isu.view.issues.CommentsList',
         'Uni.view.toolbar.PreviousNextNavigation',
-        'Idl.view.NonEstimatedDataGrid'
+        'Idl.view.TransitionGrid'
     ],
     router: null,
     issuesListLink: null,
@@ -45,19 +45,79 @@ Ext.define('Idl.view.Detail', {
                 router: me.router
             },
             {
-                xtype: 'data-validation-issue-detail-form',
+                xtype: 'device-lifecycle-issue-detail-form',
                 itemId: 'issue-detail-form',
                 router: me.router
             },
-            {
-                xtype: 'container',
-                itemId: 'no-estimated-data-panel',
-                title: Uni.I18n.translate('issues.NonEstimatedDataGrid.title', 'IDL', 'Non estimated data'),
-                router: me.router
+            // {
+            //     xtype: 'container',
+            //     itemId: 'no-estimated-data-panel',
+            //     title: Uni.I18n.translate('issues.NonEstimatedDataGrid.title', 'IDL', 'Non estimated data'),
+            //     router: me.router
+            // },
+            // {
+            //     xtype: 'issue-comments',
+            //     itemId: 'data-validation-issue-comments'
+            // },
+            {   xtype: 'panel',
+                itemId: 'transition-panel',
+                ui: 'medium',
+                title: Uni.I18n.translate('issue.workspace.devicelifecycle.transitions', 'IDL', 'Transitions'),
+                items:[
+                    {
+                        xtype: 'transition-details-grid',
+                        itemId: 'device-lifecycle-issue-detail-container',
+                        router: me.router
+                    }
+                 ]
             },
             {
-                xtype: 'issue-comments',
-                itemId: 'data-validation-issue-comments'
+                xtype: 'panel',
+                ui: 'medium',
+                title: Uni.I18n.translate('issue.workspace.devicelifecycle.context', 'IDL', 'Contextual information'),
+                items: [
+                    {
+                        xtype: 'tabpanel',
+                        itemId: 'tab-issue-context',
+                        activeTab: 0,
+                        items: [
+                            {
+                                ui: 'medium',
+                                title: Uni.I18n.translate('issue.workspace.devicelifecycle.timeline', 'IDL', 'Timeline'),
+                                itemId: 'tab-panel-issue-timeline',
+                                items: [
+                                    {
+                                        xtype: 'issue-timeline',
+                                        itemId: 'device-lifecycle-issue-timeline'
+                                    }
+                                ]
+                            },
+                            {
+                                ui: 'medium',
+                                title: Uni.I18n.translate('issue.workspace.devicelifecycle.comments', 'IDL', 'Comments'),
+                                itemId: 'tab-panel-issue-comments',
+                                items: [
+                                    {
+                                        xtype: 'issue-comments',
+                                        itemId: 'device-lifecycle-issue-comments'
+                                    }
+                                ]
+                            },
+                            {
+                                ui: 'medium',
+                                title: Uni.I18n.translate('issue.workspace.devicelifecycle.processes', 'IDL', 'Processes'),
+                                itemId: 'tab-panel-issue-processes',
+                                privileges: Isu.privileges.Issue.canViewProcesses(),
+                                items: [
+                                    {
+                                        xtype: 'issue-process-list',
+                                        itemId: 'device-lifecycle-issue-process'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             }
         ];
 

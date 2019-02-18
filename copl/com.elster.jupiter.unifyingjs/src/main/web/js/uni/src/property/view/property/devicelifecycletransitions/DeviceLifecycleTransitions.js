@@ -317,16 +317,24 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.DeviceLifecycl
             modifiedData = [],
             store = Ext.getStore('Uni.property.store.PropertyDeviceLifecycleTransition');
 
-        if (!store.getCount()) {
             store.loadData(me.getProperty().getPossibleValues());
-        }
 
-        Ext.Array.each(data, function (id) {
-            modifiedData.push(store.getById(id));
+
+           Ext.Array.each(data, function (id) {
+            var record = store.getById(id);
+            if(record) {
+                var decodedValue = Ext.decode(record.get('name'));
+                var model = Ext.create('Uni.property.model.PropertyDeviceLifecycleTransition', decodedValue);
+
+                model.set('id', id);
+                model.set('deviceLifecycleName', decodedValue.deviceLifeCycleName);
+                model.set('deviceTypeName', decodedValue.deviceTypeName);
+                model.set('fromStateName', decodedValue.fromStateName);
+                model.set('stateTransitionName', decodedValue.stateTransitionName);
+                model.set('toStateName', decodedValue.toStateName);
+                modifiedData.push(model);
+            }
         });
-
-
-
         return modifiedData;
     }
 });
