@@ -124,7 +124,8 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                         ],
                         additionalReasons: [Uni.I18n.translate('startProcess.empty.list.item', 'MDC', 'No processes are available for the current device state.')],
                         successLink: router.getRoute('devices/device/processes').buildUrl({deviceId: deviceId}),
-                        cancelLink: router.getRoute('devices/device').buildUrl({deviceId: deviceId})
+                        cancelLink: router.getRoute('devices/device').buildUrl({deviceId: deviceId}),
+                        context: {deviceName: device.get('name')}
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
