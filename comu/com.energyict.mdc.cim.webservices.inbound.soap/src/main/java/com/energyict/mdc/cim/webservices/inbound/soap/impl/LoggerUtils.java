@@ -22,8 +22,18 @@ public class LoggerUtils {
         this.logger = logger;
         this.thesaurus = thesaurus;
         this.faultMessageFactory = faultMessageFactory;
-    };
+    }
 
+
+    public void logSevere(Device device, List<FaultMessage> allFaults, ServiceCall serviceCall,
+                          FaultMessage faultMessage) {
+        if (serviceCall != null) {
+            serviceCall.log(LogLevel.SEVERE, faultMessage.getMessage());
+        } else {
+            logger.log(Level.SEVERE, faultMessage.getMessage());
+        }
+        allFaults.add(faultMessage);
+    }
 
     public void logSevere(Device device, List<FaultMessage> allFaults, ServiceCall serviceCall,
                           MessageSeeds messageSeeds, Object... args) {

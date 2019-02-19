@@ -9,24 +9,18 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
-
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.AttributeUpdater;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.VersionedCasHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.device.data.Device;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import com.google.common.collect.Range;
 
 import javax.inject.Inject;
-
 import java.time.Clock;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -35,8 +29,7 @@ public class CustomPropertySetHelper {
 
     private final CustomPropertySetService customPropertySetService;
     private final LoggerUtils loggerUtils;
-    private final CASConflictsSolver casConflictsSolver;
-
+    private final MeterConfigFaultMessageFactory faultMessageFactory;
     private Clock clock;
 
     @Inject
@@ -44,8 +37,8 @@ public class CustomPropertySetHelper {
             MeterConfigFaultMessageFactory faultMessageFactory, Clock clock) {
         this.customPropertySetService = customPropertySetService;
         this.clock = clock;
-        loggerUtils = new LoggerUtils(LOGGER, thesaurus, faultMessageFactory);
-        casConflictsSolver = new CASConflictsSolver(customPropertySetService);
+        this.faultMessageFactory = faultMessageFactory;
+        this.loggerUtils = getLoggerUtils(thesaurus, faultMessageFactory);
     }
 
     /**
@@ -88,133 +81,44 @@ public class CustomPropertySetHelper {
      * Sets values for CustomPropertySet on specific device logging detailed error messages if possible
      *
      * @param device
-     * @param newCustomProperySetInfo
+     * @param newCustomPropertySetInfo
      * @param serviceCall
      *            service call for logging purposes
      * @return
      */
     @SuppressWarnings("unchecked")
-    private List<FaultMessage> addCustomPropertySet(Device device, CustomPropertySetInfo newCustomProperySetInfo,
+    private List<FaultMessage> addCustomPropertySet(Device device, CustomPropertySetInfo newCustomPropertySetInfo,
             ServiceCall serviceCall) {
-        List<FaultMessage> faults = new ArrayList<>();
+        FaultSituationHandler faultSituationHandler = new FaultSituationHandler(serviceCall, loggerUtils, faultMessageFactory);
         try {
             Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = customPropertySetService
-                    .findActiveCustomPropertySet(newCustomProperySetInfo.getId());
+                    .findActiveCustomPropertySet(newCustomPropertySetInfo.getId());
             if (!registeredCustomPropertySet.isPresent()) {
-                loggerUtils.logSevere(device, faults, serviceCall, MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET,
-                        newCustomProperySetInfo.getId());
-                return faults;
+                throw faultMessageFactory.meterConfigFaultMessageSupplier(device.getName(), MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET, newCustomPropertySetInfo.getId()).get();
             }
             CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet = registeredCustomPropertySet
                     .get().getCustomPropertySet();
 
-            CustomPropertySetValues values = CustomPropertySetValues.empty();
-            setCasValues(device, newCustomProperySetInfo, serviceCall, faults, customPropertySet, values);
-            if (!faults.isEmpty()) {
-                return faults;
-            }
+
+            AttributeUpdater attributeUpdater = new AttributeUpdater(faultSituationHandler, device, customPropertySet);
             if (customPropertySet.isVersioned()) {
-                handleVersionedCas(device, newCustomProperySetInfo, serviceCall, faults, customPropertySet, values);
+                new VersionedCasHandler(device, customPropertySet, customPropertySetService, attributeUpdater, faultSituationHandler, clock).handleVersionedCas(newCustomPropertySetInfo);
             } else {
-                customPropertySetService.setValuesFor(customPropertySet, device, values);
-            }
-        } catch (Exception ex) {
-            loggerUtils.logException(device, faults, serviceCall, ex,
-                    MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, newCustomProperySetInfo.getId());
-            return faults;
-        }
-        return faults;
-    }
-
-    private void handleVersionedCas(Device device, CustomPropertySetInfo newCustomProperySetInfo,
-            ServiceCall serviceCall, List<FaultMessage> faults,
-            CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet,
-            CustomPropertySetValues values) {
-
-        if (newCustomProperySetInfo.getVersionId() == null) {
-            createNewVersion(device, newCustomProperySetInfo, serviceCall, faults, customPropertySet, values);
-        } else {
-            updateExistingVersion(device, customPropertySet, newCustomProperySetInfo, serviceCall, faults);
-        }
-    }
-
-    private void createNewVersion(Device device, CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall, List<FaultMessage> faults,
-                                  CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet, CustomPropertySetValues values) {
-        Instant fromDate = newCustomProperySetInfo.getFromDate();
-        if (fromDate == null || fromDateBeforeDevice(device, fromDate)) {
-            loggerUtils.logSevere(device, faults, serviceCall, MessageSeeds.START_DATE_LOWER_CREATED_DATE,
-                    device.getName());
-            return;
-        }
-        Range<Instant> range = casConflictsSolver.solveConflictsForCreate(device, customPropertySet,
-            fromDate, newCustomProperySetInfo.getEndDate());
-        customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range);
-    }
-
-    private boolean fromDateBeforeDevice(Device device, Instant fromDate) {
-        return device.getLifecycleDates().getReceivedDate().isPresent() &&
-                fromDate.truncatedTo(ChronoUnit.DAYS).isBefore(device.getLifecycleDates().getReceivedDate().get().truncatedTo(ChronoUnit.DAYS));
-    }
-
-    private void setCasValues(Device device, CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall,
-            List<FaultMessage> faults, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet,
-            CustomPropertySetValues values) {
-        List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
-        for (Entry<String, String> newAttributeNameAndValue : newCustomProperySetInfo.getAttributes().entrySet()) {
-            String attributeName = newAttributeNameAndValue.getKey();
-            Optional<PropertySpec> propertySpec = propertySpecs.stream()
-                    .filter(spec -> spec.getName().equals(attributeName)).findAny();
-            if (propertySpec.isPresent()) {
-                setAttributeValue(device, newCustomProperySetInfo, serviceCall, faults, values,
-                        newAttributeNameAndValue, propertySpec.get());
-            } else {
-                loggerUtils.logSevere(device, faults, serviceCall, MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE,
-                        attributeName, newCustomProperySetInfo.getId());
-            }
-        }
-    }
-
-    private void updateExistingVersion(Device device,
-            CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet,
-            CustomPropertySetInfo newCustomProperySetInfo, ServiceCall serviceCall, List<FaultMessage> faults) {
-        Optional<Instant> startTime = Optional.ofNullable(newCustomProperySetInfo.getFromDate());
-        Optional<Instant> endTime = Optional.ofNullable(newCustomProperySetInfo.getEndDate());
-        Instant versionId = newCustomProperySetInfo.getVersionId();
-        CustomPropertySetValues existingValues = customPropertySetService.getUniqueValuesFor(customPropertySet, device,
-                versionId);
-        if (existingValues.isEmpty()) {
-            loggerUtils.logSevere(device, faults, serviceCall, MessageSeeds.NO_CUSTOM_ATTRIBUTE_VERSION,
-                    DefaultDateTimeFormatters.shortDate().withShortTime().build()
-                            .format(versionId.atZone(clock.getZone())));
-        } else {
-            setCasValues(device, newCustomProperySetInfo, serviceCall, faults, customPropertySet, existingValues);
-            if(newCustomProperySetInfo.isUpdateRange()) {
-                if(!startTime.isPresent()){
-                    startTime = Optional.of(device.getCreateTime());
+                CustomPropertySetValues customPropertySetValues = attributeUpdater.newCasValues(newCustomPropertySetInfo);
+                if (!attributeUpdater.anyFaults()) {
+                    customPropertySetService.setValuesFor(customPropertySet, device, customPropertySetValues);
                 }
-                if (!endTime.isPresent()) {
-                    endTime = Optional.of(Instant.EPOCH);
-                }
-                Range<Instant> range = casConflictsSolver.solveConflictsForUpdate(device, customPropertySet, startTime,
-                        endTime, versionId, existingValues);
-                customPropertySetService.setValuesVersionFor(customPropertySet, device, existingValues, range, versionId);
-            }else{
-                customPropertySetService.setValuesVersionFor(customPropertySet, device, existingValues, existingValues.getEffectiveRange(), versionId);
             }
+        } catch (FaultMessage ex) {
+            faultSituationHandler.logSevere(device, ex);
+        } catch (Exception ex) {
+            faultSituationHandler.logException(device, ex,
+                    MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, newCustomPropertySetInfo.getId());
         }
+        return faultSituationHandler.faults();
     }
 
-    private void setAttributeValue(Device device, CustomPropertySetInfo info, ServiceCall serviceCall,
-            List<FaultMessage> faults, CustomPropertySetValues values, Entry<String, String> attributeEntry,
-            PropertySpec propertySpec) {
-        Object fromStringValue;
-        try {
-            fromStringValue = propertySpec.getValueFactory().fromStringValue(attributeEntry.getValue());
-            values.setProperty(attributeEntry.getKey(), fromStringValue);
-        } catch (Exception ex) {
-            loggerUtils.logException(device, faults, serviceCall, ex,
-                    MessageSeeds.CANT_CONVERT_VALUE_OF_CUSTOM_ATTRIBUTE, attributeEntry.getValue(),
-                    attributeEntry.getKey(), info.getId());
-        }
+    LoggerUtils getLoggerUtils(Thesaurus thesaurus, MeterConfigFaultMessageFactory faultMessageFactory) {
+        return new LoggerUtils(LOGGER, thesaurus, faultMessageFactory);
     }
 }
