@@ -43,7 +43,7 @@ public class IdlUiInstaller implements TranslationKeyProvider {
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-       // HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\git\\connexo\\comu\\com.energyict.mdc.issue.devicelifecycle.extjs\\src\\main\\web\\js\\idl", new FileResolver());
+        //HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\git\\connexo\\comu\\com.energyict.mdc.issue.devicelifecycle.extjs\\src\\main\\web\\js\\idl", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 

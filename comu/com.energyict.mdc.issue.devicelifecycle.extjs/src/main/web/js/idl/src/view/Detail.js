@@ -49,16 +49,6 @@ Ext.define('Idl.view.Detail', {
                 itemId: 'issue-detail-form',
                 router: me.router
             },
-            // {
-            //     xtype: 'container',
-            //     itemId: 'no-estimated-data-panel',
-            //     title: Uni.I18n.translate('issues.NonEstimatedDataGrid.title', 'IDL', 'Non estimated data'),
-            //     router: me.router
-            // },
-            // {
-            //     xtype: 'issue-comments',
-            //     itemId: 'data-validation-issue-comments'
-            // },
             {   xtype: 'panel',
                 itemId: 'transition-panel',
                 ui: 'medium',
