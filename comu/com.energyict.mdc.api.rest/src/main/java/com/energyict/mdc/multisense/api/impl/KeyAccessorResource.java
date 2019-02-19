@@ -112,6 +112,39 @@ public class KeyAccessorResource {
     }
 
     /**
+     * Wraps the key value by master key for service key injection.
+     *
+     * @param mrid                  mRID of device for which the key injection will be prepared
+     * @param masterKeyAccessorName Identifier of the security accessor type for master key
+     * @param keyAccessorValue      Security accessor key value
+     * @param uriInfo               uriInfo
+     * @return Wrapped key for service key injection
+     * @summary Wraps the key value by master key identified by master key accessor name
+     */
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Path("/{masterKeyAccessorName}/wrapServiceKeyValue/{keyAccessorValue}")
+    public HardwareSecurityModuleInfo wrapKeyForServiceKeyInjection(@PathParam("mrid") String mrid,
+                                                                    @PathParam("masterKeyAccessorName") String masterKeyAccessorName,
+                                                                    @PathParam("keyAccessorValue") String keyAccessorValue,
+                                                                    @Context UriInfo uriInfo) {
+        Device device = deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND,
+                        MessageSeeds.NO_SUCH_DEVICE));
+        Map<String, String> masterKeyAccessor = getProperties(getSecurityAccessor(masterKeyAccessorName, device));
+        try {
+            HardwareSecurityModuleInfo info = new HardwareSecurityModuleInfo();
+            info.preparedServiceKey = hsmEnergyService.prepareServiceKey(keyAccessorValue,
+                    masterKeyAccessor.get(LABEL_PROPERTY), masterKeyAccessor.get(KEY_PROPERTY)).toHex();
+            return info;
+        } catch (HsmBaseException e) {
+            throw exceptionFactory.newException(Response.Status.INTERNAL_SERVER_ERROR, MessageSeeds.HSM_EXCEPTION, e.getMessage());
+        }
+    }
+
+    /**
      * Prepares the data for service key injection.
      *
      * @param mrid                  mRID of device for which the key injection will be prepared
@@ -186,11 +219,11 @@ public class KeyAccessorResource {
         return mdcPropertyUtils.convertPropertySpecsToPropertyInfos(securityAccessor.getPropertySpecs(),
                 securityAccessorInfoFactory.getPropertiesActualValue(securityAccessor))
                 .stream()
-                .collect(Collectors.toMap(info -> info.key, info -> getPropertyValue(info.key, info.propertyValueInfo),
+                .collect(Collectors.toMap(info -> info.key, info -> getPropertyValue(info.propertyValueInfo),
                         (oldValue, newValue) -> oldValue));
     }
 
-    private String getPropertyValue(String key, PropertyValueInfo<?> propertyValueInfo) {
+    private String getPropertyValue(PropertyValueInfo<?> propertyValueInfo) {
         return Optional.ofNullable(propertyValueInfo)
                 .map(PropertyValueInfo::getValue)
                 .map(String.class::cast)

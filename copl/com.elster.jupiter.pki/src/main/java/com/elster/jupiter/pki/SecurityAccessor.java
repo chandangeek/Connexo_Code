@@ -129,4 +129,9 @@ public interface SecurityAccessor<T extends SecurityValueWrapper> extends HasNam
      * @return Time of latest modification
      */
     Instant getModTime();
+
+    /**
+     * Sets/unsets temporary flag for Actual key value.
+     */
+    public void setTemporary(Boolean temporary);
 }

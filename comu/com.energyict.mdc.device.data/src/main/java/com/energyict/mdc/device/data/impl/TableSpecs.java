@@ -1100,6 +1100,10 @@ public enum TableSpecs {
                     .bool()
                     .map(AbstractDeviceSecurityAccessorImpl.Fields.SWAPPED.fieldName())
                     .add();
+            table.column("TEMPORARY")
+                    .bool()
+                    .map(AbstractDeviceSecurityAccessorImpl.Fields.TEMPORARY.fieldName())
+                    .add();
             table.addAuditColumns();
 
             table.primaryKey("PK_DCC_KEYACCESSOR").on(device, keyAccessorType).add();

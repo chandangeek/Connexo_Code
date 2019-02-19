@@ -92,7 +92,7 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     private void configureLogger() {
         try {
             LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-            String logbackFile = "logback.xml";
+            String logbackFile = "e:\\Elster\\Connexo\\felix\\conf\\logback.xml";
             URL resource = Thread.currentThread().getContextClassLoader().getResource(logbackFile);
             JoranConfigurator configurator = new JoranConfigurator();
             configurator.setContext(context);
