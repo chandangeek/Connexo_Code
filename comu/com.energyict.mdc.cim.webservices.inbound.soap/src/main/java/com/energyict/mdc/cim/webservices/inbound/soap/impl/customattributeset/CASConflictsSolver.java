@@ -1,4 +1,4 @@
-package com.energyict.mdc.cim.webservices.inbound.soap.impl;
+package com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;

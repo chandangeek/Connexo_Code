@@ -5,7 +5,6 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.CASConflictsSolver;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.CustomPropertySetInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.FaultSituationHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;

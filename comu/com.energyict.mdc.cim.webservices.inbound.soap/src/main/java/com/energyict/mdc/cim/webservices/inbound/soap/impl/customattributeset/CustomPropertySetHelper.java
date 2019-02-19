@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.cim.webservices.inbound.soap.impl;
+package com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -10,8 +10,10 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.AttributeUpdater;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.VersionedCasHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.CustomPropertySetInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.FaultSituationHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.LoggerUtils;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.device.data.Device;
 
