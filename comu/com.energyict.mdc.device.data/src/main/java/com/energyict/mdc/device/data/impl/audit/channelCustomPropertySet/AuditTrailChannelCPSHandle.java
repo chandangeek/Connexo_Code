@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.data.impl.audit.deviceCustomPropertySet;
+package com.energyict.mdc.device.data.impl.audit.channelCustomPropertySet;
 
 import com.elster.jupiter.audit.AuditDecoder;
 import com.elster.jupiter.audit.AuditDomainContextType;
@@ -24,12 +24,12 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component(
-        name = "com.energyict.mdc.device.data.audit.customPropertySet",
+        name = "com.energyict.mdc.device.data.audit.channel.customPropertySet",
         service = {AuditTrailDecoderHandle.class},
         immediate = true)
-public class AuditTrailCustomPropertySetHandle implements AuditTrailDecoderHandle {
+public class AuditTrailChannelCPSHandle implements AuditTrailDecoderHandle {
 
-    private final AuditDomainContextType auditDomainContextType = AuditDomainContextType.DEVICE_CUSTOM_ATTRIBUTES;
+    private final AuditDomainContextType auditDomainContextType = AuditDomainContextType.DEVICE_CHANNEL_CUSTOM_ATTRIBUTES;
 
     private volatile OrmService ormService;
     private volatile ServerDeviceService serverDeviceService;
@@ -74,6 +74,6 @@ public class AuditTrailCustomPropertySetHandle implements AuditTrailDecoderHandl
 
     @Override
     public AuditDecoder getAuditDecoder(AuditTrailReference reference) {
-        return new AuditTrailCustomPropertySetDecoder(ormService, thesaurus, meteringService, serverDeviceService, customPropertySetService).init(reference);
+        return new AuditTrailChannelCPSDecoder(ormService, thesaurus, meteringService, serverDeviceService, customPropertySetService).init(reference);
     }
 }

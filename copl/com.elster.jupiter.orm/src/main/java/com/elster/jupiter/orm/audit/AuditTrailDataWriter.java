@@ -76,6 +76,7 @@ public class AuditTrailDataWriter<T> {
             resolveIncompleteContextIdentifier(object);
             contextAuditIdentifiers.stream()
                     .filter(contextIdentifierEntry -> (contextIdentifierEntry.getDomainContext() == tableAudit.getDomainContext()) &&
+                          //  (contextIdentifierEntry.getOperation() == operation.ordinal()) &&
                             (contextIdentifierEntry.getPkDomainColumn() == getPkColumnByIndex(pkDomainColumns, 0)) &&
                             (contextIdentifierEntry.getPkContextColumn() == getPkColumnByIndex(pkContextColumns, 0)))
                     .findFirst()
@@ -94,6 +95,7 @@ public class AuditTrailDataWriter<T> {
                                 updateContextAuditIdentifiers(new DomainContextIdentifier().setId(nextVal)
                                         .setDomainContext(tableAudit.getDomainContext())
                                         .setPkDomainColumn(getPkColumnByIndex(pkDomainColumns, 0))
+                                //        .setPkContextColumn(getPkColumnByIndex(pkContextColumns, 0))
                                         .setOperation(operation.ordinal())
                                         .setObject(object)
                                         .setTableAudit(tableAudit)
@@ -139,6 +141,7 @@ public class AuditTrailDataWriter<T> {
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMEEND
                 statement.setLong(index++, getPkColumnByIndex(pkDomainColumns, 0));
                 statement.setLong(index++, getPkColumnByIndex(pkContextColumns, 0));
+                statement.setLong(index++, getPkColumnByIndex(pkContextColumns, 1));
                 statement.setLong(index++, operation.ordinal()); // operation
                 statement.setLong(index++, now.toEpochMilli()); // create time
                 statement.setString(index++, getCurrentUserName()); //user name

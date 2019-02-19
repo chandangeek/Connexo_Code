@@ -32,7 +32,9 @@ public interface TableAudit {
 
         Builder domainReferences(String... foreignKeyConstraints);
 
-        Builder contextReferenceColumn(String contextReferenceColumn);
+        Builder domainReferenceColumn(String domainReferenceColumn);
+
+        Builder contextReferenceColumn(String... contextReferenceColumns);
 
         Builder reverseReferenceMap(String reverseReferenceMap);
 

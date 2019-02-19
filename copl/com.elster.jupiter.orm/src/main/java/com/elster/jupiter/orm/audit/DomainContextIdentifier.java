@@ -91,7 +91,8 @@ public class DomainContextIdentifier {
         return pkContextColumn;
     }
 
-    public void setPkContextColumn(long pkContextColumn) {
+    public DomainContextIdentifier setPkContextColumn(long pkContextColumn) {
         this.pkContextColumn = pkContextColumn;
+        return this;
     }
 }

@@ -142,6 +142,12 @@ Ext.define('Mdc.audit.controller.Audit', {
             case 'DEVICE_CUSTOM_ATTRIBUTES':
                 rendererLink = isRemoved == true ? me.formatDeviceCustomAttributeContext(record, value) : '<a href="#/devices/' + record.get('auditReference').name + '/attributes">' + me.formatDeviceCustomAttributeContext(record, value) + '</a>';
                 break;
+            case 'DEVICE_CHANNEL_CUSTOM_ATTRIBUTES':
+                rendererLink = isRemoved == true ? me.formatChannelCustomAttributeContext(record, value) : me.formatChannelHRef(record) + me.formatChannelCustomAttributeContext(record, value) + '</a>';
+                break;
+            case 'DEVICE_REGISTER_CUSTOM_ATTRIBUTES':
+                rendererLink = isRemoved == true ? me.formatChannelCustomAttributeContext(record, value) : me.formatRegisterHRef(record) + me.formatChannelCustomAttributeContext(record, value) + '</a>';
+                break;
             default:
                 rendererLink = value;
         }
@@ -174,6 +180,48 @@ Ext.define('Mdc.audit.controller.Audit', {
             periodStr += Uni.I18n.translate('general.infinite', 'MDC', 'Infinite');
         }
         return Ext.String.format("{0} -> {1} ({2})", value, record.get('auditReference').contextReference.name, periodStr);
+    },
+
+    formatChannelCustomAttributeContext: function (record, value) {
+        var me = this,
+            contextReference = record.get('auditReference').contextReference,
+            periodStr = '';
+
+        if (me.isEmptyOrNull(contextReference)) {
+            return value;
+        }
+
+        if (contextReference.isVersioned !== true) {
+            return Ext.String.format("{0} -> {1}", value, record.get('auditReference').contextReference.name);
+        }
+
+        if (contextReference.startTime) {
+            periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.from', 'MDC', 'From'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.startTime)));
+        }
+        if (contextReference.startTime && contextReference.endTime) {
+            periodStr += ' - ';
+        }
+        if (contextReference.endTime) {
+            periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'MDC', 'Until'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.endTime)));
+        }
+        if (!contextReference.endTime && !contextReference.startTime) {
+            periodStr += Uni.I18n.translate('general.infinite', 'MDC', 'Infinite');
+        }
+        return Ext.String.format("{0} -> {1} -> {2} ({3})", value, record.get('auditReference').contextReference.sourceName, record.get('auditReference').contextReference.name, periodStr);
+    },
+
+    formatChannelHRef: function (record) {
+        var me = this,
+            contextReference = record.get('auditReference').contextReference;
+
+        return '<a href="#/devices/' + record.get('auditReference').name + '/channels' + '/'+ contextReference.sourceId +  '">'
+    },
+
+    formatRegisterHRef: function (record, value) {
+        var me = this,
+            contextReference = record.get('auditReference').contextReference;
+
+        return '<a href="#/devices/' + record.get('auditReference').name + '/registers' + '/'+ contextReference.sourceId +  '">'
     },
 
     isEmptyOrNull: function (value) {
