@@ -1,14 +1,12 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -25,10 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ScheduledCommunicationTaskAvailable} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-15 (09:34)
+ * Tests the {@link ScheduledCommunicationTaskAvailable} component
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ScheduledCommunicationTaskAvailableTest {
@@ -48,7 +43,7 @@ public class ScheduledCommunicationTaskAvailableTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -69,7 +64,7 @@ public class ScheduledCommunicationTaskAvailableTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -129,7 +124,9 @@ public class ScheduledCommunicationTaskAvailableTest {
     }
 
     private ScheduledCommunicationTaskAvailable getTestInstance() {
-        return new ScheduledCommunicationTaskAvailable(this.thesaurus);
+        ScheduledCommunicationTaskAvailable scheduledCommunicationTaskAvailable =
+                new ScheduledCommunicationTaskAvailable();
+        scheduledCommunicationTaskAvailable.setThesaurus(this.thesaurus);
+        return scheduledCommunicationTaskAvailable;
     }
-
 }

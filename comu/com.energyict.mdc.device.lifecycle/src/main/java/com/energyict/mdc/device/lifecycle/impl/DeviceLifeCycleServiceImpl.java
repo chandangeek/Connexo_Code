@@ -44,6 +44,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.MetrologyConfigurationInCorrectStateIfAny;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.MicroCheckTranslationKeys;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionTranslationKey;
 import com.google.common.collect.Range;
@@ -396,9 +397,10 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 .collect(Collectors.toList());
         if (licenseService.getLicensedApplicationKeys().contains("INS")) {
             //TODO: Refactoring required
-//            microCheckFactory.from(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
-//                    .evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
-//                    .ifPresent(violations::add);
+            deviceLifeCycleConfigurationService.getMicroCheckByKey(MetrologyConfigurationInCorrectStateIfAny.class.getSimpleName())
+                    .map(ServerMicroCheck.class::cast)
+                    .ifPresent(microCheck -> microCheck.evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
+                            .ifPresent(violations::add));
         }
         if (!violations.isEmpty()) {
             throw new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);

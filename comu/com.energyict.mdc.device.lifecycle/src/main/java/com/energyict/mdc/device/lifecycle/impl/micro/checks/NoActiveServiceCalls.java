@@ -1,46 +1,47 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
+import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
+import javax.inject.Inject;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 
 public class NoActiveServiceCalls extends TranslatableServerMicroCheck {
 
-    private final ServiceCallService serviceCallService;
+    private ServiceCallService serviceCallService;
 
-    public NoActiveServiceCalls(Thesaurus thesaurus, ServiceCallService serviceCallService) {
-        super(thesaurus);
+    @Inject
+    public final void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
     }
 
     @Override
-    protected MicroCheck getMicroCheck() {
-        return MicroCheck.NO_ACTIVE_SERVICE_CALLS;
+    public String getCategory() {
+        return MicroCategory.MONITORING.name();
     }
 
     @Override
     public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        if (hasActiveServiceCalls(device)) {
-            return Optional.of(
-                    new DeviceLifeCycleActionViolationImpl(
-                            this.thesaurus,
-                            MessageSeeds.NO_ACTIVE_SERVICE_CALLS,
-                            MicroCheck.NO_ACTIVE_SERVICE_CALLS));
-        } else {
-            return Optional.empty();
-        }
+        return (hasActiveServiceCalls(device)) ?
+                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_NO_ACTIVE_SERVICE_CALLS) :
+                Optional.empty();
+    }
+
+    @Override
+    public Set<DefaultTransition> getOptionalDefaultTransitions() {
+        return EnumSet.of(
+                DefaultTransition.DEACTIVATE_AND_DECOMMISSION,
+                DefaultTransition.DECOMMISSION);
     }
 
     private boolean hasActiveServiceCalls(Device device) {
@@ -50,5 +51,4 @@ public class NoActiveServiceCalls extends TranslatableServerMicroCheck {
     private Set<ServiceCall> activeServiceCalls(Device device) {
         return serviceCallService.findServiceCalls(device, serviceCallService.nonFinalStates());
     }
-
 }

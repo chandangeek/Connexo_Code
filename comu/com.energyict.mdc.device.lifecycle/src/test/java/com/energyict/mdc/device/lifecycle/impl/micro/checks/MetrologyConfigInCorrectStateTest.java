@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.metering.EndDeviceStage;
@@ -52,8 +51,9 @@ public class MetrologyConfigInCorrectStateTest {
 
 
     @Before
-    public void setUp(){
-        checkObject = new MetrologyConfigurationInCorrectStateIfAny(thesaurus);
+    public void setUp() {
+        checkObject = new MetrologyConfigurationInCorrectStateIfAny();
+        checkObject.setThesaurus(thesaurus);
 
         device = mockDevice();
         usagePoint = mockUsagePoint();
@@ -62,12 +62,12 @@ public class MetrologyConfigInCorrectStateTest {
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void callEvaluateWithoutStateArgument(){
+    public void callEvaluateWithoutStateArgument() {
         checkObject.evaluate(device, Instant.EPOCH);
     }
 
     @Test
-    public void stageIsNotPresent(){
+    public void stageIsNotPresent() {
         when(state.getStage()).thenReturn(Optional.empty());
 
         Optional<EvaluableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
@@ -76,7 +76,7 @@ public class MetrologyConfigInCorrectStateTest {
     }
 
     @Test
-    public void stageIsOperational(){
+    public void stageIsOperational() {
         when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
 
         Optional<EvaluableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
@@ -85,7 +85,7 @@ public class MetrologyConfigInCorrectStateTest {
     }
 
     @Test
-    public void noMeterActivation(){
+    public void noMeterActivation() {
         when(device.getMeterActivation(Instant.EPOCH)).thenReturn(Optional.empty());
 
         Optional<EvaluableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
@@ -94,7 +94,7 @@ public class MetrologyConfigInCorrectStateTest {
     }
 
     @Test
-    public void noUsagePoint(){
+    public void noUsagePoint() {
         when(meterActivation.getUsagePoint()).thenReturn(Optional.empty());
 
         Optional<EvaluableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
@@ -126,7 +126,7 @@ public class MetrologyConfigInCorrectStateTest {
     }
 
     @Test
-    public void actionViolationConditionsAreMet(){
+    public void actionViolationConditionsAreMet() {
         Optional<EvaluableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
 
         assertTrue(result.isPresent());

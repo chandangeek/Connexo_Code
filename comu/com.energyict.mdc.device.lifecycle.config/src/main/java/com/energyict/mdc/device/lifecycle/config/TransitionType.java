@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
@@ -15,29 +14,10 @@ import java.util.stream.Stream;
 /**
  * Models the types of {@link com.elster.jupiter.fsm.StateTransition}s
  * that are part of the default {@link DeviceLifeCycle}.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-03-12 (10:20)
  */
 public enum TransitionType {
 
     COMMISSION(DefaultState.IN_STOCK, DefaultState.COMMISSIONING) {
-        @Override
-        public Set<MicroCheck> optionalChecks() {
-            return EnumSet.of(
-                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
-                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
-        }
-        @Override
-        public Set<MicroCheck> requiredChecks() {
-            return EnumSet.of(
-                    MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
-        }
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
@@ -53,23 +33,6 @@ public enum TransitionType {
         }
     },
     INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.ACTIVE) {
-        @Override
-        public Set<MicroCheck> optionalChecks() {
-            return EnumSet.of(
-                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
-                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.LINKED_WITH_USAGE_POINT);
-        }
-        @Override
-        public Set<MicroCheck> requiredChecks() {
-            return EnumSet.of(
-                    MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
-        }
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
@@ -88,23 +51,6 @@ public enum TransitionType {
         }
     },
     INSTALL_INACTIVE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.INACTIVE) {
-        @Override
-        public Set<MicroCheck> optionalChecks() {
-            return EnumSet.of(
-                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
-                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.LINKED_WITH_USAGE_POINT);
-        }
-        @Override
-        public Set<MicroCheck> requiredChecks() {
-            return EnumSet.of(
-                    MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
-        }
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
@@ -127,24 +73,6 @@ public enum TransitionType {
     },
     INSTALL_AND_ACTIVATE(DefaultState.COMMISSIONING, DefaultState.ACTIVE) {
         @Override
-        public Set<MicroCheck> optionalChecks() {
-            return EnumSet.of(
-                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
-                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.LINKED_WITH_USAGE_POINT);
-        }
-        @Override
-        public Set<MicroCheck> requiredChecks() {
-            return EnumSet.of(
-                    MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
-        }
-
-        @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
                     MicroAction.START_COMMUNICATION,
@@ -163,23 +91,6 @@ public enum TransitionType {
         }
     },
     INSTALL_INACTIVE(DefaultState.COMMISSIONING, DefaultState.INACTIVE) {
-        @Override
-        public Set<MicroCheck> optionalChecks() {
-            return EnumSet.of(
-                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
-                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.LINKED_WITH_USAGE_POINT);
-        }
-        @Override
-        public Set<MicroCheck> requiredChecks() {
-            return EnumSet.of(
-                    MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
-        }
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
@@ -202,25 +113,6 @@ public enum TransitionType {
     },
     ACTIVATE(DefaultState.INACTIVE, DefaultState.ACTIVE) {
         @Override
-        public Set<MicroCheck> optionalChecks() {
-            return EnumSet.of(
-                    MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                    MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
-                    MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
-                    MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.LINKED_WITH_USAGE_POINT);
-        }
-
-        @Override
-        public Set<MicroCheck> requiredChecks() {
-            return EnumSet.of(
-                    MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
-        }
-
-        @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
                     MicroAction.START_COMMUNICATION,
@@ -240,14 +132,6 @@ public enum TransitionType {
     },
     DEACTIVATE(DefaultState.ACTIVE, DefaultState.INACTIVE) {
         @Override
-        public Set<MicroCheck> requiredChecks() {
-            return EnumSet.of(
-                    MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
-        }
-        @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
                     MicroAction.FORCE_VALIDATION_AND_ESTIMATION,
@@ -260,12 +144,6 @@ public enum TransitionType {
         }
     },
     DEACTIVATE_AND_DECOMMISSION(DefaultState.ACTIVE, DefaultState.DECOMMISSIONED) {
-        @Override
-        public Set<MicroCheck> optionalChecks() {
-            return EnumSet.of(
-                    MicroCheck.NO_ACTIVE_SERVICE_CALLS,
-                    MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES);
-        }
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS,
@@ -285,12 +163,6 @@ public enum TransitionType {
         }
     },
     DECOMMISSION(DefaultState.INACTIVE, DefaultState.DECOMMISSIONED) {
-        @Override
-        public Set<MicroCheck> optionalChecks() {
-            return EnumSet.of(
-                    MicroCheck.NO_ACTIVE_SERVICE_CALLS,
-                    MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES);
-        }
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS,
@@ -361,29 +233,6 @@ public enum TransitionType {
         } else {
             return Optional.empty();
         }
-    }
-
-    /**
-     * Gets the Set of {@link MicroCheck}s that are required
-     * by this TransitionType and can therefore not be switched
-     * off by the user. These checks will also be executed.
-     *
-     * @return The Set of MicroCheck
-     */
-    public Set<MicroCheck> requiredChecks() {
-        return EnumSet.noneOf(MicroCheck.class);
-    }
-
-    /**
-     * Gets the Set of {@link MicroCheck}s that are optional
-     * for this TransitionType and can therefore not be switched
-     * on or off by the user. These checks will only be executed
-     * when switched on by the user.
-     *
-     * @return The Set of MicroCheck
-     */
-    public Set<MicroCheck> optionalChecks() {
-        return EnumSet.noneOf(MicroCheck.class);
     }
 
     /**

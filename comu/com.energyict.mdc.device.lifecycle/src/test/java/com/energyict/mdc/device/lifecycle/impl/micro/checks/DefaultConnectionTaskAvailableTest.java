@@ -1,14 +1,12 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -25,10 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link DefaultConnectionTaskAvailable} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-14 (15:31)
+ * Tests the {@link DefaultConnectionTaskAvailable} component
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultConnectionTaskAvailableTest {
@@ -47,7 +42,7 @@ public class DefaultConnectionTaskAvailableTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -64,7 +59,7 @@ public class DefaultConnectionTaskAvailableTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -98,7 +93,8 @@ public class DefaultConnectionTaskAvailableTest {
     }
 
     private DefaultConnectionTaskAvailable getTestInstance() {
-        return new DefaultConnectionTaskAvailable(this.thesaurus);
+        DefaultConnectionTaskAvailable defaultConnectionTaskAvailable = new DefaultConnectionTaskAvailable();
+        defaultConnectionTaskAvailable.setThesaurus(this.thesaurus);
+        return defaultConnectionTaskAvailable;
     }
-
 }

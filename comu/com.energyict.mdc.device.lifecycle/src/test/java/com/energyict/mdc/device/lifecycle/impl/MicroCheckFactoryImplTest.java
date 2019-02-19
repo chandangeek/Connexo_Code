@@ -7,7 +7,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
 
 import org.junit.Before;
@@ -49,13 +49,14 @@ public class MicroCheckFactoryImplTest {
     public void allMicroChecksAreCovered() {
         DeviceMicroCheckFactoryImpl factory = this.getTestInstance();
 
-        for (MicroCheck microCheck : MicroCheck.values()) {
-            // Business method
-            ServerMicroCheck serverMicroCheck = factory.from(microCheck);
+        // Business method
+        ServerMicroCheck serverMicroCheck = factory.from("ActiveConnectionAvailable")
+                .map(ServerMicroCheck.class::cast)
+                .get();
 
-            // Asserts
-            assertThat(serverMicroCheck).as("MicroCheckFactoryImpl returns null for " + microCheck).isNotNull();
-        }
+        // Asserts
+        assertThat(factory.getAllChecks()).hasSize(17);
+        assertThat(serverMicroCheck).as("MicroCheckFactoryImpl returns null for " + serverMicroCheck).isNotNull();
     }
 
     private DeviceMicroCheckFactoryImpl getTestInstance() {

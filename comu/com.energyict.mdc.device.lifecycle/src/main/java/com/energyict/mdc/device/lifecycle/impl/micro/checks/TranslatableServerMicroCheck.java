@@ -16,10 +16,6 @@ public abstract class TranslatableServerMicroCheck implements ServerMicroCheck {
 
     private Thesaurus thesaurus;
 
-    protected final Thesaurus getThesaurus() {
-        return thesaurus;
-    }
-
     @Inject
     public final void setThesaurus(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;

@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.rest;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
@@ -35,7 +34,6 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
 import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 
 import javax.ws.rs.core.Application;

@@ -1,14 +1,12 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -25,10 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link SharedScheduledCommunicationTaskAvailable} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-05-13 (09:04)
+ * Tests the {@link SharedScheduledCommunicationTaskAvailable} component
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SharedScheduledCommunicationTaskAvailableTest {
@@ -48,7 +43,7 @@ public class SharedScheduledCommunicationTaskAvailableTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -69,7 +64,7 @@ public class SharedScheduledCommunicationTaskAvailableTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -113,7 +108,9 @@ public class SharedScheduledCommunicationTaskAvailableTest {
     }
 
     private SharedScheduledCommunicationTaskAvailable getTestInstance() {
-        return new SharedScheduledCommunicationTaskAvailable(this.thesaurus);
+        SharedScheduledCommunicationTaskAvailable sharedScheduledCommunicationTaskAvailable =
+                new SharedScheduledCommunicationTaskAvailable();
+        sharedScheduledCommunicationTaskAvailable.setThesaurus(this.thesaurus);
+        return sharedScheduledCommunicationTaskAvailable;
     }
-
 }

@@ -3,7 +3,6 @@
  */
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
 import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
 
@@ -58,17 +57,13 @@ public class TestMicroCheck implements MicroCheckNew {
     public static class Factory implements DeviceMicroCheckFactory {
 
         @Override
-        public Optional<MicroCheckNew> from(String microActionKey) {
-            return Optional.of(new TestMicroCheck());
+        public Optional<Class<? extends MicroCheckNew>> from(String microActionKey) {
+            return Optional.of(TestMicroCheck.class);
         }
 
         @Override
-        public Set<MicroCheckNew> getAllChecks() {
-            return Collections.singleton(new TestMicroCheck());
-        }
-
-        @Override
-        public void setDataModel(DataModel dataModel) {
+        public Set<Class<? extends MicroCheckNew>> getAllChecks() {
+            return Collections.singleton(TestMicroCheck.class);
         }
     }
 }

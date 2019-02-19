@@ -3,18 +3,16 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
 import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
 
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.device.lifecycle.micro.check.factory",
         service = DeviceMicroCheckFactory.class,
@@ -22,39 +20,43 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class DeviceMicroCheckFactoryImpl implements DeviceMicroCheckFactory {
 
-    private DataModel dataModel;
-
     private final Map<String, Class<? extends MicroCheckNew>> microCheckMapping = new HashMap<>();
 
     public DeviceMicroCheckFactoryImpl() {
-        // For OSGi purposes only
+        addMicroCheckMappings();
+    }
+
+    @Override
+    public Optional<Class<? extends MicroCheckNew>> from(String microCheckKey) {
+        return Optional.ofNullable(microCheckMapping.get(microCheckKey));
+    }
+
+    @Override
+    public Set<Class<? extends MicroCheckNew>> getAllChecks() {
+        return new HashSet<>(microCheckMapping.values());
     }
 
     private void addMicroCheckMappings() {
         addMicroCheckMapping(ActiveConnectionAvailable.class);
         addMicroCheckMapping(AllDataValid.class);
+        addMicroCheckMapping(AllDataValidated.class);
+        addMicroCheckMapping(AllIssuesAreClosed.class);
+        addMicroCheckMapping(AllLoadProfileDataCollected.class);
+        addMicroCheckMapping(ConnectionPropertiesAreValid.class);
+        addMicroCheckMapping(DefaultConnectionTaskAvailable.class);
+        addMicroCheckMapping(DeviceIsLinkedWithUsagePoint.class);
+        addMicroCheckMapping(GeneralProtocolPropertiesAreValid.class);
+        addMicroCheckMapping(MetrologyConfigurationInCorrectStateIfAny.class);
+        addMicroCheckMapping(NoActiveServiceCalls.class);
+        addMicroCheckMapping(NoLinkedOperationalMultiElementSlaves.class);
+        addMicroCheckMapping(ProtocolDialectPropertiesAreValid.class);
+        addMicroCheckMapping(ScheduledCommunicationTaskAvailable.class);
+        addMicroCheckMapping(SecurityPropertiesAreValid.class);
+        addMicroCheckMapping(SharedScheduledCommunicationTaskAvailable.class);
+        addMicroCheckMapping(SlaveDeviceHasGateway.class);
     }
 
-    private void addMicroCheckMapping(Class<? extends ServerMicroCheck> clazz) {
-        this.microCheckMapping.put(clazz.getSimpleName(), clazz);
-    }
-
-    @Override
-    public Optional<MicroCheckNew> from(String microCheckKey) {
-        return Optional.ofNullable(this.microCheckMapping.get(microCheckKey))
-                .map(this.dataModel::getInstance);
-    }
-
-    @Override
-    public Set<MicroCheckNew> getAllChecks() {
-        return this.microCheckMapping.values().stream()
-                .map(this.dataModel::getInstance)
-                .collect(Collectors.toSet());
-    }
-
-    @Override
-    public void setDataModel(DataModel dataModel) {
-        this.dataModel = dataModel;
-        addMicroCheckMappings();
+    private void addMicroCheckMapping(Class<? extends MicroCheckNew> clazz) {
+        microCheckMapping.put(clazz.getSimpleName(), clazz);
     }
 }

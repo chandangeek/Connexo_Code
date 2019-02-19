@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -15,7 +14,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -33,10 +31,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link SecurityPropertiesAreValid} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-16 (13:12)
+ * Tests the {@link SecurityPropertiesAreValid} component
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertiesAreValidTest {
@@ -234,9 +229,8 @@ public class SecurityPropertiesAreValidTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
-
 
     @Test
     public void invalidPropertiesWhenMissingKeyAccessorTypesForRequiredPropertySpecs() {
@@ -278,7 +272,7 @@ public class SecurityPropertiesAreValidTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -330,11 +324,12 @@ public class SecurityPropertiesAreValidTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     private SecurityPropertiesAreValid getTestInstance() {
-        return new SecurityPropertiesAreValid(this.thesaurus);
+        SecurityPropertiesAreValid securityPropertiesAreValid = new SecurityPropertiesAreValid();
+        securityPropertiesAreValid.setThesaurus(this.thesaurus);
+        return securityPropertiesAreValid;
     }
-
 }

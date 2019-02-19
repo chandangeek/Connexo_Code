@@ -6,14 +6,13 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
 
 import java.time.Instant;
 import java.util.Optional;
 
 /**
- * Models the implementation behavior of the {@link MicroCheck}
+ * Models the implementation behavior of the {@link MicroCheckNew}
  * interface and is therefore reserved for server side components.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -22,7 +21,7 @@ import java.util.Optional;
 public interface ServerMicroCheck extends MicroCheckNew {
 
     /**
-     * Evaluates this {@link MicroCheck} against the {@link Device}
+     * Evaluates this {@link MicroCheckNew} against the {@link Device}
      * and returns an appropriate {@link EvaluableMicroCheckViolation}
      * when it fails.
      *
@@ -33,7 +32,7 @@ public interface ServerMicroCheck extends MicroCheckNew {
     Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp);
 
     /**
-     * Evaluates this {@link MicroCheck} against the {@link Device}
+     * Evaluates this {@link MicroCheckNew} against the {@link Device}
      * and returns an appropriate {@link EvaluableMicroCheckViolation}
      * when it fails.
      *

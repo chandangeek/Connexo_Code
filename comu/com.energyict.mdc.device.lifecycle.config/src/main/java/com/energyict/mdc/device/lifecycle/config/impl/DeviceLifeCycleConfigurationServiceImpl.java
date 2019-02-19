@@ -38,7 +38,19 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import com.energyict.mdc.device.lifecycle.config.*;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
+import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
+import com.energyict.mdc.device.lifecycle.config.Privileges;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
+import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -70,9 +82,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link DeviceLifeCycleConfigurationService} interface.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-03-11 (10:44)
  */
 @Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class,
         TranslationKeyProvider.class, MessageSeedProvider.class, IssueCreationValidator.class},
@@ -439,22 +448,25 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     public Set<MicroCheckNew> getMicroChecks() {
         return this.microCheckFactories.stream()
                 .flatMap(factory -> factory.getAllChecks().stream())
+                .map(this.dataModel::getInstance)
                 .collect(Collectors.toSet());
     }
 
     @Override
     public Optional<MicroCheckNew> getMicroCheckByKey(String microCheckKey) {
-        return this.microCheckFactories.stream()
+        return this.microCheckFactories
+                .stream()
                 .map(factory -> factory.from(microCheckKey))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .findFirst();
+                .findFirst()
+                .map(this.dataModel::getInstance)
+                .map(MicroCheckNew.class::cast);
     }
 
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.STATIC)
     public void addMicroCheckFactory(DeviceMicroCheckFactory microCheckFactory) {
-        microCheckFactory.setDataModel(dataModel);
         this.microCheckFactories.add(microCheckFactory);
     }
 

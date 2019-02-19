@@ -1,13 +1,11 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -21,10 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link AllIssuesAreClosed} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-17 (15:27)
+ * Tests the {@link AllIssuesAreClosed} component
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AllIssuesAreClosedTest {
@@ -44,7 +39,7 @@ public class AllIssuesAreClosedTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
+        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -60,7 +55,8 @@ public class AllIssuesAreClosedTest {
     }
 
     private AllIssuesAreClosed getTestInstance() {
-        return new AllIssuesAreClosed(this.thesaurus);
+        AllIssuesAreClosed allIssuesAreClosed = new AllIssuesAreClosed();
+        allIssuesAreClosed.setThesaurus(this.thesaurus);
+        return allIssuesAreClosed;
     }
-
 }

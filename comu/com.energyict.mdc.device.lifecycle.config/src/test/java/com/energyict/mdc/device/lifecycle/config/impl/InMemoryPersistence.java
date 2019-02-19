@@ -145,7 +145,6 @@ public class InMemoryPersistence {
             this.lifeCycleService = this.injector.getInstance(DeviceLifeCycleConfigurationServiceImpl.class);
             this.dataModel = this.lifeCycleService.getDataModel();
             TestMicroCheck.Factory factory = new TestMicroCheck.Factory();
-            factory.setDataModel(this.dataModel);
             this.lifeCycleService.addMicroCheckFactory(factory);
             ctx.commit();
         }

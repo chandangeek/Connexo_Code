@@ -15,11 +15,6 @@ package com.energyict.mdc.device.lifecycle.config;
 public enum MicroCheck {
 
     /**
-     * Checks that there is a default connection available on the device.
-     */
-    DEFAULT_CONNECTION_AVAILABLE(MicroCategory.COMMUNICATION),
-
-    /**
      * Checks that there is at least one communication task scheduled on the device.
      */
     AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(MicroCategory.COMMUNICATION),
@@ -50,12 +45,6 @@ public enum MicroCheck {
      */
     SECURITY_PROPERTIES_ARE_ALL_VALID(MicroCategory.COMMUNICATION),
 
-    /**
-     * Checks that all connection property values are valid,
-     * i.e. will check that all required attributes are specified
-     * because the values itself are validated when saved.
-     */
-    CONNECTION_PROPERTIES_ARE_ALL_VALID(MicroCategory.COMMUNICATION),
 
     /**
      * Checks that a slave device is connected to a gateway.

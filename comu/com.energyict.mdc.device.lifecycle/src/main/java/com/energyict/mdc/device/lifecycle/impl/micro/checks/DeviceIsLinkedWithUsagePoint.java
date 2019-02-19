@@ -1,49 +1,42 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
+import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
+import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
- * Provides an implementation for the {@link ServerMicroCheck} interface
- * that checks that a device is linked with a {@link com.elster.jupiter.metering.UsagePoint}.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-17 (12:47)
+ * Checks that a device is linked with a {@link com.elster.jupiter.metering.UsagePoint}.
  */
 public class DeviceIsLinkedWithUsagePoint extends TranslatableServerMicroCheck {
 
-    public DeviceIsLinkedWithUsagePoint(Thesaurus thesaurus) {
-        super(thesaurus);
-    }
-
     @Override
-    protected MicroCheck getMicroCheck() {
-        return MicroCheck.LINKED_WITH_USAGE_POINT;
+    public String getCategory() {
+        return MicroCategory.INSTALLATION.name();
     }
 
     @Override
     public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        if (!device.getUsagePoint().isPresent()) {
-            return Optional.of(
-                    new DeviceLifeCycleActionViolationImpl(
-                            this.thesaurus,
-                            MessageSeeds.LINKED_WITH_USAGE_POINT,
-                            MicroCheck.LINKED_WITH_USAGE_POINT));
-        }
-        else {
-            return Optional.empty();
-        }
+        return !device.getUsagePoint().isPresent() ?
+                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_LINKED_WITH_USAGE_POINT) :
+                Optional.empty();
     }
 
+    @Override
+    public Set<DefaultTransition> getOptionalDefaultTransitions() {
+        return EnumSet.of(
+                DefaultTransition.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING,
+                DefaultTransition.INSTALL_INACTIVE_WITHOUT_COMMISSIONING,
+                DefaultTransition.INSTALL_AND_ACTIVATE,
+                DefaultTransition.INSTALL_INACTIVE,
+                DefaultTransition.ACTIVATE);
+    }
 }
