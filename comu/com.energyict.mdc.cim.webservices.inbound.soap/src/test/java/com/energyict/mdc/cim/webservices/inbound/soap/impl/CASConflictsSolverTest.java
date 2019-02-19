@@ -8,7 +8,8 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CASConflictsSolver;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasConflictsSolver;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.device.data.Device;
 
 import com.google.common.collect.Range;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CASConflictsSolverTest {
+public class CasConflictsSolverTest {
 
     private static final Instant INSTANT_GAP_BEFORE = new GregorianCalendar(2004, 7, 23).toInstant();
     private static final Instant INSTANT_GAP_AFTER = new GregorianCalendar(2000, 5, 19).toInstant();
@@ -41,7 +42,7 @@ public class CASConflictsSolverTest {
     private static final Instant ANOTHER_LATE_DATE = new GregorianCalendar(2009, 0, 1).toInstant();
     private static final Instant EARLY_DATE = new GregorianCalendar(1980, 5, 19).toInstant();
 
-    private CASConflictsSolver sut;
+    private CasConflictsSolver sut;
 
     @Mock
     private CustomPropertySetService customPropertySetService;
@@ -53,7 +54,7 @@ public class CASConflictsSolverTest {
     @Mock
     private Device device;
 
-    private CustomPropertySetInfo newCustomProperySetInfo;
+    private CasInfo newCustomProperySetInfo;
 
     @Mock
     private OverlapCalculatorBuilder overlapCalculatorBuilder;
@@ -73,8 +74,8 @@ public class CASConflictsSolverTest {
     @SuppressWarnings("unchecked")
     @Before
     public void setup() {
-        sut = new CASConflictsSolver(customPropertySetService);
-        newCustomProperySetInfo = new CustomPropertySetInfo();
+        sut = new CasConflictsSolver(customPropertySetService);
+        newCustomProperySetInfo = new CasInfo();
         when(customPropertySetService.calculateOverlapsFor(customPropertySet, device))
                 .thenReturn(overlapCalculatorBuilder);
 

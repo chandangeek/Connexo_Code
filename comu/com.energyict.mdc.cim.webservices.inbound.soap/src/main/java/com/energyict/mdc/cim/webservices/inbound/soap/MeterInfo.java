@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.CustomPropertySetInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 
 import ch.iec.tc57._2011.meterconfig.ElectronicAddress;
@@ -34,7 +34,7 @@ public class MeterInfo {
 	private Instant multiplierEffectiveDate;
 	private String configurationEventReason;
 	private ElectronicAddressInfo electronicAddressInfo;
-	private List<CustomPropertySetInfo> customAttributeSets;
+	private List<CasInfo> customAttributeSets;
 	private SecurityInfo securityInfo;
 
 	public MeterInfo() {
@@ -209,11 +209,11 @@ public class MeterInfo {
 		electronicAddressInfo = new ElectronicAddressInfo(electronicAddress);
 	}
 
-	public List<CustomPropertySetInfo> getCustomAttributeSets() {
+	public List<CasInfo> getCustomAttributeSets() {
 		return customAttributeSets;
 	}
 
-	public void setCustomAttributeSets(List<CustomPropertySetInfo> customAttributeSets) {
+	public void setCustomAttributeSets(List<CasInfo> customAttributeSets) {
 		this.customAttributeSets = customAttributeSets;
 	}
 

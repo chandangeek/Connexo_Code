@@ -17,8 +17,8 @@ import com.elster.jupiter.util.Checks;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CustomPropertySetHelper;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.CustomPropertySetInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
@@ -66,16 +66,16 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile WebServicesService webServicesService;
     private volatile InboundCIMWebServiceExtensionFactory webServiceExtensionFactory;
-    private volatile CustomPropertySetHelper customPropertySetHelper;
+    private volatile CasHandler casHandler;
     private volatile SecurityHelper securityHelper;
 
     @Inject
     public ExecuteMeterConfigEndpoint(TransactionService transactionService, MeterConfigFactory meterConfigFactory,
-            MeterConfigFaultMessageFactory faultMessageFactory, ReplyTypeFactory replyTypeFactory,
-            EndPointHelper endPointHelper, DeviceBuilder deviceBuilder, ServiceCallCommands serviceCallCommands,
-            EndPointConfigurationService endPointConfigurationService, MeterConfigParser meterConfigParser,
-            WebServicesService webServicesService, InboundCIMWebServiceExtensionFactory webServiceExtensionFactory,
-            CustomPropertySetHelper customPropertySetHelper, SecurityHelper securityHelper) {
+                                      MeterConfigFaultMessageFactory faultMessageFactory, ReplyTypeFactory replyTypeFactory,
+                                      EndPointHelper endPointHelper, DeviceBuilder deviceBuilder, ServiceCallCommands serviceCallCommands,
+                                      EndPointConfigurationService endPointConfigurationService, MeterConfigParser meterConfigParser,
+                                      WebServicesService webServicesService, InboundCIMWebServiceExtensionFactory webServiceExtensionFactory,
+                                      CasHandler casHandler, SecurityHelper securityHelper) {
         this.transactionService = transactionService;
         this.meterConfigFactory = meterConfigFactory;
         this.meterConfigParser = meterConfigParser;
@@ -87,7 +87,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         this.endPointConfigurationService = endPointConfigurationService;
         this.webServicesService = webServicesService;
         this.webServiceExtensionFactory = webServiceExtensionFactory;
-        this.customPropertySetHelper = customPropertySetHelper;
+        this.casHandler = casHandler;
         this.securityHelper = securityHelper;
     }
 
@@ -268,9 +268,9 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     }
 
     private List<FaultMessage> processCustomAttributeSets(Device device, MeterInfo meterInfo) {
-        List<CustomPropertySetInfo> customAttributeSets = meterInfo.getCustomAttributeSets();
+        List<CasInfo> customAttributeSets = meterInfo.getCustomAttributeSets();
         if (!customAttributeSets.isEmpty()) {
-            return customPropertySetHelper.addCustomPropertySetsData(device, customAttributeSets);
+            return casHandler.addCustomPropertySetsData(device, customAttributeSets);
         }
         return Collections.emptyList();
     }

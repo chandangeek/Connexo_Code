@@ -19,8 +19,8 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CustomPropertySetHelper;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.CustomPropertySetInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityHelper;
@@ -75,7 +75,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private MeterConfigFaultMessageFactory messageFactory;
     private DeviceBuilder deviceBuilder;
     private Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
-    private CustomPropertySetHelper customPropertySetHelper;
+    private CasHandler casHandler;
     private SecurityHelper securityHelper;
 
     public MeterConfigServiceCallHandler() {
@@ -202,11 +202,11 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
      * @return
      */
     private List<FaultMessage> processCustomAttributeSets(ServiceCall serviceCall, Device device, MeterInfo meterInfo) {
-        List<CustomPropertySetInfo> customAttributeSets = meterInfo.getCustomAttributeSets();
+        List<CasInfo> customAttributeSets = meterInfo.getCustomAttributeSets();
         if (customAttributeSets.isEmpty()) {
             return Collections.emptyList();
         }
-        return getCustomPropertySetHelper().addCustomPropertySetsData(device, customAttributeSets, serviceCall);
+        return getCasHandler().addCustomPropertySetsData(device, customAttributeSets, serviceCall);
 
     }
 
@@ -301,12 +301,12 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         return replyTypeFactory;
     }
 
-    private CustomPropertySetHelper getCustomPropertySetHelper() {
-        if (customPropertySetHelper == null) {
-            customPropertySetHelper = new CustomPropertySetHelper(customPropertySetService, thesaurus,
+    private CasHandler getCasHandler() {
+        if (casHandler == null) {
+            casHandler = new CasHandler(customPropertySetService, thesaurus,
                     getMessageFactory(), clock);
         }
-        return customPropertySetHelper;
+        return casHandler;
     }
 
     private SecurityHelper getSecurityHelper() {

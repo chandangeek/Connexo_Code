@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.cim.webservices.inbound.soap.impl;
+package com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import java.time.Instant;
 import java.util.Map;
 
-public final class CustomPropertySetInfo {
+public final class CasInfo {
     private String id;
     private Instant versionId;
     private Instant fromDate;

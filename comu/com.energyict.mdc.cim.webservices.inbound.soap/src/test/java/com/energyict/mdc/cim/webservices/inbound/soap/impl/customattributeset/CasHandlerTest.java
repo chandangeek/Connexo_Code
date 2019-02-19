@@ -7,10 +7,8 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.CustomPropertySetInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.LoggerUtils;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CustomPropertySetHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.device.data.Device;
 
@@ -44,7 +42,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CustomPropertySetHelperTest {
+public class CasHandlerTest {
 
     private static final Instant NOW = Instant.now();
     private static final Instant _30_DAYS_LATTER = NOW.plus(30, ChronoUnit.DAYS);
@@ -53,7 +51,7 @@ public class CustomPropertySetHelperTest {
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());;
     public static final String NON_VERSIONED_CAS_ID = "com.honeywell.cps.device.NonVersioned";
     public static final String DEVICE_1_NAME = "device1";
-    private CustomPropertySetHelper toTest;
+    private CasHandler toTest;
     @Mock
     private CustomPropertySetService customPropertySetService;
     @Mock
@@ -73,12 +71,12 @@ public class CustomPropertySetHelperTest {
     @Mock
     private CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet;
 
-    private List<CustomPropertySetInfo> customPropertySetsData;
+    private List<CasInfo> customPropertySetsData;
 
     @Before
     public void setUp() throws Exception {
 
-        toTest = new CustomPropertySetHelper(customPropertySetService, thesaurus, faultMessageFactory, clock){
+        toTest = new CasHandler(customPropertySetService, thesaurus, faultMessageFactory, clock){
             @Override
             LoggerUtils getLoggerUtils(Thesaurus thesaurus, MeterConfigFaultMessageFactory faultMessageFactory) {
                 return loggerUtils;
@@ -140,20 +138,20 @@ public class CustomPropertySetHelperTest {
 //    }
 //
 
-    private CustomPropertySetInfo nonVersionedCas() {
-        CustomPropertySetInfo customPropertySetInfo = new CustomPropertySetInfo();
-        customPropertySetInfo.setId(NON_VERSIONED_CAS_ID);
+    private CasInfo nonVersionedCas() {
+        CasInfo casInfo = new CasInfo();
+        casInfo.setId(NON_VERSIONED_CAS_ID);
         Map<String, String> attributesNameValue = new HashMap<>();
         attributesNameValue.put("batteryType","AAA");
         attributesNameValue.put("batteryReplacementDate", DATE_TIME_FORMATTER.format(_30_DAYS_LATTER));
-        customPropertySetInfo.setAttributes(attributesNameValue);
-        return customPropertySetInfo;
+        casInfo.setAttributes(attributesNameValue);
+        return casInfo;
     }
 
-    private CustomPropertySetInfo versionedCas() {
-        CustomPropertySetInfo customPropertySetInfo = new CustomPropertySetInfo();
-        customPropertySetInfo.setFromDate(FROM_DATE);
-        customPropertySetInfo.setEndDate(END_DATE);
+    private CasInfo versionedCas() {
+        CasInfo casInfo = new CasInfo();
+        casInfo.setFromDate(FROM_DATE);
+        casInfo.setEndDate(END_DATE);
         Map<String, String> attributesNameValue = new HashMap<>();
         attributesNameValue.put("status","Active");
         attributesNameValue.put("iccid","111");
@@ -161,8 +159,8 @@ public class CustomPropertySetHelperTest {
         attributesNameValue.put("format","Full-size (1FF)");
         attributesNameValue.put("batchId","2222");
         attributesNameValue.put("imsi","1234567890");
-        customPropertySetInfo.setAttributes(attributesNameValue);
-        return customPropertySetInfo;
+        casInfo.setAttributes(attributesNameValue);
+        return casInfo;
     }
 
     private void prepareRegisteredCustomPropertySet(String nonVersionedCasId) {

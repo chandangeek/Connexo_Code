@@ -4,7 +4,6 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.CustomPropertySetInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.FaultSituationHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.data.Device;
@@ -31,13 +30,13 @@ public class AttributeUpdater {
         return exceptionHandler.anyException();
     }
 
-    public CustomPropertySetValues newCasValues(CustomPropertySetInfo newCustomPropertySetInfo) {
+    public CustomPropertySetValues newCasValues(CasInfo newCasInfo) {
         CustomPropertySetValues values = CustomPropertySetValues.empty();
-        updateCasValues(newCustomPropertySetInfo, values);
+        updateCasValues(newCasInfo, values);
         return values;
     }
 
-    public void updateCasValues(CustomPropertySetInfo newCustomProperySetInfo, CustomPropertySetValues values) {
+    public void updateCasValues(CasInfo newCustomProperySetInfo, CustomPropertySetValues values) {
         List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
         for (Map.Entry<String, String> newAttributeNameAndValue : newCustomProperySetInfo.getAttributes().entrySet()) {
             String attributeName = newAttributeNameAndValue.getKey();
@@ -53,7 +52,7 @@ public class AttributeUpdater {
         }
     }
 
-    private void setAttributeValue(Device device, CustomPropertySetInfo info, CustomPropertySetValues values, Map.Entry<String, String> attributeEntry,
+    private void setAttributeValue(Device device, CasInfo info, CustomPropertySetValues values, Map.Entry<String, String> attributeEntry,
                                    PropertySpec propertySpec) {
         Object fromStringValue;
         try {

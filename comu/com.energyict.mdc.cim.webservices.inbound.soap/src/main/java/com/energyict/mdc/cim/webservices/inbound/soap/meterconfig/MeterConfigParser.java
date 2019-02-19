@@ -9,7 +9,7 @@ import com.elster.jupiter.util.streams.Functions;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.CustomPropertySetInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
@@ -100,21 +100,21 @@ public class MeterConfigParser {
         return meterInfo;
     }
 
-    private List<CustomPropertySetInfo> extractCustomPropertySets(Meter meter) throws FaultMessage {
-        List<CustomPropertySetInfo> result = new ArrayList<>();
+    private List<CasInfo> extractCustomPropertySets(Meter meter) throws FaultMessage {
+        List<CasInfo> result = new ArrayList<>();
         String meterName = getMeterName(meter);
         int index = 0;
         for (CustomAttributeSet cas : meter.getMeterCustomAttributeSet()) {
-            CustomPropertySetInfo info = extractCustomPropertySet(meterName, index, cas);
+            CasInfo info = extractCustomPropertySet(meterName, index, cas);
             result.add(info);
             index++;
         }
         return result;
     }
 
-    private CustomPropertySetInfo extractCustomPropertySet(String meterName, int customPropertySetIndex,
-            CustomAttributeSet cas) throws FaultMessage {
-        CustomPropertySetInfo info = new CustomPropertySetInfo();
+    private CasInfo extractCustomPropertySet(String meterName, int customPropertySetIndex,
+                                             CustomAttributeSet cas) throws FaultMessage {
+        CasInfo info = new CasInfo();
         info.setId(extractCpsId(meterName, customPropertySetIndex, cas));
         info.setVersionId(cas.getVersionId());
         info.setUpdateRange(cas.isUpdateRange());

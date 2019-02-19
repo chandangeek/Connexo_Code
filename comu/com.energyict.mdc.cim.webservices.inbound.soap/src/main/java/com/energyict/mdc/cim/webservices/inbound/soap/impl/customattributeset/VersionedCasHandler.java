@@ -5,7 +5,6 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.CustomPropertySetInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.FaultSituationHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.data.Device;
@@ -23,7 +22,7 @@ public class VersionedCasHandler {
     private final AttributeUpdater attributeUpdater;
     private CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet;
     private CustomPropertySetService customPropertySetService;
-    private CASConflictsSolver casConflictsSolver;
+    private CasConflictsSolver casConflictsSolver;
     private FaultSituationHandler faultSituationHandler;
     private Clock clock;
 
@@ -34,7 +33,7 @@ public class VersionedCasHandler {
         this.attributeUpdater = attributeUpdater;
         this.customPropertySet = customPropertySet;
         this.customPropertySetService = customPropertySetService;
-        this.casConflictsSolver = new CASConflictsSolver(customPropertySetService);
+        this.casConflictsSolver = new CasConflictsSolver(customPropertySetService);
         this.faultSituationHandler = faultSituationHandler;
         this.clock = clock;
     }
@@ -44,16 +43,16 @@ public class VersionedCasHandler {
                 fromDate.truncatedTo(ChronoUnit.DAYS).isBefore(device.getLifecycleDates().getReceivedDate().get().truncatedTo(ChronoUnit.DAYS));
     }
 
-    public void handleVersionedCas(CustomPropertySetInfo newCustomPropertySetInfo) throws FaultMessage {
+    public void handleVersionedCas(CasInfo newCasInfo) throws FaultMessage {
 
-        if (newCustomPropertySetInfo.getVersionId() == null) {
-            createNewVersion(newCustomPropertySetInfo);
+        if (newCasInfo.getVersionId() == null) {
+            createNewVersion(newCasInfo);
         } else {
-            updateExistingVersion(newCustomPropertySetInfo);
+            updateExistingVersion(newCasInfo);
         }
     }
 
-    private void createNewVersion(CustomPropertySetInfo newCustomProperySetInfo) throws FaultMessage {
+    private void createNewVersion(CasInfo newCustomProperySetInfo) throws FaultMessage {
         CustomPropertySetValues values = attributeUpdater.newCasValues(newCustomProperySetInfo);
         if(attributeUpdater.anyFaults()){
             return;
@@ -68,10 +67,10 @@ public class VersionedCasHandler {
         customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range);
     }
 
-    private void updateExistingVersion(CustomPropertySetInfo newCustomPropertySetInfo) throws FaultMessage {
-        Optional<Instant> startTime = Optional.ofNullable(newCustomPropertySetInfo.getFromDate());
-        Optional<Instant> endTime = Optional.ofNullable(newCustomPropertySetInfo.getEndDate());
-        Instant versionId = newCustomPropertySetInfo.getVersionId();
+    private void updateExistingVersion(CasInfo newCasInfo) throws FaultMessage {
+        Optional<Instant> startTime = Optional.ofNullable(newCasInfo.getFromDate());
+        Optional<Instant> endTime = Optional.ofNullable(newCasInfo.getEndDate());
+        Instant versionId = newCasInfo.getVersionId();
         CustomPropertySetValues existingValues = customPropertySetService.getUniqueValuesFor(customPropertySet, device,
                 versionId);
         if (existingValues.isEmpty()) {
@@ -79,11 +78,11 @@ public class VersionedCasHandler {
                     DefaultDateTimeFormatters.shortDate().withShortTime().build()
                             .format(versionId.atZone(clock.getZone())));
         } else {
-            attributeUpdater.updateCasValues(newCustomPropertySetInfo, existingValues);
+            attributeUpdater.updateCasValues(newCasInfo, existingValues);
             if(attributeUpdater.anyFaults()){
                 return;
             }
-            if(newCustomPropertySetInfo.isUpdateRange()) {
+            if(newCasInfo.isUpdateRange()) {
                 if(!startTime.isPresent()){
                     startTime = Optional.of(device.getCreateTime());
                 }
