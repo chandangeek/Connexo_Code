@@ -98,7 +98,7 @@ Ext.define('Tou.controller.Overview', {
         var me = this,
         store = this.getStore('Tou.store.TouCampaigns');
         Ext.Ajax.request({
-            url: '/api/tou/touCampaigns/' + record.data.id + '/cancel',
+            url: '/api/tou/toucampaigns/' + record.data.id + '/cancel',
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -151,7 +151,7 @@ Ext.define('Tou.controller.Overview', {
         model.load(campaignName, {
             success: function (campaignRecord) {
                 editView.down('tou-campaigns-add-form').setTitle(
-                    Uni.I18n.translate('tou.campaigns.editTouCampaign', 'TOU', 'Edit time of use campaign'));
+                    Uni.I18n.translate('tou.campaigns.editTouCampaign', 'TOU', 'Edit time of use calendar campaign'));
                 me.getApplication().fireEvent('loadTouCampaign', campaignRecord);
                 editForm.loadRecordForEdit(campaignRecord);
             }
