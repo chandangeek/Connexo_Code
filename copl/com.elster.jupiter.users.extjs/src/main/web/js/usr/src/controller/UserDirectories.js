@@ -300,6 +300,11 @@ Ext.define('Usr.controller.UserDirectories', {
         if (typeField) {
             typeField.setDisabled(true);
         }
+		
+		var dnTypeRadioGroup = addUserDirectoryView.down('#rdo-user-dn-type');
+		if (dnTypeRadioGroup) {
+			dnTypeRadioGroup.setDisabled(true);
+		}
 
         var userDirectory = me.getModel('Usr.model.MgmUserDirectory');
         userDirectory.load(userDirectoryId, {

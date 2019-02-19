@@ -288,13 +288,15 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
 						listeners: {
                             change: function (field, newValue) {
                                 var baseUserTextbox = me.down('#txt-baseUser');
-								var groupDBTextbox = me.down('#txt-groupDN');
+								var groupDNTextbox = me.down('#txt-groupDN');
                                 if (newValue.dnType === 'UDN') {
 									baseUserTextbox.setVisible(true);
-									groupDBTextbox.setVisible(false);
+									groupDNTextbox.setVisible(false);
+									groupDNTextbox.allowBlank = true;
                                 } else if(newValue.dnType === 'GDN') {
 									baseUserTextbox.setVisible(false);
-									groupDBTextbox.setVisible(true);
+									groupDNTextbox.setVisible(true);
+									groupDNTextbox.allowBlank = false;
                                 }
                             }
                         }
@@ -309,8 +311,16 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         xtype: 'textfield',
                         name: 'groupName',
                         itemId: 'txt-groupDN',
+						required: true,
                         fieldLabel: Uni.I18n.translate('userDirectories.groupDN', 'USR', 'Group DN'),
-						hidden: true
+						hidden: true,
+						listeners: {
+                            afterrender: function (field) {
+                                if (me.edit) {
+                                    field.focus(false, 200);
+                                }
+                            }
+                        }
                     },
                     {
                         xtype: 'textfield',
@@ -354,7 +364,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
             certificateCheckbox = me.down('#authentication-checkbox'),
             trustStoreCombo = me.down('#cbo-trust-store'),
 			baseUserTextbox = me.down('#txt-baseUser'),
-			groupDBTextbox = me.down('#txt-groupDN'),
+			groupDNTextbox = me.down('#txt-groupDN'),
 			radioUdn = me.down('#rdo-user-dn-type-udn'),
 			radioGdn = me.down('#rdo-user-dn-type-gdn');
 
@@ -367,13 +377,15 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
 			record.set('dnType', 'GDN');
 			radioUdn.setValue(false);
 			radioGdn.setValue(true);
+			groupDNTextbox.allowBlank = false;
 		} else {
 			record.set('dnType', 'UDN');
 			radioUdn.setValue(true);
 			radioGdn.setValue(false);
+			groupDNTextbox.allowBlank = true;
 		}
 		baseUserTextbox.setVisible(record.get('dnType') === 'UDN');
-		groupDBTextbox.setVisible(record.get('dnType') === 'GDN');
+		groupDNTextbox.setVisible(record.get('dnType') === 'GDN');
 
         certificateCheckbox.setValue(!!record.get('certificateAlias'));
         if (record.get('certificateAlias')) {
