@@ -49,10 +49,11 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.MetrologyConfigurationInCorrectStateIfAny;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -186,17 +187,13 @@ public class DeviceLifeCycleServiceImplTest {
         when(meteringService.findAmrSystem(anyLong())).thenReturn(Optional.empty());
         when(this.eventType.newInstance(any(FiniteStateMachine.class), anyString(), anyString(), anyString(), any(Instant.class), anyMap())).thenReturn(this.event);
         when(this.eventType.getId()).thenReturn(EVENT_TYPE_ID);
-        for (MicroCheck microCheck : MicroCheck.values()) {
-            ServerMicroCheck serverMicroCheck = mock(ServerMicroCheck.class);
-            when(serverMicroCheck.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
-            when(this.microCheckFactory.from(microCheck)).thenReturn(serverMicroCheck);
-        }
+        deviceLifeCycleConfigurationService.addMicroCheckFactory(new DeviceMicroCheckFactoryImpl());
         for (MicroAction microAction : MicroAction.values()) {
             ServerMicroAction serverMicroAction = mock(ServerMicroAction.class);
             when(this.microActionFactory.from(microAction)).thenReturn(serverMicroAction);
         }
-        when(this.microCheckFactory.from(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
-                .evaluate(any(Device.class), any(Instant.class), any(State.class))).thenReturn(Optional.empty());
+        when(deviceLifeCycleConfigurationService.getMicroCheckByKey(MetrologyConfigurationInCorrectStateIfAny.class.getSimpleName())
+                .map(ServerMicroCheck.class::cast).get().evaluate(any(Device.class), any(Instant.class), any(State.class))).thenReturn(Optional.empty());
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
         when(userPreferencesService.getPreferenceByKey(any(User.class), any(PreferenceType.class))).thenReturn(Optional.empty());
 
@@ -881,7 +878,7 @@ public class DeviceLifeCycleServiceImplTest {
     }
 
     private DeviceLifeCycleServiceImpl getTestInstance() {
-        return new DeviceLifeCycleServiceImpl(this.nlsService, this.threadPrincipleService, this.propertySpecService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService, this.userService, Clock
+        return new DeviceLifeCycleServiceImpl(this.nlsService, this.threadPrincipleService, this.propertySpecService, this.microActionFactory, this.deviceLifeCycleConfigurationService, this.userService, Clock
                 .systemDefaultZone(), this.licenseService, this.meteringService);
     }
 

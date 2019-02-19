@@ -28,10 +28,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.config.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -80,7 +77,8 @@ public class DeviceLifeCycleActionResource {
         this.thesaurus = thesaurus;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public Response getAvailableActionsForCurrentDevice(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
@@ -93,7 +91,8 @@ public class DeviceLifeCycleActionResource {
         return Response.ok(PagedInfoList.fromCompleteList("transitions", availableActions, queryParameters)).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -112,7 +111,7 @@ public class DeviceLifeCycleActionResource {
             @PathParam("name") String name,
             @PathParam("actionId") long actionId,
             @BeanParam JsonQueryParameters queryParameters,
-            DeviceLifeCycleActionInfo info){
+            DeviceLifeCycleActionInfo info) {
         try (TransactionContext transaction = transactionService.getContext()) {
             Device device = resourceHelper.lockDeviceOrThrowException(info.device);
             ExecutableAction requestedAction = getExecuteActionByIdOrThrowException(actionId, device);
@@ -148,14 +147,14 @@ public class DeviceLifeCycleActionResource {
     private void wrapWithFormValidationErrorAndRethrow(RequiredMicroActionPropertiesException violationEx) {
         RestValidationBuilder formValidationErrorBuilder = new RestValidationBuilder();
         violationEx.getViolatedPropertySpecNames()
-                .forEach( propertyName ->
-                    formValidationErrorBuilder.addValidationError(
-                            new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, propertyName)));
+                .forEach(propertyName ->
+                        formValidationErrorBuilder.addValidationError(
+                                new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, propertyName)));
         formValidationErrorBuilder.validate();
     }
 
     private String getTargetStateName(AuthorizedTransitionAction requestedAction) {
-        State targetState  = requestedAction.getStateTransition().getTo();
+        State targetState = requestedAction.getStateTransition().getTo();
         return DefaultState
                 .from(targetState)
                 .map(deviceLifeCycleConfigurationService::getDisplayName)
@@ -168,9 +167,9 @@ public class DeviceLifeCycleActionResource {
         wizardResult.microChecks = DecoratedStream.decorate(microChecksViolationEx.getViolations().stream())
                 .map(violation -> {
                     IdWithNameInfo microCheckInfo = new IdWithNameInfo();
-                    MicroCheck microCheck = violation.getCheck();
-                    microCheckInfo.id = deviceLifeCycleService.getName(microCheck);
-                    microCheckInfo.name = deviceLifeCycleService.getDescription(microCheck);
+                    MicroCheckNew microCheck = violation.getMicroCheck();
+                    microCheckInfo.id = microCheck.getKey();
+                    microCheckInfo.name = microCheck.getDescription();
                     return microCheckInfo;
                 })
                 .distinct(check -> check.id)
@@ -189,7 +188,7 @@ public class DeviceLifeCycleActionResource {
                 } catch (InvalidValueException e) {
                     // Enable form validation
                     String propertyName = propertySpec.getName();
-                    if (e.getArguments() != null && e.getArguments().length > 0){
+                    if (e.getArguments() != null && e.getArguments().length > 0) {
                         propertyName = (String) e.getArguments()[0]; // property name from exception
                     }
                     throw new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, propertyName);

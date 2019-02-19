@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.rest.info;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -12,7 +11,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
 
 import javax.inject.Inject;
 import java.util.Comparator;
@@ -34,7 +33,7 @@ public class AuthorizedActionInfoFactory {
         this.microActionAndCheckInfoFactory = microActionAndCheckInfoFactory;
     }
 
-    public AuthorizedActionInfo from(AuthorizedAction action){
+    public AuthorizedActionInfo from(AuthorizedAction action) {
         Objects.requireNonNull(action);
         DeviceLifeCycle deviceLifeCycle = action.getDeviceLifeCycle();
         AuthorizedActionInfo info = new AuthorizedActionInfo();
@@ -44,7 +43,7 @@ public class AuthorizedActionInfoFactory {
                 .collect(Collectors.toList());
         info.version = action.getVersion();
         info.parent = new VersionInfo<>(deviceLifeCycle.getId(), deviceLifeCycle.getVersion());
-        if (action instanceof AuthorizedTransitionAction){
+        if (action instanceof AuthorizedTransitionAction) {
             fromBasicAction(info, (AuthorizedTransitionAction) action);
         } else {
             fromBpmAction(info, (AuthorizedBusinessProcessAction) action);
@@ -52,34 +51,33 @@ public class AuthorizedActionInfoFactory {
         return info;
     }
 
-    private void fromBasicAction(AuthorizedActionInfo info, AuthorizedTransitionAction action){
+    private void fromBasicAction(AuthorizedActionInfo info, AuthorizedTransitionAction action) {
         info.name = action.getName();
         info.fromState = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, action.getDeviceLifeCycle(), action.getStateTransition().getFrom());
         info.toState = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, action.getDeviceLifeCycle(), action.getStateTransition().getTo());
         info.triggeredBy = new StateTransitionEventTypeFactory(thesaurus).from(action.getStateTransition().getEventType());
         Set<MicroAction> microActions = action.getActions();
-        if (!microActions.isEmpty()){
+        if (!microActions.isEmpty()) {
             info.microActions = new TreeSet<>(Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name)
-                    .thenComparing(Comparator.comparing(obj -> obj.name)));
+                    .thenComparing(obj -> obj.name));
             for (MicroAction microAction : microActions) {
                 MicroActionAndCheckInfo microActionInfo = microActionAndCheckInfoFactory.optional(microAction);
                 microActionInfo.checked = true;
                 info.microActions.add(microActionInfo);
             }
         }
-        Set<MicroCheck> microChecks = action.getChecks();
-        if (!microChecks.isEmpty()){
-            info.microChecks = new TreeSet<>(Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name)
-                    .thenComparing(Comparator.comparing(obj -> obj.name)));
-            for (MicroCheck microCheck : microChecks) {
+        Set<MicroCheckNew> microChecks = action.getChecks();
+        if (!microChecks.isEmpty()) {
+            info.microChecks = new TreeSet<>(Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name).thenComparing(obj -> obj.name));
+            microChecks.forEach(microCheck -> {
                 MicroActionAndCheckInfo microActionInfo = microActionAndCheckInfoFactory.optional(microCheck);
                 microActionInfo.checked = true;
                 info.microChecks.add(microActionInfo);
-            }
+            });
         }
     }
 
-    private void fromBpmAction(AuthorizedActionInfo info, AuthorizedBusinessProcessAction action){
+    private void fromBpmAction(AuthorizedActionInfo info, AuthorizedBusinessProcessAction action) {
         info.name = action.getName();
     }
 }
