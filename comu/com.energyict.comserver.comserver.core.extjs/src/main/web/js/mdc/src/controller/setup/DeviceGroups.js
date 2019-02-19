@@ -30,6 +30,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
 
     mixins: [],
 
+
     refs: [
         {ref: 'page', selector: 'deviceGroupSetup'},
         {ref: 'deviceGroupsGrid', selector: '#deviceGroupsGrid'},

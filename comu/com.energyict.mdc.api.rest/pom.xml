@@ -341,6 +341,11 @@
             <artifactId>hsm</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>hsm</artifactId>
+            <version>1.1.2-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <profiles>

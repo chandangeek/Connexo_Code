@@ -1408,6 +1408,30 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         }
                     }
+                },
+
+                zones: {
+                    title: Uni.I18n.translate('general.zones', 'MDC', 'Zones'),
+                    route: 'zones',
+                    controller: 'Mdc.zones.controller.Zones',
+                    action: 'showOverview',
+                    privileges: Cfg.privileges.Validation.viewZones,
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('zones.addZone', 'MDC', 'Add zone'),
+                            route: 'add',
+                            controller: 'Mdc.zones.controller.Zones',
+                            action: 'showAddZone',
+                            privileges: Cfg.privileges.Validation.adminZones,
+                        },
+                        edit: {
+                            title: Uni.I18n.translate('zones.editZone', 'MDC', 'Edit zone'),
+                            route: '{zoneId}/edit',
+                            controller: 'Mdc.zones.controller.Zones',
+                            action: 'editZone',
+                            privileges: Cfg.privileges.Validation.adminZones,
+                        }
+                    }
                 }
             }
 
@@ -2841,6 +2865,22 @@ Ext.define('Mdc.controller.history.Setup', {
                 route: 'workspace',
                 disabled: true,
                 items: {
+                    multisenseprocesses: {
+                        title: Uni.I18n.translate('general.allprocesses', 'MDC', 'Processes'),
+                        route: 'multisenseprocesses',
+                        privileges: Bpm.privileges.BpmManagement.viewProcesses,
+                        controller: 'Mdc.processes.controller.ProcessesController',
+                        action: 'showProcesses',
+                        items: {
+                            bulkaction: {
+                                title: Uni.I18n.translate('mdc.process.bulkActions', 'MDC', 'Bulk action'),
+                                route: 'bulkaction',
+                                action: 'showBulkActions',
+                                privileges: Bpm.privileges.BpmManagement.administrateProcesses,
+                                controller: 'Mdc.processes.controller.ProcBulkActions'
+                            }
+                        }
+                    },
                     commands: {
                         title: Uni.I18n.translate('general.commands', 'MDC', 'Commands'),
                         route: 'commands',

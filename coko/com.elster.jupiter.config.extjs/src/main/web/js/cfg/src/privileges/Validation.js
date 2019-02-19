@@ -35,7 +35,9 @@ Ext.define('Cfg.privileges.Validation', {
             Cfg.privileges.Validation.admin,
             Cfg.privileges.Validation.validateManual);
     },
-	canRun:function(){
+    viewZones: ['privilege.view.zone', 'privilege.administrate.zone'],
+    adminZones: ['privilege.administrate.zone'],
+    canRun:function(){
         return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.validateManual);
     },
     canView:function(){
@@ -61,5 +63,8 @@ Ext.define('Cfg.privileges.Validation', {
     },
     canViewResultsOrAdministerDataQuality: function () {
         return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.viewResultsOrAdministerDataQuality);
+    },
+    canViewZones: function() {
+        return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.viewZones);
     }
 });

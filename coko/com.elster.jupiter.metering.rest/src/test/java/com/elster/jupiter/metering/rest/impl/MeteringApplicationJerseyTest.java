@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -70,7 +71,8 @@ public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTes
     LocationService locationService;
     @Mock
     ThreadPrincipalService threadPrincipalService;
-
+    @Mock
+    MeteringZoneService meteringZoneService;
 
     ReadingTypeInfoFactory readingTypeInfoFactory;
 
@@ -108,6 +110,7 @@ public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTes
         app.setPropertyValueInfoService(propertyValueInfoService);
         app.setLocationService(locationService);
         app.setThreadPrincipalService(threadPrincipalService);
+        app.setMeteringZoneService(meteringZoneService);
         return app;
     }
 
