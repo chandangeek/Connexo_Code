@@ -245,8 +245,13 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                 tabIndex: -1,
                                 listeners: {
                                     click: function () {
-                                        var me = Ext.getCmp(this.id);
-                                        me.up('contentcontainer').fireEvent('displayinfo', me);
+                                        var me = Ext.getCmp(this.id),
+											dnTypeCombo = me.up('contentcontainer').down('#rdo-user-dn-type');
+										if (dnTypeCombo.getValue().dnType === 'GDN') {
+											me.up('contentcontainer').fireEvent('displayextendedinfo', me);
+										} else {
+											me.up('contentcontainer').fireEvent('displayinfo', me);
+										}
                                     }
                                 }
                             }

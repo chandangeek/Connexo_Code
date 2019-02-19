@@ -74,7 +74,8 @@ Ext.define('Usr.controller.UserDirectories', {
                 click: this.addExtUsers
             },
             'usr-add-user-directory': {
-                displayinfo: this.displayInfo
+                displayinfo: this.displayInfo,
+				displayextendedinfo: this.displayExtendedInfo
             },
             '#btn-user-directory-synchronize-users': {
                 click: this.synchronizeUsers
@@ -487,6 +488,29 @@ Ext.define('Usr.controller.UserDirectories', {
                 {
                     xtype: 'container',
                     html: Uni.I18n.translate('userDirectories.userInfoContent', 'USR', 'An LDAP username with sufficient privileges to view the sections of the directory that contain the information for LDAP users.')
+                }
+            ]
+        });
+
+        infoDialog.show();
+    },
+	
+	displayExtendedInfo: function (panel) {
+        infoDialog = Ext.create('widget.window', {
+            title: Uni.I18n.translate('userDirectories.userInfoTitle', 'USR', 'LDAP user info'),
+            closable: true,
+            overflowY: 'auto',
+            modal: true,
+            width: 420,
+            height: 160,
+            layout: {
+                type: 'border',
+                padding: 5
+            },
+            items: [
+                {
+                    xtype: 'container',
+                    html: Uni.I18n.translate('userDirectories.userInfoContentExtended', 'USR', 'An LDAP username with sufficient privileges to view the sections of the directory that contain the information for LDAP users. If the user directory has a Group DN instead of a User base DN, the username should be specified by providing its full DN.')
                 }
             ]
         });
