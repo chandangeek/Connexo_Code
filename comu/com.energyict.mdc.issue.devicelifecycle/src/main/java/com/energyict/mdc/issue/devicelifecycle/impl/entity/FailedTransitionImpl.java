@@ -24,7 +24,8 @@ public class FailedTransitionImpl implements FailedTransition {
         FROM("fromState"),
         TO("toState"),
         CAUSE("cause"),
-        MODTIME("modTime");
+        MODTIME("modTime"),
+        CREATE_TIME("createTime");
 
         private final String javaFieldName;
 
@@ -53,6 +54,9 @@ public class FailedTransitionImpl implements FailedTransition {
 
     @NotNull
     private Instant modTime;
+
+    @NotNull
+    private Instant createTime;
 
 
     FailedTransitionImpl init(DeviceLifeCycle deviceLifeCycle, StateTransition stateTransition,

@@ -102,8 +102,9 @@ public enum TableSpecs {
             Column toRef = table.column(FailedTransitionImpl.Fields.TO.fieldName()).number().conversion(NUMBER2LONG).notNull().add();
             Column cause = table.column(FailedTransitionImpl.Fields.CAUSE.fieldName()).varChar(DESCRIPTION_LENGTH).notNull().map("cause").add();
             Column modTime = table.column("FAILTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).notNull().map(FailedTransitionImpl.Fields.MODTIME.fieldName()).add();
+            Column createTime =table.addCreateTimeColumn("CREATETIME", FailedTransitionImpl.Fields.CREATE_TIME.fieldName());
 
-            table.primaryKey("IDL_FAILEDTRANSITION_PK").on(issueRef, lifecycleRef, transitionRef, fromRef, toRef, cause, modTime).add();
+            table.primaryKey("IDL_FAILEDTRANSITION_PK").on(issueRef, lifecycleRef, transitionRef, fromRef, toRef, cause, modTime, createTime).add();
             table.foreignKey("IDL_FAILTRANS_FK_ISSUE")
                     .on(issueRef)
                     .references(IDL_ISSUE_OPEN.name())
@@ -152,8 +153,9 @@ public enum TableSpecs {
             Column toRef = table.column(FailedTransitionImpl.Fields.TO.fieldName()).number().conversion(NUMBER2LONG).notNull().add();
             Column cause = table.column(FailedTransitionImpl.Fields.CAUSE.fieldName()).varChar(DESCRIPTION_LENGTH).notNull().map("cause").add();
             Column modTime = table.column("FAILTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(FailedTransitionImpl.Fields.MODTIME.fieldName()).notNull().add();
+            Column createTime =table.addCreateTimeColumn("CREATETIME", FailedTransitionImpl.Fields.CREATE_TIME.fieldName());
 
-            table.primaryKey("IDL_HISTFAILEDTRANSITION_PK").on(issueRef, lifecycleRef, transitionRef, fromRef, toRef, cause, modTime).add();
+            table.primaryKey("IDL_HISTFAILEDTRANSITION_PK").on(issueRef, lifecycleRef, transitionRef, fromRef, toRef, cause, modTime, createTime).add();
             table.foreignKey("IDL_HISTFAILTRANS_FK_ISSUE")
                     .on(issueRef)
                     .references(IDL_ISSUE_HISTORY.name())
