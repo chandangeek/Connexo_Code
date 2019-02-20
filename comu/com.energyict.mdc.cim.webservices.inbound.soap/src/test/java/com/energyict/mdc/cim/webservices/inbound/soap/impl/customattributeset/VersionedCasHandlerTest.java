@@ -13,6 +13,7 @@ import com.google.common.collect.Range;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
@@ -24,6 +25,10 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -32,6 +37,9 @@ public class VersionedCasHandlerTest {
 
     private static final String VERSIONED_CAS_ID = "com.honeywell.cps.device.Versioned";
     private static final String DEVICE_NAME = "device1";
+    private static final String STRING_PROPERTY_NAME = "stringPropertyName";
+    private static final String STRING_ATTRIBUTE_VALUE = "stringValue";
+
     private static final Instant NOW = Instant.now();
     private static final Instant _30_DAYS_AGO = NOW.minus(30, ChronoUnit.DAYS);
     private static final Instant FROM_DATE = NOW;
@@ -112,39 +120,73 @@ public class VersionedCasHandlerTest {
         verify(customPropertySetService).setValuesVersionFor(customPropertySet, device, values, fromToRange);
     }
 
+    @Test(expected = FaultMessage.class)
+    public void throwFaultWhenNoExistingVersion() throws FaultMessage {
+        CasInfo casInfo = versionedCas(VERSION_ID, FROM_DATE);
+        when(customPropertySetService.getUniqueValuesFor(customPropertySet, device,VERSION_ID)).thenReturn(CustomPropertySetValues.empty());
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+        when(faultSituationHandler.newFault(eq(DEVICE_NAME), eq(MessageSeeds.NO_CUSTOM_ATTRIBUTE_VERSION), anyString())).thenReturn(faultMessage);
+
+        toTest.handleVersionedCas(casInfo);
+    }
+
     @Test
-    public void updateExistingVersionVersion() throws FaultMessage {
-        CasInfo casInfo = versionedCas(null, FROM_DATE);
-        when(attributeUpdater.anyFaults()).thenReturn(false);
-        CustomPropertySetValues values = CustomPropertySetValues.empty();
-        when(attributeUpdater.newCasValues(casInfo)).thenReturn(values);
-        Range<Instant> fromToRange = Range.closedOpen(FROM_DATE, END_DATE);
-        when(casConflictSolver.solveConflictsForCreate(device, customPropertySet,
-                FROM_DATE, END_DATE)).thenReturn(fromToRange);
+    public void doNotUpdateExistingVersionWhenThereAreAnyFaultsAtUpdatingAttributes() throws FaultMessage {
+        CasInfo casInfo = versionedCas(VERSION_ID, FROM_DATE);
+        prepareCustomPropertySetValues(Range.closedOpen(FROM_DATE,END_DATE));
+        when(attributeUpdater.anyFaults()).thenReturn(true);
 
         toTest.handleVersionedCas(casInfo);
 
-        verify(casConflictSolver).solveConflictsForCreate(device, customPropertySet,
-                FROM_DATE, END_DATE);
-        verify(customPropertySetService).setValuesVersionFor(customPropertySet, device, values, fromToRange);
+        verify(customPropertySetService, never()).setValuesVersionFor(any(), any(), any(), any(), any());;
     }
 
+    @Test
+    public void updateExistingVersionNoRangeUpdate() throws FaultMessage {
+        CasInfo casInfo = versionedCas(VERSION_ID, FROM_DATE);
+        Range<Instant> existingVersionRange = Range.closedOpen(FROM_DATE, END_DATE);
+        CustomPropertySetValues customPropertySetValues = prepareCustomPropertySetValues(existingVersionRange);
+
+        toTest.handleVersionedCas(casInfo);
+
+        verify(customPropertySetService).setValuesVersionFor(customPropertySet, device, customPropertySetValues, existingVersionRange, VERSION_ID);
+    }
+
+    @Test
+    public void updateExistingVersionRangeUpdate() throws FaultMessage {
+        CasInfo casInfo = versionedCas(VERSION_ID, FROM_DATE, END_DATE, true);
+        Range<Instant> newRange = Range.closedOpen(FROM_DATE, END_DATE);
+        CustomPropertySetValues customPropertySetValues = prepareCustomPropertySetValues(newRange);
+        when(casConflictSolver.solveConflictsForUpdate(eq(device), eq(customPropertySet), eq(Optional.of(FROM_DATE)),
+                eq(Optional.of(END_DATE)), eq(VERSION_ID), eq(customPropertySetValues))).thenReturn(newRange);
+
+        toTest.handleVersionedCas(casInfo);
+
+        verify(customPropertySetService).setValuesVersionFor(customPropertySet, device, customPropertySetValues, newRange, VERSION_ID);
+    }
+
+    private CustomPropertySetValues prepareCustomPropertySetValues(Range effectiveRange) {
+        CustomPropertySetValues values = CustomPropertySetValues.emptyDuring(effectiveRange);
+        values.setProperty(STRING_PROPERTY_NAME,STRING_ATTRIBUTE_VALUE);
+        when(customPropertySetService.getUniqueValuesFor(customPropertySet, device,VERSION_ID)).thenReturn(values);
+        return values;
+    }
 
     private CasInfo versionedCas(Instant versionId, Instant fromDate) {
+        return versionedCas(versionId, fromDate, false);
+    }
+
+    private CasInfo versionedCas(Instant versionId, Instant fromDate, Boolean updateRange) {
+        return versionedCas(versionId, fromDate, END_DATE, false);
+    }
+
+    private CasInfo versionedCas(Instant versionId, Instant fromDate, Instant endDate, Boolean updateRange) {
         CasInfo casInfo = new CasInfo();
         casInfo.setFromDate(fromDate);
-        casInfo.setEndDate(END_DATE);
+        casInfo.setEndDate(endDate);
         casInfo.setId(VERSIONED_CAS_ID);
         casInfo.setVersionId(versionId);
-//        Map<String, String> attributesNameValue = new HashMap<>();
-//        attributesNameValue.put(STRING_PROPERTY_NAME, STRING_ATTRIBUTE_VALUE);
-//        attributesNameValue.put(LONG_PROPERTY_NAME, LONG_ATTRIBUTE_VALUE);
-////        attributesNameValue.put("iccid", "111");
-////        attributesNameValue.put("provider", "Vodafone");
-////        attributesNameValue.put("format", "Full-size (1FF)");
-////        attributesNameValue.put("batchId", "2222");
-////        attributesNameValue.put("imsi", "1234567890");
-//        casInfo.setAttributes(attributesNameValue);
+        casInfo.setUpdateRange(updateRange);
         return casInfo;
     }
 
