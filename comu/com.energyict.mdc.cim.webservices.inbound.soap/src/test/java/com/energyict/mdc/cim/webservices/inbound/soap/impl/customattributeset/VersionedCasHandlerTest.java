@@ -46,6 +46,7 @@ public class VersionedCasHandlerTest {
     private static final Instant VERSION_ID = NOW.plus(10, ChronoUnit.DAYS);
     private static final Instant END_DATE = NOW.plus(30, ChronoUnit.DAYS);
     private static final Instant RECEIVED_DATE = _30_DAYS_AGO;
+    private static final Instant DEVICE_CREATION_DATE = _30_DAYS_AGO;
 
     private VersionedCasHandler toTest;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -71,6 +72,7 @@ public class VersionedCasHandlerTest {
 
         when(device.getName()).thenReturn(DEVICE_NAME);
         when(device.getLifecycleDates().getReceivedDate()).thenReturn(Optional.of(RECEIVED_DATE));
+        when(device.getCreateTime()).thenReturn(DEVICE_CREATION_DATE);
     }
 
     @Test
@@ -163,6 +165,19 @@ public class VersionedCasHandlerTest {
         toTest.handleVersionedCas(casInfo);
 
         verify(customPropertySetService).setValuesVersionFor(customPropertySet, device, customPropertySetValues, newRange, VERSION_ID);
+    }
+
+    @Test
+    public void updateExistingVersionRangeUpdateAndAdjustFromEndDAte() throws FaultMessage {
+        CasInfo casInfo = versionedCas(VERSION_ID, null, null, true);
+        Range<Instant> adjustedRange = Range.atLeast(DEVICE_CREATION_DATE);
+        CustomPropertySetValues customPropertySetValues = prepareCustomPropertySetValues(adjustedRange);
+        when(casConflictSolver.solveConflictsForUpdate(eq(device), eq(customPropertySet), eq(Optional.of(DEVICE_CREATION_DATE)),
+                eq(Optional.of(Instant.EPOCH)), eq(VERSION_ID), eq(customPropertySetValues))).thenReturn(adjustedRange);
+
+        toTest.handleVersionedCas(casInfo);
+
+        verify(customPropertySetService).setValuesVersionFor(customPropertySet, device, customPropertySetValues, adjustedRange, VERSION_ID);
     }
 
     private CustomPropertySetValues prepareCustomPropertySetValues(Range effectiveRange) {
