@@ -364,7 +364,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             NamingEnumeration results;
             if (getGroupName() == null) {
                 controls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-                results = ctx.search(getBase(), "(uid=" + user + ")", controls);
+                results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
             } else {
                 controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
                 results = ctx.search("", "(&(objectClass=person)(uid=" + user + "))", controls);
@@ -410,7 +410,8 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBase(), "(uid=" + user + ")", controls);
+            String name = getGroupName() == null ? "" : getBaseUser();
+            NamingEnumeration results = ctx.search(name, "(uid=" + user + ")", controls);
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
@@ -451,7 +452,8 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBase(), "(uid=" + user + ")", controls);
+            String name = getGroupName() == null ? "" : getBaseUser();
+            NamingEnumeration results = ctx.search(name, "(uid=" + user + ")", controls);
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();

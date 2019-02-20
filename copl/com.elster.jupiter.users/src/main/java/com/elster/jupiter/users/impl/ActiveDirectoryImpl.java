@@ -72,7 +72,8 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                     createEnvironment(getUrl(), getDirectoryUser(), getPasswordDecrypt()));
             String attrIDs[] = { "memberOf" };
             SearchControls controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, attrIDs, true, true);
-            NamingEnumeration<SearchResult> answer = context.search(getBase(),
+            String name = getGroupName() == null ? "" : getBaseUser();
+            NamingEnumeration<SearchResult> answer = context.search(name,
                     "(&(objectClass=person)(userPrincipalName=" + user.getName() + "@" + getRealDomain(getBase())
                             + "))",
                     controls);
@@ -363,7 +364,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration results;
         if (getGroupName() == null) {
-            results = context.search(getBase(), "(sAMAccountName=" + user + ")", controls);
+            results = context.search(getBaseUser(), "(sAMAccountName=" + user + ")", controls);
         } else {
             results = context.search("", "(&(objectClass=person)(sAMAccountName=" + user + "))", controls);
         }
