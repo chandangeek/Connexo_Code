@@ -81,24 +81,28 @@ public class VersionedCasHandler {
             throw faultSituationHandler.newFault(device.getName(), MessageSeeds.NO_CUSTOM_ATTRIBUTE_VERSION,
                     DefaultDateTimeFormatters.shortDate().withShortTime().build()
                             .format(versionId.atZone(clock.getZone())));
-        } else {
-            attributeUpdater.updateCasValues(newCasInfo, existingValues);
-            if(attributeUpdater.anyFaults()){
-                return;
-            }
-            if(newCasInfo.isUpdateRange()) {
-                if(!startTime.isPresent()){
-                    startTime = Optional.of(device.getCreateTime());
-                }
-                if (!endTime.isPresent()) {
-                    endTime = Optional.of(Instant.EPOCH);
-                }
-                Range<Instant> range = casConflictSolver.solveConflictsForUpdate(device, customPropertySet, startTime,
-                        endTime, versionId, existingValues);
-                customPropertySetService.setValuesVersionFor(customPropertySet, device, existingValues, range, versionId);
-            }else{
-                customPropertySetService.setValuesVersionFor(customPropertySet, device, existingValues, existingValues.getEffectiveRange(), versionId);
-            }
         }
+        attributeUpdater.updateCasValues(newCasInfo, existingValues);
+        if (attributeUpdater.anyFaults()) {
+            return;
+        }
+        if (newCasInfo.isUpdateRange()) {
+            updateWithUpdatedRange(startTime, endTime, versionId, existingValues);
+        } else {
+            customPropertySetService.setValuesVersionFor(customPropertySet, device, existingValues, existingValues.getEffectiveRange(), versionId);
+        }
+
+    }
+
+    private void updateWithUpdatedRange(Optional<Instant> startTime, Optional<Instant> endTime, Instant versionId, CustomPropertySetValues existingValues) {
+        if (!startTime.isPresent()) {
+            startTime = Optional.of(device.getCreateTime());
+        }
+        if (!endTime.isPresent()) {
+            endTime = Optional.of(Instant.EPOCH);
+        }
+        Range<Instant> range = casConflictSolver.solveConflictsForUpdate(device, customPropertySet, startTime,
+                endTime, versionId, existingValues);
+        customPropertySetService.setValuesVersionFor(customPropertySet, device, existingValues, range, versionId);
     }
 }
