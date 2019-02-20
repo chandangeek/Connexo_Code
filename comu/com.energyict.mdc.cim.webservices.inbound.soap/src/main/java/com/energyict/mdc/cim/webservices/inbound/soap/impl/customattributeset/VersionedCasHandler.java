@@ -22,7 +22,7 @@ public class VersionedCasHandler {
     private final AttributeUpdater attributeUpdater;
     private CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet;
     private CustomPropertySetService customPropertySetService;
-    private CasConflictsSolver casConflictsSolver;
+    private CasConflictSolver casConflictSolver;
     private FaultSituationHandler faultSituationHandler;
     private Clock clock;
 
@@ -33,9 +33,13 @@ public class VersionedCasHandler {
         this.attributeUpdater = attributeUpdater;
         this.customPropertySet = customPropertySet;
         this.customPropertySetService = customPropertySetService;
-        this.casConflictsSolver = new CasConflictsSolver(customPropertySetService);
+        this.casConflictSolver = getCasConflictsSolver(customPropertySetService);
         this.faultSituationHandler = faultSituationHandler;
         this.clock = clock;
+    }
+
+    CasConflictSolver getCasConflictsSolver(CustomPropertySetService customPropertySetService) {
+        return new CasConflictSolver(customPropertySetService);
     }
 
     private boolean fromDateBeforeDevice(Device device, Instant fromDate) {
@@ -52,18 +56,18 @@ public class VersionedCasHandler {
         }
     }
 
-    private void createNewVersion(CasInfo newCustomProperySetInfo) throws FaultMessage {
-        CustomPropertySetValues values = attributeUpdater.newCasValues(newCustomProperySetInfo);
+    private void createNewVersion(CasInfo newCustomPropertySetInfo) throws FaultMessage {
+        CustomPropertySetValues values = attributeUpdater.newCasValues(newCustomPropertySetInfo);
         if(attributeUpdater.anyFaults()){
             return;
         }
-        Instant fromDate = newCustomProperySetInfo.getFromDate();
+        Instant fromDate = newCustomPropertySetInfo.getFromDate();
         if (fromDate == null || fromDateBeforeDevice(device, fromDate)) {
             throw faultSituationHandler.newFault(device.getName(), MessageSeeds.START_DATE_LOWER_CREATED_DATE,
                     device.getName());
         }
-        Range<Instant> range = casConflictsSolver.solveConflictsForCreate(device, customPropertySet,
-                fromDate, newCustomProperySetInfo.getEndDate());
+        Range<Instant> range = casConflictSolver.solveConflictsForCreate(device, customPropertySet,
+                fromDate, newCustomPropertySetInfo.getEndDate());
         customPropertySetService.setValuesVersionFor(customPropertySet, device, values, range);
     }
 
@@ -89,7 +93,7 @@ public class VersionedCasHandler {
                 if (!endTime.isPresent()) {
                     endTime = Optional.of(Instant.EPOCH);
                 }
-                Range<Instant> range = casConflictsSolver.solveConflictsForUpdate(device, customPropertySet, startTime,
+                Range<Instant> range = casConflictSolver.solveConflictsForUpdate(device, customPropertySet, startTime,
                         endTime, versionId, existingValues);
                 customPropertySetService.setValuesVersionFor(customPropertySet, device, existingValues, range, versionId);
             }else{

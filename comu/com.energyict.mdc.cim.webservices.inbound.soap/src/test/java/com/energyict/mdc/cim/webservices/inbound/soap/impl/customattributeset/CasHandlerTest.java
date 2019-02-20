@@ -42,7 +42,7 @@ public class CasHandlerTest {
 
     private static final String NON_VERSIONED_CAS_ID = "com.honeywell.cps.device.NonVersioned";
     private static final String VERSIONED_CAS_ID = "com.honeywell.cps.device.Versioned";
-    private static final String DEVICE_1_NAME = "device1";
+    private static final String DEVICE_NAME = "device1";
     private CasHandler toTest;
     @Mock
     private CustomPropertySetService customPropertySetService;
@@ -68,21 +68,8 @@ public class CasHandlerTest {
     @Before
     public void setUp() throws Exception {
 
-        toTest = new CasHandler(customPropertySetService, thesaurus, faultMessageFactory, clock){
-            @Override
-            LoggerUtils getLoggerUtils(Thesaurus thesaurus, MeterConfigFaultMessageFactory faultMessageFactory) {
-                return loggerUtils;
-            }
-            @Override
-            VersionedCasHandler getVersionedCasHandler(Device device, FaultSituationHandler faultSituationHandler, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet, AttributeUpdater attributeUpdater) {
-                return versionedCasHandler;
-            }
-            @Override
-            AttributeUpdater getAttributeUpdater(Device device, FaultSituationHandler faultSituationHandler, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet) {
-                return attributeUpdater;
-            }
-        };
-        when(device.getName()).thenReturn(DEVICE_1_NAME);
+        toTest = prepareInstanceToTest();
+        when(device.getName()).thenReturn(DEVICE_NAME);
     }
 
     @After
@@ -111,7 +98,7 @@ public class CasHandlerTest {
     public void logFaultExceptionIfNoRegisteredCasForId() {
         List<CasInfo> customPropertySetsData = Collections.singletonList(prepareCasInfo(NON_VERSIONED_CAS_ID));
         when(customPropertySetService.findActiveCustomPropertySet(NON_VERSIONED_CAS_ID)).thenReturn(Optional.ofNullable(null));
-        when(faultMessageFactory.meterConfigFaultMessageSupplier(DEVICE_1_NAME, MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET, NON_VERSIONED_CAS_ID)).thenReturn(() -> faultMessage);
+        when(faultMessageFactory.meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET, NON_VERSIONED_CAS_ID)).thenReturn(() -> faultMessage);
 
         toTest.addCustomPropertySetsData(device, customPropertySetsData);
 
@@ -174,5 +161,22 @@ public class CasHandlerTest {
         when(customPropertySetService.findActiveCustomPropertySet(casId)).thenReturn(Optional.of(registeredCustomPropertySet));
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         return customPropertySet;
+    }
+
+    private CasHandler prepareInstanceToTest() {
+        return new CasHandler(customPropertySetService, thesaurus, faultMessageFactory, clock){
+            @Override
+            LoggerUtils getLoggerUtils(Thesaurus thesaurus, MeterConfigFaultMessageFactory faultMessageFactory) {
+                return loggerUtils;
+            }
+            @Override
+            VersionedCasHandler getVersionedCasHandler(Device device, FaultSituationHandler faultSituationHandler, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet, AttributeUpdater attributeUpdater) {
+                return versionedCasHandler;
+            }
+            @Override
+            AttributeUpdater getAttributeUpdater(Device device, FaultSituationHandler faultSituationHandler, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet) {
+                return attributeUpdater;
+            }
+        };
     }
 }

@@ -16,11 +16,11 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.Optional;
 
-public class CasConflictsSolver {
+public class CasConflictSolver {
 
     private final CustomPropertySetService customPropertySetService;
 
-    public CasConflictsSolver(CustomPropertySetService customPropertySetService) {
+    public CasConflictSolver(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
     }
 

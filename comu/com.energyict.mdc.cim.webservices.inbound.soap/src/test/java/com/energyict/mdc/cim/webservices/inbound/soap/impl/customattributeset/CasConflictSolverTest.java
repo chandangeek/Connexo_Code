@@ -1,4 +1,4 @@
-package com.energyict.mdc.cim.webservices.inbound.soap.impl;
+package com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -8,8 +8,6 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasConflictsSolver;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.device.data.Device;
 
 import com.google.common.collect.Range;
@@ -32,7 +30,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CasConflictsSolverTest {
+public class CasConflictSolverTest {
 
     private static final Instant INSTANT_GAP_BEFORE = new GregorianCalendar(2004, 7, 23).toInstant();
     private static final Instant INSTANT_GAP_AFTER = new GregorianCalendar(2000, 5, 19).toInstant();
@@ -42,7 +40,7 @@ public class CasConflictsSolverTest {
     private static final Instant ANOTHER_LATE_DATE = new GregorianCalendar(2009, 0, 1).toInstant();
     private static final Instant EARLY_DATE = new GregorianCalendar(1980, 5, 19).toInstant();
 
-    private CasConflictsSolver sut;
+    private CasConflictSolver sut;
 
     @Mock
     private CustomPropertySetService customPropertySetService;
@@ -74,7 +72,7 @@ public class CasConflictsSolverTest {
     @SuppressWarnings("unchecked")
     @Before
     public void setup() {
-        sut = new CasConflictsSolver(customPropertySetService);
+        sut = new CasConflictSolver(customPropertySetService);
         newCustomProperySetInfo = new CasInfo();
         when(customPropertySetService.calculateOverlapsFor(customPropertySet, device))
                 .thenReturn(overlapCalculatorBuilder);
