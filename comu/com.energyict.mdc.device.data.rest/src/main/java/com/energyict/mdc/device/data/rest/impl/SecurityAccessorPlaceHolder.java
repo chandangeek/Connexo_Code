@@ -163,4 +163,8 @@ public class SecurityAccessorPlaceHolder implements SecurityAccessor {
     public boolean isEditable() {
         return true;
     }
+
+    @Override
+    public void setTemporary(Boolean temporary) {
+    }
 }
