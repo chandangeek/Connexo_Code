@@ -31,15 +31,15 @@ Ext.define('Idl.controller.Detail', {
         me.refs = [
             {
                 ref: 'page',
-                selector: 'data-validation-issue-detail'
+                selector: 'device-lifecycle-issue-detail'
             },
             {
                 ref: 'detailForm',
-                selector: 'data-validation-issue-detail device-lifecycle-issue-detail-form'
+                selector: 'device-lifecycle-issue-detail device-lifecycle-issue-detail-form'
             },
             {
                 ref: 'commentsPanel',
-                selector: 'data-validation-issue-detail #data-validation-issue-comments'
+                selector: 'device-lifecycle-issue-detail #device-lifecycle-issue-comments'
             },
             {
                 ref: 'readingEstimationWindow',
@@ -51,11 +51,11 @@ Ext.define('Idl.controller.Detail', {
             },
             {
                 ref: 'issueDetailForm',
-                selector: 'data-validation-issue-detail #issue-detail-form'
+                selector: 'device-lifecycle-issue-detail #issue-detail-form'
             },
             {
                 ref: 'actionMenu',
-                selector: 'data-validation-issue-detail #issues-action-menu'
+                selector: 'device-lifecycle-issue-detail #issues-action-menu'
             }
         ];
         me.callParent(arguments);
@@ -65,170 +65,170 @@ Ext.define('Idl.controller.Detail', {
 
     init: function () {
         this.control({
-            'data-validation-issue-detail #data-validation-issue-comments #issue-comments-add-comment-button': {
-                click: this.showCommentFormValidation
+            'device-lifecycle-issue-detail #device-lifecycle-issue-comments #issue-comments-add-comment-button': {
+                click: this.showCommentForm
             },
-            'data-validation-issue-detail #data-validation-issue-comments #empty-message-add-comment-button': {
-                click: this.showCommentFormValidation
+            'device-lifecycle-issue-detail #device-lifecycle-issue-comments #empty-message-add-comment-button': {
+                click: this.showCommentForm
             },
-            'data-validation-issue-detail #data-validation-issue-comments #issue-comment-cancel-adding-button': {
+            'device-lifecycle-issue-detail #device-lifecycle-issue-comments #issue-comment-cancel-adding-button': {
                 click: this.hideCommentForm
             },
-            'data-validation-issue-detail #data-validation-issue-comments #issue-comment-save-button': {
-                click: this.addCommentValidation
+            'device-lifecycle-issue-detail #device-lifecycle-issue-comments #issue-comment-save-button': {
+                click: this.addComment
             },
-            'data-validation-issue-detail #data-validation-issue-comments #issue-add-comment-area': {
+            'device-lifecycle-issue-detail #device-lifecycle-issue-comments #issue-add-comment-area': {
                 change: this.validateCommentForm
             },
-            'data-validation-issue-detail #data-validation-issue-comments #issue-comment-cancel-editing-button': {
+            'device-lifecycle-issue-detail #device-lifecycle-issue-comments #issue-comment-cancel-editing-button': {
                 click: this.hideEditCommentForm
             },
-            'data-validation-issue-detail #data-validation-issue-comments #issue-comment-edit-button': {
+            'device-lifecycle-issue-detail #device-lifecycle-issue-comments #issue-comment-edit-button': {
                 click: this.editComment
             },
-            'data-validation-issue-detail #data-validation-issue-comments #issue-edit-comment-area': {
+            'device-lifecycle-issue-detail #device-lifecycle-issue-comments #issue-edit-comment-area': {
                 change: this.validateEditCommentForm
             },
-            'data-validation-issue-detail #issue-detail-action-menu': {
+            'device-lifecycle-issue-detail #issue-detail-action-menu': {
                 click: this.chooseAction
             },
-            'no-estimated-data-grid uni-actioncolumn': {
-                viewData: function(record) {
-                    var me = this;
-                    if (record.get('registerId')) {
-                        this.getController('Uni.controller.history.Router').getRoute('devices/device/registers/registerdata').forward({
-                            deviceId: me.getDetailForm().getRecord().get('device').name,
-                            channelId: record.get('registerId')
-                        });
-                    } else if(record.get('channelId')) {
-                        this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channeldata').forward(
-                            {
-                                deviceId: me.getDetailForm().getRecord().get('device').name,
-                                channelId: record.get('channelId'),
-                                issueId: record.getId()
-                            },
-                            {
-                                validationBlock: record.get('startTime'),
-                                validationBlockEndTime: record.get('endTime')
-                            }
-                        );
-                    }
-                },
-                estimateValues: this.estimateValue
-            },
-            '#reading-estimation-window #estimate-reading-button': {
-                click: this.estimateReading
-            }
+            // 'no-estimated-data-grid uni-actioncolumn': {
+            //     viewData: function(record) {
+            //         var me = this;
+            //         if (record.get('registerId')) {
+            //             this.getController('Uni.controller.history.Router').getRoute('devices/device/registers/registerdata').forward({
+            //                 deviceId: me.getDetailForm().getRecord().get('device').name,
+            //                 channelId: record.get('registerId')
+            //             });
+            //         } else if(record.get('channelId')) {
+            //             this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channeldata').forward(
+            //                 {
+            //                     deviceId: me.getDetailForm().getRecord().get('device').name,
+            //                     channelId: record.get('channelId'),
+            //                     issueId: record.getId()
+            //                 },
+            //                 {
+            //                     validationBlock: record.get('startTime'),
+            //                     validationBlockEndTime: record.get('endTime')
+            //                 }
+            //             );
+            //         }
+            //     },
+            //     estimateValues: this.estimateValue
+            // },
+            // '#reading-estimation-window #estimate-reading-button': {
+            //     click: this.estimateReading
+            // }
         });
     },
 
-    estimateValue: function (record) {
-        var me = this,
-            bothSuspected = false;
+    // estimateValue: function (record) {
+    //     var me = this,
+    //         bothSuspected = false;
+    //
+    //     me.getStore('Mdc.store.Estimators').load(function () {
+    //         me.getPage().setLoading(false);
+    //         Ext.widget('reading-estimation-window', {
+    //             itemId: 'reading-estimation-window',
+    //             record: record,
+    //             bothSuspected: bothSuspected
+    //         }).show();
+    //     });
+    // },
 
-        me.getStore('Mdc.store.Estimators').load(function () {
-            me.getPage().setLoading(false);
-            Ext.widget('reading-estimation-window', {
-                itemId: 'reading-estimation-window',
-                record: record,
-                bothSuspected: bothSuspected
-            }).show();
-        });
-    },
+    // estimateReading: function () {
+    //     var me = this,
+    //         propertyForm = me.getReadingEstimationWindow().down('#property-form'),
+    //         model = Ext.create('Idv.model.DeviceChannelDataSaveEstimate'),
+    //         estimateBulk = false,
+    //         record = me.getReadingEstimationWindow().record,
+    //         intervalsArray = [];
+    //
+    //     !me.getReadingEstimationWindow().down('#form-errors').isHidden() && me.getReadingEstimationWindow().down('#form-errors').hide();
+    //     !me.getReadingEstimationWindow().down('#error-label').isHidden() && me.getReadingEstimationWindow().down('#error-label').hide();
+    //     propertyForm.clearInvalid();
+    //
+    //     model.beginEdit();
+    //     if (propertyForm.getRecord()) {
+    //         propertyForm.updateRecord();
+    //         model.set('estimatorImpl', me.getReadingEstimationWindow().down('#estimator-field').getValue());
+    //         model.propertiesStore = propertyForm.getRecord().properties();
+    //     }
+    //     if (!me.getReadingEstimationWindow().down('#value-to-estimate-radio-group').isHidden()) {
+    //         estimateBulk = me.getReadingEstimationWindow().down('#value-to-estimate-radio-group').getValue().isBulk;
+    //     } else {
+    //         if (!Ext.isArray(record)) {
+    //             estimateBulk = record.get('readingType') && (record.get('readingType').isCumulative);
+    //         } else {
+    //             Ext.Array.findBy(record, function (item) {
+    //                 estimateBulk = item.get('readingType') && (item.get('readingType').isCumulative);
+    //                 return estimateBulk;
+    //             });
+    //         }
+    //     }
+    //     if (!Ext.isArray(record)) {
+    //         intervalsArray.push({
+    //             start: record.get('startTime'),
+    //             end: record.get('endTime')
+    //         });
+    //     } else {
+    //         Ext.Array.each(record, function (item) {
+    //             intervalsArray.push({
+    //                 start: record.get('startTime'),
+    //                 end: record.get('endTime')
+    //             });
+    //         });
+    //     }
+    //     model.set('estimateBulk', estimateBulk);
+    //     model.set('intervals', intervalsArray);
+    //     model.set('readingType', record.get('readingType'));
+    //     model.endEdit();
+    //     me.saveChannelDataEstimateModel(model, record);
+    // },
 
-    estimateReading: function () {
-        var me = this,
-            propertyForm = me.getReadingEstimationWindow().down('#property-form'),
-            model = Ext.create('Idv.model.DeviceChannelDataSaveEstimate'),
-            estimateBulk = false,
-            record = me.getReadingEstimationWindow().record,
-            intervalsArray = [];
-
-        !me.getReadingEstimationWindow().down('#form-errors').isHidden() && me.getReadingEstimationWindow().down('#form-errors').hide();
-        !me.getReadingEstimationWindow().down('#error-label').isHidden() && me.getReadingEstimationWindow().down('#error-label').hide();
-        propertyForm.clearInvalid();
-
-        model.beginEdit();
-        if (propertyForm.getRecord()) {
-            propertyForm.updateRecord();
-            model.set('estimatorImpl', me.getReadingEstimationWindow().down('#estimator-field').getValue());
-            model.propertiesStore = propertyForm.getRecord().properties();
-        }
-        if (!me.getReadingEstimationWindow().down('#value-to-estimate-radio-group').isHidden()) {
-            estimateBulk = me.getReadingEstimationWindow().down('#value-to-estimate-radio-group').getValue().isBulk;
-        } else {
-            if (!Ext.isArray(record)) {
-                estimateBulk = record.get('readingType') && (record.get('readingType').isCumulative);
-            } else {
-                Ext.Array.findBy(record, function (item) {
-                    estimateBulk = item.get('readingType') && (item.get('readingType').isCumulative);
-                    return estimateBulk;
-                });
-            }
-        }
-        if (!Ext.isArray(record)) {
-            intervalsArray.push({
-                start: record.get('startTime'),
-                end: record.get('endTime')
-            });
-        } else {
-            Ext.Array.each(record, function (item) {
-                intervalsArray.push({
-                    start: record.get('startTime'),
-                    end: record.get('endTime')
-                });
-            });
-        }
-        model.set('estimateBulk', estimateBulk);
-        model.set('intervals', intervalsArray);
-        model.set('readingType', record.get('readingType'));
-        model.endEdit();
-        me.saveChannelDataEstimateModel(model, record);
-    },
-
-    saveChannelDataEstimateModel: function (record, readings) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-
-        record.getProxy().extraParams = {
-            deviceId: me.getDetailForm().getRecord().get('device').name,
-            channelId: readings.get('channelId')
-        };
-
-        me.getReadingEstimationWindow().setLoading();
-        Ext.Ajax.suspendEvent('requestexception');
-        record.save({
-            callback: function (rec, operation, success) {
-                Ext.Ajax.resumeEvent('requestexception');
-                var responseText = Ext.decode(operation.response.responseText, true);
-                Ext.suspendLayouts();
-
-                if (success) {
-                    me.getReadingEstimationWindow().destroy();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.estimateSucceeded', 'IDL', 'Estimate values succeeded'));
-                    me.refreshGrid(me.getPage());
-                } else {
-                    me.getReadingEstimationWindow().setLoading(false);
-                    if (responseText) {
-                        if (responseText.message) {
-                            me.getReadingEstimationWindow().down('#error-label').show();
-                            me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
-                        } else if (responseText.errors) {
-                            me.getReadingEstimationWindow().down('#form-errors').show();
-                            me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
-                        }
-                    }
-                    else {
-                        me.getReadingEstimationWindow().down('#error-label').show();
-                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' +
-                            Uni.I18n.translate('devicechannels.saveEstimationErrorMessage', 'IDL', 'Could not estimate with {0}',
-                                me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()) + '</div>', false);
-
-                    }
-
-                }
-                Ext.resumeLayouts(true);
-            }
-        });
-    }
+    // saveChannelDataEstimateModel: function (record, readings) {
+    //     var me = this,
+    //         router = me.getController('Uni.controller.history.Router');
+    //
+    //     record.getProxy().extraParams = {
+    //         deviceId: me.getDetailForm().getRecord().get('device').name,
+    //         channelId: readings.get('channelId')
+    //     };
+    //
+    //     me.getReadingEstimationWindow().setLoading();
+    //     Ext.Ajax.suspendEvent('requestexception');
+    //     record.save({
+    //         callback: function (rec, operation, success) {
+    //             Ext.Ajax.resumeEvent('requestexception');
+    //             var responseText = Ext.decode(operation.response.responseText, true);
+    //             Ext.suspendLayouts();
+    //
+    //             if (success) {
+    //                 me.getReadingEstimationWindow().destroy();
+    //                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.estimateSucceeded', 'IDL', 'Estimate values succeeded'));
+    //                 me.refreshGrid(me.getPage());
+    //             } else {
+    //                 me.getReadingEstimationWindow().setLoading(false);
+    //                 if (responseText) {
+    //                     if (responseText.message) {
+    //                         me.getReadingEstimationWindow().down('#error-label').show();
+    //                         me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
+    //                     } else if (responseText.errors) {
+    //                         me.getReadingEstimationWindow().down('#form-errors').show();
+    //                         me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
+    //                     }
+    //                 }
+    //                 else {
+    //                     me.getReadingEstimationWindow().down('#error-label').show();
+    //                     me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' +
+    //                         Uni.I18n.translate('devicechannels.saveEstimationErrorMessage', 'IDL', 'Could not estimate with {0}',
+    //                             me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()) + '</div>', false);
+    //
+    //                 }
+    //
+    //             }
+    //             Ext.resumeLayouts(true);
+    //         }
+    //     });
+    // }
 });

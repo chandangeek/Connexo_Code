@@ -5,7 +5,6 @@
 package com.elster.jupiter.transaction;
 
 import aQute.bnd.annotation.ProviderType;
-import com.sun.xml.internal.bind.v2.TODO;
 
 @ProviderType
 public interface TransactionService {
