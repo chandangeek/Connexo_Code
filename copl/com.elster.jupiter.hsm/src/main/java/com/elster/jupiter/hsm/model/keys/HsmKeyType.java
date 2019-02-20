@@ -52,14 +52,17 @@ public class HsmKeyType {
          * This might be wrong but with no specs this is all I could do :)
          * Somehow it works E2E for 16 and 32 bytes. What we do for other sizes!? Hell knows!
          */
-        if (keySize == AES_KEY_LENGTH) {
-            return ProtectedSessionKeyType.AES;
+        if (HsmJssKeyType.AES.equals(this.hsmJssKeyType)) {
+            if (keySize == AES_KEY_LENGTH) {
+                return ProtectedSessionKeyType.AES;
+            }
+            if (keySize == AES256_KEY_LENGTH) {
+                return ProtectedSessionKeyType.AES_256;
+            }
+            throw new HsmBaseException("Could not determine session key type for key length (expected 16 or 32):" + keySize);
         }
+        throw new HsmBaseException("Only AES device key accepted:" + keySize);
 
-        if (keySize == AES256_KEY_LENGTH) {
-            return ProtectedSessionKeyType.AES_256;
-        }
-        throw new HsmBaseException("Could not determine session key type for key length:" + keySize);
     }
 
     @Override
@@ -81,7 +84,6 @@ public class HsmKeyType {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(hsmJssKeyType, label, importCapability, renewCapability, keySize, isReversible);
     }
 
