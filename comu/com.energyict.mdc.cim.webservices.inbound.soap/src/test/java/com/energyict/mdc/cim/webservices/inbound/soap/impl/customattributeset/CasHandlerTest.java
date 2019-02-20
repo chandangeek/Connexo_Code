@@ -7,6 +7,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
 
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.FaultSituationHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.LoggerUtils;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
@@ -15,14 +16,9 @@ import com.energyict.mdc.device.data.Device;
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 
 import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.After;
@@ -44,13 +40,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CasHandlerTest {
 
-    private static final Instant NOW = Instant.now();
-    private static final Instant _30_DAYS_LATTER = NOW.plus(30, ChronoUnit.DAYS);
-    public static final Instant FROM_DATE = NOW;
-    public static final Instant END_DATE = NOW;
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());;
-    public static final String NON_VERSIONED_CAS_ID = "com.honeywell.cps.device.NonVersioned";
-    public static final String DEVICE_1_NAME = "device1";
+    private static final String NON_VERSIONED_CAS_ID = "com.honeywell.cps.device.NonVersioned";
+    private static final String VERSIONED_CAS_ID = "com.honeywell.cps.device.Versioned";
+    private static final String DEVICE_1_NAME = "device1";
     private CasHandler toTest;
     @Mock
     private CustomPropertySetService customPropertySetService;
@@ -65,13 +57,13 @@ public class CasHandlerTest {
     @Mock
     private Device device;
     @Mock
-    private RegisteredCustomPropertySet registeredCustomPropertySet;
-    @Mock
     private FaultMessage faultMessage;
     @Mock
-    private CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet;
+    private VersionedCasHandler versionedCasHandler;
 
-    private List<CasInfo> customPropertySetsData;
+
+    @Mock
+    private AttributeUpdater attributeUpdater;
 
     @Before
     public void setUp() throws Exception {
@@ -81,9 +73,15 @@ public class CasHandlerTest {
             LoggerUtils getLoggerUtils(Thesaurus thesaurus, MeterConfigFaultMessageFactory faultMessageFactory) {
                 return loggerUtils;
             }
+            @Override
+            VersionedCasHandler getVersionedCasHandler(Device device, FaultSituationHandler faultSituationHandler, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet, AttributeUpdater attributeUpdater) {
+                return versionedCasHandler;
+            }
+            @Override
+            AttributeUpdater getAttributeUpdater(Device device, FaultSituationHandler faultSituationHandler, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet) {
+                return attributeUpdater;
+            }
         };
-        customPropertySetsData = Collections.singletonList(nonVersionedCas());
-
         when(device.getName()).thenReturn(DEVICE_1_NAME);
     }
 
@@ -101,6 +99,7 @@ public class CasHandlerTest {
 
     @Test
     public void logAnyNonFaultException() {
+        List<CasInfo> customPropertySetsData = Collections.singletonList(prepareCasInfo(NON_VERSIONED_CAS_ID));
 
         toTest.addCustomPropertySetsData(device, customPropertySetsData);
 
@@ -110,6 +109,7 @@ public class CasHandlerTest {
 
     @Test
     public void logFaultExceptionIfNoRegisteredCasForId() {
+        List<CasInfo> customPropertySetsData = Collections.singletonList(prepareCasInfo(NON_VERSIONED_CAS_ID));
         when(customPropertySetService.findActiveCustomPropertySet(NON_VERSIONED_CAS_ID)).thenReturn(Optional.ofNullable(null));
         when(faultMessageFactory.meterConfigFaultMessageSupplier(DEVICE_1_NAME, MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET, NON_VERSIONED_CAS_ID)).thenReturn(() -> faultMessage);
 
@@ -121,50 +121,58 @@ public class CasHandlerTest {
     @Test
     public void addUnVersionedCustomAttributes() {
         String nonVersionedCasId = NON_VERSIONED_CAS_ID;
-        prepareRegisteredCustomPropertySet(nonVersionedCasId);
+        CustomPropertySet customPropertySet = prepareRegisteredCustomPropertySet(nonVersionedCasId, false);
+        CasInfo nonVersionedCas = prepareCasInfo(NON_VERSIONED_CAS_ID);
+        List<CasInfo> customPropertySetsData = Collections.singletonList(nonVersionedCas);
+        CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
+        when(attributeUpdater.newCasValues(nonVersionedCas)).thenReturn(customPropertySetValues);
 
         toTest.addCustomPropertySetsData(device, customPropertySetsData);
 
-        verify(customPropertySetService).setValuesFor(eq(customPropertySet), eq(device), isA(CustomPropertySetValues.class));
+        verify(customPropertySetService).setValuesFor(customPropertySet, device, customPropertySetValues);
     }
 
-//    @Test
-//    public void logExceptionIfAny() {
-//
-//        toTest.addCustomPropertySetsData(device, customPropertySetsData);
-//
-//        verify(loggerUtils).logException(eq(device), any(), any(), isA(Exception.class),
-//                eq(MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET), eq(NON_VERSIONED_CAS_ID));
-//    }
-//
+    @Test
+    public void addVersionedCustomAttributes() throws FaultMessage {
+        CasInfo versionedCasInfo = prepareCasInfo(VERSIONED_CAS_ID);
+        List<CasInfo> customPropertySetsData = Collections.singletonList(versionedCasInfo);
+        prepareRegisteredCustomPropertySet(VERSIONED_CAS_ID, true);
 
-    private CasInfo nonVersionedCas() {
+        toTest.addCustomPropertySetsData(device, customPropertySetsData);
+
+        verify(versionedCasHandler).handleVersionedCas(versionedCasInfo);
+    }
+
+    @Test
+    public void addVersionedAndUnVersionedCustomAttributes() throws FaultMessage {
+        CustomPropertySet customPropertySet = prepareRegisteredCustomPropertySet(NON_VERSIONED_CAS_ID, false);
+        prepareRegisteredCustomPropertySet(VERSIONED_CAS_ID, true);
+        CasInfo nonVersionedCas = prepareCasInfo(NON_VERSIONED_CAS_ID);
+        CasInfo versionedCasInfo = prepareCasInfo(VERSIONED_CAS_ID);
+        List<CasInfo> customPropertySetsData = Arrays.asList(nonVersionedCas, versionedCasInfo);
+        CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
+        when(attributeUpdater.newCasValues(nonVersionedCas)).thenReturn(customPropertySetValues);
+
+        toTest.addCustomPropertySetsData(device, customPropertySetsData);
+
+        verify(customPropertySetService).setValuesFor(customPropertySet, device, customPropertySetValues);
+        verify(versionedCasHandler).handleVersionedCas(versionedCasInfo);
+    }
+
+
+    private CasInfo prepareCasInfo(String casId) {
         CasInfo casInfo = new CasInfo();
-        casInfo.setId(NON_VERSIONED_CAS_ID);
-        Map<String, String> attributesNameValue = new HashMap<>();
-        attributesNameValue.put("batteryType","AAA");
-        attributesNameValue.put("batteryReplacementDate", DATE_TIME_FORMATTER.format(_30_DAYS_LATTER));
-        casInfo.setAttributes(attributesNameValue);
+        casInfo.setId(casId);
         return casInfo;
     }
 
-    private CasInfo versionedCas() {
-        CasInfo casInfo = new CasInfo();
-        casInfo.setFromDate(FROM_DATE);
-        casInfo.setEndDate(END_DATE);
-        Map<String, String> attributesNameValue = new HashMap<>();
-        attributesNameValue.put("status","Active");
-        attributesNameValue.put("iccid","111");
-        attributesNameValue.put("provider","Vodafone");
-        attributesNameValue.put("format","Full-size (1FF)");
-        attributesNameValue.put("batchId","2222");
-        attributesNameValue.put("imsi","1234567890");
-        casInfo.setAttributes(attributesNameValue);
-        return casInfo;
-    }
+    private CustomPropertySet<Device, ? extends PersistentDomainExtension> prepareRegisteredCustomPropertySet(String casId, boolean versioned) {
+        CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet = mock(CustomPropertySet.class);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
 
-    private void prepareRegisteredCustomPropertySet(String nonVersionedCasId) {
-        when(customPropertySetService.findActiveCustomPropertySet(nonVersionedCasId)).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(customPropertySet.isVersioned()).thenReturn(versioned);
+        when(customPropertySetService.findActiveCustomPropertySet(casId)).thenReturn(Optional.of(registeredCustomPropertySet));
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        return customPropertySet;
     }
 }

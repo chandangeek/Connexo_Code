@@ -36,18 +36,18 @@ public class AttributeUpdater {
         return values;
     }
 
-    public void updateCasValues(CasInfo newCustomProperySetInfo, CustomPropertySetValues values) {
+    public void updateCasValues(CasInfo newCasInfo, CustomPropertySetValues values) {
         List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
-        for (Map.Entry<String, String> newAttributeNameAndValue : newCustomProperySetInfo.getAttributes().entrySet()) {
+        for (Map.Entry<String, String> newAttributeNameAndValue : newCasInfo.getAttributes().entrySet()) {
             String attributeName = newAttributeNameAndValue.getKey();
             Optional<PropertySpec> propertySpec = propertySpecs.stream()
                     .filter(spec -> spec.getName().equals(attributeName)).findAny();
             if (propertySpec.isPresent()) {
-                setAttributeValue(device, newCustomProperySetInfo, values,
+                setAttributeValue(device, newCasInfo, values,
                         newAttributeNameAndValue, propertySpec.get());
             } else {
                 exceptionHandler.logSevere(device, MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE,
-                        attributeName, newCustomProperySetInfo.getId());
+                        attributeName, newCasInfo.getId());
             }
         }
     }

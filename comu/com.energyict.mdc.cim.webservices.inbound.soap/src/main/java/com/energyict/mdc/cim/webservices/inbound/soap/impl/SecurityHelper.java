@@ -26,7 +26,6 @@ import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -56,52 +55,44 @@ public class SecurityHelper {
 
 	public List<FaultMessage> addSecurityKeys(Device device, List<SecurityKeyInfo> securityInfoList,
 			ServiceCall serviceCall) {
-		List<FaultMessage> allFaults = new ArrayList<>();
+		FaultSituationHandler faultSituationHandler = new FaultSituationHandler(serviceCall, loggerUtils, null);
 		Optional.ofNullable(securityInfoList)
 				.orElseGet(Collections::emptyList)
-				.stream().forEach(securityInfo -> handleSecurityInfo(device, serviceCall, allFaults, securityInfo));
-		return allFaults;
+				.stream().forEach(securityInfo -> handleSecurityInfo(device, serviceCall, securityInfo, faultSituationHandler));
+		return faultSituationHandler.faults();
 	}
 
-	private void handleSecurityInfo(Device device, ServiceCall serviceCall, List<FaultMessage> allFaults, SecurityKeyInfo securityInfo) {
+	private void handleSecurityInfo(Device device, ServiceCall serviceCall, SecurityKeyInfo securityInfo, FaultSituationHandler faultSituationHandler) {
 		try {
 			loggerUtils.logInfo(serviceCall, MessageSeeds.IMPORTING_SECURITY_KEY_FOR_DEVICE, device.getName(),
 					securityInfo.getSecurityAccessorName());
-			List<FaultMessage> faults = addKey(device, securityInfo, serviceCall);
-			if (faults != null && !faults.isEmpty()) {
-				allFaults.addAll(faults);
+			Optional<SecurityAccessorType> optionalSecurityAccessorType = getSecurityAccessorType(device,
+					securityInfo.getSecurityAccessorName());
+			SecurityAccessorType securityAccessorType;
+			if (optionalSecurityAccessorType.isPresent()) {
+				addKey(device, securityInfo, faultSituationHandler, optionalSecurityAccessorType.get());
+			} else {
+				faultSituationHandler.logSevere(device, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE,
+						device.getName(), securityInfo.getSecurityAccessorName());
 			}
 		} catch (Exception e) {
-			loggerUtils.logException(device, allFaults, serviceCall, e, MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT,
+			faultSituationHandler.logException(device, e, MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT,
 					device.getName(), securityInfo.getSecurityAccessorName());
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<FaultMessage> addKey(Device device, SecurityKeyInfo securityInfo, ServiceCall serviceCall) {
-		final List<FaultMessage> faults = new ArrayList<>();
-		Optional<SecurityAccessorType> optionalSecurityAccessorType = getSecurityAccessorType(device,
-				securityInfo.getSecurityAccessorName());
-		SecurityAccessorType securityAccessorType;
-		if (optionalSecurityAccessorType.isPresent()) {
-			securityAccessorType = optionalSecurityAccessorType.get();
-		} else {
-			loggerUtils.logSevere(device, faults, serviceCall, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE,
-					device.getName(), securityInfo.getSecurityAccessorName());
-			return faults;
-		}
+	private void addKey(Device device, SecurityKeyInfo securityInfo, FaultSituationHandler faultSituationHandler, SecurityAccessorType securityAccessorType) {
 
 		final SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType)
 				.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
-
 		if (securityInfo.getPublicKeyLabel() != null && securityInfo.getSymmetricKey() != null) {
-			handleEncryptedKey(device, securityInfo, serviceCall, faults, securityAccessorType, securityAccessor);
+			handleEncryptedKey(device, securityInfo, faultSituationHandler, securityAccessorType, securityAccessor);
 		} else if (securityInfo.getPublicKeyLabel() == null && securityInfo.getSymmetricKey() == null) {
 			handlePlaintextKey(securityAccessorType, securityAccessor, securityInfo.getSecurityAccessorKey());
 		} else {
-			loggerUtils.logSevere(device, faults, serviceCall, MessageSeeds.BOTH_PUBLIC_AND_SYMMETRIC_KEYS_SHOULD_BE_SPECIFIED);
+			faultSituationHandler.logSevere(device, MessageSeeds.BOTH_PUBLIC_AND_SYMMETRIC_KEYS_SHOULD_BE_SPECIFIED);
 		}
-		return faults;
 	}
 
 	private void handlePlaintextKey(SecurityAccessorType securityAccessorType, SecurityAccessor securityAccessor, byte[] securityAccessorKey) {
@@ -117,12 +108,12 @@ public class SecurityHelper {
 		securityAccessor.save();
 	}
 
-	private void handleEncryptedKey(Device device, SecurityKeyInfo securityInfo, ServiceCall serviceCall, List<FaultMessage> faults, SecurityAccessorType securityAccessorType, SecurityAccessor securityAccessor) {
+	private void handleEncryptedKey(Device device, SecurityKeyInfo securityInfo, FaultSituationHandler faultSituationHandler, SecurityAccessorType securityAccessorType, SecurityAccessor securityAccessor) {
 		HsmEncryptedKey hsmEncryptedKey = null;
 		try {
 			hsmEncryptedKey = hsmEnergyService.importKey(createImportKeyRequest(securityInfo, securityAccessorType));
 		} catch (HsmBaseException hsmEx) {
-			loggerUtils.logException(device, faults, serviceCall, hsmEx, MessageSeeds.CANNOT_IMPORT_KEY_TO_HSM,
+			faultSituationHandler.logException(device, hsmEx, MessageSeeds.CANNOT_IMPORT_KEY_TO_HSM,
 					device.getName(), securityInfo.getSecurityAccessorName());
 			return;
 		}

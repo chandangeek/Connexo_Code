@@ -101,9 +101,10 @@ public class CasHandler {
                     .get().getCustomPropertySet();
 
 
-            AttributeUpdater attributeUpdater = new AttributeUpdater(faultSituationHandler, device, customPropertySet);
+            AttributeUpdater attributeUpdater = getAttributeUpdater(device, faultSituationHandler, customPropertySet);
             if (customPropertySet.isVersioned()) {
-                new VersionedCasHandler(device, customPropertySet, customPropertySetService, attributeUpdater, faultSituationHandler, clock).handleVersionedCas(newCasInfo);
+                getVersionedCasHandler(device, faultSituationHandler, customPropertySet, attributeUpdater)
+                        .handleVersionedCas(newCasInfo);
             } else {
                 CustomPropertySetValues customPropertySetValues = attributeUpdater.newCasValues(newCasInfo);
                 if (!attributeUpdater.anyFaults()) {
@@ -117,6 +118,14 @@ public class CasHandler {
                     MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, newCasInfo.getId());
         }
         return faultSituationHandler.faults();
+    }
+
+    AttributeUpdater getAttributeUpdater(Device device, FaultSituationHandler faultSituationHandler, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet) {
+        return new AttributeUpdater(faultSituationHandler, device, customPropertySet);
+    }
+
+    VersionedCasHandler getVersionedCasHandler(Device device, FaultSituationHandler faultSituationHandler, CustomPropertySet<Device, ? extends PersistentDomainExtension> customPropertySet, AttributeUpdater attributeUpdater) {
+        return new VersionedCasHandler(device, customPropertySet, customPropertySetService, attributeUpdater, faultSituationHandler, clock);
     }
 
     LoggerUtils getLoggerUtils(Thesaurus thesaurus, MeterConfigFaultMessageFactory faultMessageFactory) {
