@@ -502,6 +502,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         ServiceCall serviceCall = findActiveServiceCallByDevice(device).orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.ACTIVE_SERVICE_CALL_BY_DEVICE_NOT_FOUND, device
                 .getName()));
         if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
+
             serviceCall.requestTransition(DefaultState.CANCELLED);
         }
         return serviceCallService.getServiceCall(serviceCall.getId()).get();
@@ -514,6 +515,8 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .ifPresent(serviceCall -> {
                     serviceCallService.lockServiceCall(serviceCall.getId());
                     serviceCall.requestTransition(DefaultState.CANCELLED);
+                    serviceCall.getExtension(TimeOfUseCampaignDomainExtension.class)
+                            .ifPresent(timeOfUseCampaignDomainExtension -> serviceCall.update(timeOfUseCampaignDomainExtension));
                     serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.CANCELED_BY_USER.getKey(), MessageSeeds.CANCELED_BY_USER.getDefaultFormat()));
                 });
     }

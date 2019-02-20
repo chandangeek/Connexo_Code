@@ -6,9 +6,12 @@ package com.energyict.mdc.tou.campaign.rest.impl;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.Instant;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TimeOfUseCampaignInfo {
 
     public long id;
@@ -26,6 +29,5 @@ public class TimeOfUseCampaignInfo {
     public Instant activationDate;
     public String updateType;
     public long validationTimeout;
-    public List<PropertyInfo> properties;
     public long version;
 }

@@ -106,7 +106,7 @@ public class TimeOfUseCampaignResource {
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getToUCampaignDevices(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         List<String> states = filter.getStringList("status").stream().map(DefaultState::valueOf).map(DefaultState::getKey).collect(Collectors.toList());
-        QueryStream<? extends TimeOfUseItem> devices = timeOfUseCampaignService.streamDevicesInCampaigns().join(ServiceCall.class).join(State.class)
+        QueryStream<? extends TimeOfUseItem> devices = timeOfUseCampaignService.streamDevicesInCampaigns().join(ServiceCall.class).join(ServiceCall.class).join(State.class)
                 .sorted(Order.ascending("device")).filter(Where.where("serviceCall.parent.id").isEqualTo(id));
         if (states.size() > 0) {
             devices.filter(Where.where("serviceCall.state.name").in(states));
