@@ -17,17 +17,20 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 
-import static com.energyict.mdc.tou.campaign.rest.impl.RestUtil.getStatus;
+import static com.energyict.mdc.tou.campaign.rest.impl.RestUtil.getCampaignStatus;
+import static com.energyict.mdc.tou.campaign.rest.impl.RestUtil.getDeviceStatus;
 
 public class TimeOfUseCampaignInfoFactory {
 
     private final TimeOfUseCampaignService timeOfUseCampaignService;
     private final Clock clock;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public TimeOfUseCampaignInfoFactory(TimeOfUseCampaignService timeOfUseCampaignService, Clock clock) {
+    public TimeOfUseCampaignInfoFactory(TimeOfUseCampaignService timeOfUseCampaignService, Clock clock, Thesaurus thesaurus) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.clock = clock;
+        this.thesaurus = thesaurus;
     }
 
     public TimeOfUseCampaign build(TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
@@ -77,23 +80,22 @@ public class TimeOfUseCampaignInfoFactory {
         return timeOfUseCampaignInfo;
     }
 
-    public TimeOfUseCampaignInfo getOverviewCampaignInfo(TimeOfUseCampaign campaign, DefaultState status, Thesaurus thesaurus) {
+    public TimeOfUseCampaignInfo getOverviewCampaignInfo(TimeOfUseCampaign campaign) {
         TimeOfUseCampaignInfo info = from(campaign);
         ServiceCall campaignsServiceCall = campaign.getServiceCall();
         info.startedOn = campaignsServiceCall.getCreationTime();
         info.finishedOn = (campaignsServiceCall.getState().equals(DefaultState.CANCELLED)
                 || campaignsServiceCall.getState().equals(DefaultState.SUCCESSFUL)) ? campaignsServiceCall.getLastModificationTime() : null;
-        info.status = status.equals(DefaultState.SUCCESSFUL) ? thesaurus.getString(TranslationKeys.STATUS_COMPLETED.getKey(), TranslationKeys.STATUS_COMPLETED.getDefaultFormat())
-                : thesaurus.getString(status.getKey(), status.getDefaultFormat());
+        info.status = getCampaignStatus(campaignsServiceCall.getState(), thesaurus);
         info.devices = new ArrayList<>();
-        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.SUCCESSFUL, thesaurus), 0L));
-        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.FAILED, thesaurus), 0L));
-        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.REJECTED, thesaurus), 0L));
-        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.ONGOING, thesaurus), 0L));
-        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.PENDING, thesaurus), 0L));
-        info.devices.add(new DevicesStatusAndQuantity(getStatus(DefaultState.CANCELLED, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getDeviceStatus(DefaultState.SUCCESSFUL, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getDeviceStatus(DefaultState.FAILED, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getDeviceStatus(DefaultState.REJECTED, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getDeviceStatus(DefaultState.ONGOING, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getDeviceStatus(DefaultState.PENDING, thesaurus), 0L));
+        info.devices.add(new DevicesStatusAndQuantity(getDeviceStatus(DefaultState.CANCELLED, thesaurus), 0L));
         timeOfUseCampaignService.getChildrenStatusFromCampaign(campaign.getId()).forEach((deviceStatus, quantity) ->
-                info.devices.stream().filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.equals(getStatus(deviceStatus, thesaurus)))
+                info.devices.stream().filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.equals(getDeviceStatus(deviceStatus, thesaurus)))
                         .findAny().ifPresent(devicesStatusAndQuantity -> devicesStatusAndQuantity.quantity = quantity));
         return info;
     }

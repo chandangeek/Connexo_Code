@@ -8,6 +8,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -18,6 +19,8 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
@@ -52,12 +55,13 @@ public class TimeOfUseCampaignResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final DeviceService deviceService;
     private final ServiceCallService serviceCallService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
     public TimeOfUseCampaignResource(TimeOfUseCampaignService timeOfUseCampaignService, TimeOfUseCampaignInfoFactory timeOfUseCampaignInfoFactory,
                                      Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory,
                                      DeviceTypeAndOptionsInfoFactory deviceTypeAndOptionsInfoFactory, DeviceInCampaignInfoFactory deviceInCampaignInfoFactory,
-                                     DeviceService deviceService, ServiceCallService serviceCallService) {
+                                     DeviceService deviceService, ServiceCallService serviceCallService, ExceptionFactory exceptionFactory) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.timeOfUseCampaignInfoFactory = timeOfUseCampaignInfoFactory;
         this.thesaurus = thesaurus;
@@ -66,6 +70,7 @@ public class TimeOfUseCampaignResource {
         this.deviceInCampaignInfoFactory = deviceInCampaignInfoFactory;
         this.deviceService = deviceService;
         this.serviceCallService = serviceCallService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -78,7 +83,7 @@ public class TimeOfUseCampaignResource {
         queryParameters.getStart().ifPresent(campaigns::skip);
         queryParameters.getLimit().ifPresent(limit -> campaigns.limit(limit + 1));
         List<TimeOfUseCampaignInfo> touCampaigns = campaigns
-                .map(o -> timeOfUseCampaignInfoFactory.getOverviewCampaignInfo(o, o.getServiceCall().getState(), thesaurus)).collect(Collectors.toList());
+                .map(timeOfUseCampaignInfoFactory::getOverviewCampaignInfo).collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("touCampaigns", touCampaigns, queryParameters)).build();
     }
 
@@ -90,8 +95,7 @@ public class TimeOfUseCampaignResource {
     public Response getToUCampaign(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaign(id)
                 .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_TIME_OF_USE_CAMPAIGN_IS_FOUND));
-        TimeOfUseCampaignInfo timeOfUseCampaignInfo = timeOfUseCampaignInfoFactory.getOverviewCampaignInfo(timeOfUseCampaign,
-                timeOfUseCampaign.getServiceCall().getState(), thesaurus);
+        TimeOfUseCampaignInfo timeOfUseCampaignInfo = timeOfUseCampaignInfoFactory.getOverviewCampaignInfo(timeOfUseCampaign);
         return Response.ok(timeOfUseCampaignInfo).build();
     }
 
@@ -129,12 +133,13 @@ public class TimeOfUseCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response retryDevice(IdWithNameInfo id) {
-        ServiceCall serviceCall = timeOfUseCampaignService.findActiveServiceCallByDevice(deviceService.findDeviceById(((Number) id.id).longValue()).get()).get();
+        Device device = deviceService.findDeviceById(((Number) id.id).longValue()).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_WITH_ID_NOT_FOUND, id));
+        ServiceCall serviceCall = timeOfUseCampaignService.findActiveServiceCallByDevice(device).get();
         serviceCallService.lockServiceCall(serviceCall.getId())
                 .orElseThrow(conflictFactory.contextDependentConflictOn(serviceCall.getType().getName())
                         .withActualVersion(() -> getCurrentCampaignVersion(serviceCall.getId()))
                         .supplier());
-        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.createOnRetry(id);
+        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.createOnRetry(device);
         return Response.ok(deviceInCampaignInfo).build();
     }
 
@@ -144,12 +149,13 @@ public class TimeOfUseCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response cancelDevice(IdWithNameInfo id) {
-        ServiceCall serviceCall = timeOfUseCampaignService.findActiveServiceCallByDevice(deviceService.findDeviceById(((Number) id.id).longValue()).get()).get();
+        Device device = deviceService.findDeviceById(((Number) id.id).longValue()).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_WITH_ID_NOT_FOUND, id));
+        ServiceCall serviceCall = timeOfUseCampaignService.findActiveServiceCallByDevice(device).get();
         serviceCallService.lockServiceCall(serviceCall.getId())
                 .orElseThrow(conflictFactory.contextDependentConflictOn(serviceCall.getType().getName())
                         .withActualVersion(() -> getCurrentCampaignVersion(serviceCall.getId()))
                         .supplier());
-        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.createOnCancel(id);
+        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.createOnCancel(device);
         return Response.ok(deviceInCampaignInfo).build();
     }
 
@@ -199,7 +205,10 @@ public class TimeOfUseCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getSendOptionsForType(@QueryParam("type") Long deviceTypeId) {
-        DeviceTypeAndOptionsInfo deviceTypeAndOptionsInfo = deviceTypeAndOptionsInfoFactory.create(deviceTypeId, timeOfUseCampaignService);
+        DeviceType deviceType = timeOfUseCampaignService.getDeviceTypesWithCalendars().stream()
+                .filter(deviceType1 -> deviceType1.getId() == deviceTypeId)
+                .findAny().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_NOT_FOUND, deviceTypeId));
+        DeviceTypeAndOptionsInfo deviceTypeAndOptionsInfo = deviceTypeAndOptionsInfoFactory.create(deviceType);
         return Response.ok(deviceTypeAndOptionsInfo).build();
     }
 

@@ -66,7 +66,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -97,19 +97,19 @@ public class ToUCampaignServiceTest {
     private static DeviceConfigurationService deviceConfigurationService = mock(DeviceConfigurationService.class);
     private static DeviceMessageSpecificationService deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
     private static EventService eventService = mock(EventService.class);
-    private static DataModel dataModel = mock(DataModel.class);
-    private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+    private DataModel dataModel = mock(DataModel.class);
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private static ServiceCallService serviceCallService = mock(ServiceCallService.class);
-    private static RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+    private RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
     private static TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
-    private static TimeOfUseSendHelper timeOfUseSendHelper;
-    private static BundleContext bundleContext = mock(BundleContext.class);
-    private static Calendar calendar = mock(Calendar.class);
-    private static ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-    private static ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
+    private TimeOfUseSendHelper timeOfUseSendHelper;
+    private BundleContext bundleContext = mock(BundleContext.class);
+    private Calendar calendar = mock(Calendar.class);
+    private ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+    private ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
 
-    @BeforeClass
-    public static void setUp() {
+    @Before
+    public void setUp() {
         timeOfUseSendHelper = new TimeOfUseSendHelper(thesaurus, deviceConfigurationService, deviceMessageSpecificationService, timeOfUseCampaignService);
         //when(dataModel.getInstance(TimeOfUseSendHelper.class)).thenReturn(timeOfUseSendHelper);
         when(nlsService.getThesaurus(anyString(), any())).thenReturn(thesaurus);
@@ -248,7 +248,7 @@ public class ToUCampaignServiceTest {
         comTaskExecutions.add(comTaskExecution);
         comTaskExecutions.add(comTaskExecution2);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
-        when(comTaskExecution.getConnectionTask()).thenReturn(Optional.ofNullable(connectionTask));
+        when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(connectionTask));
 
         when(device.getComTaskExecutions()).thenReturn(comTaskExecutions);
         when(device.newDeviceMessage(any())).thenReturn(messageBuilder);
@@ -256,7 +256,7 @@ public class ToUCampaignServiceTest {
         when(propertySpec.getValueFactory()).thenReturn(valueFactory);
         when(valueFactory.getValueType()).thenReturn(Date.class);
         when(deviceMessageSpec.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
-        when(deviceMessageSpecificationService.findMessageSpecById(anyLong())).thenReturn(Optional.ofNullable(deviceMessageSpec));
+        when(deviceMessageSpecificationService.findMessageSpecById(anyLong())).thenReturn(Optional.of(deviceMessageSpec));
         when(device.getId()).thenReturn(1L);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getAllowedCalendars()).thenReturn(Collections.singletonList(allowedCalendar));
