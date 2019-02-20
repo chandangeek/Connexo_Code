@@ -165,7 +165,7 @@ Ext.define('Tou.view.AddForm', {
                 xtype: 'combobox',
                 itemId: 'tou-campaign-allowed-calendar',
                 name: 'сalendar',
-                fieldLabel: Uni.I18n.translate('general.touCalendar', 'TOU', 'Tou calendar'),
+                fieldLabel: Uni.I18n.translate('general.touCalendar', 'TOU', 'Time of use calendar'),
                 required: true,
                 allowBlank: false,
                 forceSelection: true,

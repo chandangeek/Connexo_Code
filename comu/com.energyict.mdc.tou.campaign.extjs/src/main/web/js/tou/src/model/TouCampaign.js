@@ -82,9 +82,9 @@ Ext.define('Tou.model.TouCampaign', {
     proxy: {
         type: 'rest',
         api: {
-            read: '/api/tou/touCampaigns',
-            create: '/api/tou/touCampaigns/create',
-            update: '/api/tou/touCampaigns/{touCampaignId}/edit'
+            read: '/api/tou/toucampaigns',
+            create: '/api/tou/toucampaigns/create',
+            update: '/api/tou/toucampaigns/{touCampaignId}/edit'
         },
         reader: {
             type: 'json'
@@ -94,7 +94,7 @@ Ext.define('Tou.model.TouCampaign', {
             return this.api.update;
         },
         resetUpdateUrl: function () {
-            this.api.update = '/api/tou/touCampaigns/{touCampaignId}/edit';
+            this.api.update = '/api/tou/toucampaigns/{touCampaignId}/edit';
         }
     },
     convertObjectField: function (value) {
