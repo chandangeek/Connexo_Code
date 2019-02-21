@@ -52,9 +52,18 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
     }
 
     @Override
-    public byte[] asymmetricDecrypt(KeyLabel label, byte[] cipher, PaddingAlgorithm paddingAlgorithm) throws  HsmBaseException {
+    public byte[] asymmetricDecrypt(byte[] cipher, String label, PaddingAlgorithm paddingAlgorithm) throws  HsmBaseException {
         try {
-            return Asymmetric.decrypt(label, cipher, paddingAlgorithm);
+            return Asymmetric.decrypt(new KeyLabel(label), cipher, paddingAlgorithm);
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException(e);
+        }
+    }
+
+    @Override
+    public byte[] asymmetricEncryp(byte[] bytes, String label, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
+        try {
+            return Asymmetric.encrypt(new KeyLabel(label), bytes, paddingAlgorithm);
         } catch (FunctionFailedException e) {
             throw new HsmBaseException(e);
         }

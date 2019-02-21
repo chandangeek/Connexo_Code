@@ -62,7 +62,7 @@ public class ImportKeyRequest {
      * otherwise same value as the one in file is returned.
      * @throws HsmBaseException if underlying configuration for HSM is not available
      */
-    private String getWrapperLabel(HsmConfiguration hsmConfiguration) throws HsmBaseException {
+    public String getWrapperLabel(HsmConfiguration hsmConfiguration) throws HsmBaseException {
         return hsmConfiguration.map(wrapperKeyLabel);
     }
 

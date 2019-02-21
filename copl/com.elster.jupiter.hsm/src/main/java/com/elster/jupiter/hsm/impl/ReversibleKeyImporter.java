@@ -19,8 +19,8 @@ import java.security.InvalidKeyException;
 public class ReversibleKeyImporter {
 
     public HsmReversibleKey importKey(ImportKeyRequest importKeyRequest, HsmConfiguration hsmConfiguration, HsmEncryptionService encryptService) throws HsmBaseException {
-        byte[] wrapperKey = encryptService.asymmetricDecrypt(importKeyRequest.getWrapLabel(hsmConfiguration), importKeyRequest.getTransportKey(hsmConfiguration)
-                .getValue(), importKeyRequest.getWrapperKeyAlgorithm().getHsmSpecs().getPaddingAlgorithm());
+        byte[] wrapperKey = encryptService.asymmetricDecrypt(importKeyRequest.getTransportKey(hsmConfiguration)
+                .getValue(), importKeyRequest.getWrapperLabel(hsmConfiguration), importKeyRequest.getWrapperKeyAlgorithm().getHsmSpecs().getPaddingAlgorithm());
 
         byte[] plainKey = decrypt(importKeyRequest, wrapperKey);
         return new HsmReversibleKey(plainKey, importKeyRequest.getStorageLabel());

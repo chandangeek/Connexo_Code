@@ -18,5 +18,7 @@ public interface HsmEncryptionService {
 
     byte[] symmetricDecrypt(byte[] cipher, String label, byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException;
 
-    byte[] asymmetricDecrypt(KeyLabel label, byte[] cipher, PaddingAlgorithm paddingAlgorithm) throws  HsmBaseException;
+    byte[] asymmetricDecrypt(byte[] cipher, String label, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException;
+
+    byte[] asymmetricEncryp(byte[] bytes, String label, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException;
 }
