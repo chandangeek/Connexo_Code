@@ -312,10 +312,23 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
-    private void findAndAddUser(String userDN, List<LdapUser> ldapUsers, DirContext ctx) throws NamingException {
+    private void findAndAddUser(String memberUser, List<LdapUser> ldapUsers, DirContext ctx) throws NamingException {
         SearchControls userControls = new SearchControls();
-        userControls.setSearchScope(SearchControls.OBJECT_SCOPE);
-        NamingEnumeration userEnumeration = ctx.search(userDN, "(objectClass=person)", userControls);
+        String start;
+        String filter;
+        if (memberUser.indexOf(',') > 2) {
+            // cn=John Doe,dc=example,dc=com
+            userControls.setSearchScope(SearchControls.OBJECT_SCOPE);
+            start = memberUser; //
+            filter = "(objectClass=person)";
+        } else {
+            // uid=Join123
+            userControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            start = "";
+            filter = "(&(objectClass=person)(" + memberUser + "))";
+        }
+
+        NamingEnumeration userEnumeration = ctx.search(start, filter, userControls);
         if (userEnumeration.hasMore()) {
             addUser(userEnumeration, ldapUsers);
         }
