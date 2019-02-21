@@ -20,5 +20,5 @@ public interface HsmEncryptionService {
 
     byte[] asymmetricDecrypt(byte[] cipher, String label, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException;
 
-    byte[] asymmetricEncryp(byte[] bytes, String label, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException;
+    byte[] asymmetricEncrypt(byte[] bytes, String label, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException;
 }

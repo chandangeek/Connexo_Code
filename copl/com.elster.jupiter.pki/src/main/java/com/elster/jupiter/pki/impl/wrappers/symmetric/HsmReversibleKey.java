@@ -7,12 +7,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import javax.inject.Inject;
 import java.time.Clock;
 
 public class HsmReversibleKey extends HsmKeyImpl {
 
     private final HsmEncryptionService hsmEncryptionService;
 
+    @Inject
     HsmReversibleKey(PropertySpecService propertySpecService, DataModel dataModel, Clock clock, Thesaurus thesaurus, HsmEnergyService hsmEnergyService, HsmEncryptionService hsmEncryptionService) {
         super(propertySpecService, dataModel, clock, thesaurus, hsmEnergyService);
         this.hsmEncryptionService = hsmEncryptionService;

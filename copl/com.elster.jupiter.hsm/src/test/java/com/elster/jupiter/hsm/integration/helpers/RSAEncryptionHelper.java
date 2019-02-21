@@ -71,10 +71,11 @@ public class RSAEncryptionHelper {
     public void test() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidKeySpecException {
         Message testMsg = OurKeySpecs.wrapperKey;
         System.out.println("Plain: " + testMsg);
-        Message encryptedMsg = this.encrypt(testMsg, AsymmetricAlgorithm.RSA_15, HsmKeySpecs.asymmetricKeyHexSpec);
+        AsymmetricKey asymmetricKey = HsmKeySpecs.asymmetricKeyHexSpec;
+        Message encryptedMsg = this.encrypt(testMsg, AsymmetricAlgorithm.RSA_15, asymmetricKey);
         System.out.println("Encrypted B64:" + encryptedMsg.toBase64());
         System.out.println("Encrypted HEX:" + encryptedMsg.toHex());
-        Assert.assertEquals(testMsg, this.decrypt(encryptedMsg, AsymmetricAlgorithm.RSA_15, HsmKeySpecs.asymmetricKeyHexSpec));
+        Assert.assertEquals(testMsg, this.decrypt(encryptedMsg, AsymmetricAlgorithm.RSA_15, asymmetricKey));
     }
 
 }

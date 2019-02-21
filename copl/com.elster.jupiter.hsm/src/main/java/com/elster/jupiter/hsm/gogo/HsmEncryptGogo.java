@@ -38,9 +38,9 @@ public class HsmEncryptGogo {
 
     }
 
-    public void asymmetricEncrypt(String plainString, String label) throws HsmBaseException {
+    public void asymmetricEncrypt(String b64CipherText, String label) throws HsmBaseException {
         logger.debug("symmetricEncrypt");
-        byte[] encrypt = hsmEncryptionService.asymmetricEncryp(plainString.getBytes(), label, PaddingAlgorithm.EME_PKCS1_V1_5);
+        byte[] encrypt = hsmEncryptionService.asymmetricEncrypt(Base64.getDecoder().decode(b64CipherText.getBytes()), label, PaddingAlgorithm.EME_PKCS1_V1_5);
         String b64Encrypt = Base64.getEncoder().encodeToString(encrypt);
         System.out.println("B64:" + b64Encrypt);
 

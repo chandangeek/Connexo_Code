@@ -9,6 +9,8 @@ package com.elster.jupiter.hsm.impl.config;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 
+import com.atos.worldline.jss.api.basecrypto.ChainingMode;
+import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.builder.ReloadingFileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.ex.ConfigurationException;
@@ -123,8 +125,16 @@ public class HsmConfigurationAutoReloadFilelTest {
         hsmConfigurationPropFile = new HsmConfigurationAutoReloadFile(testFilePath);
         Collection<HsmLabelConfiguration> labels = hsmConfigurationPropFile.getLabels();
         assertEquals(1, labels.size());
-        HsmLabelConfiguration label1 = new HsmLabelConfiguration("IMP-SM-KEK","Pub_KEK_SM");
+        HsmLabelConfiguration label = new HsmLabelConfiguration("IMP-SM-KEK","Pub_KEK_SM, CBC, EME_PKCS1_V1_5");
 
-        Assertions.assertThat(labels).contains(label1);
+        Assertions.assertThat(labels).contains(label);
+    }
+
+    @Test
+    public void testGetDefaultChainingAndPadding() throws HsmBaseException {
+        hsmConfigurationPropFile = new HsmConfigurationAutoReloadFile(testFilePath);
+        String label = "NOT_CONFIGURED_LABEL";
+        assertEquals(ChainingMode.CBC, hsmConfigurationPropFile.getChainingMode(label));
+        assertEquals(PaddingAlgorithm.EME_PKCS1_V1_5, hsmConfigurationPropFile.getPaddingAlgorithm(label));
     }
 }

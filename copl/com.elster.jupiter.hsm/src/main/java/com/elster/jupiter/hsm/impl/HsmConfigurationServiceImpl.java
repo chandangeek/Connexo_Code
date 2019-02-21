@@ -15,6 +15,8 @@ import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import com.atos.worldline.jss.api.JSSRuntimeControl;
+import com.atos.worldline.jss.api.basecrypto.ChainingMode;
+import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
 import com.atos.worldline.jss.configuration.RawConfiguration;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -119,4 +121,5 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     public Collection<String> getLabels() throws HsmBaseException {
         checkInit();
         return rawConfiguration.getRawLabels().stream().map(s -> s.name()).collect(Collectors.toList());    }
+
 }

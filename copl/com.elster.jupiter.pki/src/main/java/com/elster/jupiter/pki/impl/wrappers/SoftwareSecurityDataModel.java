@@ -6,6 +6,7 @@ package com.elster.jupiter.pki.impl.wrappers;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -57,6 +58,7 @@ public class SoftwareSecurityDataModel {
     private volatile MessageService messageService;
     private SecurityManagementService securityManagementService;
     private volatile HsmEnergyService hsmEnergyService;
+    private volatile HsmEncryptionService hsmEncryptionService;
 
     // OSGi
     public SoftwareSecurityDataModel() {
@@ -66,7 +68,7 @@ public class SoftwareSecurityDataModel {
     public SoftwareSecurityDataModel(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
                                      DataVaultService dataVaultService, PropertySpecService propertySpecService,
                                      SecurityManagementService securityManagementService, EventService eventService,
-                                     UserService userService, MessageService messageService, HsmEnergyService hsmEnergyService) {
+                                     UserService userService, MessageService messageService, HsmEnergyService hsmEnergyService, HsmEncryptionService hsmEncryptionService) {
         this.setOrmService(ormService);
         this.setUpGradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -77,6 +79,7 @@ public class SoftwareSecurityDataModel {
         this.setUserService(userService);
         this.setMessageService(messageService);
         this.setHsmEnergyService(hsmEnergyService);
+        this.setHsmEncryptionService(hsmEncryptionService);
         activate();
     }
 
@@ -130,6 +133,10 @@ public class SoftwareSecurityDataModel {
         this.hsmEnergyService = hsmEnergyService;
     }
 
+    @Reference
+    public void setHsmEncryptionService(HsmEncryptionService hsmEncryptionService) { this.hsmEncryptionService = hsmEncryptionService; }
+
+
     @Activate
     public void activate() {
         registerDataModel();
@@ -166,6 +173,7 @@ public class SoftwareSecurityDataModel {
                 bind(UserService.class).toInstance(userService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(HsmEnergyService.class).toInstance(hsmEnergyService);
+                bind(HsmEncryptionService.class).toInstance(hsmEncryptionService);
             }
         };
     }
@@ -173,4 +181,8 @@ public class SoftwareSecurityDataModel {
     public DataModel getDataModel() {
         return dataModel;
     }
+
+
+
+
 }

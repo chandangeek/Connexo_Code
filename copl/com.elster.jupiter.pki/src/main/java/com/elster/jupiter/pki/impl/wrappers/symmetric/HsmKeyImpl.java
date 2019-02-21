@@ -46,8 +46,6 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     private String smartMeterKey;
     private HsmJssKeyType hsmJssKeyType;
 
-
-
     @Inject
     HsmKeyImpl(PropertySpecService propertySpecService,
                DataModel dataModel, Clock clock, Thesaurus thesaurus, HsmEnergyService hsmEnergyService) {

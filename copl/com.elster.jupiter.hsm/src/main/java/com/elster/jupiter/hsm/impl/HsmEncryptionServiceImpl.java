@@ -1,6 +1,7 @@
 package com.elster.jupiter.hsm.impl;
 
 import com.elster.jupiter.hsm.HsmEncryptionService;
+import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
 import com.atos.worldline.jss.api.basecrypto.ChainingValue;
@@ -12,20 +13,20 @@ import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
 import com.atos.worldline.jss.api.basecrypto.Symmetric;
 import com.atos.worldline.jss.api.key.KeyLabel;
 import com.atos.worldline.jss.api.key.derivation.KeyDerivation;
+import org.osgi.service.component.annotations.Reference;
 
 
 @Component(name = "com.elster.jupiter.impl.HsmEncryptionServiceImpl", service = {HsmEncryptionService.class}, immediate = true, property = "name=" + HsmEncryptionServiceImpl.COMPONENTNAME)
 public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
-    public static final String COMPONENTNAME = "HsmEncryptionServiceImpl";
+    private volatile HsmConfiguration hsmConfiguration;
 
-    public static final PaddingAlgorithm DEFAULT_PADDING = PaddingAlgorithm.EME_PKCS1_V1_5;
-    public static final ChainingMode DEFAULT_CHAINING = ChainingMode.CBC;
+    public static final String COMPONENTNAME = "HsmEncryptionServiceImpl";
 
 
     @Override
     public byte[] symmetricEncrypt(byte[] bytes, String label) throws HsmBaseException {
-            return symmetricEncrypt(bytes, label, null, DEFAULT_CHAINING, DEFAULT_PADDING);
+            return symmetricEncrypt(bytes, label, null, hsmConfiguration.getChainingMode(label), hsmConfiguration.getPaddingAlgorithm(label));
     }
 
     @Override
@@ -39,13 +40,13 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     @Override
     public byte[] symmetricDecrypt(byte[] cipher, String label) throws HsmBaseException {
-        return symmetricDecrypt(cipher, label, null, DEFAULT_CHAINING, DEFAULT_PADDING);
+        return symmetricDecrypt(cipher, label, null, hsmConfiguration.getChainingMode(label), hsmConfiguration.getPaddingAlgorithm(label));
     }
 
     @Override
     public byte[] symmetricDecrypt(byte[] cipher, String label,byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
         try {
-            return Symmetric.decrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, cipher, getIcv(icv), DEFAULT_PADDING, DEFAULT_CHAINING);
+            return Symmetric.decrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, cipher, getIcv(icv), hsmConfiguration.getPaddingAlgorithm(label), hsmConfiguration.getChainingMode(label));
         } catch (FunctionFailedException e) {
             throw new HsmBaseException(e);
         }
@@ -61,7 +62,7 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
     }
 
     @Override
-    public byte[] asymmetricEncryp(byte[] bytes, String label, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
+    public byte[] asymmetricEncrypt(byte[] bytes, String label, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
         try {
             return Asymmetric.encrypt(new KeyLabel(label), bytes, paddingAlgorithm);
         } catch (FunctionFailedException e) {
@@ -76,4 +77,8 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
         return new ChainingValue(icv);
     }
 
+    @Reference
+    public void setHsmConfigurationService(HsmConfigurationService hsmConfiguration) throws HsmBaseException {
+        this.hsmConfiguration = hsmConfiguration.getHsmConfiguration();
+    }
 }
