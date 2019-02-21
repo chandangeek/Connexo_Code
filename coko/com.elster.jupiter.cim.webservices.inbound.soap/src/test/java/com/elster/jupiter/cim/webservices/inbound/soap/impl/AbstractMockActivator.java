@@ -17,6 +17,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -40,6 +42,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -91,6 +95,8 @@ public abstract class AbstractMockActivator {
     private QueueTableSpec queueTableSpec;
     @Mock
     DestinationSpec destinationSpec;
+    @Mock
+    ServiceCall serviceCall;
 
     private CIMInboundSoapEndpointsActivator activator;
 
@@ -98,23 +104,21 @@ public abstract class AbstractMockActivator {
     public void init() {
         initMocks();
         initActivator();
-
     }
 
     private void initMocks() {
         when(nlsService.getThesaurus(CIMInboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP)).thenReturn(thesaurus);
-
         when(transactionService.getContext()).thenReturn(transactionContext);
-
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
-
         when(serviceCallService.findServiceCallType(anyString(), anyString())).thenReturn(Optional.of(serviceCallType));
+        ServiceCallBuilder builder = mock(ServiceCallBuilder.class);
+        when(builder.origin(anyString())).thenReturn(builder);
+        when(builder.extendedWith(any())).thenReturn(builder);
+//        when(builder.targetObject(any(Device.class))).thenReturn(builder);
+        when(builder.create()).thenReturn(serviceCall);
+        when(serviceCallType.newServiceCall()).thenReturn(builder);
         when(messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION)).thenReturn(Optional.of(destinationSpec));
         when(messageService.getQueueTableSpec(ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME)).thenReturn(Optional.of(queueTableSpec));
-
-//        when(webServicesService.isPublished(anyObject())).thenReturn(true);
-
-
     }
 
     private void initActivator() {
@@ -140,5 +144,9 @@ public abstract class AbstractMockActivator {
 
     protected <T> T getInstance(Class<T> clazz) {
         return activator.getDataModel().getInstance(clazz);
+    }
+
+    protected void mockWebServices(boolean isPublished) {
+        when(webServicesService.isPublished(anyObject())).thenReturn(isPublished);
     }
 }

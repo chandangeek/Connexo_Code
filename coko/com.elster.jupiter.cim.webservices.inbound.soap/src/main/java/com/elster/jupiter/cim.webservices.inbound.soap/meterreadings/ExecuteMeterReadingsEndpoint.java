@@ -190,6 +190,10 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         List<Reading> readings = getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getReading();
         List<ReadingType> readingTypes = getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getReadingType();
 
+        if (endDevices.isEmpty()) {
+            throw(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, END_DEVICE_LIST_ITEM)).get();
+        }
+
         Set<String> notFoundReadingTypes = new HashSet<>();
         List<com.elster.jupiter.metering.ReadingType> existedReadingTypes =
                 setReadingTypesInfo(null, readingTypes, notFoundReadingTypes);
@@ -275,9 +279,6 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         if (getMeterReadings.getReadingType().isEmpty()) {
             throw(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, READING_TYPES_LIST_ITEM).get());
         }
-//        if (getMeterReadings.getEndDevice().isEmpty()) {
-//            throw(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, END_DEVICE_LIST_ITEM)).get();
-//        }
         checkSources(getMeterReadings.getReading(), async);
     }
 
@@ -320,17 +321,11 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     }
 
     private boolean isMissingElement(String element, String elementName) throws FaultMessage {
-        if (element == null) {
-            return true;
-        }
-        checkElement( element, MessageSeeds.MISSING_ELEMENT, elementName);
+        checkElement(element, MessageSeeds.MISSING_ELEMENT, elementName);
         return false;
     }
 
     private boolean isEmptyElement(String element, String elementName) throws FaultMessage {
-        if (element == null) {
-            return true;
-        }
         checkElement( element, MessageSeeds.EMPTY_ELEMENT, elementName);
         return false;
     }
