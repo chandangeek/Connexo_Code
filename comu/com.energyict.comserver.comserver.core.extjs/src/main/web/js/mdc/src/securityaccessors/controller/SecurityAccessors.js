@@ -553,7 +553,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         }
                         if (record.get('keyType').name == 'HSM Key') {
                             view.down('#mdc-security-accessor-jss-keytype-combobox').setDisabled(false);
-                            view.down('#mdc-security-accessor-label-end-point-combobox').setRawValue(record.get('hsmJssKeyType'));
+                            view.down('#mdc-security-accessor-jss-keytype-combobox').setRawValue(record.get('hsmJssKeyType'));
                             view.down('#mdc-security-accessor-import-capability-combobox').setDisabled(false);
                             view.down('#mdc-security-accessor-import-capability-combobox').setRawValue(record.get('importCapability'));
                             view.down('#mdc-security-accessor-renew-capability-combobox').setDisabled(false);
@@ -561,8 +561,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             view.down('#mdc-security-accessor-label-end-point-combobox').setDisabled(false);
                             view.down('#mdc-security-accessor-label-end-point-combobox').setRawValue(record.get('label'));
                             view.down('#mdc-security-accessor-key-size').setDisabled(false);
-                            view.down('#mdc-security-accessor-key-size').setRawValue(record.get('keySize'));
+                            view.down('#mdc-security-accessor-key-size').setValue(record.get('keySize'));
                             view.down('#mdc-security-accessor-isReversible-checkbox').setDisabled(false);
+                            view.down('#mdc-security-accessor-isReversible-checkbox').setValue(record.get('isReversible'));
 
                         }
                         if (record.get('purpose').id === 'FILE_OPERATIONS') {
