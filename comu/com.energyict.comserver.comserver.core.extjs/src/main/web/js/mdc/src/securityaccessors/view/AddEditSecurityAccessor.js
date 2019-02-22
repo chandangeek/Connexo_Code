@@ -279,6 +279,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     name: 'keySize',
                     itemId: 'mdc-security-accessor-key-size',
                     fieldLabel: Uni.I18n.translate('general.keySizes', 'MDC', 'Key size'),
+                    hidden: true,
                     required: true,
                     allowBlank: false,
                     emptyText: Uni.I18n.translate('securityaccessors.keySizes', 'MDC', 'Input key size ...')
