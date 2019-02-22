@@ -148,6 +148,9 @@ Ext.define('Mdc.audit.controller.Audit', {
             case 'DEVICE_REGISTER_CUSTOM_ATTRIBUTES':
                 rendererLink = isRemoved == true ? me.formatChannelCustomAttributeContext(record, value) : me.formatRegisterHRef(record) + me.formatChannelCustomAttributeContext(record, value) + '</a>';
                 break;
+            case 'DEVICE_DATA_SOURCE_SPECIFICATIONS':
+                rendererLink = isRemoved == true ? me.formatDeviceDataSourceContext(record, value) : me.formatDeviceDataSourceHRef(record) + me.formatDeviceDataSourceContext(record, value) + '</a>';
+                break;
             default:
                 rendererLink = value;
         }
@@ -208,6 +211,26 @@ Ext.define('Mdc.audit.controller.Audit', {
             periodStr += Uni.I18n.translate('general.infinite', 'MDC', 'Infinite');
         }
         return Ext.String.format("{0} -> {1} -> {2} ({3})", value, record.get('auditReference').contextReference.sourceName, record.get('auditReference').contextReference.name, periodStr);
+    },
+
+    formatDeviceDataSourceContext: function (record, value) {
+        var me = this,
+            contextReference = record.get('auditReference').contextReference;
+
+        return Ext.String.format("{0} -> {1}", record.get('auditReference').contextReference.sourceTypeName, record.get('auditReference').contextReference.sourceName);
+    },
+
+    formatDeviceDataSourceHRef: function (record) {
+        var me = this,
+            contextReference = record.get('auditReference').contextReference,
+            sourceType = record.get('auditReference').contextReference.sourceType;
+
+        if (sourceType === 'CHANNEL'){
+            return '<a href="#/devices/' + record.get('auditReference').name + '/channels' + '/'+ contextReference.sourceId +  '">'
+        }
+        else if (sourceType === 'REGISTER'){
+            return '<a href="#/devices/' + record.get('auditReference').name + '/registers' + '/'+ contextReference.sourceId +  '">'
+        }
     },
 
     formatChannelHRef: function (record) {

@@ -112,11 +112,12 @@ public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
 
     private Optional<RegisteredCustomPropertySet> getCustomPropertySetFromDeviceType() {
         return Optional.ofNullable(device)
-                .flatMap(dv -> dv.get().getDeviceType()
-                        .getCustomPropertySets().stream()
-                        .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                        .filter(registeredCustomPropertySet -> registeredCustomPropertySet.getId() == getAuditTrailReference().getPkContext1())
-                        .findFirst()
+                .flatMap(dv -> Optional.ofNullable(dv.get().getDeviceConfiguration())
+                        .flatMap(dc -> dc.getDeviceType()
+                                .getCustomPropertySets().stream()
+                                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                                .filter(registeredCustomPropertySet -> registeredCustomPropertySet.getId() == getAuditTrailReference().getPkContext1())
+                                .findFirst())
                 );
     }
 

@@ -10,9 +10,8 @@ public enum AuditDomainContextType {
     GENERAL_ATTRIBUTES("auditDomainContext.generalAttributes", AuditDomainType.DEVICE),
     DEVICE_ATTRIBUTES("auditDomainContext.deviceAttributes", AuditDomainType.DEVICE),
     DEVICE_CUSTOM_ATTRIBUTES("auditDomainContext.deviceCustomAttributes", AuditDomainType.DEVICE),
-    DEVICE_CHANNEL_SPECIFICATIONS("auditDomainContext.deviceChannelSpecifications", AuditDomainType.DEVICE),
+    DEVICE_DATA_SOURCE_SPECIFICATIONS("auditDomainContext.deviceDataSourceSpecifications", AuditDomainType.DEVICE),
     DEVICE_CHANNEL_CUSTOM_ATTRIBUTES("auditDomainContext.deviceChannelCustomAttributes", AuditDomainType.DEVICE),
-    DEVICE_REGISTER_SPECIFICATIONS("auditDomainContext.deviceRegisterSpecifications", AuditDomainType.DEVICE),
     DEVICE_REGISTER_CUSTOM_ATTRIBUTES("auditDomainContext.deviceRegisterCustomAttributes", AuditDomainType.DEVICE);
 
     private final String domainContextType;
