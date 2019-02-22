@@ -425,18 +425,6 @@ public class SecurityAccessorTypeResource {
         return Response.ok(SessionKeyCapability.values()).build();
     }
 
-    @GET
-    @Transactional
-    @Path("/hsm/keysizes")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
-    public Response getKeySizes() {
-        /**
-         * This comes from AES device key (JSS)
-         */
-        int[] sizes = {16, 24, 32};
-        return Response.ok(sizes).build();
-    }
 
     @GET
     @Transactional

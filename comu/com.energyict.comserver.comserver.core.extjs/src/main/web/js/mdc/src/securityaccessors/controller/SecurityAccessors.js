@@ -22,8 +22,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.crlrequest.store.SecurityAccessorsWithPurpose',
         'Mdc.securityaccessors.store.HsmJssKeyTypes',
         'Mdc.securityaccessors.store.HSMLabelEndPoint',
-        'Mdc.securityaccessors.store.HsmCapabilities',
-        'Mdc.securityaccessors.store.KeySizes'
+        'Mdc.securityaccessors.store.HsmCapabilities'
     ],
 
     models: [
@@ -561,8 +560,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             view.down('#mdc-security-accessor-renew-capability-combobox').setRawValue(record.get('renewCapability'));
                             view.down('#mdc-security-accessor-label-end-point-combobox').setDisabled(false);
                             view.down('#mdc-security-accessor-label-end-point-combobox').setRawValue(record.get('label'));
-                            view.down('#mdc-security-key-size-combobox').setDisabled(false);
-                            view.down('#mdc-security-key-size-combobox').setRawValue(record.get('keySize'));
+                            view.down('#mdc-security-accessor-key-size').setDisabled(false);
+                            view.down('#mdc-security-accessor-key-size').setRawValue(record.get('keySize'));
                             view.down('#mdc-security-accessor-isReversible-checkbox').setDisabled(false);
 
                         }
@@ -670,7 +669,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             importCapabiltyCombo = form.down('#mdc-security-accessor-import-capability-combobox'),
             renewCapabiltyCombo = form.down('#mdc-security-accessor-renew-capability-combobox'),
             labelEndPointCombo = form.down('#mdc-security-accessor-label-end-point-combobox'),
-            keySizeCombo = form.down('#mdc-security-key-size-combobox'),
+            keySizeFieldInput = form.down('#mdc-security-accessor-key-size'),
             isReversibleCheckBox = form.down('#mdc-security-accessor-isReversible-checkbox'),
 
             requiresDuration = newValue && newValue.requiresDuration,
@@ -682,7 +681,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             importCapabiltyCombo.setVisible(true);
             renewCapabiltyCombo.setVisible(true);
             labelEndPointCombo.setVisible(true);
-            keySizeCombo.setVisible(true);
+            keySizeFieldInput.setVisible(true);
             isReversibleCheckBox.setVisible(true);
         }
         else {
@@ -690,7 +689,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             importCapabiltyCombo.setVisible(false);
             renewCapabiltyCombo.setVisible(false);
             labelEndPointCombo.setVisible(false);
-            keySizeCombo.setVisible(false);
+            keySizeFieldInput.setVisible(false);
             isReversibleCheckBox.setVisible(false);
         }
         storageMethodCombo.setVisible(requiresKeyEncryptionMethod);

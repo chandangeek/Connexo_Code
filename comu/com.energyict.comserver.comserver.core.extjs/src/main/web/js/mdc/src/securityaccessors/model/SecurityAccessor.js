@@ -38,8 +38,9 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
         {name: 'label', type: 'auto'},
         {name: 'importCapability', type: 'auto'},
         {name: 'renewCapability', type: 'auto'},
-        {name: 'keySize', type: 'auto'},
+        {name: 'keySize', type: 'int'},
         {name: 'isReversible', type: 'boolean', defaultValue: true, convert: null},
+
         {
             name: 'viewLevelsInfo',
             persist: false,
