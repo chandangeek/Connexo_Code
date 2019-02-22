@@ -125,8 +125,9 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     @Override
     public Map<String, Object> getProperties() {
         Map<String, Object> properties = new HashMap<>();
-        if (getKey() != null){
-            properties.put(HsmProperties.DECRYPTED_KEY.getPropertyName(), DatatypeConverter.printHexBinary(getKey()));
+        byte[] key = getKey();
+        if (key != null){
+            properties.put(HsmProperties.DECRYPTED_KEY.getPropertyName(), DatatypeConverter.printHexBinary(key));
         }
         properties.put(HsmProperties.LABEL.getPropertyName(), getLabel());
         return properties;
