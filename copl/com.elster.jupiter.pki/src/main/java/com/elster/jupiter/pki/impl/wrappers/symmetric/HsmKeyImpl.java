@@ -117,7 +117,7 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
 
     @Override
     public void setProperties(Map<String, Object> properties) {
-        HsmPropertyValidator hsmPropertyValidator = HsmPropertyValidator.build(properties);
+        HsmKeyPropertyValidator hsmPropertyValidator = HsmKeyPropertyValidator.build(properties);
         hsmPropertyValidator.validate(getDataModel());
         this.setKey(hsmPropertyValidator.getKey(), hsmPropertyValidator.getLabel());
     }
