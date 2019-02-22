@@ -83,7 +83,7 @@ public class GetMeterConfigServiceCallHandler implements ServiceCallHandler {
     private void processMeterConfigServiceCall(ServiceCall serviceCall)  {
         GetMeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new GetMeterConfigCustomPropertySet()).get();
         try {
-            getDeviceBuilder().findDevice(Optional.of(extensionFor.getMeterMrid()), extensionFor.getMeterName());
+            getDeviceBuilder().findDevice(Optional.ofNullable(extensionFor.getMeterMrid()), extensionFor.getMeterName());
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } catch (Exception faultMessage) {
             if (faultMessage instanceof FaultMessage) {

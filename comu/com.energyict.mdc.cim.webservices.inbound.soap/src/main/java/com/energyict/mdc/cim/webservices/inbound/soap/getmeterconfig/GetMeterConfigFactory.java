@@ -136,6 +136,8 @@ public class GetMeterConfigFactory {
                 if (values.getEffectiveRange().hasLowerBound()) {
                     customAttributeSet.setFromDateTime(values.getEffectiveRange().lowerEndpoint());
                     customAttributeSet.setVersionId(values.getEffectiveRange().lowerEndpoint());
+                } else {
+                    customAttributeSet.setVersionId(device.getCreateTime());
                 }
                 if (values.getEffectiveRange().hasUpperBound()) {
                     customAttributeSet.setToDateTime(values.getEffectiveRange().upperEndpoint());
