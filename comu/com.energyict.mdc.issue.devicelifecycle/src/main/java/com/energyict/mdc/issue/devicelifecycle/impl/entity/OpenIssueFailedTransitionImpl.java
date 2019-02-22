@@ -21,9 +21,9 @@ public class OpenIssueFailedTransitionImpl extends FailedTransitionImpl implemen
     private Reference<OpenIssueDeviceLifecycle> issue = ValueReference.absent();
 
     OpenIssueFailedTransitionImpl init(OpenIssueDeviceLifecycle issue, DeviceLifeCycle deviceLifeCycle, StateTransition stateTransition,
-                                       State from, State to, Instant modTime, String cause) {
+                                       State from, State to, Instant modTime, String cause, Instant createTime) {
         this.issue.set(issue);
-        super.init(deviceLifeCycle, stateTransition, from, to, modTime, cause);
+        super.init(deviceLifeCycle, stateTransition, from, to, modTime, cause, createTime);
         return this;
     }
 }

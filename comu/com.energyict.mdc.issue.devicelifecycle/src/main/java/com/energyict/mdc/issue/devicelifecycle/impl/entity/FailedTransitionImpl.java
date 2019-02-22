@@ -60,13 +60,14 @@ public class FailedTransitionImpl implements FailedTransition {
 
 
     FailedTransitionImpl init(DeviceLifeCycle deviceLifeCycle, StateTransition stateTransition,
-                              State from, State to, Instant modTime, String cause) {
+                              State from, State to, Instant modTime, String cause, Instant createTime) {
         this.lifecycle.set(deviceLifeCycle);
         this.transition.set(stateTransition);
         this.fromState.set(from);
         this.toState.set(to);
         this.modTime = modTime;
         this.cause = cause;
+        this.createTime = createTime;
         return this;
 
     }
@@ -100,5 +101,10 @@ public class FailedTransitionImpl implements FailedTransition {
     @Override
     public Instant getOccurrenceTime() {
         return modTime;
+    }
+
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
     }
 }

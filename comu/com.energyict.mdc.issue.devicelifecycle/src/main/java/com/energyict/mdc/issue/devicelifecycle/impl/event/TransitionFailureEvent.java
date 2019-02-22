@@ -27,6 +27,7 @@ public class TransitionFailureEvent extends DeviceLifecycleEvent {
 
 
     private Instant modTime;
+    private Instant createTime;
     private static final String COLON_SEPARATOR = ":";
     private static final String DASH_SEPARATOR = "-";
     private static final String SEMI_COLON_SEPARATOR = ";";
@@ -48,6 +49,7 @@ public class TransitionFailureEvent extends DeviceLifecycleEvent {
             this.to = ((Number) jsonPayload.get("to")).longValue();
             this.cause = (String) jsonPayload.get("cause");
             this.modTime = Instant.ofEpochMilli(((Number) jsonPayload.get("modTime")).longValue());
+            this.createTime = Instant.ofEpochMilli(((Number) jsonPayload.get("timestamp")).longValue());
 
         } catch (Exception e) {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
@@ -59,12 +61,13 @@ public class TransitionFailureEvent extends DeviceLifecycleEvent {
         if (issue instanceof OpenIssueDeviceLifecycle) {
             OpenIssueDeviceLifecycle deviceLifecycleIssue = (OpenIssueDeviceLifecycle) issue;
             deviceLifecycleIssue.addFailedTransition(getDeviceLifecycle().get(), getTransition().get(),
-                    getFrom().get(), getTo().get(), modTime, cause);
+                    getFrom().get(), getTo().get(), modTime, cause, createTime);
         }
     }
 
     public boolean logOnSameIssue(String check) {
-        return Boolean.valueOf(true);
+        return Integer.parseInt(check) == 1;
+        //return Boolean.valueOf(true);
     }
 
     public boolean checkConditions(int ruleId, String deviceLifecycleTransitionProps) {

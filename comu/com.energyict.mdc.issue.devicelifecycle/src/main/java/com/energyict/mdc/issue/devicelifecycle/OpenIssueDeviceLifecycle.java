@@ -23,7 +23,7 @@ public interface OpenIssueDeviceLifecycle extends OpenIssue, IssueDeviceLifecycl
     HistoricalIssueDeviceLifecycle close(IssueStatus status);
 
     void addFailedTransition(DeviceLifeCycle deviceLifeCycle, StateTransition stateTransition,
-                             State from, State to, Instant modTime, String cause);
+                             State from, State to, Instant modTime, String cause, Instant createTime);
 
     void removeFailedTransition(DeviceLifeCycle deviceLifeCycle, StateTransition stateTransition,
                                 State from, State to, Instant modTime, String cause);

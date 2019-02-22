@@ -26,4 +26,6 @@ public interface FailedTransition {
     String getCause();
 
     Instant getOccurrenceTime();
+
+    Instant getCreateTime();
 }

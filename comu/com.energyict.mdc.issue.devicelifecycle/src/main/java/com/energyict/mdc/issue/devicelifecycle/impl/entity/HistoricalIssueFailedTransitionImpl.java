@@ -23,7 +23,8 @@ public class HistoricalIssueFailedTransitionImpl extends FailedTransitionImpl im
                 transition.getFrom(),
                 transition.getTo(),
                 transition.getOccurrenceTime(),
-                transition.getCause());
+                transition.getCause(),
+                transition.getCreateTime());
         return this;
     }
 }

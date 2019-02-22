@@ -66,8 +66,8 @@ public final class OpenIssueDeviceLifecycleImpl extends IssueDeviceLifecycleImpl
 
     @Override
     public void addFailedTransition(DeviceLifeCycle deviceLifeCycle, StateTransition stateTransition,
-                                    State from, State to, Instant modTime, String cause) {
-        createNewFailedTransition(deviceLifeCycle, stateTransition, from, to, modTime, cause);
+                                    State from, State to, Instant modTime, String cause, Instant createTime) {
+        createNewFailedTransition(deviceLifeCycle, stateTransition, from, to, modTime, cause, createTime);
     }
 
     @Override
@@ -91,9 +91,9 @@ public final class OpenIssueDeviceLifecycleImpl extends IssueDeviceLifecycleImpl
     }
 
     private void createNewFailedTransition(DeviceLifeCycle deviceLifeCycle, StateTransition stateTransition,
-                                           State from, State to, Instant modTime, String cause) {
+                                           State from, State to, Instant modTime, String cause, Instant createTime) {
         OpenIssueFailedTransitionImpl failedTransition = getDataModel().getInstance(OpenIssueFailedTransitionImpl.class);
-        failedTransition.init(this, deviceLifeCycle, stateTransition, from, to, modTime, cause);
+        failedTransition.init(this, deviceLifeCycle, stateTransition, from, to, modTime, cause, createTime);
         failedTransitions.add(failedTransition);
     }
 }
