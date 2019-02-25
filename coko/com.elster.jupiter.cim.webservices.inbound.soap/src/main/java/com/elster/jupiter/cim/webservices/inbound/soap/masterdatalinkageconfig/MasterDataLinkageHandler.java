@@ -1,5 +1,6 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.LinkageInfo;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
@@ -55,14 +56,21 @@ public class MasterDataLinkageHandler {
         return this;
     }
 
-    MasterDataLinkageConfigResponseMessageType createLinkage() throws FaultMessage {
+    public MasterDataLinkageHandler forLinkageInfo(LinkageInfo linkageInfo) throws FaultMessage {
+        configurationEventNode = linkageInfo.getConfigurationEventNode();
+        usagePointNodes = linkageInfo.getUsagePointNodes();
+        meterNodes = linkageInfo.getMeterNodes();
+        return this;
+    }
+
+    public MasterDataLinkageConfigResponseMessageType createLinkage() throws FaultMessage {
         currentLinkageAction = MasterDataLinkageAction.CREATE;
         linkMeterToUsagePoint(transform(meterNodes.get(0)), getMeterRoleForKey(meterNodes.get(0).getRole()),
                 transform(usagePointNodes.get(0)), configurationEventNode.getCreatedDateTime());
         return createSuccessfulResponseWithVerb(HeaderType.Verb.CREATED);
     }
 
-    MasterDataLinkageConfigResponseMessageType closeLinkage() throws FaultMessage {
+    public MasterDataLinkageConfigResponseMessageType closeLinkage() throws FaultMessage {
         currentLinkageAction = MasterDataLinkageAction.CLOSE;
         unlinkMeterFromUsagePoint(transform(meterNodes.get(0)), transform(usagePointNodes.get(0)),
                 configurationEventNode.getEffectiveDateTime());

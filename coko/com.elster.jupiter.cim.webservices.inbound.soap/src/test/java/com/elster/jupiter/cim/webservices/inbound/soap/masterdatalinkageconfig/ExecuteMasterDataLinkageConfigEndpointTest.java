@@ -8,6 +8,8 @@ import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
@@ -15,6 +17,7 @@ import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigR
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,6 +47,10 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
     private MasterDataLinkageConfigRequestMessageType message;
     @Mock
     private MasterDataLinkageMessageValidator validator;
+    @Mock
+    private EndPointConfigurationService endPointConfigurationService;
+    @Mock
+    private WebServicesService webServicesService;
 
     @Before
     public void setUp() throws Exception {
@@ -52,7 +59,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
                 transactionService,
                 endPointHelper,
                 () -> linkageHandler,
-                () -> validator);
+                () -> validator, endPointConfigurationService, webServicesService);
 
 
         //common mocks
