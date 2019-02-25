@@ -24,7 +24,7 @@ Ext.define('Bpm.view.task.TaskActionMenu', {
             },
             {
                 itemId: 'menu-claim-task',
-                text: Uni.I18n.translate('bpm.menu.assignToMe', 'BPM', 'Assign to me'),
+                text: "ASSIGN TO ME!!!!!!",//Uni.I18n.translate('bpm.menu.assignToMe', 'BPM', 'Assign to me'),
                 action: 'assignToMeTask',
                 privileges: Bpm.privileges.BpmManagement.assign,
                 section: this.SECTION_ACTION,

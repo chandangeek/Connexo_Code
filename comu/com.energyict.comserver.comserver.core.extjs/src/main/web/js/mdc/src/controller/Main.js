@@ -19,7 +19,8 @@ Ext.define('Mdc.controller.Main', {
         'Apr.controller.TaskManagement',
         'Apr.controller.TaskManagementGeneralTask',
         'Mdc.zones.controller.Zones',
-        'Mdc.property.SecuritySet'
+        'Mdc.property.SecuritySet',
+        'Mdc.property.SecurityAccessors'
     ],
 
     controllers: [
@@ -177,6 +178,7 @@ Ext.define('Mdc.controller.Main', {
         Uni.property.controller.Registry.addProperty('USAGEPOINT', 'Mdc.property.UsagePoint');
         console.log("REGISTER MY PROPERTY!!!!!!");
         Uni.property.controller.Registry.addProperty('SECURITYACCESSORSOUTPUT', 'Mdc.property.SecuritySet');
+        Uni.property.controller.Registry.addProperty('SERVICEKEYSSIGNATURESOUTPUT', 'Mdc.property.SecurityAccessors');
         if (Mdc.privileges.Device.canViewDevices()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.devices', 'MDC', 'Devices'),

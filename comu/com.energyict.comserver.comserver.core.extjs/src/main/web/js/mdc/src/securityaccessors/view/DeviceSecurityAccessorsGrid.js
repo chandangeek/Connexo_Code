@@ -23,7 +23,26 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsGrid', {
             {
                 header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 dataIndex: 'name',
-                flex: 3
+                flex: 3,
+                renderer: function(value, field, record) {
+                    /*if(record) {
+                        if (value && record.get('available')) {
+                            return value;
+                        } else if (value && !record.get('available')) {
+                            return value + ' (' + Uni.I18n.translate('general.notAvailable', 'WSS', 'not available') + ')' + '<span class="icon-warning" style="margin-left:5px; position:absolute; color:#eb5642;"></span>';
+                        }
+                    }*/
+
+                    if(record) {
+                        if (record.get('serviceKey')){
+                            var tooltip = Uni.I18n.translate('general.securityaccessors.tooltip', 'MDC', 'The security accessor has a service key')
+                            return value + '<span class="icon-warning" style="margin-left:5px; position:absolute; color:#eb5642;" data-qtip="' + tooltip + '"></span>';
+                        } else {
+                            return value;
+                        }
+
+                    }
+                }
             },
             {
                 header: Uni.I18n.translate('general.lastReadDate', 'MDC', 'Last read date'),

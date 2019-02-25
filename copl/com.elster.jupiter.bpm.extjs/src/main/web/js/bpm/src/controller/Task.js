@@ -88,6 +88,7 @@ Ext.define('Bpm.controller.Task', {
             listLink,
             task = me.getModel('Bpm.model.task.Task'),
             performTask = me.getModel('Bpm.model.task.OpenTask');
+            console.log("PERFORM LOAD OF TASKS!!!!!!!!");
         listLink = me.makeLinkToList(router);
         task.load(taskId, {
             success: function (taskRecord) {
@@ -400,6 +401,8 @@ Ext.define('Bpm.controller.Task', {
             route,
             record;
 
+        console.log("CHOOOSE ACTION!!!!");
+
         if ((item.action == 'assignToMeTask') || (item.action == 'unassignedTask')) {
             return;
         }
@@ -524,7 +527,7 @@ Ext.define('Bpm.controller.Task', {
                         var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
                         loggedUser = decoded && decoded.data && decoded.data.length > 0 ? decoded.data[0].name : '';
 
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editProcess.successMsg.assigned', 'BPM', 'Task assigned'));
+                        me.getApplication().fireEvent('acknowledge', "TASK ASSIGNED!!!!!!!!!!!!!!!!!"/*Uni.I18n.translate('editProcess.successMsg.assigned', 'BPM', 'Task assigned')*/);
                         if (me.getMainGrid()) {
                             me.getMainGrid().getStore().load();
                         }

@@ -3,6 +3,7 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -233,6 +234,11 @@ public class KeyAccessorTypeResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSORTYPE_FOR_DEVICE));
     }
 
+    private SecurityAccessor<?> getSecurityAccessorOrThrowException(String name, Device device) {
+        return device.getSecurityAccessor(getSecurityAccessorTypeOrThrowException(name, device.getDeviceType()))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE));
+    }
+
     private SecurityAccessor<?> getSecurityAccessorOrThrowException(long id, Device device) {
         return device.getSecurityAccessor(getSecurityAccessorTypeOrThrowException(id, device.getDeviceType()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE));
@@ -261,5 +267,54 @@ public class KeyAccessorTypeResource {
     public List<String> getFields() {
         return keyAccessorTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
+
+    /**
+     * Mark key as service key for the device for the given security accessor type.
+     *
+     * @param mrid mRID of device for which the key will be updated
+     * @param keyAccessorTypeName name of the security accessor type
+     * @param uriInfo uriInfo
+     * @summary Mark key as service key
+     */
+    @PUT
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Path("/{keyAccessorTypeName}/markservicekey")
+    public Response markServiceKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
+                                   @Context UriInfo uriInfo) {
+        Device device = deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
+        securityAccessor.setServiceKey(true);
+        securityAccessor.save();
+        return Response.ok().build();
+    }
+
+    /**
+     * Unmark key as service key for the device for the given security accessor type.
+     *
+     * @param mrid mRID of device for which the key will be updated
+     * @param keyAccessorTypeName name of the security accessor type
+     * @param uriInfo uriInfo
+     * @summary Unmark key as service key
+     */
+    @PUT
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Path("/{keyAccessorTypeName}/unmarkservicekey")
+    public Response unmarkServiceKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
+                                     @Context UriInfo uriInfo) {
+        Device device = deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
+        securityAccessor.setServiceKey(false);
+        securityAccessor.save();
+        return Response.ok().build();
+    }
+
 }
 

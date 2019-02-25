@@ -125,6 +125,8 @@ Ext.define('Uni.property.form.Property', {
                     console.log("me.blankText = ", me.blankText);
                     console.log("property.getPropertyParams() = ", property.getPropertyParams());
 
+                    console.log("TYPE=", typeof property);
+
                     var field = Ext.create(fieldType, Ext.apply(me.defaults, {
                         property: property,
                         isEdit: me.isEdit,
@@ -140,6 +142,12 @@ Ext.define('Uni.property.form.Property', {
                         blankText: me.blankText,
                         propertyParams : property.getPropertyParams()
                     }));
+
+
+                    console.log("me.defaults=",me.defaults);
+                    //field.fieldLabel = "TEST LABELLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL";
+                    console.log("FIELD = ",field);
+
                     me.add(field);
                     field.on('checkRestoreAll', function () {
                         me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());

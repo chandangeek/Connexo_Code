@@ -16,7 +16,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
         var me = this;
         me.items = [
             {
-                text: Uni.I18n.translate('general.Edit', 'MDC', 'Edit'),
+                text: "EDIT!!!!!!!",//Uni.I18n.translate('general.Edit', 'MDC', 'Edit'),
                 privileges: Mdc.privileges.Device.canAdministrateDevice(),
                 itemId: 'mdc-device-security-accessors-action-menu-edit',
                 action: me.keyMode ? 'editDeviceKey' : 'editDeviceCertificate',
@@ -62,6 +62,15 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
                 checkViewRights: true,
                 action: 'showKeyValues',
                 section: me.SECTION_VIEW
+            },
+            {
+                text: me.keyMode
+                    ? Uni.I18n.translate('general.unmarkServiceKey', 'MDC', 'Unmark service key')
+                    : Uni.I18n.translate('general.clearPassiveCertificate', 'MDC', 'Clear passive certificate'),
+                privileges: Mdc.privileges.Device.canAdministrateDevice(),
+                checkServiceKey: true,
+                action: 'unmarkServiceKey',
+                section: me.SECTION_EDIT
             }
         ];
         this.callParent(arguments);
@@ -74,6 +83,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
                 hasViewRights = Mdc.securityaccessors.view.PrivilegesHelper.hasPrivileges(menu.record.get('viewLevels')),
                 passiveAvailable = menu.record.get('hasTempValue'),
                 canGeneratePassiveKey = menu.record.get('canGeneratePassiveKey'),
+                serviceKey = menu.record.get('serviceKey'),
                 visible = true;
 
             me.items.each(function(item) {
@@ -93,6 +103,12 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
                 if (Ext.isDefined(item.invisibleWhenSwapped)) {
                     visible = visible && !swapped;
                 }
+
+                if (Ext.isDefined(item.checkServiceKey)) {
+                    console.log("SET VISIBILITY FOR unmarkAction. serviceKey = ",serviceKey);
+                    visible = serviceKey;
+                }
+
                 item.setVisible(visible);
             });
         }

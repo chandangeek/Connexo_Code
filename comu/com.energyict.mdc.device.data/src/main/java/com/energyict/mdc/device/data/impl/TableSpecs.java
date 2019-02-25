@@ -1115,6 +1115,10 @@ public enum TableSpecs {
                     .bool()
                     .map(AbstractDeviceSecurityAccessorImpl.Fields.SWAPPED.fieldName())
                     .add();
+            table.column("SERVICEKEY")
+                    .bool()
+                    .map(AbstractDeviceSecurityAccessorImpl.Fields.SERVICEKEY.fieldName())
+                    .add();
             table.addAuditColumns();
 
             table.primaryKey("PK_DCC_KEYACCESSOR").on(device, keyAccessorType).add();

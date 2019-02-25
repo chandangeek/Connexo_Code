@@ -87,7 +87,7 @@ Ext.define('Bpm.view.task.PerformTask', {
                                                 taskRecord: me.taskRecord
                                             },
                                             {
-                                                text: Uni.I18n.translate('task.action.complete', 'BPM', 'Complete'),
+                                                text: "COMPELETEEEEEE!!:)",//Uni.I18n.translate('task.action.complete', 'BPM', 'Complete'),
                                                 xtype: 'button',
                                                 hidden: true,
                                                 ui: 'action',
