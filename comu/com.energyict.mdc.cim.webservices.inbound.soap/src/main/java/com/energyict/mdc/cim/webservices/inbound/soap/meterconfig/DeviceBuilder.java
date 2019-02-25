@@ -5,6 +5,9 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
@@ -26,6 +29,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class DeviceBuilder {
@@ -64,6 +68,9 @@ public class DeviceBuilder {
             deviceBuilder.withModelNumber(meter.getModelNumber());
             deviceBuilder.withModelVersion(meter.getModelVersion());
             deviceBuilder.withMultiplier(meter.getMultiplier());
+            Multimap<String, String> mapZones = ArrayListMultimap.create();
+            meter.getZones().stream().forEach(zone->mapZones.put(zone.getZoneName(), zone.getZoneType()));
+            deviceBuilder.withZones(mapZones);
             return deviceBuilder.create();
         };
     }
@@ -128,6 +135,11 @@ public class DeviceBuilder {
             changedDevice.setModelNumber(modelNumber.orElse(currentModelNumber));
             changedDevice.setModelVersion(modelVersion.orElse(currentModelVersion));
             changedDevice.setManufacturer(manufacturer.orElse(currentManufacturer));
+
+            Multimap<String, String> mapZones = ArrayListMultimap.create();
+            changedDevice.removeZonesOnDevice();
+            meter.getZones().stream().forEach(zone->mapZones.put(zone.getZoneName(), zone.getZoneType()));
+            for (Map.Entry<String, String> zone : mapZones.entries()) { changedDevice.addZone(zone.getKey(), zone.getValue());}
             return updateDevice(changedDevice);
         };
     }

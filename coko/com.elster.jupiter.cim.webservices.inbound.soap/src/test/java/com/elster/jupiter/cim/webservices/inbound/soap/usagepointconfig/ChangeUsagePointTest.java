@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectionState;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
@@ -128,6 +129,8 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
     private ValueFactory<HasIdAndName> valueFactory;
     @Mock
     private HasIdAndName logicallyDisconnectedValue;
+    @Mock
+    private UsagePointCustomPropertySetExtension usagePointCustomPropertySetExtension;
 
     @Before
     public void setUp() throws Exception {
@@ -174,6 +177,8 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         when(usagePoint.getInstallationTime()).thenReturn(INSTALLATION_DATE);
         doReturn(Optional.of(electricityDetail)).when(usagePoint).getDetail(NOW);
         when(usagePoint.newElectricityDetailBuilder(any(Instant.class))).thenReturn(electricityDetailBuilder);
+        when(usagePoint.forCustomProperties()).thenReturn(usagePointCustomPropertySetExtension);
+        when(usagePointCustomPropertySetExtension.getAllPropertySets()).thenReturn(Collections.emptyList());
         mockDetails();
         mockUpdatedParameters();
     }

@@ -5,6 +5,7 @@
 package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
@@ -15,6 +16,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class EndPointConfigurationInfoFactory {
@@ -58,10 +61,10 @@ public class EndPointConfigurationInfoFactory {
                 .getAuthenticationMethod(),
                 endPointConfiguration.getAuthenticationMethod()
                         .getDisplayName(thesaurus));
-        if(webService.isPresent()){
-            info.type = webService.get().getProtocol().name();
-        }
-        info.properties = propertyValueInfoService.getPropertyInfos(endPointConfiguration.getPropertySpecs(), endPointConfiguration.getPropertiesWithValue());
+        webService.ifPresent(ws -> info.type = ws.getProtocol().name());
+        List<PropertySpec> propertySpecs = endPointConfiguration.getPropertySpecs();
+        info.properties = propertySpecs.isEmpty() ? Collections.emptyList()
+                : propertyValueInfoService.getPropertyInfos(propertySpecs, endPointConfiguration.getPropertiesWithValue());
         return info;
     }
 }

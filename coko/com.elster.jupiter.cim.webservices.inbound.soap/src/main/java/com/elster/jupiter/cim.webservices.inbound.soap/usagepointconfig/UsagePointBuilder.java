@@ -1,11 +1,19 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.OverlapCalculatorBuilder;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ValuesRangeConflict;
+import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
@@ -23,6 +31,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeFail;
@@ -31,6 +40,8 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+import com.elster.jupiter.util.units.Quantity;
 
 import ch.iec.tc57._2011.executeusagepointconfig.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
@@ -42,7 +53,10 @@ import ch.iec.tc57._2011.usagepointconfig.ServiceKind;
 import ch.iec.tc57._2011.usagepointconfig.Status;
 import ch.iec.tc57._2011.usagepointconfig.UsagePoint;
 import ch.iec.tc57._2011.usagepointconfig.UsagePointConnectedKind;
+import com.elster.connexo._2017.schema.customattributes.Attribute;
+import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -69,6 +83,7 @@ class UsagePointBuilder {
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final Clock clock;
     private final UsagePointLifeCycleService usagePointLifeCycleService;
+    private final CustomPropertySetService customPropertySetService;
 
     private UsagePoint usagePointConfig;
     private String pathToUsagePoint;
@@ -82,7 +97,8 @@ class UsagePointBuilder {
                       MeteringService meteringService,
                       MetrologyConfigurationService metrologyConfigurationService,
                       Clock clock,
-                      UsagePointLifeCycleService usagePointLifeCycleService) {
+                      UsagePointLifeCycleService usagePointLifeCycleService,
+                      CustomPropertySetService customPropertySetService) {
         this.thesaurus = thesaurus;
         this.replyTypeFactory = replyTypeFactory;
         this.messageFactory = messageFactory;
@@ -90,6 +106,7 @@ class UsagePointBuilder {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.clock = clock;
         this.usagePointLifeCycleService = usagePointLifeCycleService;
+        this.customPropertySetService = customPropertySetService;
     }
 
     private static void updateConnectionStateIfNeeded(com.elster.jupiter.metering.UsagePoint usagePoint,
@@ -198,6 +215,7 @@ class UsagePointBuilder {
         retrieveMetrologyConfiguration(usagePointConfig, usagePoint.getCurrentMeterActivations(), effectiveMC).ifPresent(mc -> usagePoint
                 .apply(mc, creationDate));
         retrieveConnectionState(usagePointConfig).ifPresent(cs -> usagePoint.setConnectionState(cs, creationDate));
+        validateAndUpdateCustomPropertySetValues(usagePoint, usagePointConfig.getCustomAttributeSet());
         return usagePoint;
     }
 
@@ -222,6 +240,7 @@ class UsagePointBuilder {
                                     .create()));
         }
 
+        validateAndUpdateCustomPropertySetValues(usagePoint, usagePointConfig.getCustomAttributeSet());
         //update usage point life cycle if is present
         updateUsagePointLifeCycle(usagePoint, usagePointConfig);
 
@@ -231,6 +250,14 @@ class UsagePointBuilder {
         retrieveConnectionState(usagePointConfig).ifPresent(cs -> updateConnectionStateIfNeeded(result, cs));
         return result;
     }
+
+    private void validateAndUpdateCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, List<CustomAttributeSet> data) throws FaultMessage {
+        for (CustomAttributeSet cas: data) {
+            validateCustomPropertySetValues(usagePoint, cas);
+            addCustomPropertySetValues(usagePoint, cas);
+        }
+    }
+
 
     public void updateUsagePointLifeCycle(com.elster.jupiter.metering.UsagePoint usagePoint, UsagePoint usagePointConfig) throws
             FaultMessage {
@@ -807,6 +834,314 @@ class UsagePointBuilder {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.UNSUPPORTED_LIST_SIZE, pathToUsagePoint + '.' + listElement, 1).get();
         }
+    }
+
+    private void validateMandatoryCustomProperties(CustomPropertySet<?, ?> customPropertySet, CustomPropertySetValues values) throws FaultMessage {
+        List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
+        for (PropertySpec spec : propertySpecs) {
+            if (spec.isRequired() && values.getProperty(spec.getName()) == null) {
+                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                        MessageSeeds.MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE, spec.getName(), customPropertySet.getId()).get();
+            }
+        }
+    }
+
+    private void validatePossibleValues(CustomPropertySet<?, ?> customPropertySet, CustomPropertySetValues values, CustomAttributeSet data) throws FaultMessage {
+        List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
+        for (PropertySpec spec : propertySpecs) {
+            Object value = values.getProperty(spec.getName());
+            if (spec.getValueFactory().getValueType().equals(Quantity.class) && !isValidQuantityValues(spec, (Quantity)value)) {
+                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                        MessageSeeds.WRONG_QUANTITY_FORMAT,
+                        spec.getName(),
+                        spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getMultiplier())).collect(Collectors.joining(",")),
+                        spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getUnit())).collect(Collectors.joining(","))).get();
+            } else if (value != null
+                    && spec.getPossibleValues() != null
+                    && spec.getPossibleValues().isExhaustive()
+                    && !isValidEnumValues(spec, value)) {
+                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                        MessageSeeds.WRONG_ENUM_FORMAT, spec.getName(), spec.getPossibleValues().getAllValues().stream().map(String::valueOf).collect(Collectors.joining(","))).get();
+            }
+
+        }
+    }
+
+    private void validateCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, CustomAttributeSet data) throws FaultMessage {
+        Optional<CustomPropertySet> customPropertySet = usagePoint.forCustomProperties().getAllPropertySets().stream()
+                .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                .filter(cps -> data.getId().equalsIgnoreCase(cps.getId()))
+                .findFirst();
+        if (customPropertySet.isPresent()) {
+            validateCustomPropertySetValues(customPropertySet.get(), usagePoint, data, null);
+        } else {
+            throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                    MessageSeeds.NO_CUSTOMATTRIBUTE, data.getId()).get();
+        }
+    }
+
+    private void validateCustomPropertySetValues(CustomPropertySet customPropertySet, Object businessObject, CustomAttributeSet data, Object additionalPrimaryKey) throws FaultMessage {
+        if (!customPropertySet.isVersioned()) {
+            validateCreateOrUpdateNonVersionedSet(businessObject, customPropertySet, data, additionalPrimaryKey);
+        } else {
+            validateCreateOrUpdateVersionedSet(businessObject, customPropertySet, data, additionalPrimaryKey);
+        }
+    }
+
+
+    private void validateCreateOrUpdateVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalObject) throws FaultMessage {
+        Optional<Instant> versionId = Optional.ofNullable(data.getVersionId());
+        CustomPropertySetValues values = null;
+        if (versionId.isPresent()) {
+            if (additionalObject != null) {
+                values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId.get(), additionalObject);
+            } else {
+                values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId.get());
+            }
+
+            if (values == null) {
+                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                        MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION, DefaultDateTimeFormatters.shortDate().withShortTime().build().format((versionId.get()).atZone(clock.getZone()))).get();
+            }
+        } else {
+            values = CustomPropertySetValues.empty();
+        }
+        validateCreateOrUpdateCustomAttributeValues(customPropertySet, data, values);
+    }
+
+
+    private void validateCreateOrUpdateNonVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalObject) throws FaultMessage {
+        CustomPropertySetValues values = getValues(businessObject, customPropertySet, data, additionalObject);
+        validateCreateOrUpdateCustomAttributeValues(customPropertySet, data, values);
+    }
+
+    private void validateCreateOrUpdateCustomAttributeValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, CustomPropertySetValues values) throws FaultMessage {
+        if (values != null) {
+            for (PropertySpec spec : customPropertySet.getPropertySpecs()) {
+                Optional value = findValue(customPropertySet, spec, data);
+                if (value.isPresent()) {
+                    values.setProperty(spec.getName(), value.get());
+                }
+            }
+            validateMandatoryCustomProperties(customPropertySet, values);
+            validatePossibleValues(customPropertySet, values, data);
+            customPropertySetService.validateCustomPropertySetValues(customPropertySet, values);
+        }
+    }
+
+    private CustomPropertySetValues getValues(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalPrimaryKeyObject) throws FaultMessage {
+        CustomPropertySetValues values;
+        if (additionalPrimaryKeyObject != null) {
+            values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, additionalPrimaryKeyObject);
+        } else {
+            values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject);
+        }
+        return updateValues(customPropertySet, data, values);
+    }
+
+    private CustomPropertySetValues getValuesVersion(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Instant versionId, Object additionalPrimaryKeyObject) {
+        if (additionalPrimaryKeyObject != null) {
+            return customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId, additionalPrimaryKeyObject);
+        } else {
+            return customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId);
+        }
+    }
+
+    private CustomPropertySetValues updateValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, CustomPropertySetValues values) throws FaultMessage {
+        for (PropertySpec spec : customPropertySet.getPropertySpecs()) {
+            Optional value = findValue(customPropertySet, spec, data);
+            if (value.isPresent()) {
+                values.setProperty(spec.getName(), value.get());
+            }
+        }
+        return values;
+
+    }
+
+    private Optional<Object> findValue(CustomPropertySet<Object,? extends PersistentDomainExtension> customPropertySet, PropertySpec spec, CustomAttributeSet data) throws FaultMessage {
+        if (data.getId().equalsIgnoreCase(customPropertySet.getId())) {
+            for (Attribute attr : data.getAttribute()) {
+                if (attr.getName().equalsIgnoreCase(spec.getName())) {
+                    return Optional.of(convertValues(spec, attr.getValue()));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Object convertValues(PropertySpec spec, String value) {
+        return spec.getValueFactory().fromStringValue(value);
+    }
+
+    private void addCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, CustomAttributeSet data) throws FaultMessage {
+        for (RegisteredCustomPropertySet registeredCustomPropertySet : usagePoint.forCustomProperties().getAllPropertySets().stream()
+                .filter(cps -> data.getId().equalsIgnoreCase(cps.getCustomPropertySetId())).collect(Collectors.toList())) {
+            addCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet(), usagePoint, data, null);
+        }
+    }
+
+    private void addCustomPropertySetValues(CustomPropertySet customPropertySet, Object businessObject, CustomAttributeSet data, Object additionalPrimaryKey) throws FaultMessage {
+        if (customPropertySet.isVersioned()) {
+            createOrUpdateVersionedSet(businessObject, customPropertySet, data, additionalPrimaryKey);
+        } else {
+            createOrUpdateNonVersionedSet(businessObject, customPropertySet, data, additionalPrimaryKey);
+        }
+    }
+
+    private void createOrUpdateVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalPrimaryKeyObject) throws FaultMessage {
+        Optional<Instant> startTime = Optional.ofNullable(data.getFromDateTime());
+        Optional<Instant> endTime = Optional.ofNullable(data.getToDateTime());
+        Optional<Instant> versionId = Optional.ofNullable(data.getVersionId());
+        Optional<Boolean> updateRange = Optional.ofNullable(data.isUpdateRange());
+        checkInterval(startTime, endTime, customPropertySet, data);
+        if (versionId.isPresent()) {
+            CustomPropertySetValues values = getValuesVersion(businessObject, customPropertySet, data, versionId.get(), additionalPrimaryKeyObject);
+            if (!values.isEmpty()) {
+                values = updateValues(customPropertySet, data, values);
+                Range<Instant> range;
+                if (updateRange.isPresent() && updateRange.get()) {
+                    if (!endTime.isPresent() && data.getId().equalsIgnoreCase(customPropertySet.getId())) {
+                        endTime = Optional.of(Instant.EPOCH);
+                    }
+                    range = getRangeToUpdate(startTime, endTime, values.getEffectiveRange());
+                    OverlapCalculatorBuilder overlapCalculatorBuilder;
+                    if (additionalPrimaryKeyObject != null) {
+                        overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject, additionalPrimaryKeyObject);
+                    } else {
+                        overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject);
+                    }
+                    for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenUpdating(versionId.get(), range)) {
+                        if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
+                            range = getRangeToUpdate(Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()), endTime, values.getEffectiveRange());
+                        }
+                        if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
+                            range = getRangeToUpdate(startTime, Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()), values.getEffectiveRange());
+                        }
+                    }
+                } else {
+                    range = values.getEffectiveRange();
+                }
+                if (additionalPrimaryKeyObject != null) {
+                    customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, values, range, versionId.get(), additionalPrimaryKeyObject);
+                } else {
+                    customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, values, range, versionId.get());
+                }
+            } else {
+                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                        MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(versionId.get().atZone(clock.getZone()))).get();
+            }
+        } else {
+            com.elster.jupiter.metering.UsagePoint usagePoint = (com.elster.jupiter.metering.UsagePoint)businessObject;
+            if (!startTime.isPresent() || startTime.get().isBefore(usagePoint.getInstallationTime())) {
+                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                        MessageSeeds.START_DATE_LOWER_CREATED_DATE, customPropertySet.getId(), usagePoint.getName()).get();
+            }
+            Range<Instant> range = getRangeToCreate(startTime, endTime);
+            OverlapCalculatorBuilder overlapCalculatorBuilder;
+            if (additionalPrimaryKeyObject != null) {
+                overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject, additionalPrimaryKeyObject);
+            } else {
+                overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject);
+            }
+            for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenCreating(range)) {
+                if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
+                    range = getRangeToCreate(Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()), endTime);
+                }
+                if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
+                    range = getRangeToCreate(startTime, Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()));
+                }
+            }
+            CustomPropertySetValues newValues = CustomPropertySetValues.empty();
+            if (additionalPrimaryKeyObject != null) {
+                customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, updateValues(customPropertySet, data, newValues), range, additionalPrimaryKeyObject);
+            } else {
+                customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, updateValues(customPropertySet, data, newValues), range);
+            }
+        }
+    }
+
+    private void createOrUpdateNonVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalPrimaryKeyObject) throws FaultMessage {
+        CustomPropertySetValues values = getValues(businessObject, customPropertySet, data, additionalPrimaryKeyObject);
+        if (additionalPrimaryKeyObject != null) {
+            customPropertySetService.setValuesFor(customPropertySet, businessObject, values, additionalPrimaryKeyObject);
+        } else {
+            customPropertySetService.setValuesFor(customPropertySet, businessObject, values);
+        }
+    }
+
+    private Range<Instant> getRangeToCreate(Optional<Instant> startTime, Optional<Instant> endTime) {
+        if ((!startTime.isPresent() || startTime.get().equals(Instant.EPOCH))
+                && (!endTime.isPresent() || endTime.get().equals(Instant.EPOCH))) {
+            return Range.all();
+        } else if (!startTime.isPresent() || startTime.get().equals(Instant.EPOCH)
+                && (endTime.isPresent() && !endTime.get().equals(Instant.EPOCH))) {
+            return Range.lessThan(endTime.get());
+        } else if (!endTime.isPresent() || endTime.get().equals(Instant.EPOCH)) {
+            return Range.atLeast(startTime.get());
+        } else {
+            return Range.closedOpen(
+                    startTime.get(),
+                    endTime.get());
+        }
+    }
+
+    private Range<Instant> getRangeToUpdate(Optional<Instant> startTime, Optional<Instant> endTime, Range<Instant> oldRange) {
+        if (!startTime.isPresent() && !endTime.isPresent()) {
+            return oldRange;
+        } else if (!startTime.isPresent()) {
+            if (oldRange.hasLowerBound()) {
+                if(!endTime.get().equals(Instant.EPOCH)) {
+                    return Range.closedOpen(oldRange.lowerEndpoint(), endTime.get());
+                } else {
+                    return Range.atLeast(oldRange.lowerEndpoint());
+                }
+            } else if (endTime.get().equals(Instant.EPOCH)) {
+                return Range.all();
+            } else {
+                return Range.lessThan(endTime.get());
+            }
+        } else if (!endTime.isPresent()) {
+            if (oldRange.hasUpperBound()) {
+                if(!startTime.get().equals(Instant.EPOCH)) {
+                    return Range.closedOpen(startTime.get(), oldRange.upperEndpoint());
+                } else {
+                    return Range.lessThan(oldRange.upperEndpoint());
+                }
+            } else if (startTime.get().equals(Instant.EPOCH)) {
+                return Range.all();
+            } else {
+                return Range.atLeast(startTime.get());
+            }
+        } else {
+            return getRangeToCreate(startTime, endTime);
+        }
+    }
+
+    private void checkInterval(Optional<Instant> startTime, Optional<Instant> endTime, CustomPropertySet customPropertySet, CustomAttributeSet data) throws FaultMessage {
+        if (startTime.isPresent() && endTime.isPresent() && !endTime.get().equals(Instant.EPOCH) && endTime.get().isBefore(startTime.get())) {
+            throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                    MessageSeeds.INVALID_RANGE, customPropertySet.getId()).get();
+        }
+    }
+
+    private boolean isValidQuantityValues(PropertySpec spec, Quantity value) {
+        if (value == null) {
+            return true;
+        }
+        if (spec.getPossibleValues().getAllValues().stream()
+                .noneMatch(pv -> ((Quantity) pv).getUnit().equals(value.getUnit()) && ((Quantity) pv).getMultiplier() == ((value.getMultiplier())))) {
+            return false;
+        }
+        return true;
+    }
+
+
+    private boolean isValidEnumValues(PropertySpec spec, Object value) {
+        if (spec.getPossibleValues().getAllValues().stream()
+                .noneMatch(pv -> pv.equals(value))) {
+            return false;
+        }
+        return true;
     }
 
     private Supplier<FaultMessage> missingUsagePointParameterSupplier(String element) {

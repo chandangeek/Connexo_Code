@@ -32,6 +32,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -180,6 +182,7 @@ public class InMemoryIntegrationPersistence {
     private MeteringGroupsService meteringGroupsService;
     private SearchService searchService;
     private MessageService messageService;
+    private MeteringZoneService meteringZoneService;
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
@@ -293,7 +296,8 @@ public class InMemoryIntegrationPersistence {
                 new MultiElementDeviceModule(),
                 new WebServicesModule(),
                 new AuditServiceModule(),
-                new FileImportModule()
+                new FileImportModule(),
+                new MeteringZoneModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
@@ -336,6 +340,7 @@ public class InMemoryIntegrationPersistence {
             this.deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.registeredDevicesKpiService = injector.getInstance(RegisteredDevicesKpiService.class);
             this.meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+            this.meteringZoneService = injector.getInstance(MeteringZoneService.class);
             this.searchService = injector.getInstance(SearchService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
             ctx.commit();

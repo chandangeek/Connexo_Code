@@ -566,6 +566,24 @@
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Register.touTier"/>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:complexType name="Zone" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Zone">
+        <xs:sequence>
+            <xs:element name="zoneName" type="xs:string" minOccurs="0"
+                        sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Zone.zoneName"/>
+            <xs:element name="zoneType" type="xs:string" minOccurs="0"
+                        sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Zone.zoneType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Zones" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Zones">
+        <xs:sequence>
+            <xs:element name="Zone" type="m:Zone"
+                        sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Zones.Zone" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
     <xs:complexType name="RemoteConnectDisconnectInfo"
                     sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#RemoteConnectDisconnectInfo">
         <xs:sequence>
@@ -652,6 +670,8 @@
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
             <xs:element name="Registers" type="m:Register" minOccurs="0" maxOccurs="unbounded"
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#EndDeviceFunction.Registers"/>
+            <xs:element name="Zones" type="m:Zones"
+                        sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#EndDeviceFunction.Zones"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="Status" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Status">

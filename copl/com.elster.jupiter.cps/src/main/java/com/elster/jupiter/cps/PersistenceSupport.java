@@ -148,5 +148,4 @@ public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
     }
 
     String application();
-
 }

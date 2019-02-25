@@ -179,6 +179,29 @@ public interface CustomPropertySetService {
     <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues);
 
     /**
+     * Gets the unique set of history values for the {@link CustomPropertySet}
+     * that were saved for the specified businesObject object
+     * and (optionally) the additional primary key columns.
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is versioned because in that case
+     * you need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @param at journal timestamp
+     * @return The CustomPropertySetValues
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
+     * @see CustomPropertySet#isVersioned()
+     */
+    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueHistoryValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Object... additionalPrimaryKeyValues);
+
+
+    /**
      * Sets the values for the {@link CustomPropertySet} that were saved for
      * the specified businesObject object.
      * <p>
@@ -223,6 +246,52 @@ public interface CustomPropertySetService {
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
     <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+
+    /**
+     * Gets the unique set of values for the {@link CustomPropertySet} that were saved for
+     * the specified businesObject object and modified between start and end interval
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
+     * you do not need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param start The timestamp of the start time
+     * @param end The timestamp of the end time
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The CustomPropertySetValues
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     * @see CustomPropertySet#isVersioned()
+     */
+    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues);
+
+
+    /**
+     * Gets the unique set of history values for the {@link CustomPropertySet} that were saved for
+     * the specified businesObject object at the specified point in time.
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
+     * you do not need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param effectiveTimestamp The point in time
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
+     * @param at journal timestamp
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The CustomPropertySetValues
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     * @see CustomPropertySet#isVersioned()
+     */
+    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueHistoryValuesForVersion(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+
 
     /**
      * Checks if the unique set of values for the {@link CustomPropertySet} that were saved for
@@ -358,6 +427,27 @@ public interface CustomPropertySetService {
     <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues);
 
     /**
+     * Gets the history values for the {@link CustomPropertySet} that were saved for
+     * the specified domain object.
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is versioned because in that case
+     * you need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The domain object
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
+     * @param at journal timestamp
+     * @param <D> The domain class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The instance of the peristent class that holds the values for this CustomPropertySet
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
+     * @see CustomPropertySet#isVersioned()
+     */
+    <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Object... additionalPrimaryKeyValues);
+
+    /**
      * Gets the values for the {@link CustomPropertySet} that match the Condition
      * specified with the {@link NonVersionedValuesEntityCustomConditionMatcher}.
      * <p>
@@ -395,6 +485,49 @@ public interface CustomPropertySetService {
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
     <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+
+    /**
+     * Gets the values for the {@link CustomPropertySet} that were saved for
+     * the specified businesObject object and modified between start and end interval
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
+     * you do not need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param start The timestamp of the start time
+     * @param end The timestamp of the end time
+     * @param additionalPrimaryKeyValues Values for the addition primary keys defined by the CustomPropertySet
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The instance of the peristent class that holds the values for this CustomPropertySet
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     * @see CustomPropertySet#isVersioned()
+     */
+    <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues);
+    /**
+     * Gets the history values for the {@link CustomPropertySet} that were saved for
+     * the specified businesObject object at the specified point in time.
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
+     * you do not need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param effectiveTimestamp The point in time
+     * @param additionalPrimaryKeyValues Values for the addition primary keys defined by the CustomPropertySet
+     * @param at journal timestamp
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The instance of the peristent class that holds the values for this CustomPropertySet
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     * @see CustomPropertySet#isVersioned()
+     */
+    <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
 
     /**
      * Gets the values for the {@link CustomPropertySet} that match the condition

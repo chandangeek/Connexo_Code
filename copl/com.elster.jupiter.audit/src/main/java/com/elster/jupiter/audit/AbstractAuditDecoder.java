@@ -38,8 +38,8 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     }
 
     @Override
-    public Object getReference() {
-        return new Object();
+    public Object getContextReference() {
+        return "";
     }
 
     @Override
@@ -133,7 +133,6 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     protected abstract void decodeReference();
 
-
     protected Optional<AuditLogChange> getAuditLogChangeForString(String from, String to, TranslationKey translationKey) {
         if (to.compareTo(from) != 0) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
@@ -219,5 +218,10 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     public String getDisplayName(TranslationKey key) {
         return this.thesaurus.getFormat(key).format();
+    }
+
+    protected boolean isBetweenPeriodMod(Instant instant) {
+        return (instant.isAfter(getAuditTrailReference().getModTimeStart()) || instant.equals(getAuditTrailReference().getModTimeStart())) &&
+                (instant.isBefore(getAuditTrailReference().getModTimeEnd()) || instant.equals(getAuditTrailReference().getModTimeEnd()));
     }
 }

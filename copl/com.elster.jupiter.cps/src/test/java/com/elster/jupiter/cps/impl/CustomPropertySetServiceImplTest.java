@@ -13,6 +13,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -167,6 +168,8 @@ public class CustomPropertySetServiceImplTest {
     private SearchService searchService;
     @Mock
     private UpgradeService upgradeService;
+    @Mock
+    private EventService eventService;
 
     @Before
     public void initializeMocks() {
@@ -380,6 +383,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setSearchService(this.searchService);
         testInstance.addCustomPropertySet(this.customPropertySet);
         testInstance.setUpgradeService(upgradeService);
+        testInstance.setEventService(eventService);
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, testInstance));
         when(this.customPropertySet.getId()).thenReturn("addNonVersionedCustomPropertySetBeforeActivation");
@@ -451,6 +455,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setOrmService(this.ormService, false);
         testInstance.setNlsService(this.nlsService);
         testInstance.setSearchService(this.searchService);
+        testInstance.setEventService(eventService);
         testInstance.setTransactionService(this.transactionService);
         testInstance.addCustomPropertySet(this.versionedCustomPropertySet);
         testInstance.setUpgradeService(upgradeService);
@@ -530,7 +535,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.upgradeService).register(eq(InstallIdentifier.identifier("Example", VERSIONED_CUSTOM_PROPERTY_SET_ADD_COMPONENT_ID)), eq(versionedCustomPropertySetWithAdditionalKeyDataModel), any(), any());
     }
 
-    @Test(timeout = 5000)
+    @Test(timeout = 10000)
     public void addCustomPropertySetsWhileActivating() throws InterruptedException {
         when(this.serviceDataModel.isInstalled()).thenReturn(false);
         CustomPropertySetServiceImpl testInstance = new CustomPropertySetServiceImpl();
@@ -539,6 +544,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setTransactionService(this.transactionService);
         testInstance.setUpgradeService(upgradeService);
         testInstance.setSearchService(searchService);
+        testInstance.setEventService(eventService);
         testInstance.setThreadPrincipalService(threadPrincipalService);
         when(this.customPropertySet.getId()).thenReturn("addCustomPropertySetsWhileActivating-nonversioned");
         when(this.versionedCustomPropertySet.getId()).thenReturn("addCustomPropertySetsWhileActivating-versioned");
@@ -1148,7 +1154,9 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setTransactionService(this.transactionService);
         testInstance.setThreadPrincipalService(this.threadPrincipalService);
         testInstance.setSearchService(searchService);
+        testInstance.setEventService(eventService);
         testInstance.setUpgradeService(upgradeService);
+        testInstance.setEventService(eventService);
         testInstance.activate();
         return testInstance;
     }

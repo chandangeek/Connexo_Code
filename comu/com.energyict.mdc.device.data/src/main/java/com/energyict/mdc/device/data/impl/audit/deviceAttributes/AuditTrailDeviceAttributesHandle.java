@@ -6,7 +6,6 @@ package com.energyict.mdc.device.data.impl.audit.deviceAttributes;
 
 import com.elster.jupiter.audit.AuditDecoder;
 import com.elster.jupiter.audit.AuditDomainContextType;
-import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditTrailDecoderHandle;
 import com.elster.jupiter.audit.AuditTrailReference;
 import com.elster.jupiter.metering.MeteringService;
@@ -27,12 +26,18 @@ import java.util.List;
         name = "com.energyict.mdc.device.data.audit.deviceAttributes",
         service = {AuditTrailDecoderHandle.class},
         immediate = true)
-public class AuditTrailDeviceAttributes implements AuditTrailDecoderHandle {
+public class AuditTrailDeviceAttributesHandle implements AuditTrailDecoderHandle {
+
+    private final AuditDomainContextType auditDomainContextType = AuditDomainContextType.DEVICE_ATTRIBUTES;
 
     private volatile OrmService ormService;
     private volatile ServerDeviceService serverDeviceService;
     private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
+
+    @SuppressWarnings("unused") // for OSGI
+    public AuditTrailDeviceAttributesHandle() {
+    }
 
     @Reference
     public void setOrmService(OrmService ormService) {
@@ -55,13 +60,8 @@ public class AuditTrailDeviceAttributes implements AuditTrailDecoderHandle {
     }
 
     @Override
-    public String getDomain() {
-        return AuditDomainType.DEVICE.name();
-    }
-
-    @Override
-    public String getContext() {
-        return AuditDomainContextType.DEVICE_ATTRIBUTES.name();
+    public AuditDomainContextType getAuditDomainContextType() {
+        return auditDomainContextType;
     }
 
     @Override

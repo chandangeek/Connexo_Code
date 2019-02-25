@@ -78,16 +78,15 @@ public class AuditTrailDataWriter<T> {
 
         try (Connection connection = getConnection(true)) {
             TableAudit tableAudit = getTable().getTableAudit();
-            List<Object> pkColumns = tableAudit.getDomainPkValues(object);
+            List<Object> pkDomainColumns = tableAudit.getDomainPkValues(object);
+            List<Object> pkContextColumns = tableAudit.getContextPkValues(object);
             List<DomainContextIdentifier> contextAuditIdentifiers = getContextAuditIdentifiers();
             resolveIncompleteContextIdentifier(object);
             contextAuditIdentifiers.stream()
-                    .filter(contextIdentifierEntry -> {
-                        return
-                                (contextIdentifierEntry.getDomain().compareToIgnoreCase(tableAudit.getDomain()) == 0) &&
-                                        (contextIdentifierEntry.getContext().compareToIgnoreCase(tableAudit.getContext()) == 0) &&
-                                        (contextIdentifierEntry.getPkColumn() == getPkColumnByIndex(pkColumns, 0));
-                    })
+                    .filter(contextIdentifierEntry -> (contextIdentifierEntry.getDomainContext() == tableAudit.getDomainContext()) &&
+                          //  (contextIdentifierEntry.getOperation() == operation.ordinal()) &&
+                            (contextIdentifierEntry.getPkDomainColumn() == getPkColumnByIndex(pkDomainColumns, 0)) &&
+                            (contextIdentifierEntry.getPkContextColumn() == getPkColumnByIndex(pkContextColumns, 0)))
                     .findFirst()
                     .map(domainContextIdentifier -> {
                         try {
@@ -99,17 +98,17 @@ public class AuditTrailDataWriter<T> {
                     .map(DomainContextIdentifier::getId)
                     .orElseGet(() -> {
                         try {
-                            if (isTouch == false) {
+                            if (!isTouch) {
                                 Long nextVal = getNext(connection, "ADT_AUDIT_TRAILID");
                                 updateContextAuditIdentifiers(new DomainContextIdentifier().setId(nextVal)
-                                        .setDomain(tableAudit.getDomain())
-                                        .setContext(tableAudit.getContext())
-                                        .setPkColumn(getPkColumnByIndex(pkColumns, 0))
+                                        .setDomainContext(tableAudit.getDomainContext())
+                                        .setPkDomainColumn(getPkColumnByIndex(pkDomainColumns, 0))
+                                //        .setPkContextColumn(getPkColumnByIndex(pkContextColumns, 0))
                                         .setOperation(operation.ordinal())
                                         .setObject(object)
                                         .setTableAudit(tableAudit)
-                                        .setReverseReferenceMapValue(getPkColumnByIndex(tableAudit.getContextPkValues(object), 0)));
-                                persistAuditDomain(object, now, operation, nextVal, pkColumns);
+                                        .setReverseReferenceMapValue(getPkColumnByIndex(tableAudit.getResersePkValues(object), 0)));
+                                persistAuditDomain(object, now, operation, nextVal, pkDomainColumns, pkContextColumns);
                                 return nextVal;
                             }
                             return 0L;
@@ -128,28 +127,29 @@ public class AuditTrailDataWriter<T> {
     }
 
     private long getPkColumnBy(DomainContextIdentifier domainContextIdentifier) {
-        if (domainContextIdentifier.getPkColumn() == 0) {
-            domainContextIdentifier.setPkColumn(getPkColumnByIndex(getTable().getTableAudit().getDomainPkValues(object), 0));
+        if (domainContextIdentifier.getPkDomainColumn() == 0) {
+            domainContextIdentifier.setPkDomainColumn(getPkColumnByIndex(getTable().getTableAudit().getDomainPkValues(object), 0));
         }
-        return domainContextIdentifier.getPkColumn();
+        return domainContextIdentifier.getPkDomainColumn();
     }
 
-    private void persistAuditDomain(Object object, Instant now, UnexpectedNumberOfUpdatesException.Operation operation, Long nextVal, List<Object> pkColumns) throws SQLException {
+    private void persistAuditDomain(Object object, Instant now, UnexpectedNumberOfUpdatesException.Operation operation, Long nextVal,
+                                    List<Object> pkDomainColumns, List<Object> pkContextColumns) throws SQLException {
 
         TableAudit tableAudit = getTable().getTableAudit();
         String auditLog = getSqlGenerator().auditTrailSql();
         try (Connection connection = getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(auditLog)) {
 
-                //ID, DOMAIN, CONTEXT, MODTIMESTART, MODTIMEEND, TABLENAME, PKCOLUMN, OPERATION, CREATETIME, USERNAME
+                //IID, DOMAIN, MODTIMESTART, MODTIMEEND, PKDOMAIN, PKCONTEXT, OPERATION, CREATETIME, USERNAME
                 int index = 1;
                 statement.setLong(index++, nextVal); // ID
-                statement.setString(index++, tableAudit.getDomain()); // domain
-                statement.setString(index++, tableAudit.getContext()); // context
+                statement.setLong(index++, tableAudit.getDomainContext()); // DOMAINCONTEXT
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMESTART
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMEEND
-                statement.setString(index++, tableAudit.getTouchTable().getName()); // table name
-                statement.setLong(index++, getPkColumnByIndex(pkColumns, 0));
+                statement.setLong(index++, getPkColumnByIndex(pkDomainColumns, 0));
+                statement.setLong(index++, getPkColumnByIndex(pkContextColumns, 0));
+                statement.setLong(index++, getPkColumnByIndex(pkContextColumns, 1));
                 statement.setLong(index++, operation.ordinal()); // operation
                 statement.setLong(index++, now.toEpochMilli()); // create time
                 statement.setString(index++, getCurrentUserName()); //user name
@@ -165,7 +165,7 @@ public class AuditTrailDataWriter<T> {
             try (PreparedStatement statement = connection.prepareStatement(auditLog)) {
                 int index = 1;
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMEEND
-                statement.setLong(index++, getPkColumnBy(domainContextIdentifier)); // PKCOLUMN
+                statement.setLong(index++, getPkColumnBy(domainContextIdentifier)); // PKCONTEXT
                 statement.setLong(index++, nextVal); // ID
                 statement.execute();
             }
@@ -197,15 +197,14 @@ public class AuditTrailDataWriter<T> {
         List<DomainContextIdentifier> contextAuditIdentifiers = getContextAuditIdentifiers();
 
         contextAuditIdentifiers.stream()
-                .filter(contextIdentifierEntry -> contextIdentifierEntry.getPkColumn() == 0)
+                .filter(contextIdentifierEntry -> contextIdentifierEntry.getPkDomainColumn() == 0)
                 .forEach(contextIdentifierEntry -> {
                     TableAudit tableAudit = getTable().getTableAudit();
                     if (contextIdentifierEntry.getTableAudit().getTouchTable().getName().compareToIgnoreCase(getTable().getName()) == 0) {
                         contextIdentifierEntry.getTableAudit().getReverseReferenceMap(object).ifPresent(reverseReference -> {
                             if (reverseReference.longValue() == contextIdentifierEntry.getReverseReferenceMapValue().longValue()) {
                                 contextIdentifierEntry
-                                        .setPkColumn(getPkColumnByIndex(tableAudit.getDomainPkValues(object), 0));
-
+                                        .setPkDomainColumn(getPkColumnByIndex(tableAudit.getDomainPkValues(object), 0));
                             }
                         });
                     }

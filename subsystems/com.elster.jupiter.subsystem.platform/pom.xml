@@ -358,7 +358,7 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat</artifactId>
-            <version>8.5.24</version>
+            <version>8.5.24.1</version>
             <type>zip</type>
             <classifier>connexo</classifier>
             <scope>provided</scope>
@@ -383,7 +383,7 @@
         <dependency>
             <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
             <artifactId>facts</artifactId>
-            <version>10.4</version>
+            <version>10.4.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
