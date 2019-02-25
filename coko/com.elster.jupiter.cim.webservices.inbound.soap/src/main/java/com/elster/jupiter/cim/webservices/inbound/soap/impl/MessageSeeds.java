@@ -78,6 +78,13 @@ public enum MessageSeeds implements MessageSeed {
     METER_AND_USAGE_POINT_NOT_LINKED(4004, "MeterAndUsagePointNotLinked",
             "Meter ''{0}'' is not linked to usage point ''{1}'' at the given time ''{2}''."),
     NO_METER_ROLE_WITH_KEY(4005, "NoMeterRoleWithKey", "No meter role is found by key ''{0}''."),
+
+    // async
+    COULD_NOT_FIND_SERVICE_CALL_TYPE(5001, "CouldNotFindServiceCallType", "Could not find service call type {0} having version {1}"),
+    NO_REPLY_ADDRESS(5002, "NoReplyAddress", "Reply address is required"),
+    NO_END_POINT_WITH_URL(5003, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
+    SYNC_MODE_NOT_SUPPORTED(5004, "SyncModeNotSupported", "Synchronous mode is not supported for multiple objects"),
+    NO_PUBLISHED_END_POINT_WITH_URL(5005, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
     ;
 
     private final int number;
