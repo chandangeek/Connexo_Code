@@ -29,8 +29,6 @@ public enum MessageSeeds implements MessageSeed {
     UNABLE_TO_CREATE_DEVICE(1001, "UnableToCreateDevice", "Unable to create device"),
     UNABLE_TO_CHANGE_DEVICE(1002, "UnableToChangeDevice", "Unable to change device"),
     DEVICE_IDENTIFIER_MISSING(1003, "CreateDeviceIdentifierMissing", "''Name'' or ''serialNumber'' or ''mRID'' must be specified in the payload"),
-//    CREATE_DEVICE_IDENTIFIER_MISSING(1003, "CreateDeviceIdentifierMissing", "''Name'' or ''serialNumber'' or ''mRID'' must be specified in the payload"),
-//    CHANGE_DEVICE_IDENTIFIER_MISSING(1004, "ChangeDeviceIdentifierMissing", "''Name'' must be specified in the payload"),
     NO_SUCH_DEVICE_TYPE(1005, "NoSuchDeviceType", "No such device type: ''{0}''"),
     NO_SUCH_DEVICE_CONFIGURATION(1006, "NoSuchDeviceConfiguration", "No such device configuration: ''{0}''"),
     NO_DEVICE_WITH_NAME(1007, "NoDeviceWithName", "No device found with name ''{0}''"),

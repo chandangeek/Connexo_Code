@@ -145,7 +145,7 @@
             <artifactId>cps</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster.jupgit iter</groupId>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
         </dependency>
         <dependency>
