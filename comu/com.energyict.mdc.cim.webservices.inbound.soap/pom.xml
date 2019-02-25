@@ -145,10 +145,17 @@
             <artifactId>cps</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster.jupiter</groupId>
+            <groupId>com.elster.jupgit iter</groupId>
             <artifactId>servicecall</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>hsm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.app</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
