@@ -118,12 +118,15 @@ public class GetMeterConfigFactory {
         } else {
             values = customPropertySetService.getUniqueValuesFor(propertySet, device, clock.instant());
         }
+        if (propertySet.isVersioned() && values.isEmpty()) {
+            return null; // for versioned CAS empty values means no version
+        }
         List<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
         customAttributeSet.setId(propertySet.getId());
         for (PropertySpec propertySpec : propertySpecs) {
             Attribute attr = new Attribute();
             attr.setName(propertySpec.getName());
-            Object value = (values == null)?null:values.getProperty(propertySpec.getName());
+            Object value = (values == null) ? null : values.getProperty(propertySpec.getName());
             if (value == null) {
                 Object propertyValue = getDefaultPropertyValue(propertySpec);
                 attr.setValue(convertPropertyValue(propertySpec, propertyValue));
