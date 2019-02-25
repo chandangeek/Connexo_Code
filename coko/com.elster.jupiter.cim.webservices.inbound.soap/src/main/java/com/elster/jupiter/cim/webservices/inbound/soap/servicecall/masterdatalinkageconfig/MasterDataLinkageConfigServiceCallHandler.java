@@ -60,44 +60,44 @@ public class MasterDataLinkageConfigServiceCallHandler implements ServiceCallHan
     }
 
     private void processLinkageConfigServiceCall(ServiceCall serviceCall) {
-//        MeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-//        LinkageInfo meterInfo = jsonService.deserialize(extensionFor.getMeter(), LinkageInfo.class);
-//        try {
-//            MasterDataLinkageConfigResponseMessageType response = null;
-//            switch (OperationEnum.getFromString(extensionFor.getOperation())) {
-//            case LINK:
-//                masterDataLinkageHandlerProvider.get().forLinkageInfo(meterInfo).createLinkage();
-//
-//                break;
-//            case UNLINK:
-//                masterDataLinkageHandlerProvider.get().forLinkageInfo(meterInfo).closeLinkage();
-//                break;
-//            default:
-//                break;
-//            }
-//            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-//        } catch (Exception faultMessage) {
-//            MeterConfigDomainExtension extension = serviceCall.getExtension(MeterConfigDomainExtension.class)
-//                    .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-//            extension.setErrorCode(OperationEnum.getFromString(extension.getOperation()).getDefaultErrorCode());
-//            if (faultMessage instanceof FaultMessage) {
-//                Optional<ErrorType> errorType = ((FaultMessage) faultMessage).getFaultInfo().getReply().getError()
-//                        .stream().findFirst();
-//                if (errorType.isPresent()) {
-//                    extension.setErrorMessage(errorType.get().getDetails());
-//                    extension.setErrorCode(errorType.get().getCode());
-//                } else {
-//                    extension.setErrorMessage(faultMessage.getLocalizedMessage());
-//                }
-//            } else if (faultMessage instanceof ConstraintViolationException) {
-//                extension.setErrorMessage(((ConstraintViolationException) faultMessage).getConstraintViolations()
-//                        .stream().findFirst().map(ConstraintViolation::getMessage).orElseGet(faultMessage::getMessage));
-//            } else {
-//                extension.setErrorMessage(faultMessage.getLocalizedMessage());
-//            }
-//            serviceCall.update(extension);
-//            serviceCall.requestTransition(DefaultState.FAILED);
-//        }
+        // MeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigCustomPropertySet()).get();
+        // LinkageInfo meterInfo = jsonService.deserialize(extensionFor.getMeter(), LinkageInfo.class);
+        // try {
+        // MasterDataLinkageConfigResponseMessageType response = null;
+        // switch (OperationEnum.getFromString(extensionFor.getOperation())) {
+        // case LINK:
+        // masterDataLinkageHandlerProvider.get().forLinkageInfo(meterInfo).createLinkage();
+        //
+        // break;
+        // case UNLINK:
+        // masterDataLinkageHandlerProvider.get().forLinkageInfo(meterInfo).closeLinkage();
+        // break;
+        // default:
+        // break;
+        // }
+        // serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+        // } catch (Exception faultMessage) {
+        // MeterConfigDomainExtension extension = serviceCall.getExtension(MeterConfigDomainExtension.class)
+        // .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+        // extension.setErrorCode(OperationEnum.getFromString(extension.getOperation()).getDefaultErrorCode());
+        // if (faultMessage instanceof FaultMessage) {
+        // Optional<ErrorType> errorType = ((FaultMessage) faultMessage).getFaultInfo().getReply().getError()
+        // .stream().findFirst();
+        // if (errorType.isPresent()) {
+        // extension.setErrorMessage(errorType.get().getDetails());
+        // extension.setErrorCode(errorType.get().getCode());
+        // } else {
+        // extension.setErrorMessage(faultMessage.getLocalizedMessage());
+        // }
+        // } else if (faultMessage instanceof ConstraintViolationException) {
+        // extension.setErrorMessage(((ConstraintViolationException) faultMessage).getConstraintViolations()
+        // .stream().findFirst().map(ConstraintViolation::getMessage).orElseGet(faultMessage::getMessage));
+        // } else {
+        // extension.setErrorMessage(faultMessage.getLocalizedMessage());
+        // }
+        // serviceCall.update(extension);
+        // serviceCall.requestTransition(DefaultState.FAILED);
+        // }
     }
 
     private ReplyTypeFactory getReplyTypeFactory() {

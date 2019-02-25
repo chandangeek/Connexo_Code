@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -19,6 +20,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
 
 import org.osgi.framework.BundleContext;
 
@@ -26,6 +28,7 @@ import java.time.Clock;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
+
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -63,6 +66,10 @@ public abstract class AbstractMockActivator {
     protected CustomPropertySetService customPropertySetService;
 
     private CIMInboundSoapEndpointsActivator activator;
+    @Mock
+    private JsonService jsonService;
+    @Mock
+    private EndPointConfigurationService endPointConfigurationService;
 
     @Before
     public void init() {
@@ -71,7 +78,8 @@ public abstract class AbstractMockActivator {
     }
 
     private void initMocks() {
-        when(nlsService.getThesaurus(CIMInboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP)).thenReturn(thesaurus);
+        when(nlsService.getThesaurus(CIMInboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP))
+                .thenReturn(thesaurus);
 
         when(transactionService.getContext()).thenReturn(transactionContext);
 
@@ -90,6 +98,8 @@ public abstract class AbstractMockActivator {
         activator.setUserService(userService);
         activator.setUsagePointLifeCycleService(usagePointLifeCycleService);
         activator.setCustomPropertySetService(customPropertySetService);
+        activator.setJsonService(jsonService);
+        activator.setEndPointConfigurationService(endPointConfigurationService);
         activator.activate(mock(BundleContext.class));
     }
 

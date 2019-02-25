@@ -21,17 +21,19 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import com.google.inject.name.Names;
+import com.google.inject.TypeLiteral;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -69,6 +71,8 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile UserService userService;
     private volatile UsagePointLifeCycleService usagePointLifeCycleService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile JsonService jsonService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
     private final ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
@@ -82,7 +86,8 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
             ThreadPrincipalService threadPrincipalService, TransactionService transactionService,
             MeteringService meteringService, NlsService nlsService, UpgradeService upgradeService,
             MetrologyConfigurationService metrologyConfigurationService, UserService userService,
-            UsagePointLifeCycleService usagePointLifeCycleService, CustomPropertySetService customPropertySetService) {
+            UsagePointLifeCycleService usagePointLifeCycleService, CustomPropertySetService customPropertySetService,
+            JsonService jsonService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -94,6 +99,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         setUserService(userService);
         setUsagePointLifeCycleService(usagePointLifeCycleService);
         setCustomPropertySetService(customPropertySetService);
+        setJsonService(jsonService);
         activate(bundleContext);
     }
 
@@ -112,8 +118,11 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(UserService.class).toInstance(userService);
                 bind(UsagePointLifeCycleService.class).toInstance(usagePointLifeCycleService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
-                bind(ObjectHolder.class).annotatedWith(Names.named("ReplyMasterDataLinkageConfigWebService"))
-                        .toInstance(replyMasterDataLinkageConfigWebServiceHolder);
+                TypeLiteral<ObjectHolder<ReplyMasterDataLinkageConfigWebService>> replyMasterDataLinkageHolder = new TypeLiteral<ObjectHolder<ReplyMasterDataLinkageConfigWebService>>() {
+                };
+                bind(replyMasterDataLinkageHolder).toInstance(replyMasterDataLinkageConfigWebServiceHolder);
+                bind(JsonService.class).toInstance(jsonService);
+                bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
             }
         };
     }
@@ -222,6 +231,16 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         replyMasterDataLinkageConfigWebServiceHolder.unsetObject();
     }
 
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
+    }
+
     @Override
     public Layer getLayer() {
         return Layer.SOAP;
@@ -236,4 +255,5 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     DataModel getDataModel() {
         return dataModel;
     }
+
 }

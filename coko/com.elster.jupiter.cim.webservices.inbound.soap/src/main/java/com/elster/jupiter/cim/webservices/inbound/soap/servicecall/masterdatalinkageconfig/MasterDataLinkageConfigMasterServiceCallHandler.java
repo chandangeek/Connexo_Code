@@ -11,9 +11,6 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.util.json.JsonService;
-
-import com.google.inject.name.Named;
 
 import javax.inject.Inject;
 
@@ -27,16 +24,13 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
     public static final String VERSION = "v1.0";
 
     private final EndPointConfigurationService endPointConfigurationService;
-    private final JsonService jsonService;
     private final ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder;
 
     @Inject
     public MasterDataLinkageConfigMasterServiceCallHandler(EndPointConfigurationService endPointConfigurationService,
-            JsonService jsonService,
-            @Named("ReplyMasterDataLinkageConfigWebService") ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder) {
+            ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder) {
         super();
         this.endPointConfigurationService = endPointConfigurationService;
-        this.jsonService = jsonService;
         this.replyMasterDataLinkageConfigWebServiceHolder = replyMasterDataLinkageConfigWebServiceHolder;
     }
 
@@ -115,18 +109,17 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
             return;
         }
         // MeterConfigMasterDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigMasterCustomPropertySet()).get();
-         Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService.findEndPointConfigurations().find()
-         .stream()
-         .filter(EndPointConfiguration::isActive)
-         .filter(epc -> !epc.isInbound())
-        // .filter(epc -> epc.getUrl().equals(extensionFor.getCallbackURL()))
-         .findAny();
+        Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService
+                .findEndPointConfigurations().find().stream().filter(EndPointConfiguration::isActive)
+                .filter(epc -> !epc.isInbound())
+                // .filter(epc -> epc.getUrl().equals(extensionFor.getCallbackURL()))
+                .findAny();
 
-         ServiceCall child = serviceCall.findChildren().stream().findFirst().get();
+        ServiceCall child = serviceCall.findChildren().stream().findFirst().get();
         // MeterConfigDomainExtension extensionForChild = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
         // OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
         //
-               // replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
+        // replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
         // getSuccessfullyProceededDevices(serviceCall),
         // getUnsuccessfullyProceededDevices(serviceCall),
         // extensionFor.getExpectedNumberOfCalls());
