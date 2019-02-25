@@ -10,6 +10,8 @@ import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 
 import aQute.bnd.annotation.ProviderType;
+import com.atos.worldline.jss.api.basecrypto.ChainingMode;
+import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
 
 import java.util.Collection;
 
@@ -20,4 +22,5 @@ public interface HsmConfigurationService {
 
 
     Collection<String> getLabels() throws HsmBaseException;
+
 }
