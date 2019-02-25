@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.transaction.TransactionService;
@@ -73,6 +74,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile CustomPropertySetService customPropertySetService;
     private volatile JsonService jsonService;
     private volatile EndPointConfigurationService endPointConfigurationService;
+	private volatile ServiceCallService serviceCallService;
     private final ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
@@ -81,13 +83,14 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         // for OSGI purposes
     }
 
-    @Inject
-    public CIMInboundSoapEndpointsActivator(BundleContext bundleContext, Clock clock,
-            ThreadPrincipalService threadPrincipalService, TransactionService transactionService,
-            MeteringService meteringService, NlsService nlsService, UpgradeService upgradeService,
-            MetrologyConfigurationService metrologyConfigurationService, UserService userService,
-            UsagePointLifeCycleService usagePointLifeCycleService, CustomPropertySetService customPropertySetService,
-            JsonService jsonService) {
+	@Inject
+	public CIMInboundSoapEndpointsActivator(BundleContext bundleContext, Clock clock,
+			ThreadPrincipalService threadPrincipalService, TransactionService transactionService,
+			MeteringService meteringService, NlsService nlsService, UpgradeService upgradeService,
+			MetrologyConfigurationService metrologyConfigurationService, UserService userService,
+			UsagePointLifeCycleService usagePointLifeCycleService, CustomPropertySetService customPropertySetService,
+			JsonService jsonService, EndPointConfigurationService endPointConfigurationService,
+			ServiceCallService serviceCallService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -100,6 +103,8 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         setUsagePointLifeCycleService(usagePointLifeCycleService);
         setCustomPropertySetService(customPropertySetService);
         setJsonService(jsonService);
+        setEndPointConfigurationService(endPointConfigurationService);
+		setServiceCallService(serviceCallService);
         activate(bundleContext);
     }
 
@@ -123,6 +128,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(replyMasterDataLinkageHolder).toInstance(replyMasterDataLinkageConfigWebServiceHolder);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
+				bind(ServiceCallService.class).toInstance(serviceCallService);
             }
         };
     }
@@ -240,6 +246,11 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
         this.endPointConfigurationService = endPointConfigurationService;
     }
+    
+	@Reference
+	public void setServiceCallService(ServiceCallService serviceCallService) {
+		this.serviceCallService = serviceCallService;
+	}
 
     @Override
     public Layer getLayer() {

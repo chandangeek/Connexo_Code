@@ -2,11 +2,13 @@ package com.elster.jupiter.cim.webservices.inbound.soap.servicecall;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.util.json.JsonService;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
@@ -15,10 +17,13 @@ import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigR
 import java.math.BigDecimal;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigServiceCallHandler;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigDomainExtension;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterDomainExtension;
 
@@ -55,8 +60,21 @@ public class ServiceCallCommands {
 		}
 	}
 
-	private ServiceCallService serviceCallService;
-	private Thesaurus thesaurus;
+	private final ServiceCallService serviceCallService;
+	private final JsonService jsonService;
+	private final Thesaurus thesaurus;
+
+	@Inject
+	public ServiceCallCommands(ServiceCallService serviceCallService, JsonService jsonService, Thesaurus thesaurus) {
+		this.serviceCallService = serviceCallService;
+		this.jsonService = jsonService;
+		this.thesaurus = thesaurus;
+	}
+
+	@TransactionRequired
+	public void requestTransition(ServiceCall serviceCall, DefaultState newState) {
+		serviceCall.requestTransition(newState);
+	}
 
 	@TransactionRequired
 	public ServiceCall createMasterDataLinkageConfigMasterServiceCall(
@@ -82,7 +100,15 @@ public class ServiceCallCommands {
 
 	private ServiceCall createMasterDataLinkageChildServiceCall(ServiceCall parentServiceCall, OperationEnum operation,
 			UsagePoint usagePoint, Meter meter) {
-		return null;
+		ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.DATA_LINKAGE_CONFIG);
+		MasterDataLinkageConfigDomainExtension domainExtension = new MasterDataLinkageConfigDomainExtension();
+		domainExtension.setParentServiceCallId(BigDecimal.valueOf(parentServiceCall.getId()));
+		domainExtension.setMeter(jsonService.serialize(meter));
+		domainExtension.setUsagePoint(jsonService.serialize(usagePoint));
+		domainExtension.setOperation(operation.getOperation());
+		ServiceCallBuilder serviceCallBuilder = parentServiceCall.newChildCall(serviceCallType)
+				.extendedWith(domainExtension);
+		return serviceCallBuilder.create();
 	}
 
 	private ServiceCallType getServiceCallType(ServiceCallTypes serviceCallType) {

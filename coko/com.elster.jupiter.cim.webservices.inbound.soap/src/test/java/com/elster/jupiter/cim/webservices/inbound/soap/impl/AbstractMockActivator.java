@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -70,6 +71,8 @@ public abstract class AbstractMockActivator {
     private JsonService jsonService;
     @Mock
     private EndPointConfigurationService endPointConfigurationService;
+	@Mock
+	private ServiceCallService serviceCallService;
 
     @Before
     public void init() {
@@ -100,6 +103,7 @@ public abstract class AbstractMockActivator {
         activator.setCustomPropertySetService(customPropertySetService);
         activator.setJsonService(jsonService);
         activator.setEndPointConfigurationService(endPointConfigurationService);
+		activator.setServiceCallService(serviceCallService);
         activator.activate(mock(BundleContext.class));
     }
 

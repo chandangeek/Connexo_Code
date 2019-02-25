@@ -19,9 +19,11 @@ public class MasterDataLinkageConfigMasterDomainExtension extends AbstractPersis
 		implements PersistentDomainExtension<ServiceCall> {
 
 	public enum FieldNames {
-		DOMAIN("serviceCall", "serviceCall"), CALLS_EXPECTED("expectedNumberOfCalls", "expected_calls"),
+		DOMAIN("serviceCall", "serviceCall"),
+		CALLS_EXPECTED("expectedNumberOfCalls", "expected_calls"),
 		CALLS_SUCCESS("actualNumberOfSuccessfulCalls", "success_calls"),
-		CALLS_FAILED("actualNumberOfFailedCalls", "failed_calls"), CALLBACK_URL("callbackURL", "callback_url");
+		CALLS_FAILED("actualNumberOfFailedCalls", "failed_calls"),
+		CALLBACK_URL("callbackURL", "callback_url");
 
 		FieldNames(String javaName, String databaseName) {
 			this.javaName = javaName;
