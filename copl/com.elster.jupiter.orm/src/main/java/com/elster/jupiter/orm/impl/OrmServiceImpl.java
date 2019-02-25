@@ -31,6 +31,7 @@ import com.elster.jupiter.util.streams.Functions;
 import com.google.common.collect.RangeSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -69,6 +70,9 @@ public final class OrmServiceImpl implements OrmService {
     private final Map<String, DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<>());
     private volatile SchemaInfoProvider schemaInfoProvider;
     private volatile TransactionService transactionService;
+    private final String ENABLE_AUDIT_PROPERTY = "enable.auditing";
+
+    private String enableAuditing;
     private Registration clearCacheOnRollBackRegistration;
 
     // For OSGi purposes
@@ -77,7 +81,7 @@ public final class OrmServiceImpl implements OrmService {
 
     // For testing purposes
     @Inject
-    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver, FileSystem fileSystem, SchemaInfoProvider schemaInfoProvider, TransactionService transactionService) {
+    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver, FileSystem fileSystem, SchemaInfoProvider schemaInfoProvider, TransactionService transactionService, BundleContext context) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -88,7 +92,7 @@ public final class OrmServiceImpl implements OrmService {
         setFileSystem(fileSystem);
         setSchemaInfoProvider(schemaInfoProvider);
         setTransactionService(transactionService);
-        activate();
+        activate(context);
     }
 
     public Connection getConnection(boolean transactionRequired) throws SQLException {
@@ -136,6 +140,10 @@ public final class OrmServiceImpl implements OrmService {
 
     public Principal getPrincipal() {
         return threadPrincipalService.getPrincipal();
+    }
+
+    public String getEnableAuditing() {
+        return enableAuditing;
     }
 
     @Reference
@@ -199,7 +207,8 @@ public final class OrmServiceImpl implements OrmService {
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext context) {
+        enableAuditing = context.getProperty(ENABLE_AUDIT_PROPERTY);
         createDataModel(false);
         createExistingTableDataModel();
         clearCacheOnRollBackRegistration = publisher.addSubscriber(new ClearCachesOnTransactionRollBack());

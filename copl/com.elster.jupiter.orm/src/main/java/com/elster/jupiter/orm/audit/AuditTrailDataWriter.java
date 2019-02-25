@@ -36,9 +36,17 @@ public class AuditTrailDataWriter<T> {
     }
 
     public void audit() throws SQLException {
-        if (getTable().hasAudit() && doJournal(getColumns())) {
+        if (getTable().hasAudit() && doJournal(getColumns()) && isAuditEnabled()) {
             getAuditDomain(object, instant, operation);
         }
+    }
+
+    private boolean isAuditEnabled() {
+        return !getAuditEnabledProperty().toLowerCase().equals("false");
+    }
+
+    private String getAuditEnabledProperty() {
+        return Optional.ofNullable(getTable().getDataModel().getOrmService().getEnableAuditing()).orElse("true");
     }
 
     private List<ColumnImpl> getColumns() {
