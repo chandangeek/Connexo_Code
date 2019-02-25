@@ -5,7 +5,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
+import com.elster.jupiter.hsm.model.keys.HsmIrreversibleKey;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
@@ -109,7 +109,7 @@ public class SecurityHelper {
 	}
 
 	private void handleEncryptedKey(Device device, SecurityKeyInfo securityInfo, FaultSituationHandler faultSituationHandler, SecurityAccessorType securityAccessorType, SecurityAccessor securityAccessor) {
-		HsmEncryptedKey hsmEncryptedKey = null;
+		com.elster.jupiter.hsm.model.keys.HsmKey hsmEncryptedKey = null;
 		try {
 			hsmEncryptedKey = hsmEnergyService.importKey(createImportKeyRequest(securityInfo, securityAccessorType));
 		} catch (HsmBaseException hsmEx) {
@@ -121,9 +121,9 @@ public class SecurityHelper {
 		securityAccessor.save();
 	}
 
-	private HsmKey prepareHsmKey(SecurityAccessorType securityAccessorType, HsmEncryptedKey hsmEncryptedKey) {
+	private HsmKey prepareHsmKey(SecurityAccessorType securityAccessorType, com.elster.jupiter.hsm.model.keys.HsmKey hsmEncryptedKey) {
 		HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
-		hsmKey.setKey(hsmEncryptedKey.getEncryptedKey(), hsmEncryptedKey.getKeyLabel());
+		hsmKey.setKey(hsmEncryptedKey.getKey(), hsmEncryptedKey.getLabel());
 		return hsmKey;
 	}
 

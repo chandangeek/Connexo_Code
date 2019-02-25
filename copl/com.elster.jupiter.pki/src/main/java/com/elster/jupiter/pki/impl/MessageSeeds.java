@@ -148,7 +148,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_IS_REQUIRED = "field.required";
         public static final String NO_SUCH_ENCRYPTION_METHOD = "no.such.encryption.method";
         public static final String DUPLICATE_KEY_ENCRYPTION_REGISTRATION = "key.encryption.duplication";
-        public static final String INVALID_LABEL = "validation.invalid.value";
+        public static final String INVALID_LABEL = "validation.invalid.label";
         public static final String INVALID_VALUE = "validation.invalid.value";
         public static final String INVALID_HEX_VALUE = "validation.invalid.hex.value";
         public static final String NOVALIDCHARACTERS = "NoValidCharacters";
