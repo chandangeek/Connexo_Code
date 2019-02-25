@@ -1,10 +1,12 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterServiceCallHandler;
+
 public class ServiceCallCommands {
 
 	public enum ServiceCallTypes {
 
-		MASTER_DATA_LINKAGE_CONFIG("MasterDataLinkageConfigMasterServiceCallHandler", "v1.0", ""),
+		MASTER_DATA_LINKAGE_CONFIG(MasterDataLinkageConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MasterDataLinkageConfigMasterServiceCallHandler.VERSION, ""),
 		DATA_LINKAGE_CONFIG("MasterDataLinkageConfigServiceCallHandler", "v1.0", "");
 
 		private final String typeName;
