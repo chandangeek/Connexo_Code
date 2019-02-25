@@ -145,4 +145,9 @@ public enum MessageSeeds implements MessageSeed {
             return ErrorType.Level.INFORM;
         }
     }
+    
+    public static final class Keys {
+        public static final String FIELD_TOO_LONG = "FieldTooLong";
+        public static final String THIS_FIELD_IS_REQUIRED = "ThisFieldIsRequired";
+    }
 }

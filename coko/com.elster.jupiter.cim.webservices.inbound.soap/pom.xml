@@ -122,6 +122,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -169,11 +173,11 @@
             <artifactId>devtools</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall</artifactId>
-            <scope>test</scope>
-        </dependency>
+<!--         <dependency> -->
+<!--             <groupId>com.elster.jupiter</groupId> -->
+<!--             <artifactId>servicecall</artifactId> -->
+<!--             <scope>test</scope> -->
+<!--         </dependency> -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>parties</artifactId>
