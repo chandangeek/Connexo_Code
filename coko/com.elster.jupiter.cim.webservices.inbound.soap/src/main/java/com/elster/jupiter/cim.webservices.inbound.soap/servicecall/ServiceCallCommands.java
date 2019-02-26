@@ -120,6 +120,9 @@ public class ServiceCallCommands {
                         return false;
                     }
                     Instant instant =  channel.getLastDateTime();
+                    if (instant == null) {
+                        return false;
+                    }
                     instant = instant.plus(channel.getIntervalLength().get());
                     if (endTime.isAfter(instant)) {
                         return false;
