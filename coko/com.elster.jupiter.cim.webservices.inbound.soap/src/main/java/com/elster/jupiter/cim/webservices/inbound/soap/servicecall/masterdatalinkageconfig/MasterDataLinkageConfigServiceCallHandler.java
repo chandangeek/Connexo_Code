@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.LinkageInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageHandler;
 import com.elster.jupiter.nls.Thesaurus;
@@ -13,10 +15,16 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.json.JsonService;
 
+import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
+import ch.iec.tc57._2011.schema.message.ErrorType;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 
 import java.time.Clock;
+import java.util.Optional;
 
 /**
  * Implementation of {@link ServiceCallHandler} interface which handles the different steps for CIM WS MeterConfig
@@ -60,44 +68,43 @@ public class MasterDataLinkageConfigServiceCallHandler implements ServiceCallHan
     }
 
     private void processLinkageConfigServiceCall(ServiceCall serviceCall) {
-        // MeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-        // LinkageInfo meterInfo = jsonService.deserialize(extensionFor.getMeter(), LinkageInfo.class);
-        // try {
-        // MasterDataLinkageConfigResponseMessageType response = null;
-        // switch (OperationEnum.getFromString(extensionFor.getOperation())) {
-        // case LINK:
-        // masterDataLinkageHandlerProvider.get().forLinkageInfo(meterInfo).createLinkage();
-        //
-        // break;
-        // case UNLINK:
-        // masterDataLinkageHandlerProvider.get().forLinkageInfo(meterInfo).closeLinkage();
-        // break;
-        // default:
-        // break;
-        // }
-        // serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-        // } catch (Exception faultMessage) {
-        // MeterConfigDomainExtension extension = serviceCall.getExtension(MeterConfigDomainExtension.class)
-        // .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-        // extension.setErrorCode(OperationEnum.getFromString(extension.getOperation()).getDefaultErrorCode());
-        // if (faultMessage instanceof FaultMessage) {
-        // Optional<ErrorType> errorType = ((FaultMessage) faultMessage).getFaultInfo().getReply().getError()
-        // .stream().findFirst();
-        // if (errorType.isPresent()) {
-        // extension.setErrorMessage(errorType.get().getDetails());
-        // extension.setErrorCode(errorType.get().getCode());
-        // } else {
-        // extension.setErrorMessage(faultMessage.getLocalizedMessage());
-        // }
-        // } else if (faultMessage instanceof ConstraintViolationException) {
-        // extension.setErrorMessage(((ConstraintViolationException) faultMessage).getConstraintViolations()
-        // .stream().findFirst().map(ConstraintViolation::getMessage).orElseGet(faultMessage::getMessage));
-        // } else {
-        // extension.setErrorMessage(faultMessage.getLocalizedMessage());
-        // }
-        // serviceCall.update(extension);
-        // serviceCall.requestTransition(DefaultState.FAILED);
-        // }
+        MasterDataLinkageConfigDomainExtension extension = serviceCall
+                .getExtension(MasterDataLinkageConfigDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+        LinkageInfo meterInfo = jsonService.deserialize(extension.getMeter(), LinkageInfo.class);
+        try {
+            switch (OperationEnum.getFromString(extension.getOperation())) {
+            case LINK:
+                masterDataLinkageHandlerProvider.get().forLinkageInfo(meterInfo).createLinkage();
+
+                break;
+            case UNLINK:
+                masterDataLinkageHandlerProvider.get().forLinkageInfo(meterInfo).closeLinkage();
+                break;
+            default:
+                break;
+            }
+            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+        } catch (Exception faultMessage) {
+            extension.setErrorCode(OperationEnum.getFromString(extension.getOperation()).getDefaultErrorCode());
+            if (faultMessage instanceof FaultMessage) {
+                Optional<ErrorType> errorType = ((FaultMessage) faultMessage).getFaultInfo().getReply().getError()
+                        .stream().findFirst();
+                if (errorType.isPresent()) {
+                    extension.setErrorMessage(errorType.get().getDetails());
+                    extension.setErrorCode(errorType.get().getCode());
+                } else {
+                    extension.setErrorMessage(faultMessage.getLocalizedMessage());
+                }
+            } else if (faultMessage instanceof ConstraintViolationException) {
+                extension.setErrorMessage(((ConstraintViolationException) faultMessage).getConstraintViolations()
+                        .stream().findFirst().map(ConstraintViolation::getMessage).orElseGet(faultMessage::getMessage));
+            } else {
+                extension.setErrorMessage(faultMessage.getLocalizedMessage());
+            }
+            serviceCall.update(extension);
+            serviceCall.requestTransition(DefaultState.FAILED);
+        }
     }
 
     private ReplyTypeFactory getReplyTypeFactory() {

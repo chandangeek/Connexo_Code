@@ -87,6 +87,13 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
     }
 
     @Test
+    public void testTransitionToPending() {
+        handler.onStateChange(serviceCall, DefaultState.CREATED, DefaultState.PENDING);
+
+        verify(serviceCall).requestTransition(DefaultState.ONGOING);
+    }
+
+    @Test
     public void testTransitionToOnGoing() {
         handler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
 
