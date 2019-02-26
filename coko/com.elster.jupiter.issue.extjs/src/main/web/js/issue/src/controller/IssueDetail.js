@@ -547,6 +547,8 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel = 'Idc.model.Issue';
         } else if (issueType === 'datavalidation') {
             issueModel = 'Idv.model.Issue';
+        } else if (issueType === 'devicelifecycle') {
+            issueModel = 'Idv.model.Issue';
         }
         else {
             issueModel = me.issueModel;
