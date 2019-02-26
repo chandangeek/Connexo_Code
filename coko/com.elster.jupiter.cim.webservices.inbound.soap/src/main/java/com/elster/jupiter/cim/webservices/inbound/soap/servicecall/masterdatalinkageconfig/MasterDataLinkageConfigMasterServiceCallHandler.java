@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ObjectHolder;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -14,6 +15,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 
 import javax.inject.Inject;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 /**
@@ -63,8 +65,6 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
             DefaultState newState) {
         switch (newState) {
         case SUCCESSFUL:
-            updateCounter(parentServiceCall, newState);
-            break;
         case FAILED:
             updateCounter(parentServiceCall, newState);
             break;
@@ -77,52 +77,55 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
     }
 
     private void updateCounter(ServiceCall serviceCall, DefaultState state) {
-        // MeterConfigMasterDomainExtension extension = serviceCall.getExtension(MeterConfigMasterDomainExtension.class)
-        // .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-        //
-        // BigDecimal successfulCalls = extension.getActualNumberOfSuccessfulCalls();
-        // BigDecimal failedCalls = extension.getActualNumberOfFailedCalls();
-        // BigDecimal expectedCalls = extension.getExpectedNumberOfCalls();
-        //
-        // if (DefaultState.SUCCESSFUL.equals(state)) {
-        // successfulCalls = successfulCalls.add(BigDecimal.ONE);
-        // extension.setActualNumberOfSuccessfulCalls(successfulCalls);
-        // } else {
-        // failedCalls = failedCalls.add(BigDecimal.ONE);
-        // extension.setActualNumberOfFailedCalls(failedCalls);
-        // }
-        // serviceCall.update(extension);
-        //
-        // if (extension.getExpectedNumberOfCalls().compareTo(successfulCalls.add(failedCalls)) <= 0) {
-        // if (successfulCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
-        // serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-        // } else if (failedCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.FAILED)) {
-        // serviceCall.requestTransition(DefaultState.FAILED);
-        // } else if (serviceCall.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
-        // serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
-        // }
-        // }
+        MasterDataLinkageConfigMasterDomainExtension extension = serviceCall
+                .getExtension(MasterDataLinkageConfigMasterDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+
+        BigDecimal successfulCalls = extension.getActualNumberOfSuccessfulCalls();
+        BigDecimal failedCalls = extension.getActualNumberOfFailedCalls();
+        BigDecimal expectedCalls = extension.getExpectedNumberOfCalls();
+
+        if (DefaultState.SUCCESSFUL.equals(state)) {
+            successfulCalls = successfulCalls.add(BigDecimal.ONE);
+            extension.setActualNumberOfSuccessfulCalls(successfulCalls);
+        } else {
+            failedCalls = failedCalls.add(BigDecimal.ONE);
+            extension.setActualNumberOfFailedCalls(failedCalls);
+        }
+        serviceCall.update(extension);
+
+        if (extension.getExpectedNumberOfCalls().compareTo(successfulCalls.add(failedCalls)) <= 0) {
+            if (successfulCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
+                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+            } else if (failedCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.FAILED)) {
+                serviceCall.requestTransition(DefaultState.FAILED);
+            } else if (serviceCall.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
+                serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
+            }
+        }
     }
 
     private void sendResponseToOutboundEndPoint(ServiceCall serviceCall) {
         if (replyMasterDataLinkageConfigWebServiceHolder.getObject() == null) {
             return;
         }
-        // MeterConfigMasterDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigMasterCustomPropertySet()).get();
+        MasterDataLinkageConfigMasterDomainExtension extensionFor = serviceCall
+                .getExtension(MasterDataLinkageConfigMasterDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
         Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService
                 .findEndPointConfigurations().find().stream().filter(EndPointConfiguration::isActive)
-                .filter(epc -> !epc.isInbound())
-                // .filter(epc -> epc.getUrl().equals(extensionFor.getCallbackURL()))
+                .filter(epc -> !epc.isInbound()).filter(epc -> epc.getUrl().equals(extensionFor.getCallbackURL()))
                 .findAny();
+        if (!endPointConfiguration.isPresent()) {
+            return;
+        }
 
         ServiceCall child = serviceCall.findChildren().stream().findFirst().get();
-        // MeterConfigDomainExtension extensionForChild = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
+        // MasterDataLinkageConfigDomainExtension extensionForChild = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
         // OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
-        //
-        // replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
-        // getSuccessfullyProceededDevices(serviceCall),
-        // getUnsuccessfullyProceededDevices(serviceCall),
-        // extensionFor.getExpectedNumberOfCalls());
+        // TODO
+        replyMasterDataLinkageConfigWebServiceHolder.getObject().call(endPointConfiguration.get(), OperationEnum.CREATE,
+                extensionFor.getExpectedNumberOfCalls());
     }
 
 }
