@@ -222,7 +222,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             }
         }
 
-        if ((issueType === 'datacollection') || (issueType === 'datavalidation')) {
+        if ((issueType === 'datacollection') || (issueType === 'datavalidation') || (issueType === 'devicelifecycle')) {
             if (actionId) {
                 me.getController('Mdc.controller.setup.ApplyIssueAction').queryParams = {activeTab: 'issues'};
                 me.getController('Mdc.controller.setup.ApplyIssueAction').showOverview(issueId, actionId);
@@ -248,7 +248,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
 
         if (store.getCount()) {
             var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
-            if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
+            if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation') || (issueActualType === 'devicelifecycle')) {
                 me.getController('Mdc.controller.setup.IssueSetPriority').queryParams = {activeTab: 'issues'};
                 me.getController('Mdc.controller.setup.IssueSetPriority').setPriority(issueId);
             }
