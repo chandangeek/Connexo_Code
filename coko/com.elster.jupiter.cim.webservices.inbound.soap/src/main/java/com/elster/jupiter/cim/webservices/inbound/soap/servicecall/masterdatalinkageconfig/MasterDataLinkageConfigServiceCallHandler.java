@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.LinkageInfo;
 import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageHandler;
@@ -16,6 +15,9 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.json.JsonService;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
+import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
+import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
+import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 
 import javax.inject.Inject;
@@ -71,15 +73,18 @@ public class MasterDataLinkageConfigServiceCallHandler implements ServiceCallHan
         MasterDataLinkageConfigDomainExtension extension = serviceCall
                 .getExtension(MasterDataLinkageConfigDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-        LinkageInfo meterInfo = jsonService.deserialize(extension.getMeter(), LinkageInfo.class);
+        ConfigurationEvent configurationEvent = jsonService.deserialize(extension.getConfigurationEvent(),
+                ConfigurationEvent.class);
+        UsagePoint usagePoint = jsonService.deserialize(extension.getUsagePoint(), UsagePoint.class);
+        Meter meter = jsonService.deserialize(extension.getMeter(), Meter.class);
         try {
             switch (OperationEnum.getFromString(extension.getOperation())) {
             case LINK:
-                masterDataLinkageHandlerProvider.get().forLinkageInfo(meterInfo).createLinkage();
+                masterDataLinkageHandlerProvider.get().from(configurationEvent, usagePoint, meter).createLinkage();
 
                 break;
             case UNLINK:
-                masterDataLinkageHandlerProvider.get().forLinkageInfo(meterInfo).closeLinkage();
+                masterDataLinkageHandlerProvider.get().from(configurationEvent, usagePoint, meter).closeLinkage();
                 break;
             default:
                 break;

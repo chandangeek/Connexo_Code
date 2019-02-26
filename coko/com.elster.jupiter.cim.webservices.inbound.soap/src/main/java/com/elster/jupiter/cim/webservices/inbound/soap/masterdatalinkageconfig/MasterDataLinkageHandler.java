@@ -1,6 +1,5 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.LinkageInfo;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
@@ -18,6 +17,7 @@ import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigR
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.collect.ImmutableList;
 import org.apache.cxf.common.util.StringUtils;
 
 import javax.inject.Inject;
@@ -56,10 +56,11 @@ public class MasterDataLinkageHandler {
         return this;
     }
 
-    public MasterDataLinkageHandler forLinkageInfo(LinkageInfo linkageInfo) throws FaultMessage {
-        configurationEventNode = linkageInfo.getConfigurationEventNode();
-        usagePointNodes = linkageInfo.getUsagePointNodes();
-        meterNodes = linkageInfo.getMeterNodes();
+    public MasterDataLinkageHandler from(ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent configurationEvent,
+            ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint usagePoint, ch.iec.tc57._2011.masterdatalinkageconfig.Meter meter) throws FaultMessage {
+        configurationEventNode = configurationEvent;
+        usagePointNodes = ImmutableList.of(usagePoint);
+        meterNodes =  ImmutableList.of(meter);
         return this;
     }
 
