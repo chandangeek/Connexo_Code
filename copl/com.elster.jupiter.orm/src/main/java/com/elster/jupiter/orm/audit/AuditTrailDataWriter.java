@@ -42,11 +42,11 @@ public class AuditTrailDataWriter<T> {
     }
 
     private boolean isAuditEnabled() {
-        return !getAuditEnabledProperty().toLowerCase().equals("false");
+        return getAuditEnabledProperty().toLowerCase().equals("true");
     }
 
     private String getAuditEnabledProperty() {
-        return Optional.ofNullable(getTable().getDataModel().getOrmService().getEnableAuditing()).orElse("true");
+        return Optional.ofNullable(getTable().getDataModel().getOrmService().getEnableAuditing()).orElse("false");
     }
 
     private List<ColumnImpl> getColumns() {
