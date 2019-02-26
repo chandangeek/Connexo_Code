@@ -22,6 +22,7 @@ public class MasterDataLinkageConfigDomainExtension extends AbstractPersistentDo
 		DOMAIN("serviceCall", "serviceCall"),
 		METER("meter", "meter"),
 		USAGE_POINT("usagePoint", "usagePoint"),
+		CONFIGURATION_EVENT("configurationEvent", "configurationEvent"),
 		PARENT_SERVICE_CALL("parentServiceCallId", "parentServiceCallId"),
 		ERROR_MESSAGE("errorMessage", "errorMessage"),
 		ERROR_CODE("errorCode", "errorCode"),
@@ -50,6 +51,8 @@ public class MasterDataLinkageConfigDomainExtension extends AbstractPersistentDo
     private String meter;
 	@Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String usagePoint;
+	@Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+	private String configurationEvent;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private BigDecimal parentServiceCallId;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -78,6 +81,14 @@ public class MasterDataLinkageConfigDomainExtension extends AbstractPersistentDo
 
 	public void setUsagePoint(String usagePoint) {
 		this.usagePoint = usagePoint;
+	}
+	
+	public String getConfigurationEvent() {
+		return configurationEvent;
+	}
+
+	public void setConfigurationEvent(String configurationEvent) {
+		this.configurationEvent = configurationEvent;
 	}
 
 	public BigDecimal getParentServiceCallId() {
@@ -118,6 +129,7 @@ public class MasterDataLinkageConfigDomainExtension extends AbstractPersistentDo
 		this.serviceCall.set(serviceCall);
 		this.setMeter((String) propertyValues.getProperty(FieldNames.METER.javaName));
 		this.setUsagePoint((String) propertyValues.getProperty(FieldNames.USAGE_POINT.javaName));
+		this.setConfigurationEvent((String) propertyValues.getProperty(FieldNames.CONFIGURATION_EVENT.javaName));
 		this.setParentServiceCallId(new BigDecimal(
 				Optional.ofNullable(propertyValues.getProperty(FieldNames.PARENT_SERVICE_CALL.javaName()))
 						.orElse(BigDecimal.ZERO).toString()));
@@ -130,6 +142,7 @@ public class MasterDataLinkageConfigDomainExtension extends AbstractPersistentDo
 	public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
 		propertySetValues.setProperty(FieldNames.METER.javaName(), this.getMeter());
 		propertySetValues.setProperty(FieldNames.USAGE_POINT.javaName(), this.getUsagePoint());
+		propertySetValues.setProperty(FieldNames.CONFIGURATION_EVENT.javaName(), this.getConfigurationEvent());
 		propertySetValues.setProperty(FieldNames.PARENT_SERVICE_CALL.javaName(), this.getParentServiceCallId());
 		propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
 		propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());

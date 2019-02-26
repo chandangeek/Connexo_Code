@@ -10,6 +10,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
 
+import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
@@ -92,19 +93,23 @@ public class ServiceCallCommands {
 		ServiceCall parentServiceCall = serviceCallBuilder.create();
 		final List<UsagePoint> usagePoints = meterConfig.getPayload().getMasterDataLinkageConfig().getUsagePoint();
 		final List<Meter> meters = meterConfig.getPayload().getMasterDataLinkageConfig().getMeter();
+		final ConfigurationEvent configurationEvent = meterConfig.getPayload().getMasterDataLinkageConfig()
+				.getConfigurationEvent();
 		for (int i = 0; i < usagePoints.size(); i++) {
-			createMasterDataLinkageChildServiceCall(parentServiceCall, operation, usagePoints.get(i), meters.get(i));
+			createMasterDataLinkageChildServiceCall(parentServiceCall, operation, usagePoints.get(i), meters.get(i),
+					configurationEvent);
 		}
 		return parentServiceCall;
 	}
 
 	private ServiceCall createMasterDataLinkageChildServiceCall(ServiceCall parentServiceCall, OperationEnum operation,
-			UsagePoint usagePoint, Meter meter) {
+			UsagePoint usagePoint, Meter meter, ConfigurationEvent configurationEvent) {
 		ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.DATA_LINKAGE_CONFIG);
 		MasterDataLinkageConfigDomainExtension domainExtension = new MasterDataLinkageConfigDomainExtension();
 		domainExtension.setParentServiceCallId(BigDecimal.valueOf(parentServiceCall.getId()));
 		domainExtension.setMeter(jsonService.serialize(meter));
 		domainExtension.setUsagePoint(jsonService.serialize(usagePoint));
+		domainExtension.setConfigurationEvent(jsonService.serialize(configurationEvent));
 		domainExtension.setOperation(operation.getOperation());
 		ServiceCallBuilder serviceCallBuilder = parentServiceCall.newChildCall(serviceCallType)
 				.extendedWith(domainExtension);
