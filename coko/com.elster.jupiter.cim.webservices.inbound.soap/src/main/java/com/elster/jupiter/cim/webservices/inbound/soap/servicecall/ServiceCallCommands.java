@@ -3,6 +3,7 @@ package com.elster.jupiter.cim.webservices.inbound.soap.servicecall;
 import com.elster.jupiter.cim.webservices.inbound.soap.DataLinkageConfigChecklist;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
+import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageFaultMessageFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigDomainExtension;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
@@ -19,6 +20,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
 
+import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
@@ -84,7 +86,8 @@ public class ServiceCallCommands {
 
     @TransactionRequired
     public ServiceCall createMasterDataLinkageConfigMasterServiceCall(MasterDataLinkageConfigRequestMessageType config,
-            Optional<EndPointConfiguration> endPointConfiguration, MasterDataLinkageAction action) {
+            Optional<EndPointConfiguration> endPointConfiguration, MasterDataLinkageAction action,
+            MasterDataLinkageFaultMessageFactory faultMessageFactory) throws FaultMessage {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_DATA_LINKAGE_CONFIG);
         MasterDataLinkageConfigMasterDomainExtension domainExtension = new MasterDataLinkageConfigMasterDomainExtension();
         domainExtension.setActualNumberOfSuccessfulCalls(BigDecimal.ZERO);
@@ -99,6 +102,10 @@ public class ServiceCallCommands {
         ServiceCall parentServiceCall = serviceCallBuilder.create();
         final List<UsagePoint> usagePoints = config.getPayload().getMasterDataLinkageConfig().getUsagePoint();
         final List<Meter> meters = config.getPayload().getMasterDataLinkageConfig().getMeter();
+        if (usagePoints.size() != meters.size()) {
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,
+                    MessageSeeds.DIFFERENT_NUMBER_OF_METERS_AND_USAGE_POINTS, meters.size(), usagePoints.size());
+        }
         final ConfigurationEvent configurationEvent = config.getPayload().getMasterDataLinkageConfig()
                 .getConfigurationEvent();
         for (int i = 0; i < usagePoints.size(); i++) {

@@ -14,9 +14,10 @@ import ch.iec.tc57._2011.masterdatalinkageconfigmessage.ObjectFactory;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 
 import javax.inject.Inject;
+
 import java.util.function.Supplier;
 
-class MasterDataLinkageFaultMessageFactory {
+public class MasterDataLinkageFaultMessageFactory {
     private final ObjectFactory masterDataLinkageMessageObjectFactory = new ObjectFactory();
 
     private final Thesaurus thesaurus;
@@ -32,7 +33,7 @@ class MasterDataLinkageFaultMessageFactory {
         return () -> createMasterDataLinkageFaultMessage(action, messageSeed, args);
     }
 
-    FaultMessage createMasterDataLinkageFaultMessage(com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction action, MessageSeeds messageSeed, Object... args) {
+    public FaultMessage createMasterDataLinkageFaultMessage(com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction action, MessageSeeds messageSeed, Object... args) {
         return createMasterDataLinkageFaultMessage(action, replyTypeFactory.failureReplyType(messageSeed, args));
     }
 

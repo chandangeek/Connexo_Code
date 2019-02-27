@@ -164,7 +164,7 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
     private ServiceCall createServiceCallAndTransition(MasterDataLinkageConfigRequestMessageType config,
             Optional<EndPointConfiguration> endPointConfiguration, MasterDataLinkageAction action) throws FaultMessage {
         ServiceCall serviceCall = serviceCallCommands.createMasterDataLinkageConfigMasterServiceCall(config,
-                endPointConfiguration, action);
+                endPointConfiguration, action, faultMessageFactory);
         serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
         return serviceCall;
     }

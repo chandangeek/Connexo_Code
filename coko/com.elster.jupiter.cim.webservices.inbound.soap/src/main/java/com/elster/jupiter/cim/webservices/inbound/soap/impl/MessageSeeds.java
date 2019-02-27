@@ -81,7 +81,7 @@ public enum MessageSeeds implements MessageSeed {
 
     // async
     COULD_NOT_FIND_SERVICE_CALL_TYPE(5001, "CouldNotFindServiceCallType", "Could not find service call type {0} having version {1}"),
-//    NO_REPLY_ADDRESS(5002, "NoReplyAddress", "Reply address is required"),
+    DIFFERENT_NUMBER_OF_METERS_AND_USAGE_POINTS(5002, "DifferentNumberOfMetersAndUsagePoints", "Number of meters should be equal to number of usage points. Currently: {0} and {1}"),
     NO_END_POINT_WITH_URL(5003, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
     SYNC_MODE_NOT_SUPPORTED(5004, "SyncModeNotSupported", "Synchronous mode is not supported for multiple objects"),
     NO_PUBLISHED_END_POINT_WITH_URL(5005, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
