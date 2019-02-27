@@ -24,7 +24,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
@@ -98,7 +97,7 @@ public class SecurityHelperTest {
 	private KeyType keyType;
 
 	@Mock
-	private HsmEncryptedKey hsmEncryptedKey;
+	private com.elster.jupiter.hsm.model.keys.HsmKey hsmEncryptedKey;
 
 	@Mock
 	private ServiceCall serviceCall;
@@ -129,8 +128,8 @@ public class SecurityHelperTest {
 		when(device.getDeviceType()).thenReturn(deviceType);
 		when(securityAccessorType.getName()).thenReturn(SECURITY_ACCESSOR_NAME);
 		when(securityAccessorType.getHsmKeyType()).thenReturn(hsmKeyType);
-		when(hsmEncryptedKey.getEncryptedKey()).thenReturn(HSM_ENCRYPTED_KEY);
-		when(hsmEncryptedKey.getKeyLabel()).thenReturn(HSM_KEY_LABEL);
+		when(hsmEncryptedKey.getKey()).thenReturn(HSM_ENCRYPTED_KEY);
+		when(hsmEncryptedKey.getLabel()).thenReturn(HSM_KEY_LABEL);
 		when(securityAccessorType.getKeyType()).thenReturn(keyType);
 		when(keyType.getKeyAlgorithm()).thenReturn(KEY_ALGORITHM);
 		testable = new SecurityHelper(hsmEnergyService, securityManagementService, faultMessageFactory, thesaurus);

@@ -8,14 +8,22 @@ package com.elster.jupiter.hsm.model.config;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
+import com.atos.worldline.jss.api.basecrypto.ChainingMode;
+import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
+
 import java.util.Objects;
 
 public class HsmLabelConfiguration {
 
     public static final int IMPORT_FILE_LABEL_POSITION = 0;
+    public static final int CHAINING_MODE_POSITION = 1;
+    public static final int PADDING_ALGORITHM_POSITION = 2;
 
     private final String label;
     private final String importFileLabel;
+
+    private final ChainingMode chainingMode;
+    private final PaddingAlgorithm paddingAlgorithm;
 
     public HsmLabelConfiguration(String label, String configuredStringValue) throws HsmBaseException {
         this.label = label;
@@ -24,7 +32,9 @@ public class HsmLabelConfiguration {
         }
         String[] split = configuredStringValue.split(",", -1);
         try {
-            this.importFileLabel = initString(split[IMPORT_FILE_LABEL_POSITION].trim());
+            this.importFileLabel = initString(split[IMPORT_FILE_LABEL_POSITION]);
+            this.chainingMode =  ChainingMode.valueOf(initString(split[CHAINING_MODE_POSITION]));
+            this.paddingAlgorithm = PaddingAlgorithm.valueOf(initString(split[PADDING_ALGORITHM_POSITION]));
         } catch (IllegalArgumentException e) {
             throw new HsmBaseException(e);
         } catch (IndexOutOfBoundsException e1) {
@@ -58,6 +68,15 @@ public class HsmLabelConfiguration {
         return null;
     }
 
+    public ChainingMode getChainingMode() {
+        return chainingMode;
+    }
+
+    public PaddingAlgorithm getPaddingAlgorithm() {
+        return paddingAlgorithm;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -66,14 +85,28 @@ public class HsmLabelConfiguration {
         if (!(o instanceof HsmLabelConfiguration)) {
             return false;
         }
+
         HsmLabelConfiguration that = (HsmLabelConfiguration) o;
-        return Objects.equals(label, that.label) &&
-                Objects.equals(importFileLabel, that.importFileLabel);
+
+        if (label != null ? !label.equals(that.label) : that.label != null) {
+            return false;
+        }
+        if (importFileLabel != null ? !importFileLabel.equals(that.importFileLabel) : that.importFileLabel != null) {
+            return false;
+        }
+        if (chainingMode != that.chainingMode) {
+            return false;
+        }
+        return paddingAlgorithm != null ? paddingAlgorithm.equals(that.paddingAlgorithm) : that.paddingAlgorithm == null;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(label, importFileLabel);
+        int result = label != null ? label.hashCode() : 0;
+        result = 31 * result + (importFileLabel != null ? importFileLabel.hashCode() : 0);
+        result = 31 * result + (chainingMode != null ? chainingMode.hashCode() : 0);
+        result = 31 * result + (paddingAlgorithm != null ? paddingAlgorithm.hashCode() : 0);
+        return result;
     }
 
     @Override
@@ -81,6 +114,8 @@ public class HsmLabelConfiguration {
         return "HsmLabelConfiguration{" +
                 "label='" + label + '\'' +
                 ", importFileLabel='" + importFileLabel + '\'' +
+                ", chainingMode=" + chainingMode +
+                ", paddingAlgorithm=" + paddingAlgorithm +
                 '}';
     }
 }

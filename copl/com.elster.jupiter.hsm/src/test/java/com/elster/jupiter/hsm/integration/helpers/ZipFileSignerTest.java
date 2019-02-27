@@ -25,7 +25,7 @@ import org.junit.Test;
  * This is not a real test but rather a helper for testers since we had issues validating signature of files (CSRImporter)
  */
 @Ignore
-public class FileSignerTest {
+public class ZipFileSignerTest {
 
     private static final String ts = "truststore.jks";
     private static char[] tsPassword = "password".toCharArray();
@@ -36,7 +36,7 @@ public class FileSignerTest {
 
     @BeforeClass
     public static void beforeClass() {
-        fts = new File(FileSignerTest.class.getClassLoader().getResource(fileToSign).getFile());
+        fts = new File(ZipFileSignerTest.class.getClassLoader().getResource(fileToSign).getFile());
     }
 
     @Test
