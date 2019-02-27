@@ -24,6 +24,7 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -77,6 +78,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile JsonService jsonService;
     private volatile EndPointConfigurationService endPointConfigurationService;
 	private volatile ServiceCallService serviceCallService;
+    private volatile WebServicesService webServicesService;
     private final ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
@@ -92,7 +94,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
 			MetrologyConfigurationService metrologyConfigurationService, UserService userService,
 			UsagePointLifeCycleService usagePointLifeCycleService, CustomPropertySetService customPropertySetService,
 			JsonService jsonService, EndPointConfigurationService endPointConfigurationService,
-			ServiceCallService serviceCallService) {
+			ServiceCallService serviceCallService, WebServicesService webServicesService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -107,6 +109,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         setJsonService(jsonService);
         setEndPointConfigurationService(endPointConfigurationService);
 		setServiceCallService(serviceCallService);
+		setWebServicesService(webServicesService);
         activate(bundleContext);
     }
 
@@ -131,6 +134,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(JsonService.class).toInstance(jsonService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
 				bind(ServiceCallService.class).toInstance(serviceCallService);
+				bind(WebServicesService.class).toInstance(webServicesService);
             }
         };
     }
@@ -257,6 +261,11 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
 		this.serviceCallService = serviceCallService;
 	}
 
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
+    }
+
     @Override
     public Layer getLayer() {
         return Layer.SOAP;
@@ -271,5 +280,4 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     DataModel getDataModel() {
         return dataModel;
     }
-
 }

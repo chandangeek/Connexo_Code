@@ -15,6 +15,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -78,6 +79,8 @@ public abstract class AbstractMockActivator {
     private ServiceCallService serviceCallService;
     @Mock
     private ServiceCallType serviceCallType;
+    @Mock
+    private WebServicesService webServicesService;
 
     @Before
     public void init() {
@@ -96,21 +99,10 @@ public abstract class AbstractMockActivator {
     }
 
     private void initActivator() {
-        activator = new CIMInboundSoapEndpointsActivator();
-        activator.setClock(clock);
-        activator.setUpgradeService(upgradeService);
-        activator.setTransactionService(transactionService);
-        activator.setThreadPrincipalService(threadPrincipalService);
-        activator.setNlsService(nlsService);
-        activator.setMeteringService(meteringService);
-        activator.setMetrologyConfigurationService(metrologyConfigurationService);
-        activator.setUserService(userService);
-        activator.setUsagePointLifeCycleService(usagePointLifeCycleService);
-        activator.setCustomPropertySetService(customPropertySetService);
-        activator.setJsonService(jsonService);
-        activator.setEndPointConfigurationService(endPointConfigurationService);
-        activator.setServiceCallService(serviceCallService);
-        activator.activate(mock(BundleContext.class));
+        activator = new CIMInboundSoapEndpointsActivator(mock(BundleContext.class), clock, threadPrincipalService,
+                transactionService, meteringService, nlsService, upgradeService, metrologyConfigurationService,
+                userService, usagePointLifeCycleService, customPropertySetService, jsonService,
+                endPointConfigurationService, serviceCallService, webServicesService);
     }
 
     protected <T> T getInstance(Class<T> clazz) {
