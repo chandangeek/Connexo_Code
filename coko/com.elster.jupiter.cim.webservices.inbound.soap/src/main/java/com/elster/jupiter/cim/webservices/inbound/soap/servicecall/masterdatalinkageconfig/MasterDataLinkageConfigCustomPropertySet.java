@@ -151,8 +151,8 @@ public class MasterDataLinkageConfigCustomPropertySet
 	private class MasterDataLinkageConfigCustomPropertyPersistenceSupport
 			implements PersistenceSupport<ServiceCall, MasterDataLinkageConfigDomainExtension> {
 
-		private static final String TABLE_NAME = "MDLCC_SCS_WS1";
-		private static final String FK = "FK_MDLCC_SCS_WS1";
+		private static final String TABLE_NAME = "DLP_CSC_WS1";
+		private static final String FK = "FK_DLP_CSC_WS1";
 
 		@Override
 		public String componentName() {

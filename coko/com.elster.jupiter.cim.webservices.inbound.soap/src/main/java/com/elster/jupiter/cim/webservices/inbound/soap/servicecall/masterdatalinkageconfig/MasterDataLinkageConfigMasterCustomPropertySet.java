@@ -139,8 +139,8 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 	private class MasterDataLinkageConfigMasterCustomPropertyPersistenceSupport
 			implements PersistenceSupport<ServiceCall, MasterDataLinkageConfigMasterDomainExtension> {
 
-		private static final String TABLE_NAME = "MDLCM_SCS_WS1";
-		private static final String FK = "FK_MDLCM_SCS_WS1";
+		private static final String TABLE_NAME = "DLP_MSC_WS1";
+		private static final String FK = "FK_DLP_MSC_WS1";
 
 		@Override
 		public String componentName() {
@@ -189,7 +189,7 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 					.map(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName()).notNull()
 					.add();
 			table.column(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName()).varChar()
-					.map(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName()).notNull()
+					.map(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName()).notNull(false)
 					.add();
 
 		}
