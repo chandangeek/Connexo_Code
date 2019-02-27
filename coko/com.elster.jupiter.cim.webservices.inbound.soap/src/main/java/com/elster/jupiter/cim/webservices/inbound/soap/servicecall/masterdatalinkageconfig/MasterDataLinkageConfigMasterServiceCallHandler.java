@@ -109,12 +109,15 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
         if (replyMasterDataLinkageConfigWebServiceHolder.getObject() == null) {
             return;
         }
-        MasterDataLinkageConfigMasterDomainExtension extensionFor = serviceCall
+        MasterDataLinkageConfigMasterDomainExtension extension = serviceCall
                 .getExtension(MasterDataLinkageConfigMasterDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+        if (extension.getCallbackURL() == null) {
+            return;
+        }
         Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService
                 .findEndPointConfigurations().find().stream().filter(EndPointConfiguration::isActive)
-                .filter(epc -> !epc.isInbound()).filter(epc -> epc.getUrl().equals(extensionFor.getCallbackURL()))
+                .filter(epc -> !epc.isInbound()).filter(epc -> epc.getUrl().equals(extension.getCallbackURL()))
                 .findAny();
         if (!endPointConfiguration.isPresent()) {
             return;
@@ -125,7 +128,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
         // OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
         // TODO
         replyMasterDataLinkageConfigWebServiceHolder.getObject().call(endPointConfiguration.get(), OperationEnum.CREATE,
-                extensionFor.getExpectedNumberOfCalls());
+                extension.getExpectedNumberOfCalls());
     }
 
 }

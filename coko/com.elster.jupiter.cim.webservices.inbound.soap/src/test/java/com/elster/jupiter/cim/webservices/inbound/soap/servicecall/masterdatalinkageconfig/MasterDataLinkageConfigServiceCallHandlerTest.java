@@ -5,7 +5,6 @@ package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatali
 
 import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageHandler;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.json.JsonService;
@@ -22,7 +21,6 @@ import javax.inject.Provider;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
-import java.time.Clock;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -48,11 +46,7 @@ public class MasterDataLinkageConfigServiceCallHandlerTest {
     @Mock
     private JsonService jsonService;
     @Mock
-    private Thesaurus thesaurus;
-    @Mock
     private Provider<MasterDataLinkageHandler> masterDataLinkageHandlerProvider;
-    @Mock
-    private Clock clock;
     @Mock
     private MasterDataLinkageConfigDomainExtension extension;
     @Mock
@@ -64,8 +58,7 @@ public class MasterDataLinkageConfigServiceCallHandlerTest {
 
     @Before
     public void setup() throws FaultMessage {
-        handler = new MasterDataLinkageConfigServiceCallHandler(masterDataLinkageHandlerProvider, clock, jsonService,
-                thesaurus);
+        handler = new MasterDataLinkageConfigServiceCallHandler(masterDataLinkageHandlerProvider, jsonService);
         when(serviceCall.getExtension(MasterDataLinkageConfigDomainExtension.class)).thenReturn(Optional.of(extension));
         when(masterDataLinkageHandlerProvider.get()).thenReturn(masterDataLinkageHandler);
         when(masterDataLinkageHandler.from(any(ConfigurationEvent.class), any(UsagePoint.class), any(Meter.class)))

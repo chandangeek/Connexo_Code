@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -26,6 +27,7 @@ import com.elster.jupiter.util.json.JsonService;
 import org.osgi.framework.BundleContext;
 
 import java.time.Clock;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -33,6 +35,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -71,8 +74,10 @@ public abstract class AbstractMockActivator {
     private JsonService jsonService;
     @Mock
     private EndPointConfigurationService endPointConfigurationService;
-	@Mock
-	private ServiceCallService serviceCallService;
+    @Mock
+    private ServiceCallService serviceCallService;
+    @Mock
+    private ServiceCallType serviceCallType;
 
     @Before
     public void init() {
@@ -87,6 +92,7 @@ public abstract class AbstractMockActivator {
         when(transactionService.getContext()).thenReturn(transactionContext);
 
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        when(serviceCallService.findServiceCallType(anyString(), anyString())).thenReturn(Optional.of(serviceCallType));
     }
 
     private void initActivator() {
@@ -103,7 +109,7 @@ public abstract class AbstractMockActivator {
         activator.setCustomPropertySetService(customPropertySetService);
         activator.setJsonService(jsonService);
         activator.setEndPointConfigurationService(endPointConfigurationService);
-		activator.setServiceCallService(serviceCallService);
+        activator.setServiceCallService(serviceCallService);
         activator.activate(mock(BundleContext.class));
     }
 

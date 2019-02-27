@@ -5,9 +5,7 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageHandler;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -25,7 +23,6 @@ import javax.inject.Provider;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
-import java.time.Clock;
 import java.util.Optional;
 
 /**
@@ -36,20 +33,13 @@ public class MasterDataLinkageConfigServiceCallHandler implements ServiceCallHan
     public static final String VERSION = "v1.0";
 
     private final Provider<MasterDataLinkageHandler> masterDataLinkageHandlerProvider;
-    private final Clock clock;
     private final JsonService jsonService;
-    private final Thesaurus thesaurus;
-
-    private ReplyTypeFactory replyTypeFactory;
 
     @Inject
     public MasterDataLinkageConfigServiceCallHandler(
-            Provider<MasterDataLinkageHandler> masterDataLinkageHandlerProvider, Clock clock, JsonService jsonService,
-            Thesaurus thesaurus) {
+            Provider<MasterDataLinkageHandler> masterDataLinkageHandlerProvider, JsonService jsonService) {
         this.masterDataLinkageHandlerProvider = masterDataLinkageHandlerProvider;
-        this.clock = clock;
         this.jsonService = jsonService;
-        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -110,12 +100,5 @@ public class MasterDataLinkageConfigServiceCallHandler implements ServiceCallHan
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
-    }
-
-    private ReplyTypeFactory getReplyTypeFactory() {
-        if (replyTypeFactory == null) {
-            replyTypeFactory = new ReplyTypeFactory(thesaurus);
-        }
-        return replyTypeFactory;
     }
 }

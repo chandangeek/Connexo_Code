@@ -25,6 +25,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.users.UserService;
@@ -51,6 +52,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -137,6 +139,9 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     public void activate(BundleContext bundleContext) {
         dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(getModule());
+
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+
         registerServices(bundleContext);
         registerServiceCallHandlers(bundleContext);
     }
@@ -246,7 +251,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
         this.endPointConfigurationService = endPointConfigurationService;
     }
-    
+
 	@Reference
 	public void setServiceCallService(ServiceCallService serviceCallService) {
 		this.serviceCallService = serviceCallService;
