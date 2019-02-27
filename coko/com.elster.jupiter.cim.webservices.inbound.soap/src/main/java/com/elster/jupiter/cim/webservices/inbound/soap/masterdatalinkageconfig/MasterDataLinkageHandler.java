@@ -77,11 +77,12 @@ public class MasterDataLinkageHandler {
         if (configurationEvent == null) {
             linkMeterToUsagePoint(transform(meterNodes.get(0)), getMeterRoleForKey(meterNodes.get(0).getRole()),
                     transform(usagePointNodes.get(0)), configurationEventNode.getCreatedDateTime());
+            return createSuccessfulResponseWithVerb(HeaderType.Verb.CREATED);
         } else {
             linkMeterToUsagePoint(transform(meter), getMeterRoleForKey(meter.getRole()), transform(usagePoint),
                     configurationEvent.getCreatedDateTime());
+            return null;
         }
-        return createSuccessfulResponseWithVerb(HeaderType.Verb.CREATED);
     }
 
     public MasterDataLinkageConfigResponseMessageType closeLinkage() throws FaultMessage {
@@ -89,12 +90,13 @@ public class MasterDataLinkageHandler {
         if (configurationEvent == null) {
             unlinkMeterFromUsagePoint(transform(meterNodes.get(0)), transform(usagePointNodes.get(0)),
                     configurationEventNode.getEffectiveDateTime());
-        } else {
+            return createSuccessfulResponseWithVerb(HeaderType.Verb.CLOSED);
+       } else {
             unlinkMeterFromUsagePoint(transform(meter), transform(usagePoint),
                     configurationEvent.getEffectiveDateTime());
+            return null;
         }
-        return createSuccessfulResponseWithVerb(HeaderType.Verb.CLOSED);
-    }
+     }
 
     private void linkMeterToUsagePoint(Meter meter, MeterRole role, UsagePoint usagePoint, Instant instant)
             throws FaultMessage {

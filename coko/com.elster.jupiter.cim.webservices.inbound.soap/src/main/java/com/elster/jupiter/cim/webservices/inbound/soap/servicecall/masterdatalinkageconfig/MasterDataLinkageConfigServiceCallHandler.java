@@ -71,7 +71,6 @@ public class MasterDataLinkageConfigServiceCallHandler implements ServiceCallHan
             switch (OperationEnum.getFromString(extension.getOperation())) {
             case LINK:
                 masterDataLinkageHandlerProvider.get().from(configurationEvent, usagePoint, meter).createLinkage();
-
                 break;
             case UNLINK:
                 masterDataLinkageHandlerProvider.get().from(configurationEvent, usagePoint, meter).closeLinkage();
