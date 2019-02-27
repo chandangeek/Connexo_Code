@@ -6,4 +6,5 @@ Private-Package: com.energyict.mdc.cim.webservices.inbound.soap.*,\
                  com.elster.connexo.*,\
                  org.w3.*
 Export-Package: com.energyict.mdc.cim.webservices.inbound.soap,\
-                org.w3._2000._09.xmldsig
+                org.w3._2000._09.xmldsig,\
+                org.w3._2001._04.xmlenc
