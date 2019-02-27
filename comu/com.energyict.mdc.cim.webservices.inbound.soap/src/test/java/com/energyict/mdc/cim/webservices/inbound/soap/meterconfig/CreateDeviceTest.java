@@ -554,7 +554,6 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore
     @Test
     public void testMeterSimpleEndDeviceFunctionReferenceNotFoundShouldTryToUseDefaultConfiguration() throws Exception {
         MeterConfig meterConfig = new MeterConfig();

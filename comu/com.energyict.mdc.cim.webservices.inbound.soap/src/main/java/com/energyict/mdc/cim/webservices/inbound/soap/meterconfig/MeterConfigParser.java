@@ -326,6 +326,9 @@ public class MeterConfigParser {
 
     public List<Zone> extractDeviceZones(Meter meter, List<SimpleEndDeviceFunction> endDeviceFunctions) throws FaultMessage {
         Optional<String> comFuncReference = extractEndDeviceFunctionRef(meter);
+        if(!comFuncReference.isPresent()){
+            return new ArrayList<>();
+        }
         SimpleEndDeviceFunction endDeviceFunction = endDeviceFunctions
                 .stream()
                 .filter(endDeviceFunc -> comFuncReference.isPresent() && comFuncReference.get().equals(endDeviceFunc.getMRID()))
