@@ -4,9 +4,9 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ObjectHolder;
+import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
@@ -127,7 +127,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
         // MasterDataLinkageConfigDomainExtension extensionForChild = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
         // OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
         // TODO
-        replyMasterDataLinkageConfigWebServiceHolder.getObject().call(endPointConfiguration.get(), OperationEnum.CREATE,
+        replyMasterDataLinkageConfigWebServiceHolder.getObject().call(endPointConfiguration.get(), MasterDataLinkageAction.CREATE.name(),
                 extension.getExpectedNumberOfCalls());
     }
 

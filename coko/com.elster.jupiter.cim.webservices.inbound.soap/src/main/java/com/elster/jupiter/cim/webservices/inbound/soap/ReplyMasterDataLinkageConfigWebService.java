@@ -23,7 +23,7 @@ public interface ReplyMasterDataLinkageConfigWebService {
      * @param expectedNumberOfCalls
      *            - the expected number of child calls
      */
-    void call(EndPointConfiguration endPointConfiguration, OperationEnum operation, // List<Device> successfulDevices,
+    void call(EndPointConfiguration endPointConfiguration, String operation, // List<Device> successfulDevices,
             // List<FailedMeterOperation> failedDevices,
             BigDecimal expectedNumberOfCalls);
 }

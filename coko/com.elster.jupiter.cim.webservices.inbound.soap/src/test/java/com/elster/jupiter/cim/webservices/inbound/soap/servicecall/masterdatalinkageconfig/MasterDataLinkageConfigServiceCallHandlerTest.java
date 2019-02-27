@@ -3,7 +3,7 @@
  */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
+import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ConfigEventInfo;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;
@@ -74,7 +74,7 @@ public class MasterDataLinkageConfigServiceCallHandlerTest {
 
     @Test
     public void testLink() throws FaultMessage {
-        when(extension.getOperation()).thenReturn(OperationEnum.LINK.getOperation());
+        when(extension.getOperation()).thenReturn(MasterDataLinkageAction.CREATE.name());
 
         handler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
 
@@ -84,7 +84,7 @@ public class MasterDataLinkageConfigServiceCallHandlerTest {
 
     @Test
     public void testLinkThrowsFaultMessage() throws FaultMessage {
-        when(extension.getOperation()).thenReturn(OperationEnum.LINK.getOperation());
+        when(extension.getOperation()).thenReturn(MasterDataLinkageAction.CREATE.name());
         when(masterDataLinkageHandler.createLinkage()).thenThrow(new FaultMessage("message", faultInfo));
         when(faultInfo.getReply().getError().stream().findFirst()).thenReturn(Optional.of(errorType));
         String myErrorDetails = "my error details";
@@ -96,14 +96,13 @@ public class MasterDataLinkageConfigServiceCallHandlerTest {
 
         verify(masterDataLinkageHandler).createLinkage();
         verify(serviceCall).requestTransition(DefaultState.FAILED);
-        verify(extension).setErrorCode(OperationEnum.LINK.getDefaultErrorCode());
         verify(extension).setErrorCode(myErrorCode);
         verify(extension).setErrorMessage(myErrorDetails);
     }
 
     @Test
     public void testLinkThrowsFaultMessageWithoutErrorType() throws FaultMessage {
-        when(extension.getOperation()).thenReturn(OperationEnum.LINK.getOperation());
+        when(extension.getOperation()).thenReturn(MasterDataLinkageAction.CREATE.name());
         String myErrorMessage = "my error message";
         when(masterDataLinkageHandler.createLinkage()).thenThrow(new FaultMessage(myErrorMessage, faultInfo));
         when(faultInfo.getReply().getError().stream().findFirst()).thenReturn(Optional.empty());
@@ -112,14 +111,13 @@ public class MasterDataLinkageConfigServiceCallHandlerTest {
 
         verify(masterDataLinkageHandler).createLinkage();
         verify(serviceCall).requestTransition(DefaultState.FAILED);
-        verify(extension).setErrorCode(OperationEnum.LINK.getDefaultErrorCode());
 
         verify(extension).setErrorMessage(myErrorMessage);
     }
 
     @Test
     public void testLinkThrowsConstraintViolationExceptionWithoutConstraintViolations() throws FaultMessage {
-        when(extension.getOperation()).thenReturn(OperationEnum.LINK.getOperation());
+        when(extension.getOperation()).thenReturn(MasterDataLinkageAction.CREATE.name());
         String myErrorMessage = "my error message";
         when(masterDataLinkageHandler.createLinkage())
                 .thenThrow(new ConstraintViolationException(myErrorMessage, Collections.emptySet()));
@@ -128,14 +126,13 @@ public class MasterDataLinkageConfigServiceCallHandlerTest {
 
         verify(masterDataLinkageHandler).createLinkage();
         verify(serviceCall).requestTransition(DefaultState.FAILED);
-        verify(extension).setErrorCode(OperationEnum.LINK.getDefaultErrorCode());
 
         verify(extension).setErrorMessage(myErrorMessage);
     }
 
     @Test
     public void testLinkThrowsConstraintViolationException() throws FaultMessage {
-        when(extension.getOperation()).thenReturn(OperationEnum.LINK.getOperation());
+        when(extension.getOperation()).thenReturn(MasterDataLinkageAction.CREATE.name());
         ConstraintViolation<?> constraintViolation = mock(ConstraintViolation.class);
         String errorMessageFromConstraintViolation = "error message from constraintViolation";
         when(constraintViolation.getMessage()).thenReturn(errorMessageFromConstraintViolation);
@@ -146,14 +143,13 @@ public class MasterDataLinkageConfigServiceCallHandlerTest {
 
         verify(masterDataLinkageHandler).createLinkage();
         verify(serviceCall).requestTransition(DefaultState.FAILED);
-        verify(extension).setErrorCode(OperationEnum.LINK.getDefaultErrorCode());
 
         verify(extension).setErrorMessage(errorMessageFromConstraintViolation);
     }
 
     @Test
     public void testLinkThrowsSomeDifferentException() throws FaultMessage {
-        when(extension.getOperation()).thenReturn(OperationEnum.LINK.getOperation());
+        when(extension.getOperation()).thenReturn(MasterDataLinkageAction.CREATE.name());
         String errorMessage = "some error";
         when(masterDataLinkageHandler.createLinkage()).thenThrow(new RuntimeException(errorMessage));
 
@@ -161,14 +157,13 @@ public class MasterDataLinkageConfigServiceCallHandlerTest {
 
         verify(masterDataLinkageHandler).createLinkage();
         verify(serviceCall).requestTransition(DefaultState.FAILED);
-        verify(extension).setErrorCode(OperationEnum.LINK.getDefaultErrorCode());
 
         verify(extension).setErrorMessage(errorMessage);
     }
 
     @Test
     public void testUnLink() throws FaultMessage {
-        when(extension.getOperation()).thenReturn(OperationEnum.UNLINK.getOperation());
+        when(extension.getOperation()).thenReturn(MasterDataLinkageAction.CLOSE.name());
 
         handler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
 

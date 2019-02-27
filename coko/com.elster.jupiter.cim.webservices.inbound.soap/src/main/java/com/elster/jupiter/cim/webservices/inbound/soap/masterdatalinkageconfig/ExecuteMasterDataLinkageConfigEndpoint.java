@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
@@ -43,6 +42,11 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
     private final WebServicesService webServicesService;
     private final ServiceCallCommands serviceCallCommands;
 
+    @FunctionalInterface
+    private interface ThrowingFunction<T, R> {
+        R apply(T t) throws FaultMessage;
+    }
+
     @Inject
     public ExecuteMasterDataLinkageConfigEndpoint(MasterDataLinkageFaultMessageFactory faultMessageFactory,
             TransactionService transactionService, EndPointHelper endPointHelper,
@@ -63,56 +67,58 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
     @Override
     public MasterDataLinkageConfigResponseMessageType createMasterDataLinkageConfig(
             MasterDataLinkageConfigRequestMessageType message) throws FaultMessage {
-        masterDataLinkageMessageValidatorProvider.get().validate(message, MasterDataLinkageAction.CREATE);
-        endPointHelper.setSecurityContext();
-        try (TransactionContext context = transactionService.getContext()) {
-            if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
-                // call asynchronously
-                Optional<EndPointConfiguration> outboundEndPointConfiguration;
-                String replyAddress = getReplyAddress(message);
-                if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
-                    outboundEndPointConfiguration = Optional.empty();
-                } else {
-                    outboundEndPointConfiguration = Optional
-                            .of(getOutboundEndPointConfiguration(MasterDataLinkageAction.CREATE, replyAddress));
-                }
-                createMeterConfigServiceCallAndTransition(message, outboundEndPointConfiguration, OperationEnum.LINK);
-                context.commit();
-                return masterDataLinkageHandlerProvider.get().forMessage(message)
-                        .createQuickResponseMessage(HeaderType.Verb.REPLY);
-            } else {
-                // call synchronously
-                MasterDataLinkageConfigResponseMessageType response = masterDataLinkageHandlerProvider.get()
-                        .forMessage(message).createLinkage();
-                context.commit();
-                return response;
-            }
-        } catch (VerboseConstraintViolationException e) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(MasterDataLinkageAction.CREATE,
-                    e.getLocalizedMessage());
-        } catch (LocalizedException e) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(MasterDataLinkageAction.CREATE,
-                    e.getLocalizedMessage(), e.getErrorCode());
-        }
+        return process(message, MasterDataLinkageAction.CREATE, context -> {
+            MasterDataLinkageConfigResponseMessageType response = masterDataLinkageHandlerProvider.get()
+                    .forMessage(message).createLinkage();
+            context.commit();
+            return response;
+        });
     }
 
     @Override
     public MasterDataLinkageConfigResponseMessageType closeMasterDataLinkageConfig(
             MasterDataLinkageConfigRequestMessageType message) throws FaultMessage {
-        masterDataLinkageMessageValidatorProvider.get().validate(message, MasterDataLinkageAction.CLOSE);
-        endPointHelper.setSecurityContext();
-        try (TransactionContext context = transactionService.getContext()) {
+        return process(message, MasterDataLinkageAction.CLOSE, context -> {
             MasterDataLinkageConfigResponseMessageType response = masterDataLinkageHandlerProvider.get()
                     .forMessage(message).closeLinkage();
             context.commit();
             return response;
+        });
+    }
+
+    private MasterDataLinkageConfigResponseMessageType process(MasterDataLinkageConfigRequestMessageType message,
+            MasterDataLinkageAction action,
+            ThrowingFunction<TransactionContext, MasterDataLinkageConfigResponseMessageType> synchronousProcessor)
+            throws FaultMessage {
+        masterDataLinkageMessageValidatorProvider.get().validate(message, action);
+        endPointHelper.setSecurityContext();
+        try (TransactionContext context = transactionService.getContext()) {
+            if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
+                return processAsynchronously(message, action, context);
+            }
+            return synchronousProcessor.apply(context);
         } catch (VerboseConstraintViolationException e) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(MasterDataLinkageAction.CLOSE,
-                    e.getLocalizedMessage());
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(action, e.getLocalizedMessage());
         } catch (LocalizedException e) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(MasterDataLinkageAction.CLOSE,
-                    e.getLocalizedMessage(), e.getErrorCode());
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(action, e.getLocalizedMessage(),
+                    e.getErrorCode());
         }
+    }
+
+    private MasterDataLinkageConfigResponseMessageType processAsynchronously(
+            MasterDataLinkageConfigRequestMessageType message, MasterDataLinkageAction action,
+            TransactionContext context) throws FaultMessage {
+        Optional<EndPointConfiguration> outboundEndPointConfiguration;
+        String replyAddress = getReplyAddress(message);
+        if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
+            outboundEndPointConfiguration = Optional.empty();
+        } else {
+            outboundEndPointConfiguration = Optional.of(getOutboundEndPointConfiguration(action, replyAddress));
+        }
+        createServiceCallAndTransition(message, outboundEndPointConfiguration, action);
+        context.commit();
+        return masterDataLinkageHandlerProvider.get().forMessage(message)
+                .createQuickResponseMessage(HeaderType.Verb.REPLY);
     }
 
     @Override
@@ -155,10 +161,10 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
         return endPointConfig;
     }
 
-    private ServiceCall createMeterConfigServiceCallAndTransition(MasterDataLinkageConfigRequestMessageType config,
-            Optional<EndPointConfiguration> endPointConfiguration, OperationEnum operation) throws FaultMessage {
+    private ServiceCall createServiceCallAndTransition(MasterDataLinkageConfigRequestMessageType config,
+            Optional<EndPointConfiguration> endPointConfiguration, MasterDataLinkageAction action) throws FaultMessage {
         ServiceCall serviceCall = serviceCallCommands.createMasterDataLinkageConfigMasterServiceCall(config,
-                endPointConfiguration, operation);
+                endPointConfiguration, action);
         serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
         return serviceCall;
     }

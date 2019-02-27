@@ -3,9 +3,9 @@
  */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ObjectHolder;
+import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -36,7 +36,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
 
     private static final String CALLBACK_URL = "my callback url";
 
-    private static final OperationEnum OPERATION = OperationEnum.CREATE;
+    private static final MasterDataLinkageAction OPERATION = MasterDataLinkageAction.CREATE;
 
     private static final BigDecimal NUMBER_OF_SUCCESSFUL_CALLS = BigDecimal.valueOf(2);
     private static final BigDecimal NUMBER_OF_FAILED_CALLS = BigDecimal.valueOf(4);
@@ -305,7 +305,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
 
         handler.onStateChange(serviceCall, DefaultState.ONGOING, endState);
 
-        verify(replyMasterDataLinkageConfigWebService).call(eq(endPointConfiguration), eq(OPERATION),
+        verify(replyMasterDataLinkageConfigWebService).call(eq(endPointConfiguration), eq(OPERATION.name()),
                 eq(expectedNumberOfCalls));
     }
 

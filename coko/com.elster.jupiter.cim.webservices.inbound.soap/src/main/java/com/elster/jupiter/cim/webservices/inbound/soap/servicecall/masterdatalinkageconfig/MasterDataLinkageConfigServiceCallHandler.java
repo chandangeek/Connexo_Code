@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
+import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ConfigEventInfo;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;
@@ -68,11 +68,11 @@ public class MasterDataLinkageConfigServiceCallHandler implements ServiceCallHan
         UsagePointInfo usagePoint = jsonService.deserialize(extension.getUsagePoint(), UsagePointInfo.class);
         MeterInfo meter = jsonService.deserialize(extension.getMeter(), MeterInfo.class);
         try {
-            switch (OperationEnum.getFromString(extension.getOperation())) {
-            case LINK:
+            switch (MasterDataLinkageAction.valueOf(extension.getOperation())) {
+            case CREATE:
                 masterDataLinkageHandlerProvider.get().from(configurationEvent, usagePoint, meter).createLinkage();
                 break;
-            case UNLINK:
+            case CLOSE:
                 masterDataLinkageHandlerProvider.get().from(configurationEvent, usagePoint, meter).closeLinkage();
                 break;
             default:
@@ -80,7 +80,6 @@ public class MasterDataLinkageConfigServiceCallHandler implements ServiceCallHan
             }
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } catch (Exception faultMessage) {
-            extension.setErrorCode(OperationEnum.getFromString(extension.getOperation()).getDefaultErrorCode());
             if (faultMessage instanceof FaultMessage) {
                 Optional<ErrorType> errorType = ((FaultMessage) faultMessage).getFaultInfo().getReply().getError()
                         .stream().findFirst();
