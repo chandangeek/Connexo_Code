@@ -2,6 +2,7 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
+
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
 import com.elster.jupiter.util.Checks;
@@ -293,13 +294,12 @@ public class MeterConfigParser {
 
     public Optional<String> extractEndDeviceFunctionRef(Meter meter) throws FaultMessage {
         return meter.getComFunctionOrConnectDisconnectFunctionOrSimpleEndDeviceFunction()
-		.stream()
+                .stream()
                 .filter(Meter.SimpleEndDeviceFunction.class::isInstance)
-				.map(Meter.SimpleEndDeviceFunction.class::cast)
+                .map(Meter.SimpleEndDeviceFunction.class::cast)
                 .map(Meter.SimpleEndDeviceFunction::getRef)
-				.filter(ref -> !Checks.is(ref).emptyOrOnlyWhiteSpace())
-                .findFirst()
-                ;//.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter.SimpleEndDeviceFunction.ref"));
+                .filter(ref -> !Checks.is(ref).emptyOrOnlyWhiteSpace())
+                .findFirst();
     }
 
     public Instant extractShipmentDate(Meter meter) throws FaultMessage {
