@@ -11,7 +11,9 @@ import javax.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.DataLinkageConfigChecklist;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.CIMInboundSoapEndpointsActivator;
+import com.elster.jupiter.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
@@ -84,6 +86,11 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 	}
 
 	@Override
+	public String getDomainClassDisplayName() {
+		return this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME).format();
+	}
+
+	@Override
 	public PersistenceSupport<ServiceCall, MasterDataLinkageConfigMasterDomainExtension> getPersistenceSupport() {
 		return new MasterDataLinkageConfigMasterCustomPropertyPersistenceSupport();
 	}
@@ -110,68 +117,86 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 
 	@Override
 	public List<PropertySpec> getPropertySpecs() {
-		return Arrays.asList(/*
-								 * this.propertySpecService.bigDecimalSpec().named(
-								 * MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.
-								 * javaName())
-								 */);
+		return Arrays.asList(
+				propertySpecService.bigDecimalSpec()
+						.named(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName(),
+								TranslationKeys.CALLS_SUCCESS)
+						.describedAs(TranslationKeys.CALLS_SUCCESS).fromThesaurus(thesaurus).finish(),
+				propertySpecService.bigDecimalSpec()
+						.named(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName(),
+								TranslationKeys.CALLS_ERROR)
+						.describedAs(TranslationKeys.CALLS_ERROR).fromThesaurus(thesaurus).finish(),
+				propertySpecService.bigDecimalSpec()
+						.named(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName(),
+								TranslationKeys.CALLS_EXPECTED)
+						.describedAs(TranslationKeys.CALLS_EXPECTED).fromThesaurus(thesaurus).finish(),
+				propertySpecService.stringSpec()
+						.named(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName(),
+								TranslationKeys.CALL_BACK_URL)
+						.describedAs(TranslationKeys.CALL_BACK_URL).fromThesaurus(thesaurus).finish());
 	}
 
 	private class MasterDataLinkageConfigMasterCustomPropertyPersistenceSupport
 			implements PersistenceSupport<ServiceCall, MasterDataLinkageConfigMasterDomainExtension> {
 
+		private static final String TABLE_NAME = "MDLCM_SCS_WS1";
+		private static final String FK = "FK_MDLCM_SCS_WS1";
+
 		@Override
 		public String componentName() {
-			// TODO Auto-generated method stub
-			return null;
+			return "DLM";
 		}
 
 		@Override
 		public String tableName() {
-			// TODO Auto-generated method stub
-			return null;
+			return TABLE_NAME;
 		}
 
 		@Override
 		public String domainFieldName() {
-			// TODO Auto-generated method stub
-			return null;
+			return MasterDataLinkageConfigMasterDomainExtension.FieldNames.DOMAIN.javaName();
 		}
 
 		@Override
 		public String domainForeignKeyName() {
-			// TODO Auto-generated method stub
-			return null;
+			return FK;
 		}
 
 		@Override
 		public Class<MasterDataLinkageConfigMasterDomainExtension> persistenceClass() {
-			// TODO Auto-generated method stub
-			return null;
+			return MasterDataLinkageConfigMasterDomainExtension.class;
 		}
 
 		@Override
 		public Optional<Module> module() {
-			// TODO Auto-generated method stub
-			return null;
+			return Optional.empty();
 		}
 
 		@Override
 		public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-			// TODO Auto-generated method stub
-			return null;
+			return Collections.emptyList();
 		}
 
 		@Override
 		public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-			// TODO Auto-generated method stub
+			table.column(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.databaseName()).number()
+					.map(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName()).notNull()
+					.add();
+			table.column(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_FAILED.databaseName()).number()
+					.map(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName()).notNull()
+					.add();
+			table.column(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.databaseName()).number()
+					.map(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName()).notNull()
+					.add();
+			table.column(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName()).varChar()
+					.map(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName()).notNull()
+					.add();
 
 		}
 
 		@Override
 		public String application() {
-			// TODO Auto-generated method stub
-			return null;
+			return DataLinkageConfigChecklist.APPLICATION_NAME;
 		}
 	}
 }

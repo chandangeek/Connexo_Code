@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.DataLinkageConfigChecklist;
 import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterServiceCallHandler;
@@ -88,8 +89,8 @@ public class ServiceCallCommands {
 		domainExtension.setExpectedNumberOfCalls(
 				BigDecimal.valueOf(meterConfig.getPayload().getMasterDataLinkageConfig().getUsagePoint().size()));
 		domainExtension.setCallbackURL(endPointConfiguration.getUrl());
-		ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall().origin("Core")
-				.extendedWith(domainExtension);
+		ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
+				.origin(DataLinkageConfigChecklist.APPLICATION_NAME).extendedWith(domainExtension);
 		ServiceCall parentServiceCall = serviceCallBuilder.create();
 		final List<UsagePoint> usagePoints = meterConfig.getPayload().getMasterDataLinkageConfig().getUsagePoint();
 		final List<Meter> meters = meterConfig.getPayload().getMasterDataLinkageConfig().getMeter();
