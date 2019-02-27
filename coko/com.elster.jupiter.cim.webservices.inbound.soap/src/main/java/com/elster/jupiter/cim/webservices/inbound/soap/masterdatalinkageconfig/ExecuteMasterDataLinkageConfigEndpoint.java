@@ -7,8 +7,10 @@ package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -26,6 +28,8 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
+import java.util.Optional;
+
 public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkageConfigPort {
     static final String NOUN = "MasterDataLinkageConfig";
     private static final String UNSUPPORTED_OPERATION_MESSAGE = "Specified action is not supported. Only Create and Close actions are allowed";
@@ -37,13 +41,15 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
     private final Provider<MasterDataLinkageMessageValidator> masterDataLinkageMessageValidatorProvider;
     private final EndPointConfigurationService endPointConfigurationService;
     private final WebServicesService webServicesService;
+    private final ServiceCallCommands serviceCallCommands;
 
     @Inject
     public ExecuteMasterDataLinkageConfigEndpoint(MasterDataLinkageFaultMessageFactory faultMessageFactory,
             TransactionService transactionService, EndPointHelper endPointHelper,
             Provider<MasterDataLinkageHandler> masterDataLinkageHandlerProvider,
             Provider<MasterDataLinkageMessageValidator> masterDataLinkageMessageValidatorProvider,
-            EndPointConfigurationService endPointConfigurationService, WebServicesService webServicesService) {
+            EndPointConfigurationService endPointConfigurationService, WebServicesService webServicesService,
+            ServiceCallCommands serviceCallCommands) {
         this.faultMessageFactory = faultMessageFactory;
         this.transactionService = transactionService;
         this.endPointHelper = endPointHelper;
@@ -51,6 +57,7 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
         this.masterDataLinkageMessageValidatorProvider = masterDataLinkageMessageValidatorProvider;
         this.endPointConfigurationService = endPointConfigurationService;
         this.webServicesService = webServicesService;
+        this.serviceCallCommands = serviceCallCommands;
     }
 
     @Override
@@ -61,8 +68,14 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
         try (TransactionContext context = transactionService.getContext()) {
             if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
                 // call asynchronously
-                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(
-                        MasterDataLinkageAction.CREATE, getReplyAddress(MasterDataLinkageAction.CREATE, message));
+                Optional<EndPointConfiguration> outboundEndPointConfiguration;
+                String replyAddress = getReplyAddress(message);
+                if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
+                    outboundEndPointConfiguration = Optional.empty();
+                } else {
+                    outboundEndPointConfiguration = Optional
+                            .of(getOutboundEndPointConfiguration(MasterDataLinkageAction.CREATE, replyAddress));
+                }
                 createMeterConfigServiceCallAndTransition(message, outboundEndPointConfiguration, OperationEnum.LINK);
                 context.commit();
                 return masterDataLinkageHandlerProvider.get().forMessage(message)
@@ -120,13 +133,8 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
     }
 
-    private String getReplyAddress(MasterDataLinkageAction action,
-            MasterDataLinkageConfigRequestMessageType requestMessage) throws FaultMessage {
-        String replyAddress = requestMessage.getHeader().getReplyAddress();
-        if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(action, MessageSeeds.NO_REPLY_ADDRESS);
-        }
-        return replyAddress;
+    private String getReplyAddress(MasterDataLinkageConfigRequestMessageType requestMessage) throws FaultMessage {
+        return requestMessage.getHeader().getReplyAddress();
     }
 
     private EndPointConfiguration getOutboundEndPointConfiguration(MasterDataLinkageAction action, String url)
@@ -147,13 +155,12 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
         return endPointConfig;
     }
 
-    private ServiceCall createMeterConfigServiceCallAndTransition(MasterDataLinkageConfigRequestMessageType meterConfig,
-            EndPointConfiguration endPointConfiguration, OperationEnum operation) throws FaultMessage {
-//        ServiceCall serviceCall = serviceCallCommands.createMeterConfigMasterServiceCall(meterConfig,
-//                endPointConfiguration, operation);
-//        serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
-//        return serviceCall;
-        return null;
+    private ServiceCall createMeterConfigServiceCallAndTransition(MasterDataLinkageConfigRequestMessageType config,
+            Optional<EndPointConfiguration> endPointConfiguration, OperationEnum operation) throws FaultMessage {
+        ServiceCall serviceCall = serviceCallCommands.createMasterDataLinkageConfigMasterServiceCall(config,
+                endPointConfiguration, operation);
+        serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
+        return serviceCall;
     }
 
 }

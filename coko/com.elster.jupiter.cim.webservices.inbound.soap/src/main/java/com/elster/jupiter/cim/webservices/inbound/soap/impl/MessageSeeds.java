@@ -81,7 +81,7 @@ public enum MessageSeeds implements MessageSeed {
 
     // async
     COULD_NOT_FIND_SERVICE_CALL_TYPE(5001, "CouldNotFindServiceCallType", "Could not find service call type {0} having version {1}"),
-    NO_REPLY_ADDRESS(5002, "NoReplyAddress", "Reply address is required"),
+//    NO_REPLY_ADDRESS(5002, "NoReplyAddress", "Reply address is required"),
     NO_END_POINT_WITH_URL(5003, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
     SYNC_MODE_NOT_SUPPORTED(5004, "SyncModeNotSupported", "Synchronous mode is not supported for multiple objects"),
     NO_PUBLISHED_END_POINT_WITH_URL(5005, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
@@ -145,7 +145,7 @@ public enum MessageSeeds implements MessageSeed {
             return ErrorType.Level.INFORM;
         }
     }
-    
+
     public static final class Keys {
         public static final String FIELD_TOO_LONG = "FieldTooLong";
         public static final String THIS_FIELD_IS_REQUIRED = "ThisFieldIsRequired";

@@ -28,6 +28,7 @@ import javax.inject.Inject;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public class ServiceCallCommands {
 
@@ -82,22 +83,23 @@ public class ServiceCallCommands {
     }
 
     @TransactionRequired
-    public ServiceCall createMasterDataLinkageConfigMasterServiceCall(
-            MasterDataLinkageConfigRequestMessageType meterConfig, EndPointConfiguration endPointConfiguration,
-            OperationEnum operation) {
+    public ServiceCall createMasterDataLinkageConfigMasterServiceCall(MasterDataLinkageConfigRequestMessageType config,
+            Optional<EndPointConfiguration> endPointConfiguration, OperationEnum operation) {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_DATA_LINKAGE_CONFIG);
         MasterDataLinkageConfigMasterDomainExtension domainExtension = new MasterDataLinkageConfigMasterDomainExtension();
-        domainExtension.setActualNumberOfSuccessfulCalls(new BigDecimal(0));
-        domainExtension.setActualNumberOfFailedCalls(new BigDecimal(0));
+        domainExtension.setActualNumberOfSuccessfulCalls(BigDecimal.ZERO);
+        domainExtension.setActualNumberOfFailedCalls(BigDecimal.ZERO);
         domainExtension.setExpectedNumberOfCalls(
-                BigDecimal.valueOf(meterConfig.getPayload().getMasterDataLinkageConfig().getUsagePoint().size()));
-        domainExtension.setCallbackURL(endPointConfiguration.getUrl());
+                BigDecimal.valueOf(config.getPayload().getMasterDataLinkageConfig().getUsagePoint().size()));
+        if (endPointConfiguration.isPresent()) {
+            domainExtension.setCallbackURL(endPointConfiguration.get().getUrl());
+        }
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
                 .origin(DataLinkageConfigChecklist.APPLICATION_NAME).extendedWith(domainExtension);
         ServiceCall parentServiceCall = serviceCallBuilder.create();
-        final List<UsagePoint> usagePoints = meterConfig.getPayload().getMasterDataLinkageConfig().getUsagePoint();
-        final List<Meter> meters = meterConfig.getPayload().getMasterDataLinkageConfig().getMeter();
-        final ConfigurationEvent configurationEvent = meterConfig.getPayload().getMasterDataLinkageConfig()
+        final List<UsagePoint> usagePoints = config.getPayload().getMasterDataLinkageConfig().getUsagePoint();
+        final List<Meter> meters = config.getPayload().getMasterDataLinkageConfig().getMeter();
+        final ConfigurationEvent configurationEvent = config.getPayload().getMasterDataLinkageConfig()
                 .getConfigurationEvent();
         for (int i = 0; i < usagePoints.size(); i++) {
             createMasterDataLinkageChildServiceCall(parentServiceCall, operation, usagePoints.get(i), meters.get(i),

@@ -6,6 +6,7 @@ package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -52,12 +53,14 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
     private EndPointConfigurationService endPointConfigurationService;
     @Mock
     private WebServicesService webServicesService;
+    @Mock
+    private ServiceCallCommands serviceCallCommands;
 
     @Before
     public void setUp() throws Exception {
         endpoint = new ExecuteMasterDataLinkageConfigEndpoint(getInstance(MasterDataLinkageFaultMessageFactory.class),
                 transactionService, endPointHelper, () -> linkageHandler, () -> validator, endPointConfigurationService,
-                webServicesService);
+                webServicesService, serviceCallCommands);
 
         message = getValidMessage().build();
         // common mocks
