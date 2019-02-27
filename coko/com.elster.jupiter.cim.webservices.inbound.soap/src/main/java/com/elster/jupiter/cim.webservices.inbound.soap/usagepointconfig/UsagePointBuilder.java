@@ -61,6 +61,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -252,11 +253,11 @@ class UsagePointBuilder {
     }
 
     private void validateAndUpdateCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, List<CustomAttributeSet> data) throws FaultMessage {
-        validateMandatoryCustomProperties(usagePoint, data);
         for (CustomAttributeSet cas: data) {
             validateCustomPropertySetValues(usagePoint, cas);
             addCustomPropertySetValues(usagePoint, cas);
         }
+        validateMandatoryCustomProperties(usagePoint);
         validateCustomPropertySetHasRequiredValues(usagePoint);
     }
 
@@ -837,32 +838,20 @@ class UsagePointBuilder {
         }
     }
 
-    private void validateMandatoryCustomProperties(com.elster.jupiter.metering.UsagePoint usagePoint, List<CustomAttributeSet> data) throws FaultMessage {
+    private void validateMandatoryCustomProperties(com.elster.jupiter.metering.UsagePoint usagePoint) throws FaultMessage {
         List<CustomPropertySet> customPropertySets = usagePoint.forCustomProperties().getAllPropertySets().stream()
                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                 .collect(Collectors.toList());
         for (CustomPropertySet customPropertySet: customPropertySets) {
             List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
-            CustomPropertySetValues values;
-            Optional<CustomAttributeSet> dataCas = data.stream().filter(cas -> cas.getId().equalsIgnoreCase(customPropertySet.getId())).findFirst();
+            List<CustomPropertySetValues>  valuesList = new ArrayList<>();
             if (customPropertySet.isVersioned()) {
-                Optional<Instant> versionId = Optional.empty();
-                if (dataCas.isPresent()) {
-                    versionId = Optional.ofNullable(dataCas.get().getVersionId());
-                }
-                if (versionId.isPresent()) {
-                    values = getValuesVersion(usagePoint, customPropertySet, versionId.get(), null);
-                } else {
-                    values = CustomPropertySetValues.empty();
-                }
+                valuesList.addAll(customPropertySetService.getAllVersionedValuesFor(customPropertySet, usagePoint));
             } else {
-                values = getValues(usagePoint, customPropertySet, null);
-            }
-            if (dataCas.isPresent()) {
-                updateValues(customPropertySet, dataCas.get(), values);
+                valuesList.add(getValues(usagePoint, customPropertySet, null));
             }
             for (PropertySpec spec : propertySpecs) {
-                if (spec.isRequired() && values.getProperty(spec.getName()) == null) {
+                if (spec.isRequired() && !valuesList.stream().filter(values -> values.getProperty(spec.getName()) != null).findFirst().isPresent()) {
                     throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                             MessageSeeds.MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE, spec.getName(), customPropertySet.getId()).get();
                 }
