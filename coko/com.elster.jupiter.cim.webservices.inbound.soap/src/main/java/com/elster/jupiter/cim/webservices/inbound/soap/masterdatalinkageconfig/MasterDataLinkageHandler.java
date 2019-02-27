@@ -3,6 +3,9 @@ package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ConfigEventInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.UsagePointInfo;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -17,7 +20,6 @@ import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigR
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
-import com.google.common.collect.ImmutableList;
 import org.apache.cxf.common.util.StringUtils;
 
 import javax.inject.Inject;
@@ -26,6 +28,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class MasterDataLinkageHandler {
     private final MeteringService meteringService;
@@ -36,6 +39,10 @@ public class MasterDataLinkageHandler {
     ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent configurationEventNode;
     List<ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint> usagePointNodes;
     List<ch.iec.tc57._2011.masterdatalinkageconfig.Meter> meterNodes;
+
+    private ConfigEventInfo configurationEvent;
+    private UsagePointInfo usagePoint;
+    private MeterInfo meter;
 
     private com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction currentLinkageAction;
 
@@ -53,28 +60,39 @@ public class MasterDataLinkageHandler {
         configurationEventNode = message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent();
         usagePointNodes = message.getPayload().getMasterDataLinkageConfig().getUsagePoint();
         meterNodes = message.getPayload().getMasterDataLinkageConfig().getMeter();
+        configurationEvent = null;
         return this;
     }
 
-    public MasterDataLinkageHandler from(ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent configurationEvent,
-            ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint usagePoint, ch.iec.tc57._2011.masterdatalinkageconfig.Meter meter) throws FaultMessage {
-        configurationEventNode = configurationEvent;
-        usagePointNodes = ImmutableList.of(usagePoint);
-        meterNodes =  ImmutableList.of(meter);
+    public MasterDataLinkageHandler from(ConfigEventInfo configurationEvent, UsagePointInfo usagePoint, MeterInfo meter)
+            throws FaultMessage {
+        this.configurationEvent = configurationEvent;
+        this.usagePoint = usagePoint;
+        this.meter = meter;
         return this;
     }
 
     public MasterDataLinkageConfigResponseMessageType createLinkage() throws FaultMessage {
         currentLinkageAction = MasterDataLinkageAction.CREATE;
-        linkMeterToUsagePoint(transform(meterNodes.get(0)), getMeterRoleForKey(meterNodes.get(0).getRole()),
-                transform(usagePointNodes.get(0)), configurationEventNode.getCreatedDateTime());
+        if (configurationEvent == null) {
+            linkMeterToUsagePoint(transform(meterNodes.get(0)), getMeterRoleForKey(meterNodes.get(0).getRole()),
+                    transform(usagePointNodes.get(0)), configurationEventNode.getCreatedDateTime());
+        } else {
+            linkMeterToUsagePoint(transform(meter), getMeterRoleForKey(meter.getRole()), transform(usagePoint),
+                    configurationEvent.getCreatedDateTime());
+        }
         return createSuccessfulResponseWithVerb(HeaderType.Verb.CREATED);
     }
 
     public MasterDataLinkageConfigResponseMessageType closeLinkage() throws FaultMessage {
         currentLinkageAction = MasterDataLinkageAction.CLOSE;
-        unlinkMeterFromUsagePoint(transform(meterNodes.get(0)), transform(usagePointNodes.get(0)),
-                configurationEventNode.getEffectiveDateTime());
+        if (configurationEvent == null) {
+            unlinkMeterFromUsagePoint(transform(meterNodes.get(0)), transform(usagePointNodes.get(0)),
+                    configurationEventNode.getEffectiveDateTime());
+        } else {
+            unlinkMeterFromUsagePoint(transform(meter), transform(usagePoint),
+                    configurationEvent.getEffectiveDateTime());
+        }
         return createSuccessfulResponseWithVerb(HeaderType.Verb.CLOSED);
     }
 
@@ -103,12 +121,20 @@ public class MasterDataLinkageHandler {
     }
 
     private Meter transform(ch.iec.tc57._2011.masterdatalinkageconfig.Meter meterNode) throws FaultMessage {
-        if (meterNode.getMRID() != null) {
-            return meteringService.findMeterByMRID(meterNode.getMRID())
+        return transformMeter(meterNode.getMRID(), () -> meterNode.getNames().get(0).getName());
+    }
+
+    private Meter transform(MeterInfo meter) throws FaultMessage {
+        return transformMeter(meter.getMrid(), meter::getName);
+    }
+
+    private Meter transformMeter(String mrid, Supplier<String> nameSupplier) throws FaultMessage {
+        if (mrid != null) {
+            return meteringService.findMeterByMRID(mrid)
                     .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(currentLinkageAction,
-                            MessageSeeds.NO_METER_WITH_MRID, meterNode.getMRID()));
+                            MessageSeeds.NO_METER_WITH_MRID, mrid));
         }
-        String name = meterNode.getNames().get(0).getName();
+        String name = nameSupplier.get();
         return meteringService.findMeterByName(name)
                 .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(currentLinkageAction,
                         MessageSeeds.NO_METER_WITH_NAME, name));
@@ -116,16 +142,23 @@ public class MasterDataLinkageHandler {
 
     private UsagePoint transform(ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint usagePointNode)
             throws FaultMessage {
-        if (usagePointNode.getMRID() != null) {
-            return meteringService.findUsagePointByMRID(usagePointNode.getMRID())
+        return transformUsagePoint(usagePointNode.getMRID(), () -> usagePointNode.getNames().get(0).getName());
+    }
+
+    private UsagePoint transform(UsagePointInfo usagePoint) throws FaultMessage {
+        return transformUsagePoint(usagePoint.getMrid(), usagePoint::getName);
+    }
+
+    private UsagePoint transformUsagePoint(String mrid, Supplier<String> nameSupplier) throws FaultMessage {
+        if (mrid != null) {
+            return meteringService.findUsagePointByMRID(mrid)
                     .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(currentLinkageAction,
-                            MessageSeeds.NO_USAGE_POINT_WITH_MRID, usagePointNode.getMRID()));
+                            MessageSeeds.NO_USAGE_POINT_WITH_MRID, mrid));
         }
-        String name = usagePointNode.getNames().get(0).getName();
+        String name = nameSupplier.get();
         return meteringService.findUsagePointByName(name)
                 .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(currentLinkageAction,
                         MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));
-
     }
 
     private MeterRole getMeterRoleForKey(String key) throws FaultMessage {

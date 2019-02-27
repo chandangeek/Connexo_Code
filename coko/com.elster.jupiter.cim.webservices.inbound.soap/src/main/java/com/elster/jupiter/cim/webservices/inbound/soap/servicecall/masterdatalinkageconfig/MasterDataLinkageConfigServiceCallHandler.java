@@ -6,6 +6,9 @@ package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatali
 
 import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageHandler;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ConfigEventInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.UsagePointInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -13,9 +16,6 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.json.JsonService;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
-import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
-import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
-import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 
 import javax.inject.Inject;
@@ -63,10 +63,10 @@ public class MasterDataLinkageConfigServiceCallHandler implements ServiceCallHan
         MasterDataLinkageConfigDomainExtension extension = serviceCall
                 .getExtension(MasterDataLinkageConfigDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-        ConfigurationEvent configurationEvent = jsonService.deserialize(extension.getConfigurationEvent(),
-                ConfigurationEvent.class);
-        UsagePoint usagePoint = jsonService.deserialize(extension.getUsagePoint(), UsagePoint.class);
-        Meter meter = jsonService.deserialize(extension.getMeter(), Meter.class);
+        ConfigEventInfo configurationEvent = jsonService.deserialize(extension.getConfigurationEvent(),
+                ConfigEventInfo.class);
+        UsagePointInfo usagePoint = jsonService.deserialize(extension.getUsagePoint(), UsagePointInfo.class);
+        MeterInfo meter = jsonService.deserialize(extension.getMeter(), MeterInfo.class);
         try {
             switch (OperationEnum.getFromString(extension.getOperation())) {
             case LINK:

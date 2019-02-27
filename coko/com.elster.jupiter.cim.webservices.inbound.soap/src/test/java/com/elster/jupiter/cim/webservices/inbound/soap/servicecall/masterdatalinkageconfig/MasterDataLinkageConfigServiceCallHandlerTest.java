@@ -5,14 +5,14 @@ package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatali
 
 import com.elster.jupiter.cim.webservices.inbound.soap.OperationEnum;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageHandler;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ConfigEventInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.UsagePointInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.json.JsonService;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
-import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
-import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
-import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigFaultMessageType;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.google.common.collect.ImmutableSet;
@@ -61,7 +61,7 @@ public class MasterDataLinkageConfigServiceCallHandlerTest {
         handler = new MasterDataLinkageConfigServiceCallHandler(masterDataLinkageHandlerProvider, jsonService);
         when(serviceCall.getExtension(MasterDataLinkageConfigDomainExtension.class)).thenReturn(Optional.of(extension));
         when(masterDataLinkageHandlerProvider.get()).thenReturn(masterDataLinkageHandler);
-        when(masterDataLinkageHandler.from(any(ConfigurationEvent.class), any(UsagePoint.class), any(Meter.class)))
+        when(masterDataLinkageHandler.from(any(ConfigEventInfo.class), any(UsagePointInfo.class), any(MeterInfo.class)))
                 .thenReturn(masterDataLinkageHandler);
     }
 
