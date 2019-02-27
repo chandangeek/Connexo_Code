@@ -214,7 +214,9 @@ public class AuditTrailDeviceSpecificationDecoder extends AbstractDeviceAuditDec
                 .sorted(Comparator.comparing(mc -> mc.getInterval().toOpenRange().lowerEndpoint()))
                 .findFirst();
 
-        Optional<MeterConfiguration> toMeterConfiguration = fromMeterConfiguration.map(meterConfiguration ->
+        Optional<MeterConfiguration> toMeterConfiguration = fromMeterConfiguration
+                .filter(meterConfiguration -> meterConfiguration.getInterval().toOpenRange().hasUpperBound())
+                .map(meterConfiguration ->
                 getEntriesByInterval(dataMapper, meterConfiguration.getInterval().toOpenRange().upperEndpoint().plusMillis(1))
                         .stream()
                         .findFirst())
@@ -233,6 +235,11 @@ public class AuditTrailDeviceSpecificationDecoder extends AbstractDeviceAuditDec
                     return mrtc;
                 }
             }
+        }
+        else if (fromMeterConfiguration.isPresent()){
+            return fromMeterConfiguration.get()
+                    .getReadingTypeConfigs()
+                    .stream().findFirst();
         }
         return Optional.empty();
     }

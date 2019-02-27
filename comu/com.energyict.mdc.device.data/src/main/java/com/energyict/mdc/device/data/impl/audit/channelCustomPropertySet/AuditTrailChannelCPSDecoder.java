@@ -37,10 +37,24 @@ public class AuditTrailChannelCPSDecoder extends AbstractCPSAuditDecoder {
 
     @Override
     protected void decodeReference() {
-        super.decodeReference();
-        channel = device
-                .map(dv -> findChannelOnDevice(dv, getAuditTrailReference().getPkContext1()))
-                .orElseGet(Optional::empty);
+        try {
+            device = serverDeviceService.findDeviceById(getAuditTrailReference().getPkDomain())
+                    .map(Optional::of)
+                    .orElseGet(() -> {
+                        isRemoved = true;
+                        return getDeviceFromHistory(getAuditTrailReference().getPkDomain());
+                    });
+
+            meteringService.findEndDeviceByName(device.get().getName())
+                    .ifPresent(ed -> {
+                        endDevice = Optional.of(ed);
+                    });
+            channel = device
+                    .map(dv -> findChannelOnDevice(dv, getAuditTrailReference().getPkContext1()))
+                    .orElseGet(Optional::empty);
+        }
+        catch (Exception ignored){
+        }
     }
 
     @Override

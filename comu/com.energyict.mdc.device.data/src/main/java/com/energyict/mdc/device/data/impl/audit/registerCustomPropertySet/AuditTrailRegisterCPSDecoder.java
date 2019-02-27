@@ -35,12 +35,27 @@ public class AuditTrailRegisterCPSDecoder extends AbstractCPSAuditDecoder {
         super(ormService, thesaurus, meteringService, serverDeviceService, customPropertySetService);
     }
 
+
     @Override
     protected void decodeReference() {
-        super.decodeReference();
-        register = device
-                .map(dv -> findRegisterOnDevice(dv, getAuditTrailReference().getPkContext1()))
-                .orElseGet(Optional::empty);
+        try {
+            device = serverDeviceService.findDeviceById(getAuditTrailReference().getPkDomain())
+                    .map(Optional::of)
+                    .orElseGet(() -> {
+                        isRemoved = true;
+                        return getDeviceFromHistory(getAuditTrailReference().getPkDomain());
+                    });
+
+            meteringService.findEndDeviceByName(device.get().getName())
+                    .ifPresent(ed -> {
+                        endDevice = Optional.of(ed);
+                    });
+            register = device
+                    .map(dv -> findRegisterOnDevice(dv, getAuditTrailReference().getPkContext1()))
+                    .orElseGet(Optional::empty);
+        }
+        catch (Exception ignored){
+        }
     }
 
     @Override

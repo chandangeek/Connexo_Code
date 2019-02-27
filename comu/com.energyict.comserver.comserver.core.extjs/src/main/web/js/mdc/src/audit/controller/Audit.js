@@ -151,6 +151,9 @@ Ext.define('Mdc.audit.controller.Audit', {
             case 'DEVICE_DATA_SOURCE_SPECIFICATIONS':
                 rendererLink = isRemoved == true ? me.formatDeviceDataSourceContext(record, value) : me.formatDeviceDataSourceHRef(record) + me.formatDeviceDataSourceContext(record, value) + '</a>';
                 break;
+            case 'DEVICE_PROTOCOL_DIALECTS_PROPS':
+                rendererLink = isRemoved == true ? me.formatProtocolDialectsContext(record, value) : me.formatProtocolDialectsHRef(record, value) + '</a>';
+                break;
             default:
                 rendererLink = value;
         }
@@ -197,19 +200,7 @@ Ext.define('Mdc.audit.controller.Audit', {
         if (contextReference.isVersioned !== true) {
             return Ext.String.format("{0} -> {1}", value, record.get('auditReference').contextReference.name);
         }
-
-        if (contextReference.startTime) {
-            periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.from', 'MDC', 'From'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.startTime)));
-        }
-        if (contextReference.startTime && contextReference.endTime) {
-            periodStr += ' - ';
-        }
-        if (contextReference.endTime) {
-            periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'MDC', 'Until'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.endTime)));
-        }
-        if (!contextReference.endTime && !contextReference.startTime) {
-            periodStr += Uni.I18n.translate('general.infinite', 'MDC', 'Infinite');
-        }
+        periodStr =  this.extractPeriod(contextReference);
         return Ext.String.format("{0} -> {1} -> {2} ({3})", value, record.get('auditReference').contextReference.sourceName, record.get('auditReference').contextReference.name, periodStr);
     },
 
@@ -218,6 +209,10 @@ Ext.define('Mdc.audit.controller.Audit', {
             contextReference = record.get('auditReference').contextReference;
 
         return Ext.String.format("{0} -> {1}", record.get('auditReference').contextReference.sourceTypeName, record.get('auditReference').contextReference.sourceName);
+    },
+
+    formatProtocolDialectsContext: function (record, value) {
+        return Ext.String.format("{0}", value);
     },
 
     formatDeviceDataSourceHRef: function (record) {
@@ -245,6 +240,32 @@ Ext.define('Mdc.audit.controller.Audit', {
             contextReference = record.get('auditReference').contextReference;
 
         return '<a href="#/devices/' + record.get('auditReference').name + '/registers' + '/'+ contextReference.sourceId +  '">'
+    },
+
+    formatProtocolDialectsHRef: function (record, value) {
+        var me = this,
+            contextReference = record.get('auditReference').contextReference,
+            periodStr = this.extractPeriod(contextReference);
+
+        return '<a href="#/devices/' + record.get('auditReference').name + '/protocols">' +  Ext.String.format("{0} -> {1} ({2})", value, contextReference.name, periodStr);
+    },
+
+    extractPeriod: function(contextReference){
+            var periodStr = '';
+
+            if (contextReference.startTime) {
+                periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.from', 'MDC', 'From'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.startTime)));
+            }
+            if (contextReference.startTime && contextReference.endTime) {
+                periodStr += ' - ';
+            }
+            if (contextReference.endTime) {
+                periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'MDC', 'Until'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.endTime)));
+            }
+            if (!contextReference.endTime && !contextReference.startTime) {
+                periodStr += Uni.I18n.translate('general.infinite', 'MDC', 'Infinite');
+            }
+            return periodStr;
     },
 
     isEmptyOrNull: function (value) {

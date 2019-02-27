@@ -31,6 +31,25 @@ public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
     }
 
     @Override
+    protected void decodeReference() {
+        try {
+            device = serverDeviceService.findDeviceById(getAuditTrailReference().getPkDomain())
+                    .map(Optional::of)
+                    .orElseGet(() -> {
+                        isRemoved = true;
+                        return getDeviceFromHistory(getAuditTrailReference().getPkDomain());
+                    });
+
+            meteringService.findEndDeviceByName(device.get().getName())
+                    .ifPresent(ed -> {
+                        endDevice = Optional.of(ed);
+                    });
+        }
+        catch (Exception ignored){
+        }
+    }
+
+    @Override
     public Object getContextReference() {
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
         Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = getCustomPropertySet();

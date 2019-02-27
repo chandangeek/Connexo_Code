@@ -16,6 +16,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -69,6 +71,14 @@ public class CustomPropertySetRegistrationTopicHandler implements TopicHandler {
                                     .domainContext(AuditDomainContextType.DEVICE_REGISTER_CUSTOM_ATTRIBUTES.ordinal())
                                     .domainReferenceColumn("device")
                                     .contextReferenceColumn(cps.getPersistenceSupport().domainFieldName(), HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
+                                    .build());
+                } else if (cps.getDomainClass().equals(DeviceProtocolDialectPropertyProvider.class)) {
+                    this.ormService.getDataModel(cps.getPersistenceSupport().componentName())
+                            .ifPresent(dataModel -> dataModel.getTable(cps.getPersistenceSupport().tableName())
+                                    .audit("")
+                                    .domainContext(AuditDomainContextType.DEVICE_PROTOCOL_DIALECTS_PROPS.ordinal())
+                                    .domainReferences(cps.getPersistenceSupport().domainForeignKeyName(), "FK_DDC_PROTDIALECTPROPS_DEV", "FK_DDC_DEVICE_ENDDEVICE")
+                                    .contextReferenceColumn(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.databaseName() , HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                                     .build());
                 }
             });
