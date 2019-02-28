@@ -398,21 +398,21 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!--<plugin>-->
-				<!--<groupId>com.elster.plugin</groupId>-->
-				<!--<artifactId>bundle-version-maven-plugin</artifactId>-->
-				<!--<configuration>-->
-				  <!--<releasedVersion>${baseline}</releasedVersion>-->
-				<!--</configuration>-->
-				<!--<executions>-->
-					<!--<execution>-->
-						<!--<phase>verify</phase>-->
-					<!--<goals>-->
-						<!--<goal>enforce</goal>-->
-					<!--</goals>-->
-					<!--</execution>-->
-				<!--</executions>-->
-			<!--</plugin>-->
+			<plugin>
+				<groupId>com.elster.plugin</groupId>
+				<artifactId>bundle-version-maven-plugin</artifactId>
+				<configuration>
+				  <releasedVersion>${baseline}</releasedVersion>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+					<goals>
+						<goal>enforce</goal>
+					</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
