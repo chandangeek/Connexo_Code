@@ -3,14 +3,19 @@
  */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.FailedLinkageOperation;
+import com.elster.jupiter.cim.webservices.inbound.soap.LinkageOperation;
 import com.elster.jupiter.cim.webservices.inbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ObjectHolder;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.UsagePointInfo;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.util.json.JsonService;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -22,10 +27,15 @@ import org.junit.runner.RunWith;
 
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -48,10 +58,8 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
     private EndPointConfigurationService endPointConfigurationService;
     @Mock
     private ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ServiceCall serviceCall;
-    @Mock
-    private ServiceCall child1, child2;
     @Mock
     private Finder<ServiceCall> finder;
     @Mock
@@ -59,16 +67,24 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
     @Mock
     private MasterDataLinkageConfigMasterDomainExtension masterExtension;
     @Mock
-    private ServiceCall childServiceCall;
+    private ServiceCall childServiceCallSuccess;
+    @Mock
+    private ServiceCall childServiceCallFailure;
+    @Mock
+    private JsonService jsonService;
+    @Mock
+    private UsagePointInfo usagePointInfo;
+    @Mock
+    private MeterInfo meterInfo;
+    @Mock
+    private MasterDataLinkageConfigDomainExtension masterDataLinkageConfigDomainExtension;
 
     @Before
     public void setup() {
         replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
         replyMasterDataLinkageConfigWebServiceHolder.setObject(replyMasterDataLinkageConfigWebService);
         handler = new MasterDataLinkageConfigMasterServiceCallHandler(endPointConfigurationService,
-                replyMasterDataLinkageConfigWebServiceHolder);
-        when(serviceCall.findChildren()).thenReturn(finder);
-        when(finder.stream()).thenReturn(Stream.of(child1, child2));
+                replyMasterDataLinkageConfigWebServiceHolder, jsonService);
         when(endPointConfigurationService.findEndPointConfigurations().find().stream())
                 .thenReturn(Stream.of(endPointConfiguration));
         when(endPointConfiguration.isActive()).thenReturn(true);
@@ -84,6 +100,23 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
         when(serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)).thenReturn(true);
         when(serviceCall.canTransitionTo(DefaultState.FAILED)).thenReturn(true);
         when(serviceCall.canTransitionTo(DefaultState.PARTIAL_SUCCESS)).thenReturn(true);
+        when(jsonService.deserialize(anyString(), eq(UsagePointInfo.class))).thenReturn(usagePointInfo);
+        when(jsonService.deserialize(anyString(), eq(MeterInfo.class))).thenReturn(meterInfo);
+        when(serviceCall.findChildren()).thenReturn(finder);
+        doAnswer(// we cannot use thenReturn because the call happens more than once and stream is closed after first call
+                new Answer<Stream<ServiceCall>>() {
+                    @Override
+                    public Stream<ServiceCall> answer(InvocationOnMock invocation) throws Throwable {
+                        return Stream.of(childServiceCallSuccess, childServiceCallFailure);
+                    }
+                }).when(finder).stream();
+        when(childServiceCallSuccess.getExtension(MasterDataLinkageConfigDomainExtension.class))
+                .thenReturn(Optional.of(masterDataLinkageConfigDomainExtension));
+        when(childServiceCallSuccess.getState()).thenReturn(DefaultState.SUCCESSFUL);
+        when(childServiceCallFailure.getExtension(MasterDataLinkageConfigDomainExtension.class))
+                .thenReturn(Optional.of(masterDataLinkageConfigDomainExtension));
+        when(childServiceCallFailure.getState()).thenReturn(DefaultState.FAILED);
+        when(masterDataLinkageConfigDomainExtension.getOperation()).thenReturn(MasterDataLinkageAction.CREATE.name());
     }
 
     @Test
@@ -97,10 +130,10 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
     public void testTransitionToOnGoing() {
         handler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
 
-        verify(child1).requestTransition(DefaultState.PENDING);
-        verify(child2).requestTransition(DefaultState.PENDING);
+        verify(childServiceCallSuccess).requestTransition(DefaultState.PENDING);
+        verify(childServiceCallFailure).requestTransition(DefaultState.PENDING);
         verify(serviceCall).findChildren();
-        verifyNoMoreInteractions(serviceCall, child1, child2);
+        verifyNoMoreInteractions(serviceCall, childServiceCallSuccess, childServiceCallFailure);
     }
 
     @Test
@@ -205,7 +238,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
 
     @Test
     public void testChildTransitionToSuccessfullAndRequestPartialSuccess() {
-        handler.onChildStateChange(serviceCall, childServiceCall, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
+        handler.onChildStateChange(serviceCall, childServiceCallSuccess, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
 
         verify(masterExtension)
                 .setActualNumberOfSuccessfulCalls(eq(BigDecimal.valueOf(NUMBER_OF_SUCCESSFUL_CALLS.intValue() + 1)));
@@ -216,7 +249,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
 
     @Test
     public void testChildTransitionToFailedAndRequestPartialSuccess() {
-        handler.onChildStateChange(serviceCall, childServiceCall, DefaultState.ONGOING, DefaultState.FAILED);
+        handler.onChildStateChange(serviceCall, childServiceCallSuccess, DefaultState.ONGOING, DefaultState.FAILED);
 
         verify(masterExtension)
                 .setActualNumberOfFailedCalls(eq(BigDecimal.valueOf(NUMBER_OF_FAILED_CALLS.intValue() + 1)));
@@ -230,7 +263,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
         when(masterExtension.getExpectedNumberOfCalls())
                 .thenReturn(BigDecimal.valueOf(NUMBER_OF_FAILED_CALLS.intValue() + 1));
 
-        handler.onChildStateChange(serviceCall, childServiceCall, DefaultState.ONGOING, DefaultState.FAILED);
+        handler.onChildStateChange(serviceCall, childServiceCallSuccess, DefaultState.ONGOING, DefaultState.FAILED);
 
         verify(masterExtension)
                 .setActualNumberOfFailedCalls(eq(BigDecimal.valueOf(NUMBER_OF_FAILED_CALLS.intValue() + 1)));
@@ -244,7 +277,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
         when(masterExtension.getExpectedNumberOfCalls())
                 .thenReturn(BigDecimal.valueOf(NUMBER_OF_SUCCESSFUL_CALLS.intValue() + 1));
 
-        handler.onChildStateChange(serviceCall, childServiceCall, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
+        handler.onChildStateChange(serviceCall, childServiceCallSuccess, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
 
         verify(masterExtension)
                 .setActualNumberOfSuccessfulCalls(eq(BigDecimal.valueOf(NUMBER_OF_SUCCESSFUL_CALLS.intValue() + 1)));
@@ -257,7 +290,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
         when(masterExtension.getExpectedNumberOfCalls()).thenReturn(
                 BigDecimal.valueOf(NUMBER_OF_FAILED_CALLS.intValue() + NUMBER_OF_SUCCESSFUL_CALLS.intValue() + 2));
 
-        handler.onChildStateChange(serviceCall, childServiceCall, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
+        handler.onChildStateChange(serviceCall, childServiceCallSuccess, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
 
         verify(masterExtension)
                 .setActualNumberOfSuccessfulCalls(eq(BigDecimal.valueOf(NUMBER_OF_SUCCESSFUL_CALLS.intValue() + 1)));
@@ -305,8 +338,8 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
 
         handler.onStateChange(serviceCall, DefaultState.ONGOING, endState);
 
-        verify(replyMasterDataLinkageConfigWebService).call(eq(endPointConfiguration), eq(OPERATION.name()),
-                eq(expectedNumberOfCalls));
+        verify(replyMasterDataLinkageConfigWebService).call(eq(endPointConfiguration), eq(OPERATION),
+                anyListOf(LinkageOperation.class), anyListOf(FailedLinkageOperation.class), eq(expectedNumberOfCalls));
     }
 
 }
