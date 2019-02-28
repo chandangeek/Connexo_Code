@@ -53,11 +53,11 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addMeterReadingsPorts(MeterReadingsPort out, Map<String, Object> properties) {
+    public void addMeterReadingsPort(MeterReadingsPort out, Map<String, Object> properties) {
         meterReadingsPorts.put(properties.get(URL).toString(), out);
     }
 
-    public void removeMeterReadingsPorts(MeterReadingsPort out) {
+    public void removeMeterReadingsPort(MeterReadingsPort out) {
         meterReadingsPorts.values().removeIf(port -> out == port);
     }
 
@@ -81,12 +81,11 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
 
     public void call(List<ReadingInfo> readingInfos, HeaderType.Verb requestVerb) {
         MeterReadings meterReadings = readingBuilderProvider.build(readingInfos);
-        if (!checkMeterReadingsAndMeterReadingsPorts(meterReadings)) {
-            return;
+        if (checkMeterReadingsAndMeterReadingsPorts(meterReadings)) {
+            meterReadingsPorts.forEach((url, soapService) ->
+                    sendMeterReadingsPortResponse(soapService, meterReadings, requestVerb)
+            );
         }
-        meterReadingsPorts.forEach((url, soapService) ->
-            sendMeterReadingsPortResponse(soapService, meterReadings, requestVerb)
-        );
     }
 
     public boolean call(MeterReadings meterReadings, HeaderType.Verb requestVerb, String url) {
