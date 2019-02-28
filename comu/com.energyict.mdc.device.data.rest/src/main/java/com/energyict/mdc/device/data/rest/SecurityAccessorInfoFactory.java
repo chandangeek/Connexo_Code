@@ -51,6 +51,7 @@ public class SecurityAccessorInfoFactory {
         SecurityAccessorInfo info = securityAccessorInfoFactory.from(securityAccessor);
         info.status = thesaurus.getFormat(securityAccessor.getStatus()).format();
         info.canGeneratePassiveKey = KeyAccessorStatus.COMPLETE.equals(securityAccessor.getStatus());
+        info.serviceKey = securityAccessor.getServiceKey();
         return info;
     }
 

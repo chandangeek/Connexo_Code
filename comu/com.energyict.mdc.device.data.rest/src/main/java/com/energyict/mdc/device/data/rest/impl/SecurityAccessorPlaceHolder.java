@@ -165,6 +165,11 @@ public class SecurityAccessorPlaceHolder implements SecurityAccessor {
     }
 
     @Override
-    public void setTemporary(Boolean temporary) {
+    public void setServiceKey(Boolean serviceKey) {
+    }
+
+    @Override
+    public boolean getServiceKey() {
+	return false;
     }
 }

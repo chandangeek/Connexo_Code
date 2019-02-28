@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -71,6 +72,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import javax.xml.bind.DatatypeConverter;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Clock;
@@ -149,6 +151,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private ProtocolPluggableService protocolPluggableService;
     private DeviceConfigurationService deviceConfigurationService;
     private CustomPropertySetService customPropertySetService;
+    private DataVaultService dataVaultService;
 
     private DeviceTypePurpose deviceTypePurpose = DeviceTypePurpose.REGULAR;
     private boolean deviceTypePurposeChanged = false;
@@ -159,12 +162,13 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private DeviceProtocol localDeviceProtocol;
 
     @Inject
-    public DeviceTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, CustomPropertySetService customPropertySetService) {
+    public DeviceTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, CustomPropertySetService customPropertySetService, DataVaultService dataVaultService) {
         super(DeviceType.class, dataModel, eventService, thesaurus);
         this.clock = clock;
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.customPropertySetService = customPropertySetService;
+        this.dataVaultService = dataVaultService;
     }
 
     private DeviceTypeImpl initializeRegular(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
@@ -367,6 +371,37 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             throw new SecurityAccessorTypeCanNotBeDeletedException(getThesaurus());
         }
         getEventService().postEvent(EventType.SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE.topic(), securityAccessorTypeOnDeviceType);
+    }
+
+    @Override
+    public String getDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType) {
+        if (securityAccessorType.keyTypeIsHSM()) {
+            Optional<SecurityAccessorTypeOnDeviceTypeImpl> accessorTypeImpl = securityAccessorTypes.stream()
+                    .filter(securityAccessorTypeOnDeviceType ->
+                            securityAccessorTypeOnDeviceType.getSecurityAccessorType().equals(securityAccessorType))
+                    .findAny();
+            if (accessorTypeImpl.isPresent()) {
+                String keyValue = accessorTypeImpl.get().getDefaultKey();
+                byte[] key = dataVaultService.decrypt(keyValue);
+                return DatatypeConverter.printHexBinary(key);
+            }
+        }
+    	return null;
+    }
+
+    @Override
+    public void updateDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType, String value) {
+         if (securityAccessorType.keyTypeIsHSM()) {
+             Optional<SecurityAccessorTypeOnDeviceTypeImpl> accessorTypeImpl = securityAccessorTypes.stream()
+                    .filter(securityAccessorTypeOnDeviceType ->
+                            securityAccessorTypeOnDeviceType.getSecurityAccessorType().equals(securityAccessorType))
+                    .findAny();
+                byte[] key = DatatypeConverter.parseHexBinary(value);
+                value = dataVaultService.encrypt(key);
+                if (accessorTypeImpl.isPresent()) {
+                    accessorTypeImpl.get().setDefaultKey(value);
+                }
+         }
     }
 
     @Override

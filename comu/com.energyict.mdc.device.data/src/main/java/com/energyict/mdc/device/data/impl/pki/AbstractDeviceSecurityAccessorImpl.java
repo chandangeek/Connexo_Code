@@ -28,7 +28,7 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
     private Reference<SecurityAccessorType> keyAccessorTypeReference = Reference.empty();
     private Reference<Device> deviceReference = Reference.empty();
     private boolean swapped;
-    private boolean temporary;
+    private boolean servicekey;
 
     @SuppressWarnings("unused")
     private String userName;
@@ -60,7 +60,7 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
         SYMM_KEY_WRAPPER_TEMP("tempSymmetricKeyWrapperReference"),
         PASSPHRASE_WRAPPER_ACTUAL("actualPassphraseWrapperReference"),
         PASSPHRASE_WRAPPER_TEMP("tempPassphraseWrapperReference"),
-        TEMPORARY("temporary")
+        SERVICEKEY("servicekey")
         ;
 
         private final String fieldName;
@@ -135,7 +135,12 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
     }
 
     @Override
-    public void setTemporary(Boolean temporary) {
-        this.temporary = temporary;
+    public void setServiceKey(Boolean servicekey) {
+        this.servicekey = servicekey;
+    }
+
+    @Override
+    public boolean getServiceKey() {
+        return this.servicekey;
     }
 }

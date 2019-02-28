@@ -290,7 +290,7 @@ public class KeyAccessorTypeResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    @Path("/{keyAccessorTypeName}/storeTempValue/{value}")
+    @Path("/{keyAccessorTypeName}/storetempvalue/{value}")
     public Response storeTempValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
                                    @PathParam("value") String value,
                                    @Context UriInfo uriInfo) {
@@ -317,49 +317,49 @@ public class KeyAccessorTypeResource {
     }
 
     /**
-     * Mark actual key value as temporary for the device for the given security accessor type.
+     * Mark key as service key for the device for the given security accessor type.
      *
      * @param mrid mRID of device for which the key will be updated
      * @param keyAccessorTypeName name of the security accessor type
      * @param uriInfo uriInfo
-     * @summary Mark actual key value as temporary
+     * @summary Mark key as service key
      */
     @PUT
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    @Path("/{keyAccessorTypeName}/markKeyTemporary")
-    public Response markKeyTemporary(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
+    @Path("/{keyAccessorTypeName}/markservicekey")
+    public Response markServiceKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
                                           @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
-        securityAccessor.setTemporary(true);
+        securityAccessor.setServiceKey(true);
         securityAccessor.save();
         return Response.ok().build();
     }
 
     /**
-     * Unmark actual key value as temporary for the device for the given security accessor type.
+     * Unmark key as service key for the device for the given security accessor type.
      *
      * @param mrid mRID of device for which the key will be updated
      * @param keyAccessorTypeName name of the security accessor type
      * @param uriInfo uriInfo
-     * @summary Unmark actual key value as temporary
+     * @summary Unmark key as service key
      */
     @PUT
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    @Path("/{keyAccessorTypeName}/unmarkKeyTemporary")
-    public Response unmarkKeyTemporary(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
+    @Path("/{keyAccessorTypeName}/unmarkservicekey")
+    public Response unmarkServiceKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
                                           @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
-        securityAccessor.setTemporary(false);
+        securityAccessor.setServiceKey(false);
         securityAccessor.save();
         return Response.ok().build();
     }

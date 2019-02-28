@@ -29,7 +29,6 @@ public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<Certif
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + com.elster.jupiter.pki.impl.MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<CertificateWrapper> actualCertificate = Reference.empty();
     private Reference<CertificateWrapper> tempCertificate = Reference.empty();
-    private Boolean temporary;
 
     @Inject
     public CertificateAccessorImpl(DataModel dataModel,
@@ -127,8 +126,4 @@ public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<Certif
         return certificateHolder.getSubject();
     }
 
-    @Override
-    public void setTemporary(Boolean temporary) {
-        this.temporary = temporary;
-    }
 }
