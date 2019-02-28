@@ -85,6 +85,7 @@ public abstract class KeyImpl implements SymmetricKeyWrapper  {
 
     public static final Map<String, Class<? extends SymmetricKeyWrapper>> IMPLEMENTERS =
             ImmutableMap.of(
+                    "R", HsmReversibleKey.class,
                     "H", HsmKeyImpl.class,
                     "P", PlaintextSymmetricKeyImpl.class);
 

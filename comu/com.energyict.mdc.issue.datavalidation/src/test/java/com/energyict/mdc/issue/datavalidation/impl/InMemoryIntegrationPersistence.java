@@ -23,6 +23,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -329,6 +330,7 @@ public class InMemoryIntegrationPersistence {
 
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
         }
     }
 

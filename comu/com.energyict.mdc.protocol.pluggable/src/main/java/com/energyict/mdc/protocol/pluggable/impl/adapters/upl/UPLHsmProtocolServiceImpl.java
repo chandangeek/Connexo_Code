@@ -1,6 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.keys.HsmIrreversibleKey;
+import com.elster.jupiter.hsm.model.keys.HsmKey;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.crypto.*;
 import com.energyict.protocol.exceptions.HsmException;
@@ -213,8 +215,8 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
     @Override
     public IrreversibleKey eekAgreeReceiver1e1s(int securitySuite, Certificate[] deviceSignatureKeyCertChain, byte[] ephemeralKaKey, byte[] signature, String hesKaKeyLabel, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmException{
         try {
-            com.elster.jupiter.hsm.model.keys.IrreversibleKey irreversibleKey = actual.eekAgreeReceiver1e1s(securitySuite, deviceSignatureKeyCertChain, ephemeralKaKey, signature, hesKaKeyLabel, deviceCaCertificateLabel, kdfOtherInfo, storageKeyLabel);
-            return adaptHsmKeyToUplKey(irreversibleKey);
+            HsmKey hsmKey = actual.eekAgreeReceiver1e1s(securitySuite, deviceSignatureKeyCertChain, ephemeralKaKey, signature, hesKaKeyLabel, deviceCaCertificateLabel, kdfOtherInfo, storageKeyLabel);
+            return adaptHsmKeyToUplKey(hsmKey);
         } catch (HsmBaseException e) {
             throw new HsmException(e);
         }
@@ -233,45 +235,35 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
     @Override
     public IrreversibleKey keyRenewalAgree2EFinalise(int securitySuite, int keyIDForAgree, byte[] serializedPrivateEccKey, byte[] ephemeralEccPubKeyForSmAgreementData, byte[] signature, String caCertificateLabel, Certificate[] certificateChain, byte[] otherInfo, String storageKeyLabel) throws HsmException {
         try {
-            com.elster.jupiter.hsm.model.keys.IrreversibleKey irreversibleKey = actual.keyRenewalAgree2EFinalise(securitySuite, keyIDForAgree, serializedPrivateEccKey, ephemeralEccPubKeyForSmAgreementData, signature, caCertificateLabel, certificateChain, otherInfo, storageKeyLabel);
-            return adaptHsmKeyToUplKey(irreversibleKey);
+            HsmKey hsmKey = actual.keyRenewalAgree2EFinalise(securitySuite, keyIDForAgree, serializedPrivateEccKey, ephemeralEccPubKeyForSmAgreementData, signature, caCertificateLabel, certificateChain, otherInfo, storageKeyLabel);
+            return adaptHsmKeyToUplKey(hsmKey);
         } catch (HsmBaseException e) {
             throw new HsmException(e);
         }
     }
 
-    private com.elster.jupiter.hsm.model.keys.IrreversibleKey adaptUplKeyToHsmKey(IrreversibleKey irreversibleKey) {
-        return new com.elster.jupiter.hsm.model.keys.IrreversibleKey() {
-            @Override
-            public byte[] getEncryptedKey() {
-                return irreversibleKey.getEncryptedKey();
-            }
-
-            @Override
-            public String getKeyLabel() {
-                return irreversibleKey.getKeyLabel();
-            }
-        };
+    private HsmIrreversibleKey adaptUplKeyToHsmKey(IrreversibleKey irreversibleKey) {
+        return new HsmIrreversibleKey(irreversibleKey.getEncryptedKey(), irreversibleKey.getKeyLabel());
     }
 
-    private IrreversibleKey adaptHsmKeyToUplKey(com.elster.jupiter.hsm.model.keys.IrreversibleKey irreversibleKey) {
+    private IrreversibleKey adaptHsmKeyToUplKey(HsmKey hsmKey) {
         return new IrreversibleKey() {
             @Override
             public byte[] getEncryptedKey() {
-                return irreversibleKey.getEncryptedKey();
+                return hsmKey.getKey();
             }
 
             @Override
             public String getKeyLabel() {
-                return irreversibleKey.getKeyLabel();
+                return hsmKey.getLabel();
             }
 
             @Override
             public byte[] toBase64ByteArray() {
                 String labelAndKeyValue = new StringBuilder()
-                        .append(irreversibleKey.getKeyLabel())
+                        .append(hsmKey.getLabel())
                         .append(":")
-                        .append(Hex.encodeHexString(irreversibleKey.getEncryptedKey()))
+                        .append(Hex.encodeHexString(hsmKey.getKey()))
                         .toString();
 
                 return Base64.encodeBase64String(labelAndKeyValue.getBytes(StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8);

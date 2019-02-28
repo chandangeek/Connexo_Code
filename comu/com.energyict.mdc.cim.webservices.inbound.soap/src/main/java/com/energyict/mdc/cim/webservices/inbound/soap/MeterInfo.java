@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap;
 
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import ch.iec.tc57._2011.meterconfig.ElectronicAddress;
 import ch.iec.tc57._2011.meterconfig.Zone;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -34,6 +36,8 @@ public class MeterInfo {
     private String configurationEventReason;
     private ElectronicAddressInfo electronicAddressInfo;
     private List<Zone> zones = new ArrayList<>();
+    private List<CasInfo> customAttributeSets;
+    private SecurityInfo securityInfo;
 
     public MeterInfo(){}
 
@@ -206,8 +210,23 @@ public class MeterInfo {
         electronicAddressInfo = new ElectronicAddressInfo(electronicAddress);
     }
 
-    public List<Zone> getZones(){return zones;};
+    public List<Zone> getZones(){return zones;}
 
     public void setZones(List<Zone> zones){ this.zones = zones; }
 
+	public List<CasInfo> getCustomAttributeSets() {
+		return customAttributeSets;
+	}
+
+	public void setCustomAttributeSets(List<CasInfo> customAttributeSets) {
+		this.customAttributeSets = customAttributeSets;
+	}
+
+	public SecurityInfo getSecurityInfo() {
+		return securityInfo;
+	}
+
+	public void setSecurityInfo(SecurityInfo securityInfo) {
+		this.securityInfo = securityInfo;
+	}
 }
