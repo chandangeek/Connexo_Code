@@ -69,6 +69,7 @@ public class DataModelImpl implements DataModel {
     // persistent fields
     private String name;
     private String description;
+    private String enablePartition;
 
     // associations
     private final List<TableImpl<?>> tables = new ArrayList<>();
@@ -84,6 +85,7 @@ public class DataModelImpl implements DataModel {
     @Inject
     DataModelImpl(OrmService ormService) {
         this.ormService = (OrmServiceImpl) ormService;
+        this.enablePartition = Optional.ofNullable(this.ormService.getEnablePartition()).orElse("true");
     }
 
     DataModelImpl init(String name, String description, Version version) {
@@ -323,6 +325,9 @@ public class DataModelImpl implements DataModel {
     }
 
     private boolean isPartitioningEnabled(Connection connection) {
+        if (enablePartition.toLowerCase().equals("false")) {
+            return false;
+        }
         try (Statement statement = connection.createStatement()) {
             try (ResultSet resultSet = statement.executeQuery("SELECT * FROM v$option WHERE parameter = 'Partitioning'")) {
                 if (resultSet.next()) {

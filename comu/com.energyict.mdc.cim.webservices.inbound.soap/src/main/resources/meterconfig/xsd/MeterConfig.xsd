@@ -6,10 +6,13 @@
            xmlns:sawsdl="http://www.w3.org/ns/sawsdl"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:cas="http://connexo.elster.com/2017/schema/customattributes"
+           xmlns:sec="http://connexo.elster.com/2018/schema/securitykeys"
            targetNamespace="http://iec.ch/TC57/2011/MeterConfig#" elementFormDefault="qualified"
            attributeFormDefault="unqualified">
     <xs:import namespace="http://connexo.elster.com/2017/schema/customattributes"
                schemaLocation="CustomAttributes.xsd"/>
+    <xs:import namespace="http://connexo.elster.com/2018/schema/securitykeys"
+               schemaLocation="SecurityKeys.xsd"/>
     <xs:element name="MeterConfig" type="m:MeterConfig"/>
     <xs:complexType name="MeterConfig">
         <xs:sequence>
@@ -402,6 +405,7 @@
             <!-- Below elements added for Connexo -->
             <xs:element name="MeterCustomAttributeSet" type="cas:CustomAttributeSet" minOccurs="0"
                         maxOccurs="unbounded"/>
+	    <xs:element name="SecurityKeys" type="sec:SecurityKeys" minOccurs="0" maxOccurs="1" />
             <xs:element name="TimeSeriesCustomAttributeSet" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>
@@ -566,7 +570,6 @@
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Register.touTier"/>
         </xs:sequence>
     </xs:complexType>
-
     <xs:complexType name="Zone" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Zone">
         <xs:sequence>
             <xs:element name="zoneName" type="xs:string" minOccurs="0"
@@ -575,15 +578,12 @@
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Zone.zoneType"/>
         </xs:sequence>
     </xs:complexType>
-
     <xs:complexType name="Zones" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Zones">
         <xs:sequence>
             <xs:element name="Zone" type="m:Zone"
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Zones.Zone" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
-
-
     <xs:complexType name="RemoteConnectDisconnectInfo"
                     sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#RemoteConnectDisconnectInfo">
         <xs:sequence>

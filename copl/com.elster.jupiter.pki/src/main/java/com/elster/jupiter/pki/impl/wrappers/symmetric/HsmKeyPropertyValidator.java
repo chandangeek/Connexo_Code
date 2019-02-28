@@ -11,26 +11,26 @@ import com.elster.jupiter.pki.impl.MessageSeeds;
 import javax.xml.bind.DatatypeConverter;
 import java.util.Map;
 
-class HsmPropertyValidator {
+class HsmKeyPropertyValidator {
 
     @HexBinary(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.HEXBINARY_EVEN_LENGTH + "}")
     @HexStringKey(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_HEX_VALUE + "}")
     private  final String key;
     private  final String label;
 
-    private HsmPropertyValidator(String key, String label) {
+    private HsmKeyPropertyValidator(String key, String label) {
         this.key = key;
         this.label = label;
     }
 
 
-    public static HsmPropertyValidator build(Map<String, Object> properties) {
+    public static HsmKeyPropertyValidator build(Map<String, Object> properties) {
 
         String lkey =  getPropertyName(properties, HsmProperties.DECRYPTED_KEY.getPropertyName());
         String llabel = getPropertyName(properties,HsmProperties.LABEL.getPropertyName());
 
 
-        return new HsmPropertyValidator(lkey, llabel);
+        return new HsmKeyPropertyValidator(lkey, llabel);
 
     }
 

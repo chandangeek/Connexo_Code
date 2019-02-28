@@ -70,6 +70,8 @@ public final class OrmServiceImpl implements OrmService {
     private final Map<String, DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<>());
     private volatile SchemaInfoProvider schemaInfoProvider;
     private volatile TransactionService transactionService;
+    private final String ENABLE_PARTITION_PROPERTY = "enable.partitioning";
+    private String enablePartition;
     private final String ENABLE_AUDIT_PROPERTY = "enable.auditing";
 
     private String enableAuditing;
@@ -146,6 +148,10 @@ public final class OrmServiceImpl implements OrmService {
         return enableAuditing;
     }
 
+    public String getEnablePartition() {
+        return enablePartition;
+    }
+
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
@@ -209,6 +215,7 @@ public final class OrmServiceImpl implements OrmService {
     @Activate
     public void activate(BundleContext context) {
         enableAuditing = context.getProperty(ENABLE_AUDIT_PROPERTY);
+        enablePartition = context.getProperty(ENABLE_PARTITION_PROPERTY);
         createDataModel(false);
         createExistingTableDataModel();
         clearCacheOnRollBackRegistration = publisher.addSubscriber(new ClearCachesOnTransactionRollBack());

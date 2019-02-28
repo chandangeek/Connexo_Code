@@ -10,7 +10,6 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
@@ -22,7 +21,6 @@ import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.NamedEncryptedDataType;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.WrapKey;
-import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.exception.ImportFailedException;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.exception.InvalidAlgorithm;
 
 import java.util.Arrays;
@@ -54,20 +52,25 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
         byte[] deviceKeyBytes = importFileDeviceKey.getCipher();
 
         String securityAccessorName = deviceKey.getName();
-        SecurityAccessorType securityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger).orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, device.getName(), securityAccessorName));
+        Optional<SecurityAccessorType> optionalSecurityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger);
+        if (optionalSecurityAccessorType.isPresent()) {
+            SecurityAccessorType securityAccessorType = optionalSecurityAccessorType.get();
+            ImportKeyRequest ikr = new ImportKeyRequest(wrapperkeyLabel, wrapperKeyAlgorithm, wrapKeyMap.get(wrapperkeyLabel).getSymmetricKey().getCipherData().getCipherValue(), symmetricAlgorithm, deviceKeyBytes, initVector, securityAccessorType.getHsmKeyType());
+            com.elster.jupiter.hsm.model.keys.HsmKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
 
-        ImportKeyRequest ikr = new ImportKeyRequest(wrapperkeyLabel, wrapperKeyAlgorithm, wrapKeyMap.get(wrapperkeyLabel).getSymmetricKey().getCipherData().getCipherValue(), symmetricAlgorithm, deviceKeyBytes, initVector, securityAccessorType.getHsmKeyType());
-        HsmEncryptedKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
-
-        Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
-        if (securityAccessorOptional.flatMap(SecurityAccessor::getActualValue).isPresent()) {
-            log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
-        } else {
-            SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
-            HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
-            hsmKey.setKey(hsmEncryptedKey.getEncryptedKey(), hsmEncryptedKey.getKeyLabel());
-            securityAccessor.setActualValue(hsmKey);
-            securityAccessor.save();
+            Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
+            if (securityAccessorOptional.flatMap(SecurityAccessor::getActualValue).isPresent()) {
+                log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
+            } else {
+                SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
+                HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
+                hsmKey.setKey(hsmEncryptedKey.getKey(), hsmEncryptedKey.getLabel());
+                securityAccessor.setActualValue(hsmKey);
+                securityAccessor.save();
+            }
+        }
+        else {
+            logger.warning("No security accessor found for name:" + securityAccessorName);
         }
     }
 

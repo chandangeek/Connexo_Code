@@ -15,9 +15,9 @@ import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import com.atos.worldline.jss.api.JSSRuntimeControl;
-import com.atos.worldline.jss.commondev.log.Slf4JLogFactory;
+import com.atos.worldline.jss.api.basecrypto.ChainingMode;
+import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
 import com.atos.worldline.jss.configuration.RawConfiguration;
-import groovy.util.logging.Slf4j;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -95,6 +95,10 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
             LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
             String logbackFile = "logback.xml";
             URL resource = Thread.currentThread().getContextClassLoader().getResource(logbackFile);
+            if (resource == null) {
+                // nothing to do, simply we will not try to reconfigure logger
+                return;
+            }
             JoranConfigurator configurator = new JoranConfigurator();
             configurator.setContext(context);
             context.reset();
@@ -102,7 +106,6 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
         } catch (Exception e) {
             String msg = "Unable to re-configure logger";
             System.out.println(msg +  e.getMessage() + " stackTrace:");
-            e.printStackTrace();
             LOG.warn(msg, e);
         }
 
@@ -118,4 +121,5 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     public Collection<String> getLabels() throws HsmBaseException {
         checkInit();
         return rawConfiguration.getRawLabels().stream().map(s -> s.name()).collect(Collectors.toList());    }
+
 }
