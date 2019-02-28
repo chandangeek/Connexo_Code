@@ -19,8 +19,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.FailedLinkageOperation;
 import com.elster.jupiter.cim.webservices.inbound.soap.LinkageOperation;
+import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.ReplyMasterDataLinkageConfigWebService;
-import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;

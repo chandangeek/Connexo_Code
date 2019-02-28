@@ -1,20 +1,20 @@
-package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
+package com.elster.jupiter.cim.webservices.inbound.soap;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 
 public enum MasterDataLinkageAction {
     CREATE {
         @Override
-        MessageSeeds getBasicSeed() {
+        public MessageSeeds getBasicSeed() {
             return MessageSeeds.UNABLE_TO_LINK_METER;
         }
     },
     CLOSE {
         @Override
-        MessageSeeds getBasicSeed() {
+        public MessageSeeds getBasicSeed() {
             return MessageSeeds.UNABLE_TO_UNLINK_METER;
         }
     };
 
-    abstract MessageSeeds getBasicSeed();
+    public abstract MessageSeeds getBasicSeed();
 }

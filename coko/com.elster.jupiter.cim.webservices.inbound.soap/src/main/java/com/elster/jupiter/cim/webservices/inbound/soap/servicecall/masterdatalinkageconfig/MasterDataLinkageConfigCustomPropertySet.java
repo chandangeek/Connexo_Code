@@ -1,7 +1,7 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.DataLinkageConfigChecklist;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.CIMInboundSoapEndpointsActivator;
+import com.elster.jupiter.cim.webservices.inbound.soap.impl.DataLinkageConfigChecklist;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;

@@ -1,5 +1,6 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;

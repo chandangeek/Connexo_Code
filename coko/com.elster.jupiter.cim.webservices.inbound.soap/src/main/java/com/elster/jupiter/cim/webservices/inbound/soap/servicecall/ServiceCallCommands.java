@@ -1,8 +1,8 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.DataLinkageConfigChecklist;
+import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
+import com.elster.jupiter.cim.webservices.inbound.soap.impl.DataLinkageConfigChecklist;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageFaultMessageFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigDomainExtension;

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.nls.Thesaurus;
@@ -29,11 +30,11 @@ public class MasterDataLinkageFaultMessageFactory {
         this.replyTypeFactory = replyTypeFactory;
     }
 
-    Supplier<FaultMessage> createMasterDataLinkageFaultMessageSupplier(com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction action, MessageSeeds messageSeed, Object... args) {
+    Supplier<FaultMessage> createMasterDataLinkageFaultMessageSupplier(com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction action, MessageSeeds messageSeed, Object... args) {
         return () -> createMasterDataLinkageFaultMessage(action, messageSeed, args);
     }
 
-    public FaultMessage createMasterDataLinkageFaultMessage(com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction action, MessageSeeds messageSeed, Object... args) {
+    public FaultMessage createMasterDataLinkageFaultMessage(com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction action, MessageSeeds messageSeed, Object... args) {
         return createMasterDataLinkageFaultMessage(action, replyTypeFactory.failureReplyType(messageSeed, args));
     }
 

@@ -1,5 +1,6 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
@@ -44,7 +45,7 @@ public class MasterDataLinkageHandler {
     private UsagePointInfo usagePoint;
     private MeterInfo meter;
 
-    private com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction currentLinkageAction;
+    private com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction currentLinkageAction;
 
     @Inject
     public MasterDataLinkageHandler(MeteringService meteringService,

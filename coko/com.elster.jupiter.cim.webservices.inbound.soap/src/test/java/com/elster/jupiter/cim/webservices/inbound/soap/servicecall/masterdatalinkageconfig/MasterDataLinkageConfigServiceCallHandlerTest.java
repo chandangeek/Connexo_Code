@@ -3,7 +3,7 @@
  */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
+import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ConfigEventInfo;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;

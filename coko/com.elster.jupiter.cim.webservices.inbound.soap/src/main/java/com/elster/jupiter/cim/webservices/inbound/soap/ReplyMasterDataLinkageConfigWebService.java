@@ -1,6 +1,5 @@
 package com.elster.jupiter.cim.webservices.inbound.soap;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import aQute.bnd.annotation.ConsumerType;
