@@ -116,7 +116,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
         when(childServiceCallFailure.getExtension(MasterDataLinkageConfigDomainExtension.class))
                 .thenReturn(Optional.of(masterDataLinkageConfigDomainExtension));
         when(childServiceCallFailure.getState()).thenReturn(DefaultState.FAILED);
-        when(masterDataLinkageConfigDomainExtension.getOperation()).thenReturn(MasterDataLinkageAction.CREATE.name());
+        when(masterDataLinkageConfigDomainExtension.getOperation()).thenReturn(OPERATION.name());
     }
 
     @Test
@@ -214,26 +214,6 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
     @Test
     public void testTransitionToPartialSuccessShouldSendResponse() {
         doTestTransitionToEndStateShouldSendResponse(DefaultState.PARTIAL_SUCCESS);
-    }
-
-    @Test
-    public void testTransitionToFailed() {
-        handler.onStateChange(serviceCall, DefaultState.ONGOING, DefaultState.FAILED);
-
-        // TODO
-    }
-
-    @Test
-    public void testTransitionToSuccessful() {
-        handler.onStateChange(serviceCall, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
-        // TODO
-    }
-
-    @Test
-    public void testTransitionToPartialSuccess() {
-        handler.onStateChange(serviceCall, DefaultState.ONGOING, DefaultState.PARTIAL_SUCCESS);
-
-        // TODO
     }
 
     @Test
