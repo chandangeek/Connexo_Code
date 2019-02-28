@@ -24,6 +24,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 
 import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -74,16 +75,19 @@ public class ServiceCallCommands {
             initiateReading(parentServiceCall);
             return parentServiceCall;
         }
+        boolean meterReadingRunning = false;
         for (EndDevice endDevice: existedEndDevices) {
             if (endDevice instanceof Meter) {
                 Meter meter = (Meter)endDevice;
-                if (ReadingSourceEnum.HYBRID.getSource().equals(source) &&
-                        !isMeterReadingRequired(meter, existedReadingTypes, timePeriod.getEnd())) {
-                    initiateReading(parentServiceCall);
-                    return parentServiceCall;
+                if (isMeterReadingRequired(source, meter, existedReadingTypes,  timePeriod.getEnd())) {
+                    readMeter(parentServiceCall, meter, existedReadingTypes);
+                    meterReadingRunning = true;
                 }
-                readMeter(parentServiceCall, meter, existedReadingTypes);
             }
+        }
+        if (!meterReadingRunning) {
+            initiateReading(parentServiceCall);
+            return parentServiceCall;
         }
         parentServiceCall.requestTransition(DefaultState.WAITING);
         return parentServiceCall;
@@ -106,31 +110,38 @@ public class ServiceCallCommands {
                         destinationSpec));
     }
 
-    private boolean isMeterReadingRequired(Meter meter, List<ReadingType> readingTypes, Instant endTime) {
-        return meter.getChannelsContainers().stream().
-                anyMatch(container -> !isChannelContainerPresent(container, readingTypes,endTime));
+    private boolean isMeterReadingRequired(String source, Meter meter, List<ReadingType> readingTypes, Instant endTime) {
+        if (ReadingSourceEnum.METER.getSource().equals(source)) {
+            return true;
+        }
+        if (ReadingSourceEnum.HYBRID.getSource().equals(source)) {
+            return meter.getChannelsContainers().stream().
+                    anyMatch(container -> isChannelContainerReadOutRequired(container, readingTypes, endTime));
+        }
+        return false;
     }
 
-    private boolean isChannelContainerPresent(ChannelsContainer channelsContainer, List<ReadingType> readingTypes, Instant endTime) {
+    private boolean isChannelContainerReadOutRequired(ChannelsContainer channelsContainer, List<ReadingType> readingTypes, Instant endTime) {
         List<String> readingTypeMRIDs = readingTypes.stream().map(ert -> ert.getMRID()).collect(Collectors.toList());
-        for (Channel channel: channelsContainer.getChannels()) {
-            for (ReadingType readingType: channel.getReadingTypes()) {
+        Range<Instant> range = channelsContainer.getInterval().toOpenClosedRange();
+        if (!range.lowerEndpoint().isBefore(endTime)) {
+            return false;
+        }
+        if (range.hasUpperBound()) {
+            endTime = endTime.isBefore(range.upperEndpoint()) ? endTime : range.upperEndpoint();
+        }
+        for (Channel channel : channelsContainer.getChannels()) {
+            Instant endInstant = channel.truncateToIntervalLength(endTime);
+            for (ReadingType readingType : channel.getReadingTypes()) {
                 if (readingTypeMRIDs.contains(readingType.getMRID())) {
-                    if (!channel.isRegular()) {
-                        return false;
-                    }
-                    Instant instant =  channel.getLastDateTime();
-                    if (instant == null) {
-                        return false;
-                    }
-                    instant = instant.plus(channel.getIntervalLength().get());
-                    if (endTime.isAfter(instant)) {
-                        return false;
+                    Instant instant = channel.getLastDateTime();
+                    if (instant == null || instant.isBefore(endInstant)) {
+                        return true;
                     }
                 }
             }
         }
-        return true;
+        return false;
     }
 
     private String getReadingTypesString(List<ReadingType> existedReadingTypes) {
