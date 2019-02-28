@@ -43,7 +43,7 @@ import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.replymasterdatalinkageconfig.provider", service = {
-		IssueWebServiceClient.class, ReplyMasterDataLinkageConfigWebService.class,
+		ReplyMasterDataLinkageConfigWebService.class,
 		OutboundSoapEndPointProvider.class }, immediate = true, property = {
 				"name=" + ReplyMasterDataLinkageConfigWebService.NAME })
 public class ReplyMasterDataLinkageConfigServiceProvider
