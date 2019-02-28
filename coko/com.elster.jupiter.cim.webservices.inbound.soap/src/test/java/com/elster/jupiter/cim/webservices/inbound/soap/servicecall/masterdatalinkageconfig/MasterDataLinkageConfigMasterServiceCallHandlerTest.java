@@ -11,6 +11,9 @@ import com.elster.jupiter.cim.webservices.inbound.soap.impl.ObjectHolder;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.UsagePointInfo;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -78,13 +81,19 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
     private MeterInfo meterInfo;
     @Mock
     private MasterDataLinkageConfigDomainExtension masterDataLinkageConfigDomainExtension;
+    @Mock
+    private MeteringService meterService;
+    @Mock
+    private Meter meter;
+    @Mock
+    private UsagePoint usagePoint;
 
     @Before
     public void setup() {
         replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
         replyMasterDataLinkageConfigWebServiceHolder.setObject(replyMasterDataLinkageConfigWebService);
         handler = new MasterDataLinkageConfigMasterServiceCallHandler(endPointConfigurationService,
-                replyMasterDataLinkageConfigWebServiceHolder, jsonService);
+                replyMasterDataLinkageConfigWebServiceHolder, jsonService, meterService);
         when(endPointConfigurationService.findEndPointConfigurations().find().stream())
                 .thenReturn(Stream.of(endPointConfiguration));
         when(endPointConfiguration.isActive()).thenReturn(true);
@@ -117,6 +126,8 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
                 .thenReturn(Optional.of(masterDataLinkageConfigDomainExtension));
         when(childServiceCallFailure.getState()).thenReturn(DefaultState.FAILED);
         when(masterDataLinkageConfigDomainExtension.getOperation()).thenReturn(OPERATION.name());
+        when(meterService.findMeterByName(anyString())).thenReturn(Optional.of(meter));
+        when(meterService.findUsagePointByName(anyString())).thenReturn(Optional.of(usagePoint));
     }
 
     @Test

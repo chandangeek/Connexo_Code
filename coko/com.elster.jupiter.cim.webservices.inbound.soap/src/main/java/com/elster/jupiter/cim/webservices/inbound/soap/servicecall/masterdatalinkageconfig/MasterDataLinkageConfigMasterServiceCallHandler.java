@@ -11,6 +11,9 @@ import com.elster.jupiter.cim.webservices.inbound.soap.ReplyMasterDataLinkageCon
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ObjectHolder;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.UsagePointInfo;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
@@ -35,14 +38,16 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
     private final EndPointConfigurationService endPointConfigurationService;
     private final ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder;
     private final JsonService jsonService;
+    private final MeteringService meteringService;
 
     @Inject
     public MasterDataLinkageConfigMasterServiceCallHandler(EndPointConfigurationService endPointConfigurationService,
             ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder,
-            JsonService jsonService) {
+            JsonService jsonService, MeteringService meteringService) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.replyMasterDataLinkageConfigWebServiceHolder = replyMasterDataLinkageConfigWebServiceHolder;
         this.jsonService = jsonService;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -146,15 +151,14 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
                 .map(child -> {
                     MasterDataLinkageConfigDomainExtension extension = child
                             .getExtension(MasterDataLinkageConfigDomainExtension.class).get();
-                    MeterInfo meter = jsonService.deserialize(extension.getMeter(), MeterInfo.class);
-                    UsagePointInfo usagePoint = jsonService.deserialize(extension.getUsagePoint(),
-                            UsagePointInfo.class);
+                    Meter meter = findMeter(extension);
+                    UsagePoint usagePoint = findUsagePoint(extension);
                     FailedLinkageOperation failedLinkageOperation = new FailedLinkageOperation();
                     failedLinkageOperation.setErrorCode(extension.getErrorCode());
                     failedLinkageOperation.setErrorMessage(extension.getErrorMessage());
-                    failedLinkageOperation.setMeterMrid(meter.getMrid());
+                    failedLinkageOperation.setMeterMrid(meter.getMRID());
                     failedLinkageOperation.setMeterName(meter.getName());
-                    failedLinkageOperation.setUsagePointMrid(usagePoint.getMrid());
+                    failedLinkageOperation.setUsagePointMrid(usagePoint.getMRID());
                     failedLinkageOperation.setUsagePointName(usagePoint.getName());
                     return failedLinkageOperation;
                 }).collect(Collectors.toList());
@@ -165,16 +169,31 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
                 .map(child -> {
                     MasterDataLinkageConfigDomainExtension extension = child
                             .getExtension(MasterDataLinkageConfigDomainExtension.class).get();
-                    MeterInfo meter = jsonService.deserialize(extension.getMeter(), MeterInfo.class);
-                    UsagePointInfo usagePoint = jsonService.deserialize(extension.getUsagePoint(),
-                            UsagePointInfo.class);
+                    Meter meter = findMeter(extension);
+                    UsagePoint usagePoint = findUsagePoint(extension);
                     LinkageOperation linkageOperation = new FailedLinkageOperation();
-                    linkageOperation.setMeterMrid(meter.getMrid());
+                    linkageOperation.setMeterMrid(meter.getMRID());
                     linkageOperation.setMeterName(meter.getName());
-                    linkageOperation.setUsagePointMrid(usagePoint.getMrid());
+                    linkageOperation.setUsagePointMrid(usagePoint.getMRID());
                     linkageOperation.setUsagePointName(usagePoint.getName());
                     return linkageOperation;
                 }).collect(Collectors.toList());
+    }
+
+    private Meter findMeter(MasterDataLinkageConfigDomainExtension extension) {
+        MeterInfo meterInfo = jsonService.deserialize(extension.getMeter(), MeterInfo.class);
+        if (meterInfo.getMrid() != null) {
+            return meteringService.findMeterByMRID(meterInfo.getMrid()).get();
+        }
+        return meteringService.findMeterByName(meterInfo.getName()).get();
+    }
+
+    private UsagePoint findUsagePoint(MasterDataLinkageConfigDomainExtension extension) {
+        UsagePointInfo usagePointInfo = jsonService.deserialize(extension.getUsagePoint(), UsagePointInfo.class);
+        if (usagePointInfo.getMrid() != null) {
+            return meteringService.findUsagePointByMRID(usagePointInfo.getMrid()).get();
+        }
+        return meteringService.findUsagePointByName(usagePointInfo.getName()).get();
     }
 
 }
