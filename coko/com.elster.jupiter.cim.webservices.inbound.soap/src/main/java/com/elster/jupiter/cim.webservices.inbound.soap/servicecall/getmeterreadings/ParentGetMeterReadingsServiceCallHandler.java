@@ -22,9 +22,9 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -114,8 +114,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     }
 
     private Set<String> getReadingTypes(String readingTypesString) {
-        List<String> readingTypesMRIDs = Arrays.asList(readingTypesString.split(";"));
-        return new HashSet<>(readingTypesMRIDs);
+        return Arrays.stream(readingTypesString.split(";")).collect(Collectors.toSet());
     }
 
     private List<EndDevice> getEndDevices(String endDevicesString, ServiceCall serviceCall) {

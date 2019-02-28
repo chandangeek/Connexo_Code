@@ -159,12 +159,12 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
     }
 
     private class ParentGetMeterReadingsCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, ParentGetMeterReadingsDomainExtension> {
-        private final String TABLE_NAME = "GMP_SCS_CNT";
-        private final String FK = "FK_GMP_SCS_CNT";
+        private final String TABLE_NAME = "GMR_METER_READINGS_SC_CPS";
+        private final String FK = "FK_GMR_MRSCCPS_SC";
 
         @Override
         public String componentName() {
-            return "HZP";
+            return "GMR";
         }
 
         @Override
