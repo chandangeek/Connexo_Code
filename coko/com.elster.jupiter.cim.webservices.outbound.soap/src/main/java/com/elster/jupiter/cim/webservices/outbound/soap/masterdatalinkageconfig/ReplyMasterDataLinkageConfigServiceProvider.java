@@ -58,8 +58,6 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 
 	private final Map<String, MasterDataLinkageConfigPort> masterDataLinkageConfigPorts = new ConcurrentHashMap<>();
 
-	private ObjectFactory objectFactory = new ObjectFactory();
-	private ch.iec.tc57._2011.masterdatalinkageconfig.ObjectFactory masterDataLinkageConfigFactory = new ch.iec.tc57._2011.masterdatalinkageconfig.ObjectFactory();
 	private ch.iec.tc57._2011.schema.message.ObjectFactory headerTypeFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
 	private ch.iec.tc57._2011.masterdatalinkageconfigmessage.ObjectFactory payloadFactory = new ObjectFactory();
 
@@ -120,8 +118,9 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 		return new ReplyMasterDataLinkageConfig(this.getClass().getResource(RESOURCE_WSDL));
 	}
 
-	@Override
-	public Class getService() {
+	@SuppressWarnings("rawtypes")
+    @Override
+    public Class getService() {
 		return MasterDataLinkageConfigPort.class;
 	}
 
@@ -131,7 +130,7 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 		}
 	}
 
-	private boolean isValidMasterDataLinkageConfigPortService(MasterDataLinkageConfigPort masterDataLinkageConfigPort) {
+	boolean isValidMasterDataLinkageConfigPortService(MasterDataLinkageConfigPort masterDataLinkageConfigPort) {
 		return ((JaxWsClientProxy) Proxy.getInvocationHandler(masterDataLinkageConfigPort)).getRequestContext()
 				.containsKey(Message.ENDPOINT_ADDRESS);
 	}
