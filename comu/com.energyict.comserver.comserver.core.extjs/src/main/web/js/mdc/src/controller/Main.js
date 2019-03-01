@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Mdc.controller.Main', {
@@ -15,6 +15,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.dynamicprivileges.DeviceTypeCapability',
         'Mdc.privileges.RegisteredDevicesKpi',
         'Mdc.privileges.CrlRequest',
+        'Mdc.privileges.Audit',
         'Apr.controller.TaskManagement',
         'Apr.controller.TaskManagementGeneralTask',
         'Mdc.zones.controller.Zones',
@@ -142,8 +143,10 @@ Ext.define('Mdc.controller.Main', {
         'Apr.controller.CustomTask',
         'Mdc.controller.setup.TaskManagement',
         'Mdc.zones.controller.Zones',
+        'Mdc.controller.setup.DeviceZones',
         'Mdc.processes.controller.ProcessesController',
-        'Mdc.processes.controller.ProcBulkActions'
+        'Mdc.processes.controller.ProcBulkActions',
+        'Mdc.audit.controller.Audit',
     ],
 
     stores: [
@@ -152,7 +155,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.store.LoadProfilesOfDevice',
         'Mdc.store.DeviceStatePrivileges',
         'Mdc.store.DeviceCommandPrivileges',
-        'Mdc.store.DeviceTypeCapabilities'
+        'Mdc.store.DeviceTypeCapabilities',
+        'Mdc.store.Zones'
     ],
 
     refs: [
@@ -513,7 +517,31 @@ Ext.define('Mdc.controller.Main', {
                 })
             );
         }
-        
+
+        if (Mdc.privileges.Audit.canViewAuditLog()) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.workspace', 'MDC', 'Workspace'),
+                glyph: 'workspace',
+                portal: 'workspace',
+                index: 30
+            }));
+
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.auditTrail', 'MDC', 'Audit trail'),
+                    portal: 'workspace',
+                    route: 'audit',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('title.auditTrail', 'MDC', 'Audit trail'),
+                            itemId: 'mdc-workspace-audit-trail-link',
+                            href: '#/workspace/audit'
+                        }
+                    ]
+                })
+            );
+        }
+
         if (Cfg.privileges.Validation.canViewZones()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
@@ -524,7 +552,7 @@ Ext.define('Mdc.controller.Main', {
 
             Uni.store.PortalItems.add(
                 Ext.create('Uni.model.PortalItem', {
-                    title: Uni.I18n.translate('general.zone', 'MDC', 'Zone management'),
+                    title: Uni.I18n.translate('general.zoneManagement', 'MDC', 'Zone management'),
                     portal: 'administration',
                     route: 'zones',
                     items: [
@@ -537,7 +565,6 @@ Ext.define('Mdc.controller.Main', {
                 })
             );
         }
-
     },
 
     addTaskManagement: function () {

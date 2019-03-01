@@ -151,7 +151,7 @@ public class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKor
 
     @Override
     public void syncWithKore(DeviceImpl device) {
-        Meter meter = device.getMeter().get();
+        Meter meter = device.getMeterReference().get();
         dirtyFields.stream().forEach(field -> field.invoke(meter));
         meter.update();
     }

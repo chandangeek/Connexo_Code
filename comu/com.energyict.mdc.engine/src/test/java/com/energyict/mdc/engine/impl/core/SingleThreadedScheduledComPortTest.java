@@ -11,7 +11,6 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -60,18 +59,11 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.TypedProperties;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -92,6 +84,17 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.LogManager;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -392,7 +395,7 @@ public class SingleThreadedScheduledComPortTest {
         }
     }
 
-
+    @Ignore
     @Test(timeout = 7000)
     public void testExecuteTasksWithNoWork() throws InterruptedException, SQLException {
         ComServerDAO comServerDAO = getMockedComServerDAO();
@@ -422,6 +425,7 @@ public class SingleThreadedScheduledComPortTest {
         }
     }
 
+    @Ignore
     @Test(timeout = 7000)
     public void testExecuteTasksInParallel() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAO = getMockedComServerDAO();
@@ -467,6 +471,7 @@ public class SingleThreadedScheduledComPortTest {
         }
     }
 
+    @Ignore
     @Test(timeout = 7000)
     public void testExecuteTasksInParallelWithConnectionSetupFailure() throws ConnectionException, InterruptedException {
         ComServerDAO comServerDAO = getMockedComServerDAO();

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ServerDevice extends Device {
-    Reference<Meter> getMeter();
+    Reference<Meter> getMeterReference();
 
     SyncDeviceWithKoreForInfo getKoreHelper();
 

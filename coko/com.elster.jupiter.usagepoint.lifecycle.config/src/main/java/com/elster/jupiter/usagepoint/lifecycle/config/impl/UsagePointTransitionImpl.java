@@ -123,15 +123,17 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
     }
 
     private void postLoadStates() {
-        long fromId = this.fsmTransition.get().getFrom().getId();
-        long toId = this.fsmTransition.get().getTo().getId();
-        List<State> states = this.lifeCycle.get().getStates();
-        for (int i = 0; i < states.size() && (this.fromState == null || this.toState == null); i++) {
-            State state = states.get(i);
-            if (state.getId() == fromId) {
-                this.fromState = state;
-            } else if (state.getId() == toId) {
-                this.toState = state;
+        if (this.fsmTransition.isPresent()) {
+            long fromId = this.fsmTransition.get().getFrom().getId();
+            long toId = this.fsmTransition.get().getTo().getId();
+            List<State> states = this.lifeCycle.get().getStates();
+            for (int i = 0; i < states.size() && (this.fromState == null || this.toState == null); i++) {
+                State state = states.get(i);
+                if (state.getId() == fromId) {
+                    this.fromState = state;
+                } else if (state.getId() == toId) {
+                    this.toState = state;
+                }
             }
         }
     }

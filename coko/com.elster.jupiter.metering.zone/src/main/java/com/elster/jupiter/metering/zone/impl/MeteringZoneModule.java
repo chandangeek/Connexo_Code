@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.zone.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
@@ -19,6 +20,7 @@ public class MeteringZoneModule extends AbstractModule {
         requireBinding(OrmService.class);
         requireBinding(NlsService.class);
         requireBinding(UpgradeService.class);
+        requireBinding(MeteringService.class);
 
         bind(MeteringZoneService.class).to(MeteringZoneServiceImpl.class).in(Scopes.SINGLETON);
     }

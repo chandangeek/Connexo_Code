@@ -4,12 +4,11 @@
 
 package com.elster.jupiter.orm.fields.impl;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.util.conditions.Comparison;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 
 public class MultiColumnComparisonFragment extends MultiColumnFragment {
@@ -34,6 +33,10 @@ public class MultiColumnComparisonFragment extends MultiColumnFragment {
 		switch (comparison.getOperator()) {		
 			case EQUAL:
 			case EQUALORBOTHNULL:
+			case LESSTHANOREQUAL:
+			case GREATERTHANOREQUAL:
+			case LESSTHAN:
+			case GREATERTHAN:
 			case ISNULL:
 				return getText(" AND " );
 			case NOTEQUAL:

@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -18,6 +20,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -28,6 +31,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.ZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -159,6 +164,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private InMemoryBootstrapModule bootstrapModule;
     private IssueService issueService;
     private Thesaurus thesaurus;
+    private MeteringZoneService meteringZoneService;
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
         this(Clock.systemDefaultZone());
@@ -230,10 +236,13 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new DeviceDataModule(),
                 new CalendarModule(),
                 new WebServicesModule(),
-                new FileImportModule());
+                new FileImportModule(),
+                new ZoneModule(),
+                new AuditServiceModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(PluggableService.class);
+            injector.getInstance(AuditService.class);
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
@@ -246,6 +255,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.nlsService = injector.getInstance(NlsService.class);
             injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
+            this.meteringZoneService = injector.getInstance(MeteringZoneService.class);
             injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
@@ -341,7 +351,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
-            bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));;
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));;
         }
 
     }

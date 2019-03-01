@@ -40,4 +40,7 @@ public abstract class AbstractPersistentDomainExtension {
         this.registeredCustomPropertySet.set(registeredCustomPropertySet);
     }
 
+    public long getVersion() {
+        return version;
+    }
 }

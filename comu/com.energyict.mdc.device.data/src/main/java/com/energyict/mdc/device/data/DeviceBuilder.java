@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.google.common.collect.Multimap;
 import java.math.BigDecimal;
 
 public interface DeviceBuilder{
@@ -17,6 +18,8 @@ public interface DeviceBuilder{
     DeviceBuilder withMultiplier(BigDecimal multiplier);
 
     DeviceBuilder withYearOfCertification(Integer yearOfCertification);
+
+    DeviceBuilder withZones(Multimap<String, String> zonesIds);
 
     Device create();
 }

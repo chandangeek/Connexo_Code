@@ -47,6 +47,7 @@ public class DeviceInfo extends DeviceVersionInfo {
     public String masterDeviceName;
     public Long masterDeviceId;
     public List<DeviceTopologyInfo> slaveDevices;
+    public List<EndDeviceZoneInfo> zones;
     public int nbrOfDataCollectionIssues;
     public Long openDataValidationIssue;
     @XmlJavaTypeAdapter(GatewayTypeAdapter.class)
@@ -111,7 +112,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         return deviceInfo;
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, TopologyService topologyService, MultiElementDeviceService multiElementDeviceService, IssueRetriever issueRetriever, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, List<EndDeviceZoneInfo> zones, TopologyService topologyService, MultiElementDeviceService multiElementDeviceService, IssueRetriever issueRetriever, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = from(device, location, geoCoordinates);
         deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().map(HasId::getId).orElse(0L);
@@ -136,6 +137,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         if (device.getDeviceType().isDataloggerSlave()) {
             topologyService.getDataLogger(device, clock.instant()).ifPresent(datalogger -> deviceInfo.dataloggerName = device.getName());
         }
+        deviceInfo.zones = zones;
         deviceInfo.isMultiElementDevice = deviceConfiguration.isMultiElementEnabled();
         deviceInfo.isMultiElementSlave = device.getDeviceType().isMultiElementSlave();
         if (device.getDeviceType().isMultiElementSlave()) {
@@ -149,6 +151,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         State deviceState = device.getState();
         deviceInfo.state = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, deviceState);
         deviceInfo.dataLoggerSlaveDevices = dataLoggerSlaveDeviceInfoFactory.from(device);
+
         return deviceInfo;
     }
 }

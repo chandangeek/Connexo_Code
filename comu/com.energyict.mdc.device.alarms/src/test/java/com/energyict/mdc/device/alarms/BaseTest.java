@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.alarms;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -19,6 +21,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
@@ -45,6 +48,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -175,6 +180,7 @@ public abstract class BaseTest {
 
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
         }
     }
 
@@ -229,7 +235,9 @@ public abstract class BaseTest {
                 new BpmModule(),
                 new PkiModule(),
                 new WebServicesModule(),
-                new FileImportModule()
+                new AuditServiceModule(),
+                new FileImportModule(),
+                new MeteringZoneModule()
         );
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -246,7 +254,9 @@ public abstract class BaseTest {
             deviceAlarmService = injector.getInstance(DeviceAlarmService.class);
             injector.getInstance(TimeService.class);
             injector.getInstance(BpmService.class);
+            injector.getInstance(MeteringZoneService.class);
             issueService = injector.getInstance(IssueService.class);
+            injector.getInstance(AuditService.class);
             IssueType type = issueService.createIssueType("alarm", MESSAGE_SEED_DEFAULT_TRANSLATION, "ALM");
             issueService.createReason(ALARM_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
             ctx.commit();

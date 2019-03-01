@@ -4,13 +4,12 @@
 package com.elster.jupiter.hsm.impl;
 
 
-import com.atos.worldline.jss.configuration.RawLabel;
-import com.elster.jupiter.hsm.impl.resources.HsmConfigRefreshableResourceBuilder;
+import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.impl.config.HsmJssConfigLoader;
 import com.elster.jupiter.hsm.impl.context.HsmClassLoaderHelper;
+import com.elster.jupiter.hsm.impl.resources.HsmConfigRefreshableResourceBuilder;
 import com.elster.jupiter.hsm.impl.resources.HsmResourceReloader;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -94,6 +93,10 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
             LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
             String logbackFile = "logback.xml";
             URL resource = Thread.currentThread().getContextClassLoader().getResource(logbackFile);
+            if (resource == null) {
+                // nothing to do, simply we will not try to reconfigure logger
+                return;
+            }
             JoranConfigurator configurator = new JoranConfigurator();
             configurator.setContext(context);
             context.reset();
@@ -115,6 +118,7 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     @Override
     public Collection<String> getLabels() throws HsmBaseException {
         checkInit();
-        return rawConfiguration.getRawLabels().stream().map(RawLabel::name).collect(Collectors.toList());
+        return rawConfiguration.getRawLabels().stream().map(s -> s.name()).collect(Collectors.toList());
     }
+
 }

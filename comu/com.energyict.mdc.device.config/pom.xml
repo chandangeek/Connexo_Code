@@ -9,12 +9,11 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.5.1${revision}</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <version>1.0.0-Nessus-SNAPSHOT</version>
+
     </parent>
 
     <artifactId>mdc.device.config</artifactId>
-    <version>5.2.4${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.config [init DTC]</name>
     <description>
@@ -304,6 +303,10 @@
             <artifactId>hsm</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>audit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
 </project>

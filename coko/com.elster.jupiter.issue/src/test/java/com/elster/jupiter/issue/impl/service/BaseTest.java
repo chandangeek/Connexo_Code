@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.issue.impl.service;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -89,6 +90,7 @@ import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -102,7 +104,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.mockito.Matchers;
-import org.osgi.service.http.HttpService;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.mockito.Mockito.any;
@@ -184,6 +185,7 @@ public abstract class BaseTest {
                 new IssueModule(),
                 new BasicPropertiesModule(),
                 new CustomPropertySetsModule(),
+                new AuditServiceModule(),
                 new WebServicesModule()
         );
 

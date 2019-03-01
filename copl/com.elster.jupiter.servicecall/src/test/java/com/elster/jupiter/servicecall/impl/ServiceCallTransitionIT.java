@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
@@ -196,6 +197,7 @@ public class ServiceCallTransitionIT {
                     new BasicPropertiesModule(),
                     new ServiceCallModule(),
                     new FileImportModule(),
+                    new AuditServiceModule(),
                     new WebServicesModule()
             );
         } catch (Exception e) {

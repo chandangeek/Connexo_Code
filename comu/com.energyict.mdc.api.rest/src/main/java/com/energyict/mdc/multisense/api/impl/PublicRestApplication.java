@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -430,6 +429,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(ConnectionFunctionInfoFactory.class).to(ConnectionFunctionInfoFactory.class);
             bind(CertificateWrapperInfoFactory.class).to(CertificateWrapperInfoFactory.class);
             bind(HsmEnergyService.class).to(HsmEnergyService.class);
+            bind(RegisteredCustomPropertySetInfoFactory.class).to(RegisteredCustomPropertySetInfoFactory.class);
         }
     }
 }

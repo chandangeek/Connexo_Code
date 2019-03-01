@@ -6,6 +6,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.datavault.DataVaultService;
@@ -209,6 +210,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.logBookTypeUsages.clear();
         this.deviceMessageFiles.clear();
         this.allowedCalendars.clear();
+        this.removeCustomProperties();
         Iterator<ServerDeviceConfiguration> iterator = this.deviceConfigurations.iterator();
         // do not replace with foreach!! the deviceConfiguration will be removed from the iterator
         while (iterator.hasNext()) {
@@ -223,6 +225,22 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         this.getDataMapper().remove(this);
     }
+
+    private void removeCustomProperties() {
+        this.getCustomPropertySets().stream().filter(cps -> cps.getCustomPropertySet().getDomainClass().equals(DeviceType.class))
+                .collect(Collectors.toList())
+                .forEach(this::removeCustomPropertiesFor);
+    }
+
+    private void removeCustomPropertiesFor(RegisteredCustomPropertySet customPropertySet) {
+        this.removeCustomPropertiesFor(customPropertySet.getCustomPropertySet());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void removeCustomPropertiesFor(CustomPropertySet customPropertySet) {
+        this.customPropertySetService.removeValuesFor(customPropertySet, this);
+    }
+
 
     private void deleteTimeOfUseManagementOption() {
         this.getDataModel()

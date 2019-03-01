@@ -31,14 +31,17 @@ public enum TranslationKeys implements TranslationKey {
     TRANSITION_FROM_SCHEDULED_TO_PENDING(DefaultState.SCHEDULED.getKey()+DefaultCustomStateTransitionEventType.PENDING.getSymbol(), "Enqueue for pickup"),
     TRANSITION_FROM_SCHEDULED_TO_CANCELLED(DefaultState.SCHEDULED.getKey()+DefaultCustomStateTransitionEventType.CANCELLED.getSymbol(), "Cancel"),
     TRANSITION_FROM_CREATED_TO_PENDING(DefaultState.CREATED.getKey()+DefaultCustomStateTransitionEventType.PENDING.getSymbol(), "Enqueue for pickup"),
-    TRANSITION_FROM_CREATED_TO_CANCELLED(DefaultState.CREATED.getKey() + DefaultCustomStateTransitionEventType.CANCELLED
-            .getSymbol(), "Cancel"),
+    TRANSITION_FROM_CREATED_TO_CANCELLED(DefaultState.CREATED.getKey() + DefaultCustomStateTransitionEventType.CANCELLED.getSymbol(), "Cancel"),
     TRANSITION_FROM_CREATED_TO_SCHEDULED(DefaultState.CREATED.getKey()+DefaultCustomStateTransitionEventType.SCHEDULED.getSymbol(), "Schedule"),
     TRANSITION_FROM_CREATED_TO_REJECTED(DefaultState.CREATED.getKey()+DefaultCustomStateTransitionEventType.REJECTED.getSymbol(), "Reject"),
     TRANSITION_FROM_FAILED_TO_SCHEDULED(DefaultState.FAILED.getKey()+DefaultCustomStateTransitionEventType.SCHEDULED.getSymbol(), "Reschedule"),
     TRANSITION_FROM_PARTIAL_SUCCESS_TO_SCHEDULED(DefaultState.PARTIAL_SUCCESS.getKey()+DefaultCustomStateTransitionEventType.SCHEDULED.getSymbol(), "Reschedule"),
     TRANSITION_FROM_ONGOING_TO_CANCELLED(DefaultState.ONGOING.getKey()+DefaultCustomStateTransitionEventType.CANCELLED.getSymbol(), "Cancel"),
-
+    TRANSITION_FROM_CANCELLED_TO_PENDING(DefaultState.CANCELLED.getKey() + DefaultCustomStateTransitionEventType.PENDING.getSymbol(), "Retry"),
+    TRANSITION_FROM_FAILED_TO_PENDING(DefaultState.FAILED.getKey() + DefaultCustomStateTransitionEventType.PENDING.getSymbol(), "Retry"),
+    TRANSITION_FROM_CREATED_TO_ONGOING(DefaultState.CREATED.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Wait"),
+    TRANSITION_FROM_REJECT_TO_PENDING(DefaultState.REJECTED.getKey() + DefaultCustomStateTransitionEventType.PENDING.getSymbol(), "Retry"),
+    TRANSITION_FROM_REJECT_TO_FAILED(DefaultState.REJECTED.getKey() + DefaultCustomStateTransitionEventType.FAILED.getSymbol(), "Failed"),
     SERVICE_CALL_DOMAIN_NAME("com.elster.jupiter.servicecall.ServiceCall", "Service call");
 
     private final String key;

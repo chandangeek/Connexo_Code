@@ -7,7 +7,8 @@ Ext.define('Cfg.zones.model.Zone', {
     fields: [
         { name: 'id', type: 'int', useNull: true},
         { name: 'zoneTypeName', type: 'string'},
-        { name: 'name', type: 'string'}
+        { name: 'name', type: 'string'},
+        { name: 'zoneTypeId', type: 'int'},
     ],
 
     proxy: {
@@ -15,6 +16,6 @@ Ext.define('Cfg.zones.model.Zone', {
         url: '/api/mtr/zones',
         reader: {
             type: 'json'
-        }
+        },
     }
 });

@@ -20,7 +20,7 @@ Ext.define('Mdc.devicetypecustomattributes.store.CustomAttributeSets', {
         },
 
         extraParams: {
-            filter: '[{"property":"linked","value":true}]'
+            filter: '[{"property":"linked","value":true},{"property":"edit","value":false}]'
         },
 
         setUrl: function(deviceTypeId) {

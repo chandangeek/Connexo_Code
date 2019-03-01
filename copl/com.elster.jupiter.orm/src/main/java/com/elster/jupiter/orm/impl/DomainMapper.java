@@ -122,7 +122,7 @@ public enum DomainMapper {
         }
     }
 
-    Field getField(Class<?> clazz, String fieldName) {
+    public Field getField(Class<?> clazz, String fieldName) {
         Class<?> current = clazz;
         do {
             for (Field field : current.getDeclaredFields()) {

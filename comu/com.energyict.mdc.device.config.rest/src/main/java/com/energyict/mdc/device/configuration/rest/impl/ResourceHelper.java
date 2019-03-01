@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
@@ -15,6 +15,8 @@ import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -35,6 +37,7 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -45,12 +48,19 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -67,6 +77,7 @@ public class ResourceHelper {
     private final MeteringService meteringService;
     private final FirmwareService firmwareService;
     private final SecurityManagementService securityManagementService;
+    private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
     public ResourceHelper(ExceptionFactory exceptionFactory,
@@ -79,7 +90,8 @@ public class ResourceHelper {
                           EstimationService estimationService,
                           MeteringService meteringService,
                           FirmwareService firmwareService,
-                          SecurityManagementService securityManagementService) {
+                          SecurityManagementService securityManagementService,
+                          MdcPropertyUtils mdcPropertyUtils) {
         super();
         this.exceptionFactory = exceptionFactory;
         this.masterDataService = masterDataService;
@@ -92,6 +104,7 @@ public class ResourceHelper {
         this.meteringService = meteringService;
         this.firmwareService = firmwareService;
         this.securityManagementService = securityManagementService;
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
     public ChannelType findChannelTypeByIdOrThrowException(long id) {
@@ -130,7 +143,7 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No register type with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public RegisteredCustomPropertySet findDeviceTypeCustomPropertySetByIdOrThrowException(long id, Class domain) {
+    public RegisteredCustomPropertySet findDeviceTypeCustomPropertySetByIdOrThrowException(long id, Class... domain) {
         return findAllCustomPropertySetsByDomain(domain)
                 .stream()
                 .filter(f -> f.getId() == id)
@@ -138,11 +151,43 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No custom property set with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public List<RegisteredCustomPropertySet> findAllCustomPropertySetsByDomain(Class domain) {
+    public List<RegisteredCustomPropertySet> findAllCustomPropertySetsByDomain(Class... domain) {
+        List<Class> domains = Arrays.asList(domain);
         return customPropertySetService.findActiveCustomPropertySets()
                 .stream()
-                .filter(f -> f.getCustomPropertySet().getDomainClass().getName().equals(domain.getName()))
+                .filter(f -> domains.contains(f.getCustomPropertySet().getDomainClass()))
                 .collect(Collectors.toList());
+    }
+
+    public Map<RegisteredCustomPropertySet, List<PropertyInfo>> getCustomPropertySetValusesForRegisteredCustomPropertySets(DeviceType deviceType) {
+        return getRegisteredCPSForEditing(deviceType)
+                .stream()
+                .collect(Collectors.toMap(Function.identity(), rcps -> getPropertyInfoList(deviceType, rcps)));
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setDeviceTypeCustomPropertySetInfo(DeviceType deviceType, long cpsId,
+                                                   DeviceTypeCustomPropertySetInfo info) {
+        RegisteredCustomPropertySet rcps = getRegisteredCPSForEditingOrThrowException(cpsId, deviceType);
+        customPropertySetService.setValuesFor(rcps.getCustomPropertySet(), deviceType,
+                getCustomPropertySetValues(rcps.getCustomPropertySet().getPropertySpecs(), info));
+        deviceType.update();
+    }
+
+    private CustomPropertySetValues getCustomPropertySetValues(List<PropertySpec> propertySpecs,
+                                                               DeviceTypeCustomPropertySetInfo info) {
+        CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
+        propertySpecs.forEach(propertySpec ->
+                customPropertySetValues.setProperty(propertySpec.getName(),
+                        mdcPropertyUtils.findPropertyValue(propertySpec, info.properties)));
+        return customPropertySetValues;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<PropertyInfo> getPropertyInfoList(DeviceType deviceType, RegisteredCustomPropertySet rcps) {
+        return mdcPropertyUtils.convertPropertySpecsToPropertyInfos(rcps.getCustomPropertySet().getPropertySpecs(),
+                getCustomProperties(customPropertySetService.getUniqueValuesFor(rcps.getCustomPropertySet(),
+                        deviceType)));
     }
 
     public Long getCurrentDeviceTypeVersion(long id) {
@@ -638,5 +683,47 @@ public class ResourceHelper {
 
     public Optional<TimeOfUseOptions> findAndLockTimeOfUseOptionsByIdAndVersion(DeviceType deviceType, long version) {
         return deviceConfigurationService.findAndLockTimeOfUseOptionsByIdAndVersion(deviceType, version);
+    }
+
+    public TypedProperties getCustomProperties(CustomPropertySetValues customPropertySetValues) {
+        TypedProperties typedProperties = TypedProperties.empty();
+        customPropertySetValues.propertyNames().forEach(propertyName ->
+                typedProperties.setProperty(propertyName, customPropertySetValues.getProperty(propertyName)));
+        return typedProperties;
+    }
+
+    public RegisteredCustomPropertySet getRegisteredCPSForEditingOrThrowException(long id, DeviceType deviceType) {
+        return getRegisteredCPSForEditing(deviceType)
+                .stream()
+                .filter(rcps -> rcps.getId() == id)
+                .filter(RegisteredCustomPropertySet::isEditableByCurrentUser)
+                .findFirst()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, id));
+    }
+
+    public List<RegisteredCustomPropertySet> getRegisteredCPSForEditing(DeviceType deviceType) {
+        return deviceType.getCustomPropertySets()
+                .stream()
+                .filter(RegisteredCustomPropertySet::isEditableByCurrentUser)
+                .filter(rcps -> !rcps.getCustomPropertySet().isVersioned())
+                .filter(rcps -> rcps.getCustomPropertySet().getDomainClass().equals(DeviceType.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<RegisteredCustomPropertySet> getRegisteredCPSForLinking(DeviceType deviceType, boolean isLinked) {
+
+        if (isLinked) {
+            return deviceType.getCustomPropertySets();
+        } else {
+            Set<Long> cpsIds = deviceType.getCustomPropertySets()
+                    .stream()
+                    .map(RegisteredCustomPropertySet::getId)
+                    .collect(Collectors.toSet());
+
+            return findAllCustomPropertySetsByDomain(Device.class, DeviceType.class)
+                    .stream()
+                    .filter(f -> !cpsIds.contains(f.getId()))
+                    .collect(Collectors.toList());
+        }
     }
 }

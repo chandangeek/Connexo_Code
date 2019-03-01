@@ -52,6 +52,9 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.Zone;
+import com.elster.jupiter.metering.zone.ZoneType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -195,8 +198,9 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import com.energyict.obis.ObisCode;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -289,6 +293,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Provider<ComTaskExecutionImpl> comTaskExecutionProvider;
     private final Reference<Batch> batch = ValueReference.absent();
     private final ConnectionTaskService connectionTaskService;
+    private final MeteringZoneService meteringZoneService;
+
     @SuppressWarnings("unused")
     private long id;
     @Valid
@@ -360,7 +366,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             DeviceConfigurationService deviceConfigurationService,
             ServerDeviceService deviceService,
             LockService lockService,
-            SecurityManagementService securityManagementService, ConnectionTaskService connectionTaskService) {
+            SecurityManagementService securityManagementService,
+            ConnectionTaskService connectionTaskService,
+            MeteringZoneService meteringZoneService
+    ) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -385,6 +394,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.securityManagementService = securityManagementService;
         this.connectionTaskService = connectionTaskService;
         this.koreHelper.syncWithKore(this);
+        this.meteringZoneService = meteringZoneService;
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, Instant startDate) {
@@ -410,12 +420,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         InboundConnectionTaskBuilder inboundConnectionTaskBuilder = this.getInboundConnectionTaskBuilder((PartialInboundConnectionTask) partialConnectionTask);
                         deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, inboundConnectionTaskBuilder);
                         inboundConnectionTaskBuilder.add();
-                    } else if (!(partialConnectionTask instanceof PartialConnectionInitiationTask)  && (partialConnectionTask instanceof PartialOutboundConnectionTask && !outboundTaskIdList.contains(partialConnectionTask.getId()))) {
+                    } else if (!(partialConnectionTask instanceof PartialConnectionInitiationTask) && (partialConnectionTask instanceof PartialOutboundConnectionTask && !outboundTaskIdList.contains(partialConnectionTask.getId()))) {
                         ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = this.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask);
                         deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, scheduledConnectionTaskBuilder);
                         scheduledConnectionTaskBuilder.add();
-                    }
-                    else if (partialConnectionTask instanceof PartialConnectionInitiationTask) {
+                    } else if (partialConnectionTask instanceof PartialConnectionInitiationTask) {
                         ConnectionInitiationTaskBuilder partialConnectionTaskBuilder = this.getConnectionInitiationTaskBuilder((PartialConnectionInitiationTask) partialConnectionTask);
                         deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, partialConnectionTaskBuilder);
                         partialConnectionTaskBuilder.add();
@@ -590,8 +599,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private void notifyCreated() {
         this.eventService.postEvent(CreateEventType.DEVICE.topic(), this);
         // In addition notify the creation of ConnectionTasks and ComTaskExecutions
-        this.getConnectionTaskImpls().forEach(ConnectionTaskImpl::notifyCreated);
-        this.getComTaskExecutionImpls().forEach(ComTaskExecutionImpl::notifyCreated);
+        //this.getConnectionTaskImpls().forEach(ConnectionTaskImpl::notifyCreated);
+        //this.getComTaskExecutionImpls().forEach(ComTaskExecutionImpl::notifyCreated);
     }
 
     private void notifyDeleted() {
@@ -611,13 +620,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         deleteLogBooks();
         deleteComTaskExecutions();
         deleteConnectionTasks();
+        deleteReferenceOnCalendars();
         deleteDeviceMessages();
         deleteValidationProperties();
         deleteEstimationProperties();
         removeDeviceFromStaticGroups();
+        removeZonesOnDevice();
         new SyncDeviceWithKoreForRemoval(this, deviceService, readingTypeUtilService, clock, eventService).syncWithKore(this);
         koreHelper.deactivateMeter(clock.instant());
-        this.clearPassiveCalendar();
         this.readingTypeObisCodeUsages.clear();
         this.getDataMapper().remove(this);
     }
@@ -660,6 +670,40 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         .forEach(enumeratedEndDeviceGroup -> removeDeviceFromGroup(enumeratedEndDeviceGroup, this.meter.get()));
             }
         }
+    }
+
+    @Override
+    public void removeZonesOnDevice() {
+        if (this.meter.isPresent()) {
+            meteringZoneService.getByEndDevice(this.meter.get()).stream().forEach(endDeviceZone -> endDeviceZone.delete());
+        }
+    }
+
+    @Override
+    public void addZone(String zoneName, String zoneTypeName) {
+        if (this.meter.isPresent()) {
+            Optional<ZoneType> zoneType = meteringZoneService.getZoneType(zoneTypeName, "MDC");
+            if (zoneType.isPresent()) {
+                Optional<Zone> zone = meteringZoneService.getZoneByName(zoneName, zoneType.get().getId());
+                if (zone.isPresent()) {
+                   if(!meteringZoneService.getByEndDevice(meter.get()).stream().filter(endDeviceZone -> endDeviceZone.getZone().getId() == zone.get().getId()).findAny().isPresent()) {
+                       meteringZoneService.newEndDeviceZoneBuilder()
+                               .withEndDevice(meter.get())
+                               .withZone(zone.get())
+                               .create();
+                   }
+                }
+            }
+        }
+    }
+
+    @Override
+    public Multimap<String,String> getZones() {
+        Multimap<String,String> zones = ArrayListMultimap.create();
+        if (this.meter.isPresent()) {
+            meteringZoneService.getByEndDevice(this.meter.get()).stream().forEach(endDeviceZone->zones.put(endDeviceZone.getZone().getName(),endDeviceZone.getZone().getZoneType().getName()));
+        }
+        return zones;
     }
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
@@ -719,7 +763,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         forEstimation().findAllOverriddenProperties().forEach(ChannelEstimationRuleOverriddenProperties::delete);
     }
 
-    public Reference<Meter> getMeter() {
+    @Override
+    public Meter getMeter() {
+        return this.meter.get();
+    }
+
+    public Reference<Meter> getMeterReference() {
         return this.meter;
     }
 
@@ -1014,12 +1063,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public void touchDevice() {
+        this.touch();
+    }
+
+    @Override
     public MeterActivation activate(Instant start, UsagePoint usagePoint, MeterRole meterRole) {
         if (start == null || usagePoint == null || meterRole == null) {
             throw new IllegalArgumentException("All arguments are mandatory and can't be null.");
         }
         try {
-            usagePoint.linkMeters().activate(start, getMeter().get(), meterRole).throwingValidation().complete();
+            usagePoint.linkMeters().activate(start, getMeterReference().get(), meterRole).throwingValidation().complete();
         } catch (MeterHasUnsatisfiedRequirements badRequirementsEx) {
             throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(this.thesaurus, badRequirementsEx.getUnsatisfiedRequirements());
         } catch (UsagePointHasMeterOnThisRole upActiveEx) {
@@ -1069,7 +1123,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask) {
-        return new ScheduledConnectionTaskBuilderForDevice(this, partialOutboundConnectionTask);
+        ScheduledConnectionTaskBuilderForDevice scheduledConnectionTaskBuilderForDevice = new ScheduledConnectionTaskBuilderForDevice(this, partialOutboundConnectionTask);
+        return scheduledConnectionTaskBuilderForDevice;
     }
 
     @Override
@@ -1374,7 +1429,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private Device getFirstJournalEntryAfter(Instant when) {
         return dataModel.mapper(Device.class)
-                .at(when)
+                .at(Instant.EPOCH)
                 .find(Arrays.asList(Operator.EQUAL.compare("ID", getId()), Operator.GREATERTHAN.compare("JOURNALTIME", when.toEpochMilli())))
                 .stream()
                 .min(Comparator.comparing(JournalEntry::getJournalTime))
@@ -1607,7 +1662,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (updatedValue.isPresent()) {
             return updatedValue;
         }
-        return getMeter().getOptional().map(EndDevice::getSpatialCoordinates).orElse(Optional.empty());
+        return getMeterReference().getOptional().map(EndDevice::getSpatialCoordinates).orElse(Optional.empty());
     }
 
     @Override
@@ -1857,19 +1912,18 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    private void updateConnectionMethodProperty(DeviceProtocolProperty property, String value)
-    {
+    private void updateConnectionMethodProperty(DeviceProtocolProperty property, String value) {
         //update the host property of the outbound connections with the ipv6address value
         try {
             if (property.getName().equals(IP_V6_ADDRESS)) {
-                for(ScheduledConnectionTask outboundTask : this.getScheduledConnectionTasks()) {
-                    LOGGER.info("Save ipv6: '" +  value + "' on outbound connection: '" + outboundTask.getName() + "'");
+                for (ScheduledConnectionTask outboundTask : this.getScheduledConnectionTasks()) {
+                    LOGGER.info("Save ipv6: '" + value + "' on outbound connection: '" + outboundTask.getName() + "'");
                     outboundTask.setProperty(HOST_PROPERTY_SPEC_NAME, value);
                     outboundTask.saveAllProperties();
                 }
             }
-        } catch(Exception e){
-            LOGGER.warning("Could not save ipv6 to host property on outbound connection: " +  e.getMessage());
+        } catch (Exception e) {
+            LOGGER.warning("Could not save ipv6 to host property on outbound connection: " + e.getMessage());
         }
     }
 
@@ -2718,6 +2772,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     void clearPlannedPassiveCalendar() {
         this.plannedPassiveCalendar.set(null);
         this.getPlannedPassiveCalendar().ifPresent(this.dataModel::remove);
+    }
+
+    void deleteReferenceOnCalendars() {
+        clearPassiveCalendar();
+        clearPlannedPassiveCalendar();
+        dataModel.update(this, "passiveCalendar", "plannedPassiveCalendar");
     }
 
     private Optional<ComTaskExecution> createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {

@@ -1,0 +1,26 @@
+Licensor=Yellowfin
+Licensee=Honeywell (formerly Elster EnergyICT)
+ServerName=DCUSVS099.eict.vpdc
+DataSources=9999
+Consumers=9999
+Writers=9999
+Dashboard=9999
+MultiCast=9999
+IssueDate=2019-02-24
+Locale=EN
+Language=EN
+LicenceId=310050
+ConcurrentUsers=9999
+ServerCores=9999
+NamedUsers=9999
+EmailUsers=9999
+ClientDataSources=9999
+SignalsUsers=9999
+ClusterSignalsCores=9999
+ClusterCores=9999
+ConcurrentMode=DISABLED
+Clients=9999
+LicenseType=DEVELOPMENT
+Expiration=2019-04-26
+
+Signature=302C0214511571FF9762D7B2AB075D814F0FA2ED892055980214563C1E9B9184934334B64DC7005F584795CA5BCC

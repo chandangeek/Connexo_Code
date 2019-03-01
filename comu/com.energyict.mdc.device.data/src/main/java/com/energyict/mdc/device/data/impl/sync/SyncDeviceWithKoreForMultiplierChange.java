@@ -47,7 +47,7 @@ public class SyncDeviceWithKoreForMultiplierChange extends AbstractSyncDeviceWit
     }
 
     protected MeterActivation doActivateMeter(Instant generalizedStartDate) {
-        Optional<? extends MeterActivation> optionalMeterActivation = getDevice().getMeter().get().getMeterActivation(generalizedStartDate);
+        Optional<? extends MeterActivation> optionalMeterActivation = getDevice().getMeterReference().get().getMeterActivation(generalizedStartDate);
         if (optionalMeterActivation.isPresent()) {
 
             MeterActivation meterActivation;

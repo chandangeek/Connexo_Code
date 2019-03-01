@@ -96,7 +96,8 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATES_EXPORTED_SUCCESSFULLY(1081, "CertificatesExportedSuccessfully", "''{0}'' has been successfully exported to the destination ''{1}''.", Level.INFO),
     NO_TRUSTED_CERTIFICATE_IN_KEYSTORE(1082, "NoTrustedCertificateInKeystore", "No trusted certificate(s) found in keystore"),
     HEXBINARY_EVEN_LENGTH(1083, Keys.HEXBINARY_EVEN_LENGTH, "The key size needs to be even-length"),
-    ENCRYPTED_KEY_INVALID(1084, "CouldNotRenewKey", "The encrypted key couldn''t be created");
+    ENCRYPTED_KEY_INVALID(1084, "CouldNotRenewKey", "The encrypted key couldn''t be created"),
+    INVALID_LABEL(1085, Keys.INVALID_LABEL, "This label is invalid (non empty label required)");
 
     private final int number;
     private final String key;
@@ -147,6 +148,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_IS_REQUIRED = "field.required";
         public static final String NO_SUCH_ENCRYPTION_METHOD = "no.such.encryption.method";
         public static final String DUPLICATE_KEY_ENCRYPTION_REGISTRATION = "key.encryption.duplication";
+        public static final String INVALID_LABEL = "validation.invalid.label";
         public static final String INVALID_VALUE = "validation.invalid.value";
         public static final String INVALID_HEX_VALUE = "validation.invalid.hex.value";
         public static final String NOVALIDCHARACTERS = "NoValidCharacters";

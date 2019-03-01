@@ -6,6 +6,8 @@ package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -23,6 +25,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -34,6 +37,8 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
@@ -172,6 +177,7 @@ public class InMemoryIntegrationPersistence {
                 new ThreadSecurityModule(this.principal),
                 new FileImportModule(),
                 new WebServicesModule(),
+                new AuditServiceModule(),
                 new AppServiceModule(),
                 new EventsModule(),
                 new PubSubModule(),
@@ -215,11 +221,13 @@ public class InMemoryIntegrationPersistence {
                 new DeviceLifeCycleModule(),
                 new CustomPropertySetsModule(),
                 new CalendarModule(),
-                new PkiModule());
+                new PkiModule(),
+                new MeteringZoneModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.transactionService = this.injector.getInstance(TransactionService.class);
             this.injector.getInstance(FiniteStateMachineService.class);
+            this.injector.getInstance(AuditService.class);
             ProtocolPluggableServiceImpl protocolPluggableService = (ProtocolPluggableServiceImpl) this.injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addLicensedProtocolService(licensedProtocolService);
             this.injector.getInstance(SchedulingService.class);
@@ -229,6 +237,7 @@ public class InMemoryIntegrationPersistence {
             this.injector.getInstance(ThreadPrincipalService.class);
             this.injector.getInstance(ServiceCallService.class);
             this.injector.getInstance(CustomPropertySetService.class);
+            this.injector.getInstance(MeteringZoneService.class);
             initializeCustomPropertySets();
             StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(this.injector
                     .getInstance(EventService.class), this.injector.getInstance(BpmService.class), this.injector.getInstance(StateTransitionPropertiesProvider.class));
@@ -366,6 +375,7 @@ public class InMemoryIntegrationPersistence {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
 
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));

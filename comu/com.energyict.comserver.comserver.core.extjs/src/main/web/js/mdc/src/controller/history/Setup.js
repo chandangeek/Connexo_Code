@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Mdc.controller.history.Setup', {
@@ -228,6 +228,43 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showAddOverview',
                                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges
+                                }
+                            }
+                        },
+
+                        zones: {
+                            title: Uni.I18n.translate('general.zones', 'MDC', 'Zones'),
+                            route: 'zones',
+                            controller: 'Mdc.controller.setup.DeviceZones',
+                            privileges: Cfg.privileges.Validation.viewZones,
+                            action: 'showDeviceZoneView',
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
+                            items: {
+                                add: {
+                                    title: Uni.I18n.translate('general.addZone', 'MDC', 'Add zone'),
+                                    route: 'add',
+                                    controller: 'Mdc.controller.setup.DeviceZones',
+                                    privileges: Cfg.privileges.Validation.adminZones,
+                                    action: 'showAddOverview',
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.zonesActions
+                                },
+                                edit: {
+                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    route: '{deviceZoneId}/edit',
+                                    controller: 'Mdc.controller.setup.DeviceZones',
+                                    privileges: Cfg.privileges.Validation.adminZones,
+                                    action: 'showEditOverview',
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.zonesActions,
+                                    callback: function (route) {
+                                        this.getApplication().on('loadZonesOnDevice', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('zoneName'), false));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
                                 }
                             }
                         },
@@ -1430,6 +1467,20 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.zones.controller.Zones',
                             action: 'editZone',
                             privileges: Cfg.privileges.Validation.adminZones,
+                        },
+                        view: {
+                            title: Uni.I18n.translate('zones.Zone', 'MDC', 'Zone'),
+                            route: '{zoneId}',
+                            controller: 'Mdc.zones.controller.Zones',
+                            action: 'viewZone',
+                            privileges: Cfg.privileges.Validation.adminZones,
+                            callback: function (route) {
+                                this.getApplication().on('loadDeviceZone', function (record) {
+                                    route.setTitle(Uni.I18n.translate('zones.viewZone', 'MDC', "{0}", record.get('name'), false));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
                         }
                     }
                 }
@@ -1535,6 +1586,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                         privileges: Mdc.privileges.DeviceType.admin,
                                         controller: 'Mdc.controller.setup.DeviceTypes',
                                         action: 'showDeviceTypeEditView'
+                                    },
+                                    editcustomattributes: {
+                                        title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                        route: '{customAttributeSetId}/editcas',
+                                        privileges: Mdc.privileges.DeviceType.admin,
+                                        controller: 'Mdc.controller.setup.DeviceTypes',
+                                        action: 'showDeviceTypeCustomAttributesEditView',
+                                        callback: function (route) {
+                                            this.getApplication().on('loadCustomAttributeSetOnDeviceType', function (record) {
+                                                route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                return true;
+                                                }, {single: true});
+
+                                                return this;
+                                        }
                                     },
                                     logbooktypes: {
                                         title: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
@@ -2900,6 +2966,13 @@ Ext.define('Mdc.controller.history.Setup', {
                         route: 'regdevices',
                         controller: 'Mdc.registereddevices.controller.RegisteredDevices',
                         action: 'showRegisteredDevices'
+                    },
+                    audit: {
+                        title: Uni.I18n.translate('general.auditTrail', 'MDC', 'Audit trail'),
+                        route: 'audit',
+                        controller: 'Mdc.audit.controller.Audit',
+                        action: 'showOverview',
+                        privileges: Cfg.privileges.Validation.viewAuditLog
                     }
                 }
             }

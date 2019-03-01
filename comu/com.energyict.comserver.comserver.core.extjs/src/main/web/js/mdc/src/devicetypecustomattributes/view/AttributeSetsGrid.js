@@ -23,6 +23,11 @@ Ext.define('Mdc.devicetypecustomattributes.view.AttributeSetsGrid', {
                 flex: 3
             },
             {
+                header: Uni.I18n.translate('customattributesets.type', 'MDC', 'Type'),
+                dataIndex: 'domainName',
+                flex: 2
+            },
+            {
                 header: Uni.I18n.translate('customattributesets.viewlevels', 'MDC', 'View levels'),
                 dataIndex: 'viewPrivilegesString',
                 flex: 2

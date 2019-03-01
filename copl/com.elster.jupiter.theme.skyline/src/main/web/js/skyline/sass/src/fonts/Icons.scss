@@ -37,6 +37,26 @@
     color: #a9a9a9;
   }
 }
+.tou-campaign-status {
+  [class^="icon-"], [class*=" icon-"] {
+    margin: 0 3px 0 0;
+    display: inline-block;
+    height: 13px;
+    vertical-align: top;
+  }
+  .icon-checkmark-circle {
+    color: #41aa4c;
+  }
+  .icon-cancel-circle,
+  .icon-notification {
+    color: #b05044;
+  }
+  .icon-spinner3,
+  .icon-forward2,
+  .icon-blocked {
+    color: #a9a9a9;
+  }
+}
 
 .white-circle-grid-header {
   background:white;

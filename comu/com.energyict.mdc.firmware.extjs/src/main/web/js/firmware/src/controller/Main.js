@@ -38,6 +38,7 @@ Ext.define('Fwc.controller.Main', {
         if (Fwc.privileges.FirmwareCampaign.canView()) {
             Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('firmware.firmwareManagement', 'FWC', 'Firmware management'),
+                id: 'Campaigns',
                 portal: 'workspace',
                 route: 'firmwarecampaigns',
                 items: [

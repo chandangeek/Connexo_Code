@@ -95,7 +95,9 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CONNECTION_TASK_DIRECTION_INBOUND("device.connection.direction.inbound", "Inbound"),
     CONNECTION_TASK_DIRECTION_OUTBOUND("device.connection.direction.outbound", "Outbound"),
     DEVICE_LOCATION("device.location", "Location"),
+    DEVICE_COORDINATES("device.coordinates", "Coordinates"),
     FIRMWARE("device.firmware","Firmware") ,
+    MULTIPLIER("device.multiplier", "Multiplier"),
     FIRMWARE_VERSION("device.firmware.version", "Firmware version"),
 
     DEVICE_DATA_STATUS_ACTIVE("device.data.status.ACTIVE", "Active"),
@@ -105,7 +107,10 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_MODEL_VERSION("device.model.version", "Model version"),
     DEVICE_ATTRIBUTES("device.attributes", "Device attributes"),
     DEVICE_MASTER_SEARCH_CRITERION_NAME("device.master.searchcriterion.search", "Has master device"),
-    SERVICE_KEY("device.security.servicekey", "Service key")
+    SERVICE_KEY("device.security.servicekey", "Service key"),
+    ZONE_NAME("device.zoneName", "Zone name"),
+    ZONE_TYPE("device.zoneType","Zone type"),
+    ZONE("device.zone", "Zone")
     ;
 
     private String key;

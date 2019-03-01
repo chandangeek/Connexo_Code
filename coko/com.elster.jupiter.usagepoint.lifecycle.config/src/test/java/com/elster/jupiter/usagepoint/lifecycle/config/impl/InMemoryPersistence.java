@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -60,6 +61,7 @@ public class InMemoryPersistence {
                 new EventsModule(),
                 new TransactionModule(),
                 new UsagePointLifeCycleConfigurationModule(),
+                new AuditServiceModule(),
                 new WebServicesModule());
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {

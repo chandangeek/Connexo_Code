@@ -21,8 +21,8 @@ Ext.define('Cfg.zones.view.Grid', {
                 header: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    //var url = me.router.getRoute('administration/zones/zone').buildUrl({zoneId: record.get('id')});
-                    return value ;//'<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>'
+                    var url = me.router.getRoute('administration/zones/view').buildUrl({zoneId: record.get('id')});
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1
             },
