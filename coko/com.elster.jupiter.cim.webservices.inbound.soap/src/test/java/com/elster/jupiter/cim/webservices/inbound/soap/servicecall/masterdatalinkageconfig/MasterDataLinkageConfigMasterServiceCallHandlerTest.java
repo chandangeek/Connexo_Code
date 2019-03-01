@@ -21,6 +21,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.util.json.JsonService;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -34,6 +35,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
@@ -53,6 +55,15 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
 
     private static final BigDecimal NUMBER_OF_SUCCESSFUL_CALLS = BigDecimal.valueOf(2);
     private static final BigDecimal NUMBER_OF_FAILED_CALLS = BigDecimal.valueOf(4);
+
+    private static final String METER_MRID = "my meter mrid";
+    private static final String METER_NAME = "my meter name";
+    private static final String USAGE_POINT_MRID = "my usage point mrid";
+    private static final String USAGE_POINT_NAME = "my usage point name";
+
+    private static final String ERROR_CODE = "my error code";
+
+    private static final String ERROR_MESSAGE = "my error message";
 
     private MasterDataLinkageConfigMasterServiceCallHandler handler;
 
@@ -94,11 +105,13 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
         replyMasterDataLinkageConfigWebServiceHolder.setObject(replyMasterDataLinkageConfigWebService);
         handler = new MasterDataLinkageConfigMasterServiceCallHandler(endPointConfigurationService,
                 replyMasterDataLinkageConfigWebServiceHolder, jsonService, meterService);
+
         when(endPointConfigurationService.findEndPointConfigurations().find().stream())
                 .thenReturn(Stream.of(endPointConfiguration));
         when(endPointConfiguration.isActive()).thenReturn(true);
         when(endPointConfiguration.isInbound()).thenReturn(false);
         when(endPointConfiguration.getUrl()).thenReturn(CALLBACK_URL);
+
         when(serviceCall.getExtension(MasterDataLinkageConfigMasterDomainExtension.class))
                 .thenReturn(Optional.of(masterExtension));
         when(masterExtension.getCallbackURL()).thenReturn(CALLBACK_URL);
@@ -106,28 +119,42 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
         when(masterExtension.getActualNumberOfFailedCalls()).thenReturn(NUMBER_OF_FAILED_CALLS);
         when(masterExtension.getExpectedNumberOfCalls()).thenReturn(
                 BigDecimal.valueOf(NUMBER_OF_SUCCESSFUL_CALLS.intValue() + NUMBER_OF_FAILED_CALLS.intValue() + 1));
+
         when(serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)).thenReturn(true);
         when(serviceCall.canTransitionTo(DefaultState.FAILED)).thenReturn(true);
         when(serviceCall.canTransitionTo(DefaultState.PARTIAL_SUCCESS)).thenReturn(true);
+
         when(jsonService.deserialize(anyString(), eq(UsagePointInfo.class))).thenReturn(usagePointInfo);
         when(jsonService.deserialize(anyString(), eq(MeterInfo.class))).thenReturn(meterInfo);
+
         when(serviceCall.findChildren()).thenReturn(finder);
-        doAnswer(// we cannot use thenReturn because the call happens more than once and stream is closed after first call
+        doAnswer(// we cannot use thenReturn because the call happens more than once and the stream is closed after first call
                 new Answer<Stream<ServiceCall>>() {
                     @Override
                     public Stream<ServiceCall> answer(InvocationOnMock invocation) throws Throwable {
                         return Stream.of(childServiceCallSuccess, childServiceCallFailure);
                     }
                 }).when(finder).stream();
+
         when(childServiceCallSuccess.getExtension(MasterDataLinkageConfigDomainExtension.class))
                 .thenReturn(Optional.of(masterDataLinkageConfigDomainExtension));
         when(childServiceCallSuccess.getState()).thenReturn(DefaultState.SUCCESSFUL);
         when(childServiceCallFailure.getExtension(MasterDataLinkageConfigDomainExtension.class))
                 .thenReturn(Optional.of(masterDataLinkageConfigDomainExtension));
         when(childServiceCallFailure.getState()).thenReturn(DefaultState.FAILED);
+
         when(masterDataLinkageConfigDomainExtension.getOperation()).thenReturn(OPERATION.name());
+        when(masterDataLinkageConfigDomainExtension.getErrorCode()).thenReturn(ERROR_CODE);
+        when(masterDataLinkageConfigDomainExtension.getErrorMessage()).thenReturn(ERROR_MESSAGE);
+
         when(meterService.findMeterByName(anyString())).thenReturn(Optional.of(meter));
+        when(meter.getMRID()).thenReturn(METER_MRID);
+        when(meter.getName()).thenReturn(METER_NAME);
+
         when(meterService.findUsagePointByName(anyString())).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getMRID()).thenReturn(USAGE_POINT_MRID);
+        when(usagePoint.getName()).thenReturn(USAGE_POINT_NAME);
+
     }
 
     @Test
@@ -326,6 +353,33 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
     private void doTestTransitionToEndStateShouldSendResponse(DefaultState endState) {
         BigDecimal expectedNumberOfCalls = BigDecimal.ONE;
         when(masterExtension.getExpectedNumberOfCalls()).thenReturn(expectedNumberOfCalls);
+        doAnswer(new Answer<Void>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                List<LinkageOperation> linkageOperations = invocation.getArgumentAt(2, List.class);
+                assertThat(linkageOperations).hasSize(1);
+                verifyLinkageOperation(linkageOperations);
+
+                List<FailedLinkageOperation> failedLinkageOperations = invocation.getArgumentAt(3, List.class);
+                assertThat(failedLinkageOperations).hasSize(1);
+                verifyLinkageOperation(failedLinkageOperations);
+                FailedLinkageOperation failedLinkageOperation = failedLinkageOperations.get(0);
+                assertThat(failedLinkageOperation.getErrorCode()).isEqualTo(ERROR_CODE);
+                assertThat(failedLinkageOperation.getErrorMessage()).isEqualTo(ERROR_MESSAGE);
+
+                return null;
+            }
+
+            private void verifyLinkageOperation(List<? extends LinkageOperation> linkageOperations) {
+                LinkageOperation linkageOperation = linkageOperations.get(0);
+                assertThat(linkageOperation.getMeterMrid()).isEqualTo(METER_MRID);
+                assertThat(linkageOperation.getMeterName()).isEqualTo(METER_NAME);
+                assertThat(linkageOperation.getUsagePointMrid()).isEqualTo(USAGE_POINT_MRID);
+                assertThat(linkageOperation.getUsagePointName()).isEqualTo(USAGE_POINT_NAME);
+            }
+        }).when(replyMasterDataLinkageConfigWebService).call(eq(endPointConfiguration), eq(OPERATION),
+                anyListOf(LinkageOperation.class), anyListOf(FailedLinkageOperation.class), eq(expectedNumberOfCalls));
 
         handler.onStateChange(serviceCall, DefaultState.ONGOING, endState);
 
