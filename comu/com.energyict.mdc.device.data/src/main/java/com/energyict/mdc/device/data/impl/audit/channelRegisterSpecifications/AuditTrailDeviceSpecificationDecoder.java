@@ -227,8 +227,8 @@ public class AuditTrailDeviceSpecificationDecoder extends AbstractDeviceAuditDec
                 Optional<MeterReadingTypeConfiguration> mrtc = toMeterConfiguration.get().getReadingTypeConfigs().stream()
                         .filter(to -> to.getMeasured().getMRID().compareToIgnoreCase(fromReadingTypeConfig.getMeasured().getMRID()) == 0)
                         .filter(to ->
-                                (to.getOverflowValue().get().compareTo(fromReadingTypeConfig.getOverflowValue().get()) != 0) ||
-                                        (fromReadingTypeConfig.getNumberOfFractionDigits().equals(to.getNumberOfFractionDigits())))
+                                (!to.getOverflowValue().equals(fromReadingTypeConfig.getOverflowValue())) ||
+                                        (!fromReadingTypeConfig.getNumberOfFractionDigits().equals(to.getNumberOfFractionDigits())))
                         .findFirst();
 
                 if (mrtc.isPresent()){
