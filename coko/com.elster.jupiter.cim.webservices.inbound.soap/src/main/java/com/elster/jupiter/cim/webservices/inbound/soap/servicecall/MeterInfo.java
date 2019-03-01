@@ -7,44 +7,44 @@ import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
 
 public class MeterInfo {
 
-	private String mrid;
-	private String name;
-	private String role;
+    private String mrid;
+    private String name;
+    private String role;
 
-	public MeterInfo() {
-		super();
-	}
+    public MeterInfo() {
+        super();
+    }
 
-	public MeterInfo(Meter meter) {
-		super();
-		mrid = meter.getMRID();
-		if (!meter.getNames().isEmpty()) {
-			name = meter.getNames().get(0).getName();
-		}
-		role = meter.getRole();
-	}
+    public MeterInfo(Meter meter) {
+        super();
+        setMrid(meter.getMRID());
+        if (!meter.getNames().isEmpty()) {
+            setName(meter.getNames().get(0).getName());
+        }
+        setRole(meter.getRole());
+    }
 
-	public String getMrid() {
-		return mrid;
-	}
+    public String getMrid() {
+        return mrid;
+    }
 
-	public void setMrid(String mrid) {
-		this.mrid = mrid;
-	}
+    public void setMrid(String mrid) {
+        this.mrid = mrid;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getRole() {
-		return role;
-	}
+    public String getRole() {
+        return role;
+    }
 
-	public void setRole(String role) {
-		this.role = role;
-	}
+    public void setRole(String role) {
+        this.role = role;
+    }
 }
