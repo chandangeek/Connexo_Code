@@ -9,6 +9,9 @@ package com.elster.jupiter.hsm.model.config;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 
+import com.atos.worldline.jss.api.basecrypto.ChainingMode;
+import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,9 +41,14 @@ public class HsmLabelConfigurationTest {
     @Test
     public void testAllOkConfiguration() throws HsmBaseException {
         String label = "IMP-SM-KEK";
-        String fileLabel = "PUB_KEK";
-        HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(label, fileLabel);
-        Assert.assertEquals(fileLabel, hsmLabelConfiguration.getImportFileLabel());
+        String mapedLabel = "PUB_KEK";
+        String chainingMode = "CBC";
+        String padding = "EME_PKCS1_V1_5";
+        String configuredStringLabel = mapedLabel + ", " + chainingMode + ", " + padding;
+        HsmLabelConfiguration hsmLabelConfiguration = new HsmLabelConfiguration(label, configuredStringLabel);
+        Assert.assertEquals(mapedLabel, hsmLabelConfiguration.getImportFileLabel());
+        Assert.assertEquals(ChainingMode.valueOf(chainingMode), hsmLabelConfiguration.getChainingMode());
+        Assert.assertEquals(PaddingAlgorithm.valueOf(padding), hsmLabelConfiguration.getPaddingAlgorithm());
     }
 
 }

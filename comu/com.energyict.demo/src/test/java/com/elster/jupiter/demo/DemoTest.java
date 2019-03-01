@@ -46,6 +46,7 @@ import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.FtpClientService;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -294,6 +295,7 @@ public class DemoTest {
             bind(PassphraseFactory.class).toInstance(mock(DataVaultPassphraseFactory.class));
             bind(com.elster.jupiter.hsm.HsmProtocolService.class).toInstance(mock(com.elster.jupiter.hsm.HsmProtocolService.class));
             bind(com.elster.jupiter.hsm.HsmEnergyService.class).toInstance(mock(com.elster.jupiter.hsm.HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
         }
 
         private License mockLicense(String applicationname) {

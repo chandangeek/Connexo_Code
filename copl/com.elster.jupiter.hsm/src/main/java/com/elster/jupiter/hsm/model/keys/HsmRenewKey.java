@@ -1,6 +1,6 @@
 package com.elster.jupiter.hsm.model.keys;
 
-public class HsmRenewKey extends HsmEncryptedKey {
+public class HsmRenewKey extends HsmIrreversibleKey {
 
     private final byte[] smartMeterKey;
 

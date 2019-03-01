@@ -40,9 +40,14 @@ class MeterConfigurationBuilderImpl implements MeterConfigurationBuilder {
 
     @Override
     public MeterReadingTypeConfigurationBuilder configureReadingType(ReadingType readingType) {
-        ReadingTypeConfigurationBuilder readingTypeConfigurationBuilder = new ReadingTypeConfigurationBuilder(readingType);
-        readingTypes.add(readingTypeConfigurationBuilder);
-        return readingTypeConfigurationBuilder;
+        return readingTypes.stream()
+                .filter(rt-> rt.measured.getMRID().compareToIgnoreCase(readingType.getMRID())==0)
+                .findFirst()
+                .orElseGet(() -> {
+                    ReadingTypeConfigurationBuilder readingTypeConfigurationBuilder = new ReadingTypeConfigurationBuilder(readingType);
+                    readingTypes.add(readingTypeConfigurationBuilder);
+                    return readingTypeConfigurationBuilder;
+                });
     }
 
     @Override

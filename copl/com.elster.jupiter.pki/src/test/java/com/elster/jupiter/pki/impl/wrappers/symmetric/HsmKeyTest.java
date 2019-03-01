@@ -4,11 +4,9 @@
 
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
-import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.keys.HsmEncryptedKey;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
@@ -47,9 +45,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -62,8 +58,6 @@ public class HsmKeyTest {
     private HsmKeyImpl hsmKeyUnderTest;
     private Clock clock = Clock.system(ZoneId.systemDefault());
 
-    @Mock
-    private DataVaultService dataVaultService;
     @Mock
     private PropertySpecService propertySpecService;
     @Mock
@@ -78,8 +72,6 @@ public class HsmKeyTest {
     private Validator validator;
     @Mock
     private HsmEnergyService hsmEnergyService;
-    @Mock
-    private HsmKeyType hsmKeyType;
 
 
     @Rule
@@ -96,7 +88,7 @@ public class HsmKeyTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(anyObject(), any(Class.class))).thenReturn(new HashSet<>());
 
-        this.hsmKeyUnderTest = new HsmKeyImpl(dataVaultService, propertySpecService, dataModel, clock, thesaurus, hsmEnergyService);
+        this.hsmKeyUnderTest = new HsmKeyImpl(propertySpecService, dataModel, clock, thesaurus, hsmEnergyService);
         this.hsmKeyUnderTest.init(keyType, new TimeDuration(1, TimeDuration.TimeUnit.DAYS), LABEL, HsmJssKeyType.AES);
     }
 
@@ -120,16 +112,12 @@ public class HsmKeyTest {
 
     @Test
     public void getKeyWhenNotSet(){
-        reset(dataVaultService);
-        when(dataVaultService.decrypt(null)).thenReturn(null);
         assertNull(hsmKeyUnderTest.getKey());
     }
 
     @Test
     public void getKeyReturnsInitialByteArray(){
         String encryptedKey = "ENC-KEY";
-        when(dataVaultService.encrypt(KEY)).thenReturn(encryptedKey);
-        when(dataVaultService.decrypt(encryptedKey)).thenReturn(KEY);
         hsmKeyUnderTest.setKey(KEY, LABEL);
         assertTrue(Arrays.equals(KEY, hsmKeyUnderTest.getKey()));
         assertEquals(LABEL, hsmKeyUnderTest.getLabel());
@@ -140,7 +128,7 @@ public class HsmKeyTest {
     public void generateValue() throws HsmBaseException {
         // This is an awful test yet this is the model we have and need to mock a bunch of stuff ... my apologies :)
         SecurityAccessorType securityAccesorType = mock(SecurityAccessorType.class);
-        HsmKeyType keyType = new HsmKeyType(HsmJssKeyType.AUTHENTICATION,"label", SessionKeyCapability.DC_KEK_NONAUTHENTIC, SessionKeyCapability.DC_KEK_RENEWAL, 16);
+        HsmKeyType keyType = new HsmKeyType(HsmJssKeyType.AUTHENTICATION,"label", SessionKeyCapability.DC_KEK_NONAUTHENTIC, SessionKeyCapability.DC_KEK_RENEWAL, 16, false);
         when(securityAccesorType.getHsmKeyType()).thenReturn(keyType);
 
 
@@ -152,17 +140,12 @@ public class HsmKeyTest {
 
         HsmRenewKey hsmRenewKey = new HsmRenewKey("smKey".getBytes(), "rKey".getBytes(), "rlabel");
         when(hsmEnergyService.renewKey(new RenewKeyRequest(cKey, clabel, keyType))).thenReturn(hsmRenewKey);
-        when(dataVaultService.encrypt(hsmRenewKey.getEncryptedKey())).thenReturn("rKeyEnc");
-        when(dataVaultService.decrypt("rKeyEnc")).thenReturn(hsmRenewKey.getEncryptedKey());
-
-        when(dataVaultService.encrypt(hsmRenewKey.getSmartMeterKey())).thenReturn("smKeyEnc");
-        when(dataVaultService.decrypt("smKeyEnc")).thenReturn(hsmRenewKey.getSmartMeterKey());
 
         hsmKeyUnderTest.generateValue(securityAccesorType, currentKey);
         // new label comes from hsm key type
-        Assert.assertEquals(hsmRenewKey.getKeyLabel(), hsmKeyUnderTest.getLabel());
-        Assert.assertEquals(hsmRenewKey.getEncryptedKey(), hsmKeyUnderTest.getKey());
-        Assert.assertEquals(hsmRenewKey.getSmartMeterKey(), hsmKeyUnderTest.getSmartMeterKey());
+        Assert.assertEquals(hsmRenewKey.getLabel(), hsmKeyUnderTest.getLabel());
+        Assert.assertArrayEquals(hsmRenewKey.getKey(), hsmKeyUnderTest.getKey());
+        Assert.assertArrayEquals(hsmRenewKey.getSmartMeterKey(), hsmKeyUnderTest.getSmartMeterKey());
     }
 
 
@@ -195,8 +178,6 @@ public class HsmKeyTest {
     @Test
     public void setProperties(){
         String encKey = "encKey";
-        when(dataVaultService.encrypt(KEY)).thenReturn(encKey);
-        when(dataVaultService.decrypt(encKey)).thenReturn(KEY);
         Map<String, Object> props = new HashMap<>();
         props.put(HsmProperties.DECRYPTED_KEY.getPropertyName(), DatatypeConverter.printHexBinary(KEY));
         String modifiedLabel = "modifiedLabel";
@@ -217,8 +198,6 @@ public class HsmKeyTest {
     @Test
     public void testGetProperties(){
         String encKey = "encKey";
-        when(dataVaultService.encrypt(KEY)).thenReturn(encKey);
-        when(dataVaultService.decrypt(encKey)).thenReturn(KEY);
         hsmKeyUnderTest.setKey(KEY, LABEL);
         Map<String, Object> properties = hsmKeyUnderTest.getProperties();
 
