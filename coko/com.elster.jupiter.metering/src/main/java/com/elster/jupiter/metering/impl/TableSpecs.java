@@ -927,6 +927,11 @@ public enum TableSpecs {
                     .reverseMapOrder("interval.start")
                     .on(meterIdColumn).add();
 
+            table.audit(MTR_RT_METER_CONFIG.name())
+                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.ordinal())
+                    .domainReferences("FK_MTR_METER_CONFIG")
+                    .build();
+
         }
     },
     MTR_RT_METER_CONFIG {

@@ -3,6 +3,7 @@ package com.elster.jupiter.hsm.model.request;
 import com.atos.worldline.jss.api.custom.energy.*;
 import com.atos.worldline.jss.api.key.KeyLabel;
 import com.atos.worldline.jss.api.key.UnsupportedKEKEncryptionMethodException;
+
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
@@ -23,9 +24,8 @@ public class ImportKeyRequest {
     private final HsmKeyType hsmKeyType;
 
     /**
-     *
      * @param wrapperKeyLabel as present in import file. This is extremely important while this class will try to map it to the real HSM label.
-     * @param wrapperKeyAlgorithm algorithm used to encrypt transport key.
+     * @param wrapperKeyAlgorithm algorithm used to encrypt transport/wrapper key.
      * @param encryptedTransportKey encrypted transport key (symmetric one).
      * @param transportKeyAlgorithm algorithm used to encode device key.
      * @param deviceKeyValue device key encrypted using transportKeyAlgorithm and encryptedTransportKey
@@ -41,22 +41,55 @@ public class ImportKeyRequest {
         this.hsmKeyType = hsmKeyType;
     }
 
-
     public AsymmetricAlgorithm getWrapperKeyAlgorithm() {
         return wrapperKeyAlgorithm;
     }
 
+    public SymmetricAlgorithm getDeviceKeyAlgorhitm() {
+        return deviceKeyAlgorhitm;
+    }
 
-    public String getImportLabel() {
+    /**
+     * @return label to be used for encryption of device key before storage.
+     */
+    public String getStorageLabel() {
         return hsmKeyType.getLabel();
     }
 
-    public TransportKey getTransportKey(HsmConfiguration hsmConfiguration) throws HsmBaseException {
-        try {
-            return new TransportKey(new KeyLabel(mapToHsmLabel(hsmConfiguration)), deviceKeyAlgorhitm.getKeySize(), encryptedTransportKey);
-        } catch (UnsupportedKEKEncryptionMethodException e) {
-            throw new HsmBaseException(e);
-        }
+    /**
+     * @param hsmConfiguration
+     * @return label used to encrypt/decrypt transport/wrapper key. This is returned based on label inside file but mapped to real one in HSM if mapped,
+     * otherwise same value as the one in file is returned.
+     * @throws HsmBaseException if underlying configuration for HSM is not available
+     */
+    public String getWrapperLabel(HsmConfiguration hsmConfiguration) throws HsmBaseException {
+        return hsmConfiguration.map(wrapperKeyLabel);
+    }
+
+    /**
+     * @param hsmConfiguration
+     * @return label that was used to encrypt wrapper key (linked to AsymmetricAlgorithm). Label returned is based on label present in file
+     * but mapped according to HSM configuration file.
+     * @throws HsmBaseException if underlying configuration for HSM is not available
+     */
+    public KeyLabel getWrapLabel(HsmConfiguration hsmConfiguration) throws HsmBaseException {
+        return new KeyLabel(getWrapperLabel(hsmConfiguration));
+    }
+
+
+    public HsmKeyType getHsmKeyType() {
+        return this.hsmKeyType;
+    }
+
+    /**
+     * @return device key init vector (see constructor)
+     */
+    public byte[] getDeviceKeyInitVector() {
+        return deviceKeyInitialVector;
+    }
+
+    public byte[] getEncryptedDeviceKey() {
+        return deviceKeyValue;
     }
 
     public DeviceKey getDeviceKey() throws HsmBaseException {
@@ -64,20 +97,25 @@ public class ImportKeyRequest {
             case AES:
                 return new AESDeviceKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmKeyType.getKeySize(), deviceKeyValue);
             case AUTHENTICATION:
-                return new AuthenticationKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmKeyType.getKeySize(), deviceKeyValue);
+                return new AuthenticationKey(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(),  deviceKeyValue);
             case HLSECRET:
                 return new HLSecret(deviceKeyInitialVector, deviceKeyAlgorhitm.getHsmSpecs().getKekEncryptionMethod(), hsmKeyType.getKeySize(), deviceKeyValue);
             default:
                 throw new HsmBaseException("Unknown JSS key type");
         }
-
     }
 
-    public SessionKeyCapability getImportSessionCapability() {
-        return hsmKeyType.getImportCapability();
-    }
-
-    private String mapToHsmLabel(HsmConfiguration hsmConfiguration) throws HsmBaseException {
-        return hsmConfiguration.map(wrapperKeyLabel);
+    /**
+     *
+     * @param hsmConfiguration
+     * @return wrapped transport key based on this request
+     * @throws HsmBaseException if HSM configuration is not available
+     */
+    public TransportKey getTransportKey(HsmConfiguration hsmConfiguration) throws HsmBaseException {
+        try {
+            return new TransportKey(new KeyLabel(getWrapperLabel(hsmConfiguration)), deviceKeyAlgorhitm.getKeySize(), encryptedTransportKey);
+        } catch (UnsupportedKEKEncryptionMethodException e) {
+            throw new HsmBaseException(e);
+        }
     }
 }

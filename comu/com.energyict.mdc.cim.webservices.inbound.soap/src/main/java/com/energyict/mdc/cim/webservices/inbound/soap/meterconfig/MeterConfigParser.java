@@ -2,6 +2,7 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
+
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
 import com.elster.jupiter.util.Checks;
@@ -74,7 +75,6 @@ public class MeterConfigParser {
         switch (operationEnum) {
             case CREATE:
                 meterInfo.setDeviceName(extractDeviceNameForCreate(meter));
-                meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
                 meterInfo.setShipmentDate(extractShipmentDate(meter));
                 meterInfo.setDeviceType(extractDeviceTypeName(meter));
                 meterInfo.setZones(extractDeviceZones(meter, endDeviceFunctions));
@@ -99,7 +99,6 @@ public class MeterConfigParser {
             break;
 
         }
-
         meterInfo.setBatch(extractBatch(meter).orElse(null));
         meterInfo.setManufacturer(extractManufacturer(meter).orElse(null));
         meterInfo.setModelNumber(extractModelNumber(meter).orElse(null));
@@ -264,10 +263,7 @@ public class MeterConfigParser {
                     .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter),
                             MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND, "MeterConfig.Meter.SimpleEndDeviceFunction",
                             "MeterConfig.SimpleEndDeviceFunction"));
-            return Optional.ofNullable(endDeviceFunction.getConfigID())
-                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter),
-                            MessageSeeds.MISSING_ELEMENT, "MeterConfig.SimpleEndDeviceFunction["
-                                    + endDeviceFunctions.indexOf(endDeviceFunction) + "].configID"));
+            return endDeviceFunction.getConfigID();
         }
         return null;
     }
@@ -293,13 +289,12 @@ public class MeterConfigParser {
 
     public Optional<String> extractEndDeviceFunctionRef(Meter meter) throws FaultMessage {
         return meter.getComFunctionOrConnectDisconnectFunctionOrSimpleEndDeviceFunction()
-		.stream()
+                .stream()
                 .filter(Meter.SimpleEndDeviceFunction.class::isInstance)
-				.map(Meter.SimpleEndDeviceFunction.class::cast)
+                .map(Meter.SimpleEndDeviceFunction.class::cast)
                 .map(Meter.SimpleEndDeviceFunction::getRef)
-				.filter(ref -> !Checks.is(ref).emptyOrOnlyWhiteSpace())
-                .findFirst()
-                ;//.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter.SimpleEndDeviceFunction.ref"));
+                .filter(ref -> !Checks.is(ref).emptyOrOnlyWhiteSpace())
+                .findFirst();
     }
 
     public Instant extractShipmentDate(Meter meter) throws FaultMessage {
@@ -326,6 +321,9 @@ public class MeterConfigParser {
 
     public List<Zone> extractDeviceZones(Meter meter, List<SimpleEndDeviceFunction> endDeviceFunctions) throws FaultMessage {
         Optional<String> comFuncReference = extractEndDeviceFunctionRef(meter);
+        if(!comFuncReference.isPresent()){
+            return new ArrayList<>();
+        }
         SimpleEndDeviceFunction endDeviceFunction = endDeviceFunctions
                 .stream()
                 .filter(endDeviceFunc -> comFuncReference.isPresent() && comFuncReference.get().equals(endDeviceFunc.getMRID()))

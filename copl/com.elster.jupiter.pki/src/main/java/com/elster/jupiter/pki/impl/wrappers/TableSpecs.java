@@ -18,6 +18,7 @@ import com.elster.jupiter.pki.impl.wrappers.symmetric.KeyImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextPassphraseImpl;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKeyImpl;
 
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;

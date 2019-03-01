@@ -554,7 +554,6 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore
     @Test
     public void testMeterSimpleEndDeviceFunctionReferenceNotFoundShouldTryToUseDefaultConfiguration() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
@@ -582,39 +581,6 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
 
             verify(transactionContext).close();
             verifyNoMoreInteractions(transactionContext);
-        }
-    }
-
-    @Test
-    public void testSimpleEndDeviceFunctionConfigIdNotFound() throws Exception {
-        MeterConfig meterConfig = new MeterConfig();
-        SimpleEndDeviceFunction simpleEndDeviceFunction = new SimpleEndDeviceFunction();
-        simpleEndDeviceFunction.setMRID(DEVICE_CONFIG_ID);
-        meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
-        Meter meter = createDefaultMeter();
-        meterConfig.getMeter().add(meter);
-        MeterConfigRequestMessageType meterConfigRequest = createMeterConfigRequest(meterConfig);
-
-        try {
-            // Business method
-            getInstance(ExecuteMeterConfigEndpoint.class).createMeterConfig(meterConfigRequest);
-            fail("FaultMessage must be thrown");
-        } catch (FaultMessage faultMessage) {
-            // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.MISSING_ELEMENT.translate(thesaurus));
-            MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
-            assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
-            assertThat(faultInfo.getReply().getError()).hasSize(1);
-            ErrorType error = faultInfo.getReply().getError().get(0);
-            assertThat(error.getLevel()).isEqualTo(MessageSeeds.MISSING_ELEMENT.getErrorTypeLevel());
-            assertThat(error.getCode()).isEqualTo(MessageSeeds.MISSING_ELEMENT.getErrorCode());
-            assertThat(error.getDetails()).isEqualTo(MessageSeeds.MISSING_ELEMENT.translate(thesaurus,
-                    "MeterConfig.SimpleEndDeviceFunction[0].configID"));
-
-            verify(transactionContext).close();
-            verifyNoMoreInteractions(transactionContext);
-        } catch (Exception e) {
-            fail("FaultMessage must be thrown");
         }
     }
 
