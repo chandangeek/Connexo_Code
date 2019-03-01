@@ -123,11 +123,10 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                 .filter(EndPointConfiguration::isActive)
                 .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
                 .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
-                .findFirst().get();
-        if (endPointConfig == null) {
-            serviceCall.log(LogLevel.SEVERE, MessageFormat.format("No end point configuration is found by URL ''{0}''.", url));
-            return null;
-        }
+                .findFirst().orElseGet(() -> {
+                    serviceCall.log(LogLevel.SEVERE, MessageFormat.format("No end point configuration is found by URL ''{0}''.", url));
+                    return null;
+                });
         return endPointConfig;
     }
 
