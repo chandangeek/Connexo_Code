@@ -1,10 +1,7 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
@@ -14,6 +11,12 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import java.math.BigDecimal;
+import java.util.Optional;
 
 public class MasterDataLinkageConfigMasterDomainExtension extends AbstractPersistentDomainExtension
 		implements PersistentDomainExtension<ServiceCall> {
@@ -94,21 +97,21 @@ public class MasterDataLinkageConfigMasterDomainExtension extends AbstractPersis
 	public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues,
 			Object... additionalPrimaryKeyValues) {
 		this.serviceCall.set(serviceCall);
-		this.setExpectedNumberOfCalls(new BigDecimal(Optional
+		setExpectedNumberOfCalls(new BigDecimal(Optional
 				.ofNullable(propertyValues.getProperty(FieldNames.CALLS_EXPECTED.javaName())).orElse(0).toString()));
-		this.setActualNumberOfSuccessfulCalls(new BigDecimal(Optional
+		setActualNumberOfSuccessfulCalls(new BigDecimal(Optional
 				.ofNullable(propertyValues.getProperty(FieldNames.CALLS_SUCCESS.javaName())).orElse(0).toString()));
-		this.setActualNumberOfFailedCalls(new BigDecimal(Optional
+		setActualNumberOfFailedCalls(new BigDecimal(Optional
 				.ofNullable(propertyValues.getProperty(FieldNames.CALLS_FAILED.javaName())).orElse(0).toString()));
-		this.setCallbackURL((String) propertyValues.getProperty(FieldNames.CALLBACK_URL.javaName()));
+		setCallbackURL((String) propertyValues.getProperty(FieldNames.CALLBACK_URL.javaName()));
 	}
 
 	@Override
 	public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-		propertySetValues.setProperty(FieldNames.CALLS_EXPECTED.javaName(), this.getExpectedNumberOfCalls());
-		propertySetValues.setProperty(FieldNames.CALLS_SUCCESS.javaName(), this.getActualNumberOfSuccessfulCalls());
-		propertySetValues.setProperty(FieldNames.CALLS_FAILED.javaName(), this.getActualNumberOfFailedCalls());
-		propertySetValues.setProperty(FieldNames.CALLBACK_URL.javaName(), this.getCallbackURL());
+		propertySetValues.setProperty(FieldNames.CALLS_EXPECTED.javaName(), getExpectedNumberOfCalls());
+		propertySetValues.setProperty(FieldNames.CALLS_SUCCESS.javaName(), getActualNumberOfSuccessfulCalls());
+		propertySetValues.setProperty(FieldNames.CALLS_FAILED.javaName(), getActualNumberOfFailedCalls());
+		propertySetValues.setProperty(FieldNames.CALLBACK_URL.javaName(), getCallbackURL());
 	}
 
 	@Override

@@ -1,27 +1,12 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.cim.webservices.outbound.soap.masterdatalinkageconfig;
-
-import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.xml.ws.Service;
-
-import org.apache.cxf.jaxws.JaxWsClientProxy;
-import org.apache.cxf.message.Message;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.FailedLinkageOperation;
 import com.elster.jupiter.cim.webservices.inbound.soap.LinkageOperation;
 import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.ReplyMasterDataLinkageConfigWebService;
-import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
@@ -41,6 +26,22 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.Name;
 import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import org.apache.cxf.jaxws.JaxWsClientProxy;
+import org.apache.cxf.message.Message;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
+import javax.xml.ws.Service;
+
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.replymasterdatalinkageconfig.provider", service = {
 		ReplyMasterDataLinkageConfigWebService.class,
@@ -131,7 +132,7 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 	}
 
 	private boolean isValidMasterDataLinkageConfigPortService(MasterDataLinkageConfigPort masterDataLinkageConfigPort) {
-		return ((JaxWsClientProxy) (Proxy.getInvocationHandler(masterDataLinkageConfigPort))).getRequestContext()
+		return ((JaxWsClientProxy) Proxy.getInvocationHandler(masterDataLinkageConfigPort)).getRequestContext()
 				.containsKey(Message.ENDPOINT_ADDRESS);
 	}
 

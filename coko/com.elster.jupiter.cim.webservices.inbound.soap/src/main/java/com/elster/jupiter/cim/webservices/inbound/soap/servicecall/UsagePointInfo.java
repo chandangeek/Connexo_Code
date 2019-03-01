@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
@@ -13,9 +16,9 @@ public class UsagePointInfo {
 
 	public UsagePointInfo(UsagePoint usagePoint) {
 		super();
-		this.mrid = usagePoint.getMRID();
+		mrid = usagePoint.getMRID();
 		if (!usagePoint.getNames().isEmpty()) {
-			this.name = usagePoint.getNames().get(0).getName();
+			name = usagePoint.getNames().get(0).getName();
 		}
 	}
 

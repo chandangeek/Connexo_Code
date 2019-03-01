@@ -1,15 +1,7 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.CIMInboundSoapEndpointsActivator;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.DataLinkageConfigChecklist;
@@ -28,7 +20,18 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+
 import com.google.inject.Module;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Component(name = "com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageConfigMasterCustomPropertySet", service = CustomPropertySet.class, property = "name="
 		+ MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME, immediate = true)
@@ -46,8 +49,8 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 	@Inject
 	public MasterDataLinkageConfigMasterCustomPropertySet(PropertySpecService propertySpecService,
 			CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
-		this.setPropertySpecService(propertySpecService);
-		this.setCustomPropertySetService(customPropertySetService);
+		setPropertySpecService(propertySpecService);
+		setCustomPropertySetService(customPropertySetService);
 		this.thesaurus = thesaurus;
 	}
 
@@ -72,7 +75,7 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 	@Reference
 	@SuppressWarnings("unused") // For OSGi framework
 	public void setNlsService(NlsService nlsService) {
-		this.thesaurus = nlsService.getThesaurus(CIMInboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
+		thesaurus = nlsService.getThesaurus(CIMInboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
 	}
 
 	@Override
@@ -87,7 +90,7 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 
 	@Override
 	public String getDomainClassDisplayName() {
-		return this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME).format();
+		return thesaurus.getFormat(TranslationKeys.DOMAIN_NAME).format();
 	}
 
 	@Override

@@ -1,10 +1,7 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
@@ -14,6 +11,12 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import java.math.BigDecimal;
+import java.util.Optional;
 
 public class MasterDataLinkageConfigDomainExtension extends AbstractPersistentDomainExtension
 		implements PersistentDomainExtension<ServiceCall> {
@@ -44,9 +47,9 @@ public class MasterDataLinkageConfigDomainExtension extends AbstractPersistentDo
 			return databaseName;
 		}
 	}
-	
+
 	private Reference<ServiceCall> serviceCall = Reference.empty();
-	
+
 	@Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String meter;
 	@Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -66,7 +69,7 @@ public class MasterDataLinkageConfigDomainExtension extends AbstractPersistentDo
 	public MasterDataLinkageConfigDomainExtension() {
 		super();
 	}
-    
+
 	public String getMeter() {
 		return meter;
 	}
@@ -82,7 +85,7 @@ public class MasterDataLinkageConfigDomainExtension extends AbstractPersistentDo
 	public void setUsagePoint(String usagePoint) {
 		this.usagePoint = usagePoint;
 	}
-	
+
 	public String getConfigurationEvent() {
 		return configurationEvent;
 	}
@@ -127,26 +130,26 @@ public class MasterDataLinkageConfigDomainExtension extends AbstractPersistentDo
 	public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues,
 			Object... additionalPrimaryKeyValues) {
 		this.serviceCall.set(serviceCall);
-		this.setMeter((String) propertyValues.getProperty(FieldNames.METER.javaName));
-		this.setUsagePoint((String) propertyValues.getProperty(FieldNames.USAGE_POINT.javaName));
-		this.setConfigurationEvent((String) propertyValues.getProperty(FieldNames.CONFIGURATION_EVENT.javaName));
-		this.setParentServiceCallId(new BigDecimal(
+		setMeter((String) propertyValues.getProperty(FieldNames.METER.javaName));
+		setUsagePoint((String) propertyValues.getProperty(FieldNames.USAGE_POINT.javaName));
+		setConfigurationEvent((String) propertyValues.getProperty(FieldNames.CONFIGURATION_EVENT.javaName));
+		setParentServiceCallId(new BigDecimal(
 				Optional.ofNullable(propertyValues.getProperty(FieldNames.PARENT_SERVICE_CALL.javaName()))
 						.orElse(BigDecimal.ZERO).toString()));
-		this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
-		this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
-		this.setOperation((String) propertyValues.getProperty(FieldNames.OPERATION.javaName()));
+		setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
+		setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
+		setOperation((String) propertyValues.getProperty(FieldNames.OPERATION.javaName()));
 	}
 
 	@Override
 	public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-		propertySetValues.setProperty(FieldNames.METER.javaName(), this.getMeter());
-		propertySetValues.setProperty(FieldNames.USAGE_POINT.javaName(), this.getUsagePoint());
-		propertySetValues.setProperty(FieldNames.CONFIGURATION_EVENT.javaName(), this.getConfigurationEvent());
-		propertySetValues.setProperty(FieldNames.PARENT_SERVICE_CALL.javaName(), this.getParentServiceCallId());
-		propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
-		propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
-		propertySetValues.setProperty(FieldNames.OPERATION.javaName(), this.getOperation());
+		propertySetValues.setProperty(FieldNames.METER.javaName(), getMeter());
+		propertySetValues.setProperty(FieldNames.USAGE_POINT.javaName(), getUsagePoint());
+		propertySetValues.setProperty(FieldNames.CONFIGURATION_EVENT.javaName(), getConfigurationEvent());
+		propertySetValues.setProperty(FieldNames.PARENT_SERVICE_CALL.javaName(), getParentServiceCallId());
+		propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), getErrorMessage());
+		propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), getErrorCode());
+		propertySetValues.setProperty(FieldNames.OPERATION.javaName(), getOperation());
 	}
 
 	@Override

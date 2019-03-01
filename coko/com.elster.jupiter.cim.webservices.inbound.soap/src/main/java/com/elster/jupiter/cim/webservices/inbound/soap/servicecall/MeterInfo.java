@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
@@ -14,11 +17,11 @@ public class MeterInfo {
 
 	public MeterInfo(Meter meter) {
 		super();
-		this.mrid = meter.getMRID();
+		mrid = meter.getMRID();
 		if (!meter.getNames().isEmpty()) {
-			this.name = meter.getNames().get(0).getName();
+			name = meter.getNames().get(0).getName();
 		}
-		this.role = meter.getRole();
+		role = meter.getRole();
 	}
 
 	public String getMrid() {

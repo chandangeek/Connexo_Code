@@ -1,12 +1,14 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall;
 
-import java.time.Instant;
-
+import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
+import java.time.Instant;
 
 public class ConfigEventInfo {
 
@@ -19,8 +21,8 @@ public class ConfigEventInfo {
 
 	public ConfigEventInfo(ConfigurationEvent configurationEvent) {
 		super();
-		this.createdDateTime = configurationEvent.getCreatedDateTime();
-		this.effectiveDateTime = configurationEvent.getEffectiveDateTime();
+		createdDateTime = configurationEvent.getCreatedDateTime();
+		effectiveDateTime = configurationEvent.getEffectiveDateTime();
 	}
 
 	@JsonIgnore
@@ -34,12 +36,12 @@ public class ConfigEventInfo {
 
 	@JsonGetter
 	public long getEpochCreatedDateTime() {
-		return this.createdDateTime != null ? this.createdDateTime.toEpochMilli() : 0;
+		return createdDateTime != null ? createdDateTime.toEpochMilli() : 0;
 	}
 
 	@JsonSetter
 	public void setEpochCreatedDateTime(long epochCreatedDateTime) {
-		this.createdDateTime = Instant.ofEpochMilli(epochCreatedDateTime);
+		createdDateTime = Instant.ofEpochMilli(epochCreatedDateTime);
 	}
 
 	@JsonIgnore
@@ -53,11 +55,11 @@ public class ConfigEventInfo {
 
 	@JsonGetter
 	public long getEpochEffectiveDateTime() {
-		return this.effectiveDateTime != null ? this.effectiveDateTime.toEpochMilli() : 0;
+		return effectiveDateTime != null ? effectiveDateTime.toEpochMilli() : 0;
 	}
 
 	@JsonSetter
 	public void setEpochEffectiveDateTime(long epochEffectiveDateTime) {
-		this.effectiveDateTime = Instant.ofEpochMilli(epochEffectiveDateTime);
+		effectiveDateTime = Instant.ofEpochMilli(epochEffectiveDateTime);
 	}
 }
