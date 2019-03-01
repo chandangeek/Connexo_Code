@@ -22,6 +22,8 @@ import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.LoggerUtils;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
@@ -49,6 +51,8 @@ import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implementation of {@link ServiceCallHandler} interface which handles the different steps for CIM WS MeterConfig
@@ -56,6 +60,7 @@ import java.util.Optional;
 @Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.servicecall.MeterConfigServiceCallHandler", service = ServiceCallHandler.class, immediate = true, property = "name="
         + MeterConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
 public class MeterConfigServiceCallHandler implements ServiceCallHandler {
+	private static final Logger LOGGER = Logger.getLogger(SecurityHelper.class.getName());
     public static final String SERVICE_CALL_HANDLER_NAME = "MeterConfigServiceCallHandler";
     public static final String VERSION = "v1.0";
 
@@ -77,7 +82,6 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
     private CasHandler casHandler;
     private SecurityHelper securityHelper;
-
     public MeterConfigServiceCallHandler() {
 
     }
@@ -87,7 +91,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
             DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
             DeviceService deviceService, JsonService jsonService, CustomPropertySetService customPropertySetService,
             SecurityManagementService securityManagementService, HsmEnergyService hsmEnergyService,
-            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,MeterConfigFaultMessageFactory faultMessageFactory) {
         this.batchService = batchService;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.clock = clock;
@@ -173,6 +177,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         } else {
             extension.setErrorMessage(faultMessage.getLocalizedMessage());
         }
+        LOGGER.log(Level.SEVERE,extension.getErrorMessage(),faultMessage);
         serviceCall.update(extension);
         serviceCall.requestTransition(DefaultState.FAILED);
         // we need to remove device in case it was already created, throwing exception does not rollback transaction

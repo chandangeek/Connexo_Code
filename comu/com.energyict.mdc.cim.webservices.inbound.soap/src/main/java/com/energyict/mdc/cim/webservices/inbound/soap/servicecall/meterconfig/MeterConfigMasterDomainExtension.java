@@ -51,7 +51,6 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
     private BigDecimal actualNumberOfSuccessfulCalls;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private BigDecimal actualNumberOfFailedCalls;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackURL;
 
