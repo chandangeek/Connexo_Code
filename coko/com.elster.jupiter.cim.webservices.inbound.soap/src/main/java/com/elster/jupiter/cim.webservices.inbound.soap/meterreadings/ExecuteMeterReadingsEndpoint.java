@@ -387,7 +387,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     }
 
     private String combineNotFoundElementMessage(Set<String> notFoundElements) {
-        return notFoundElements.stream().collect(Collectors.joining(", "));
+        return notFoundElements.stream().sorted().collect(Collectors.joining(", "));
     }
 
     private List<com.elster.jupiter.metering.EndDevice> setEndDevicesInfo(MeterReadingsBuilder builder,

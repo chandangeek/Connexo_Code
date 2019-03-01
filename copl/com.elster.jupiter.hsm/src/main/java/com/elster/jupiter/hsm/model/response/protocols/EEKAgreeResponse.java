@@ -1,6 +1,6 @@
 package com.elster.jupiter.hsm.model.response.protocols;
 
-import com.elster.jupiter.hsm.model.keys.IrreversibleKey;
+import com.elster.jupiter.hsm.model.keys.HsmIrreversibleKey;
 
 public interface EEKAgreeResponse {
 
@@ -8,5 +8,5 @@ public interface EEKAgreeResponse {
 
     byte[] getSignature();
 
-    IrreversibleKey getEek();
+    HsmIrreversibleKey getEek();
 }

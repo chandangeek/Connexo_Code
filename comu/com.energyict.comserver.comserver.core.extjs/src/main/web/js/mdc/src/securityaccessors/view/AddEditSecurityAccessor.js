@@ -275,19 +275,25 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     emptyText: Uni.I18n.translate('securityaccessors.selectLabelEndPoint', 'MDC', 'Select a storage label ...')
                 },
                 {
-                    xtype: 'combo',
-                    fieldLabel: Uni.I18n.translate('general.keySizes', 'MDC', 'Key size'),
-                    itemId: 'mdc-security-key-size-combobox',
+                    xtype: 'textfield',
                     name: 'keySize',
-                    store: 'Mdc.securityaccessors.store.KeySizes',
+                    itemId: 'mdc-security-accessor-key-size',
+                    fieldLabel: Uni.I18n.translate('general.keySizes', 'MDC', 'Key size'),
                     hidden: true,
                     required: true,
-                    displayField: 'name',
-                    valueField: 'name',
-                    forceSelection: true,
-                    disabled: me.isEdit,
-                    emptyText: Uni.I18n.translate('securityaccessors.keySizes', 'MDC', 'Select key size ...')
+                    allowBlank: false,
+                    emptyText: Uni.I18n.translate('securityaccessors.keySizes', 'MDC', 'Input key size ...')
                 },
+                {
+                    xtype: 'checkboxfield',
+                    fieldLabel: Uni.I18n.translate('general.isReversible', 'MDC', 'Is reversible'),
+                    itemId: 'mdc-security-accessor-isReversible-checkbox',
+                    name: 'isReversible',
+                    hidden: true,
+                    checked: false,
+                    disabled: me.isEdit
+                }
+                ,
                 {
                     xtype: 'checkboxfield',
                     fieldLabel: Uni.I18n.translate('general.manageCentrally', 'MDC', 'Manage centrally'),

@@ -16,13 +16,13 @@ import java.time.Instant;
 public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
     public enum FieldNames {
-        DOMAIN("serviceCall", "serviceCall"),
-        SOURCE("source", "source"),
-        CALLBACK_URL("callbackUrl", "callback_url"),
-        TIME_PERIOD_START("timePeriodStart", "time_period_start"),
-        TIME_PERIOD_END("timePeriodEnd", "time_period_end"),
-        READING_TYPES("readingTypes", "reading_types"),
-        END_DEVICES("endDevices", "end_devices");
+        DOMAIN("serviceCall", "SERVICE_CALL"),
+        SOURCE("source", "SOURCE"),
+        CALLBACK_URL("callbackUrl", "CALLBACK_URL"),
+        TIME_PERIOD_START("timePeriodStart", "TIME_PERIOD_START"),
+        TIME_PERIOD_END("timePeriodEnd", "TIME_PERIOD_END"),
+        READING_TYPES("readingTypes", "READING_TYPES"),
+        END_DEVICES("endDevices", "END_DEVICES");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;

@@ -255,6 +255,7 @@ public class SecurityAccessorTypeResource {
             keyFunctionTypeBuilder.importCapability(securityAccessorTypeInfo.importCapability);
             keyFunctionTypeBuilder.renewCapability(securityAccessorTypeInfo.renewCapability);
             keyFunctionTypeBuilder.keySize(securityAccessorTypeInfo.keySize);
+            keyFunctionTypeBuilder.reversible(securityAccessorTypeInfo.isReversible);
         }
 
         SecurityAccessorType keyFunctionType = keyFunctionTypeBuilder.add();
@@ -309,6 +310,7 @@ public class SecurityAccessorTypeResource {
             updater.importCapabilty(securityAccessorTypeInfo.importCapability);
             updater.renewCapability(securityAccessorTypeInfo.renewCapability);
             updater.keySize(securityAccessorTypeInfo.keySize);
+            updater.reversible(securityAccessorTypeInfo.isReversible);
         }
         if (securityAccessorTypeInfo.duration != null && securityAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
             updater.duration(getDuration(securityAccessorTypeInfo));
@@ -423,18 +425,6 @@ public class SecurityAccessorTypeResource {
         return Response.ok(SessionKeyCapability.values()).build();
     }
 
-    @GET
-    @Transactional
-    @Path("/hsm/keysizes")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
-    public Response getKeySizes() {
-        /**
-         * This comes from AES device key (JSS)
-         */
-        int[] sizes = {16, 24, 32};
-        return Response.ok(sizes).build();
-    }
 
     @GET
     @Transactional

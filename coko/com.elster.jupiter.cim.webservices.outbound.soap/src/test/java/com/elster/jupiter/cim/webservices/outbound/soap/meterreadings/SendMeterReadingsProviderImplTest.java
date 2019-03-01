@@ -56,7 +56,7 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
 
         SendMeterReadingsProviderImpl provider = new SendMeterReadingsProviderImpl();
         Map<String, Object> properties = ImmutableMap.of("url", "some_url");
-        provider.addMeterReadingsPorts(meterReadingsPort, properties);
+        provider.addMeterReadingsPort(meterReadingsPort, properties);
 
         provider.call(listReadingInfo, HeaderType.Verb.CREATED);
 
@@ -67,7 +67,6 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
     public void testCallWithMeterReadings() throws FaultMessage {
         when(clock.instant()).thenReturn(JAN_1ST.toInstant());
         mockReadingsInfoType(readingInfo, dailyReadingType, dailyReading);
-        when(clock.instant()).thenReturn(JAN_1ST.toInstant());
         mockReadingType(dailyReadingType, DAILY_MRID, DAILY_FULL_ALIAS_NAME, true);
         when(dailyReading.getReadingType()).thenReturn(dailyReadingType);
         listReadingInfo.add(readingInfo);
@@ -84,7 +83,7 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         meterReadingsResponseMessageType.setReply(replyType);
         when(meterReadingsPort.createdMeterReadings(anyObject()))
                 .thenReturn(meterReadingsResponseMessageType);
-        provider.addMeterReadingsPorts(meterReadingsPort, properties);
+        provider.addMeterReadingsPort(meterReadingsPort, properties);
 
         assertTrue(provider.call(meterReadings, HeaderType.Verb.CREATED, "some_url"));
         verify(meterReadingsPort).createdMeterReadings(Mockito.any(MeterReadingsEventMessageType.class));

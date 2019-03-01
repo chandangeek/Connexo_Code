@@ -357,9 +357,9 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         Condition condition = where(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.FINAL)
                 .or(where(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.TEST))
                 .and(where(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(device.getDeviceType()));
-        // Current firmware version is not in the list
+        // Current firmware version is not in the list (only for non-beacon devices)
         Optional<ActivatedFirmwareVersion> activeFirmwareVersion = getActiveFirmwareVersion(device, firmwareType);
-        if (activeFirmwareVersion.isPresent()) {
+        if ((activeFirmwareVersion.isPresent()) && !(isBeaconType(device))) {
             condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName())
                     .isNotEqual(activeFirmwareVersion.get().getFirmwareVersion().getFirmwareVersion()));
         }
@@ -368,6 +368,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
             condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).isEqualTo(firmwareType));
         }
         return dataModel.mapper(FirmwareVersion.class).select(condition, Order.descending("lower(firmwareVersion)"));
+    }
+
+    private boolean isBeaconType(Device device) {
+        return device.getDeviceType().getDeviceProtocolPluggableClass().get().getName().contains("Elster EnergyICT Beacon3100 G3 DLMS");
     }
 
     @Override
