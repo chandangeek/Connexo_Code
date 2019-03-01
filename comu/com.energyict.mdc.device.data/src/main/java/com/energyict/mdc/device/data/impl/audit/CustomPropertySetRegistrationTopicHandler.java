@@ -53,7 +53,7 @@ public class CustomPropertySetRegistrationTopicHandler implements TopicHandler {
                             .ifPresent(dataModel -> dataModel.getTable(cps.getPersistenceSupport().tableName())
                                     .audit("")
                                     .domainContext(AuditDomainContextType.DEVICE_CUSTOM_ATTRIBUTES.ordinal())
-                                    .domainReferenceColumn(cps.getPersistenceSupport().domainFieldName())
+                                    .domainReferences(cps.getPersistenceSupport().domainForeignKeyName(), "FK_DDC_DEVICE_ENDDEVICE")
                                     .contextReferenceColumn(HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                                     .build());
                 } else if (cps.getDomainClass().equals(ChannelSpec.class)) {
