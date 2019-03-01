@@ -55,26 +55,22 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 	}
 
 	@Reference
-	@SuppressWarnings("unused") // For OSGi framework
 	public void setPropertySpecService(PropertySpecService propertySpecService) {
 		this.propertySpecService = propertySpecService;
 	}
 
 	@Reference
-	@SuppressWarnings("unused") // For OSGi framework
 	public void setServiceCallService(ServiceCallService serviceCallService) {
 		// PATCH; required for proper startup; do not delete
 	}
 
 	@Reference
-	@SuppressWarnings("unused") // For OSGi framework
 	public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
 		customPropertySetService.addCustomPropertySet(this);
 	}
 
 	@Reference
-	@SuppressWarnings("unused") // For OSGi framework
-	public void setNlsService(NlsService nlsService) {
+		public void setNlsService(NlsService nlsService) {
 		thesaurus = nlsService.getThesaurus(CIMInboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
 	}
 
@@ -176,12 +172,12 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 		}
 
 		@Override
-		public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+		public List<Column> addCustomPropertyPrimaryKeyColumnsTo(@SuppressWarnings("rawtypes") Table table) {
 			return Collections.emptyList();
 		}
 
 		@Override
-		public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
+        public void addCustomPropertyColumnsTo(@SuppressWarnings("rawtypes") Table table, List<Column> customPrimaryKeyColumns) {
 			table.column(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.databaseName()).number()
 					.map(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName()).notNull()
 					.add();
