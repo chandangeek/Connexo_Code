@@ -31,7 +31,9 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.store.FirmwareStatuses',
         'Fwc.store.FirmwareTypes',
         'Fwc.store.SupportedFirmwareTypes',
-        'Fwc.store.SecurityAccessors'
+        'Fwc.store.SecurityAccessors',
+        'Fwc.store.MeterFirmwareDeps',
+        'Fwc.store.CommunicationFirmwareDeps'
     ],
 
     refs: [
@@ -283,6 +285,29 @@ Ext.define('Fwc.controller.Firmware', {
                 .findRecord('id', form.down('#radio-firmware-status')
                     .getValue().firmwareStatus)
         );
+        /*record.setMeterFirmwareDependency(
+                    form.down('#firmware-campaign-min-meter-version')
+                        .getStore()
+                        .findRecord('id', form.down('#firmware-campaign-min-meter-version')
+                            .getValue())
+         );
+         record.setCommunicationFirmwareDependency(
+                             form.down('#firmware-campaign-min-communication-version')
+                                 .getStore()
+                                 .findRecord('id', form.down('#firmware-campaign-min-communication-version')
+                                     .getValue())
+         );*/
+
+        var minMeterVersionCbx = form.down('#firmware-campaign-min-meter-version');
+        var minCommunicationVersionCbx = form.down('#firmware-campaign-min-communication-version');
+
+        if (minMeterVersionCbx && minMeterVersionCbx.getValue()){
+            record.set('meterFirmwareDependency', {'id' : minMeterVersionCbx.getValue()})
+        }
+
+        if (minCommunicationVersionCbx && minCommunicationVersionCbx.getValue()){
+            record.set('communicationFirmwareDependency', {'id' : minCommunicationVersionCbx.getValue()})
+        }
 
         var input = form.down('filefield').button.fileInputEl.dom,
             file = input.files[0],

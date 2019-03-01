@@ -15,6 +15,11 @@ Ext.define('Fwc.view.firmware.Grid', {
 
     columns: [
         {
+            text: Uni.I18n.translate('firmware.field.rank', 'FWC', 'Rank'),
+            flex: 1,
+            dataIndex: 'rank'
+        },
+        {
             text: Uni.I18n.translate('general.version', 'FWC', 'Version'),
             dataIndex: 'firmwareVersion',
             flex:2
@@ -35,6 +40,22 @@ Ext.define('Fwc.view.firmware.Grid', {
             dataIndex: 'status'
         },
         {
+            text: Uni.I18n.translate('firmware.field.communicationDepVersion', 'FWC', 'Min level Com FW'),
+            flex: 1,
+            dataIndex: 'communicationFirmwareDependency',
+            renderer: function (value) {
+                  return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
+            }
+        },
+        {
+            text: Uni.I18n.translate('firmware.field.meterDepVersion', 'FWC', 'Min level Meter FW'),
+            flex: 1,
+            dataIndex: 'meterFirmwareDependency',
+            renderer: function (value) {
+                  return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
+            }
+        },
+        {
             xtype: 'uni-actioncolumn',
             width: 120,
             isDisabled: function(view, rowIndex, colIndex, item, record) {
@@ -52,7 +73,7 @@ Ext.define('Fwc.view.firmware.Grid', {
 
     initComponent: function () {
         if (!this.showImageIdentifierColumn) {
-            Ext.Array.erase(this.columns, 2,1); //Remove the column identifier
+            Ext.Array.erase(this.columns, 2,2); //Remove the column identifier
         }
         this.dockedItems = [
             {

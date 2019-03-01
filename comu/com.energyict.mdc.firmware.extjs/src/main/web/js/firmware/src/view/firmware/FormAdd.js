@@ -6,10 +6,13 @@ Ext.define('Fwc.view.firmware.FormAdd', {
     extend: 'Fwc.view.firmware.Form',
     xtype: 'firmware-form-add',
     edit: false,
+    alias: 'widget.fwc-add-form',
     hydrator: 'Fwc.form.Hydrator',
 
     initComponent: function(){
         var me = this;
+            router = me.router,
+            deviceTypeId = me.deviceTypeId;
         me.items = [
             {
                 xtype: 'uni-form-error-message',
@@ -88,7 +91,49 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                 defaultType: 'radiofield',
                 value: {id: 'final'},
                 required: true
-            }
+            },
+            {
+                xtype: 'combobox',
+                itemId: 'firmware-campaign-min-meter-version',
+                fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version meter firmware'),
+                allowBlank: false,
+                store: 'Fwc.store.MeterFirmwareDeps',
+                forceSelection: true,
+                queryMode: 'local',
+                displayField: 'name',
+                valueField: 'id',
+                hiddenName: 'meterFirmwareDependency',
+                listeners: {
+                    render: function () {
+                        var store = this.getStore();
+                        var deviceTypeId = this.up('fwc-add-form').deviceTypeId;
+                        var proxy = store.getProxy();
+                        store.getProxy().setUrl(deviceTypeId);
+                        store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'meter', property: 'firmwareType' }]));
+                    }
+                }
+            },
+            {
+                xtype: 'combobox',
+                itemId: 'firmware-campaign-min-communication-version',
+                fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version communication firmware'),
+                allowBlank: false,
+                store: 'Fwc.store.CommunicationFirmwareDeps',
+                forceSelection: true,
+                queryMode: 'local',
+                displayField: 'name',
+                valueField: 'id',
+                hiddenName: 'communicationFirmwareDependency',
+                listeners: {
+                    render: function () {
+                        var store = this.getStore();
+                        var deviceTypeId = this.up('fwc-add-form').deviceTypeId;
+                        var proxy = store.getProxy();
+                        store.getProxy().setUrl(deviceTypeId);
+                        store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'communication', property: 'firmwareType' }]));
+                    }
+                }
+            },
         ];
         me.callParent(arguments);
     }

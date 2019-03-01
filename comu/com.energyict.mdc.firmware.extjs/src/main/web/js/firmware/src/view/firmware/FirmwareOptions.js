@@ -104,6 +104,48 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                     }
                                     return result;
                                 }
+                            },
+                            {
+                                xtype: 'displayfield',
+                                name: 'checkOptions',
+                                itemId: 'checked-options',
+                                fieldStyle: 'margin-top : 3px;',
+                                fieldLabel: Uni.I18n.translate('general.rankManagementOptions', 'FWC', 'Dependencies check'),
+                                renderer: function (value, field) {
+                                    var result = '',
+                                        record = field.up('form').getRecord();
+                                    if (record && record.get('checkOptions').length === 0) {
+                                        field.hide();
+                                    } else {
+                                        field.show();
+                                        var currFirmCheck = value && value["CURRENT_FIRMWARE_CHECK"];
+                                        var masterFirmCheck = value && value["MASTER_FIRMWARE_CHECK"];
+                                        if (currFirmCheck){
+                                            var optTpl = [];
+                                            var optVals = {'FINAL' : 'Final status of target firmware', 'TEST' : 'Test status of target firmware'};
+                                            currFirmCheck['activatedFor'].forEach(function(item){
+                                                optTpl.push({"localizedValue" : optVals[item]});
+                                            })
+                                            if (optTpl && optTpl.length){
+                                                var tpl = Ext.create('FirmwareOptionsXTemplate');
+                                                result += tpl.apply(optTpl);
+                                            }
+                                        }
+                                        if (masterFirmCheck){
+                                            //var header = '<b>The target firmware version should have a higher rank than the current firmware version on the device with the same type</b></br>';
+                                            var optMasterTpl = [];
+                                            var optVals = {'FINAL' : 'Final status of target firmware on slave device', 'TEST' : 'Test status of target firmware on slave device'};
+                                            currFirmCheck['activatedFor'].forEach(function(item){
+                                                optMasterTpl.push({"localizedValue" : optVals[item]});
+                                            })
+                                            if (optMasterTpl && optMasterTpl.length){
+                                                var tpl = Ext.create('FirmwareOptionsXTemplate');
+                                                result += tpl.apply(optMasterTpl);
+                                            }
+                                        }
+                                    }
+                                    return result ? result : "-";
+                                }
                             }
                         ],
                         loadRecord: function (record) {

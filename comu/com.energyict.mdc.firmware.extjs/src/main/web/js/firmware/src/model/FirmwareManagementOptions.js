@@ -22,6 +22,11 @@ Ext.define('Fwc.model.FirmwareManagementOptions', {
               name: 'selectedOptions',
               type: 'auto',
               useNull: true
+        },
+        {
+              name: 'checkOptions',
+              type: 'auto',
+              useNull: true
         }
         ],
     associations: [
