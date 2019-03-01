@@ -8,6 +8,8 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.meterreadings.MeterReadings;
@@ -35,12 +37,16 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     private final MeteringService meteringService;
     private final SendMeterReadingsProvider sendMeterReadingsProvider;
     private final Provider<MeterReadingsBuilder> readingBuilderProvider;
+    private final EndPointConfigurationService endPointConfigurationService;
 
     @Inject
-    public ParentGetMeterReadingsServiceCallHandler(MeteringService meteringService, SendMeterReadingsProvider sendMeterReadingsProvider, Provider<MeterReadingsBuilder> readingBuilderProvider) {
+    public ParentGetMeterReadingsServiceCallHandler(MeteringService meteringService, SendMeterReadingsProvider sendMeterReadingsProvider,
+                                                    Provider<MeterReadingsBuilder> readingBuilderProvider,
+                                                    EndPointConfigurationService endPointConfigurationService) {
         this.meteringService = meteringService;
         this.sendMeterReadingsProvider = sendMeterReadingsProvider;
         this.readingBuilderProvider = readingBuilderProvider;
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Override
@@ -94,7 +100,11 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                         source, timeRangeSet));
             return;
         }
-        boolean isOk = sendMeterReadingsProvider.call(meterReadings, HeaderType.Verb.CREATED, callbackUrl);
+        EndPointConfiguration endPointConfiguration = getEndPointConfiguration(serviceCall, callbackUrl);
+        if (endPointConfiguration == null) {
+            return;
+        }
+        boolean isOk = sendMeterReadingsProvider.call(meterReadings, HeaderType.Verb.CREATED, endPointConfiguration);
         if (!isOk) {
             serviceCall.requestTransition(DefaultState.FAILED);
             serviceCall.log(LogLevel.SEVERE,
@@ -105,6 +115,20 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         serviceCall.log(LogLevel.FINE,
                 MessageFormat.format("Data successfully sent for source {0}, time range {1}",
                         source, timeRangeSet));
+    }
+
+    private EndPointConfiguration getEndPointConfiguration(ServiceCall serviceCall, String url) {
+        EndPointConfiguration endPointConfig = endPointConfigurationService.findEndPointConfigurations()
+                .stream()
+                .filter(EndPointConfiguration::isActive)
+                .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
+                .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
+                .findFirst().get();
+        if (endPointConfig == null) {
+            serviceCall.log(LogLevel.SEVERE, MessageFormat.format("No end point configuration is found by URL ''{0}''.", url));
+            return null;
+        }
+        return endPointConfig;
     }
 
     private RangeSet<Instant> getTimeRangeSet(Instant start, Instant end) {

@@ -79,19 +79,19 @@ public class Installer implements FullInstaller {
     }
 
     private void createDestinationSpecs() {
-        if (messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION).isPresent()) {
-            return;
+        if (!messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION).isPresent()) {
+            Optional<QueueTableSpec> queueTableSpec = messageService
+                    .getQueueTableSpec(ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME);
+            if (queueTableSpec.isPresent()) {
+                DestinationSpec destinationSpec = queueTableSpec.get()
+                        .createDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION, DESTINATION_SPEC_RETRY_DELAY);
+                destinationSpec.activate();
+                destinationSpec.subscribe(TranslationKeys.READ_METER_CHANGE_MESSAGE_HANDLER, CIMInboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
+            } else {
+                throw new IllegalStateException(MessageFormat.format("Queue table specification ''{0}'' is not available",
+                        ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME));
+            }
         }
-        Optional<QueueTableSpec> queueTableSpec = messageService
-                .getQueueTableSpec(ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME);
-        if (queueTableSpec.isPresent()) {
-            DestinationSpec destinationSpec = queueTableSpec.get()
-                    .createDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION, DESTINATION_SPEC_RETRY_DELAY);
-            destinationSpec.activate();
-            destinationSpec.subscribe(TranslationKeys.READ_METER_CHANGE_MESSAGE_HANDLER, CIMInboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
-        } else {
-            throw new IllegalStateException(MessageFormat.format("Queue table specification ''{0}'' is not available",
-                    ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME));
-        }
+
     }
 }

@@ -5,6 +5,7 @@ package com.elster.jupiter.cim.webservices.outbound.soap.meterreadings;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.metering.ReadingInfo;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 
 import ch.iec.tc57._2011.meterreadings.MeterReadings;
@@ -88,13 +89,13 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
         }
     }
 
-    public boolean call(MeterReadings meterReadings, HeaderType.Verb requestVerb, String url) {
+    public boolean call(MeterReadings meterReadings, HeaderType.Verb requestVerb, EndPointConfiguration endPointConfiguration) {
         if (!checkMeterReadingsAndMeterReadingsPorts(meterReadings)) {
             return false;
         }
-        MeterReadingsPort meterReadingsPort = getMeterReadingsPorts().get(url);
+        MeterReadingsPort meterReadingsPort = getMeterReadingsPorts().get(endPointConfiguration.getUrl());
         if (meterReadingsPort == null) {
-            LOGGER.log(Level.SEVERE, "No meter reading port was found for url: " + url);
+            LOGGER.log(Level.SEVERE, "No meter reading port was found for url: " + endPointConfiguration.getUrl());
             return false;
         }
         return sendMeterReadingsPortResponse(meterReadingsPort, meterReadings, requestVerb);
