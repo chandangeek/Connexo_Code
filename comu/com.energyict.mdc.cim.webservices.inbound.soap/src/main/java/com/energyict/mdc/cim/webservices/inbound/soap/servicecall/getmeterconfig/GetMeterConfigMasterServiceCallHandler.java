@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterconfig;
@@ -9,18 +9,16 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.cim.webservices.inbound.soap.*;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.FailedMeterOperation;
+import com.energyict.mdc.cim.webservices.inbound.soap.SendMeterConfigService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +38,10 @@ public class GetMeterConfigMasterServiceCallHandler implements ServiceCallHandle
     private volatile DeviceService deviceService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private static final List<SendMeterConfigService> METER_CONFIG_SERVICES = new CopyOnWriteArrayList<>();
+
+    public GetMeterConfigMasterServiceCallHandler() {
+        // for test purposes
+    }
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -105,20 +107,20 @@ public class GetMeterConfigMasterServiceCallHandler implements ServiceCallHandle
         GetMeterConfigMasterDomainExtension extension = serviceCall.getExtension(GetMeterConfigMasterDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
-        BigDecimal successfulCalls = extension.getActualNumberOfSuccessfulCalls();
-        BigDecimal failedCalls = extension.getActualNumberOfFailedCalls();
-        BigDecimal expectedCalls = extension.getExpectedNumberOfCalls();
+        Long successfulCalls = extension.getActualNumberOfSuccessfulCalls();
+        Long failedCalls = extension.getActualNumberOfFailedCalls();
+        Long expectedCalls = extension.getExpectedNumberOfCalls();
 
         if (DefaultState.SUCCESSFUL.equals(state)) {
-            successfulCalls = successfulCalls.add(BigDecimal.ONE);
+            successfulCalls++;
             extension.setActualNumberOfSuccessfulCalls(successfulCalls);
         } else {
-            failedCalls = failedCalls.add(BigDecimal.ONE);
+            failedCalls++;
             extension.setActualNumberOfFailedCalls(failedCalls);
         }
         serviceCall.update(extension);
 
-        if (extension.getExpectedNumberOfCalls().compareTo(successfulCalls.add(failedCalls)) <= 0) {
+        if (extension.getExpectedNumberOfCalls().compareTo(successfulCalls + failedCalls) <= 0) {
             if (successfulCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else if (failedCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.FAILED)) {
@@ -150,7 +152,7 @@ public class GetMeterConfigMasterServiceCallHandler implements ServiceCallHandle
                 .stream()
                 .filter(child -> child.getState().equals(DefaultState.SUCCESSFUL))
                 .forEach(child ->  {
-                    GetMeterConfigDomainExtension extensionFor = child.getExtensionFor(new GetMeterConfigCustomPropertySet()).get();
+                    GetMeterConfigItemDomainExtension extensionFor = child.getExtensionFor(new GetMeterConfigItemCustomPropertySet()).get();
                     Optional<Device> device = findDevice(Optional.ofNullable(extensionFor.getMeterMrid()), extensionFor.getMeterName());
                     if (device.isPresent()) {
                         devices.add(device.get());
@@ -169,7 +171,7 @@ public class GetMeterConfigMasterServiceCallHandler implements ServiceCallHandle
                 .stream()
                 .filter(child -> child.getState().equals(DefaultState.FAILED))
                 .forEach(child ->  {
-                    GetMeterConfigDomainExtension extensionFor = child.getExtensionFor(new GetMeterConfigCustomPropertySet()).get();
+                    GetMeterConfigItemDomainExtension extensionFor = child.getExtensionFor(new GetMeterConfigItemCustomPropertySet()).get();
                     FailedMeterOperation failedMeterOperation = new FailedMeterOperation();
                     failedMeterOperation.setErrorCode(extensionFor.getErrorCode());
                     failedMeterOperation.setErrorMessage(extensionFor.getErrorMessage());

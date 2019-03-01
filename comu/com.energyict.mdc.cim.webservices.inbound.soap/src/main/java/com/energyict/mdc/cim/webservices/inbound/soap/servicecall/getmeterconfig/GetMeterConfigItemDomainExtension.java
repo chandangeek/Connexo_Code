@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterconfig;
@@ -13,19 +13,18 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 
-public class GetMeterConfigDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class GetMeterConfigItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
-        DOMAIN("serviceCall", "serviceCall"),
-        METER_MRID("meterMrid", "meterMrid"),
-        METER_NAME("meterName", "meterName"),
-        FROM_DATE("fromDate", "fromDate"),
-        TO_DATE("toDate", "toDate"),
-        ERROR_CODE("errorCode", "errorCode"),
-        ERROR_MESSAGE("errorMessage", "errorMessage");
+        DOMAIN("SERVICE_CALL", "SERVICE_CALL"),
+        METER_MRID("METER_MRID", "METER_MRID"),
+        METER_NAME("METER_NAME", "METER_NAME"),
+        FROM_DATE("FROM_DATE", "FROM_DATE"),
+        TO_DATE("TO_DATE", "TO_DATE"),
+        ERROR_CODE("ERROR_CODE", "ERROR_CODE"),
+        ERROR_MESSAGE("ERROR_MESSAGE", "ERROR_MESSAGE");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -46,9 +45,9 @@ public class GetMeterConfigDomainExtension extends AbstractPersistentDomainExten
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String meterMrid;
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String meterName;
     private Instant fromDate;
     private Instant toDate;
@@ -57,7 +56,7 @@ public class GetMeterConfigDomainExtension extends AbstractPersistentDomainExten
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorMessage;
 
-    public GetMeterConfigDomainExtension() {
+    public GetMeterConfigItemDomainExtension() {
         super();
     }
 

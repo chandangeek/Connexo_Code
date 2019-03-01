@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterconfig;
@@ -15,16 +15,15 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
 import java.util.Optional;
 
 public class GetMeterConfigMasterDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
-        DOMAIN("serviceCall", "serviceCall"),
-        CALLS_EXPECTED("expectedNumberOfCalls", "expected_calls"),
-        CALLS_SUCCESS("actualNumberOfSuccessfulCalls", "success_calls"),
-        CALLS_FAILED("actualNumberOfFailedCalls", "failed_calls"),
-        CALLBACK_URL("callbackURL", "callback_url");
+        DOMAIN("SERVICE_CALL", "SERVICE_CALL"),
+        CALLS_EXPECTED("EXPECTED_NUMBER_OF_CALLS", "EXPECTED_CALLS"),
+        CALLS_SUCCESS("ACTUAL_NUMBER_OF_SUCCESSFUL_CALLS", "SUCCESS_CALLS"),
+        CALLS_FAILED("ACTUAL_NUMBER_OF_FAILED_CALLS", "FAILED_CALLS"),
+        CALLBACK_URL("CALLBACK_URL", "CALLBACK_URL");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -46,11 +45,11 @@ public class GetMeterConfigMasterDomainExtension extends AbstractPersistentDomai
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private BigDecimal expectedNumberOfCalls;
+    private Long expectedNumberOfCalls;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private BigDecimal actualNumberOfSuccessfulCalls;
+    private Long actualNumberOfSuccessfulCalls;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private BigDecimal actualNumberOfFailedCalls;
+    private Long actualNumberOfFailedCalls;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackURL;
@@ -59,27 +58,27 @@ public class GetMeterConfigMasterDomainExtension extends AbstractPersistentDomai
         super();
     }
 
-    public BigDecimal getExpectedNumberOfCalls() {
+    public Long getExpectedNumberOfCalls() {
         return expectedNumberOfCalls;
     }
 
-    public void setExpectedNumberOfCalls(BigDecimal expectedNumberOfCalls) {
+    public void setExpectedNumberOfCalls(Long expectedNumberOfCalls) {
         this.expectedNumberOfCalls = expectedNumberOfCalls;
     }
 
-    public BigDecimal getActualNumberOfSuccessfulCalls() {
+    public Long getActualNumberOfSuccessfulCalls() {
         return actualNumberOfSuccessfulCalls;
     }
 
-    public void setActualNumberOfSuccessfulCalls(BigDecimal actualNumberOfSuccessfulCalls) {
+    public void setActualNumberOfSuccessfulCalls(Long actualNumberOfSuccessfulCalls) {
         this.actualNumberOfSuccessfulCalls = actualNumberOfSuccessfulCalls;
     }
 
-    public BigDecimal getActualNumberOfFailedCalls() {
+    public Long getActualNumberOfFailedCalls() {
         return actualNumberOfFailedCalls;
     }
 
-    public void setActualNumberOfFailedCalls(BigDecimal actualNumberOfFailedCalls) {
+    public void setActualNumberOfFailedCalls(Long actualNumberOfFailedCalls) {
         this.actualNumberOfFailedCalls = actualNumberOfFailedCalls;
     }
 
@@ -94,9 +93,9 @@ public class GetMeterConfigMasterDomainExtension extends AbstractPersistentDomai
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setExpectedNumberOfCalls(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_EXPECTED.javaName())).orElse(0).toString()));
-        this.setActualNumberOfSuccessfulCalls(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_SUCCESS.javaName())).orElse(0).toString()));
-        this.setActualNumberOfFailedCalls(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_FAILED.javaName())).orElse(0).toString()));
+        this.setExpectedNumberOfCalls((Long)Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_EXPECTED.javaName())).orElse(0l));
+        this.setActualNumberOfSuccessfulCalls((Long)Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_SUCCESS.javaName())).orElse(0l));
+        this.setActualNumberOfFailedCalls((Long)Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_FAILED.javaName())).orElse(0l));
         this.setCallbackURL((String) propertyValues.getProperty(FieldNames.CALLBACK_URL.javaName()));
     }
 

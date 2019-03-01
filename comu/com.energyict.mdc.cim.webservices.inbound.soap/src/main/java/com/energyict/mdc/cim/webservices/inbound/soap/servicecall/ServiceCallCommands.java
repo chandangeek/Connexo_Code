@@ -51,7 +51,7 @@ public class ServiceCallCommands {
         METER_CONFIG(MeterConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MeterConfigServiceCallHandler.VERSION, MeterConfigCustomPropertySet.class.getName()),
         GET_END_DEVICE_EVENTS(GetEndDeviceEventsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, GetEndDeviceEventsServiceCallHandler.VERSION, GetEndDeviceEventsCustomPropertySet.class.getName()),
         MASTER_GET_METER_CONFIG(GetMeterConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, GetMeterConfigMasterServiceCallHandler.VERSION, GetMeterConfigMasterCustomPropertySet.class.getName()),
-        GET_METER_CONFIG(GetMeterConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME, GetMeterConfigServiceCallHandler.VERSION, GetMeterConfigCustomPropertySet .class.getName());
+        GET_METER_CONFIG(GetMeterConfigItemServiceCallHandler.SERVICE_CALL_HANDLER_NAME, GetMeterConfigItemServiceCallHandler.VERSION, GetMeterConfigItemCustomPropertySet.class.getName());
 
         private final String typeName;
         private final String typeVersion;
@@ -173,9 +173,9 @@ public class ServiceCallCommands {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_GET_METER_CONFIG);
 
         GetMeterConfigMasterDomainExtension domainExtension = new GetMeterConfigMasterDomainExtension();
-        domainExtension.setActualNumberOfSuccessfulCalls(new BigDecimal(0));
-        domainExtension.setActualNumberOfFailedCalls(new BigDecimal(0));
-        domainExtension.setExpectedNumberOfCalls(new BigDecimal(meters.size()));
+        domainExtension.setActualNumberOfSuccessfulCalls(0l);
+        domainExtension.setActualNumberOfFailedCalls(0l);
+        domainExtension.setExpectedNumberOfCalls(new Long(meters.size()));
         domainExtension.setCallbackURL(outboundEndPointConfiguration.getUrl());
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
@@ -194,7 +194,7 @@ public class ServiceCallCommands {
                                                       ch.iec.tc57._2011.getmeterconfig.Meter meter) throws ch.iec.tc57._2011.getmeterconfig.FaultMessage {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.GET_METER_CONFIG);
 
-        GetMeterConfigDomainExtension domainExtension = new GetMeterConfigDomainExtension();
+        GetMeterConfigItemDomainExtension domainExtension = new GetMeterConfigItemDomainExtension();
         domainExtension.setMeterMrid(meter.getMRID());
         String deviceName = getMeterConfigParser.extractName(meter.getNames()).orElse(null);
         domainExtension.setMeterName(deviceName);

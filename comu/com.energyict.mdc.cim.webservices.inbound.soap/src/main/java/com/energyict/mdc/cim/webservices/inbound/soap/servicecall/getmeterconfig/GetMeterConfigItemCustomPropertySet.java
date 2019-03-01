@@ -1,10 +1,14 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterconfig;
 
-import com.elster.jupiter.cps.*;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.PersistenceSupport;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -19,29 +23,34 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigChecklist;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsDomainExtension;
+
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
-@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.GetMeterConfigCustomPropertySet",
+@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.GetMeterConfigItemCustomPropertySet",
         service = CustomPropertySet.class,
-        property = "name=" + GetMeterConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
+        property = "name=" + GetMeterConfigItemCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
         immediate = true)
-public class GetMeterConfigCustomPropertySet implements CustomPropertySet<ServiceCall, GetMeterConfigDomainExtension> {
-    public static final String CUSTOM_PROPERTY_SET_NAME = "GetMeterConfigCustomPropertySet";
+public class GetMeterConfigItemCustomPropertySet implements CustomPropertySet<ServiceCall, GetMeterConfigItemDomainExtension> {
+    public static final String CUSTOM_PROPERTY_SET_NAME = "GetMeterConfigItemCustomPropertySet";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
 
-    public GetMeterConfigCustomPropertySet() {
+    public GetMeterConfigItemCustomPropertySet() {
+        // for test purposes
     }
 
     @Inject
-    public GetMeterConfigCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+    public GetMeterConfigItemCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
@@ -61,19 +70,13 @@ public class GetMeterConfigCustomPropertySet implements CustomPropertySet<Servic
 
     @Reference
     @SuppressWarnings("unused") // For OSGi framework
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        customPropertySetService.addCustomPropertySet(this);
-    }
-
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
     }
 
     @Override
     public String getName() {
-        return GetMeterConfigCustomPropertySet.class.getSimpleName();
+        return GetMeterConfigItemCustomPropertySet.class.getSimpleName();
     }
 
     @Override
@@ -87,7 +90,7 @@ public class GetMeterConfigCustomPropertySet implements CustomPropertySet<Servic
     }
 
     @Override
-    public PersistenceSupport<ServiceCall, GetMeterConfigDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<ServiceCall, GetMeterConfigItemDomainExtension> getPersistenceSupport() {
         return new CustomPropertyPersistenceSupport();
     }
 
@@ -116,50 +119,50 @@ public class GetMeterConfigCustomPropertySet implements CustomPropertySet<Servic
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(GetMeterConfigDomainExtension.FieldNames.METER_MRID.javaName(), TranslationKeys.METER_CONFIG)
-                        .describedAs(TranslationKeys.METER_CONFIG)
+                        .named(GetMeterConfigItemDomainExtension.FieldNames.METER_MRID.javaName(), TranslationKeys.METER_MRID)
+                        .describedAs(TranslationKeys.METER_MRID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(GetMeterConfigDomainExtension.FieldNames.METER_NAME.javaName(), TranslationKeys.METER_CONFIG)
-                        .describedAs(TranslationKeys.METER_CONFIG)
+                        .named(GetMeterConfigItemDomainExtension.FieldNames.METER_NAME.javaName(), TranslationKeys.METER_NAME)
+                        .describedAs(TranslationKeys.METER_NAME)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(GetMeterConfigDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
+                        .named(GetMeterConfigItemDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
                         .describedAs(TranslationKeys.ERROR_CODE)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(GetMeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.javaName(), TranslationKeys.ERROR_MESSAGE)
+                        .named(GetMeterConfigItemDomainExtension.FieldNames.ERROR_MESSAGE.javaName(), TranslationKeys.ERROR_MESSAGE)
                         .describedAs(TranslationKeys.ERROR_MESSAGE)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
-                        .named(GetMeterConfigDomainExtension.FieldNames.FROM_DATE.javaName(), TranslationKeys.FROM_DATE)
+                        .named(GetMeterConfigItemDomainExtension.FieldNames.FROM_DATE.javaName(), TranslationKeys.FROM_DATE)
                         .describedAs(TranslationKeys.FROM_DATE)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
-                        .named(GetMeterConfigDomainExtension.FieldNames.TO_DATE.javaName(), TranslationKeys.TO_DATE)
+                        .named(GetMeterConfigItemDomainExtension.FieldNames.TO_DATE.javaName(), TranslationKeys.TO_DATE)
                         .describedAs(TranslationKeys.TO_DATE)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
     }
 
-    private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, GetMeterConfigDomainExtension> {
-        private final String TABLE_NAME = "MCG_SCS_CNT";
-        private final String FK = "FK_MCG_SCS_CNT";
+    private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, GetMeterConfigItemDomainExtension> {
+        private final String TABLE_NAME = "MCI_WS_METER_SC_CPS";
+        private final String FK = "FK_MCI_WS_METER_SC_CPS_SC";
 
         @Override
         public String componentName() {
-            return "PKG";
+            return "MCI";
         }
 
         @Override
@@ -169,7 +172,7 @@ public class GetMeterConfigCustomPropertySet implements CustomPropertySet<Servic
 
         @Override
         public String domainFieldName() {
-            return GetMeterConfigDomainExtension.FieldNames.DOMAIN.javaName();
+            return GetMeterConfigItemDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -178,8 +181,8 @@ public class GetMeterConfigCustomPropertySet implements CustomPropertySet<Servic
         }
 
         @Override
-        public Class<GetMeterConfigDomainExtension> persistenceClass() {
-            return GetMeterConfigDomainExtension.class;
+        public Class<GetMeterConfigItemDomainExtension> persistenceClass() {
+            return GetMeterConfigItemDomainExtension.class;
         }
 
         @Override
@@ -194,31 +197,31 @@ public class GetMeterConfigCustomPropertySet implements CustomPropertySet<Servic
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(GetMeterConfigDomainExtension.FieldNames.METER_MRID.databaseName())
+            table.column(GetMeterConfigItemDomainExtension.FieldNames.METER_MRID.databaseName())
                     .varChar()
-                    .map(GetMeterConfigDomainExtension.FieldNames.METER_MRID.javaName())
+                    .map(GetMeterConfigItemDomainExtension.FieldNames.METER_MRID.javaName())
                     .add();
-            table.column(GetMeterConfigDomainExtension.FieldNames.METER_NAME.databaseName())
+            table.column(GetMeterConfigItemDomainExtension.FieldNames.METER_NAME.databaseName())
                     .varChar()
-                    .map(GetMeterConfigDomainExtension.FieldNames.METER_NAME.javaName())
+                    .map(GetMeterConfigItemDomainExtension.FieldNames.METER_NAME.javaName())
                     .add();
-            table.column(GetMeterConfigDomainExtension.FieldNames.ERROR_CODE.databaseName())
+            table.column(GetMeterConfigItemDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar()
-                    .map(GetMeterConfigDomainExtension.FieldNames.ERROR_CODE.javaName())
+                    .map(GetMeterConfigItemDomainExtension.FieldNames.ERROR_CODE.javaName())
                     .add();
-            table.column(GetMeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
+            table.column(GetMeterConfigItemDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
                     .varChar()
-                    .map(GetMeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
+                    .map(GetMeterConfigItemDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
                     .add();
-            table.column(GetMeterConfigDomainExtension.FieldNames.FROM_DATE.databaseName())
+            table.column(GetMeterConfigItemDomainExtension.FieldNames.FROM_DATE.databaseName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map(GetMeterConfigDomainExtension.FieldNames.FROM_DATE.javaName())
+                    .map(GetMeterConfigItemDomainExtension.FieldNames.FROM_DATE.javaName())
                     .add();
-            table.column(GetEndDeviceEventsDomainExtension.FieldNames.TO_DATE.databaseName())
+            table.column(GetMeterConfigItemDomainExtension.FieldNames.TO_DATE.databaseName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map(GetMeterConfigDomainExtension.FieldNames.TO_DATE.javaName())
+                    .map(GetMeterConfigItemDomainExtension.FieldNames.TO_DATE.javaName())
                     .add();
         }
 

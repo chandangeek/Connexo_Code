@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterconfig;
@@ -35,13 +35,13 @@ public class GetMeterConfigMasterCustomPropertySet implements CustomPropertySet<
     private volatile Thesaurus thesaurus;
 
     public GetMeterConfigMasterCustomPropertySet() {
+        // for test purposes
     }
 
     @Inject
-    public GetMeterConfigMasterCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+    public GetMeterConfigMasterCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this();
         this.setPropertySpecService(propertySpecService);
-        this.setCustomPropertySetService(customPropertySetService);
         this.thesaurus = thesaurus;
     }
 
@@ -55,12 +55,6 @@ public class GetMeterConfigMasterCustomPropertySet implements CustomPropertySet<
     @SuppressWarnings("unused") // For OSGi framework
     public void setServiceCallService(ServiceCallService serviceCallService) {
         // PATCH; required for proper startup; do not delete
-    }
-
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Reference
@@ -113,19 +107,19 @@ public class GetMeterConfigMasterCustomPropertySet implements CustomPropertySet<
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .longSpec()
                         .named(GetMeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName(), TranslationKeys.CALLS_SUCCESS)
                         .describedAs(TranslationKeys.CALLS_SUCCESS)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .longSpec()
                         .named(GetMeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName(), TranslationKeys.CALLS_ERROR)
                         .describedAs(TranslationKeys.CALLS_ERROR)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .longSpec()
                         .named(GetMeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName(), TranslationKeys.CALLS_EXPECTED)
                         .describedAs(TranslationKeys.CALLS_EXPECTED)
                         .fromThesaurus(thesaurus)
@@ -140,12 +134,12 @@ public class GetMeterConfigMasterCustomPropertySet implements CustomPropertySet<
     }
 
     private class GetMeterConfigMasterCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, GetMeterConfigMasterDomainExtension> {
-        private final String TABLE_NAME = "MCC_SCS_CNT";
-        private final String FK = "FK_MCC_SCS_CNT";
+        private final String TABLE_NAME = "MCM_WS_MASTER_SC_CPS";
+        private final String FK = "FK_MCM_WS_MASTER_SC_CPS_SC";
 
         @Override
         public String componentName() {
-            return "PKS";
+            return "MCM";
         }
 
         @Override

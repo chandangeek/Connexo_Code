@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterconfig;
@@ -13,7 +13,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.getmeterconfig.DeviceBuilder;
 import com.energyict.mdc.cim.webservices.inbound.soap.getmeterconfig.GetMeterConfigFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
@@ -22,7 +21,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.Optional;
@@ -31,12 +29,12 @@ import java.util.Optional;
 /**
  * Implementation of {@link ServiceCallHandler} interface which handles the different steps for CIM WS GetMeterConfig
  */
-@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.servicecall.GetMeterConfigServiceCallHandler",
+@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.servicecall.GetMeterConfigItemServiceCallHandler",
         service = ServiceCallHandler.class,
         immediate = true,
-        property = "name=" + GetMeterConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
-public class GetMeterConfigServiceCallHandler implements ServiceCallHandler {
-    public static final String SERVICE_CALL_HANDLER_NAME = "GetMeterConfigServiceCallHandler";
+        property = "name=" + GetMeterConfigItemServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
+public class GetMeterConfigItemServiceCallHandler implements ServiceCallHandler {
+    public static final String SERVICE_CALL_HANDLER_NAME = "GetMeterConfigItemServiceCallHandler";
     public static final String VERSION = "v1.0";
     private volatile DeviceService deviceService;
     private volatile Thesaurus thesaurus;
@@ -45,8 +43,8 @@ public class GetMeterConfigServiceCallHandler implements ServiceCallHandler {
     private GetMeterConfigFaultMessageFactory messageFactory;
     private DeviceBuilder deviceBuilder;
 
-    public GetMeterConfigServiceCallHandler() {
-
+    public GetMeterConfigItemServiceCallHandler() {
+        // for test purposes
     }
 
     @Override
@@ -81,7 +79,7 @@ public class GetMeterConfigServiceCallHandler implements ServiceCallHandler {
 
 
     private void processMeterConfigServiceCall(ServiceCall serviceCall)  {
-        GetMeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new GetMeterConfigCustomPropertySet()).get();
+        GetMeterConfigItemDomainExtension extensionFor = serviceCall.getExtensionFor(new GetMeterConfigItemCustomPropertySet()).get();
         try {
             getDeviceBuilder().findDevice(Optional.ofNullable(extensionFor.getMeterMrid()), extensionFor.getMeterName());
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);

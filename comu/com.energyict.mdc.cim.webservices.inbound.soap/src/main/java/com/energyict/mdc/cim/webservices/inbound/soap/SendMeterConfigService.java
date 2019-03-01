@@ -6,7 +6,6 @@ package com.energyict.mdc.cim.webservices.inbound.soap;
 import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.device.data.Device;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @ProviderType
@@ -18,5 +17,5 @@ public interface SendMeterConfigService {
     /**
      * Invoked by the service call when get meter config request completed or failed
      */
-    void call(List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls, String url);
+    void call(List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, Long expectedNumberOfCalls, String url);
 }

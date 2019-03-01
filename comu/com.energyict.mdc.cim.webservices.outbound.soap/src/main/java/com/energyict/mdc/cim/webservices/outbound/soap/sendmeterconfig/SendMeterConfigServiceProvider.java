@@ -27,7 +27,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +83,7 @@ public class SendMeterConfigServiceProvider implements SendMeterConfigService, O
     }
 
     @Override
-    public void call(List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls, String url) {
+    public void call(List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, Long expectedNumberOfCalls, String url) {
         try {
             Optional.ofNullable(ports.get(url))
                     .orElseThrow(() -> new SendMeterConfigServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS))
@@ -99,7 +98,7 @@ public class SendMeterConfigServiceProvider implements SendMeterConfigService, O
         return meterConfig;
     }
 
-    private GetMeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls) {
+    private GetMeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, Long expectedNumberOfCalls) {
         GetMeterConfigEventMessageType responseMessage = getMeterConfigEventMessageObjectFactory.createGetMeterConfigEventMessageType();
 
         // set header
@@ -108,9 +107,9 @@ public class SendMeterConfigServiceProvider implements SendMeterConfigService, O
         header.setNoun(NOUN);
         responseMessage.setHeader(header);
         ReplyType replyType = cimMessageObjectFactory.createReplyType();
-        if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(meterConfig.getMeter().size())) == 0) {
+        if (expectedNumberOfCalls.compareTo(new Long(meterConfig.getMeter().size())) == 0) {
             replyType.setResult(ReplyType.Result.OK);
-        } else if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(failedDevices.size())) == 0) {
+        } else if (expectedNumberOfCalls.compareTo(new Long(failedDevices.size())) == 0) {
             replyType.setResult(ReplyType.Result.FAILED);
         } else {
             replyType.setResult(ReplyType.Result.PARTIAL);
