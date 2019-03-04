@@ -99,10 +99,10 @@ public enum TableSpecs {
                     .add();
             table.setJournalTableName("FWC_FIRMWAREMNGMNTOPTIONSJRNL").since(version(10, 2));
             table.addAuditColumns();
-            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_CURRENT_FW_FOR_FINAL);
-            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_CURRENT_FW_FOR_TEST);
-            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_MASTER_FW_FOR_FINAL);
-            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_MASTER_FW_FOR_TEST);
+            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_CURRENT_FW_FOR_FINAL, "'N'");
+            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_CURRENT_FW_FOR_TEST, "'N'");
+            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_MASTER_FW_FOR_FINAL, "'Y'");
+            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_MASTER_FW_FOR_TEST, "'N'");
             table.primaryKey("FWC_PK_FIRMWAREMGTOPTIONS").on(deviceTypeColumn).add();
             table.foreignKey("FWC_OPTIONS_FK_DEVICETYPE")
                     .on(deviceTypeColumn)
@@ -111,12 +111,12 @@ public enum TableSpecs {
                     .add();
         }
 
-        private Column addCheckConfigurationColumnFor10_6(Table<FirmwareManagementOptions> table, FirmwareManagementOptionsImpl.Fields descriptor) {
+        private Column addCheckConfigurationColumnFor10_6(Table<FirmwareManagementOptions> table, FirmwareManagementOptionsImpl.Fields descriptor, String defaultValue) {
             return table.column(descriptor.name())
                     .bool()
                     .map(descriptor.fieldName())
                     .since(Version.version(10, 6))
-                    .installValue("'N'")
+                    .installValue(defaultValue)
                     .add();
         }
     },
