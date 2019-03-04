@@ -669,7 +669,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo("Unable to get readings");
+            assertThat(faultMessage.getMessage()).isEqualTo("Unable to get readings.");
             MeterReadingsFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -872,45 +872,12 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getCode().equals("WS13007")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getDetails().equals("Reading type(s) not found in the system: '0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0'")));
+                .anyMatch(error -> error.getDetails().equals("Reading type(s) not found in the system: '0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0'.")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getCode().equals("WS13008")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getDetails().equals("Reading type(s) not found on device 'SPE01000001': '11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0'")));
+                .anyMatch(error -> error.getDetails().equals("Reading type(s) not found on device 'SPE01000001': '11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0'.")));
     }
-
-//    @Test
-//    public void testSomeReadingTypesNotFoundOnDevice() throws Exception {
-//        // Prepare request
-//        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
-//        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
-//                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
-//                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
-//                .withReadingType("11.8.0.6.19.1.8.0.0.0.0.0.0.0.64.3.38.0", null)
-//                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
-//                .get();
-//        HeaderType headerType = new HeaderType();
-//        headerType.setAsyncReplyFlag(true);
-//        headerType.setReplyAddress(REPLY_ADDRESS);
-//        getMeterReadingsRequestMessage.setHeader(headerType);
-//        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
-//        mockFindReadingTypes(dailyReadingType);
-//        mockFindEndDevices(meter1);
-//        mockFindEndPointConfigurations();
-//        mockWebServices(true);
-//        mockReadingTypesOnDevice(meter1, dailyReadingType);
-//
-//        MeterReadingsResponseMessageType response = getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage);
-//
-//        // Assert response
-//        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
-//        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
-//        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
-//        assertTrue(response.getReply().getError().stream()
-//                .anyMatch(error -> error.getCode().equals("WS13007")));
-//        assertTrue(response.getReply().getError().stream()
-//                .anyMatch(error -> error.getDetails().equals("Reading type(s) not found in the system: '0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0'")));
-//    }
 
     @Test
     public void testIncorrectSource() throws Exception {

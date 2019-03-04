@@ -5,6 +5,7 @@ package com.elster.jupiter.cim.webservices.outbound.soap.meterreadings;
 
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.ReadingInfo;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import ch.iec.tc57._2011.meterreadings.MeterReadings;
 import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsEventMessageType;
@@ -39,6 +40,8 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
     private AggregatedChannel.AggregatedIntervalReadingRecord dailyReading;
     @Mock
     private ReadingInfo readingInfo;
+    @Mock
+    EndPointConfiguration endPointConfiguration;
 
     private void mockIntervalReadings() {
         mockIntervalReading(dailyReading, Range.openClosed(JAN_1ST.minusDays(1).toInstant(), JAN_1ST.toInstant()), 1.05);
@@ -85,7 +88,8 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
                 .thenReturn(meterReadingsResponseMessageType);
         provider.addMeterReadingsPort(meterReadingsPort, properties);
 
-        assertTrue(provider.call(meterReadings, HeaderType.Verb.CREATED, "some_url"));
+        when(endPointConfiguration.getUrl()).thenReturn("some_url");
+        assertTrue(provider.call(meterReadings, HeaderType.Verb.CREATED, endPointConfiguration));
         verify(meterReadingsPort).createdMeterReadings(Mockito.any(MeterReadingsEventMessageType.class));
     }
 
