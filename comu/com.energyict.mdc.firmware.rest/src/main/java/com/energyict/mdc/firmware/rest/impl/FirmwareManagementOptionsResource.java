@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 public class FirmwareManagementOptionsResource {
     private static final Map<FirmwareCheckManagementOption, Predicate<DeviceType>> CHECKS_WITH_APPLICABILITIES = ImmutableMap.of(
             FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK, deviceType -> true,
-            FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK, deviceType -> !deviceType.isDirectlyAddressable()
+            FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK, deviceType -> true // !deviceType.isDirectlyAddressable() TODO: rework design first
     );
 
     private final DeviceConfigurationService deviceConfigurationService;
