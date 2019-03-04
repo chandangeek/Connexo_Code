@@ -18,13 +18,13 @@ import java.time.Instant;
 
 public class GetMeterConfigItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
-        DOMAIN("SERVICE_CALL", "SERVICE_CALL"),
-        METER_MRID("METER_MRID", "METER_MRID"),
-        METER_NAME("METER_NAME", "METER_NAME"),
-        FROM_DATE("FROM_DATE", "FROM_DATE"),
-        TO_DATE("TO_DATE", "TO_DATE"),
-        ERROR_CODE("ERROR_CODE", "ERROR_CODE"),
-        ERROR_MESSAGE("ERROR_MESSAGE", "ERROR_MESSAGE");
+        DOMAIN("serviceCall", "SERVICE_CALL"),
+        METER_MRID("meterMrid", "METER_MRID"),
+        METER_NAME("meterName", "METER_NAME"),
+        FROM_DATE("fromDate", "FROM_DATE"),
+        TO_DATE("toDate", "TO_DATE"),
+        ERROR_CODE("errorCode", "ERROR_CODE"),
+        ERROR_MESSAGE("errorMessage", "ERROR_MESSAGE");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;

@@ -19,11 +19,11 @@ import java.util.Optional;
 
 public class GetMeterConfigMasterDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
-        DOMAIN("SERVICE_CALL", "SERVICE_CALL"),
-        CALLS_EXPECTED("EXPECTED_NUMBER_OF_CALLS", "EXPECTED_CALLS"),
-        CALLS_SUCCESS("ACTUAL_NUMBER_OF_SUCCESSFUL_CALLS", "SUCCESS_CALLS"),
-        CALLS_FAILED("ACTUAL_NUMBER_OF_FAILED_CALLS", "FAILED_CALLS"),
-        CALLBACK_URL("CALLBACK_URL", "CALLBACK_URL");
+        DOMAIN("serviceCall", "SERVICE_CALL"),
+        CALLS_EXPECTED("expectedNumberOfCalls", "EXPECTED_CALLS"),
+        CALLS_SUCCESS("actualNumberOfSuccessfulCalls", "SUCCESS_CALLS"),
+        CALLS_FAILED("actualNumberOfFailedCalls", "FAILED_CALLS"),
+        CALLBACK_URL("callbackURL", "CALLBACK_URL");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;

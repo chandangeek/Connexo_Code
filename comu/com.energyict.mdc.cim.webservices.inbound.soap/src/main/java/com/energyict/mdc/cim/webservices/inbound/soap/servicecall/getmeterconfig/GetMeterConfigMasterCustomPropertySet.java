@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -39,9 +40,10 @@ public class GetMeterConfigMasterCustomPropertySet implements CustomPropertySet<
     }
 
     @Inject
-    public GetMeterConfigMasterCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public GetMeterConfigMasterCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
         this();
         this.setPropertySpecService(propertySpecService);
+        this.setCustomPropertySetService(customPropertySetService);
         this.thesaurus = thesaurus;
     }
 
@@ -55,6 +57,12 @@ public class GetMeterConfigMasterCustomPropertySet implements CustomPropertySet<
     @SuppressWarnings("unused") // For OSGi framework
     public void setServiceCallService(ServiceCallService serviceCallService) {
         // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference
+    @SuppressWarnings("unused") // For OSGi framework
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Reference
@@ -176,16 +184,19 @@ public class GetMeterConfigMasterCustomPropertySet implements CustomPropertySet<
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(GetMeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.databaseName())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .map(GetMeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName())
                     .notNull()
                     .add();
             table.column(GetMeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.databaseName())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .map(GetMeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName())
                     .notNull()
                     .add();
             table.column(GetMeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.databaseName())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .map(GetMeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName())
                     .notNull()
                     .add();
