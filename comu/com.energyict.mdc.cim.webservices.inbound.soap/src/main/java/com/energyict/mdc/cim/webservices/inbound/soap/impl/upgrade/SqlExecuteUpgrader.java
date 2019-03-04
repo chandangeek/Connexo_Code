@@ -5,11 +5,9 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade;
 
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.Upgrader;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 
 import java.sql.Statement;
 import java.util.List;
