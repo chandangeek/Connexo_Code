@@ -56,6 +56,10 @@ public class MasterDataLinkageHandler {
         this.replyTypeFactory = replyTypeFactory;
     }
 
+    private boolean shouldCreateResponse() {
+        return configurationEvent == null;
+    }
+
     MasterDataLinkageHandler forMessage(MasterDataLinkageConfigRequestMessageType message) throws FaultMessage {
         configurationEventNode = message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent();
         usagePointNodes = message.getPayload().getMasterDataLinkageConfig().getUsagePoint();
@@ -74,7 +78,7 @@ public class MasterDataLinkageHandler {
 
     public MasterDataLinkageConfigResponseMessageType createLinkage() throws FaultMessage {
         currentLinkageAction = MasterDataLinkageAction.CREATE;
-        if (configurationEvent == null) {
+        if (shouldCreateResponse()) {
             linkMeterToUsagePoint(transform(meterNodes.get(0)), getMeterRoleForKey(meterNodes.get(0).getRole()),
                     transform(usagePointNodes.get(0)), configurationEventNode.getCreatedDateTime());
             return createSuccessfulResponseWithVerb(HeaderType.Verb.CREATED);
@@ -87,7 +91,7 @@ public class MasterDataLinkageHandler {
 
     public MasterDataLinkageConfigResponseMessageType closeLinkage() throws FaultMessage {
         currentLinkageAction = MasterDataLinkageAction.CLOSE;
-        if (configurationEvent == null) {
+        if (shouldCreateResponse()) {
             unlinkMeterFromUsagePoint(transform(meterNodes.get(0)), transform(usagePointNodes.get(0)),
                     configurationEventNode.getEffectiveDateTime());
             return createSuccessfulResponseWithVerb(HeaderType.Verb.CLOSED);

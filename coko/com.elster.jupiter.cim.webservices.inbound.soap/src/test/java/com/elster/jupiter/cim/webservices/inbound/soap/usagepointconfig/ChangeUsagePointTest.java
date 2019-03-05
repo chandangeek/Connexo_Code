@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -258,11 +259,24 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         // Prepare request
         UsagePointConfigRequestMessageType usagePointConfigRequest = usagePointConfigMessageFactory
                 .createUsagePointConfigRequestMessageType();
+        usagePointConfigRequest.setHeader(new HeaderType());
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).changeUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
                 "Element 'Payload' is required.");
+    }
+
+    @Test
+    public void testNoHeader() throws Exception {
+        // Prepare request
+        UsagePointConfigRequestMessageType usagePointConfigRequest = usagePointConfigMessageFactory
+                .createUsagePointConfigRequestMessageType();
+
+        // Business method & assertions
+        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).changeUsagePointConfig(usagePointConfigRequest),
+                MessageSeeds.MISSING_ELEMENT.getErrorCode(),
+                "Element 'Header' is required.");
     }
 
     @Test
