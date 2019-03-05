@@ -43,7 +43,12 @@ public class CustomPropertySetRegistrationTopicHandler implements TopicHandler {
             Optional<RegisteredCustomPropertySet> rcps = customPropertySetService.findActiveCustomPropertySets().stream()
                     .filter(registeredCustomPropertySet -> registeredCustomPropertySet.getCustomPropertySet().getPersistenceSupport().componentName()
                             .compareToIgnoreCase(componentName) == 0)
-                    .findFirst();
+                    .findFirst()
+                    .map(Optional::of)
+                            .orElseGet(() -> customPropertySetService.findAllCustomPropertySets().stream()
+                                    .filter(registeredCustomPropertySet -> registeredCustomPropertySet.getCustomPropertySet().getPersistenceSupport().componentName()
+                                            .compareToIgnoreCase(componentName) == 0).findFirst());
+
 
             rcps.ifPresent(registeredCustomPropertySet -> {
                 CustomPropertySet cps = registeredCustomPropertySet.getCustomPropertySet();
