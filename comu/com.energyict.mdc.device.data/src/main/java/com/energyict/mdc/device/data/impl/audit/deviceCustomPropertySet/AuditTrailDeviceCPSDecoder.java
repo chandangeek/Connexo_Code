@@ -30,7 +30,7 @@ public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
         super(ormService, thesaurus, meteringService, serverDeviceService, customPropertySetService);
     }
 
-    @Override
+    /*@Override
     protected void decodeReference() {
         try {
             device = serverDeviceService.findDeviceById(getAuditTrailReference().getPkDomain())
@@ -47,7 +47,7 @@ public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
         }
         catch (Exception ignored){
         }
-    }
+    }*/
 
     @Override
     public Object getContextReference() {

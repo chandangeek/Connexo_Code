@@ -149,11 +149,11 @@ public class AuditTrailDeviceSpecificationDecoder extends AbstractDeviceAuditDec
 
         List<MeterConfiguration> actualEntries = getActualEntries(dataMapper, ImmutableMap.of("DEVICEID", endDevice.get().getId()));
         Optional<MeterConfiguration> fromMeterConfiguration = actualEntries.stream()
-                .sorted(Comparator.comparing(mc -> mc.getInterval().toOpenRange().lowerEndpoint()))
+                .sorted(Comparator.comparing(mc -> mc.getInterval().toOpenClosedRange().lowerEndpoint()))
                 .findFirst();
 
         Optional<MeterConfiguration> toMeterConfiguration = fromMeterConfiguration.map(meterConfiguration ->
-                getEntriesByInterval(dataMapper, meterConfiguration.getInterval().toOpenRange().upperEndpoint().plusMillis(1))
+                getEntriesByInterval(dataMapper, meterConfiguration.getInterval().toOpenClosedRange().upperEndpoint().plusMillis(1))
                         .stream()
                         .findFirst())
                 .orElseGet(() -> Optional.empty());
@@ -211,13 +211,13 @@ public class AuditTrailDeviceSpecificationDecoder extends AbstractDeviceAuditDec
 
         List<MeterConfiguration> actualEntries = getActualEntries(dataMapper, ImmutableMap.of("DEVICEID", endDevice.get().getId()));
         Optional<MeterConfiguration> fromMeterConfiguration = actualEntries.stream()
-                .sorted(Comparator.comparing(mc -> mc.getInterval().toOpenRange().lowerEndpoint()))
+                .sorted(Comparator.comparing(mc -> mc.getInterval().toOpenClosedRange().lowerEndpoint()))
                 .findFirst();
 
         Optional<MeterConfiguration> toMeterConfiguration = fromMeterConfiguration
-                .filter(meterConfiguration -> meterConfiguration.getInterval().toOpenRange().hasUpperBound())
+                .filter(meterConfiguration -> meterConfiguration.getInterval().toOpenClosedRange().hasUpperBound())
                 .map(meterConfiguration ->
-                getEntriesByInterval(dataMapper, meterConfiguration.getInterval().toOpenRange().upperEndpoint().plusMillis(1))
+                getEntriesByInterval(dataMapper, meterConfiguration.getInterval().toOpenClosedRange().upperEndpoint().plusMillis(1))
                         .stream()
                         .findFirst())
                 .orElseGet(() -> Optional.empty());
@@ -227,8 +227,8 @@ public class AuditTrailDeviceSpecificationDecoder extends AbstractDeviceAuditDec
                 Optional<MeterReadingTypeConfiguration> mrtc = toMeterConfiguration.get().getReadingTypeConfigs().stream()
                         .filter(to -> to.getMeasured().getMRID().compareToIgnoreCase(fromReadingTypeConfig.getMeasured().getMRID()) == 0)
                         .filter(to ->
-                                (to.getOverflowValue().get().compareTo(fromReadingTypeConfig.getOverflowValue().get()) != 0) ||
-                                        (to.getNumberOfFractionDigits().getAsInt() != fromReadingTypeConfig.getNumberOfFractionDigits().getAsInt()))
+                                (!to.getOverflowValue().equals(fromReadingTypeConfig.getOverflowValue())) ||
+                                        (!fromReadingTypeConfig.getNumberOfFractionDigits().equals(to.getNumberOfFractionDigits())))
                         .findFirst();
 
                 if (mrtc.isPresent()){

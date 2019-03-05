@@ -71,9 +71,8 @@ public final class OrmServiceImpl implements OrmService {
     private volatile SchemaInfoProvider schemaInfoProvider;
     private volatile TransactionService transactionService;
     private final String ENABLE_PARTITION_PROPERTY = "enable.partitioning";
-    private String enablePartition;
     private final String ENABLE_AUDIT_PROPERTY = "enable.auditing";
-
+    private String enablePartition;
     private String enableAuditing;
     private Registration clearCacheOnRollBackRegistration;
 
