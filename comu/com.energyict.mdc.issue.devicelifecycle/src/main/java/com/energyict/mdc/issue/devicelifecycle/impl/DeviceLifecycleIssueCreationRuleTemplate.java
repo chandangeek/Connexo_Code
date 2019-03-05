@@ -216,9 +216,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         RecurrenceSelectionInfo[] possibleValues = possibleActionValues.entrySet().stream()
                 .map(entry -> new RecurrenceSelectionInfo(entry.getKey(), entry.getValue()))
                 .toArray(RecurrenceSelectionInfo[]::new);
-        if (deviceLifeCycleProps.isEmpty()) {
-            clearAndRecalculateCache();
-        }
+        clearAndRecalculateCache();
         DeviceLifeCycleTransitionPropsInfo[] deviceLifeCyclePropsPossibleValues = deviceLifeCycleProps.stream().toArray(DeviceLifeCycleTransitionPropsInfo[]::new);
 
         Builder<PropertySpec> builder = ImmutableList.builder();
