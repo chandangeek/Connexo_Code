@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.nls.Thesaurus;
@@ -30,11 +29,13 @@ public class MasterDataLinkageFaultMessageFactory {
         this.replyTypeFactory = replyTypeFactory;
     }
 
-    Supplier<FaultMessage> createMasterDataLinkageFaultMessageSupplier(com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction action, MessageSeeds messageSeed, Object... args) {
+    Supplier<FaultMessage> createMasterDataLinkageFaultMessageSupplier(MasterDataLinkageAction action,
+            MessageSeeds messageSeed, Object... args) {
         return () -> createMasterDataLinkageFaultMessage(action, messageSeed, args);
     }
 
-    public FaultMessage createMasterDataLinkageFaultMessage(com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction action, MessageSeeds messageSeed, Object... args) {
+    public FaultMessage createMasterDataLinkageFaultMessage(MasterDataLinkageAction action, MessageSeeds messageSeed,
+            Object... args) {
         return createMasterDataLinkageFaultMessage(action, replyTypeFactory.failureReplyType(messageSeed, args));
     }
 
@@ -47,7 +48,8 @@ public class MasterDataLinkageFaultMessageFactory {
     }
 
     private FaultMessage createMasterDataLinkageFaultMessage(MasterDataLinkageAction action, ReplyType replyType) {
-        MasterDataLinkageConfigFaultMessageType faultMessageType = masterDataLinkageMessageObjectFactory.createMasterDataLinkageConfigFaultMessageType();
+        MasterDataLinkageConfigFaultMessageType faultMessageType = masterDataLinkageMessageObjectFactory
+                .createMasterDataLinkageConfigFaultMessageType();
         faultMessageType.setReply(replyType);
         return new FaultMessage(action.getBasicSeed().translate(thesaurus), faultMessageType);
     }

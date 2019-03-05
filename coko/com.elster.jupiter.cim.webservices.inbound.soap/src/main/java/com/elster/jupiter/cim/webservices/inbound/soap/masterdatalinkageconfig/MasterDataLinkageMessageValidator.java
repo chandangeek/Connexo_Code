@@ -1,6 +1,5 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
@@ -30,34 +29,37 @@ public class MasterDataLinkageMessageValidator {
         this.faultMessageFactory = faultMessageFactory;
     }
 
-    void validate(MasterDataLinkageConfigRequestMessageType message, MasterDataLinkageAction linkageAction) throws FaultMessage {
-        this.currentLinkageAction = linkageAction;
+    void validate(MasterDataLinkageConfigRequestMessageType message, MasterDataLinkageAction linkageAction)
+            throws FaultMessage {
+        currentLinkageAction = linkageAction;
         if (message.getPayload() == null) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(
-                    currentLinkageAction, MessageSeeds.MISSING_ELEMENT, PAYLOAD_ELEMENT);
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                    MessageSeeds.MISSING_ELEMENT, PAYLOAD_ELEMENT);
         }
         if (message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent() == null) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(
-                    currentLinkageAction, MessageSeeds.MISSING_ELEMENT, CONFIGURATION_EVENT_ELEMENT);
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                    MessageSeeds.MISSING_ELEMENT, CONFIGURATION_EVENT_ELEMENT);
         }
         if (message.getPayload().getMasterDataLinkageConfig().getMeter().isEmpty()) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(
-                    currentLinkageAction, MessageSeeds.EMPTY_LIST, METER_LIST_ELEMENT);
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction, MessageSeeds.EMPTY_LIST,
+                    METER_LIST_ELEMENT);
         }
         if (message.getPayload().getMasterDataLinkageConfig().getUsagePoint().isEmpty()) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(
-                    currentLinkageAction, MessageSeeds.EMPTY_LIST, USAGE_POINT_LIST_ELEMENT);
+            throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction, MessageSeeds.EMPTY_LIST,
+                    USAGE_POINT_LIST_ELEMENT);
         }
         if (currentLinkageAction == MasterDataLinkageAction.CREATE) {
-            if (message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent().getCreatedDateTime() == null) {
-                throw faultMessageFactory.createMasterDataLinkageFaultMessage(
-                        currentLinkageAction, MessageSeeds.MISSING_ELEMENT, CREATED_DATE_TIME_ATTRIBUTE);
+            if (message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent()
+                    .getCreatedDateTime() == null) {
+                throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                        MessageSeeds.MISSING_ELEMENT, CREATED_DATE_TIME_ATTRIBUTE);
             }
         }
         if (currentLinkageAction == MasterDataLinkageAction.CLOSE) {
-            if (message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent().getEffectiveDateTime() == null) {
-                throw faultMessageFactory.createMasterDataLinkageFaultMessage(
-                        currentLinkageAction, MessageSeeds.MISSING_ELEMENT, EFFECTIVE_DATE_TIME_ATTRIBUTE);
+            if (message.getPayload().getMasterDataLinkageConfig().getConfigurationEvent()
+                    .getEffectiveDateTime() == null) {
+                throw faultMessageFactory.createMasterDataLinkageFaultMessage(currentLinkageAction,
+                        MessageSeeds.MISSING_ELEMENT, EFFECTIVE_DATE_TIME_ATTRIBUTE);
             }
         }
         validateIdentificationAttributes(message.getPayload().getMasterDataLinkageConfig().getMeter().get(0));
@@ -69,8 +71,8 @@ public class MasterDataLinkageMessageValidator {
             return;
         }
         meter.getNames().stream().findFirst().map(Name::getName)
-                .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(
-                        currentLinkageAction, MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, METER_ELEMENT));
+                .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(currentLinkageAction,
+                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, METER_ELEMENT));
     }
 
     private void validateIdentificationAttributes(UsagePoint usagePoint) throws FaultMessage {
@@ -78,7 +80,7 @@ public class MasterDataLinkageMessageValidator {
             return;
         }
         usagePoint.getNames().stream().findFirst().map(Name::getName)
-                .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(
-                        currentLinkageAction, MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, USAGE_POINT_ELEMENT));
+                .orElseThrow(faultMessageFactory.createMasterDataLinkageFaultMessageSupplier(currentLinkageAction,
+                        MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, USAGE_POINT_ELEMENT));
     }
 }

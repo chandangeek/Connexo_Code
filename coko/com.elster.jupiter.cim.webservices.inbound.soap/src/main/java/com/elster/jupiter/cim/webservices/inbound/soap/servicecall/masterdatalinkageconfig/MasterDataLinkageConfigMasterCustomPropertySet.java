@@ -131,8 +131,8 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 						.describedAs(TranslationKeys.CALLS_EXPECTED).fromThesaurus(thesaurus).finish(),
 				propertySpecService.stringSpec()
 						.named(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName(),
-								TranslationKeys.CALL_BACK_URL)
-						.describedAs(TranslationKeys.CALL_BACK_URL).fromThesaurus(thesaurus).finish());
+								TranslationKeys.CALLBACK_URL)
+						.describedAs(TranslationKeys.CALLBACK_URL).fromThesaurus(thesaurus).finish());
 	}
 
 	private class MasterDataLinkageConfigMasterCustomPropertyPersistenceSupport

@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
@@ -17,12 +16,10 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
 
     @Test
     public void testValidate_createLinkage_payloadIsMissing() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .dropPayload()
-                .build();
+        // Prepare
+        message = getValidMessage().dropPayload().build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CREATE);
             failNoException();
@@ -34,12 +31,10 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
 
     @Test
     public void testValidate_closeLinkage_payloadIsMissing() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .dropPayload()
-                .build();
+        // Prepare
+        message = getValidMessage().dropPayload().build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CLOSE);
             failNoException();
@@ -51,12 +46,10 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
 
     @Test
     public void testValidate_createLinkage_ConfigEventIsMissing() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .dropConfigEvent()
-                .build();
+        // Prepare
+        message = getValidMessage().dropConfigEvent().build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CREATE);
             failNoException();
@@ -68,12 +61,10 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
 
     @Test
     public void testValidate_closeLinkage_ConfigEventIsMissing() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .dropConfigEvent()
-                .build();
+        // Prepare
+        message = getValidMessage().dropConfigEvent().build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CLOSE);
             failNoException();
@@ -85,12 +76,10 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
 
     @Test
     public void testValidate_createLinkage_emptyMeterList() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .eraseMeterList()
-                .build();
+        // Prepare
+        message = getValidMessage().eraseMeterList().build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CREATE);
             failNoException();
@@ -102,12 +91,10 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
 
     @Test
     public void testValidate_closeLinkage_emptyMeterList() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .eraseMeterList()
-                .build();
+        // Prepare
+        message = getValidMessage().eraseMeterList().build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CLOSE);
             failNoException();
@@ -119,12 +106,10 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
 
     @Test
     public void testValidate_createLinkage_emptyUsagePointList() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .eraseUsagePointList()
-                .build();
+        // Prepare
+        message = getValidMessage().eraseUsagePointList().build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CREATE);
             failNoException();
@@ -136,12 +121,10 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
 
     @Test
     public void testValidate_closeLinkage_emptyUsagePointList() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .eraseUsagePointList()
-                .build();
+        // Prepare
+        message = getValidMessage().eraseUsagePointList().build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CLOSE);
             failNoException();
@@ -153,12 +136,10 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
 
     @Test
     public void testValidate_createLinkage_createdDateTimeIsMissing() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .withCreatedDateTime(null)
-                .build();
+        // Prepare
+        message = getValidMessage().withCreatedDateTime(null).build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CREATE);
             failNoException();
@@ -170,34 +151,28 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
 
     @Test
     public void testValidate_closeLinkage_createdDateTimeIsMissing() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .withCreatedDateTime(null)
-                .build();
+        // Prepare
+        message = getValidMessage().withCreatedDateTime(null).build();
 
-        //Act and verify no exceptions
+        // Act and verify no exceptions
         getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CLOSE);
     }
 
     @Test
     public void testValidate_createLinkage_effectiveDateTimeIsMissing() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .withEffectiveDateTime(null)
-                .build();
+        // Prepare
+        message = getValidMessage().withEffectiveDateTime(null).build();
 
-        //Act and verify no exceptions
+        // Act and verify no exceptions
         getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CREATE);
     }
 
     @Test
     public void testValidate_closeLinkage_effectiveDateTimeIsMissing() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .withEffectiveDateTime(null)
-                .build();
+        // Prepare
+        message = getValidMessage().withEffectiveDateTime(null).build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CLOSE);
             failNoException();
@@ -209,72 +184,64 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
 
     @Test
     public void testValidate_createLinkage_identificationAttributesMissedForMeter() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .withMeterName(null)
-                .withMeterMRID(null)
-                .build();
+        // Prepare
+        message = getValidMessage().withMeterName(null).withMeterMRID(null).build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CREATE);
             failNoException();
         } catch (FaultMessage e) {
-            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER,
+                    MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
                     "Either element 'mRID' or 'Names' is required under 'MasterDataLinkageConfig.Meter[0]' for identification purpose.");
         }
     }
 
     @Test
     public void testValidate_closeLinkage_identificationAttributesMissedForMeter() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .withMeterName(null)
-                .withMeterMRID(null)
-                .build();
+        // Prepare
+        message = getValidMessage().withMeterName(null).withMeterMRID(null).build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CLOSE);
             failNoException();
         } catch (FaultMessage e) {
-            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER,
+                    MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
                     "Either element 'mRID' or 'Names' is required under 'MasterDataLinkageConfig.Meter[0]' for identification purpose.");
         }
     }
 
     @Test
     public void testValidate_createLinkage_identificationAttributesMissedForUsagePoint() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .withUsagePointMRID(null)
-                .withUsagePointName(null)
-                .build();
+        // Prepare
+        message = getValidMessage().withUsagePointMRID(null).withUsagePointName(null).build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CREATE);
             failNoException();
         } catch (FaultMessage e) {
-            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER,
+                    MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
                     "Either element 'mRID' or 'Names' is required under 'MasterDataLinkageConfig.UsagePoint[0]' for identification purpose.");
         }
     }
 
     @Test
     public void testValidate_closeLinkage_identificationAttributesMissedForUsagePoint() throws Exception {
-        //Prepare
-        message = getValidMessage()
-                .withUsagePointMRID(null)
-                .withUsagePointName(null)
-                .build();
+        // Prepare
+        message = getValidMessage().withUsagePointMRID(null).withUsagePointName(null).build();
 
-        //Act and verify
+        // Act and verify
         try {
             getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CLOSE);
             failNoException();
         } catch (FaultMessage e) {
-            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER,
+                    MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
                     "Either element 'mRID' or 'Names' is required under 'MasterDataLinkageConfig.UsagePoint[0]' for identification purpose.");
         }
     }

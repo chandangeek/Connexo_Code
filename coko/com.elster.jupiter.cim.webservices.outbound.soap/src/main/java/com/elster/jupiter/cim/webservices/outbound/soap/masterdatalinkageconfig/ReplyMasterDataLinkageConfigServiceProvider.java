@@ -3,10 +3,9 @@
  */
 package com.elster.jupiter.cim.webservices.outbound.soap.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.FailedLinkageOperation;
-import com.elster.jupiter.cim.webservices.inbound.soap.LinkageOperation;
-import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
-import com.elster.jupiter.cim.webservices.inbound.soap.ReplyMasterDataLinkageConfigWebService;
+import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
@@ -17,7 +16,6 @@ import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigEventMessageType;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigPayloadType;
-import ch.iec.tc57._2011.masterdatalinkageconfigmessage.ObjectFactory;
 import ch.iec.tc57._2011.replymasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.replymasterdatalinkageconfig.MasterDataLinkageConfigPort;
 import ch.iec.tc57._2011.replymasterdatalinkageconfig.ReplyMasterDataLinkageConfig;
@@ -59,7 +57,7 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 	private final Map<String, MasterDataLinkageConfigPort> masterDataLinkageConfigPorts = new ConcurrentHashMap<>();
 
 	private ch.iec.tc57._2011.schema.message.ObjectFactory headerTypeFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
-	private ch.iec.tc57._2011.masterdatalinkageconfigmessage.ObjectFactory payloadFactory = new ObjectFactory();
+	private ch.iec.tc57._2011.masterdatalinkageconfigmessage.ObjectFactory payloadFactory = new ch.iec.tc57._2011.masterdatalinkageconfigmessage.ObjectFactory();
 
 	@Reference
 	public void setWebServicesService(WebServicesService webServicesService) {
@@ -82,7 +80,7 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 	}
 
 	@Override
-	public void call(EndPointConfiguration endPointConfiguration, MasterDataLinkageAction operation,
+	public void call(EndPointConfiguration endPointConfiguration, String operation,
 			List<LinkageOperation> successfulLinkages, List<FailedLinkageOperation> failedLinkages,
 			BigDecimal expectedNumberOfCalls) {
 		publish(endPointConfiguration);
@@ -93,12 +91,12 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 					.ifPresent(service -> {
 						try {
 							switch (operation) {
-							case CREATE:
+							case "CREATE":
 								service.createdMasterDataLinkageConfig(createResponseMessage(
 										createMasterDataLinkageConfig(successfulLinkages), failedLinkages,
 										expectedNumberOfCalls.intValue(), HeaderType.Verb.CREATED));
 								break;
-							case CLOSE:
+							case "CLOSE":
 								service.closedMasterDataLinkageConfig(createResponseMessage(
 										createMasterDataLinkageConfig(successfulLinkages), failedLinkages,
 										expectedNumberOfCalls.intValue(), HeaderType.Verb.CLOSED));

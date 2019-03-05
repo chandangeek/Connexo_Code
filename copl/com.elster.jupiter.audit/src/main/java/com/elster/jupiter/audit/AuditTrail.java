@@ -33,6 +33,7 @@ public interface AuditTrail {
 
     long getPkDomain();
 
-    long getPkContext();
+    long getPkContext1();
 
+    long getPkContext2();
 }

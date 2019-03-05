@@ -7,6 +7,8 @@ package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands.ServiceCallTypes;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
@@ -21,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,13 +41,16 @@ public class InstallerTest {
     private DataModelUpgrader dataModelUpgrader;
     @Mock
     private Logger logger;
+    @Mock
+    private MessageService messageService;
 
     @Test
     public void testInstall() {
         when(serviceCallService.findServiceCallType(anyString(), anyString())).thenReturn(Optional.empty());
-        Installer installer = new Installer(serviceCallService, customPropertySetService);
+        Installer installer = new Installer(serviceCallService, customPropertySetService, messageService);
         when(customPropertySetService.findActiveCustomPropertySet(anyString()))
                 .thenReturn(Optional.of(registeredCustomPropertySet));
+        when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.of(mock(DestinationSpec.class)));
 
         installer.install(dataModelUpgrader, logger);
 

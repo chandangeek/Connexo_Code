@@ -2,8 +2,15 @@
 -dsannotations: *
 
 Private-Package: com.elster.jupiter.cim.webservices.inbound.soap.*,\
-                 com.elster.jupiter.cim.*,\
-                 ch.iec.tc57._2011.*,\
+                 ch.iec.tc57._2011.executemasterdatalinkageconfig.*,\
+                 ch.iec.tc57._2011.executeusagepointconfig.*,\
+                 ch.iec.tc57._2011.masterdatalinkageconfig.*,\
+                 ch.iec.tc57._2011.masterdatalinkageconfigmessage.*,\
+                 ch.iec.tc57._2011.replymasterdatalinkageconfig.*,\
+                 ch.iec.tc57._2011.replyusagepointconfig.*,\
+                 ch.iec.tc57._2011.usagepointconfig.*,\
+                 ch.iec.tc57._2011.usagepointconfigmessage.*,\
+                 ch.iec.tc57._2011.executemasterdatalinkageconfig.*,\
                  com.elster.connexo.*,\
                  org.w3._2001.xmlschema
 Export-Package: com.elster.jupiter.cim.webservices.inbound.soap

@@ -3,9 +3,8 @@
  */
 package com.elster.jupiter.cim.webservices.outbound.soap.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.FailedLinkageOperation;
-import com.elster.jupiter.cim.webservices.inbound.soap.LinkageOperation;
-import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
+import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.MasterDataLinkageConfig;
@@ -87,7 +86,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
 
     @Test
     public void testCallCreateForSingleSuccess() throws FaultMessage {
-        MasterDataLinkageAction operation = MasterDataLinkageAction.CREATE;
+        String operation = "CREATE";
         List<FailedLinkageOperation> failedLinkages = Collections.emptyList();
         List<LinkageOperation> successfulLinkages = Arrays.asList(successfulLinkage);
         BigDecimal expectedNumberOfCalls = BigDecimal.ONE;
@@ -128,7 +127,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
 
     @Test
     public void testCallCloseForSingleFailure() throws FaultMessage {
-        MasterDataLinkageAction operation = MasterDataLinkageAction.CLOSE;
+        String operation = "CLOSE";
         List<FailedLinkageOperation> failedLinkages = Arrays.asList(failedLinkage);
         List<LinkageOperation> successfulLinkages = Collections.emptyList();
         BigDecimal expectedNumberOfCalls = BigDecimal.ONE;
@@ -158,7 +157,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
 
     @Test
     public void testCallCloseForPartialSuccess() throws FaultMessage {
-        MasterDataLinkageAction operation = MasterDataLinkageAction.CLOSE;
+        String operation = "CLOSE";
         List<FailedLinkageOperation> failedLinkages = Arrays.asList(failedLinkage, failedLinkage, failedLinkage);
         List<LinkageOperation> successfulLinkages = Arrays.asList(successfulLinkage, successfulLinkage);
         BigDecimal expectedNumberOfCalls = new BigDecimal(failedLinkages.size() + successfulLinkages.size());

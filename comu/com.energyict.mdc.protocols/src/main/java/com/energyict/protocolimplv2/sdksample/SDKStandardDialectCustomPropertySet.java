@@ -5,6 +5,7 @@
 package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
@@ -25,8 +26,9 @@ import javax.inject.Inject;
 public class SDKStandardDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SDKStandardDialectProperties> {
 
     @Inject
-    public SDKStandardDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public SDKStandardDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
         super(thesaurus, propertySpecService);
+        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Override

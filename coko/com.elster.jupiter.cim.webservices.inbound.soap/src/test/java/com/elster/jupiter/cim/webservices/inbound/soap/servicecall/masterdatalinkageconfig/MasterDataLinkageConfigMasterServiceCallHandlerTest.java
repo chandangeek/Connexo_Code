@@ -3,13 +3,13 @@
  */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.FailedLinkageOperation;
-import com.elster.jupiter.cim.webservices.inbound.soap.LinkageOperation;
-import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
-import com.elster.jupiter.cim.webservices.inbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ObjectHolder;
+import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.UsagePointInfo;
+import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -378,12 +378,12 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
                 assertThat(linkageOperation.getUsagePointMrid()).isEqualTo(USAGE_POINT_MRID);
                 assertThat(linkageOperation.getUsagePointName()).isEqualTo(USAGE_POINT_NAME);
             }
-        }).when(replyMasterDataLinkageConfigWebService).call(eq(endPointConfiguration), eq(OPERATION),
+        }).when(replyMasterDataLinkageConfigWebService).call(eq(endPointConfiguration), eq(OPERATION.name()),
                 anyListOf(LinkageOperation.class), anyListOf(FailedLinkageOperation.class), eq(expectedNumberOfCalls));
 
         handler.onStateChange(serviceCall, DefaultState.ONGOING, endState);
 
-        verify(replyMasterDataLinkageConfigWebService).call(eq(endPointConfiguration), eq(OPERATION),
+        verify(replyMasterDataLinkageConfigWebService).call(eq(endPointConfiguration), eq(OPERATION.name()),
                 anyListOf(LinkageOperation.class), anyListOf(FailedLinkageOperation.class), eq(expectedNumberOfCalls));
     }
 

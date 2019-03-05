@@ -6,6 +6,7 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
@@ -50,6 +51,8 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
     private FirmwareVersion communicationFirmwareVersion;
     @Mock
     private DeviceMessageCategory deviceMessageCategory;
+    @Mock
+    DeviceMessageService deviceMessageService;
 
     @Before
     public void setUpStubs() {
@@ -72,7 +75,7 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         when(deviceMessageCategory.getId()).thenReturn(8);
         when(this.taskService.findFirmwareComTask()).thenReturn(Optional.<ComTask>empty());
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class))).thenAnswer(
-                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService).initFor((Device) invocationOnMock.getArguments()[0])
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService).initFor((Device) invocationOnMock.getArguments()[0])
         );
     }
 

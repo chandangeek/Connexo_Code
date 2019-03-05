@@ -21,7 +21,9 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
+import com.elster.jupiter.hsm.impl.HsmEncryptionServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiService;
@@ -196,6 +198,7 @@ public class DataCollectionKpiImplTest {
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
             bind(MeteringZoneService.class).toInstance(mock(MeteringZoneService.class));
         }
     }

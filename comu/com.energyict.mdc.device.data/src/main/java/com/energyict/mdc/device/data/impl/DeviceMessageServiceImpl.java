@@ -309,6 +309,17 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
         }
     }
 
+    @Override
+    public List<DeviceMessage> findDeviceFirmwareMessages(Device device) {
+        Condition condition = where(DeviceMessageImpl.Fields.DEVICE.fieldName()).isEqualTo(device)
+                .and(where(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).isGreaterThanOrEqual(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE.dbValue()))
+                .and(where(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).isLessThanOrEqual(DeviceMessageId.TRANSFER_HES_CA_CONFIG_IMAGE.dbValue()));
+        return this.deviceDataModelService
+                .dataModel()
+                .query(DeviceMessage.class)
+                .select(condition);
+    }
+
     private List<DeviceMessage> find(Introspector introspector) throws UnsupportedDeviceMessageIdentifierTypeName {
         if (introspector.getTypeName().equals(IntrospectorTypes.DatabaseId.name())) {
             return this.findDeviceMessageById(Long.valueOf(introspector.getValue(IntrospectorTypes.DatabaseId.roles[0]).toString()))

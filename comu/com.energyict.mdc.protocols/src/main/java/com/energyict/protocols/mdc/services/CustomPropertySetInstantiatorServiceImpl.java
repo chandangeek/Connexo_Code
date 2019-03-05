@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.services;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -31,6 +32,7 @@ public class CustomPropertySetInstantiatorServiceImpl implements CustomPropertyS
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
     private volatile CertificateWrapperExtractor certificateWrapperExtractor;
+    private volatile CustomPropertySetService customPropertySetService;
 
     // For OSGi purposes
     public CustomPropertySetInstantiatorServiceImpl() {
@@ -43,6 +45,7 @@ public class CustomPropertySetInstantiatorServiceImpl implements CustomPropertyS
         this.certificateWrapperExtractor = certificateWrapperExtractor;
         this.setPropertySpecService(propertySpecService);
         this.setNlsService(nlsService);
+        this.setCustomPropertySetService(customPropertySetService);
         this.activate();
     }
 
@@ -59,6 +62,7 @@ public class CustomPropertySetInstantiatorServiceImpl implements CustomPropertyS
                 this.bind(CertificateWrapperExtractor.class).toInstance(certificateWrapperExtractor);
                 this.bind(Thesaurus.class).toInstance(thesaurus);
                 this.bind(MessageInterpolator.class).toInstance(thesaurus);
+                this.bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             }
         };
     }
@@ -87,5 +91,10 @@ public class CustomPropertySetInstantiatorServiceImpl implements CustomPropertyS
     @Reference
     public void setCertificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
         this.certificateWrapperExtractor = certificateWrapperExtractor;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 }

@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.EventType;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -73,6 +74,7 @@ class ProtocolDialectPropertiesImpl
 
     private ProtocolPluggableService protocolPluggableService;
     private final CustomPropertySetService customPropertySetService;
+    private final EventService eventService;
 
     @Inject
     ProtocolDialectPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, CustomPropertySetService customPropertySetService) {
@@ -81,6 +83,7 @@ class ProtocolDialectPropertiesImpl
         this.cache = new PropertyCache<>(this);
         this.clock = clock;
         this.protocolPluggableService = protocolPluggableService;
+        this.eventService = eventService;
     }
 
     public ProtocolDialectPropertiesImpl initialize (Device device, ProtocolDialectConfigurationProperties configurationProperties) {
@@ -89,6 +92,10 @@ class ProtocolDialectPropertiesImpl
         this.setName(configurationProperties.getName());
         this.setDeviceProtocolPluggableClassFromConfigurationProperties();
         return this;
+    }
+
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        customPropertySetService.addCustomPropertySet(this.getCustomPropertySet().get());
     }
 
     private void setDeviceProtocolPluggableClassFromConfigurationProperties() {
@@ -306,6 +313,7 @@ class ProtocolDialectPropertiesImpl
     }
 
     private CustomPropertySetValues getCustomProperties(CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>> customPropertySet, Instant effectiveTimestamp) {
+        this.eventService.postEvent(EventType.CUSTOM_PROPERTY_SET_REGISTERED.topic(), customPropertySet.getPersistenceSupport().componentName());
         return this.customPropertySetService.getUniqueValuesFor(customPropertySet, this, effectiveTimestamp);
     }
 

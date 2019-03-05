@@ -4,13 +4,12 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.FailedLinkageOperation;
-import com.elster.jupiter.cim.webservices.inbound.soap.LinkageOperation;
-import com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageAction;
-import com.elster.jupiter.cim.webservices.inbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ObjectHolder;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.UsagePointInfo;
+import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -140,8 +139,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
         ServiceCall child = serviceCall.findChildren().stream().findFirst().get();
         MasterDataLinkageConfigDomainExtension extensionForChild = child
                 .getExtension(MasterDataLinkageConfigDomainExtension.class).get();
-        MasterDataLinkageAction action = MasterDataLinkageAction.valueOf(extensionForChild.getOperation());
-        replyMasterDataLinkageConfigWebServiceHolder.getObject().call(endPointConfiguration.get(), action,
+        replyMasterDataLinkageConfigWebServiceHolder.getObject().call(endPointConfiguration.get(), extensionForChild.getOperation(),
                 getSuccessfulLinkages(serviceCall), getFailedLinkages(serviceCall),
                 extension.getExpectedNumberOfCalls());
     }
