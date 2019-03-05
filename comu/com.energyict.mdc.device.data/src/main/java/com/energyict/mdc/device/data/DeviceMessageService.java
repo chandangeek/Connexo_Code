@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.List;
 import java.util.Optional;
 
 @ProviderType
@@ -71,4 +72,6 @@ public interface DeviceMessageService {
      * @return Found DeviceMessages
      */
     Finder<DeviceMessage> findDeviceMessagesByFilter(DeviceMessageQueryFilter deviceMessageQueryFilter);
+
+    List<DeviceMessage> findDeviceFirmwareMessages(Device device);
 }

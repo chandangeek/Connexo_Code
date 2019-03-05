@@ -171,7 +171,6 @@ import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -235,11 +234,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final String CHARSET = "UTF-8";
 
     /**
-     * The set of supported messages (which, ironically, is not used).
-     */
-    private static final Set<DeviceMessageSpec> SUPPORTED_MESSAGES = new HashSet<>();
-
-    /**
      * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
      */
     private static final Lock FIRMWARE_FILE_LOCK = new ReentrantLock();
@@ -286,8 +280,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 DeviceActionMessage.ResetLogicalDevice.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.FETCH_LOGGING.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.SET_REMOTE_SYSLOG_CONFIG.get(this.propertySpecService, this.nlsService, this.converter),
-
-                PLCConfigurationDeviceMessage.PingMeter.get(this.propertySpecService, this.nlsService, this.converter),
 
                 // FirmwareDeviceMessage.BroadcastFirmwareUpgrade.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter),
@@ -388,6 +380,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 FirewallConfigurationMessage.ConfigureFWLAN.get(this.propertySpecService, this.nlsService, this.converter),
                 FirewallConfigurationMessage.ConfigureFWWAN.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_WEBPORTAL_PASSWORD.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.PingMeter.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.SetHighLowLQI.get(this.propertySpecService, this.nlsService, this.converter),
@@ -427,6 +420,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 PLCConfigurationDeviceMessage.ReadBlacklist.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.RENEW_GMK.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.WRITE_GMK_SCHEDULE_EXECUTION_TIME.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetToneMaskAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
 
                 // Logbook resets.
                 LogBookDeviceMessage.ResetMainLogbook.get(this.propertySpecService, this.nlsService, this.converter),

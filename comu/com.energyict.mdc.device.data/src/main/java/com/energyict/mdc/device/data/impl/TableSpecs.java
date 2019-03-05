@@ -1015,6 +1015,11 @@ public enum TableSpecs {
                     references(ReadingType.class).
                     map("readingType").
                     add();
+
+            table.audit(DDC_OVERRULEDOBISCODE.name())
+                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.ordinal())
+                    .domainReferences("FK_DDC_OVEROBIS_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
+                    .build();
         }
     },
     DDC_COMTASKEXEC_TRIGGERS {

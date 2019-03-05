@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetSearchEnabler;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.EventType;
 import com.elster.jupiter.cps.HardCodedFieldNames;
 import com.elster.jupiter.cps.OverlapCalculatorBuilder;
 import com.elster.jupiter.cps.PersistenceSupport;
@@ -16,6 +17,7 @@ import com.elster.jupiter.cps.Privileges;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -104,6 +106,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile SearchService searchService;
     private volatile UpgradeService upgradeService;
+    private volatile EventService eventService;
 
     /**
      * Holds the {@link CustomPropertySet}s that were published on the whiteboard
@@ -125,7 +128,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     // For testing purposes
     @Inject
-    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, UserService userService, SearchService searchService, UpgradeService upgradeService) {
+    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
+                                        UserService userService, SearchService searchService, UpgradeService upgradeService, EventService eventService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
@@ -134,6 +138,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.setUserService(userService);
         this.setSearchService(searchService);
         this.setUpgradeService(upgradeService);
+        this.setEventService(eventService);
         this.activate();
     }
 
@@ -219,11 +224,17 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.upgradeService = upgradeService;
     }
 
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
+                bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(TransactionService.class).toInstance(transactionService);
@@ -238,7 +249,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     public void activate() {
         this.dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-                Version.version(10, 2), UpgraderV10_2.class
+                Version.version(10, 2), UpgraderV10_2.class,
+                Version.version(10, 6), UpgraderV10_6.class
         ));
         this.installed = true;
         this.registerAllCustomPropertySets();
@@ -338,6 +350,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 } else {
                     this.registerCustomPropertySet(customPropertySet, systemDefined);
                 }
+                this.eventService.postEvent(EventType.CUSTOM_PROPERTY_SET_REGISTERED.topic(), customPropertySet.getPersistenceSupport().componentName());
             } catch (UnderlyingSQLFailedException | CommitException | IllegalArgumentException | IllegalStateException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw e;
@@ -371,7 +384,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                             dataModel,
                             registeredCustomPropertySet.get()));
             // set customPropertySet to registeredCustomPropertySet
-            this.updateRegisteredCustomPropertySet(registeredCustomPropertySet.get(), customPropertySet);
+            this.updateRegisteredCustomPropertySet(registeredCustomPropertySet.get(), customPropertySet, systemDefined);
         } else {
             // First time registration
             DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet);
@@ -460,9 +473,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         return registeredCustomPropertySet;
     }
 
-    private void updateRegisteredCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet, CustomPropertySet customPropertySet) {
+    private void updateRegisteredCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet, CustomPropertySet customPropertySet, boolean systemDefined) {
         if (registeredCustomPropertySet instanceof RegisteredCustomPropertySetImpl) {
-            ((RegisteredCustomPropertySetImpl) registeredCustomPropertySet).updateCustomPropertySet(customPropertySet);
+            ((RegisteredCustomPropertySetImpl) registeredCustomPropertySet).updateCustomPropertySet(customPropertySet, systemDefined);
         }
     }
 
@@ -988,7 +1001,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             this.initializeUnderConstruction();
             this.addColumns();
             this.addPrimaryKey();
-            this.addAudit();
             return this.underConstruction;
         }
 
@@ -997,10 +1009,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                     .primaryKey(this.primaryKeyConstraintName(this.customPropertySet))
                     .on(this.primaryKeyColumns())
                     .add();
-        }
-
-        private void addAudit() {
-            this.customPropertySet.getPersistenceSupport().addAudit(this.underConstruction);
         }
 
         private Column[] primaryKeyColumns() {

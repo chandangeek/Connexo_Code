@@ -82,11 +82,18 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, Expira
     public SymmetricKeyWrapper newSymmetricKey(SecurityAccessorType securityAccessorType) {
         KeyImpl symmetricKeyWrapper;
         if (securityAccessorType.keyTypeIsHSM()){
-            symmetricKeyWrapper = dataModel.getInstance(HsmKeyImpl.class)
-                    .init(securityAccessorType.getKeyType(),
-                            securityAccessorType.getDuration().get(),
-                            securityAccessorType.getHsmKeyType().getLabel(),
-                            securityAccessorType.getHsmKeyType().getHsmJssKeyType());
+            if (securityAccessorType.getHsmKeyType().isReversible()) {
+                symmetricKeyWrapper = dataModel.getInstance(HsmReversibleKey.class).init(securityAccessorType.getKeyType(),
+                        securityAccessorType.getDuration().get(),
+                        securityAccessorType.getHsmKeyType().getLabel(),
+                        securityAccessorType.getHsmKeyType().getHsmJssKeyType());
+
+            } else {
+                symmetricKeyWrapper = dataModel.getInstance(HsmKeyImpl.class).init(securityAccessorType.getKeyType(),
+                        securityAccessorType.getDuration().get(),
+                        securityAccessorType.getHsmKeyType().getLabel(),
+                        securityAccessorType.getHsmKeyType().getHsmJssKeyType());
+            }
         } else {
             symmetricKeyWrapper = dataModel.getInstance(PlaintextSymmetricKeyImpl.class)
                     .init(securityAccessorType.getKeyType(), securityAccessorType.getDuration().get());

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+        name="GetMeterConfig"
+        targetNamespace="http://iec.ch/TC57/2011/GetMeterConfig"
+        xmlns:tns="http://iec.ch/TC57/2011/GetMeterConfig"
+        xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:infoMessage1="http://iec.ch/TC57/2011/GetMeterConfigMessage"
+        xmlns:infoMessage2="http://iec.ch/TC57/2011/MeterConfigMessage">
+    <wsdl:types>
+        <xs:schema
+                targetNamespace="http://iec.ch/TC57/2011/GetMeterConfig"
+                elementFormDefault="qualified">
+            <xs:import
+                    namespace="http://iec.ch/TC57/2011/GetMeterConfigMessage"
+                    schemaLocation="xsd/GetMeterConfigMessage.xsd"/>
+            <xs:import
+                namespace="http://iec.ch/TC57/2011/MeterConfigMessage"
+                schemaLocation="xsd/MeterConfigMessage.xsd"/>
+    </xs:schema>
+    </wsdl:types>
+    <!-- Message Definitions -->
+    <wsdl:message name="GetMeterConfigRequestMessage">
+        <wsdl:part name="GetMeterConfigRequestMessage"
+                   element="infoMessage1:GetMeterConfig"/>
+    </wsdl:message>
+    <wsdl:message name="ResponseMessage">
+        <wsdl:part name="ResponseMessage"
+                   element="infoMessage2:MeterConfigResponseMessage"/>
+    </wsdl:message>
+    <wsdl:message name="FaultMessage">
+        <wsdl:part name="FaultMessage"
+                   element="infoMessage2:MeterConfigFaultMessage"/>
+    </wsdl:message>
+    <!-- Port Definitions -->
+    <wsdl:portType name="GetMeterConfig_Port">
+        <wsdl:operation name="GetMeterConfig">
+            <wsdl:input name="GetMeterConfigRequest"
+                        message="tns:GetMeterConfigRequestMessage"/>
+            <wsdl:output name="GetMeterConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="GetMeterConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="GetMeterConfig_Binding"
+                  type="tns:GetMeterConfig_Port">
+        <soap:binding style="document"
+                      transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="GetMeterConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/GetMeterConfig/GetMeterConfig" style="document"/>
+            <wsdl:input name="GetMeterConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="GetMeterConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GetMeterConfigFault">
+                <soap:fault name="GetMeterConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="GetMeterConfig">
+        <wsdl:port name="GetMeterConfig_Port"
+                   binding="tns:GetMeterConfig_Binding">
+            <soap:address
+                    location="http://iec.ch/TC57/2011/GetMeterConfig/GetMeterConfig"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

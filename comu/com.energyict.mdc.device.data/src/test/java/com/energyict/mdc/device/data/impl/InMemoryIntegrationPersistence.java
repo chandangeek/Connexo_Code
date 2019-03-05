@@ -27,6 +27,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -728,6 +729,7 @@ public class InMemoryIntegrationPersistence {
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
             bind(HsmEnergyService.class).toInstance(hsmEnergyService);
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
         }
     }
 

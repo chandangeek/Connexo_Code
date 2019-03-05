@@ -5,6 +5,7 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
@@ -23,6 +24,8 @@ import com.elster.jupiter.users.UserService;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -91,7 +94,9 @@ public class EndPointConfigurationInfoFactory {
             info.username = ((OutboundEndPointConfiguration) endPointConfiguration).getUsername();
             info.password = ((OutboundEndPointConfiguration) endPointConfiguration).getPassword();
         }
-        info.properties = propertyValueInfoService.getPropertyInfos(endPointConfiguration.getPropertySpecs(), endPointConfiguration.getPropertiesWithValue());
+        List<PropertySpec> propertySpecs = endPointConfiguration.getPropertySpecs();
+        info.properties = propertySpecs.isEmpty() ? Collections.emptyList()
+                : propertyValueInfoService.getPropertyInfos(propertySpecs, endPointConfiguration.getPropertiesWithValue());
         return info;
     }
 

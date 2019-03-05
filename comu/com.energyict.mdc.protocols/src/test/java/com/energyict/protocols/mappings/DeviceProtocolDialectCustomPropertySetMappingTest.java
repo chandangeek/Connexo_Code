@@ -4,6 +4,7 @@
 
 package com.energyict.protocols.mappings;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.DialectCustomPropertySetNameDetective;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
@@ -45,8 +46,8 @@ public class DeviceProtocolDialectCustomPropertySetMappingTest {
         dialectCustomPropertySetClasses.addAll(searchDialectCustomPropertySetClasses("test.com.energyict"));
 
         for (Class<? extends AbstractDialectCustomPropertySet> customPropertySetClass : dialectCustomPropertySetClasses) {
-            AbstractDialectCustomPropertySet customPropertySet = customPropertySetClass.getDeclaredConstructor(Thesaurus.class, PropertySpecService.class)
-                    .newInstance(mock(Thesaurus.class), mock(PropertySpecService.class));
+            AbstractDialectCustomPropertySet customPropertySet = customPropertySetClass.getDeclaredConstructor(Thesaurus.class, PropertySpecService.class, CustomPropertySetService.class)
+                    .newInstance(mock(Thesaurus.class), mock(PropertySpecService.class), mock(CustomPropertySetService.class));
             Class<? extends DeviceProtocolDialect> dialectClass = customPropertySet.getDeviceProtocolDialect().getClass();
 
             assertThat(dialectClasses.contains(dialectClass))

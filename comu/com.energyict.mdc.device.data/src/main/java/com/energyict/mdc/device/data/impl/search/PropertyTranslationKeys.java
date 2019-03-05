@@ -51,6 +51,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CHANNEL_INTERVAL("device.channel.interval", "Interval"),
     CHANNEL_LAST_READING("device.channel.last.reading", "Last reading"),
     CHANNEL_LAST_VALUE("device.channel.last.value", "Timestamp last value"),
+    OVERFLOW_VALUE("device.dataSource.overflowValue","Overflow value"),
+    NUMBER_OF_FRACTION_DIGITS("device.dataSource.numberOfFractionDigits", "Number of fraction digits"),
     LOGBOOK("device.logbook", "Logbook"),
     LOGBOOK_NAME("device.logbook.name", "Name"),
     LOGBOOK_OBISCODE("device.logbook.obiscode", "OBIS code"),

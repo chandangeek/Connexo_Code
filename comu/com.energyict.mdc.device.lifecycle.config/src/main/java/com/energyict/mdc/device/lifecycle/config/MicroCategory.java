@@ -17,6 +17,5 @@ public enum MicroCategory {
     RETENTION,
     MONITORING,
     MULTIELEMENT,
-
-    ;
+    ZONES
 }
