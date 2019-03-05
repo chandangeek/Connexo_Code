@@ -7,6 +7,7 @@ package com.energyict.mdc.issue.devicelifecycle;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.nls.Thesaurus;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -32,4 +33,5 @@ public interface IssueDeviceLifecycleService {
     
     Finder<? extends IssueDeviceLifecycle> findAllDeviceLifecycleIssues(DeviceLifecycleIssueFilter filter);
 
+    Thesaurus thesaurus();
 }

@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -259,6 +260,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     void removeTransitionAction(StateTransition transition) {
         AuthorizedTransitionAction transitionAction = this.findActionFor(transition);
         this.actions.remove(transitionAction);
+        eventService.postEvent(EventType.DEVICE_LIFECYCLE_TRASITION_DELETE.topic(), Pair.of(this, transition));
     }
 
 }

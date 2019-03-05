@@ -28,6 +28,12 @@ public enum EventType {
             return eventTypeBuilder.shouldPublish();
         }
     },
+    DEVICE_LIFECYCLE_TRASITION_DELETE("dlc/transition/delete"){
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
     TRANSITION_FAILED("transition/FAILED"){
         @Override
         public void install(EventService eventService) {

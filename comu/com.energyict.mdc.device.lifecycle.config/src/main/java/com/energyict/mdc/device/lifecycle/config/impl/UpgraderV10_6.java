@@ -11,6 +11,7 @@ import com.energyict.mdc.device.lifecycle.config.EventType;
 
 import javax.inject.Inject;
 
+
 public class UpgraderV10_6 implements Upgrader {
     private final EventService eventService;
 
@@ -22,5 +23,8 @@ public class UpgraderV10_6 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         EventType.TRANSITION_FAILED.install(eventService);
+        EventType.DEVICE_LIFECYCLE_TRASITION_DELETE.install(eventService);
     }
+
+
 }

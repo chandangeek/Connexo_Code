@@ -76,6 +76,7 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
     private volatile MeteringService meteringService;
 
 
+
     private volatile DataModel dataModel;
 
     //for OSGI

@@ -15,7 +15,8 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_TYPE_IN_USE(2, "deviceTypeInUseByIssueCreationRule", "Device type ''{0}'' has one or more configurations that are still in use by an issue creation rule", Level.SEVERE),
     INVALID_NUMBER_OF_ARGUMENTS(3, "devicelifecycle.invalid.number.of.arguments", "Invalid number of arguments {0}, expected {1} ", Level.SEVERE),
     INVALID_ARGUMENT(4, "devicelifecycle.invalid.argument", "Invalid argument {0}", Level.SEVERE),
-    EVENT_BAD_DATA_NO_KORE_DEVICE(5, "DLEventBadDataNoEndDevice", "Unable to process alarm creation event because target kore device (amrId = {0}) wasn't found", Level.SEVERE);
+    EVENT_BAD_DATA_NO_KORE_DEVICE(5, "DLEventBadDataNoEndDevice", "Unable to process alarm creation event because target kore device (amrId = {0}) wasn't found", Level.SEVERE),
+    DEVICE_LIFECYCLE_TRANSITION_IN_USE(6, "deviceLifecycleIssueInUseByIssueCreationRule", "Device lifecycle transition ''{0}'' has one or more configurations that are still in use by an issue creation rule", Level.SEVERE);
 
     private final int number;
     private final String key;

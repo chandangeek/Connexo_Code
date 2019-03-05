@@ -8,6 +8,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -106,6 +107,21 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
     }
 
     @Override
+    public Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId)
+    {
+        List<CreationRule> issueCreationRules = DeviceLifecycleIssueUtil.getIssueCreationRules(issueService);
+
+        for (CreationRule issueCreationRule:issueCreationRules) {
+            if(((List)(issueCreationRule.getProperties().get(DeviceLifecycleIssueCreationRuleTemplate.DEVICE_LIFECYCLE_TRANSITION_PROPS)))
+                    .stream()
+                    .filter(propertySpec -> ((DeviceLifeCycleTransitionPropsInfo)propertySpec).getDeviceType().getId() == deviceTypeId)
+                    .findFirst().isPresent())
+                return Optional.of(issueCreationRule);
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public String getContent() {
         return "package com.energyict.mdc.issue.devicelifecycle\n" +
                 "import com.energyict.mdc.issue.devicelifecycle.impl.event.TransitionFailureEvent;\n" +
@@ -172,6 +188,9 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
+
+
+
 
     public void clearAndRecalculateCache() {
         deviceLifeCycleProps.clear();
@@ -454,7 +473,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         }
     }
 
-    static class DeviceLifeCycleTransitionPropsInfo extends HasIdAndName {
+    public static class DeviceLifeCycleTransitionPropsInfo extends HasIdAndName {
 
         private DeviceType deviceType;
         private DeviceLifeCycle deviceLifeCycle;
@@ -479,6 +498,14 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         @Override
         public String getId() {
             return deviceType.getId() + SEPARATOR + deviceLifeCycle.getId() + SEPARATOR + stateTransition.getId() + SEPARATOR + fromState.getId() + DASH_SEPARATOR + toState.getId();
+        }
+
+        public long getDeviceLifecycleId() {
+            return deviceLifeCycle.getId();
+        }
+
+        public long getStateTransitionId() {
+            return stateTransition.getId();
         }
 
         @Override
