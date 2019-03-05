@@ -384,7 +384,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                             dataModel,
                             registeredCustomPropertySet.get()));
             // set customPropertySet to registeredCustomPropertySet
-            this.updateRegisteredCustomPropertySet(registeredCustomPropertySet.get(), customPropertySet);
+            this.updateRegisteredCustomPropertySet(registeredCustomPropertySet.get(), customPropertySet, systemDefined);
         } else {
             // First time registration
             DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet);
@@ -473,9 +473,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         return registeredCustomPropertySet;
     }
 
-    private void updateRegisteredCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet, CustomPropertySet customPropertySet) {
+    private void updateRegisteredCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet, CustomPropertySet customPropertySet, boolean systemDefined) {
         if (registeredCustomPropertySet instanceof RegisteredCustomPropertySetImpl) {
-            ((RegisteredCustomPropertySetImpl) registeredCustomPropertySet).updateCustomPropertySet(customPropertySet);
+            ((RegisteredCustomPropertySetImpl) registeredCustomPropertySet).updateCustomPropertySet(customPropertySet, systemDefined);
         }
     }
 

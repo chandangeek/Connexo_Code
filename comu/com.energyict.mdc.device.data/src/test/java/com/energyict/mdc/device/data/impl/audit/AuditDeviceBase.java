@@ -116,7 +116,7 @@ public class AuditDeviceBase extends PersistenceIntegrationTest {
         assertThat(auditTrail.getDomainContext()).isEqualTo(AuditDomainContextType.DEVICE_ATTRIBUTES);
         assertThat(auditTrail.getUser()).isEqualTo(inMemoryPersistence.getMockedUser().getName());
         assertThat(auditTrail.getPkDomain()).isEqualTo(device.getId());
-        assertThat(auditTrail.getPkContext()).isEqualTo(0);
+        assertThat(auditTrail.getPkContext1()).isEqualTo(0);
     }
 
     private void grantAllViewAndEditPrivilegesToPrincipal() {

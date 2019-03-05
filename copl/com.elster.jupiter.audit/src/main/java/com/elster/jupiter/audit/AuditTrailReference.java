@@ -23,7 +23,9 @@ public interface AuditTrailReference {
 
     long getPkDomain();
 
-    long getPkContext();
+    long getPkContext1();
+
+    long getPkContext2();
 
     UnexpectedNumberOfUpdatesException.Operation getOperation();
 }
