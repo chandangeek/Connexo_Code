@@ -184,7 +184,7 @@ public class ServiceCallCommands {
         ServiceCall parentServiceCall = serviceCallBuilder.create();
 
         for (ch.iec.tc57._2011.getmeterconfig.Meter meter: meters) {
-            createGetMeterConfigChildCall(parentServiceCall, operation, meter);
+            createGetMeterConfigChildCall(parentServiceCall, operation, meter).requestTransition(DefaultState.PENDING);
         }
 
         return parentServiceCall;
