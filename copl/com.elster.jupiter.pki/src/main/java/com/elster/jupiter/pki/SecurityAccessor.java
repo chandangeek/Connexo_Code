@@ -129,4 +129,5 @@ public interface SecurityAccessor<T extends SecurityValueWrapper> extends HasNam
      * @return Time of latest modification
      */
     Instant getModTime();
+
 }

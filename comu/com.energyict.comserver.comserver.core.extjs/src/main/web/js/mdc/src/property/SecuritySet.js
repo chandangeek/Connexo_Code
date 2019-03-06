@@ -10,7 +10,7 @@ Ext.define('Mdc.property.SecuritySet', {
     ],
 
     defaults: {
-        labelWidth: 150,
+        labelWidth: 250,
         resetButtonHidden: true
     },
 

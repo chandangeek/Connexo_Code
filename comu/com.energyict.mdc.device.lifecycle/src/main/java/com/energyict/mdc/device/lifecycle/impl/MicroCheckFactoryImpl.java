@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -29,6 +30,7 @@ import com.energyict.mdc.device.lifecycle.impl.micro.checks.ScheduledCommunicati
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.SecurityPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.SharedScheduledCommunicationTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.SlaveDeviceHasGateway;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.ZonesLinkedToDevice;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
@@ -53,6 +55,7 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
     private volatile ValidationService validationService;
     private volatile MeteringService meteringService;
     private volatile ServiceCallService serviceCallService;
+    private volatile MeteringZoneService meteringZoneService;
 
     // For OSGi purposes
     public MicroCheckFactoryImpl() {
@@ -61,13 +64,14 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
 
     // For testing purposes
     @Inject
-    public MicroCheckFactoryImpl(NlsService nlsService, TopologyService topologyService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService, MeteringService meteringService) {
+    public MicroCheckFactoryImpl(NlsService nlsService, TopologyService topologyService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService, MeteringService meteringService, MeteringZoneService meteringZoneService) {
         this();
         this.setNlsService(nlsService);
         this.setTopologyService(topologyService);
         this.setMultiElementDeviceService(multiElementDeviceService);
         this.setValidationService(validationService);
         this.setMeteringService(meteringService);
+        this.setMeteringZoneService(meteringZoneService);
     }
 
     @Reference
@@ -93,6 +97,12 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+
+    @Reference
+    public void setMeteringZoneService(MeteringZoneService meteringZoneService) {
+        this.meteringZoneService = meteringZoneService;
     }
 
     @Reference
@@ -153,6 +163,9 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             }
             case NO_LINKED_MULTI_ELEMENT_SLAVES:{
                 return new NoLinkedOperationalMultiElementSlaves(thesaurus, multiElementDeviceService);
+            }
+            case AT_LEAST_ONE_ZONE_LINKED:{
+                return new ZonesLinkedToDevice(thesaurus, meteringService, meteringZoneService);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroCheck: " + check);

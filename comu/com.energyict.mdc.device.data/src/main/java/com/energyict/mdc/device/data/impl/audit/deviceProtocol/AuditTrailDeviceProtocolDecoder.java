@@ -70,7 +70,7 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
 
     @Override
     protected void decodeReference() {
-        meteringService.findEndDeviceById(getAuditTrailReference().getPkcolumn())
+        meteringService.findEndDeviceById(getAuditTrailReference().getPkDomain())
                 .ifPresent(endDevice -> {
                     deviceId = Long.parseLong(endDevice.getAmrId());
                     device = deviceService.findDeviceById(Long.parseLong(endDevice.getAmrId()))

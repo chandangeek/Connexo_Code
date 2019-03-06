@@ -21,6 +21,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
@@ -30,6 +31,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -127,6 +130,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
     private static TopologyService topologyService;
     private static TransactionService transactionService;
     private static HsmEnergyService hsmEnergyService;
+    private static MeteringZoneService meteringZoneService;
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
 
@@ -206,7 +210,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new FirmwareModule(),
                 new CalendarModule(),
                 new TopologyModule(),
-                new PkiModule());
+                new PkiModule(),
+                new MeteringZoneModule());
         initializeTopModuleInATransaction();
     }
 
@@ -231,6 +236,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 injector.getInstance(TopologyService.class);
                 injector.getInstance(EventService.class);
                 injector.getInstance(AuditService.class);
+                injector.getInstance(MeteringZoneService.class);
                 meteringService = injector.getInstance(MeteringService.class);
                 mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 masterDataService = injector.getInstance(MasterDataService.class);
@@ -325,6 +331,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CertificateWrapperExtractor.class).toInstance(mock(CertificateWrapperExtractor.class));
             bind(com.elster.jupiter.hsm.HsmEnergyService.class).toInstance(mock(com.elster.jupiter.hsm.HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
 
         }
 

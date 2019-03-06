@@ -22,8 +22,8 @@ public class AuditReferenceImpl implements AuditReference {
     }
 
     @Override
-    public Object getReference() {
-        return auditDecoder.getReference();
+    public Object getContextReference() {
+        return auditDecoder.getContextReference();
     }
 
     @Override

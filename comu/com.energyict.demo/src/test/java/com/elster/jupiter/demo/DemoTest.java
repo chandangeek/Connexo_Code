@@ -46,6 +46,7 @@ import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.FtpClientService;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -66,6 +67,8 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.search.UsagePointSearchDomain;
 import com.elster.jupiter.metering.imports.impl.MeteringImportsModule;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -292,6 +295,7 @@ public class DemoTest {
             bind(PassphraseFactory.class).toInstance(mock(DataVaultPassphraseFactory.class));
             bind(com.elster.jupiter.hsm.HsmProtocolService.class).toInstance(mock(com.elster.jupiter.hsm.HsmProtocolService.class));
             bind(com.elster.jupiter.hsm.HsmEnergyService.class).toInstance(mock(com.elster.jupiter.hsm.HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
         }
 
         private License mockLicense(String applicationname) {
@@ -442,7 +446,8 @@ public class DemoTest {
                 new DualControlModule(),
                 new DataQualityKpiModule(),
                 new SyntheticLoadProfileImportModule(),
-                new MeteringImportsModule()
+                new MeteringImportsModule(),
+                new MeteringZoneModule()
         );
 
         doPreparations();
@@ -815,6 +820,7 @@ public class DemoTest {
             injector.getInstance(DataVaultServiceImpl.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(AuditService.class);
+            injector.getInstance(MeteringZoneService.class);
             injector.getInstance(UsagePointLifeCycleService.class); // install default usage point life cycle
             initializeCustomPropertySets();
             createRequiredProtocols();

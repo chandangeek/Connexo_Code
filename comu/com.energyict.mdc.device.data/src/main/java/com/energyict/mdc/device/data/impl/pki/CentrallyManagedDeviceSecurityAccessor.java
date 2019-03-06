@@ -130,19 +130,19 @@ public abstract class CentrallyManagedDeviceSecurityAccessor<T extends SecurityV
         return false;
     }
 
-    private static class CentrallyManagedCertificateAccessor extends CentrallyManagedDeviceSecurityAccessor<CertificateWrapper> implements CertificateAccessor {
-        CentrallyManagedCertificateAccessor(Thesaurus thesaurus, Device device, com.elster.jupiter.pki.SecurityAccessor<CertificateWrapper> defaultValue) {
-            super(thesaurus, device, defaultValue);
-        }
-    }
-
     @Override
     public void setServiceKey(Boolean serviceKey) {
-         throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorType());
+        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorType());
     }
 
     @Override
     public boolean getServiceKey() {
-            throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorType());
+        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorType());
+    }
+
+    private static class CentrallyManagedCertificateAccessor extends CentrallyManagedDeviceSecurityAccessor<CertificateWrapper> implements CertificateAccessor {
+        CentrallyManagedCertificateAccessor(Thesaurus thesaurus, Device device, com.elster.jupiter.pki.SecurityAccessor<CertificateWrapper> defaultValue) {
+            super(thesaurus, device, defaultValue);
+        }
     }
 }

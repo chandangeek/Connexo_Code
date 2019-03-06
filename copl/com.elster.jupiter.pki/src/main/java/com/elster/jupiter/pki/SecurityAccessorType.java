@@ -152,6 +152,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
 
         Builder keySize(int keySize);
 
+        Builder reversible(boolean isreversible);
+
         SecurityAccessorType add();
     }
 
@@ -172,6 +174,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
         Updater renewCapability(SessionKeyCapability renewCapability);
 
         Updater keySize(int keySize);
+
+        Updater reversible(boolean reversible);
 
         SecurityAccessorType complete();
     }

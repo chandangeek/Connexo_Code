@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.metering.EndDevice;
@@ -14,6 +15,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Encrypter;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
@@ -165,12 +167,9 @@ public enum TableSpecs {
             table.unique("UK_DDC_DEVICE_NAME").on(name).since(version(10, 2, 1)).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
             table.audit(DDC_DEVICE.name())
-                    .domain("DEVICE")
-                    .context("DEVICE_ATTRIBUTES")
-                    .references("FK_DDC_DEVICE_ENDDEVICE")
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainReferences("FK_DDC_DEVICE_ENDDEVICE")
                     .reverseReferenceMap("amrId")
-                    .touchDomain("FK_DDC_DEVICE_ENDDEVICE")
-                    .touchContext("")
                     .build();
         }
     },
@@ -194,11 +193,8 @@ public enum TableSpecs {
                     .composition()
                     .add();
             table.audit(DDC_DEVICEPROTOCOLPROPERTY.name())
-                    .domain("DEVICE")
-                    .context("GENERAL_ATTRIBUTES")
-                    .references("FK_DDC_DEVICEPROTPROP_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
-                    .touchDomain("FK_DDC_DEVICE_ENDDEVICE")
-                    .touchContext("")
+                    .domainContext(AuditDomainContextType.GENERAL_ATTRIBUTES.ordinal())
+                    .domainReferences("FK_DDC_DEVICEPROTPROP_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                     .build();
         }
     },
@@ -927,13 +923,23 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .map(PassiveCalendarImpl.Fields.CALENDAR.fieldName())
                     .add();
-            table.foreignKey("FK_DDC_PASSCAL_DEVICEMSG")
+            ForeignKeyConstraint oldKeyTypeConstraint = table.foreignKey("FK_DDC_PASSCAL_DEVICEMSG")
                     .on(deviceMessage)
                     .references(DDC_DEVICEMESSAGE.name())
                     .map(PassiveCalendarImpl.Fields.DEVICEMESSAGE.fieldName())
+                    .upTo(Version.version(10, 6))
+                    .add();
+            table.foreignKey("FK_DDC_PASSCAL_DEVICEMSG")
+                    .on(deviceMessage)
+                    .onDelete(CASCADE)
+                    .references(DDC_DEVICEMESSAGE.name())
+                    .map(PassiveCalendarImpl.Fields.DEVICEMESSAGE.fieldName())
+                    .since(Version.version(10, 6))
+                    .previously(oldKeyTypeConstraint)
                     .add();
         }
     },
+
     ADD_DDC_PASSIVE_CALENDAR_TO_DEVICE {
         @Override
         void addTo(DataModel dataModel, Encrypter encrypter) {

@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectionState;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
@@ -80,6 +81,8 @@ public class GetUsagePointTest extends AbstractMockActivator {
     private ElectricityDetail electricityDetail;
     @Mock
     private UsagePointConnectionState usagePointConnectionState;
+    @Mock
+    private UsagePointCustomPropertySetExtension usagePointCustomPropertySetExtension;
 
     @Before
     public void setUp() throws Exception {
@@ -110,6 +113,8 @@ public class GetUsagePointTest extends AbstractMockActivator {
         when(usagePointConnectionState.getConnectionState()).thenReturn(ConnectionState.CONNECTED);
         when(usagePoint.getInstallationTime()).thenReturn(INSTALLATION_DATE);
         doReturn(Optional.of(electricityDetail)).when(usagePoint).getDetail(NOW);
+        when(usagePoint.forCustomProperties()).thenReturn(usagePointCustomPropertySetExtension);
+        when(usagePointCustomPropertySetExtension.getAllPropertySets()).thenReturn(Collections.emptyList());
         mockDetails();
     }
 

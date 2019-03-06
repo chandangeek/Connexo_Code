@@ -12,4 +12,6 @@ import aQute.bnd.annotation.ProviderType;
 public interface SecurityAccessorTypeOnDeviceType {
     DeviceType getDeviceType();
     SecurityAccessorType getSecurityAccessorType();
+    String getDefaultKey();
+    void setDefaultKey(String defaultkey);
 }

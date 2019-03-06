@@ -9,6 +9,8 @@ import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -23,12 +25,14 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
     private final JsonService jsonService;
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final ServiceCallService serviceCallService;
+    private final TransactionService transactionService;
 
     public ConnectionStatusChangeHandler(JsonService jsonService, SAPCustomPropertySets sapCustomPropertySets,
-                                         ServiceCallService serviceCallService) {
+                                         ServiceCallService serviceCallService, TransactionService transactionService) {
         this.jsonService = jsonService;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.serviceCallService = serviceCallService;
+        this.transactionService = transactionService;
     }
 
     @Override
@@ -79,8 +83,11 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
     }
 
     private void sendResponseMessage(ServiceCall parent, DefaultState finalState) {
-        parent.requestTransition(DefaultState.ONGOING);
-        parent.requestTransition(finalState);
+        try (TransactionContext context = transactionService.getContext()) {
+            parent.requestTransition(DefaultState.ONGOING);
+            parent.requestTransition(finalState);
+            context.commit();
+        }
         StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
                 .builder(sapCustomPropertySets)
                 .from(parent, findAllChilds(parent))

@@ -17,8 +17,11 @@ import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
+import ch.iec.tc57._2011.meterconfig.Zone;
+import ch.iec.tc57._2011.meterconfig.Zones;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 class MeterConfigFactory {
 
@@ -91,6 +94,12 @@ class MeterConfigFactory {
         SimpleEndDeviceFunction simpleEndDeviceFunction = new SimpleEndDeviceFunction();
         simpleEndDeviceFunction.setMRID(deviceConfigRef);
         simpleEndDeviceFunction.setConfigID(device.getDeviceConfiguration().getName());
+        if(device.getZones() != null) {
+            simpleEndDeviceFunction.setZones(new Zones());
+            for (Map.Entry<String, String> zone : device.getZones().entries()) {
+                simpleEndDeviceFunction.getZones().getZone().add(createZone(zone.getKey(), zone.getValue()));
+            }
+        }
         return simpleEndDeviceFunction;
     }
 
@@ -110,5 +119,12 @@ class MeterConfigFactory {
         MeterMultiplier meterMultiplier = new MeterMultiplier();
         meterMultiplier.setValue(multiplier.floatValue());
         return meterMultiplier;
+    }
+
+    private Zone createZone(String zoneName, String zoneTypeName) {
+        Zone zone = new Zone();
+        zone.setZoneName(zoneName);
+        zone.setZoneType(zoneTypeName);
+        return zone;
     }
 }

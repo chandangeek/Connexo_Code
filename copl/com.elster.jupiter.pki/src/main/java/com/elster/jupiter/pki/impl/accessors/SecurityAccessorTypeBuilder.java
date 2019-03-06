@@ -95,6 +95,12 @@ public class SecurityAccessorTypeBuilder implements SecurityAccessorType.Builder
         return this;
     }
 
+    @Override
+    public SecurityAccessorType.Builder reversible(boolean isreversible) {
+        underConstruction.reversible(isreversible);
+        return this;
+    }
+
 
 
     @Override

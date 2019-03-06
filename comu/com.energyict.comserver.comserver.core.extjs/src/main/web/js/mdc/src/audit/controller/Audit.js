@@ -129,6 +129,7 @@ Ext.define('Mdc.audit.controller.Audit', {
         var me = this,
             contextType = record.get('contextType'),
             isRemoved = record.get('auditReference').removed,
+            formatValue,
             rendererLink;
 
         switch (contextType) {
@@ -138,9 +139,44 @@ Ext.define('Mdc.audit.controller.Audit', {
             case 'DEVICE_ATTRIBUTES':
                 rendererLink = isRemoved == true ? value : '<a href="#/devices/' + record.get('auditReference').name + '/attributes">' + value + '</a>';
                 break;
+            case 'DEVICE_CUSTOM_ATTRIBUTES':
+                rendererLink = isRemoved == true ? me.formatDeviceCustomAttributeContext(record, value) : '<a href="#/devices/' + record.get('auditReference').name + '/attributes">' + me.formatDeviceCustomAttributeContext(record, value) + '</a>';
+                break;
             default:
-                rendererLink = '';
+                rendererLink = value;
         }
         return ((rendererLink != null) && (rendererLink.length == 0)) ? '-' : rendererLink;
+    },
+
+    formatDeviceCustomAttributeContext: function (record, value) {
+        var me = this,
+            contextReference = record.get('auditReference').contextReference,
+            periodStr = '';
+
+        if (me.isEmptyOrNull(contextReference)) {
+            return value;
+        }
+
+        if (contextReference.isVersioned !== true) {
+            return Ext.String.format("{0} -> {1}", value, record.get('auditReference').contextReference.name);
+        }
+
+        if (contextReference.startTime) {
+            periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.from', 'MDC', 'From'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.startTime)));
+        }
+        if (contextReference.startTime && contextReference.endTime) {
+            periodStr += ' - ';
+        }
+        if (contextReference.endTime) {
+            periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'MDC', 'Until'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.endTime)));
+        }
+        if (!contextReference.endTime && !contextReference.startTime) {
+            periodStr += Uni.I18n.translate('general.infinite', 'MDC', 'Infinite');
+        }
+        return Ext.String.format("{0} -> {1} ({2})", value, record.get('auditReference').contextReference.name, periodStr);
+    },
+
+    isEmptyOrNull: function (value) {
+        return ((value != null) && (value.length == 0))
     }
 });

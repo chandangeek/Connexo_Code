@@ -618,15 +618,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		@Override
 		public List<JournalEntry<T>> find(List<Comparison> comparisons) {
 			try {
-				Stream<JournalEntry<T>> old = reader.findJournals(comparisons).stream();
+				Stream<JournalEntry<T>> old = reader.findJournals(instant, comparisons).stream();
 				return old.collect(Collectors.toList());
 			} catch (SQLException e) {
 				throw new UnderlyingSQLFailedException(e);
 			}
 		}
-
-
-
 	}
-
 }

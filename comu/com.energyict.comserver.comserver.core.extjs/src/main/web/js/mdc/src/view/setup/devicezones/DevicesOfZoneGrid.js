@@ -4,37 +4,18 @@
 
 Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
     extend: 'Ext.grid.Panel',
-    overflowY: 'auto',
-    xtype: 'devicesOfZoneGrid',
-    itemId: 'allDevicesOfZoneGrid',
+    alias: 'widget.zone-details-grid',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.store.search.Fields',
-        'Uni.view.search.ColumnPicker',
-        'Uni.grid.plugin.ShowConditionalToolTip'
+        'Mdc.store.DevicesOfZone'
     ],
-    plugins: [{
-        ptype: 'showConditionalToolTip',
-        pluginId: 'showConditionalToolTipId'
-    }],
-
-    selModel: {
-        mode: 'SINGLE'
-    },
-    store: 'Uni.store.search.Results',
-    sortableColumns: true,
-    forceFit: true,
-    enableColumnMove: true,
-    config: {
-        service: null
-    },
-    searchLink: null,
+    store: 'Mdc.store.DevicesOfZone',
 
     initComponent: function () {
         var me = this;
 
-        this.columns = [
+        me.columns = [
             {
                 header: Uni.I18n.translate('general.device', 'MDC', 'Device'),
                 dataIndex: 'name',
@@ -80,34 +61,21 @@ Ext.define('Mdc.view.setup.devicezones.DevicesOfZoneGrid', {
                 displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
                 emptyMsg: Uni.I18n.translate('devices.pagingtoolbartop.emptyMsg', 'MDC', 'There are no devices to display'),
-                /*items: [
+                items: [
                     {
                         xtype: 'button',
                         ui: 'link',
                         itemId: 'view-all-devices-in-search',
                         text: Uni.I18n.translate('deviceZones.Search', 'MDC', 'View all devices in search'),
-                        //privileges:,
-                        href: me.searchLink
+                        action: 'viewDevicesInSearch'
                     }
-                ]*/
+                ]
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page'),
                 dock: 'bottom',
-                deferLoading: true,
-                pageSizeStore: Ext.create('Ext.data.Store', {
-                    fields: ['value'],
-                    data: [
-                        {value: '10'},
-                        {value: '20'},
-                        {value: '50'},
-                        {value: '100'},
-                        {value: '200'},
-                        {value: '1000'}
-                    ]
-                })
             }
         ];
 

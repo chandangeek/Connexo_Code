@@ -60,7 +60,7 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
         SYMM_KEY_WRAPPER_TEMP("tempSymmetricKeyWrapperReference"),
         PASSPHRASE_WRAPPER_ACTUAL("actualPassphraseWrapperReference"),
         PASSPHRASE_WRAPPER_TEMP("tempPassphraseWrapperReference"),
-        SERVICEKEY("servicekey");
+        SERVICEKEY("servicekey")
         ;
 
         private final String fieldName;

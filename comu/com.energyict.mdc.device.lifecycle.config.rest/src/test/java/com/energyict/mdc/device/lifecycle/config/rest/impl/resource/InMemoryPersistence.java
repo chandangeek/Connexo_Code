@@ -25,6 +25,8 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
@@ -128,6 +130,7 @@ public class InMemoryPersistence {
     private SearchService searchService;
     private TimeService timeService;
     private HttpService httpService;
+    private MeteringZoneService meteringZoneService;
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
@@ -163,7 +166,8 @@ public class InMemoryPersistence {
                 new UsagePointLifeCycleModule(),
                 new ServiceCallModule(),
                 new AuditServiceModule(),
-                new WebServicesModule()
+                new WebServicesModule(),
+                new MeteringZoneModule()
         );
     }
 
@@ -190,6 +194,7 @@ public class InMemoryPersistence {
             this.injector.getInstance(MeteringDataModelService.class);
             this.injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.injector.getInstance(DeviceLifeCycleService.class);
+            this.injector.getInstance(MeteringZoneService.class);
             ctx.commit();
         }
     }

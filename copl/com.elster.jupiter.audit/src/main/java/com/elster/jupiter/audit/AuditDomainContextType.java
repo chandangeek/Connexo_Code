@@ -6,9 +6,10 @@ package com.elster.jupiter.audit;
 
 public enum AuditDomainContextType {
 
-    EMPTY("auditDomainContext.noDomainContext", AuditDomainType.UNKNOWN),
+    NODOMAIN("auditDomainContext.noDomainContext", AuditDomainType.UNKNOWN),
     GENERAL_ATTRIBUTES("auditDomainContext.generalAttributes", AuditDomainType.DEVICE),
-    DEVICE_ATTRIBUTES("auditDomainContext.deviceAttributes", AuditDomainType.DEVICE);
+    DEVICE_ATTRIBUTES("auditDomainContext.deviceAttributes", AuditDomainType.DEVICE),
+    DEVICE_CUSTOM_ATTRIBUTES("auditDomainContext.deviceCustomAttributes", AuditDomainType.DEVICE);
 
     private final String domainContextType;
     private final AuditDomainType domainType;

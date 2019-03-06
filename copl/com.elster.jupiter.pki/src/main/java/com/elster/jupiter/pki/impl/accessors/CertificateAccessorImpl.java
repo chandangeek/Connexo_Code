@@ -125,4 +125,5 @@ public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<Certif
         JcaX509CertificateHolder certificateHolder = new JcaX509CertificateHolder(original.getCertificate().get());
         return certificateHolder.getSubject();
     }
+
 }

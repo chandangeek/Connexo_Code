@@ -20,6 +20,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -29,6 +30,8 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -129,6 +132,7 @@ public class InMemoryPersistence {
     private LicenseService licenseService;
     private HttpService httpService;
     private Thesaurus thesaurus;
+    private MeteringZoneService meteringZoneService;
 
     public void initializeDatabase(String testName, boolean showSqlLogging) {
         this.initializeMocks(testName);
@@ -181,7 +185,8 @@ public class InMemoryPersistence {
                 new PkiModule(),
                 new WebServicesModule(),
                 new AuditServiceModule(),
-                new FileImportModule()
+                new FileImportModule(),
+                new MeteringZoneModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
@@ -207,6 +212,7 @@ public class InMemoryPersistence {
             injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.firmwareService = spy((FirmwareServiceImpl) injector.getInstance(FirmwareService.class));
             this.dataModel = firmwareService.getDataModel();
+            this.meteringZoneService = injector.getInstance(MeteringZoneService.class);
             ctx.commit();
         }
     }
@@ -257,6 +263,7 @@ public class InMemoryPersistence {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(httpService);
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
 
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             DeviceMessageSpecificationService deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
