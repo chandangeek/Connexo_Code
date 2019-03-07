@@ -1,5 +1,7 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
+
 import ch.iec.tc57._2011.masterdatalinkageconfig.Name;
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
 import com.google.common.collect.ImmutableList;

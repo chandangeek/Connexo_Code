@@ -1,5 +1,7 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
+
 import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
 import ch.iec.tc57._2011.masterdatalinkageconfig.Name;
 import com.google.common.collect.ImmutableList;

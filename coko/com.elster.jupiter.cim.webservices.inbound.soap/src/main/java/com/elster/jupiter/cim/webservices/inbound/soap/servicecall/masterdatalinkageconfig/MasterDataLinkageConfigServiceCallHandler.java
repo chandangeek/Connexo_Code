@@ -6,9 +6,9 @@ package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatali
 
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageHandler;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ConfigEventInfo;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.UsagePointInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.ConfigEventInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
