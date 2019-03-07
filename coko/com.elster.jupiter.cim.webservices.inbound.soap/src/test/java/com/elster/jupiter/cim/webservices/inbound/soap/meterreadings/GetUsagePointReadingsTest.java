@@ -768,28 +768,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     }
 
     @Test
-    public void testEmptyEndDevice() throws Exception {
-        // Prepare request
-        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
-        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
-                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
-                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
-                .withEndDevice(null, null)
-                .get();
-        HeaderType headerType = new HeaderType();
-        headerType.setAsyncReplyFlag(true);
-        headerType.setReplyAddress(REPLY_ADDRESS);
-        getMeterReadingsRequestMessage.setHeader(headerType);
-        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
-        mockFindReadingTypes(dailyReadingType);
-
-        // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
-                MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
-                "Either element 'mRID' or 'Names' is required under 'GetMeterReadings.EndDevice[0]' for identification purpose.");
-    }
-
-    @Test
     public void testSomeDevicesNotFound() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -816,9 +794,9 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("WS13004")));
+                .anyMatch(error -> error.getCode().equals("WS13005")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getDetails().equals("'a74e77e1-c397-41c8-8c3c-6ddab969047c' device(s) have not been found.")));
+                .anyMatch(error -> error.getDetails().equals("Couldn't find device(s) with name(s) 'a74e77e1-c397-41c8-8c3c-6ddab969047c'.")));
     }
 
     @Test
@@ -840,7 +818,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.NO_READING_TYPES.getErrorCode(),
-                "There are no reading type(s) in the system.");
+                "No reading types have been found.");
     }
 
     @Test
@@ -870,11 +848,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("WS13007")));
+                .anyMatch(error -> error.getCode().equals("WS13009")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getDetails().equals("Reading type(s) not found in the system: '0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0'.")));
+                .anyMatch(error -> error.getDetails().equals("Reading type(s) with MRID(s) '0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0' not found in the system.")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("WS13008")));
+                .anyMatch(error -> error.getCode().equals("WS13012")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails().equals("Reading type(s) not found on device 'SPE01000001': '11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0'.")));
     }
@@ -897,7 +875,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.UNSUPPORTED_VALUE.getErrorCode(),
-                "Element 'GetMeterReadings.Reading.source' contains unsupported value 'Something'. Must be one of: 'System', 'Meter' or 'Hybrid'.");
+                "Element 'GetMeterReadings.Reading[0].source' contains unsupported value 'Something'. Must be one of: 'System', 'Meter' or 'Hybrid'.");
     }
 
     @Test
@@ -938,7 +916,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.UNSUPPORTED_VALUE.getErrorCode(),
-                "Element 'GetMeterReadings.Reading.source' contains unsupported value 'Something'. Must be one of: System.");
+                "Element 'GetMeterReadings.Reading[0].source' contains unsupported value 'Something'. Must be one of: System.");
     }
 
     @Test
@@ -1271,7 +1249,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.UNSUPPORTED_VALUE.getErrorCode(),
-                "Element 'GetMeterReadings.Reading.source' contains unsupported value 'Hybrid'. Must be one of: System.");
+                "Element 'GetMeterReadings.Reading[1].source' contains unsupported value 'Hybrid'. Must be one of: System.");
     }
 
     @Test
@@ -1289,7 +1267,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteMeterReadingsEndpoint.class).getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.UNSUPPORTED_VALUE.getErrorCode(),
-                "Element 'GetMeterReadings.Reading.source' contains unsupported value 'Meter'. Must be one of: System.");
+                "Element 'GetMeterReadings.Reading[1].source' contains unsupported value 'Meter'. Must be one of: System.");
     }
 
     @Test

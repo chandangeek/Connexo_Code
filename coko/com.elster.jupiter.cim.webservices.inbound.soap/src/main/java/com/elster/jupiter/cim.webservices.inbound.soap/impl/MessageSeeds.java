@@ -71,11 +71,15 @@ public enum MessageSeeds implements MessageSeed {
     NO_PURPOSES_WITH_NAMES(3002, "NoPurposesWithNames", "No metrology purposes are found for names: {0}."),
     INVALID_OR_EMPTY_TIME_PERIOD(3003, "InvalidOrEmptyTimePeriod",
             "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
-    END_DEVICES_NOT_FOUND(3004, "NoDevicesFound", "''{0}'' device(s) have not been found.", Level.WARNING),
-    NO_END_DEVICES(3005, "NoDevices", "No devices have been found."),
-    NO_READING_TYPES(3006, "NoReadingTypes", "There are no reading type(s) in the system."),
-    READING_TYPES_NOT_FOUND(3007, "ReadingTypesNotFound", "Reading type(s) not found in the system: ''{0}''.", Level.WARNING),
-    READING_TYPES_NOT_FOUND_ON_DEVICE(3008, "ReadingTypesNotFoundOnDevice", "Reading type(s) not found on device ''{0}'': ''{1}''.", Level.WARNING),
+    END_DEVICES_WITH_MRID_NOT_FOUND(3004, "DevicesWithMridNotFound", "Couldn''t find device(s) with MRID(s) ''{0}''.", Level.WARNING),
+    END_DEVICES_WITH_NAME_NOT_FOUND(3005, "DevicesWithNamesNotFound", "Couldn''t find device(s) with name(s) ''{0}''.", Level.WARNING),
+    END_DEVICES_NOT_FOUND(3006, "DevicesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
+    NO_END_DEVICES(3007, "NoDevices", "No devices have been found."),
+    NO_READING_TYPES(3008, "NoReadingTypes", "No reading types have been found."),
+    READING_TYPES_WITH_MRID_NOT_FOUND(3009, "ReadingTypesWithMridNotFound", "Reading type(s) with MRID(s) ''{0}'' not found in the system.", Level.WARNING),
+    READING_TYPES_WITH_NAME_NOT_FOUND(3010, "ReadingTypesWithNameNotFound", "Reading type(s) with name(s) ''{0}'' not found in the system.", Level.WARNING),
+    READING_TYPES_NOT_FOUND_IN_THE_SYSTEM(3011, "ReadingTypesNotFoundInTheSystem", "Reading type(s) with MRID(s) ''{0}'' and name(s) ''{1}'' not found in the system.", Level.WARNING),
+    READING_TYPES_NOT_FOUND_ON_DEVICE(3012, "ReadingTypesNotFoundOnDevice", "Reading type(s) not found on device ''{0}'': ''{1}''.", Level.WARNING),
 
 
     // master data linkage
@@ -88,7 +92,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_METER_ROLE_WITH_KEY(4005, "NoMeterRoleWithKey", "No meter role is found by key ''{0}''."),
 
     // async
-    COULD_NOT_FIND_SERVICE_CALL_TYPE(5001, "CouldNotFindServiceCallType", "Could not find service call type {0} with version {1}"),
+    COULD_NOT_FIND_SERVICE_CALL_TYPE(5001, "CouldNotFindServiceCallType", "Could''t find service call type {0} with version {1}"),
     NO_END_POINT_WITH_URL(5002, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
     NO_PUBLISHED_END_POINT_WITH_URL(5003, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
     NO_HEAD_END_INTERFACE_FOUND(5004, "NoHeadEndInterfaceFound", "No head end interface found for device with MRID ''{0}''"),
