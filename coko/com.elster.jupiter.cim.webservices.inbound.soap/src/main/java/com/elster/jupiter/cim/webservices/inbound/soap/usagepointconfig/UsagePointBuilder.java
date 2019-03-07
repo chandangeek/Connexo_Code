@@ -59,6 +59,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
@@ -70,7 +71,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-class UsagePointBuilder {
+public class UsagePointBuilder {
     private static final String CONNECTION_STATE_PROPERTY_NAME = "set.connection.state.property.name";
     private static final String METROLOGY_CONFIGURATION = "MetrologyConfiguration";
     private static final String STATUS_CHANGE = "Change Status";
@@ -91,14 +92,10 @@ class UsagePointBuilder {
     private MessageSeeds basicFaultMessage;
 
     @Inject
-    UsagePointBuilder(Thesaurus thesaurus,
-                      ReplyTypeFactory replyTypeFactory,
-                      UsagePointConfigFaultMessageFactory messageFactory,
-                      MeteringService meteringService,
-                      MetrologyConfigurationService metrologyConfigurationService,
-                      Clock clock,
-                      UsagePointLifeCycleService usagePointLifeCycleService,
-                      CustomPropertySetService customPropertySetService) {
+    UsagePointBuilder(Thesaurus thesaurus, ReplyTypeFactory replyTypeFactory,
+            UsagePointConfigFaultMessageFactory messageFactory, MeteringService meteringService,
+            MetrologyConfigurationService metrologyConfigurationService, Clock clock,
+            UsagePointLifeCycleService usagePointLifeCycleService, CustomPropertySetService customPropertySetService) {
         this.thesaurus = thesaurus;
         this.replyTypeFactory = replyTypeFactory;
         this.messageFactory = messageFactory;
@@ -110,40 +107,30 @@ class UsagePointBuilder {
     }
 
     private static void updateConnectionStateIfNeeded(com.elster.jupiter.metering.UsagePoint usagePoint,
-                                                      ConnectionState connectionState) {
-        if (!usagePoint.getCurrentConnectionState()
-                .map(UsagePointConnectionState::getConnectionState)
-                .filter(connectionState::equals)
-                .isPresent()) {
+            ConnectionState connectionState) {
+        if (!usagePoint.getCurrentConnectionState().map(UsagePointConnectionState::getConnectionState)
+                .filter(connectionState::equals).isPresent()) {
             usagePoint.setConnectionState(connectionState);
         }
     }
 
     private static ElectricityDetailBuilder cloneDetail(ElectricityDetail detail,
-                                                        com.elster.jupiter.metering.UsagePoint usagePoint,
-                                                        Instant timestamp) {
-        return usagePoint.newElectricityDetailBuilder(timestamp)
-                .withCollar(detail.isCollarInstalled())
-                .withGrounded(detail.isGrounded())
-                .withNominalServiceVoltage(detail.getNominalServiceVoltage())
-                .withPhaseCode(detail.getPhaseCode())
-                .withRatedCurrent(detail.getRatedCurrent())
-                .withRatedPower(detail.getRatedPower())
-                .withEstimatedLoad(detail.getEstimatedLoad())
-                .withLimiter(detail.isLimiter())
-                .withLoadLimiterType(detail.getLoadLimiterType())
-                .withLoadLimit(detail.getLoadLimit())
-                .withInterruptible(detail.isInterruptible());
+            com.elster.jupiter.metering.UsagePoint usagePoint, Instant timestamp) {
+        return usagePoint.newElectricityDetailBuilder(timestamp).withCollar(detail.isCollarInstalled())
+                .withGrounded(detail.isGrounded()).withNominalServiceVoltage(detail.getNominalServiceVoltage())
+                .withPhaseCode(detail.getPhaseCode()).withRatedCurrent(detail.getRatedCurrent())
+                .withRatedPower(detail.getRatedPower()).withEstimatedLoad(detail.getEstimatedLoad())
+                .withLimiter(detail.isLimiter()).withLoadLimiterType(detail.getLoadLimiterType())
+                .withLoadLimit(detail.getLoadLimit()).withInterruptible(detail.isInterruptible());
     }
 
     private static boolean containsStateWithKey(UsagePointLifeCycle lifeCycle, String stateKey) {
-        return lifeCycle.getStates().stream()
-                .anyMatch(state -> state.getName().equals(stateKey));
+        return lifeCycle.getStates().stream().anyMatch(state -> state.getName().equals(stateKey));
     }
 
-    PreparedUsagePointBuilder from(UsagePoint usagePointConfig, int usagePointIndex) {
+    public PreparedUsagePointBuilder from(UsagePoint usagePointConfig, int usagePointIndex) {
         this.usagePointConfig = usagePointConfig;
-        this.pathToUsagePoint = "UsagePointConfig.UsagePoint[" + usagePointIndex + "]";
+        pathToUsagePoint = "UsagePointConfig.UsagePoint[" + usagePointIndex + "]";
         return new PreparedUsagePointBuilder() {
             @Override
             public PreparedUsagePointBuilder at(Instant timestamp) {
@@ -193,27 +180,28 @@ class UsagePointBuilder {
         com.elster.jupiter.metering.UsagePoint usagePoint = builder.create();
 
         switch (serviceCategory.getKind()) {
-            case ELECTRICITY:
-                ElectricityDetailBuilder detailBuilder = usagePoint.newElectricityDetailBuilder(creationDate);
-                retrievePhaseCode(usagePointConfig).ifPresent(detailBuilder::withPhaseCode);
-                detailBuilder.create();
-                break;
-            case GAS:
-                usagePoint.newGasDetailBuilder(creationDate).create();
-                break;
-            case WATER:
-                usagePoint.newWaterDetailBuilder(creationDate).create();
-                break;
-            case HEAT:
-                usagePoint.newHeatDetailBuilder(creationDate).create();
-                break;
-            default:
-                usagePoint.newDefaultDetailBuilder(creationDate).create();
+        case ELECTRICITY:
+            ElectricityDetailBuilder detailBuilder = usagePoint.newElectricityDetailBuilder(creationDate);
+            retrievePhaseCode(usagePointConfig).ifPresent(detailBuilder::withPhaseCode);
+            detailBuilder.create();
+            break;
+        case GAS:
+            usagePoint.newGasDetailBuilder(creationDate).create();
+            break;
+        case WATER:
+            usagePoint.newWaterDetailBuilder(creationDate).create();
+            break;
+        case HEAT:
+            usagePoint.newHeatDetailBuilder(creationDate).create();
+            break;
+        default:
+            usagePoint.newDefaultDetailBuilder(creationDate).create();
         }
 
-        Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC = usagePoint.getCurrentEffectiveMetrologyConfiguration();
-        retrieveMetrologyConfiguration(usagePointConfig, usagePoint.getCurrentMeterActivations(), effectiveMC).ifPresent(mc -> usagePoint
-                .apply(mc, creationDate));
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC = usagePoint
+                .getCurrentEffectiveMetrologyConfiguration();
+        retrieveMetrologyConfiguration(usagePointConfig, usagePoint.getCurrentMeterActivations(), effectiveMC)
+                .ifPresent(mc -> usagePoint.apply(mc, creationDate));
         retrieveConnectionState(usagePointConfig).ifPresent(cs -> usagePoint.setConnectionState(cs, creationDate));
         validateAndUpdateCustomPropertySetValues(usagePoint, usagePointConfig.getCustomAttributeSet());
         return usagePoint;
@@ -221,27 +209,21 @@ class UsagePointBuilder {
 
     private com.elster.jupiter.metering.UsagePoint update() throws FaultMessage {
         com.elster.jupiter.metering.UsagePoint usagePoint = findUsagePoint(usagePointConfig);
-        retrieveOptionalName(usagePointConfig)
-                .filter(name -> !usagePoint.getName().equals(name))
-                .ifPresent(name -> {
-                    usagePoint.setName(name);
-                    usagePoint.update();
-                });
+        retrieveOptionalName(usagePointConfig).filter(name -> !usagePoint.getName().equals(name)).ifPresent(name -> {
+            usagePoint.setName(name);
+            usagePoint.update();
+        });
         Instant now = clock.instant();
 
         if (usagePoint.getServiceCategory().getKind() == com.elster.jupiter.metering.ServiceKind.ELECTRICITY) {
-            retrievePhaseCode(usagePointConfig)
-                    .ifPresent(phaseCode -> usagePoint.getDetail(now)
-                            .filter(ElectricityDetail.class::isInstance)
-                            .map(ElectricityDetail.class::cast)
-                            .filter(detail -> detail.getPhaseCode() != phaseCode)
-                            .ifPresent(detail -> cloneDetail(detail, usagePoint, now)
-                                    .withPhaseCode(phaseCode)
-                                    .create()));
+            retrievePhaseCode(usagePointConfig).ifPresent(phaseCode -> usagePoint.getDetail(now)
+                    .filter(ElectricityDetail.class::isInstance).map(ElectricityDetail.class::cast)
+                    .filter(detail -> detail.getPhaseCode() != phaseCode)
+                    .ifPresent(detail -> cloneDetail(detail, usagePoint, now).withPhaseCode(phaseCode).create()));
         }
 
         validateAndUpdateCustomPropertySetValues(usagePoint, usagePointConfig.getCustomAttributeSet());
-        //update usage point life cycle if is present
+        // update usage point life cycle if is present
         updateUsagePointLifeCycle(usagePoint, usagePointConfig);
 
         com.elster.jupiter.metering.UsagePoint result = processConfigurationEvent(usagePoint);
@@ -251,16 +233,16 @@ class UsagePointBuilder {
         return result;
     }
 
-    private void validateAndUpdateCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, List<CustomAttributeSet> data) throws FaultMessage {
-        for (CustomAttributeSet cas: data) {
+    private void validateAndUpdateCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint,
+            List<CustomAttributeSet> data) throws FaultMessage {
+        for (CustomAttributeSet cas : data) {
             validateCustomPropertySetValues(usagePoint, cas);
             addCustomPropertySetValues(usagePoint, cas);
         }
     }
 
-
-    public void updateUsagePointLifeCycle(com.elster.jupiter.metering.UsagePoint usagePoint, UsagePoint usagePointConfig) throws
-            FaultMessage {
+    public void updateUsagePointLifeCycle(com.elster.jupiter.metering.UsagePoint usagePoint,
+            UsagePoint usagePointConfig) throws FaultMessage {
 
         String newLifeCycleName = retrieveOptionalLifeCycle(usagePointConfig);
         if (newLifeCycleName != null) {
@@ -270,10 +252,8 @@ class UsagePointBuilder {
                         MessageSeeds.LIFE_CYCLE_NOT_FOUND, newLifeCycleName).get();
             }
             UsagePointLifeCycle newLifeCycle = meteringService.findUsagePointLifeCycle(newLifeCycleName);
-            String usagePointStateName = usagePoint.getState()
-                    .getName();
-            newLifeCycle.getStates()
-                    .stream().filter(state -> state.getName().equals(usagePointStateName)).findAny()
+            String usagePointStateName = usagePoint.getState().getName();
+            newLifeCycle.getStates().stream().filter(state -> state.getName().equals(usagePointStateName)).findAny()
                     .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                             MessageSeeds.NO_STATE_FOUND_IN_LIFE_CYCLE, newLifeCycle.getName(), usagePointStateName));
             usagePoint.setLifeCycle(newLifeCycleName);
@@ -284,14 +264,12 @@ class UsagePointBuilder {
 
     private void retrieveMetrologyContract(com.elster.jupiter.metering.UsagePoint usagePoint) throws FaultMessage {
         Optional<UsagePoint.MetrologyRequirements> metrologyRequirement = usagePointConfig.getMetrologyRequirements()
-                .stream()
-                .findFirst();
+                .stream().findFirst();
         if (metrologyRequirement.isPresent()) {
             String name = retrieveMetrologyRequirementElements(metrologyRequirement.get().getNames());
 
-            List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList = retrieveMetrologyPurposes(metrologyRequirement
-                    .get()
-                    .getNames());
+            List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList = retrieveMetrologyPurposes(
+                    metrologyRequirement.get().getNames());
 
             UsagePointMetrologyConfiguration usagePointMetrConfig = retrieveMetrologyConfigurationDefault(name);
             if (metrologyPurposesList.size() >= 1) {
@@ -300,52 +278,41 @@ class UsagePointBuilder {
         }
     }
 
-    private void setOptionalMetrologyContract(com.elster.jupiter.metering.UsagePoint usagePoint, UsagePointMetrologyConfiguration usagePointMetrConfig, List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList) throws
-            FaultMessage {
-        List<MetrologyContract> metrologyMandatoryContractsList = usagePointMetrConfig.getContracts()
-                .stream()
-                .filter(contract -> contract.isMandatory())
-                .collect(Collectors.toList());
+    private void setOptionalMetrologyContract(com.elster.jupiter.metering.UsagePoint usagePoint,
+            UsagePointMetrologyConfiguration usagePointMetrConfig,
+            List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList) throws FaultMessage {
+        List<MetrologyContract> metrologyMandatoryContractsList = usagePointMetrConfig.getContracts().stream()
+                .filter(contract -> contract.isMandatory()).collect(Collectors.toList());
         for (MetrologyContract metrologyContract : metrologyMandatoryContractsList) {
             checkPurpose(metrologyContract, metrologyPurposesList);
         }
 
-        List<MetrologyContract> metrologyOptionalContractsList = usagePointMetrConfig.getContracts()
-                .stream()
-                .filter(contract -> !contract.isMandatory())
-                .collect(Collectors.toList());
+        List<MetrologyContract> metrologyOptionalContractsList = usagePointMetrConfig.getContracts().stream()
+                .filter(contract -> !contract.isMandatory()).collect(Collectors.toList());
         for (MetrologyContract metrologyOptionalContract : metrologyOptionalContractsList) {
             if (metrologyPurposesList.stream()
                     .filter(purpose -> purpose.getName()
                             .equals(metrologyOptionalContract.getMetrologyPurpose().getName()))
-                    .findFirst()
-                    .get()
-                    .getNameType()
-                    .getDescription()
-                    .equals("Active")) {
+                    .findFirst().get().getNameType().getDescription().equals("Active")) {
                 activateOptionalMetrologyRequirment(usagePoint, metrologyOptionalContract);
             } else if (metrologyPurposesList.stream()
                     .filter(purpose -> purpose.getName()
                             .equals(metrologyOptionalContract.getMetrologyPurpose().getName()))
-                    .findFirst()
-                    .get()
-                    .getNameType()
-                    .getDescription()
-                    .equals("Inactive")) {
+                    .findFirst().get().getNameType().getDescription().equals("Inactive")) {
                 deactivateOptionalMetrologyRequirment(usagePoint, metrologyOptionalContract);
             }
         }
     }
 
-    private void activateOptionalMetrologyRequirment(com.elster.jupiter.metering.UsagePoint usagePoint, MetrologyContract mc) throws
-            FaultMessage {
+    private void activateOptionalMetrologyRequirment(com.elster.jupiter.metering.UsagePoint usagePoint,
+            MetrologyContract mc) throws FaultMessage {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = findEffectiveMetrologyConfiguration(usagePoint);
         checkMeterRequirments(usagePoint, mc);
         effectiveMC.activateOptionalMetrologyContract(mc, Instant.now(clock));
     }
 
-    public void deactivateOptionalMetrologyRequirment(com.elster.jupiter.metering.UsagePoint usagePoint, MetrologyContract mc) throws
-            FaultMessage {
+    public void deactivateOptionalMetrologyRequirment(com.elster.jupiter.metering.UsagePoint usagePoint,
+            MetrologyContract mc) throws FaultMessage {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = findEffectiveMetrologyConfiguration(usagePoint);
         Instant now = clock.instant();
         if (effectiveMC.getChannelsContainer(mc, now).isPresent()) {
@@ -353,29 +320,29 @@ class UsagePointBuilder {
         }
     }
 
-    private void checkMeterRequirments(com.elster.jupiter.metering.UsagePoint usagePoint, MetrologyContract metrologyContract) throws
-            FaultMessage {
+    private void checkMeterRequirments(com.elster.jupiter.metering.UsagePoint usagePoint,
+            MetrologyContract metrologyContract) throws FaultMessage {
         List<MeterActivation> meterActivations = usagePoint.getMeterActivations(clock.instant());
-        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint = usagePoint
+                .getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getName()));
-        List<MeterRole> meterRolesOfMetrologyConfiguration = metrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
-                .getMeterRoles();
+        List<MeterRole> meterRolesOfMetrologyConfiguration = metrologyConfigurationOnUsagePoint
+                .getMetrologyConfiguration().getMeterRoles();
         List<Pair<MeterRole, Meter>> metersInRoles = meterActivations.stream()
                 .filter(meterActivation -> meterActivation.getMeterRole()
-                        .map(meterRolesOfMetrologyConfiguration::contains)
-                        .orElse(false))
+                        .map(meterRolesOfMetrologyConfiguration::contains).orElse(false))
                 .map(meterActivation -> Pair.of(meterActivation.getMeterRole().get(), meterActivation.getMeter().get()))
                 .collect(Collectors.toList());
         for (Pair<MeterRole, Meter> pair : metersInRoles) {
             MeterRole meterRole = pair.getFirst();
             Meter meter = pair.getLast();
             Set<ReadingTypeRequirement> requirements = metrologyContract.getRequirements().stream()
-                    .filter(readingTypeRequirement -> meterRole.equals(metrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
-                            .getMeterRoleFor(readingTypeRequirement)
-                            .orElse(null)))
+                    .filter(readingTypeRequirement -> meterRole.equals(metrologyConfigurationOnUsagePoint
+                            .getMetrologyConfiguration().getMeterRoleFor(readingTypeRequirement).orElse(null)))
                     .collect(Collectors.toSet());
-            Set<ReadingTypeRequirement> unsatisfiedRequirements = getUnsatisfiedReadingTypeRequirementsOfMeter(requirements, meter);
+            Set<ReadingTypeRequirement> unsatisfiedRequirements = getUnsatisfiedReadingTypeRequirementsOfMeter(
+                    requirements, meter);
             if (!unsatisfiedRequirements.isEmpty()) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS).get();
@@ -383,18 +350,18 @@ class UsagePointBuilder {
         }
     }
 
-    private Set<ReadingTypeRequirement> getUnsatisfiedReadingTypeRequirementsOfMeter(Set<ReadingTypeRequirement> requirements, Meter meter) {
+    private Set<ReadingTypeRequirement> getUnsatisfiedReadingTypeRequirementsOfMeter(
+            Set<ReadingTypeRequirement> requirements, Meter meter) {
         List<ReadingType> meterProvidedReadingTypes = meter.getHeadEndInterface()
                 .map(headEndInterface -> headEndInterface.getCapabilities(meter))
-                .map(EndDeviceCapabilities::getConfiguredReadingTypes)
-                .orElse(Collections.emptyList());
+                .map(EndDeviceCapabilities::getConfiguredReadingTypes).orElse(Collections.emptyList());
         return requirements.stream()
                 .filter(requirement -> !meterProvidedReadingTypes.stream().anyMatch(requirement::matches))
                 .collect(Collectors.toSet());
     }
 
-    private EffectiveMetrologyConfigurationOnUsagePoint findEffectiveMetrologyConfiguration(com.elster.jupiter.metering.UsagePoint usagePoint) throws
-            FaultMessage {
+    private EffectiveMetrologyConfigurationOnUsagePoint findEffectiveMetrologyConfiguration(
+            com.elster.jupiter.metering.UsagePoint usagePoint) throws FaultMessage {
         return usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getName()));
@@ -411,48 +378,47 @@ class UsagePointBuilder {
             return usagePoint;
         }
         switch (retrieveReason(configurationEvent)) {
-            case CHANGE_STATUS:
-                return performTransition(usagePoint);
-            case PURPOSE_ACTIVE:
-                return activatePurpose(usagePoint);
-            case PURPOSE_INACTIVE:
-                return inactivatePurpose(usagePoint);
-            default:
-                throw new UnsupportedOperationException();
+        case CHANGE_STATUS:
+            return performTransition(usagePoint);
+        case PURPOSE_ACTIVE:
+            return activatePurpose(usagePoint);
+        case PURPOSE_INACTIVE:
+            return inactivatePurpose(usagePoint);
+        default:
+            throw new UnsupportedOperationException();
         }
     }
 
-    private com.elster.jupiter.metering.UsagePoint inactivatePurpose(com.elster.jupiter.metering.UsagePoint usagePoint) throws
-            FaultMessage {
+    private com.elster.jupiter.metering.UsagePoint inactivatePurpose(com.elster.jupiter.metering.UsagePoint usagePoint)
+            throws FaultMessage {
         String purposeName = retrieveConfigurationEventValue(usagePointConfig);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = findEffectiveMetrologyConfiguration(usagePoint);
         List<MetrologyContract> contractsList = effectiveMC.getMetrologyConfiguration().getContracts();
 
         for (MetrologyContract metrologyContract : contractsList) {
-            if (!metrologyContract.isMandatory() && metrologyContract.getMetrologyPurpose()
-                    .getName()
-                    .equals(purposeName)) {
+            if (!metrologyContract.isMandatory()
+                    && metrologyContract.getMetrologyPurpose().getName().equals(purposeName)) {
                 effectiveMC.deactivateOptionalMetrologyContract(metrologyContract, Instant.now());
-            } else if (metrologyContract.isMandatory() && metrologyContract.getMetrologyPurpose()
-                    .getName()
-                    .equals(purposeName)) {
-                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.INVALID_METROLOGY_CONTRACT_REQUIRMENT, "Found inactive default purpose", 1).get();
+            } else if (metrologyContract.isMandatory()
+                    && metrologyContract.getMetrologyPurpose().getName().equals(purposeName)) {
+                throw messageFactory
+                        .usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                                MessageSeeds.INVALID_METROLOGY_CONTRACT_REQUIRMENT, "Found inactive default purpose", 1)
+                        .get();
             }
         }
         return usagePoint;
     }
 
-    private com.elster.jupiter.metering.UsagePoint activatePurpose(com.elster.jupiter.metering.UsagePoint usagePoint) throws
-            FaultMessage {
+    private com.elster.jupiter.metering.UsagePoint activatePurpose(com.elster.jupiter.metering.UsagePoint usagePoint)
+            throws FaultMessage {
         String purposeName = retrieveConfigurationEventValue(usagePointConfig);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = findEffectiveMetrologyConfiguration(usagePoint);
         List<MetrologyContract> contractsList = effectiveMC.getMetrologyConfiguration().getContracts();
 
         for (MetrologyContract metrologyContract : contractsList) {
-            if (!metrologyContract.isMandatory() && metrologyContract.getMetrologyPurpose()
-                    .getName()
-                    .equals(purposeName)) {
+            if (!metrologyContract.isMandatory()
+                    && metrologyContract.getMetrologyPurpose().getName().equals(purposeName)) {
                 checkMeterRequirments(usagePoint, metrologyContract);
                 effectiveMC.activateOptionalMetrologyContract(metrologyContract, Instant.now());
             }
@@ -471,42 +437,36 @@ class UsagePointBuilder {
         }
 
         switch (reason) {
-            case STATUS_CHANGE:
-                return ConfigurationEventReason.forReason(reason)
-                        .filter(ConfigurationEventReason.CHANGE_STATUS::equals)
-                        .get(); // only Change Status is supported now
-            case ACTIVE_PURPOSE:
-                return ConfigurationEventReason.forReason(reason)
-                        .filter(ConfigurationEventReason.PURPOSE_ACTIVE::equals)
-                        .get();
-            case INACTIVE_PURPOSE:
-                return ConfigurationEventReason.forReason(reason)
-                        .filter(ConfigurationEventReason.PURPOSE_INACTIVE::equals)
-                        .get();
-            default:
-                throw unsupportedValueSupplier("ConfigurationEvents.status.reason", reason,
-                        Arrays.stream(ConfigurationEventReason.values()).map(ConfigurationEventReason::getReason).toArray(String[]::new)).get();
+        case STATUS_CHANGE:
+            return ConfigurationEventReason.forReason(reason).filter(ConfigurationEventReason.CHANGE_STATUS::equals)
+                    .get(); // only Change Status is supported now
+        case ACTIVE_PURPOSE:
+            return ConfigurationEventReason.forReason(reason).filter(ConfigurationEventReason.PURPOSE_ACTIVE::equals)
+                    .get();
+        case INACTIVE_PURPOSE:
+            return ConfigurationEventReason.forReason(reason).filter(ConfigurationEventReason.PURPOSE_INACTIVE::equals)
+                    .get();
+        default:
+            throw unsupportedValueSupplier("ConfigurationEvents.status.reason", reason,
+                    Arrays.stream(ConfigurationEventReason.values()).map(ConfigurationEventReason::getReason)
+                            .toArray(String[]::new)).get();
         }
     }
 
-    private com.elster.jupiter.metering.UsagePoint performTransition(
-            com.elster.jupiter.metering.UsagePoint usagePoint) throws FaultMessage {
+    private com.elster.jupiter.metering.UsagePoint performTransition(com.elster.jupiter.metering.UsagePoint usagePoint)
+            throws FaultMessage {
         String stateName = retrieveState(usagePointConfig);
         UsagePointTransition transition = findTransitionToState(stateName, usagePoint);
         Optional<ConnectionState> requestedConnectionState = retrieveConnectionState(usagePointConfig);
         Map<String, Object> properties = transition.getMicroActionsProperties().stream()
-                .filter(spec -> CONNECTION_STATE_PROPERTY_NAME.equals(spec.getName()))
-                .findFirst()
+                .filter(spec -> CONNECTION_STATE_PROPERTY_NAME.equals(spec.getName())).findFirst()
                 .map(spec -> (ValueFactory<?>) spec.getValueFactory())
-                .flatMap(factory -> requestedConnectionState
-                        .map(ConnectionState::name)
-                        .map(factory::fromStringValue)
+                .flatMap(factory -> requestedConnectionState.map(ConnectionState::name).map(factory::fromStringValue)
                         .map(Object.class::cast))
                 .map(value -> (Map<String, Object>) ImmutableMap.of(CONNECTION_STATE_PROPERTY_NAME, value))
                 .orElseGet(Collections::emptyMap);
         List<UsagePointStateChangeFail> failures = usagePointLifeCycleService
-                .performTransition(usagePoint, transition, "INS", properties)
-                .getFailReasons();
+                .performTransition(usagePoint, transition, "INS", properties).getFailReasons();
         if (!failures.isEmpty()) {
             throw faultMessage(failures);
         }
@@ -515,19 +475,17 @@ class UsagePointBuilder {
     }
 
     private FaultMessage faultMessage(List<UsagePointStateChangeFail> failures) {
-        ErrorType[] errors = failures.stream()
-                .map(failure -> {
-                    switch (failure.getFailSource()) {
-                        case CHECK:
-                            return replyTypeFactory.errorType(MessageSeeds.TRANSITION_CHECK_FAILED,
-                                    failure.getName(), failure.getMessage());
-                        case ACTION:
-                            return replyTypeFactory.errorType(MessageSeeds.TRANSITION_ACTION_FAILED,
-                                    failure.getName(), failure.getMessage());
-                    }
-                    return null;
-                })
-                .toArray(ErrorType[]::new);
+        ErrorType[] errors = failures.stream().map(failure -> {
+            switch (failure.getFailSource()) {
+            case CHECK:
+                return replyTypeFactory.errorType(MessageSeeds.TRANSITION_CHECK_FAILED, failure.getName(),
+                        failure.getMessage());
+            case ACTION:
+                return replyTypeFactory.errorType(MessageSeeds.TRANSITION_ACTION_FAILED, failure.getName(),
+                        failure.getMessage());
+            }
+            return null;
+        }).toArray(ErrorType[]::new);
         return messageFactory.usagePointConfigFaultMessage(basicFaultMessage, errors);
     }
 
@@ -535,31 +493,26 @@ class UsagePointBuilder {
         UsagePointConnectedKind connectionState = usagePointConfig.getConnectionState();
         if (connectionState != null) {
             String value = connectionState.value();
-            return Optional.of(Arrays.stream(ConnectionState.supportedValues())
-                    .filter(cs -> cs.getId().equals(value))
-                    .findFirst()
-                    .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+            return Optional.of(Arrays.stream(ConnectionState.supportedValues()).filter(cs -> cs.getId().equals(value))
+                    .findFirst().orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                             MessageSeeds.NO_CONNECTION_STATE_FOUND, value)));
         }
         return Optional.empty();
     }
 
     private UsagePointTransition findTransitionToState(String stateName,
-                                                       com.elster.jupiter.metering.UsagePoint usagePoint) throws FaultMessage {
-        String stateKey = DefaultUsagePointStateFinder.findForName(stateName)
-                .map(DefaultState::getKey)
+            com.elster.jupiter.metering.UsagePoint usagePoint) throws FaultMessage {
+        String stateKey = DefaultUsagePointStateFinder.findForName(stateName).map(DefaultState::getKey)
                 .orElse(stateName);
         if (stateKey.equals(usagePoint.getState().getName())) {
             throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                     MessageSeeds.USAGE_POINT_IS_ALREADY_IN_STATE, stateName).get();
         }
         return usagePointLifeCycleService.getAvailableTransitions(usagePoint, "INS").stream()
-                .filter(transition -> transition.getTo().getName().equals(stateKey))
-                .findAny()
-                .orElseThrow(() -> {
-                    MessageSeeds detailedMessageSeed = containsStateWithKey(usagePoint.getLifeCycle(), stateKey) ?
-                            MessageSeeds.NO_AVAILABLE_TRANSITION_TO_STATE :
-                            MessageSeeds.NO_USAGE_POINT_STATE_WITH_NAME;
+                .filter(transition -> transition.getTo().getName().equals(stateKey)).findAny().orElseThrow(() -> {
+                    MessageSeeds detailedMessageSeed = containsStateWithKey(usagePoint.getLifeCycle(), stateKey)
+                            ? MessageSeeds.NO_AVAILABLE_TRANSITION_TO_STATE
+                            : MessageSeeds.NO_USAGE_POINT_STATE_WITH_NAME;
                     return messageFactory
                             .usagePointConfigFaultMessageSupplier(basicFaultMessage, detailedMessageSeed, stateName)
                             .get();
@@ -585,8 +538,7 @@ class UsagePointBuilder {
 
     private Optional<Instant> retrieveCreationDate(UsagePoint usagePointConfig) {
         return Optional.ofNullable(usagePointConfig.getConfigurationEvents())
-                .map(ConfigurationEvent::getCreatedDateTime)
-                .flatMap(Optional::ofNullable);
+                .map(ConfigurationEvent::getCreatedDateTime).flatMap(Optional::ofNullable);
     }
 
     private String retrieveMandatoryName(UsagePoint usagePointConfig) throws FaultMessage {
@@ -604,13 +556,11 @@ class UsagePointBuilder {
     private String retrieveName(List<Name> names) throws FaultMessage {
         String nameString = null;
         if (names.size() > 1) {
-            nameString = names.stream()
-                    .filter(name -> name.getNameType().getName().equals("UsagePointName"))
-                    .findFirst()
-                    .orElse(null)
-                    .getName();
-        } else if (names.size() == 1)
+            nameString = names.stream().filter(name -> "UsagePointName".equals(name.getNameType().getName()))
+                    .findFirst().map(Name::getName).orElse(null);
+        } else if (names.size() == 1) {
             nameString = names.get(0).getName();
+        }
 
         if (Checks.is(nameString).emptyOrOnlyWhiteSpace()) {
             throw emptyUsagePointParameterSupplier("Names[0].name").get();
@@ -626,8 +576,7 @@ class UsagePointBuilder {
 
         String nameString = null;
         if (names.size() > 1) {
-            nameString = names.stream()
-                    .filter(name -> name.getNameType().getName().equals("UsagePointLifecycleName"))
+            nameString = names.stream().filter(name -> name.getNameType().getName().equals("UsagePointLifecycleName"))
                     .findFirst().orElse(null).getName();
         }
 
@@ -647,14 +596,14 @@ class UsagePointBuilder {
         String name = retrieveOptionalName(usagePointConfig)
                 .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, pathToUsagePoint));
-        return meteringService.findUsagePointByName(name)
-                .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));
+        return meteringService.findUsagePointByName(name).orElseThrow(messageFactory
+                .usagePointConfigFaultMessageSupplier(basicFaultMessage, MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));
     }
 
     private com.elster.jupiter.metering.ServiceCategory retrieveServiceCategory(UsagePoint usagePointConfig)
             throws FaultMessage {
-        ServiceCategory serviceCategory = retrieveMandatoryParameter("ServiceCategory", usagePointConfig::getServiceCategory);
+        ServiceCategory serviceCategory = retrieveMandatoryParameter("ServiceCategory",
+                usagePointConfig::getServiceCategory);
         ServiceKind serviceKind = retrieveMandatoryParameter("ServiceCategory.kind", serviceCategory::getKind);
         com.elster.jupiter.metering.ServiceKind realServiceKind = getServiceKindByValue(serviceKind.value());
         return meteringService.getServiceCategory(realServiceKind)
@@ -665,22 +614,21 @@ class UsagePointBuilder {
 
     private com.elster.jupiter.metering.ServiceKind getServiceKindByValue(String value) throws FaultMessage {
         return Arrays.stream(com.elster.jupiter.metering.ServiceKind.values())
-                .filter(sk -> sk.getDisplayName().equals(value))
-                .findFirst()
+                .filter(sk -> sk.getDisplayName().equals(value)).findFirst()
                 .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.NO_SERVICE_KIND_FOUND, value));
     }
 
     private Optional<com.elster.jupiter.cbo.PhaseCode> retrievePhaseCode(UsagePoint usagePointConfig) {
-        return Optional.ofNullable(usagePointConfig.getPhaseCode())
-                .map(PhaseCode::value)
+        return Optional.ofNullable(usagePointConfig.getPhaseCode()).map(PhaseCode::value)
                 .map(com.elster.jupiter.cbo.PhaseCode::get);
     }
 
-    private Optional<UsagePointMetrologyConfiguration> retrieveMetrologyConfiguration(UsagePoint usagePointConfig, List<MeterActivation> meterActivationList, Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC)
-            throws FaultMessage {
-        Optional<UsagePoint.MetrologyRequirements> metrologyRequirement = usagePointConfig.getMetrologyRequirements().stream()
-                .findFirst();
+    private Optional<UsagePointMetrologyConfiguration> retrieveMetrologyConfiguration(UsagePoint usagePointConfig,
+            List<MeterActivation> meterActivationList,
+            Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC) throws FaultMessage {
+        Optional<UsagePoint.MetrologyRequirements> metrologyRequirement = usagePointConfig.getMetrologyRequirements()
+                .stream().findFirst();
         if (!metrologyRequirement.isPresent()) {
             return Optional.empty();
         }
@@ -688,29 +636,27 @@ class UsagePointBuilder {
         if (Checks.is(name).emptyOrOnlyWhiteSpace()) {
             throw emptyUsagePointParameterSupplier("MetrologyRequirements[0].Names[0].name").get();
         }
-        List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList = retrieveMetrologyPurposes(metrologyRequirement
-                .get()
-                .getNames());
+        List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList = retrieveMetrologyPurposes(
+                metrologyRequirement.get().getNames());
         UsagePointMetrologyConfiguration usagePointMetr = retrieveMetrologyConfigurationDefault(name);
         usagePointMetr = findPurposes(metrologyPurposesList, usagePointMetr, meterActivationList, effectiveMC);
 
         return Optional.of(usagePointMetr);
     }
 
-    private UsagePointMetrologyConfiguration findPurposes(List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList, UsagePointMetrologyConfiguration usagePointMetrologyConfiguration, List<MeterActivation> meterActivationList, Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC) throws
-            FaultMessage {
+    private UsagePointMetrologyConfiguration findPurposes(
+            List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList,
+            UsagePointMetrologyConfiguration usagePointMetrologyConfiguration,
+            List<MeterActivation> meterActivationList,
+            Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC) throws FaultMessage {
         List<MetrologyContract> metrologyMandatoryContractsList = usagePointMetrologyConfiguration.getContracts()
-                .stream()
-                .filter(MetrologyContract::isMandatory)
-                .collect(Collectors.toList());
+                .stream().filter(MetrologyContract::isMandatory).collect(Collectors.toList());
 
         for (MetrologyContract metrologyContract : metrologyMandatoryContractsList) {
             checkPurpose(metrologyContract, metrologyPurposesList);
         }
         List<MetrologyContract> metrologyOptionalContractsList = usagePointMetrologyConfiguration.getContracts()
-                .stream()
-                .filter(contract -> !contract.isMandatory())
-                .collect(Collectors.toList());
+                .stream().filter(contract -> !contract.isMandatory()).collect(Collectors.toList());
         for (MetrologyContract metrologyOptionalContract : metrologyOptionalContractsList) {
             activateOptionalPurpose(metrologyOptionalContract, metrologyPurposesList, meterActivationList, effectiveMC);
         }
@@ -718,16 +664,15 @@ class UsagePointBuilder {
         return usagePointMetrologyConfiguration;
     }
 
-    private void activateOptionalPurpose(MetrologyContract contract, List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList, List<MeterActivation> meterActivationList, Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC) throws
-            FaultMessage {
-        if (metrologyPurposesList.stream()
-                .filter(p -> p.getNameType().getDescription().equals("Active"))
+    private void activateOptionalPurpose(MetrologyContract contract,
+            List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList,
+            List<MeterActivation> meterActivationList,
+            Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC) throws FaultMessage {
+        if (metrologyPurposesList.stream().filter(p -> p.getNameType().getDescription().equals("Active"))
                 .count() != 0) {
             if (metrologyPurposesList.stream()
-                    .filter(purpose -> purpose.getName()
-                            .equals(contract.getMetrologyPurpose().getName()) && purpose.getNameType()
-                            .getDescription()
-                            .equals("Active"))
+                    .filter(purpose -> purpose.getName().equals(contract.getMetrologyPurpose().getName())
+                            && purpose.getNameType().getDescription().equals("Active"))
                     .collect(Collectors.toList()).size() != 0 && meterActivationList.size() != 0) {
 
                 effectiveMC.get().activateOptionalMetrologyContract(contract, clock.instant());
@@ -735,21 +680,21 @@ class UsagePointBuilder {
         }
     }
 
-    private void checkPurpose(MetrologyContract metrologyContract, List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList) throws
-            FaultMessage {
+    private void checkPurpose(MetrologyContract metrologyContract,
+            List<UsagePoint.MetrologyRequirements.Names> metrologyPurposesList) throws FaultMessage {
         if (metrologyPurposesList.stream()
-                .filter(purpose -> purpose.getName()
-                        .equals(metrologyContract.getMetrologyPurpose().getName()) && purpose.getNameType()
-                        .getDescription()
-                        .equals("Inactive"))
+                .filter(purpose -> purpose.getName().equals(metrologyContract.getMetrologyPurpose().getName())
+                        && purpose.getNameType().getDescription().equals("Inactive"))
                 .collect(Collectors.toList()).size() != 0) {
-            throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                    MessageSeeds.INVALID_METROLOGY_CONTRACT_REQUIRMENT, "Found inactive default purpose", 1).get();
+            throw messageFactory
+                    .usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                            MessageSeeds.INVALID_METROLOGY_CONTRACT_REQUIRMENT, "Found inactive default purpose", 1)
+                    .get();
         }
     }
 
-    private UsagePointMetrologyConfiguration retrieveMetrologyConfigurationDefault(String usagePointMetrologyConfigurationName) throws
-            FaultMessage {
+    private UsagePointMetrologyConfiguration retrieveMetrologyConfigurationDefault(
+            String usagePointMetrologyConfigurationName) throws FaultMessage {
         return metrologyConfigurationService.findMetrologyConfiguration(usagePointMetrologyConfigurationName)
                 .filter(UsagePointMetrologyConfiguration.class::isInstance)
                 .map(UsagePointMetrologyConfiguration.class::cast)
@@ -765,34 +710,27 @@ class UsagePointBuilder {
         return parameter;
     }
 
-    private List<UsagePoint.MetrologyRequirements.Names> retrieveMetrologyPurposes(List<UsagePoint.MetrologyRequirements.Names> names) {
-        return names.stream()
-                .filter(name -> name.getNameType().getName().equals("Purpose"))
+    private List<UsagePoint.MetrologyRequirements.Names> retrieveMetrologyPurposes(
+            List<UsagePoint.MetrologyRequirements.Names> names) {
+        return names.stream().filter(name -> name.getNameType().getName().equals("Purpose"))
                 .collect(Collectors.toList());
     }
 
-    private String retrieveMetrologyRequirementElements(List<UsagePoint.MetrologyRequirements.Names> names) throws
-            FaultMessage {
+    private String retrieveMetrologyRequirementElements(List<UsagePoint.MetrologyRequirements.Names> names)
+            throws FaultMessage {
         List<UsagePoint.MetrologyRequirements.Names> metrologyRequirementsList = names;
         if (metrologyRequirementsList.size() >= 1) {
-            if (metrologyRequirementsList.stream()
-                    .filter(n -> n.getNameType() == null)
-                    .collect(Collectors.toList())
+            if (metrologyRequirementsList.stream().filter(n -> n.getNameType() == null).collect(Collectors.toList())
                     .size() == 1) {
                 return setEmptyNameTypeMetrologyRequirment(metrologyRequirementsList);
-            } else if (metrologyRequirementsList.stream()
-                    .filter(n -> n.getNameType() == null)
-                    .collect(Collectors.toList())
-                    .size() > 1) {
+            } else if (metrologyRequirementsList.stream().filter(n -> n.getNameType() == null)
+                    .collect(Collectors.toList()).size() > 1) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.MORE_THAN_ONE_METROLOGY_CONFIGURATION_SPECIFIED).get();
             } else if (metrologyRequirementsList.stream()
-                    .filter(name -> name.getNameType().getName().equals(METROLOGY_CONFIGURATION))
-                    .count() == 1) {
+                    .filter(name -> name.getNameType().getName().equals(METROLOGY_CONFIGURATION)).count() == 1) {
                 return metrologyRequirementsList.stream()
-                        .filter(n -> n.getNameType().getName().equals(METROLOGY_CONFIGURATION))
-                        .findAny()
-                        .get()
+                        .filter(n -> n.getNameType().getName().equals(METROLOGY_CONFIGURATION)).findAny().get()
                         .getName();
             } else {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
@@ -803,19 +741,14 @@ class UsagePointBuilder {
         }
     }
 
-    private String setEmptyNameTypeMetrologyRequirment(List<UsagePoint.MetrologyRequirements.Names> metrologyRequirmentsList) {
+    private String setEmptyNameTypeMetrologyRequirment(
+            List<UsagePoint.MetrologyRequirements.Names> metrologyRequirmentsList) {
         UsagePoint.MetrologyRequirements.Names.NameType value = new UsagePoint.MetrologyRequirements.Names.NameType();
         value.setName(METROLOGY_CONFIGURATION);
-        metrologyRequirmentsList.stream()
-                .filter(name -> name.getNameType() == null)
-                .findFirst()
-                .get()
+        metrologyRequirmentsList.stream().filter(name -> name.getNameType() == null).findFirst().get()
                 .setNameType(value);
-        return metrologyRequirmentsList.stream()
-                .filter(n -> n.getNameType().getName().equals(METROLOGY_CONFIGURATION))
-                .findAny()
-                .get()
-                .getName();
+        return metrologyRequirmentsList.stream().filter(n -> n.getNameType().getName().equals(METROLOGY_CONFIGURATION))
+                .findAny().get().getName();
     }
 
     private <T> T retrieveOneMandatoryElement(String listElement, Supplier<List<T>> supplier) throws FaultMessage {
@@ -823,55 +756,63 @@ class UsagePointBuilder {
                 .orElseThrow(emptyUsagePointParametersListSupplier(listElement));
     }
 
-    private <T> Optional<T> retrieveOneOptionalElement(String listElement, Supplier<List<T>> supplier) throws FaultMessage {
+    private <T> Optional<T> retrieveOneOptionalElement(String listElement, Supplier<List<T>> supplier)
+            throws FaultMessage {
         List<T> parameters = supplier.get();
         switch (parameters.size()) {
-            case 0:
-                return Optional.empty();
-            case 1:
-                return Optional.of(parameters.get(0));
-            default:
-                throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.UNSUPPORTED_LIST_SIZE, pathToUsagePoint + '.' + listElement, 1).get();
+        case 0:
+            return Optional.empty();
+        case 1:
+            return Optional.of(parameters.get(0));
+        default:
+            throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                    MessageSeeds.UNSUPPORTED_LIST_SIZE, pathToUsagePoint + '.' + listElement, 1).get();
         }
     }
 
-    private void validateMandatoryCustomProperties(CustomPropertySet<?, ?> customPropertySet, CustomPropertySetValues values) throws FaultMessage {
+    private void validateMandatoryCustomProperties(CustomPropertySet<?, ?> customPropertySet,
+            CustomPropertySetValues values) throws FaultMessage {
         List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
         for (PropertySpec spec : propertySpecs) {
             if (spec.isRequired() && values.getProperty(spec.getName()) == null) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE, spec.getName(), customPropertySet.getId()).get();
+                        MessageSeeds.MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE, spec.getName(), customPropertySet.getId())
+                        .get();
             }
         }
     }
 
-    private void validatePossibleValues(CustomPropertySet<?, ?> customPropertySet, CustomPropertySetValues values, CustomAttributeSet data) throws FaultMessage {
+    private void validatePossibleValues(CustomPropertySet<?, ?> customPropertySet, CustomPropertySetValues values,
+            CustomAttributeSet data) throws FaultMessage {
         List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
         for (PropertySpec spec : propertySpecs) {
             Object value = values.getProperty(spec.getName());
-            if (spec.getValueFactory().getValueType().equals(Quantity.class) && !isValidQuantityValues(spec, (Quantity)value)) {
+            if (spec.getValueFactory().getValueType().equals(Quantity.class)
+                    && !isValidQuantityValues(spec, (Quantity) value)) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.WRONG_QUANTITY_FORMAT,
-                        spec.getName(),
-                        spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getMultiplier())).collect(Collectors.joining(",")),
-                        spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getUnit())).collect(Collectors.joining(","))).get();
-            } else if (value != null
-                    && spec.getPossibleValues() != null
-                    && spec.getPossibleValues().isExhaustive()
+                        MessageSeeds.WRONG_QUANTITY_FORMAT, spec.getName(),
+                        spec.getPossibleValues().getAllValues().stream()
+                                .map(q -> String.valueOf(((Quantity) q).getMultiplier()))
+                                .collect(Collectors.joining(",")),
+                        spec.getPossibleValues().getAllValues().stream()
+                                .map(q -> String.valueOf(((Quantity) q).getUnit())).collect(Collectors.joining(",")))
+                        .get();
+            } else if (value != null && spec.getPossibleValues() != null && spec.getPossibleValues().isExhaustive()
                     && !isValidEnumValues(spec, value)) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.WRONG_ENUM_FORMAT, spec.getName(), spec.getPossibleValues().getAllValues().stream().map(String::valueOf).collect(Collectors.joining(","))).get();
+                        MessageSeeds.WRONG_ENUM_FORMAT, spec.getName(), spec.getPossibleValues().getAllValues().stream()
+                                .map(String::valueOf).collect(Collectors.joining(",")))
+                        .get();
             }
 
         }
     }
 
-    private void validateCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, CustomAttributeSet data) throws FaultMessage {
+    private void validateCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint,
+            CustomAttributeSet data) throws FaultMessage {
         Optional<CustomPropertySet> customPropertySet = usagePoint.forCustomProperties().getAllPropertySets().stream()
                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
-                .filter(cps -> data.getId().equalsIgnoreCase(cps.getId()))
-                .findFirst();
+                .filter(cps -> data.getId().equalsIgnoreCase(cps.getId())).findFirst();
         if (customPropertySet.isPresent()) {
             validateCustomPropertySetValues(customPropertySet.get(), usagePoint, data, null);
         } else {
@@ -880,7 +821,8 @@ class UsagePointBuilder {
         }
     }
 
-    private void validateCustomPropertySetValues(CustomPropertySet customPropertySet, Object businessObject, CustomAttributeSet data, Object additionalPrimaryKey) throws FaultMessage {
+    private void validateCustomPropertySetValues(CustomPropertySet customPropertySet, Object businessObject,
+            CustomAttributeSet data, Object additionalPrimaryKey) throws FaultMessage {
         if (!customPropertySet.isVersioned()) {
             validateCreateOrUpdateNonVersionedSet(businessObject, customPropertySet, data, additionalPrimaryKey);
         } else {
@@ -888,20 +830,25 @@ class UsagePointBuilder {
         }
     }
 
-
-    private void validateCreateOrUpdateVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalObject) throws FaultMessage {
+    private void validateCreateOrUpdateVersionedSet(Object businessObject,
+            CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data,
+            Object additionalObject) throws FaultMessage {
         Optional<Instant> versionId = Optional.ofNullable(data.getVersionId());
         CustomPropertySetValues values = null;
         if (versionId.isPresent()) {
             if (additionalObject != null) {
-                values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId.get(), additionalObject);
+                values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId.get(),
+                        additionalObject);
             } else {
-                values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId.get());
+                values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject,
+                        versionId.get());
             }
 
             if (values == null) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION, DefaultDateTimeFormatters.shortDate().withShortTime().build().format((versionId.get()).atZone(clock.getZone()))).get();
+                        MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION, DefaultDateTimeFormatters.shortDate().withShortTime()
+                                .build().format(versionId.get().atZone(clock.getZone())))
+                        .get();
             }
         } else {
             values = CustomPropertySetValues.empty();
@@ -909,13 +856,16 @@ class UsagePointBuilder {
         validateCreateOrUpdateCustomAttributeValues(customPropertySet, data, values);
     }
 
-
-    private void validateCreateOrUpdateNonVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalObject) throws FaultMessage {
+    private void validateCreateOrUpdateNonVersionedSet(Object businessObject,
+            CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data,
+            Object additionalObject) throws FaultMessage {
         CustomPropertySetValues values = getValues(businessObject, customPropertySet, data, additionalObject);
         validateCreateOrUpdateCustomAttributeValues(customPropertySet, data, values);
     }
 
-    private void validateCreateOrUpdateCustomAttributeValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, CustomPropertySetValues values) throws FaultMessage {
+    private void validateCreateOrUpdateCustomAttributeValues(
+            CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data,
+            CustomPropertySetValues values) throws FaultMessage {
         if (values != null) {
             for (PropertySpec spec : customPropertySet.getPropertySpecs()) {
                 Optional value = findValue(customPropertySet, spec, data);
@@ -929,25 +879,33 @@ class UsagePointBuilder {
         }
     }
 
-    private CustomPropertySetValues getValues(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalPrimaryKeyObject) throws FaultMessage {
+    private CustomPropertySetValues getValues(Object businessObject,
+            CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data,
+            Object additionalPrimaryKeyObject) throws FaultMessage {
         CustomPropertySetValues values;
         if (additionalPrimaryKeyObject != null) {
-            values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, additionalPrimaryKeyObject);
+            values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject,
+                    additionalPrimaryKeyObject);
         } else {
             values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject);
         }
         return updateValues(customPropertySet, data, values);
     }
 
-    private CustomPropertySetValues getValuesVersion(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Instant versionId, Object additionalPrimaryKeyObject) {
+    private CustomPropertySetValues getValuesVersion(Object businessObject,
+            CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data,
+            Instant versionId, Object additionalPrimaryKeyObject) {
         if (additionalPrimaryKeyObject != null) {
-            return customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId, additionalPrimaryKeyObject);
+            return customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId,
+                    additionalPrimaryKeyObject);
         } else {
             return customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId);
         }
     }
 
-    private CustomPropertySetValues updateValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, CustomPropertySetValues values) throws FaultMessage {
+    private CustomPropertySetValues updateValues(
+            CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data,
+            CustomPropertySetValues values) throws FaultMessage {
         for (PropertySpec spec : customPropertySet.getPropertySpecs()) {
             Optional value = findValue(customPropertySet, spec, data);
             if (value.isPresent()) {
@@ -958,7 +916,8 @@ class UsagePointBuilder {
 
     }
 
-    private Optional<Object> findValue(CustomPropertySet<Object,? extends PersistentDomainExtension> customPropertySet, PropertySpec spec, CustomAttributeSet data) throws FaultMessage {
+    private Optional<Object> findValue(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet,
+            PropertySpec spec, CustomAttributeSet data) throws FaultMessage {
         if (data.getId().equalsIgnoreCase(customPropertySet.getId())) {
             for (Attribute attr : data.getAttribute()) {
                 if (attr.getName().equalsIgnoreCase(spec.getName())) {
@@ -973,14 +932,18 @@ class UsagePointBuilder {
         return spec.getValueFactory().fromStringValue(value);
     }
 
-    private void addCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, CustomAttributeSet data) throws FaultMessage {
-        for (RegisteredCustomPropertySet registeredCustomPropertySet : usagePoint.forCustomProperties().getAllPropertySets().stream()
-                .filter(cps -> data.getId().equalsIgnoreCase(cps.getCustomPropertySetId())).collect(Collectors.toList())) {
+    private void addCustomPropertySetValues(com.elster.jupiter.metering.UsagePoint usagePoint, CustomAttributeSet data)
+            throws FaultMessage {
+        for (RegisteredCustomPropertySet registeredCustomPropertySet : usagePoint.forCustomProperties()
+                .getAllPropertySets().stream()
+                .filter(cps -> data.getId().equalsIgnoreCase(cps.getCustomPropertySetId()))
+                .collect(Collectors.toList())) {
             addCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet(), usagePoint, data, null);
         }
     }
 
-    private void addCustomPropertySetValues(CustomPropertySet customPropertySet, Object businessObject, CustomAttributeSet data, Object additionalPrimaryKey) throws FaultMessage {
+    private void addCustomPropertySetValues(CustomPropertySet customPropertySet, Object businessObject,
+            CustomAttributeSet data, Object additionalPrimaryKey) throws FaultMessage {
         if (customPropertySet.isVersioned()) {
             createOrUpdateVersionedSet(businessObject, customPropertySet, data, additionalPrimaryKey);
         } else {
@@ -988,14 +951,17 @@ class UsagePointBuilder {
         }
     }
 
-    private void createOrUpdateVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalPrimaryKeyObject) throws FaultMessage {
+    private void createOrUpdateVersionedSet(Object businessObject,
+            CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data,
+            Object additionalPrimaryKeyObject) throws FaultMessage {
         Optional<Instant> startTime = Optional.ofNullable(data.getFromDateTime());
         Optional<Instant> endTime = Optional.ofNullable(data.getToDateTime());
         Optional<Instant> versionId = Optional.ofNullable(data.getVersionId());
         Optional<Boolean> updateRange = Optional.ofNullable(data.isUpdateRange());
         checkInterval(startTime, endTime, customPropertySet, data);
         if (versionId.isPresent()) {
-            CustomPropertySetValues values = getValuesVersion(businessObject, customPropertySet, data, versionId.get(), additionalPrimaryKeyObject);
+            CustomPropertySetValues values = getValuesVersion(businessObject, customPropertySet, data, versionId.get(),
+                    additionalPrimaryKeyObject);
             if (!values.isEmpty()) {
                 values = updateValues(customPropertySet, data, values);
                 Range<Instant> range;
@@ -1006,64 +972,84 @@ class UsagePointBuilder {
                     range = getRangeToUpdate(startTime, endTime, values.getEffectiveRange());
                     OverlapCalculatorBuilder overlapCalculatorBuilder;
                     if (additionalPrimaryKeyObject != null) {
-                        overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject, additionalPrimaryKeyObject);
+                        overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet,
+                                businessObject, additionalPrimaryKeyObject);
                     } else {
-                        overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject);
+                        overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet,
+                                businessObject);
                     }
                     for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenUpdating(versionId.get(), range)) {
                         if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
-                            range = getRangeToUpdate(Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()), endTime, values.getEffectiveRange());
+                            range = getRangeToUpdate(
+                                    Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()), endTime,
+                                    values.getEffectiveRange());
                         }
                         if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
-                            range = getRangeToUpdate(startTime, Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()), values.getEffectiveRange());
+                            range = getRangeToUpdate(startTime,
+                                    Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()),
+                                    values.getEffectiveRange());
                         }
                     }
                 } else {
                     range = values.getEffectiveRange();
                 }
                 if (additionalPrimaryKeyObject != null) {
-                    customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, values, range, versionId.get(), additionalPrimaryKeyObject);
+                    customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, values, range,
+                            versionId.get(), additionalPrimaryKeyObject);
                 } else {
-                    customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, values, range, versionId.get());
+                    customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, values, range,
+                            versionId.get());
                 }
             } else {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(versionId.get().atZone(clock.getZone()))).get();
+                        MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION, DefaultDateTimeFormatters.shortDate().withShortTime()
+                                .build().format(versionId.get().atZone(clock.getZone())))
+                        .get();
             }
         } else {
-            com.elster.jupiter.metering.UsagePoint usagePoint = (com.elster.jupiter.metering.UsagePoint)businessObject;
+            com.elster.jupiter.metering.UsagePoint usagePoint = (com.elster.jupiter.metering.UsagePoint) businessObject;
             if (!startTime.isPresent() || startTime.get().isBefore(usagePoint.getInstallationTime())) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.START_DATE_LOWER_CREATED_DATE, customPropertySet.getId(), usagePoint.getName()).get();
+                        MessageSeeds.START_DATE_LOWER_CREATED_DATE, customPropertySet.getId(), usagePoint.getName())
+                        .get();
             }
             Range<Instant> range = getRangeToCreate(startTime, endTime);
             OverlapCalculatorBuilder overlapCalculatorBuilder;
             if (additionalPrimaryKeyObject != null) {
-                overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject, additionalPrimaryKeyObject);
+                overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet,
+                        businessObject, additionalPrimaryKeyObject);
             } else {
-                overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet, businessObject);
+                overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(customPropertySet,
+                        businessObject);
             }
             for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenCreating(range)) {
                 if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
-                    range = getRangeToCreate(Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()), endTime);
+                    range = getRangeToCreate(Optional.ofNullable(conflict.getConflictingRange().lowerEndpoint()),
+                            endTime);
                 }
                 if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
-                    range = getRangeToCreate(startTime, Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()));
+                    range = getRangeToCreate(startTime,
+                            Optional.ofNullable(conflict.getConflictingRange().upperEndpoint()));
                 }
             }
             CustomPropertySetValues newValues = CustomPropertySetValues.empty();
             if (additionalPrimaryKeyObject != null) {
-                customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, updateValues(customPropertySet, data, newValues), range, additionalPrimaryKeyObject);
+                customPropertySetService.setValuesVersionFor(customPropertySet, businessObject,
+                        updateValues(customPropertySet, data, newValues), range, additionalPrimaryKeyObject);
             } else {
-                customPropertySetService.setValuesVersionFor(customPropertySet, businessObject, updateValues(customPropertySet, data, newValues), range);
+                customPropertySetService.setValuesVersionFor(customPropertySet, businessObject,
+                        updateValues(customPropertySet, data, newValues), range);
             }
         }
     }
 
-    private void createOrUpdateNonVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalPrimaryKeyObject) throws FaultMessage {
+    private void createOrUpdateNonVersionedSet(Object businessObject,
+            CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data,
+            Object additionalPrimaryKeyObject) throws FaultMessage {
         CustomPropertySetValues values = getValues(businessObject, customPropertySet, data, additionalPrimaryKeyObject);
         if (additionalPrimaryKeyObject != null) {
-            customPropertySetService.setValuesFor(customPropertySet, businessObject, values, additionalPrimaryKeyObject);
+            customPropertySetService.setValuesFor(customPropertySet, businessObject, values,
+                    additionalPrimaryKeyObject);
         } else {
             customPropertySetService.setValuesFor(customPropertySet, businessObject, values);
         }
@@ -1073,24 +1059,23 @@ class UsagePointBuilder {
         if ((!startTime.isPresent() || startTime.get().equals(Instant.EPOCH))
                 && (!endTime.isPresent() || endTime.get().equals(Instant.EPOCH))) {
             return Range.all();
-        } else if (!startTime.isPresent() || startTime.get().equals(Instant.EPOCH)
-                && (endTime.isPresent() && !endTime.get().equals(Instant.EPOCH))) {
+        } else if (!startTime.isPresent() || startTime.get().equals(Instant.EPOCH) && endTime.isPresent()
+                && !endTime.get().equals(Instant.EPOCH)) {
             return Range.lessThan(endTime.get());
         } else if (!endTime.isPresent() || endTime.get().equals(Instant.EPOCH)) {
             return Range.atLeast(startTime.get());
         } else {
-            return Range.closedOpen(
-                    startTime.get(),
-                    endTime.get());
+            return Range.closedOpen(startTime.get(), endTime.get());
         }
     }
 
-    private Range<Instant> getRangeToUpdate(Optional<Instant> startTime, Optional<Instant> endTime, Range<Instant> oldRange) {
+    private Range<Instant> getRangeToUpdate(Optional<Instant> startTime, Optional<Instant> endTime,
+            Range<Instant> oldRange) {
         if (!startTime.isPresent() && !endTime.isPresent()) {
             return oldRange;
         } else if (!startTime.isPresent()) {
             if (oldRange.hasLowerBound()) {
-                if(!endTime.get().equals(Instant.EPOCH)) {
+                if (!endTime.get().equals(Instant.EPOCH)) {
                     return Range.closedOpen(oldRange.lowerEndpoint(), endTime.get());
                 } else {
                     return Range.atLeast(oldRange.lowerEndpoint());
@@ -1102,7 +1087,7 @@ class UsagePointBuilder {
             }
         } else if (!endTime.isPresent()) {
             if (oldRange.hasUpperBound()) {
-                if(!startTime.get().equals(Instant.EPOCH)) {
+                if (!startTime.get().equals(Instant.EPOCH)) {
                     return Range.closedOpen(startTime.get(), oldRange.upperEndpoint());
                 } else {
                     return Range.lessThan(oldRange.upperEndpoint());
@@ -1117,10 +1102,12 @@ class UsagePointBuilder {
         }
     }
 
-    private void checkInterval(Optional<Instant> startTime, Optional<Instant> endTime, CustomPropertySet customPropertySet, CustomAttributeSet data) throws FaultMessage {
-        if (startTime.isPresent() && endTime.isPresent() && !endTime.get().equals(Instant.EPOCH) && endTime.get().isBefore(startTime.get())) {
-            throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                    MessageSeeds.INVALID_RANGE, customPropertySet.getId()).get();
+    private void checkInterval(Optional<Instant> startTime, Optional<Instant> endTime,
+            CustomPropertySet customPropertySet, CustomAttributeSet data) throws FaultMessage {
+        if (startTime.isPresent() && endTime.isPresent() && !endTime.get().equals(Instant.EPOCH)
+                && endTime.get().isBefore(startTime.get())) {
+            throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage, MessageSeeds.INVALID_RANGE,
+                    customPropertySet.getId()).get();
         }
     }
 
@@ -1129,43 +1116,42 @@ class UsagePointBuilder {
             return true;
         }
         if (spec.getPossibleValues().getAllValues().stream()
-                .noneMatch(pv -> ((Quantity) pv).getUnit().equals(value.getUnit()) && ((Quantity) pv).getMultiplier() == ((value.getMultiplier())))) {
+                .noneMatch(pv -> ((Quantity) pv).getUnit().equals(value.getUnit())
+                        && ((Quantity) pv).getMultiplier() == value.getMultiplier())) {
             return false;
         }
         return true;
     }
 
-
     private boolean isValidEnumValues(PropertySpec spec, Object value) {
-        if (spec.getPossibleValues().getAllValues().stream()
-                .noneMatch(pv -> pv.equals(value))) {
+        if (spec.getPossibleValues().getAllValues().stream().noneMatch(pv -> pv.equals(value))) {
             return false;
         }
         return true;
     }
 
     private Supplier<FaultMessage> missingUsagePointParameterSupplier(String element) {
-        return messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                MessageSeeds.MISSING_ELEMENT, pathToUsagePoint + '.' + element);
+        return messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage, MessageSeeds.MISSING_ELEMENT,
+                pathToUsagePoint + '.' + element);
     }
 
     private Supplier<FaultMessage> emptyUsagePointParametersListSupplier(String element) {
-        return messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                MessageSeeds.EMPTY_LIST, pathToUsagePoint + '.' + element);
+        return messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage, MessageSeeds.EMPTY_LIST,
+                pathToUsagePoint + '.' + element);
     }
 
     private Supplier<FaultMessage> emptyUsagePointParameterSupplier(String element) {
-        return messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                MessageSeeds.EMPTY_ELEMENT, pathToUsagePoint + '.' + element);
+        return messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage, MessageSeeds.EMPTY_ELEMENT,
+                pathToUsagePoint + '.' + element);
     }
 
     private Supplier<FaultMessage> unsupportedValueSupplier(String element, String value, String... supportedValues) {
-        return messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                MessageSeeds.UNSUPPORTED_VALUE, pathToUsagePoint + '.' + element, value,
+        return messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage, MessageSeeds.UNSUPPORTED_VALUE,
+                pathToUsagePoint + '.' + element, value,
                 Arrays.stream(supportedValues).map(each -> '\'' + each + '\'').collect(Collectors.joining(", ")));
     }
 
-    interface PreparedUsagePointBuilder {
+    public interface PreparedUsagePointBuilder {
         PreparedUsagePointBuilder at(Instant timestamp);
 
         @TransactionRequired
@@ -1176,4 +1162,5 @@ class UsagePointBuilder {
 
         com.elster.jupiter.metering.UsagePoint get() throws FaultMessage;
     }
+
 }
