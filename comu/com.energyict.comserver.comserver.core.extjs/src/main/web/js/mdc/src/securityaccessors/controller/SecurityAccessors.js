@@ -88,6 +88,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             '#mdc-add-security-accessor': {
                 click: me.navigateToAddSecurityAccessor
             },
+            '#mdc-add-security-accessor-empty-grid': {
+                click: me.navigateToAddSecurityAccessor
+            },
             '#mdc-security-accessor-cancel-link[action=cancelAddEditSecurityAccessor]': {
                 click: me.navigateToOverviewPage
             },
