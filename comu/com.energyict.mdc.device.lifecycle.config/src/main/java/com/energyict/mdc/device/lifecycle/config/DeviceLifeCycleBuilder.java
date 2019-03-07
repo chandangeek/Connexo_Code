@@ -86,10 +86,12 @@ public interface DeviceLifeCycleBuilder {
 
     interface AuthorizedTransitionActionBuilder extends AuthorizedActionBuilder<AuthorizedTransitionAction> {
 
-        AuthorizedTransitionActionBuilder addAllChecks(Set<String> checks);
+        AuthorizedTransitionActionBuilder setChecks(Set<String> checks);
 
-        AuthorizedTransitionActionBuilder addAction(MicroAction action, MicroAction... otherActions);
+        AuthorizedTransitionActionBuilder setChecks(String... checks);
 
-        AuthorizedTransitionActionBuilder addAllActions(Set<MicroAction> actions);
+        AuthorizedTransitionActionBuilder addActions(Set<MicroAction> actions);
+
+        AuthorizedTransitionActionBuilder addActions(MicroAction... actions);
     }
 }

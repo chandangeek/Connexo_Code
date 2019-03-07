@@ -167,7 +167,7 @@ public class DeviceLifeCycleActionResource {
         wizardResult.microChecks = DecoratedStream.decorate(microChecksViolationEx.getViolations().stream())
                 .map(violation -> {
                     IdWithNameInfo microCheckInfo = new IdWithNameInfo();
-                    MicroCheckNew microCheck = violation.getMicroCheck();
+                    MicroCheckNew microCheck = violation.getCheck();
                     microCheckInfo.id = microCheck.getKey();
                     microCheckInfo.name = microCheck.getDescription();
                     return microCheckInfo;

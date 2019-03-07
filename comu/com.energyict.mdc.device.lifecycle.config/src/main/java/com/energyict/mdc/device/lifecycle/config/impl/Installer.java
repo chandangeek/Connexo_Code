@@ -205,8 +205,8 @@ class Installer implements FullInstaller, PrivilegesProvider {
     private void addAsAction(StateTransition transition, DeviceLifeCycleBuilder builder) {
         builder
                 .newTransitionAction(transition)
-                .addAllChecks(this.applicableChecksFor(transition))
-                .addAllActions(this.applicableActionsFor(transition))
+                .setChecks(this.applicableChecksFor(transition))
+                .addActions(this.applicableActionsFor(transition))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO, AuthorizedAction.Level.THREE))
                 .complete();
     }

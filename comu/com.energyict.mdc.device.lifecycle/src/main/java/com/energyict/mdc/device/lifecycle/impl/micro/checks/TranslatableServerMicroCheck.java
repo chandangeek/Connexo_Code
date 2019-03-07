@@ -4,15 +4,16 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.impl.MicroCategoryTranslationKey;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheck;
 
 import javax.inject.Inject;
+import java.util.Objects;
 import java.util.Optional;
 
-public abstract class TranslatableServerMicroCheck implements ServerMicroCheck {
+public abstract class TranslatableServerMicroCheck implements ExecutableMicroCheck {
 
     private Thesaurus thesaurus;
 
@@ -28,12 +29,12 @@ public abstract class TranslatableServerMicroCheck implements ServerMicroCheck {
 
     @Override
     public String getName() {
-        return this.thesaurus.getString(MicroCheckTranslationKeys.Keys.NAME_PREFIX + getKey(), getKey());
+        return this.thesaurus.getString(MicroCheckTranslations.NAME_PREFIX + getKey(), getKey());
     }
 
     @Override
     public String getDescription() {
-        return this.thesaurus.getString(MicroCheckTranslationKeys.Keys.DESCRIPTION_PREFIX + getKey(), getKey());
+        return this.thesaurus.getString(MicroCheckTranslations.DESCRIPTION_PREFIX + getKey(), getKey());
     }
 
     @Override
@@ -43,23 +44,17 @@ public abstract class TranslatableServerMicroCheck implements ServerMicroCheck {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        TranslatableServerMicroCheck that = (TranslatableServerMicroCheck) o;
-        return getKey() != null ? getKey().equals(that.getKey()) : that.getKey() == null;
-
+        return this == o
+                || o instanceof TranslatableServerMicroCheck
+                && Objects.equals(getKey(), ((TranslatableServerMicroCheck) o).getKey());
     }
 
     @Override
     public int hashCode() {
-        return getKey() != null ? getKey().hashCode() : 0;
+        return Objects.hash(getKey());
     }
 
-    protected Optional<EvaluableMicroCheckViolation> violationFailed(TranslationKey failMessage, Object... args) {
-        return Optional.of(new EvaluableMicroCheckViolation(this, this.thesaurus.getFormat(failMessage).format(args)));
+    protected Optional<ExecutableMicroCheckViolation> fail(MessageSeed failMessage, Object... args) {
+        return Optional.of(new ExecutableMicroCheckViolation(this, this.thesaurus.getFormat(failMessage).format(args)));
     }
 }

@@ -10,7 +10,7 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.nls.Thesaurus;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -70,7 +70,7 @@ public class MetrologyConfigInCorrectStateTest {
     public void stageIsNotPresent() {
         when(state.getStage()).thenReturn(Optional.empty());
 
-        Optional<EvaluableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
 
         assertFalse(result.isPresent());
     }
@@ -79,7 +79,7 @@ public class MetrologyConfigInCorrectStateTest {
     public void stageIsOperational() {
         when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
 
-        Optional<EvaluableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
 
         assertFalse(result.isPresent());
     }
@@ -88,7 +88,7 @@ public class MetrologyConfigInCorrectStateTest {
     public void noMeterActivation() {
         when(device.getMeterActivation(Instant.EPOCH)).thenReturn(Optional.empty());
 
-        Optional<EvaluableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
 
         assertFalse(result.isPresent());
     }
@@ -97,7 +97,7 @@ public class MetrologyConfigInCorrectStateTest {
     public void noUsagePoint() {
         when(meterActivation.getUsagePoint()).thenReturn(Optional.empty());
 
-        Optional<EvaluableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
 
         assertFalse(result.isPresent());
     }
@@ -106,7 +106,7 @@ public class MetrologyConfigInCorrectStateTest {
     public void noActiveMetrologyConfiguration() {
         when(usagePoint.getEffectiveMetrologyConfiguration(Instant.EPOCH)).thenReturn(Optional.empty());
 
-        Optional<EvaluableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
 
         assertFalse(result.isPresent());
     }
@@ -120,14 +120,14 @@ public class MetrologyConfigInCorrectStateTest {
         when(usagePointState.getStage()).thenReturn(Optional.of(usagePointStage));
         when(usagePointStage.getName()).thenReturn(UsagePointStage.POST_OPERATIONAL.getKey());
 
-        Optional<EvaluableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
 
         assertFalse(result.isPresent());
     }
 
     @Test
     public void actionViolationConditionsAreMet() {
-        Optional<EvaluableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
 
         assertTrue(result.isPresent());
     }

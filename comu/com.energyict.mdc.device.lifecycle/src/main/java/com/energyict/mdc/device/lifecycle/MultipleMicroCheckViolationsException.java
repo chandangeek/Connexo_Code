@@ -14,9 +14,9 @@ public class MultipleMicroCheckViolationsException extends DeviceLifeCycleAction
 
     private final Thesaurus thesaurus;
     private final MessageSeed messageSeed;
-    private final List<EvaluableMicroCheckViolation> violations;
+    private final List<ExecutableMicroCheckViolation> violations;
 
-    public MultipleMicroCheckViolationsException(Thesaurus thesaurus, MessageSeed messageSeed, List<EvaluableMicroCheckViolation> violations) {
+    public MultipleMicroCheckViolationsException(Thesaurus thesaurus, MessageSeed messageSeed, List<ExecutableMicroCheckViolation> violations) {
         super();
         this.thesaurus = thesaurus;
         this.messageSeed = messageSeed;
@@ -28,14 +28,14 @@ public class MultipleMicroCheckViolationsException extends DeviceLifeCycleAction
         return this.thesaurus.getFormat(this.messageSeed).format(this.violationMessagesAsCommaSeparatedList());
     }
 
-    public List<EvaluableMicroCheckViolation> getViolations() {
+    public List<ExecutableMicroCheckViolation> getViolations() {
         return Collections.unmodifiableList(this.violations);
     }
 
     private String violationMessagesAsCommaSeparatedList() {
         return this.violations
                 .stream()
-                .map(EvaluableMicroCheckViolation::getLocalizedMessage)
+                .map(ExecutableMicroCheckViolation::getLocalizedMessage)
                 .collect(Collectors.joining(", "));
     }
 }

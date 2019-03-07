@@ -13,7 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -82,7 +82,7 @@ public class AllLoadProfileDataCollectedTest {
         when(this.device.getLoadProfiles()).thenReturn(Collections.emptyList());
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -98,11 +98,11 @@ public class AllLoadProfileDataCollectedTest {
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(lp1, lp2));
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -118,11 +118,11 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(nextTimeStamp);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     private LoadProfile getMockedLoadProfile(Device device, Instant lastReadingTimestamp) {
@@ -161,11 +161,11 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(okNextTimeStamp, nokNextTimeStamp);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -181,7 +181,7 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(okNextTimeStamp);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -199,7 +199,7 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(effectiveTimestamp);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
 
         // Asserts
         assertThat(violation).isEmpty();

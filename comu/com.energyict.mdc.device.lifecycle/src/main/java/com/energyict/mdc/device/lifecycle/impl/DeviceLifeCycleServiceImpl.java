@@ -11,30 +11,37 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.DefaultMicroCheck;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotAfterLastStateChangeException;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheck;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
@@ -42,16 +49,26 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.MetrologyConfigurationInCorrectStateIfAny;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.MicroCheckTranslationKeys;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionTranslationKey;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.MetrologyConfigurationInCorrectStateIfAny;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.MicroCheckTranslations;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
+
 import com.google.common.collect.Range;
+import com.google.inject.AbstractModule;
+import com.google.inject.Module;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
@@ -62,7 +79,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -71,7 +87,7 @@ import java.util.stream.Stream;
         property = "name=" + DeviceLifeCycleService.COMPONENT_NAME)
 @SuppressWarnings("unused")
 public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, TranslationKeyProvider, MessageSeedProvider {
-
+    private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMicroActionFactory microActionFactory;
@@ -81,6 +97,13 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private volatile LicenseService licenseService;
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
+    private volatile UpgradeService upgradeService;
+    private volatile TopologyService topologyService;
+    private volatile MultiElementDeviceService multiElementDeviceService;
+    private volatile ValidationService validationService;
+    private volatile MeteringZoneService meteringZoneService;
+    private volatile ServiceCallService serviceCallService;
+    private volatile DeviceMicroCheckFactoryImpl deviceMicroCheckFactory;
 
     // For OSGi purposes
     public DeviceLifeCycleServiceImpl() {
@@ -97,17 +120,30 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                                       UserService userService,
                                       Clock clock,
                                       LicenseService licenseService,
-                                      MeteringService meteringService) {
+                                      MeteringService meteringService,
+                                      UpgradeService upgradeService,
+                                      TopologyService topologyService,
+                                      MultiElementDeviceService multiElementDeviceService,
+                                      ValidationService validationService,
+                                      MeteringZoneService meteringZoneService,
+                                      ServiceCallService serviceCallService) {
         this();
-        this.setNlsService(nlsService);
-        this.setThreadPrincipalService(threadPrincipalService);
-        this.setPropertySpecService(propertySpecService);
-        this.setMicroActionFactory(microActionFactory);
-        this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-        this.setUserService(userService);
-        this.setClock(clock);
-        this.setLicenseService(licenseService);
-        this.setMeteringService(meteringService);
+        setNlsService(nlsService);
+        setThreadPrincipalService(threadPrincipalService);
+        setPropertySpecService(propertySpecService);
+        setMicroActionFactory(microActionFactory);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setUserService(userService);
+        setClock(clock);
+        setLicenseService(licenseService);
+        setMeteringService(meteringService);
+        setUpgradeService(upgradeService);
+        setTopologyService(topologyService);
+        setMultiElementDeviceService(multiElementDeviceService);
+        setValidationService(validationService);
+        setMeteringZoneService(meteringZoneService);
+        setServiceCallService(serviceCallService);
+        activate();
     }
 
     @Reference
@@ -155,6 +191,71 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setMultiElementDeviceService(MultiElementDeviceService multiElementDeviceService) {
+        this.multiElementDeviceService = multiElementDeviceService;
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
+    @Reference
+    public void setMeteringZoneService(MeteringZoneService meteringZoneService) {
+        this.meteringZoneService = meteringZoneService;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
+    }
+
+    @Activate
+    public void activate() {
+        dataModel = upgradeService.newNonOrmDataModel();
+        dataModel.register(getModule());
+        deviceMicroCheckFactory = dataModel.getInstance(DeviceMicroCheckFactoryImpl.class);
+        deviceLifeCycleConfigurationService.addMicroCheckFactory(deviceMicroCheckFactory);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        deviceLifeCycleConfigurationService.removeMicroCheckFactory(deviceMicroCheckFactory);
+    }
+
+    private Module getModule() {
+        return new AbstractModule() {
+            @Override
+            public void configure() {
+                bind(DataModel.class).toInstance(dataModel);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(TopologyService.class).toInstance(topologyService);
+                bind(MultiElementDeviceService.class).toInstance(multiElementDeviceService);
+                bind(ValidationService.class).toInstance(validationService);
+                bind(MeteringService.class).toInstance(meteringService);
+                bind(MeteringZoneService.class).toInstance(meteringZoneService);
+                bind(ServiceCallService.class).toInstance(serviceCallService);
+                bind(UserService.class).toInstance(userService);
+                bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+                bind(DeviceLifeCycleService.class).toInstance(DeviceLifeCycleServiceImpl.this);
+                bind(DeviceLifeCycleServiceImpl.class).toInstance(DeviceLifeCycleServiceImpl.this);
+                bind(DeviceMicroCheckFactory.class).to(DeviceMicroCheckFactoryImpl.class);
+            }
+        };
+    }
+
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
@@ -168,17 +269,22 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(MicroCategoryTranslationKey.values()),
-                Arrays.stream(MicroActionTranslationKey.values()),
-                Arrays.stream(MicroCheckTranslationKeys.values()),
-                Arrays.stream(Privileges.values()))
-                .flatMap(Function.identity())
+                MicroCategoryTranslationKey.values(),
+                MicroActionTranslationKey.values(),
+                MicroCheckTranslations.Name.values(),
+                MicroCheckTranslations.Description.values(),
+                Privileges.values())
+                .flatMap(Arrays::stream)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                MessageSeeds.values(),
+                MicroCheckTranslations.Message.values())
+                .flatMap(Arrays::stream)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -387,38 +493,24 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void executeMicroChecks(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp) throws DeviceLifeCycleActionViolationException {
-        List<EvaluableMicroCheckViolation> violations = action.getChecks()
+        List<ExecutableMicroCheckViolation> violations = action.getChecks()
                 .stream()
-                .filter(check -> check instanceof ServerMicroCheck)
-                .map(ServerMicroCheck.class::cast)
-                .map(check -> check.evaluate(device, effectiveTimestamp))
+                .filter(check -> check instanceof ExecutableMicroCheck)
+                .map(ExecutableMicroCheck.class::cast)
+                .map(check -> check.evaluate(device, effectiveTimestamp, action.getStateTransition().getTo()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
         if (licenseService.getLicensedApplicationKeys().contains("INS")) {
-            //TODO: Refactoring required
+            // TODO: Refactoring required
             deviceLifeCycleConfigurationService.getMicroCheckByKey(MetrologyConfigurationInCorrectStateIfAny.class.getSimpleName())
-                    .map(ServerMicroCheck.class::cast)
+                    .map(ExecutableMicroCheck.class::cast)
                     .ifPresent(microCheck -> microCheck.evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
                             .ifPresent(violations::add));
         }
         if (!violations.isEmpty()) {
             throw new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
         }
-    }
-
-    /**
-     * Executes the {@link ServerMicroCheck} against the {@link Device}
-     * and returns a {@link EvaluableMicroCheckViolation}
-     * when the ServerMicroCheck fails.
-     *
-     * @param check              The ServerMicroCheck
-     * @param device             The Device
-     * @param effectiveTimestamp The effective timestamp of the transition
-     * @return The violation or an empty Optional if the ServerMicroCheck succeeds
-     */
-    private Optional<EvaluableMicroCheckViolation> execute(ServerMicroCheck check, Device device, Instant effectiveTimestamp) {
-        return check.evaluate(device, effectiveTimestamp);
     }
 
     private void executeMicroActions(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
@@ -448,18 +540,38 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     @Override
+    public String getKey(DefaultMicroCheck microCheck) {
+        return deviceMicroCheckFactory.from(microCheck).getKey();
+    }
+
+    @Override
+    public String getName(DefaultMicroCheck microCheck) {
+        return deviceMicroCheckFactory.from(microCheck).getName();
+    }
+
+    @Override
+    public String getDescription(DefaultMicroCheck microCheck) {
+        return deviceMicroCheckFactory.from(microCheck).getDescription();
+    }
+
+    @Override
+    public String getCategoryName(DefaultMicroCheck microCheck) {
+        return deviceMicroCheckFactory.from(microCheck).getCategoryName();
+    }
+
+    @Override
     public String getName(MicroAction microAction) {
-        return this.microActionFactory.from(microAction).getName();
+        return microActionFactory.from(microAction).getName();
     }
 
     @Override
     public String getDescription(MicroAction microAction) {
-        return this.microActionFactory.from(microAction).getDescription();
+        return microActionFactory.from(microAction).getDescription();
     }
 
     @Override
     public String getCategoryName(MicroAction microAction) {
-        return this.microActionFactory.from(microAction).getCategoryName();
+        return microActionFactory.from(microAction).getCategoryName();
     }
 
     private DateTimeFormatter getLongDateFormatForCurrentUser() {

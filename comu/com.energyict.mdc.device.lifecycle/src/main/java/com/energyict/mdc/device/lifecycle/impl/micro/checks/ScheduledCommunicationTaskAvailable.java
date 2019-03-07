@@ -3,10 +3,11 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
@@ -27,9 +28,9 @@ public class ScheduledCommunicationTaskAvailable extends TranslatableServerMicro
     }
 
     @Override
-    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
         return !anyManuallyScheduledCommunicationTask(device).isPresent() ?
-                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE) :
+                fail(MicroCheckTranslations.Message.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE) :
                 Optional.empty();
     }
 

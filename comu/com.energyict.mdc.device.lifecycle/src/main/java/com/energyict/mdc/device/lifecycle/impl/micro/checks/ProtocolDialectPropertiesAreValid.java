@@ -3,12 +3,13 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
@@ -32,7 +33,7 @@ public class ProtocolDialectPropertiesAreValid extends ConsolidatedServerMicroCh
     }
 
     @Override
-    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
         Set<PropertySpec> requiredPropertySpecs = device.getDeviceConfiguration().getPartialConnectionTasks().stream().map(PartialConnectionTask::getProtocolDialectConfigurationProperties)
                 .flatMap(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getPropertySpecs().stream())
                 .filter(PropertySpec::isRequired)
@@ -45,7 +46,7 @@ public class ProtocolDialectPropertiesAreValid extends ConsolidatedServerMicroCh
                 .filter(findDialectProperty(device).negate())
                 .findFirst();
         return unsolvedRequiredProperty.isPresent() ?
-                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID) :
+                fail(MicroCheckTranslations.Message.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID) :
                 Optional.empty();
     }
 

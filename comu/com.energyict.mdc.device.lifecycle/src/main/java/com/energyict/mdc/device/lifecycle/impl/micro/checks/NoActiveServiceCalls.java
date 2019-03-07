@@ -3,10 +3,11 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
@@ -31,9 +32,9 @@ public class NoActiveServiceCalls extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
         return (hasActiveServiceCalls(device)) ?
-                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_NO_ACTIVE_SERVICE_CALLS) :
+                fail(MicroCheckTranslations.Message.NO_ACTIVE_SERVICE_CALLS) :
                 Optional.empty();
     }
 

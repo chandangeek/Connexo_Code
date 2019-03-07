@@ -10,7 +10,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
 import java.time.Instant;
@@ -76,7 +76,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -94,11 +94,11 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -139,7 +139,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();

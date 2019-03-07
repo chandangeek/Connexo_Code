@@ -98,7 +98,7 @@ public class AuthorizedTransitionActionImpl extends AuthorizedActionImpl impleme
         this.microCheckUsages.clear();
     }
 
-    void add(Set<String> microCheckKeys) {
+    void setChecks(Set<String> microCheckKeys) {
         this.microCheckUsages.clear();
         if (microCheckKeys != null) {
             microCheckKeys.stream()

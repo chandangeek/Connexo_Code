@@ -3,8 +3,9 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
@@ -24,9 +25,9 @@ public class DeviceIsLinkedWithUsagePoint extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
         return !device.getUsagePoint().isPresent() ?
-                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_LINKED_WITH_USAGE_POINT) :
+                fail(MicroCheckTranslations.Message.LINKED_WITH_USAGE_POINT) :
                 Optional.empty();
     }
 

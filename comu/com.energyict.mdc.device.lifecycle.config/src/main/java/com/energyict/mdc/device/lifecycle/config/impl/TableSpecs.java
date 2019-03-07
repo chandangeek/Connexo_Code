@@ -75,6 +75,7 @@ public enum TableSpecs {
             Column deviceLifeCycle = table.column("DEVICELIFECYCLE").number().notNull().add();
             table.column("LEVELBITS").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(AuthorizedActionImpl.Fields.LEVELS.fieldName()).add();
             // AuthorizedTransitionAction
+            table.column("CHECKBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.CHECKS.fieldName()).upTo(version(10, 6)).add();
             table.column("ACTIONBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.ACTIONS.fieldName()).add();
             // AuthorizedStandardTransitionAction
             Column stateTransition = table.column("STATETRANSITION").number().add();
@@ -113,8 +114,8 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<DeviceAuthorizedActionMicroCheckUsageImpl> table = dataModel.addTable(this.name(), DeviceAuthorizedActionMicroCheckUsageImpl.class);
-            table.map(DeviceAuthorizedActionMicroCheckUsageImpl.class);
-            table.setJournalTableName(name() + "JRNL");
+            table.map(DeviceAuthorizedActionMicroCheckUsageImpl.class).since(version(10, 6));
+            table.setJournalTableName(name() + "JRNL").since(version(10, 6));
             Column transition = table.column("TRANSITION").number().notNull().add();
             Column check = table.column("MICRO_CHECK").varChar().map(DeviceAuthorizedActionMicroCheckUsageImpl.Fields.MICRO_CHECK.fieldName()).notNull().add();
 

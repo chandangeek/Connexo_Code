@@ -3,19 +3,17 @@
  */
 package com.energyict.mdc.device.lifecycle;
 
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
+public final class ExecutableMicroCheckViolation {
 
-public final class EvaluableMicroCheckViolation {
-
-    private final ServerMicroCheck microCheck;
+    private final ExecutableMicroCheck microCheck;
     private final String message;
 
-    public EvaluableMicroCheckViolation(ServerMicroCheck microCheck, String message) {
+    public ExecutableMicroCheckViolation(ExecutableMicroCheck microCheck, String message) {
         this.microCheck = microCheck;
         this.message = message;
     }
 
-    public ServerMicroCheck getMicroCheck() {
+    public ExecutableMicroCheck getCheck() {
         return this.microCheck;
     }
 

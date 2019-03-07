@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeterActivation;
@@ -10,7 +11,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
@@ -43,9 +44,9 @@ public class AllLoadProfileDataCollected extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
         return anyLoadProfileWithIncorrectLastReading(device, effectiveTimestamp).isPresent() ?
-                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_ALL_LOAD_PROFILE_DATA_COLLECTED) :
+                fail(MicroCheckTranslations.Message.ALL_LOAD_PROFILE_DATA_COLLECTED) :
                 Optional.empty();
     }
 

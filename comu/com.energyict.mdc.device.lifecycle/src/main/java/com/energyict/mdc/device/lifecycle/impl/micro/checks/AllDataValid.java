@@ -4,10 +4,11 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
@@ -38,12 +39,12 @@ public class AllDataValid extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
         Optional<? extends MeterActivation> current = device.getCurrentMeterActivation();
         return !current.isPresent() || validationService.validationEnabled(current.get().getMeter().get()) &&
                 validationService.getEvaluator().areSuspectsPresent(Collections.singleton(QualityCodeSystem.MDC),
                         current.get().getChannelsContainer()) ?
-                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_ALL_DATA_VALID) : Optional.empty();
+                fail(MicroCheckTranslations.Message.ALL_DATA_VALID) : Optional.empty();
     }
 
     @Override

@@ -3,10 +3,11 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 import com.energyict.mdc.upl.TypedProperties;
@@ -31,9 +32,9 @@ public class GeneralProtocolPropertiesAreValid extends ConsolidatedServerMicroCh
     }
 
     @Override
-    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
         return anyMissingProperty(device) ?
-                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID) :
+                fail(MicroCheckTranslations.Message.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID) :
                 Optional.empty();
     }
 

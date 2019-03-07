@@ -13,7 +13,7 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
@@ -70,11 +70,11 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -86,11 +86,11 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getMicroCheck()).isEqualTo(microCheck);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -118,7 +118,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -135,7 +135,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -158,7 +158,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -181,7 +181,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -206,7 +206,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -229,7 +229,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -254,7 +254,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<EvaluableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();

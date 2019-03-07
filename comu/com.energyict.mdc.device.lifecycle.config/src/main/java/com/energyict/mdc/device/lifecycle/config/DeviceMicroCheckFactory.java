@@ -11,7 +11,7 @@ import java.util.Set;
 @ConsumerType
 public interface DeviceMicroCheckFactory {
 
-    Optional<Class<? extends MicroCheckNew>> from(String microCheckKey);
+    Optional<? extends MicroCheckNew> from(String microCheckKey);
 
-    Set<Class<? extends MicroCheckNew>> getAllChecks();
+    Set<? extends MicroCheckNew> getAllChecks();
 }

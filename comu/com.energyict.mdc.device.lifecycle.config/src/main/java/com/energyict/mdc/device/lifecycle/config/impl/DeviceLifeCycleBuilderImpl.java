@@ -15,7 +15,9 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link DeviceLifeCycleBuilder} interface.
@@ -121,22 +123,27 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
         }
 
         @Override
-        public AuthorizedTransitionActionBuilder addAllChecks(Set<String> checks) {
-            this.getUnderConstruction().add(checks);
+        public AuthorizedTransitionActionBuilder setChecks(Set<String> checks) {
+            this.getUnderConstruction().setChecks(checks);
             return this;
         }
 
         @Override
-        public AuthorizedTransitionActionBuilder addAction(MicroAction action, MicroAction... otherActions) {
-            this.getUnderConstruction().add(action);
-            for (MicroAction otherAction : otherActions) {
-                this.getUnderConstruction().add(otherAction);
+        public AuthorizedTransitionActionBuilder setChecks(String... checks) {
+            this.getUnderConstruction().setChecks(Arrays.stream(checks).collect(Collectors.toSet()));
+            return this;
+        }
+
+        @Override
+        public AuthorizedTransitionActionBuilder addActions(MicroAction... actions) {
+            for (MicroAction action : actions) {
+                this.getUnderConstruction().add(action);
             }
             return this;
         }
 
         @Override
-        public AuthorizedTransitionActionBuilder addAllActions(Set<MicroAction> actions) {
+        public AuthorizedTransitionActionBuilder addActions(Set<MicroAction> actions) {
             for (MicroAction action : actions) {
                 this.getUnderConstruction().add(action);
             }

@@ -3,8 +3,9 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -33,9 +34,9 @@ public class SlaveDeviceHasGateway extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
         return (isLogicalSlave(device) && !this.hasGateway(device)) ?
-                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_SLAVE_DEVICE_HAS_GATEWAY) :
+                fail(MicroCheckTranslations.Message.SLAVE_DEVICE_HAS_GATEWAY) :
                 Optional.empty();
     }
 

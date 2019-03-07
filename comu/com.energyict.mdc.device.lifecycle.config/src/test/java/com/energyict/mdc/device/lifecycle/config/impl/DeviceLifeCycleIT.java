@@ -528,8 +528,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -561,7 +561,7 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
+                .addActions(MicroAction.ENABLE_VALIDATION)
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -592,7 +592,7 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -628,8 +628,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
-                .addAction(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -717,8 +717,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = service.newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAllActions(EnumSet.of(MicroAction.ENABLE_VALIDATION, MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS))
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(EnumSet.of(MicroAction.ENABLE_VALIDATION, MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS))
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -751,8 +751,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = service.newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
-                .addAction(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -809,8 +809,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -846,8 +846,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -887,8 +887,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -899,7 +899,7 @@ public class DeviceLifeCycleIT {
         deviceLifeCycleUpdater
                 .transitionAction(stateTransition)
                 .clearChecks()
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .complete();
         deviceLifeCycleUpdater.complete().save();
 
@@ -928,8 +928,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -965,8 +965,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -977,7 +977,7 @@ public class DeviceLifeCycleIT {
         deviceLifeCycleUpdater
                 .transitionAction(stateTransition)
                 .clearActions()
-                .addAction(MicroAction.DISABLE_VALIDATION)
+                .addActions(MicroAction.DISABLE_VALIDATION)
                 .complete();
         deviceLifeCycleUpdater.complete().save();
 
@@ -1006,8 +1006,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1047,8 +1047,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1072,8 +1072,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1095,8 +1095,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1119,8 +1119,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1142,8 +1142,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1165,8 +1165,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();
@@ -1194,8 +1194,8 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
         builder
                 .newTransitionAction(stateTransition)
-                .addAction(MicroAction.ENABLE_VALIDATION)
-                .addAllChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
+                .addActions(MicroAction.ENABLE_VALIDATION)
+                .setChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
                 .complete();
         DeviceLifeCycle deviceLifeCycle = builder.complete();

@@ -33,8 +33,6 @@ public enum TransitionType {
         }
     },
     INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.ACTIVE) {
-        // TODO: MicroCheck.AT_LEAST_ONE_ZONE_LINKED optional
-
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
@@ -74,8 +72,6 @@ public enum TransitionType {
         }
     },
     INSTALL_AND_ACTIVATE(DefaultState.COMMISSIONING, DefaultState.ACTIVE) {
-        // TODO: MicroCheck.AT_LEAST_ONE_ZONE_LINKED  optional
-
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(
@@ -116,8 +112,6 @@ public enum TransitionType {
         }
     },
     ACTIVATE(DefaultState.INACTIVE, DefaultState.ACTIVE) {
-        // TODO: MicroCheck.AT_LEAST_ONE_ZONE_LINKED optional
-
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(

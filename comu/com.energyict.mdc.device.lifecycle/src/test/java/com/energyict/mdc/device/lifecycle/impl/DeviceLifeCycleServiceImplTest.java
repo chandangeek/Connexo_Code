@@ -36,9 +36,10 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotAfterLastStateChangeException;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheck;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
@@ -48,12 +49,13 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.DefaultMicroCheck;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.MetrologyConfigurationInCorrectStateIfAny;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -193,7 +195,7 @@ public class DeviceLifeCycleServiceImplTest {
             when(this.microActionFactory.from(microAction)).thenReturn(serverMicroAction);
         }
         when(deviceLifeCycleConfigurationService.getMicroCheckByKey(MetrologyConfigurationInCorrectStateIfAny.class.getSimpleName())
-                .map(ServerMicroCheck.class::cast).get().evaluate(any(Device.class), any(Instant.class), any(State.class))).thenReturn(Optional.empty());
+                .map(ExecutableMicroCheck.class::cast).get().evaluate(any(Device.class), any(Instant.class), any(State.class))).thenReturn(Optional.empty());
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
         when(userPreferencesService.getPreferenceByKey(any(User.class), any(PreferenceType.class))).thenReturn(Optional.empty());
 
@@ -339,14 +341,14 @@ public class DeviceLifeCycleServiceImplTest {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
-        when(this.action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values()).stream().filter((check -> !check.equals(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY))).collect(Collectors.toList())));
+        when(this.action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(DefaultMicroCheck.values()).stream().filter((check -> !check.equals(DefaultMicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY))).collect(Collectors.toList())));
 
         // Business method
         service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
-        for (MicroCheck microCheck : MicroCheck.values()) {
-            verify(this.microCheckFactory, times(microCheck == MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY ? 2: 1)).from(microCheck);
+        for (DefaultMicroCheck microCheck : DefaultMicroCheck.values()) {
+            verify(this.microCheckFactory, times(microCheck == DefaultMicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY ? 2: 1)).from(microCheck);
         }
     }
 
@@ -355,11 +357,11 @@ public class DeviceLifeCycleServiceImplTest {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
-        MicroCheck microCheck1 = MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
-        MicroCheck microCheck2 = MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE;
-        ServerMicroCheck serverMicroCheck1 = mock(ServerMicroCheck.class);
+        DefaultMicroCheck microCheck1 = DefaultMicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
+        DefaultMicroCheck microCheck2 = DefaultMicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE;
+        ExecutableMicroCheck serverMicroCheck1 = mock(ExecutableMicroCheck.class);
         when(serverMicroCheck1.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
-        ServerMicroCheck serverMicroCheck2 = mock(ServerMicroCheck.class);
+        ExecutableMicroCheck serverMicroCheck2 = mock(ExecutableMicroCheck.class);
         when(serverMicroCheck2.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(this.microCheckFactory.from(microCheck1)).thenReturn(serverMicroCheck1);
         when(this.microCheckFactory.from(microCheck2)).thenReturn(serverMicroCheck2);
@@ -383,21 +385,21 @@ public class DeviceLifeCycleServiceImplTest {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
-        MicroCheck microCheck1 = MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
-        MicroCheck microCheck2 = MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE;
-        MicroCheck microCheck3 = MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID;
-        MicroCheck microCheck4 = MicroCheck.DEFAULT_CONNECTION_AVAILABLE;
-        ServerMicroCheck serverMicroCheck1 = mock(ServerMicroCheck.class);
+        DefaultMicroCheck microCheck1 = DefaultMicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
+        DefaultMicroCheck microCheck2 = DefaultMicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE;
+        DefaultMicroCheck microCheck3 = DefaultMicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID;
+        DefaultMicroCheck microCheck4 = DefaultMicroCheck.DEFAULT_CONNECTION_AVAILABLE;
+        ExecutableMicroCheck serverMicroCheck1 = mock(ExecutableMicroCheck.class);
         when(serverMicroCheck1.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
-        ServerMicroCheck serverMicroCheck2 = mock(ServerMicroCheck.class);
+        ExecutableMicroCheck serverMicroCheck2 = mock(ExecutableMicroCheck.class);
         when(serverMicroCheck2.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
-        ServerMicroCheck failingServerMicroCheck1 = mock(ServerMicroCheck.class);
-        EvaluableMicroCheckViolation violation1 = mock(EvaluableMicroCheckViolation.class);
+        ExecutableMicroCheck failingServerMicroCheck1 = mock(ExecutableMicroCheck.class);
+        ExecutableMicroCheckViolation violation1 = mock(ExecutableMicroCheckViolation.class);
         when(violation1.getCheck()).thenReturn(microCheck3);
         when(violation1.getLocalizedMessage()).thenReturn("Violation 1");
         when(failingServerMicroCheck1.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.of(violation1));
-        ServerMicroCheck failingServerMicroCheck2 = mock(ServerMicroCheck.class);
-        EvaluableMicroCheckViolation violation2 = mock(EvaluableMicroCheckViolation.class);
+        ExecutableMicroCheck failingServerMicroCheck2 = mock(ExecutableMicroCheck.class);
+        ExecutableMicroCheckViolation violation2 = mock(ExecutableMicroCheckViolation.class);
         when(violation2.getCheck()).thenReturn(microCheck4);
         when(violation2.getLocalizedMessage()).thenReturn("Violation 2");
         when(failingServerMicroCheck2.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.of(violation2));

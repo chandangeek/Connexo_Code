@@ -23,8 +23,7 @@ public enum MicroCategoryTranslationKey implements TranslationKey {
     TRANSITION_ACTION_CHECK_CATEGORY_MONITORING(Keys.NAME_PREFIX + MicroCategory.MONITORING, "Monitoring"),
     TRANSITION_ACTION_CHECK_CATEGORY_DECOMMISSION(Keys.NAME_PREFIX + MicroCategory.DECOMMISSION, "Decommission"),
     TRANSITION_ACTION_CHECK_CATEGORY_MULTIELEMENT(Keys.NAME_PREFIX + MicroCategory.MULTIELEMENT, "Multi-element"),
-
-    ;
+    TRANSITION_ACTION_CHECK_CATEGORY_ZONES(Keys.NAME_PREFIX + MicroCategory.ZONES, "Zones");
 
     private final String key;
     private final String defaultFormat;

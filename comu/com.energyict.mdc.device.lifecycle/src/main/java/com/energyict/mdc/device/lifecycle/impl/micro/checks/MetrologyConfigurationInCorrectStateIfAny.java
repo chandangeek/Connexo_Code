@@ -10,7 +10,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.EvaluableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import java.time.Instant;
@@ -27,14 +27,9 @@ public class MetrologyConfigurationInCorrectStateIfAny extends TranslatableServe
     }
 
     @Override
-    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        throw new IllegalArgumentException("State cannot be null");
-    }
-
-    @Override
-    public Optional<EvaluableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
+    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
         return !isValidToStage(state, device, effectiveTimestamp) ?
-                violationFailed(MicroCheckTranslationKeys.MICRO_CHECK_MESSAGE_METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY) :
+                fail(MicroCheckTranslations.Message.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY) :
                 Optional.empty();
     }
 

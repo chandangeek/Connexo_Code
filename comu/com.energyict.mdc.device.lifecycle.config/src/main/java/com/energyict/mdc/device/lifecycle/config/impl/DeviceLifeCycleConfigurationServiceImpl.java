@@ -31,6 +31,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_6SimpleUpgrader;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -162,7 +163,13 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Activate
     public void activate() {
         dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceLifeCycleConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(Version.version(10, 2), UpgraderV10_2.class, Version.version(10, 3), UpgraderV10_3.class, Version.version(10, 4), UpgraderV10_4.class));
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceLifeCycleConfigurationService.COMPONENT_NAME),
+                dataModel, Installer.class,
+                ImmutableMap.of(
+                        Version.version(10, 2), UpgraderV10_2.class,
+                        Version.version(10, 3), UpgraderV10_3.class,
+                        Version.version(10, 4), UpgraderV10_4.class,
+                        Version.version(10, 6), V10_6SimpleUpgrader.class));
     }
 
     // For integration testing components only
@@ -271,8 +278,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
             AuthorizedTransitionAction sourceAuthorizedTransitionAction = (AuthorizedTransitionAction) sourceAction;
             builder
                     .newTransitionAction(this.findClonedTransition(sourceAuthorizedTransitionAction.getStateTransition(), clonedFiniteStateMachine))
-                    .addAllChecks(sourceAuthorizedTransitionAction.getChecks().stream().map(MicroCheckNew::getKey).collect(Collectors.toSet()))
-                    .addAllActions(sourceAuthorizedTransitionAction.getActions())
+                    .setChecks(sourceAuthorizedTransitionAction.getChecks().stream().map(MicroCheckNew::getKey).collect(Collectors.toSet()))
+                    .addActions(sourceAuthorizedTransitionAction.getActions())
                     .addAllLevels(sourceAuthorizedTransitionAction.getLevels())
                     .complete();
         }
@@ -448,7 +455,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     public Set<MicroCheckNew> getMicroChecks() {
         return this.microCheckFactories.stream()
                 .flatMap(factory -> factory.getAllChecks().stream())
-                .map(this.dataModel::getInstance)
                 .collect(Collectors.toSet());
     }
 
@@ -460,7 +466,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst()
-                .map(this.dataModel::getInstance)
                 .map(MicroCheckNew.class::cast);
     }
 

@@ -164,6 +164,14 @@ public interface DeviceLifeCycleService {
      */
     void triggerEvent(CustomStateTransitionEventType eventType, Device device, Instant effectiveTimestamp);
 
+    String getKey(DefaultMicroCheck microCheck);
+
+    String getName(DefaultMicroCheck microCheck);
+
+    String getDescription(DefaultMicroCheck microCheck);
+
+    String getCategoryName(DefaultMicroCheck microCheck);
+
     String getName(MicroAction microAction);
 
     String getDescription(MicroAction microAction);
