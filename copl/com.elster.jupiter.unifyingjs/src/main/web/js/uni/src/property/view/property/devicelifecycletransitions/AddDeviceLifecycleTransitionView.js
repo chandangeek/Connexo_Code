@@ -152,7 +152,7 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.AddDeviceLifec
                     defaultType: 'button',
                     items: [
                         {
-                            itemId: 'addAction',
+                            itemId: 'addTransitionAction',
                             text:  Uni.I18n.translate('devicelifecycletransition.add', 'UNI', 'Add'),
                             ui: 'action',
                             action: 'add'

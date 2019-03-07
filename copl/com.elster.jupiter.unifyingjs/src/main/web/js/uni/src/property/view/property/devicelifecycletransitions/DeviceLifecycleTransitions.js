@@ -147,28 +147,17 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.DeviceLifecycl
         });
 
         me.loadDeviceTypes();
-        me.addDeviceConfigurationsView.down('#addAction').on('click', me.hideAddView, me, {single: true});
+        me.addDeviceConfigurationsView.down('#addTransitionAction').on('click', me.hideAddView, me, {single: true});
         me.addDeviceConfigurationsView.down('#cancel').on('click', me.cancelAction, me, {single:true});
 
-        //selectionGrid = me.addDeviceConfigurationsView.down('uni-add-device-configurations-grid');
-        // store = selectionGrid.getStore();
-
-        // selectionGrid.on('allitemsadd', me.hideAddView, me, {single: true});
-        // selectionGrid.on('selecteditemsadd', me.hideAddView, me, {single: true});
-        // selectionGrid.getCancelButton().on('click', me.hideAddView, me, {single: true});
 
         Ext.suspendLayouts();
         me.currentPageView.hide();
         Ext.ComponentQuery.query('viewport > #contentPanel')[0].add(me.addDeviceConfigurationsView);
-        //store.loadData(me.getProperty().getPossibleValues() || []);
-        // store.filterBy(function (record, id) {
-        //     return !Ext.Array.contains(addedConfigurations, id);
-        // });
         me.setPseudoNavigation(true);
         Ext.resumeLayouts(true);
 
 
-        // store.fireEvent('load');
     },
 
     decodePossibleValues: function(){
@@ -240,7 +229,6 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.DeviceLifecycl
             return value.id === id
         });
 
-       // me.idsToRecords(id);
 
         var modelToAdd = Ext.create('Uni.property.model.PropertyDeviceLifecycleTransition');
         modelToAdd.set('deviceTypeName', view.down('#deviceType').getValue());
@@ -264,19 +252,6 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.DeviceLifecycl
         }
 
         Ext.resumeLayouts(true);
-        // return;
-        //
-        //
-        // if (arguments[0] && Ext.isArray(arguments[0])) {
-        //     me.setValue(me.recordsToIds(arguments[0]));
-        // } else if (arguments[0] && arguments[0].single) {
-        //     me.setValue(me.recordsToIds(me.addDeviceConfigurationsView.down('uni-add-device-lifecycle-transition-form').getStore().getRange()));
-        // }
-        // Ext.suspendLayouts();
-        // me.setPseudoNavigation();
-        // me.addDeviceConfigurationsView.destroy();
-        // me.currentPageView.show();
-        // Ext.resumeLayouts(true);
     },
 
     setPseudoNavigation: function (toAddDeviceConfigurations) {
@@ -305,7 +280,6 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.DeviceLifecycl
         var modifiedData = [];
 
         Ext.Array.each(data, function (record) {
-           // modifiedData.push(record.getId());
             modifiedData.push(record.getData().id)
         });
 
