@@ -62,8 +62,13 @@ public class MasterDataLinkageMessageValidator {
                         MessageSeeds.MISSING_ELEMENT, EFFECTIVE_DATE_TIME_ATTRIBUTE);
             }
         }
-        validateIdentificationAttributes(message.getPayload().getMasterDataLinkageConfig().getMeter().get(0));
-        validateIdentificationAttributes(message.getPayload().getMasterDataLinkageConfig().getUsagePoint().get(0));
+        for (Meter meter : message.getPayload().getMasterDataLinkageConfig().getMeter()) {
+            validateIdentificationAttributes(meter);
+        }
+        for (UsagePoint usagePoint : message.getPayload().getMasterDataLinkageConfig().getUsagePoint()) {
+            validateIdentificationAttributes(usagePoint);
+        }
+
     }
 
     private void validateIdentificationAttributes(Meter meter) throws FaultMessage {
