@@ -1,7 +1,15 @@
-/*
- * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
- */
-package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
+package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.inject.Inject;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.CIMInboundSoapEndpointsActivator;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.DataLinkageConfigChecklist;
@@ -20,34 +28,23 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
-
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Inject;
+@Component(name = "com.elster.jupiter.cim.webservices.inbound.soap.UsagePointConfigMasterCustomPropertySet", service = CustomPropertySet.class, property = "name="
+		+ UsagePointConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME, immediate = true)
+public class UsagePointConfigMasterCustomPropertySet
+		implements CustomPropertySet<ServiceCall, UsagePointConfigMasterDomainExtension> {
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-@Component(name = "com.elster.jupiter.cim.webservices.inbound.soap.MasterDataLinkageConfigMasterCustomPropertySet", service = CustomPropertySet.class, property = "name="
-		+ MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME, immediate = true)
-public class MasterDataLinkageConfigMasterCustomPropertySet
-		implements CustomPropertySet<ServiceCall, MasterDataLinkageConfigMasterDomainExtension> {
-
-	public static final String CUSTOM_PROPERTY_SET_NAME = "MasterDataLinkageConfigMasterCustomPropertySet";
+	public static final String CUSTOM_PROPERTY_SET_NAME = "UsagePointConfigMasterCustomPropertySet";
 
 	private volatile PropertySpecService propertySpecService;
 	private volatile Thesaurus thesaurus;
 
-	public MasterDataLinkageConfigMasterCustomPropertySet() {
+	public UsagePointConfigMasterCustomPropertySet() {
 	}
 
 	@Inject
-	public MasterDataLinkageConfigMasterCustomPropertySet(PropertySpecService propertySpecService,
+	public UsagePointConfigMasterCustomPropertySet(PropertySpecService propertySpecService,
 			CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
 		setPropertySpecService(propertySpecService);
 		setCustomPropertySetService(customPropertySetService);
@@ -76,7 +73,7 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 
 	@Override
 	public String getName() {
-		return MasterDataLinkageConfigMasterCustomPropertySet.class.getSimpleName();
+		return UsagePointConfigMasterCustomPropertySet.class.getSimpleName();
 	}
 
 	@Override
@@ -90,8 +87,8 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 	}
 
 	@Override
-	public PersistenceSupport<ServiceCall, MasterDataLinkageConfigMasterDomainExtension> getPersistenceSupport() {
-		return new MasterDataLinkageConfigMasterCustomPropertyPersistenceSupport();
+	public PersistenceSupport<ServiceCall, UsagePointConfigMasterDomainExtension> getPersistenceSupport() {
+		return new UsagePointConfigMasterCustomPropertyPersistenceSupport();
 	}
 
 	@Override
@@ -101,6 +98,7 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 
 	@Override
 	public boolean isVersioned() {
+		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -118,32 +116,32 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 	public List<PropertySpec> getPropertySpecs() {
 		return Arrays.asList(
 				propertySpecService.bigDecimalSpec()
-						.named(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName(),
+						.named(UsagePointConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName(),
 								TranslationKeys.CALLS_SUCCESS)
 						.describedAs(TranslationKeys.CALLS_SUCCESS).fromThesaurus(thesaurus).finish(),
 				propertySpecService.bigDecimalSpec()
-						.named(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName(),
+						.named(UsagePointConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName(),
 								TranslationKeys.CALLS_ERROR)
 						.describedAs(TranslationKeys.CALLS_ERROR).fromThesaurus(thesaurus).finish(),
 				propertySpecService.bigDecimalSpec()
-						.named(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName(),
+						.named(UsagePointConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName(),
 								TranslationKeys.CALLS_EXPECTED)
 						.describedAs(TranslationKeys.CALLS_EXPECTED).fromThesaurus(thesaurus).finish(),
 				propertySpecService.stringSpec()
-						.named(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName(),
+						.named(UsagePointConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName(),
 								TranslationKeys.CALLBACK_URL)
 						.describedAs(TranslationKeys.CALLBACK_URL).fromThesaurus(thesaurus).finish());
 	}
 
-	private class MasterDataLinkageConfigMasterCustomPropertyPersistenceSupport
-			implements PersistenceSupport<ServiceCall, MasterDataLinkageConfigMasterDomainExtension> {
+	private class UsagePointConfigMasterCustomPropertyPersistenceSupport
+			implements PersistenceSupport<ServiceCall, UsagePointConfigMasterDomainExtension> {
 
-		private static final String TABLE_NAME = "DLP_MSC_WS1";
-		private static final String FK = "FK_DLP_MSC_WS1";
+		private static final String TABLE_NAME = "UCP_MSC_WS1";
+		private static final String FK = "FK_UCP_MSC_WS1";
 
 		@Override
 		public String componentName() {
-			return "DLM";
+			return "UCM";
 		}
 
 		@Override
@@ -153,7 +151,7 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 
 		@Override
 		public String domainFieldName() {
-			return MasterDataLinkageConfigMasterDomainExtension.FieldNames.DOMAIN.javaName();
+			return UsagePointConfigMasterDomainExtension.FieldNames.DOMAIN.javaName();
 		}
 
 		@Override
@@ -162,8 +160,8 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 		}
 
 		@Override
-		public Class<MasterDataLinkageConfigMasterDomainExtension> persistenceClass() {
-			return MasterDataLinkageConfigMasterDomainExtension.class;
+		public Class<UsagePointConfigMasterDomainExtension> persistenceClass() {
+			return UsagePointConfigMasterDomainExtension.class;
 		}
 
 		@Override
@@ -172,25 +170,20 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 		}
 
 		@Override
-		public List<Column> addCustomPropertyPrimaryKeyColumnsTo(@SuppressWarnings("rawtypes") Table table) {
+		public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
 			return Collections.emptyList();
 		}
 
 		@Override
-        public void addCustomPropertyColumnsTo(@SuppressWarnings("rawtypes") Table table, List<Column> customPrimaryKeyColumns) {
-			table.column(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.databaseName()).number()
-					.map(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName()).notNull()
-					.add();
-			table.column(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_FAILED.databaseName()).number()
-					.map(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName()).notNull()
-					.add();
-			table.column(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.databaseName()).number()
-					.map(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName()).notNull()
-					.add();
-			table.column(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName()).varChar()
-					.map(MasterDataLinkageConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName()).notNull(false)
-					.add();
-
+		public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
+			table.column(UsagePointConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.databaseName()).number()
+					.map(UsagePointConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName()).notNull().add();
+			table.column(UsagePointConfigMasterDomainExtension.FieldNames.CALLS_FAILED.databaseName()).number()
+					.map(UsagePointConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName()).notNull().add();
+			table.column(UsagePointConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.databaseName()).number()
+					.map(UsagePointConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName()).notNull().add();
+			table.column(UsagePointConfigMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName()).varChar()
+					.map(UsagePointConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName()).notNull(false).add();
 		}
 
 		@Override
@@ -198,4 +191,5 @@ public class MasterDataLinkageConfigMasterCustomPropertySet
 			return DataLinkageConfigChecklist.APPLICATION_NAME;
 		}
 	}
+
 }
