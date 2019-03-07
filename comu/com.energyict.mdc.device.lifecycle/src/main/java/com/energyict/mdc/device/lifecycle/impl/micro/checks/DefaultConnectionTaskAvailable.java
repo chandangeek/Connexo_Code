@@ -26,7 +26,7 @@ public class DefaultConnectionTaskAvailable extends TranslatableServerMicroCheck
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return !anyDefaultConnectionTask(device).isPresent() ?
                 fail(MicroCheckTranslations.Message.DEFAULT_CONNECTION_AVAILABLE) :
                 Optional.empty();

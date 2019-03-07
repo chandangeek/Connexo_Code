@@ -82,7 +82,7 @@ public class AllLoadProfileDataCollectedTest {
         when(this.device.getLoadProfiles()).thenReturn(Collections.emptyList());
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -98,7 +98,7 @@ public class AllLoadProfileDataCollectedTest {
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(lp1, lp2));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -118,7 +118,7 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(nextTimeStamp);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -161,7 +161,7 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(okNextTimeStamp, nokNextTimeStamp);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -181,7 +181,7 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(okNextTimeStamp);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -199,7 +199,7 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(effectiveTimestamp);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp);
 
         // Asserts
         assertThat(violation).isEmpty();

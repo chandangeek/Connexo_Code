@@ -35,7 +35,7 @@ public class NoLinkedOperationalMultiElementSlaves extends TranslatableServerMic
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return hasLinkedOperationalDevices(device) ?
                 fail(MicroCheckTranslations.Message.NO_LINKED_MULTI_ELEMENT_SLAVES) :
                 Optional.empty();

@@ -14,7 +14,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
@@ -152,7 +152,7 @@ public class ResourceHelper {
         }
     }
 
-    public Set<MicroCheckNew> findAllAvailableMicroChecks() {
+    public Set<MicroCheck> findAllAvailableMicroChecks() {
         return deviceLifeCycleConfigurationService.getMicroChecks();
     }
 }

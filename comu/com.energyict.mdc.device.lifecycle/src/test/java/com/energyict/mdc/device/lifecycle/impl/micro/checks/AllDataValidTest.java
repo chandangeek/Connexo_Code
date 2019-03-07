@@ -56,7 +56,7 @@ public class AllDataValidTest {
         doReturn(Optional.empty()).when(this.device).getCurrentMeterActivation();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -71,7 +71,7 @@ public class AllDataValidTest {
         when(validationService.validationEnabled(meter)).thenReturn(false);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -88,7 +88,7 @@ public class AllDataValidTest {
         when(validationEvaluator.areSuspectsPresent(Collections.singleton(QualityCodeSystem.MDC), channelsContainer)).thenReturn(false);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -105,7 +105,7 @@ public class AllDataValidTest {
         when(validationEvaluator.areSuspectsPresent(Collections.singleton(QualityCodeSystem.MDC), channelsContainer)).thenReturn(true);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         assertThat(violation).isPresent();
         assertThat(violation.get().getCheck()).isEqualTo(microCheck);

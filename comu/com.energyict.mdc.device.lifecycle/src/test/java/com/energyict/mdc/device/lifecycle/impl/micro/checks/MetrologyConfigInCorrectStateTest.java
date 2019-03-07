@@ -63,14 +63,14 @@ public class MetrologyConfigInCorrectStateTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void callEvaluateWithoutStateArgument() {
-        checkObject.evaluate(device, Instant.EPOCH);
+        checkObject.execute(device, Instant.EPOCH);
     }
 
     @Test
     public void stageIsNotPresent() {
         when(state.getStage()).thenReturn(Optional.empty());
 
-        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
         assertFalse(result.isPresent());
     }
@@ -79,7 +79,7 @@ public class MetrologyConfigInCorrectStateTest {
     public void stageIsOperational() {
         when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
 
-        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
         assertFalse(result.isPresent());
     }
@@ -88,7 +88,7 @@ public class MetrologyConfigInCorrectStateTest {
     public void noMeterActivation() {
         when(device.getMeterActivation(Instant.EPOCH)).thenReturn(Optional.empty());
 
-        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
         assertFalse(result.isPresent());
     }
@@ -97,7 +97,7 @@ public class MetrologyConfigInCorrectStateTest {
     public void noUsagePoint() {
         when(meterActivation.getUsagePoint()).thenReturn(Optional.empty());
 
-        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
         assertFalse(result.isPresent());
     }
@@ -106,7 +106,7 @@ public class MetrologyConfigInCorrectStateTest {
     public void noActiveMetrologyConfiguration() {
         when(usagePoint.getEffectiveMetrologyConfiguration(Instant.EPOCH)).thenReturn(Optional.empty());
 
-        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
         assertFalse(result.isPresent());
     }
@@ -120,14 +120,14 @@ public class MetrologyConfigInCorrectStateTest {
         when(usagePointState.getStage()).thenReturn(Optional.of(usagePointStage));
         when(usagePointStage.getName()).thenReturn(UsagePointStage.POST_OPERATIONAL.getKey());
 
-        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
         assertFalse(result.isPresent());
     }
 
     @Test
     public void actionViolationConditionsAreMet() {
-        Optional<ExecutableMicroCheckViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
         assertTrue(result.isPresent());
     }

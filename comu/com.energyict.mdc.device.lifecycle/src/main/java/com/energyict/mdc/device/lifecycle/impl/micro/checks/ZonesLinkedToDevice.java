@@ -38,7 +38,7 @@ public class ZonesLinkedToDevice extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         if (!anyLinkedZone(device).isPresent()) {
             return fail(MicroCheckTranslations.Message.AT_LEAST_ONE_ZONE_LINKED, device.getName());
         } else {

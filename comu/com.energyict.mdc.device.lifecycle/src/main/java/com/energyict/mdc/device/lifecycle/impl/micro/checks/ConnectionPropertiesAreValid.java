@@ -31,7 +31,7 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return anyInCompleteConnectionTask(device) ?
                 fail(MicroCheckTranslations.Message.CONNECTION_PROPERTIES_ARE_ALL_VALID) :
                 Optional.empty();

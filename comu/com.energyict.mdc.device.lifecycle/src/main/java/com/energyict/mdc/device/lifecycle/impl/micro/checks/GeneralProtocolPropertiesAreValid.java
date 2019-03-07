@@ -32,7 +32,7 @@ public class GeneralProtocolPropertiesAreValid extends ConsolidatedServerMicroCh
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return anyMissingProperty(device) ?
                 fail(MicroCheckTranslations.Message.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID) :
                 Optional.empty();

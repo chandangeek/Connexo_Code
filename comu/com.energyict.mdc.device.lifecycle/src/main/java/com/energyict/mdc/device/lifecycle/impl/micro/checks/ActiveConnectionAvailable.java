@@ -26,7 +26,7 @@ public class ActiveConnectionAvailable extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return !anyActiveConnectionTask(device).isPresent() ?
                 fail(MicroCheckTranslations.Message.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE) :
                 Optional.empty();

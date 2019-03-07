@@ -6,7 +6,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.lifecycle.DefaultMicroCheck;
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
-import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.inject.Inject;
 import java.util.EnumMap;
@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 
 public class DeviceMicroCheckFactoryImpl implements DeviceMicroCheckFactory {
     private final DataModel dataModel;
-    private final Map<String, Class<? extends MicroCheckNew>> microCheckMapping = new HashMap<>();
-    private final EnumMap<DefaultMicroCheck, Class<? extends MicroCheckNew>> defaultCheckMapping = new EnumMap<>(DefaultMicroCheck.class);
+    private final Map<String, Class<? extends MicroCheck>> microCheckMapping = new HashMap<>();
+    private final EnumMap<DefaultMicroCheck, Class<? extends MicroCheck>> defaultCheckMapping = new EnumMap<>(DefaultMicroCheck.class);
 
     @Inject
     public DeviceMicroCheckFactoryImpl(DataModel dataModel) {
@@ -29,19 +29,19 @@ public class DeviceMicroCheckFactoryImpl implements DeviceMicroCheckFactory {
     }
 
     @Override
-    public Optional<? extends MicroCheckNew> from(String microCheckKey) {
+    public Optional<? extends MicroCheck> from(String microCheckKey) {
         return Optional.ofNullable(microCheckMapping.get(microCheckKey))
                 .map(dataModel::getInstance);
     }
 
-    public MicroCheckNew from(DefaultMicroCheck defaultMicroCheck) {
+    public MicroCheck from(DefaultMicroCheck defaultMicroCheck) {
         return Optional.ofNullable(defaultCheckMapping.get(Objects.requireNonNull(defaultMicroCheck)))
                 .map(dataModel::getInstance)
                 .orElseThrow(() -> new IllegalStateException("There is no check for " + DefaultMicroCheck.class.getSimpleName() + '#' + defaultMicroCheck.name()));
     }
 
     @Override
-    public Set<? extends MicroCheckNew> getAllChecks() {
+    public Set<? extends MicroCheck> getAllChecks() {
         return microCheckMapping.values().stream()
                 .map(dataModel::getInstance)
                 .collect(Collectors.toSet());
@@ -68,7 +68,7 @@ public class DeviceMicroCheckFactoryImpl implements DeviceMicroCheckFactory {
         addMicroCheckMapping(DefaultMicroCheck.AT_LEAST_ONE_ZONE_LINKED, ZonesLinkedToDevice.class);
     }
 
-    private void addMicroCheckMapping(DefaultMicroCheck defaultMicroCheck, Class<? extends MicroCheckNew> clazz) {
+    private void addMicroCheckMapping(DefaultMicroCheck defaultMicroCheck, Class<? extends MicroCheck> clazz) {
         microCheckMapping.put(clazz.getSimpleName(), clazz);
         defaultCheckMapping.put(defaultMicroCheck, clazz);
     }

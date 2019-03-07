@@ -86,7 +86,7 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), null);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -129,7 +129,7 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), null);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -177,7 +177,7 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), null);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -225,7 +225,7 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -268,7 +268,7 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -320,7 +320,7 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), null);
 
         // Asserts
         assertThat(violation).isPresent();

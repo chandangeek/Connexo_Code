@@ -44,7 +44,7 @@ public class SlaveDeviceHasGatewayTest {
         when(deviceConfiguration.isDirectlyAddressable()).thenReturn(true);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -58,7 +58,7 @@ public class SlaveDeviceHasGatewayTest {
         when(this.topologyService.getPhysicalGateway(this.device)).thenReturn(Optional.of(gateway));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -71,7 +71,7 @@ public class SlaveDeviceHasGatewayTest {
         when(this.topologyService.getPhysicalGateway(this.device)).thenReturn(Optional.empty());
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -87,7 +87,7 @@ public class SlaveDeviceHasGatewayTest {
         when(this.topologyService.getPhysicalGateway(this.device)).thenReturn(Optional.empty());
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();

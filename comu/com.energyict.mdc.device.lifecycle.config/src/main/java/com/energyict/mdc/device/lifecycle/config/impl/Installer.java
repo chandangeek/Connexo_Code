@@ -29,7 +29,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
 
 import javax.inject.Inject;
@@ -215,7 +215,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
         return deviceLifeCycleConfigurationService.getMicroChecks()
                 .stream()
                 .filter(microCheck -> microCheck.isApplicableForTransition(transition.getFrom(), transition.getTo()))
-                .map(MicroCheckNew::getKey)
+                .map(MicroCheck::getKey)
                 .collect(Collectors.toSet());
     }
 

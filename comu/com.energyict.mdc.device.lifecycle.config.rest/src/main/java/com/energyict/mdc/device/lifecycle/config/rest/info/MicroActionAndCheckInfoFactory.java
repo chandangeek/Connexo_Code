@@ -7,15 +7,16 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+
+import com.google.common.collect.ImmutableSet;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 public class MicroActionAndCheckInfoFactory {
 
-    public static final List<String> CONSOLIDATED_MICRO_CHECKS = Arrays.asList(
+    public static final Set<String> CONSOLIDATED_MICRO_CHECKS = ImmutableSet.of(
             "ConnectionPropertiesAreValid",
             "GeneralProtocolPropertiesAreValid",
             "ProtocolDialectPropertiesAreValid",
@@ -60,23 +61,22 @@ public class MicroActionAndCheckInfoFactory {
         return info;
     }
 
-    public MicroActionAndCheckInfo required(MicroCheckNew microCheck) {
+    public MicroActionAndCheckInfo required(MicroCheck microCheck) {
         MicroActionAndCheckInfo info = common(microCheck);
         info.isRequired = true;
         info.checked = true;
         return info;
     }
 
-    public MicroActionAndCheckInfo optional(MicroCheckNew microCheck) {
+    public MicroActionAndCheckInfo optional(MicroCheck microCheck) {
         MicroActionAndCheckInfo info = common(microCheck);
         info.isRequired = false;
         return info;
     }
 
-    private MicroActionAndCheckInfo common(MicroCheckNew microCheck) {
+    private MicroActionAndCheckInfo common(MicroCheck microCheck) {
         MicroActionAndCheckInfo info = new MicroActionAndCheckInfo();
         if (microCheck != null) {
-            //TODO: Refactoring
             info.key = CONSOLIDATED_MICRO_CHECKS.contains(microCheck.getKey()) ? CONSOLIDATED_MICRO_CHECKS_KEY : microCheck.getKey();
             info.name = microCheck.getName();
             info.description = microCheck.getDescription();

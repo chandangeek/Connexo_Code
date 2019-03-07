@@ -25,7 +25,7 @@ public class DeviceIsLinkedWithUsagePoint extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return !device.getUsagePoint().isPresent() ?
                 fail(MicroCheckTranslations.Message.LINKED_WITH_USAGE_POINT) :
                 Optional.empty();

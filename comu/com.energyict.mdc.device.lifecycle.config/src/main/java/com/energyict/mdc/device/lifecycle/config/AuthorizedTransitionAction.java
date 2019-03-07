@@ -14,7 +14,7 @@ public interface AuthorizedTransitionAction extends AuthorizedAction {
 
     StateTransition getStateTransition();
 
-    Set<MicroCheckNew> getChecks();
+    Set<MicroCheck> getChecks();
 
     Set<MicroAction> getActions();
 }

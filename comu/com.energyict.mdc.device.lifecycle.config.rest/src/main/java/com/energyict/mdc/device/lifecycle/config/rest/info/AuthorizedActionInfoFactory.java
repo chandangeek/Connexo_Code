@@ -11,7 +11,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.inject.Inject;
 import java.util.Comparator;
@@ -66,7 +66,7 @@ public class AuthorizedActionInfoFactory {
                 info.microActions.add(microActionInfo);
             }
         }
-        Set<MicroCheckNew> microChecks = action.getChecks();
+        Set<MicroCheck> microChecks = action.getChecks();
         if (!microChecks.isEmpty()) {
             info.microChecks = new TreeSet<>(Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name).thenComparing(obj -> obj.name));
             microChecks.forEach(microCheck -> {

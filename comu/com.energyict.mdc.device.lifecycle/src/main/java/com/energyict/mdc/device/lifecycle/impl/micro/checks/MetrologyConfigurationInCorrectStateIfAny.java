@@ -27,7 +27,7 @@ public class MetrologyConfigurationInCorrectStateIfAny extends TranslatableServe
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State state) {
         return !isValidToStage(state, device, effectiveTimestamp) ?
                 fail(MicroCheckTranslations.Message.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY) :
                 Optional.empty();

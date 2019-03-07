@@ -39,7 +39,7 @@ public class ScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Collections.emptyList());
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -60,7 +60,7 @@ public class ScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -77,7 +77,7 @@ public class ScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -93,7 +93,7 @@ public class ScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -117,7 +117,7 @@ public class ScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2, cte3));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();

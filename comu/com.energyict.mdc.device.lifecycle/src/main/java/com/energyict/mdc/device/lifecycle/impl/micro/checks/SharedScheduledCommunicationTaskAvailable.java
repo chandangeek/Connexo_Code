@@ -26,7 +26,7 @@ public class SharedScheduledCommunicationTaskAvailable extends TranslatableServe
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return !anyScheduledCommunicationTask(device).isPresent() ?
                 fail(MicroCheckTranslations.Message.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE) :
                 Optional.empty();

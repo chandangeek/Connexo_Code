@@ -6,7 +6,7 @@ package com.energyict.mdc.device.lifecycle;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.util.Collections;
 import java.util.Set;
@@ -15,7 +15,7 @@ import java.util.Set;
  * Models the exceptional situation that occurs when
  * an {@link com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction}
  * is executed by the user but some of the required {@link PropertySpec}s
- * of the {@link MicroCheckNew}s
+ * of the {@link MicroCheck}s
  * that are configured on the action are missing.
  */
 public class RequiredMicroActionPropertiesException extends DeviceLifeCycleActionViolationException {

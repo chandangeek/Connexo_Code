@@ -15,7 +15,7 @@ import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ public class AuthorizedTransitionActionImpl extends AuthorizedActionImpl impleme
     }
 
     @Override
-    public Set<MicroCheckNew> getChecks() {
+    public Set<MicroCheck> getChecks() {
         return DecoratedStream.decorate(this.microCheckUsages.stream())
                 .distinct(DeviceAuthorizedActionMicroCheckUsageImpl::getKey)
                 .map(DeviceAuthorizedActionMicroCheckUsageImpl::getCheck)

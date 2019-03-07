@@ -63,7 +63,7 @@ public class AuthorizedActionInfo {
             this.microChecks.stream()
                     .filter(candidate -> candidate.checked != null && candidate.checked)
                     .forEach(microCheck -> {
-                        if (MicroActionAndCheckInfoFactory.CONSOLIDATED_MICRO_CHECKS_KEY.contains(microCheck.key)) {
+                        if (MicroActionAndCheckInfoFactory.CONSOLIDATED_MICRO_CHECKS_KEY.equals(microCheck.key)) {
                             microChecks.addAll(MicroActionAndCheckInfoFactory.CONSOLIDATED_MICRO_CHECKS);
                         } else {
                             microChecks.add(microCheck.key);

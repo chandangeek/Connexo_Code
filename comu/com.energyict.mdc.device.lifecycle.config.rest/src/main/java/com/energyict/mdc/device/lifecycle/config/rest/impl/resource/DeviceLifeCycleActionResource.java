@@ -12,7 +12,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
@@ -190,7 +190,7 @@ public class DeviceLifeCycleActionResource {
         Set<MicroActionAndCheckInfo> microChecks = new TreeSet<>(Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name)
                 .thenComparing(obj -> obj.name));
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
-        Set<MicroCheckNew> allMicroChecks = resourceHelper.findAllAvailableMicroChecks();
+        Set<MicroCheck> allMicroChecks = resourceHelper.findAllAvailableMicroChecks();
         State fromState = getFromState(deviceLifeCycle, fromStateId);
         State toState = getToState(deviceLifeCycle, toStateId);
         if (getDefaultTransition(fromState, toState).isPresent()) {

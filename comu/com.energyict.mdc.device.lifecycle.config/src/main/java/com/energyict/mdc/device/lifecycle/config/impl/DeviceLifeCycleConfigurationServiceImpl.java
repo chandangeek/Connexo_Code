@@ -47,7 +47,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
-import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
@@ -278,7 +278,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
             AuthorizedTransitionAction sourceAuthorizedTransitionAction = (AuthorizedTransitionAction) sourceAction;
             builder
                     .newTransitionAction(this.findClonedTransition(sourceAuthorizedTransitionAction.getStateTransition(), clonedFiniteStateMachine))
-                    .setChecks(sourceAuthorizedTransitionAction.getChecks().stream().map(MicroCheckNew::getKey).collect(Collectors.toSet()))
+                    .setChecks(sourceAuthorizedTransitionAction.getChecks().stream().map(MicroCheck::getKey).collect(Collectors.toSet()))
                     .addActions(sourceAuthorizedTransitionAction.getActions())
                     .addAllLevels(sourceAuthorizedTransitionAction.getLevels())
                     .complete();
@@ -452,21 +452,21 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Override
-    public Set<MicroCheckNew> getMicroChecks() {
+    public Set<MicroCheck> getMicroChecks() {
         return this.microCheckFactories.stream()
                 .flatMap(factory -> factory.getAllChecks().stream())
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public Optional<MicroCheckNew> getMicroCheckByKey(String microCheckKey) {
+    public Optional<MicroCheck> getMicroCheckByKey(String microCheckKey) {
         return this.microCheckFactories
                 .stream()
                 .map(factory -> factory.from(microCheckKey))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst()
-                .map(MicroCheckNew.class::cast);
+                .map(MicroCheck.class::cast);
     }
 
     @Override

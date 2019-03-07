@@ -497,7 +497,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 .stream()
                 .filter(check -> check instanceof ExecutableMicroCheck)
                 .map(ExecutableMicroCheck.class::cast)
-                .map(check -> check.evaluate(device, effectiveTimestamp, action.getStateTransition().getTo()))
+                .map(check -> check.execute(device, effectiveTimestamp, action.getStateTransition().getTo()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
@@ -505,7 +505,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
             // TODO: Refactoring required
             deviceLifeCycleConfigurationService.getMicroCheckByKey(MetrologyConfigurationInCorrectStateIfAny.class.getSimpleName())
                     .map(ExecutableMicroCheck.class::cast)
-                    .ifPresent(microCheck -> microCheck.evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
+                    .ifPresent(microCheck -> microCheck.execute(device, effectiveTimestamp, action.getStateTransition().getTo())
                             .ifPresent(violations::add));
         }
         if (!violations.isEmpty()) {

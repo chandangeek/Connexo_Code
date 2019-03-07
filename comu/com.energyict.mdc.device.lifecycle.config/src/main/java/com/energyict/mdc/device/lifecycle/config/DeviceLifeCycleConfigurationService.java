@@ -191,9 +191,9 @@ public interface DeviceLifeCycleConfigurationService {
      */
     String getStageDisplayName(EndDeviceStage stage);
 
-    Set<MicroCheckNew> getMicroChecks();
+    Set<MicroCheck> getMicroChecks();
 
-    Optional<MicroCheckNew> getMicroCheckByKey(String microCheckKey);
+    Optional<MicroCheck> getMicroCheckByKey(String microCheckKey);
 
     void addMicroCheckFactory(DeviceMicroCheckFactory microCheckFactory);
 

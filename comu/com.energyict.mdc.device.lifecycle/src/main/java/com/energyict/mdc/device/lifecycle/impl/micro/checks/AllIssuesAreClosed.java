@@ -25,7 +25,7 @@ public class AllIssuesAreClosed extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return device.hasOpenIssues() ?
                 fail(MicroCheckTranslations.Message.ALL_ISSUES_AND_ALARMS_ARE_CLOSED) :
                 Optional.empty();

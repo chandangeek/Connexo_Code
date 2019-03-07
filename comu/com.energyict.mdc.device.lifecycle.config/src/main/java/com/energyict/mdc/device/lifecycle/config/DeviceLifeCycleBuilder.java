@@ -75,6 +75,7 @@ public interface DeviceLifeCycleBuilder {
      *
      * @param <T> The type of {@link AuthorizedAction} that is being built
      */
+    @ProviderType
     interface AuthorizedActionBuilder<T extends AuthorizedAction> {
 
         AuthorizedActionBuilder<T> addLevel(AuthorizedAction.Level level, AuthorizedAction.Level... otherLevels);
@@ -84,6 +85,7 @@ public interface DeviceLifeCycleBuilder {
         T complete();
     }
 
+    @ProviderType
     interface AuthorizedTransitionActionBuilder extends AuthorizedActionBuilder<AuthorizedTransitionAction> {
 
         AuthorizedTransitionActionBuilder setChecks(Set<String> checks);

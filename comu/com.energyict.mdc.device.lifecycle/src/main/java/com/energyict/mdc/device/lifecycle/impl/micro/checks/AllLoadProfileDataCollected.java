@@ -44,7 +44,7 @@ public class AllLoadProfileDataCollected extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return anyLoadProfileWithIncorrectLastReading(device, effectiveTimestamp).isPresent() ?
                 fail(MicroCheckTranslations.Message.ALL_LOAD_PROFILE_DATA_COLLECTED) :
                 Optional.empty();

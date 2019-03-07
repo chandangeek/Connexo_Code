@@ -44,7 +44,7 @@ public class ConnectionPropertiesAreValidTest {
         when(this.device.getConnectionTasks()).thenReturn(Collections.emptyList());
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -60,7 +60,7 @@ public class ConnectionPropertiesAreValidTest {
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(ct1, ct2));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -76,7 +76,7 @@ public class ConnectionPropertiesAreValidTest {
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(ct1, ct2));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -98,7 +98,7 @@ public class ConnectionPropertiesAreValidTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -124,7 +124,7 @@ public class ConnectionPropertiesAreValidTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2, cte3));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -149,7 +149,7 @@ public class ConnectionPropertiesAreValidTest {
         when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -171,7 +171,7 @@ public class ConnectionPropertiesAreValidTest {
         when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.empty());
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -196,7 +196,7 @@ public class ConnectionPropertiesAreValidTest {
         when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();

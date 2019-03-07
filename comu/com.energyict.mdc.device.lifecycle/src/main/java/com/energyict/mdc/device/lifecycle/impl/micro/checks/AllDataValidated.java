@@ -32,7 +32,7 @@ public class AllDataValidated extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         Optional<? extends MeterActivation> current = device.getCurrentMeterActivation();
         return !current.isPresent() || (validationService.validationEnabled(current.get().getMeter().get()) &&
                 !validationService.getEvaluator().isAllDataValidated(current.get().getChannelsContainer())) ?

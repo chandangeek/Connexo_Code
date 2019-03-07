@@ -33,7 +33,7 @@ public class ProtocolDialectPropertiesAreValid extends ConsolidatedServerMicroCh
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         Set<PropertySpec> requiredPropertySpecs = device.getDeviceConfiguration().getPartialConnectionTasks().stream().map(PartialConnectionTask::getProtocolDialectConfigurationProperties)
                 .flatMap(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getPropertySpecs().stream())
                 .filter(PropertySpec::isRequired)

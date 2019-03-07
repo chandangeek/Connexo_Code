@@ -4,13 +4,13 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
-import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
-public class TestMicroCheck implements MicroCheckNew {
+public class TestMicroCheck implements MicroCheck {
 
     @Override
     public String getKey() {
@@ -57,12 +57,12 @@ public class TestMicroCheck implements MicroCheckNew {
     public static class Factory implements DeviceMicroCheckFactory {
 
         @Override
-        public Optional<Class<? extends MicroCheckNew>> from(String microActionKey) {
+        public Optional<Class<? extends MicroCheck>> from(String microActionKey) {
             return Optional.of(TestMicroCheck.class);
         }
 
         @Override
-        public Set<Class<? extends MicroCheckNew>> getAllChecks() {
+        public Set<Class<? extends MicroCheck>> getAllChecks() {
             return Collections.singleton(TestMicroCheck.class);
         }
     }

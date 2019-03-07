@@ -195,7 +195,7 @@ public class DeviceLifeCycleServiceImplTest {
             when(this.microActionFactory.from(microAction)).thenReturn(serverMicroAction);
         }
         when(deviceLifeCycleConfigurationService.getMicroCheckByKey(MetrologyConfigurationInCorrectStateIfAny.class.getSimpleName())
-                .map(ExecutableMicroCheck.class::cast).get().evaluate(any(Device.class), any(Instant.class), any(State.class))).thenReturn(Optional.empty());
+                .map(ExecutableMicroCheck.class::cast).get().execute(any(Device.class), any(Instant.class), any(State.class))).thenReturn(Optional.empty());
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
         when(userPreferencesService.getPreferenceByKey(any(User.class), any(PreferenceType.class))).thenReturn(Optional.empty());
 
@@ -360,9 +360,9 @@ public class DeviceLifeCycleServiceImplTest {
         DefaultMicroCheck microCheck1 = DefaultMicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
         DefaultMicroCheck microCheck2 = DefaultMicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE;
         ExecutableMicroCheck serverMicroCheck1 = mock(ExecutableMicroCheck.class);
-        when(serverMicroCheck1.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(serverMicroCheck1.execute(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         ExecutableMicroCheck serverMicroCheck2 = mock(ExecutableMicroCheck.class);
-        when(serverMicroCheck2.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(serverMicroCheck2.execute(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(this.microCheckFactory.from(microCheck1)).thenReturn(serverMicroCheck1);
         when(this.microCheckFactory.from(microCheck2)).thenReturn(serverMicroCheck2);
         when(this.action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(microCheck1, microCheck2)));
@@ -371,8 +371,8 @@ public class DeviceLifeCycleServiceImplTest {
         service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
-        verify(serverMicroCheck1).evaluate(eq(this.device), any(Instant.class));
-        verify(serverMicroCheck2).evaluate(eq(this.device), any(Instant.class));
+        verify(serverMicroCheck1).execute(eq(this.device), any(Instant.class));
+        verify(serverMicroCheck2).execute(eq(this.device), any(Instant.class));
     }
 
     @Test(expected = MultipleMicroCheckViolationsException.class)
@@ -390,19 +390,19 @@ public class DeviceLifeCycleServiceImplTest {
         DefaultMicroCheck microCheck3 = DefaultMicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID;
         DefaultMicroCheck microCheck4 = DefaultMicroCheck.DEFAULT_CONNECTION_AVAILABLE;
         ExecutableMicroCheck serverMicroCheck1 = mock(ExecutableMicroCheck.class);
-        when(serverMicroCheck1.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(serverMicroCheck1.execute(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         ExecutableMicroCheck serverMicroCheck2 = mock(ExecutableMicroCheck.class);
-        when(serverMicroCheck2.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(serverMicroCheck2.execute(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         ExecutableMicroCheck failingServerMicroCheck1 = mock(ExecutableMicroCheck.class);
         ExecutableMicroCheckViolation violation1 = mock(ExecutableMicroCheckViolation.class);
         when(violation1.getCheck()).thenReturn(microCheck3);
         when(violation1.getLocalizedMessage()).thenReturn("Violation 1");
-        when(failingServerMicroCheck1.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.of(violation1));
+        when(failingServerMicroCheck1.execute(any(Device.class), any(Instant.class))).thenReturn(Optional.of(violation1));
         ExecutableMicroCheck failingServerMicroCheck2 = mock(ExecutableMicroCheck.class);
         ExecutableMicroCheckViolation violation2 = mock(ExecutableMicroCheckViolation.class);
         when(violation2.getCheck()).thenReturn(microCheck4);
         when(violation2.getLocalizedMessage()).thenReturn("Violation 2");
-        when(failingServerMicroCheck2.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.of(violation2));
+        when(failingServerMicroCheck2.execute(any(Device.class), any(Instant.class))).thenReturn(Optional.of(violation2));
         when(this.microCheckFactory.from(microCheck1)).thenReturn(serverMicroCheck1);
         when(this.microCheckFactory.from(microCheck2)).thenReturn(serverMicroCheck2);
         when(this.microCheckFactory.from(microCheck3)).thenReturn(failingServerMicroCheck1);

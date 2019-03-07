@@ -32,7 +32,7 @@ public class NoActiveServiceCalls extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return (hasActiveServiceCalls(device)) ?
                 fail(MicroCheckTranslations.Message.NO_ACTIVE_SERVICE_CALLS) :
                 Optional.empty();

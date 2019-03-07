@@ -4,12 +4,13 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.MicroCheckNew;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -18,10 +19,8 @@ import java.util.logging.Logger;
 public class DeviceAuthorizedActionMicroCheckUsageImpl {
 
     public enum Fields {
-
         TRANSITION("transition"),
-        MICRO_CHECK("microCheckKey"),
-        ;
+        MICRO_CHECK("microCheckKey");
 
         private final String javaFieldName;
 
@@ -38,10 +37,10 @@ public class DeviceAuthorizedActionMicroCheckUsageImpl {
 
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private Reference<AuthorizedAction> transition = ValueReference.absent();
-    @Size(max = 80)
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private String microCheckKey;
-    private MicroCheckNew microCheck;
+    private MicroCheck microCheck;
 
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
@@ -50,7 +49,7 @@ public class DeviceAuthorizedActionMicroCheckUsageImpl {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
-    DeviceAuthorizedActionMicroCheckUsageImpl init(AuthorizedAction transition, MicroCheckNew microCheck) {
+    DeviceAuthorizedActionMicroCheckUsageImpl init(AuthorizedAction transition, MicroCheck microCheck) {
         this.transition.set(transition);
         this.microCheckKey = microCheck.getKey();
         this.microCheck = microCheck;
@@ -61,7 +60,7 @@ public class DeviceAuthorizedActionMicroCheckUsageImpl {
         return this.microCheckKey;
     }
 
-    public MicroCheckNew getCheck() {
+    public MicroCheck getCheck() {
         if (this.microCheck == null) {
             this.microCheck = this.deviceLifeCycleConfigurationService.getMicroCheckByKey(getKey())
                     .orElseGet(() -> {

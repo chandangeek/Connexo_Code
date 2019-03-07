@@ -41,7 +41,7 @@ public class SecurityPropertiesAreValid extends ConsolidatedServerMicroCheck {
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         List<SecurityPropertySet> usedSecurityPropertySets = deviceConfiguration.getSecurityPropertySets()
                 .stream()

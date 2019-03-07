@@ -34,7 +34,7 @@ public class SlaveDeviceHasGateway extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return (isLogicalSlave(device) && !this.hasGateway(device)) ?
                 fail(MicroCheckTranslations.Message.SLAVE_DEVICE_HAS_GATEWAY) :
                 Optional.empty();

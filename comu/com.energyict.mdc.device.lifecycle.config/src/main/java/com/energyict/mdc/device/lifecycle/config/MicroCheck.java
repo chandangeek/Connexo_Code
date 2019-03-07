@@ -6,10 +6,13 @@ package com.energyict.mdc.device.lifecycle.config;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.HasName;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.Collections;
 import java.util.Set;
 
-public interface MicroCheckNew extends HasName {
+@ConsumerType
+public interface MicroCheck extends HasName {
 
     String getKey();
 

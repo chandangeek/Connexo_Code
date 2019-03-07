@@ -28,7 +28,7 @@ public class ScheduledCommunicationTaskAvailable extends TranslatableServerMicro
     }
 
     @Override
-    public Optional<ExecutableMicroCheckViolation> evaluate(Device device, Instant effectiveTimestamp, State toState) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return !anyManuallyScheduledCommunicationTask(device).isPresent() ?
                 fail(MicroCheckTranslations.Message.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE) :
                 Optional.empty();
