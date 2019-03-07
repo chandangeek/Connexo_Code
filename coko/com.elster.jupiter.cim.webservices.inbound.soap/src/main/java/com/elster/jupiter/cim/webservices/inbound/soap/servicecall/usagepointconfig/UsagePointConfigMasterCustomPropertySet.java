@@ -1,36 +1,22 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import javax.inject.Inject;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.CIMInboundSoapEndpointsActivator;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.DataLinkageConfigChecklist;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.parent.AbstractMasterCustomPropertyPersistenceSupport;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.parent.AbstractMasterCustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
-import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.google.inject.Module;
 
 @Component(name = "com.elster.jupiter.cim.webservices.inbound.soap.UsagePointConfigMasterCustomPropertySet", service = CustomPropertySet.class, property = "name="
         + UsagePointConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME, immediate = true)

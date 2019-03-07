@@ -11,6 +11,7 @@ public enum TranslationKeys implements TranslationKey {
     USAGE_POINT_INFO("usagePointInfo", "Usage point info"),
     CONFIGURATION_EVENT("configurationEvent", "Configuration event"),
     PARENT_SERVICE_CALL("parentServiceCall", "Parent service call"),
+    REQUEST_TIMESTAMP("requestTimestamp", "Request timestamp"),
     ERROR_MESSAGE("errorMessage", "Error message"),
     ERROR_CODE("errorCode", "Error code"),
     OPERATION("operation", "Operation"),
@@ -24,9 +25,9 @@ public enum TranslationKeys implements TranslationKey {
     TIME_PERIOD_END("timePeriodEnd", "Time period end"),
     READING_TYPES("readingTypes", "Reading Types"),
     END_DEVICES("endDevices", "End Devices"),
-    READ_METER_CHANGE_MESSAGE_HANDLER(ReadMeterChangeMessageHandlerFactory.TASK_SUBSCRIBER,
-            ReadMeterChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME)
-    ;
+    READ_METER_CHANGE_MESSAGE_HANDLER(
+            ReadMeterChangeMessageHandlerFactory.TASK_SUBSCRIBER,
+            ReadMeterChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME);
 
     private final String key;
     private final String defaultFormat;

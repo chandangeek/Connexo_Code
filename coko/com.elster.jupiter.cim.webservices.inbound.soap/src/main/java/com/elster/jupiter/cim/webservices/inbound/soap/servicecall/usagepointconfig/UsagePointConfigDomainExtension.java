@@ -21,6 +21,7 @@ public class UsagePointConfigDomainExtension extends AbstractPersistentDomainExt
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
         USAGE_POINT("usagePoint", "usagePoint"),
+        REQUEST_TIMESTAMP("requestTimestamp", "requestTimestamp"),
         PARENT_SERVICE_CALL("parentServiceCallId", "parentServiceCallId"),
         ERROR_MESSAGE("errorMessage", "errorMessage"),
         ERROR_CODE("errorCode", "errorCode"),
@@ -49,6 +50,8 @@ public class UsagePointConfigDomainExtension extends AbstractPersistentDomainExt
             + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String usagePoint;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    private Long requestTimestamp;
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private BigDecimal parentServiceCallId;
     @Size(max = Table.MAX_STRING_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -67,6 +70,14 @@ public class UsagePointConfigDomainExtension extends AbstractPersistentDomainExt
 
     public void setUsagePoint(String usagePoint) {
         this.usagePoint = usagePoint;
+    }
+
+    public Long getRequestTimestamp() {
+        return requestTimestamp;
+    }
+
+    public void setRequestTimestamp(Long requestTimestamp) {
+        this.requestTimestamp = requestTimestamp;
     }
 
     public BigDecimal getParentServiceCallId() {
@@ -106,6 +117,8 @@ public class UsagePointConfigDomainExtension extends AbstractPersistentDomainExt
             Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         setUsagePoint((String) propertyValues.getProperty(FieldNames.USAGE_POINT.javaName));
+        setRequestTimestamp((Long) Optional
+                .ofNullable(propertyValues.getProperty(FieldNames.REQUEST_TIMESTAMP.javaName)).orElse(0L));
         setParentServiceCallId(new BigDecimal(
                 Optional.ofNullable(propertyValues.getProperty(FieldNames.PARENT_SERVICE_CALL.javaName()))
                         .orElse(BigDecimal.ZERO).toString()));
@@ -117,6 +130,7 @@ public class UsagePointConfigDomainExtension extends AbstractPersistentDomainExt
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.USAGE_POINT.javaName(), getUsagePoint());
+        propertySetValues.setProperty(FieldNames.REQUEST_TIMESTAMP.javaName(), getRequestTimestamp());
         propertySetValues.setProperty(FieldNames.PARENT_SERVICE_CALL.javaName(), getParentServiceCallId());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), getErrorMessage());
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), getErrorCode());

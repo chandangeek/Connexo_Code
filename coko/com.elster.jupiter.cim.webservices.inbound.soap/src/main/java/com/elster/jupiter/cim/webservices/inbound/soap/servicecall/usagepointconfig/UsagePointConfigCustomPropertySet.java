@@ -118,6 +118,10 @@ public class UsagePointConfigCustomPropertySet
                         .named(UsagePointConfigDomainExtension.FieldNames.USAGE_POINT.javaName(),
                                 TranslationKeys.USAGE_POINT_INFO)
                         .describedAs(TranslationKeys.USAGE_POINT_INFO).fromThesaurus(thesaurus).finish(),
+                propertySpecService.longSpec()
+                        .named(UsagePointConfigDomainExtension.FieldNames.REQUEST_TIMESTAMP.javaName(),
+                                TranslationKeys.REQUEST_TIMESTAMP)
+                        .describedAs(TranslationKeys.REQUEST_TIMESTAMP).fromThesaurus(thesaurus).finish(),
                 propertySpecService.bigDecimalSpec()
                         .named(UsagePointConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName(),
                                 TranslationKeys.PARENT_SERVICE_CALL)
@@ -181,6 +185,8 @@ public class UsagePointConfigCustomPropertySet
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(UsagePointConfigDomainExtension.FieldNames.USAGE_POINT.databaseName()).varChar()
                     .map(UsagePointConfigDomainExtension.FieldNames.USAGE_POINT.javaName()).notNull().add();
+            table.column(UsagePointConfigDomainExtension.FieldNames.REQUEST_TIMESTAMP.databaseName()).varChar()
+                    .map(UsagePointConfigDomainExtension.FieldNames.REQUEST_TIMESTAMP.javaName()).notNull().add();
             table.column(UsagePointConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.databaseName()).number()
                     .map(UsagePointConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName()).notNull().add();
             table.column(UsagePointConfigDomainExtension.FieldNames.ERROR_MESSAGE.databaseName()).varChar()

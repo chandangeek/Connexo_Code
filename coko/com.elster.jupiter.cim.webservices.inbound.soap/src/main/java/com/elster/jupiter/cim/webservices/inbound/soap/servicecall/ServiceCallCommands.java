@@ -18,7 +18,14 @@ import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalin
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterDomainExtension;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigServiceCallHandler;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigMasterServiceCallHandler;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigMasterCustomPropertySet;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigMasterDomainExtension;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigServiceCallHandler;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigCustomPropertySet;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigDomainExtension;
 import com.elster.jupiter.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
+import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.Action;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -42,6 +49,8 @@ import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
 import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
+import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigRequestMessageType;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -64,9 +73,18 @@ public class ServiceCallCommands {
                 MasterDataLinkageConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
                 MasterDataLinkageConfigServiceCallHandler.VERSION,
                 MasterDataLinkageConfigCustomPropertySet.class.getName()),
-        PARENT_GET_METER_READINGS(ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
+        PARENT_GET_METER_READINGS(
+                ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
                 ParentGetMeterReadingsServiceCallHandler.VERSION,
-                ParentGetMeterReadingsCustomPropertySet.class.getName());
+                ParentGetMeterReadingsCustomPropertySet.class.getName()),
+        MASTER_USAGE_POINT_CONFIG(
+                UsagePointConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
+                UsagePointConfigMasterServiceCallHandler.VERSION,
+                UsagePointConfigMasterCustomPropertySet.class.getName()),
+        USAGE_POINT_CONFIG(
+                UsagePointConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
+                UsagePointConfigServiceCallHandler.VERSION,
+                UsagePointConfigCustomPropertySet.class.getName());
 
         private final String typeName;
         private final String typeVersion;
@@ -129,7 +147,8 @@ public class ServiceCallCommands {
                 .origin(DataLinkageConfigChecklist.APPLICATION_NAME).extendedWith(domainExtension);
         ServiceCall parentServiceCall = serviceCallBuilder.create();
         final List<UsagePoint> usagePoints = config.getPayload().getMasterDataLinkageConfig().getUsagePoint();
-        final List<ch.iec.tc57._2011.masterdatalinkageconfig.Meter> meters = config.getPayload().getMasterDataLinkageConfig().getMeter();
+        final List<ch.iec.tc57._2011.masterdatalinkageconfig.Meter> meters = config.getPayload()
+                .getMasterDataLinkageConfig().getMeter();
         if (usagePoints.size() != meters.size()) {
             throw faultMessageFactory.createMasterDataLinkageFaultMessage(action,
                     MessageSeeds.DIFFERENT_NUMBER_OF_METERS_AND_USAGE_POINTS, meters.size(), usagePoints.size());
@@ -144,7 +163,8 @@ public class ServiceCallCommands {
     }
 
     private ServiceCall createMasterDataLinkageChildServiceCall(ServiceCall parentServiceCall,
-            MasterDataLinkageAction action, UsagePoint usagePoint, ch.iec.tc57._2011.masterdatalinkageconfig.Meter meter, ConfigurationEvent configurationEvent) {
+            MasterDataLinkageAction action, UsagePoint usagePoint,
+            ch.iec.tc57._2011.masterdatalinkageconfig.Meter meter, ConfigurationEvent configurationEvent) {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.DATA_LINKAGE_CONFIG);
         MasterDataLinkageConfigDomainExtension domainExtension = new MasterDataLinkageConfigDomainExtension();
         domainExtension.setParentServiceCallId(BigDecimal.valueOf(parentServiceCall.getId()));
@@ -159,9 +179,8 @@ public class ServiceCallCommands {
 
     @TransactionRequired
     public ServiceCall createParentGetMeterReadingsServiceCall(String source, String replyAddress,
-                                                               DateTimeInterval timePeriod,
-                                                               List<EndDevice> existedEndDevices,
-                                                               List<ReadingType> existedReadingTypes) throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
+            DateTimeInterval timePeriod, List<EndDevice> existedEndDevices, List<ReadingType> existedReadingTypes)
+            throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.PARENT_GET_METER_READINGS);
         ParentGetMeterReadingsDomainExtension parentGetMeterReadingsDomainExtension = new ParentGetMeterReadingsDomainExtension();
         parentGetMeterReadingsDomainExtension.setSource(source);
@@ -171,8 +190,7 @@ public class ServiceCallCommands {
         parentGetMeterReadingsDomainExtension.setReadingTypes(getReadingTypesString(existedReadingTypes));
         parentGetMeterReadingsDomainExtension.setEndDevices(getEndDevicesString(existedEndDevices));
 
-        ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
-                .origin("MultiSense")
+        ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall().origin("MultiSense")
                 .extendedWith(parentGetMeterReadingsDomainExtension);
         ServiceCall parentServiceCall = serviceCallBuilder.create();
         parentServiceCall.requestTransition(DefaultState.PENDING);
@@ -182,10 +200,10 @@ public class ServiceCallCommands {
             return parentServiceCall;
         }
         boolean meterReadingRunning = false;
-        for (EndDevice endDevice: existedEndDevices) {
+        for (EndDevice endDevice : existedEndDevices) {
             if (endDevice instanceof Meter) {
-                Meter meter = (Meter)endDevice;
-                if (isMeterReadingRequired(source, meter, existedReadingTypes,  timePeriod.getEnd())) {
+                Meter meter = (Meter) endDevice;
+                if (isMeterReadingRequired(source, meter, existedReadingTypes, timePeriod.getEnd())) {
                     readMeter(parentServiceCall, meter, existedReadingTypes);
                     meterReadingRunning = true;
                 }
@@ -204,30 +222,30 @@ public class ServiceCallCommands {
         serviceCall.requestTransition(DefaultState.ONGOING);
     }
 
-    private void readMeter(ServiceCall parentServiceCall, Meter meter, List<ReadingType> readingTypes) throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
-        HeadEndInterface headEndInterface = meter.getHeadEndInterface()
-                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(
-                        MessageSeeds.NO_HEAD_END_INTERFACE_FOUND, meter.getMRID())
-                );
+    private void readMeter(ServiceCall parentServiceCall, Meter meter, List<ReadingType> readingTypes)
+            throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
+        HeadEndInterface headEndInterface = meter.getHeadEndInterface().orElseThrow(faultMessageFactory
+                .createMeterReadingFaultMessageSupplier(MessageSeeds.NO_HEAD_END_INTERFACE_FOUND, meter.getMRID()));
         CompletionOptions completionOptions = headEndInterface.readMeter(meter, readingTypes, parentServiceCall);
         messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION)
-                .ifPresent(destinationSpec ->
-                        completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(parentServiceCall.getId()),
-                        destinationSpec));
+                .ifPresent(destinationSpec -> completionOptions.whenFinishedSendCompletionMessageWith(
+                        Long.toString(parentServiceCall.getId()), destinationSpec));
     }
 
-    private boolean isMeterReadingRequired(String source, Meter meter, List<ReadingType> readingTypes, Instant endTime) {
+    private boolean isMeterReadingRequired(String source, Meter meter, List<ReadingType> readingTypes,
+            Instant endTime) {
         if (ReadingSourceEnum.METER.getSource().equals(source)) {
             return true;
         }
         if (ReadingSourceEnum.HYBRID.getSource().equals(source)) {
-            return meter.getChannelsContainers().stream().
-                    anyMatch(container -> isChannelContainerReadOutRequired(container, readingTypes, endTime));
+            return meter.getChannelsContainers().stream()
+                    .anyMatch(container -> isChannelContainerReadOutRequired(container, readingTypes, endTime));
         }
         return false;
     }
 
-    private boolean isChannelContainerReadOutRequired(ChannelsContainer channelsContainer, List<ReadingType> readingTypes, Instant endTime) {
+    private boolean isChannelContainerReadOutRequired(ChannelsContainer channelsContainer,
+            List<ReadingType> readingTypes, Instant endTime) {
         List<String> readingTypeMRIDs = readingTypes.stream().map(ert -> ert.getMRID()).collect(Collectors.toList());
         Range<Instant> range = channelsContainer.getInterval().toOpenClosedRange();
         if (!range.lowerEndpoint().isBefore(endTime)) {
@@ -256,6 +274,42 @@ public class ServiceCallCommands {
 
     private String getEndDevicesString(List<EndDevice> existedEndDevices) {
         return existedEndDevices.stream().map(eed -> eed.getMRID()).collect(Collectors.joining(";"));
+    }
+
+    @TransactionRequired
+    public ServiceCall createUsagePointConfigMasterServiceCall(UsagePointConfigRequestMessageType config,
+            Optional<EndPointConfiguration> endPointConfiguration, Action action) {
+        ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_USAGE_POINT_CONFIG);
+        UsagePointConfigMasterDomainExtension domainExtension = new UsagePointConfigMasterDomainExtension();
+        domainExtension.setActualNumberOfSuccessfulCalls(BigDecimal.ZERO);
+        domainExtension.setActualNumberOfFailedCalls(BigDecimal.ZERO);
+        domainExtension.setExpectedNumberOfCalls(
+                BigDecimal.valueOf(config.getPayload().getUsagePointConfig().getUsagePoint().size()));
+        if (endPointConfiguration.isPresent()) {
+            domainExtension.setCallbackURL(endPointConfiguration.get().getUrl());
+        }
+        ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
+                .origin(DataLinkageConfigChecklist.APPLICATION_NAME).extendedWith(domainExtension);
+        ServiceCall parentServiceCall = serviceCallBuilder.create();
+        final List<ch.iec.tc57._2011.usagepointconfig.UsagePoint> usagePoints = config.getPayload()
+                .getUsagePointConfig().getUsagePoint();
+        for (int i = 0; i < usagePoints.size(); i++) {
+            createUsagePointConfigChildServiceCall(parentServiceCall, action, usagePoints.get(i));
+        }
+        return parentServiceCall;
+    }
+
+    private ServiceCall createUsagePointConfigChildServiceCall(ServiceCall parentServiceCall, Action action,
+            ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePoint) {
+        ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.USAGE_POINT_CONFIG);
+        UsagePointConfigDomainExtension domainExtension = new UsagePointConfigDomainExtension();
+        domainExtension.setParentServiceCallId(BigDecimal.valueOf(parentServiceCall.getId()));
+        // TODO provide UsagePoint object valid for json serialization
+        domainExtension.setUsagePoint(jsonService.serialize(usagePoint));
+        domainExtension.setOperation(action.name());
+        ServiceCallBuilder serviceCallBuilder = parentServiceCall.newChildCall(serviceCallType)
+                .extendedWith(domainExtension);
+        return serviceCallBuilder.create();
     }
 
     private ServiceCallType getServiceCallType(ServiceCallTypes serviceCallType) {
