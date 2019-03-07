@@ -61,20 +61,17 @@ public class Installer implements FullInstaller {
     private void createServiceCallType(String handlerName, String version, String propertySetName) {
         Optional<ServiceCallType> serviceCallTypeOptional = serviceCallService.findServiceCallType(handlerName, version);
         if (!serviceCallTypeOptional.isPresent()) {
-            try {
-                CustomPropertySet customPropertySet = (CustomPropertySet) Class.forName(propertySetName).getConstructor().newInstance();
+            RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.
+                    findActiveCustomPropertySet(ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME)
+                    .orElseThrow(() -> new IllegalStateException(MessageFormat
+                            .format("Could not find active custom property set {0}",
+                                    ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME)));
 
-                RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId())
-                        .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find active custom property set {0}", customPropertySet.getClass().getSimpleName())));
-
-                serviceCallService.createServiceCallType(handlerName, version)
-                        .handler(handlerName)
-                        .logLevel(LogLevel.FINEST)
-                        .customPropertySet(registeredCustomPropertySet)
-                        .create();
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException ex) {
-                throw new IllegalStateException(ex);
-            }
+            serviceCallService.createServiceCallType(handlerName, version)
+                    .handler(handlerName)
+                    .logLevel(LogLevel.FINEST)
+                    .customPropertySet(registeredCustomPropertySet)
+                    .create();
         }
     }
 
