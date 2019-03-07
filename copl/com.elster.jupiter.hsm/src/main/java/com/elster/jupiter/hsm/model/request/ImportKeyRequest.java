@@ -11,6 +11,9 @@ import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 
+import java.util.Arrays;
+import java.util.Base64;
+
 
 public class ImportKeyRequest {
 
@@ -117,5 +120,25 @@ public class ImportKeyRequest {
         } catch (UnsupportedKEKEncryptionMethodException e) {
             throw new HsmBaseException(e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ImportKeyRequest{" +
+                "wrapperKeyLabel='" + wrapperKeyLabel + '\'' +
+                ", wrapperKeyAlgorithm=" + wrapperKeyAlgorithm +
+                ", encryptedTransportKey=" + getString(encryptedTransportKey) +
+                ", deviceKeyAlgorhitm=" + deviceKeyAlgorhitm +
+                ", deviceKeyValue=" + getString(deviceKeyValue) +
+                ", deviceKeyInitialVector=" + getString(deviceKeyInitialVector) +
+                ", hsmKeyType=" + hsmKeyType +
+                '}';
+    }
+
+    private String getString(byte[] array) {
+        if (array == null) {
+            return null;
+        }
+        return Base64.getEncoder().encodeToString(array);
     }
 }
