@@ -5,8 +5,8 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ObjectHolder;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.MeterInfo;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.UsagePointInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
