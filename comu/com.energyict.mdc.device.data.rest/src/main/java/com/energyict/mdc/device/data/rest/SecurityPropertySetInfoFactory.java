@@ -50,15 +50,15 @@ public class SecurityPropertySetInfoFactory {
 
     public List<SecurityPropertySetInfo> asInfoHsm(Device device, UriInfo uriInfo) {
         List<SecurityPropertySet> tmpList = device.getDeviceConfiguration()
-                                                .getSecurityPropertySets().stream()
-                                                .filter(s -> s.getConfigurationSecurityProperties().stream().filter(sp->sp.getSecurityAccessorType().keyTypeIsHSM()).count()!=0)
-                                                .collect(toList());
+                                            .getSecurityPropertySets().stream()
+                                            .filter(s -> s.getConfigurationSecurityProperties().stream().filter(sp->sp.getSecurityAccessorType().keyTypeIsHSM()).count()!=0)
+                                            .collect(toList());
 
         return  tmpList.stream()
-                    .map(s -> asInfo(device, uriInfo, s))
-                    .sorted((p1, p2) -> p1.name.compareToIgnoreCase(p2.name))
-                    .collect(toList());
-        }
+                .map(s -> asInfo(device, uriInfo, s))
+                .sorted((p1, p2) -> p1.name.compareToIgnoreCase(p2.name))
+                .collect(toList());
+    }
 
     public SecurityPropertySetInfo asInfo(Device device, UriInfo uriInfo, SecurityPropertySet securityPropertySet) {
         SecurityPropertySetInfo info = new SecurityPropertySetInfo();

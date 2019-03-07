@@ -14,6 +14,7 @@ Ext.define('Mdc.securityaccessors.model.DeviceSecurityKey', {
         {name: 'description', type: 'string'},
         {name: 'expirationTime', type: 'int'},
         {name: 'modificationDate', type: 'int'},
+        {name: 'serviceKey', type: 'boolean'},
         {name: 'status', type: 'string'},
         {name: 'canGeneratePassiveKey', type: 'boolean', defaultValue:false, persist:false},
         {name: 'swapped', type: 'boolean', defaultValue:false},
@@ -44,7 +45,9 @@ Ext.define('Mdc.securityaccessors.model.DeviceSecurityKey', {
         },
 
         setUrl: function (deviceId) {
+            console.log("SET URL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",this.url);
             this.url = this.urlTpl.replace('{deviceId}', deviceId);
+            console.log("URL = ",this.url);
         }
     }
 

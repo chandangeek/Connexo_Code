@@ -236,6 +236,25 @@ public class SecurityAccessorResource {
 
     @PUT
     @Transactional
+    @Path("/keys/{id}/unmarkservicekey")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
+    public Response unmarkServceKey(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId,
+                                          @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider, SecurityAccessorInfo securityAccessorInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
+        SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        SecurityAccessor<SecurityValueWrapper> securityAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, securityAccessorType, securityAccessorInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
+        securityAccessor.setServiceKey(false);
+        securityAccessor.save();
+        return Response.ok(securityAccessorInfoFactory.asKey(securityAccessor)).build();
+    }
+
+
+    @PUT
+    @Transactional
     @Path("/keys/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,

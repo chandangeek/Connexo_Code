@@ -43,7 +43,7 @@ Ext.define('Bpm.view.task.ViewTask', {
                 layout: {
                     type: 'fit'
                 },
-                title: Uni.I18n.translate('bpm.task.taskAttributes', 'BPM', 'Task attributes'),
+                title: "TASK ATTRIBUTES",//Uni.I18n.translate('bpm.task.taskAttributes', 'BPM', 'Task attributes'),
                 ui: 'medium',
                 margin: '-4 0 0 0',
                 flex: 1,
@@ -204,7 +204,7 @@ Ext.define('Bpm.view.task.ViewTask', {
                 ]
             },
             {
-                title: Uni.I18n.translate('bpm.task.taskExecution', 'BPM', 'Task execution'),
+                title: "TASK EXECUTION!!!",//Uni.I18n.translate('bpm.task.taskExecution', 'BPM', 'Task execution'),
                 ui: 'medium',
                 xtype: 'property-form',
                 isEdit: false,

@@ -167,6 +167,8 @@ Ext.define('Bpm.controller.OpenTask', {
             tasksRoute = router.getRoute('workspace/tasks'),
             editTaskView, topTitle, taskRecord, queryParams = {};
 
+        console.log("START OR COMPLETE TASK!!!!");
+
         sort = router.arguments.sort;
         user = router.arguments.user;
         dueDate = router.arguments.dueDate;
@@ -240,12 +242,15 @@ Ext.define('Bpm.controller.OpenTask', {
                                             me.getModel('Bpm.model.task.OpenTask').load(taskId, {
                                                 success: function (newOpenTaskRecord) {
                                                     me.loadJbpmForm(taskRecord, isAssignee, newOpenTaskRecord);
-                                                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.started', 'BPM', 'Task started.'));
+                                                    me.getApplication().fireEvent('acknowledge', "TASK STARTED X!!!!!!!!!!!"/*Uni.I18n.translate('bpm.task.openTask.started', 'BPM', 'Task started.')*/);
                                                 }
                                             });
                                         }
                                     });
                                 } else {
+                                    console.log("LOAD JBPM FORM!!!!!");
+                                    console.log("taskRecord=",taskRecord);
+                                    console.log("openTaskRecord=",openTaskRecord);
                                     me.loadJbpmForm(taskRecord, isAssignee, openTaskRecord);
                                 }
                             }

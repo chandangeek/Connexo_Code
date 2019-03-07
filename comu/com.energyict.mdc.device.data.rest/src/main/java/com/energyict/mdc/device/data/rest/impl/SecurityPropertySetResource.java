@@ -70,11 +70,12 @@ public class SecurityPropertySetResource {
     @Path("/hsm")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getSecurityPropertySetsXromvyu(@PathParam("name") String name, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
-                Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-                List<SecurityPropertySetInfo> securityPropertySetInfos = securityPropertySetInfoFactory.asInfoHsm(device, uriInfo);
-                List<SecurityPropertySetInfo> pagedInfos = ListPager.of(securityPropertySetInfos).from(queryParameters).find();
-                return PagedInfoList.fromPagedList("securityPropertySets", pagedInfos, queryParameters);
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        List<SecurityPropertySetInfo> securityPropertySetInfos = securityPropertySetInfoFactory.asInfoHsm(device, uriInfo);
+        List<SecurityPropertySetInfo> pagedInfos = ListPager.of(securityPropertySetInfos).from(queryParameters).find();
+        return PagedInfoList.fromPagedList("securityPropertySets", pagedInfos, queryParameters);
     }
+
 
     @GET
     @Transactional

@@ -100,7 +100,7 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
                                             },
                                             {
                                                 xtype: 'button',
-                                                text: Uni.I18n.translate('general.cancel', 'BPM', 'Cancel'),
+                                                text: 'CNACEL !!!!',//Uni.I18n.translate('general.cancel', 'BPM', 'Cancel'),
                                                 itemId: 'cancel-link-button',
                                                 action: 'cancelStartProcess',
                                                 ui: 'link'
@@ -143,7 +143,9 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
         if(!me.doNotLoadStore){
             me.loadAvailableProcessesStore()
         }
+        console.log("CHECK CONTEXT !!!!!!!!!!!",me.properties.context);
         if (me.properties.context) {
+            console.log("SET CONTEXT !!!!!!!!!!!!");
             me.down('property-form').context = me.properties.context;
         }
     },

@@ -20,6 +20,8 @@ Ext.define('Mdc.property.SecuritySet', {
 
     msgTarget: 'under',
     width: 600,
+    hideLabel: true,
+
 
     tmpKey: '',
 
@@ -34,6 +36,8 @@ Ext.define('Mdc.property.SecuritySet', {
                 console.log("deviceName from context = ",me.up('property-form').context.deviceName);
                 var deviceNameToSet = me.up('property-form').context.deviceName;
                 me.securitySetsStore.getProxy().url = '/api/ddr/devices/' + deviceNameToSet + '/securityproperties/hsm';
+                console.log("SET X!!!!!!!!!!!!!!!!!!!!!!");
+               // me.getPropForm().setX(100);
                 me.securitySetsStore.load(function () {
 
 
@@ -45,66 +49,7 @@ Ext.define('Mdc.property.SecuritySet', {
                         me.getGrid().getSelectionModel().selectAll();
                     /* RENDER ACCESSORS HER!!!!!!!!!*/
                     })
-/*                     console.log("RECORD = ", record);
-
-                     console.log("RECORD name = ", record.get('name'));
-                     console.log("RECORD parent = ", record.get('parent'));
-
-                     console.log("RECORD properties= ", record.properties());
-
-                     var properties = record.properties();
-                     var xPROPR;
-                     properties.each(function (property) {
-                        console.log("PROPERTY = ", property);
-
-                     var type = property.getType();
-                     fieldType = registry.getProperty(type);
-                        console.log("fieldType=",fieldType);
-
-                        var field = Ext.create(fieldType, Ext.apply(me.defaults, {
-                                                                property: property,
-                                                                isEdit: true,
-                                                                isReadOnly: false,
-                                                                inputType: "text",
-                                                                passwordAsTextComponent: false,
-                                                                userHasEditPrivilege: true,
-                                                                userHasViewPrivilege: true,
-                                                                showEditButton: false,
-                                                                resetButtonHidden: false,
-                                                                editButtonTooltip: "Edit",
-                                                                removeButtonTooltip: "Remove",
-                                                                blankText: "This field is required",
-                                                                propertyParams : null
-                                                            }));
-                                        //me.add(field);
-                                        me.up('property-form').add(field)
-
-                     });*/
-
                 });
-
-                /*var record = me.deliverablesStore.get(0);
-
-                console.log("RECORD = ", record);*/
-                /*var field = Ext.create(fieldType, Ext.apply(me.defaults, {
-                                        property: property,
-                                        isEdit: me.isEdit,
-                                        isReadOnly: me.isReadOnly,
-                                        inputType: me.inputType,
-                                        passwordAsTextComponent: me.passwordAsTextComponent,
-                                        userHasEditPrivilege: me.userHasEditPrivilege,
-                                        userHasViewPrivilege: me.userHasViewPrivilege,
-                                        showEditButton: me.isMultiEdit,
-                                        resetButtonHidden: me.defaults.resetButtonHidden || me.isMultiEdit,
-                                        editButtonTooltip: me.editButtonTooltip,
-                                        removeButtonTooltip: me.removeButtonTooltip,
-                                        blankText: me.blankText,
-                                        propertyParams : property.getPropertyParams()
-                                    }));*/
-                //me.add(field);
-                //me.up('property-form').add(field)
-
-
             }
         }
     },
@@ -114,9 +59,7 @@ Ext.define('Mdc.property.SecuritySet', {
 
         console.log("getEditCmp!!!!!!!!!!");
 
-
         me.securitySetsStore = Ext.create('Ext.data.Store', {
-            //fields: ['name'/*, 'readingType'*/],
 
             model: 'Mdc.model.DeviceSecuritySetting',
             proxy: {
@@ -149,59 +92,92 @@ Ext.define('Mdc.property.SecuritySet', {
         me.resetButtonHidden = true;
 
         return [
+
                     {
-                            xtype: 'grid',
-                            itemId: 'metrology-configuration-outputs-grid',
-                            hideHeaders: true,
-                            store: me.securitySetsStore,
-                            width: 600,
-                            margin: 0,
-                            padding: 0,
-                            scroll: false,
-                            align: 'stretch',
-                            resetButtonHidden: true,
-                            selModel: Ext.create('Ext.selection.CheckboxModel', {
-                                mode: 'MULTI',
-                                checkOnly: true,
-                                showHeaderCheckbox: false,
-                                pruneRemoved: false,
-                                updateHeaderState: Ext.emptyFn
-                            }),
-                            listeners:{
-                                selectionchange:function(selModel, selected) {
-                                console.log("SELECTION IS CHANGED !!!!!!!!!!!!!");
-                                me.selectionChanged();
-                                }
-                        /*refreshRadarChart(selected);
-                        refreshEmployeeDetails(selected);*/
+                        xtype: 'form',
+                        fieldLable: "LABLE FOR CONTAINER!!!",
+                        itemId: 'sct-bottom-container',
+                        width: '100%',
+                        layout: 'column',
+                        items: [
+                            {
+                                xtype: 'label',
+                                //required: true,
+                                align: 'right',
+                                width: '160',
+                                minWidth: '160',
+                                //margin: '0 0 0 0',
+                                text: "Securiy sets",
+                                itemId: 'secutiry-sets-label-id'
                             },
-                         columns: [
                             {
-                                //header: Uni.I18n.translate('general.name', 'IMT', 'Name'),
-                                dataIndex: 'name',
-                                flex: 1
-                            }/*,
-                            {
-                                xtype: 'reading-type-column',
-                                header: Uni.I18n.translate('general.readingType', 'IMT', 'Reading type'),
-                                dataIndex: 'readingType',
-                                flex: 1
-                            }*/
-                         ]
-                        },
+                                xtype: 'grid',
+                                itemId: 'metrology-configuration-outputs-grid',
+                                hideHeaders: true,
+                                store: me.securitySetsStore,
+                                width: 600,
+                                margin: 0,
+                                padding: 0,
+                                scroll: false,
+                                align: 'stretch',
+                                resetButtonHidden: true,
+                                selModel: Ext.create('Ext.selection.CheckboxModel', {
+                                    mode: 'MULTI',
+                                    checkOnly: true,
+                                    showHeaderCheckbox: false,
+                                    pruneRemoved: false,
+                                    updateHeaderState: Ext.emptyFn
+                                }),
+                                listeners:{
+                                    selectionchange:function(selModel, selected) {
+                                        console.log("SELECTION IS CHANGED !!!!!!!!!!!!!");
+                                        me.selectionChanged();
+                                    }
+                                },
+                                columns: [
+                                {
+
+                                    dataIndex: 'name',
+                                    flex: 1
+                                }
+                                ],
+
+                                dockedItems: [
+                                    {
+                                        //xtype: 'container',
+                                        xtype: 'label',
+                                        dock: 'bottom',
+                                        itemId: 'version-date-field-error-container',
+                                        padding: '0 0 20 0',
+                                        hidden: true,
+                                        cls: 'x-form-invalid-under'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
                         {
                             xtype: 'label',
+                            required: true,
                             margin: '20 0 0 0',
-                            text: "SECURITY ACCESSORS",
+                            text: "Security accessors",
                             itemId: 'secutiry-accessors-label-id'
                         },
                         {
                             xtype: 'property-form',
                             itemId: 'my-form-xromvyu',
-                            ui: 'large',
+                            //floating: true,
+                            //ui: 'large',
                             width: '100%',
                             defaults: {
-                                labelWidth: 250
+                                labelWidth: 50
+                            },
+                            listeners:{
+                                'afterrender': function(panel){
+                                    console.log("SET POSITION!!!!!!!!!!!!!!!!",panel);
+                                    panel.setPosition(-100,true);
+                                    console.log("AFTER SET POSITION!!!!!!!!!!!!!!!!",panel);
+                                }
                             }
                         }
 
@@ -361,6 +337,12 @@ Ext.define('Mdc.property.SecuritySet', {
                     return record;//.get('readingType').mRID;
                 })
 
+        if (selectedSets.length == 0){
+            /*requred field is not selected. just send empty result */
+            console.log("REQUIRED IS NOT SELECTED !!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            return ;
+        }
+
         for(var setId =0; setId < selectedSets.length; setId++){
             resultSets = resultSets + selectedSets[setId]; + ",,"
             if (selectedSets.length - setId > 1 ){
@@ -400,9 +382,6 @@ Ext.define('Mdc.property.SecuritySet', {
 
         console.log("RESULT ======",result);
         return result;
-        /*return _.map(me.getGrid().getSelectionModel().getSelection(), function (record) {
-            return record.get('readingType').mRID;
-        }).join(';');*/
     },
 
     getRawValue: function () {
@@ -411,38 +390,36 @@ Ext.define('Mdc.property.SecuritySet', {
         return me.getValue().toString();
     },
 
-    markInvalid: function (error) {
-        var me = this;
-
-        me.toggleInvalid(error);
-    },
-
-    clearInvalid: function () {
-        var me = this;
-
-        me.toggleInvalid();
-    },
-
-    toggleInvalid: function (error) {
-        var me = this,
-            oldError = me.getActiveError(),
-            grid = me.getGrid();
-
-        Ext.suspendLayouts();
-        if (error) {
-            me.setActiveErrors(error);
-        } else {
-            me.unsetActiveError();
-        }
-        if (oldError !== me.getActiveError()) {
-            me.doComponentLayout();
-        }
-        Ext.resumeLayouts(true);
-    },
-
     getValueAsDisplayString: function (value) {
         var me = this;
 
         return '-';
+    },
+
+    setLocalizedName: function(name) {
+            fieldLabel = "";
+    },
+
+    isValid: function(){
+        console.log("ISVALID IS CALLED FOR SECURITY SET!!!!!!!!!!!!");
+        return false;
+    },
+
+    /* For validation */
+    getErrorContainer: function () {
+        return this.down('#version-date-field-error-container')
+    },
+
+    markInvalid: function (msg) {
+        console.log("MARK IS INVALID msg =",msg);
+        Ext.suspendLayouts();
+        this.getErrorContainer().setText(msg);
+        this.getErrorContainer().show();
+        Ext.resumeLayouts(true);
+    },
+
+    clearInvalid: function () {
+        console.log("CLEAR INVALID");
+        this.getErrorContainer().hide();
     }
 });
