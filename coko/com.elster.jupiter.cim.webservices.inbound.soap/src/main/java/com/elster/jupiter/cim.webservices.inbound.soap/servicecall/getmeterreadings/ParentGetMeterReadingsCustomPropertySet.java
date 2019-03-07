@@ -36,12 +36,12 @@ import java.util.Set;
         immediate = true)
 public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySet<ServiceCall, ParentGetMeterReadingsDomainExtension> {
     public static final String CUSTOM_PROPERTY_SET_NAME = "ParentGetMeterReadingsCustomPropertySet";
+    public static final String PREFIX = "GMR";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
-
-    public ParentGetMeterReadingsCustomPropertySet () {
-        // for test purposes
+    // For OSGi framework
+    public ParentGetMeterReadingsCustomPropertySet() {
     }
 
     @Inject
@@ -78,7 +78,7 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
 
     @Override
     public String getName() {
-        return ParentGetMeterReadingsCustomPropertySet.class.getSimpleName();
+        return this.thesaurus.getFormat(TranslationKeys.GMR_NAME).format();
     }
 
     @Override
@@ -159,12 +159,12 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
     }
 
     private class ParentGetMeterReadingsCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, ParentGetMeterReadingsDomainExtension> {
-        private final String TABLE_NAME = "GMR_METER_READINGS_SC_CPS";
-        private final String FK = "FK_GMR_MRSCCPS_SC";
+        private final String TABLE_NAME = PREFIX + "_METER_READINGS_SC_CPS";
+        private final String FK = String.format("FK_{0}_MRSCCPS_SC", PREFIX );
 
         @Override
         public String componentName() {
-            return "GMR";
+            return PREFIX;
         }
 
         @Override

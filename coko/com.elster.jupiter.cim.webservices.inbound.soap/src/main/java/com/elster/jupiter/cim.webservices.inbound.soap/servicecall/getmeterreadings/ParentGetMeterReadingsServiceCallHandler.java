@@ -90,13 +90,12 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         try {
             meterReadings = meterReadingsBuilder.withEndDevices(getEndDevices)
                     .ofReadingTypesWithMRIDs(readingTypesMRIDs)
-                    .ofReadingTypesWithFullAliasNames(Collections.emptySet())
                     .inTimeIntervals(timeRangeSet)
                     .build();
         } catch (FaultMessage faultMessage) {
             serviceCall.requestTransition(DefaultState.FAILED);
             serviceCall.log(LogLevel.SEVERE,
-                    MessageFormat.format("Unable to get meter readings for source {0}, time range {1}, du to error: " + faultMessage.getMessage(),
+                    MessageFormat.format("Unable to collect meter readings for source {0}, time range {1}, du to error: " + faultMessage.getMessage(),
                         source, timeRangeSet));
             return;
         }
