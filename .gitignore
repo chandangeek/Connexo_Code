@@ -1,13 +1,5 @@
-<<<<<<< HEAD
 .idea/
 *.iml
 target/
-=======
 /.project
-.idea
-fullbuild.sh
-copyZipsHere.bat
-*.iml
-**/target/
-com.elster.jupiter.buildtools
->>>>>>> origin/feature/10.5/CXO-9251
+/.settings/
