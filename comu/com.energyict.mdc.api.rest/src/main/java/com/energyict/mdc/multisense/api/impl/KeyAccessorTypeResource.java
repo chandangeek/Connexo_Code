@@ -36,6 +36,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -48,6 +49,7 @@ import static java.util.stream.Collectors.toList;
 @Path("/devices/{mrid}/keyAccessorTypes")
 public class KeyAccessorTypeResource {
     private final String KEY_PROPERTY = "key";
+    private static final String LABEL_PROPERTY = "label";
 
     private final KeyAccessorTypeInfoFactory keyAccessorTypeInfoFactory;
     private final ExceptionFactory exceptionFactory;
@@ -298,7 +300,9 @@ public class KeyAccessorTypeResource {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
-        List<PropertyInfo> tempProperties = Arrays.asList(createPropertyInfo(KEY_PROPERTY, value));
+        List<PropertyInfo> tempProperties = new ArrayList<>();
+        tempProperties.add(createPropertyInfo(KEY_PROPERTY, value));
+        tempProperties.add(createPropertyInfo(LABEL_PROPERTY, "EVN-FMI-PEM01"));
         List<PropertySpec> propertySpecs = securityAccessor.getPropertySpecs();
         Map<String, Object> properties = propertyValueInfoService.findPropertyValues(propertySpecs, tempProperties);
 
