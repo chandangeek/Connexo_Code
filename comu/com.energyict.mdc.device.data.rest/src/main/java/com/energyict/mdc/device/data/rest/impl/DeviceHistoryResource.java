@@ -4,6 +4,11 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.audit.AuditDomainContextType;
+import com.elster.jupiter.audit.AuditDomainType;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.AuditTrailFilter;
+import com.elster.jupiter.audit.rest.AuditInfoFactory;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
@@ -23,6 +28,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -75,10 +81,15 @@ public class DeviceHistoryResource {
     private IssueInfoFactoryService issueInfoFactoryService;
     private OrmService ormService;
     private MeteringService meteringService;
+    private AuditService auditService;
+    private Thesaurus thesaurus;
+    private AuditInfoFactory auditInfoFactory;
 
     @Inject
     public DeviceHistoryResource(ResourceHelper resourceHelper, DeviceLifeCycleHistoryInfoFactory deviceLifeCycleStatesHistoryInfoFactory,
-                                 DeviceFirmwareHistoryInfoFactory deviceFirmwareHistoryInfoFactory, MeterActivationInfoFactory meterActivationInfoFactory, IssueResourceHelper issueResourceHelper, IssueService issueService, IssueInfoFactoryService issueInfoFactoryService, OrmService ormService, MeteringService meteringService) {
+                                 DeviceFirmwareHistoryInfoFactory deviceFirmwareHistoryInfoFactory, MeterActivationInfoFactory meterActivationInfoFactory,
+                                 IssueResourceHelper issueResourceHelper, IssueService issueService, IssueInfoFactoryService issueInfoFactoryService,
+                                 OrmService ormService, MeteringService meteringService, Thesaurus thesaurus, AuditService auditService, AuditInfoFactory auditInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceLifeCycleHistoryInfoFactory = deviceLifeCycleStatesHistoryInfoFactory;
         this.deviceFirmwareHistoryInfoFactory = deviceFirmwareHistoryInfoFactory;
@@ -88,6 +99,9 @@ public class DeviceHistoryResource {
         this.issueInfoFactoryService = issueInfoFactoryService;
         this.ormService = ormService;
         this.meteringService = meteringService;
+        this.thesaurus = thesaurus;
+        this.auditService = auditService;
+        this.auditInfoFactory = auditInfoFactory;
     }
 
     @GET
@@ -152,6 +166,19 @@ public class DeviceHistoryResource {
             }
         }
         return PagedInfoList.fromPagedList("data", issueInfos, queryParams);
+    }
+
+    @GET
+    @Transactional
+    @Path("/audit")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({com.elster.jupiter.audit.security.Privileges.Constants.VIEW_AUDIT_LOG})
+    public PagedInfoList getDeviceAuditTrail(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        return PagedInfoList.fromPagedList("audit", auditService.getAuditTrail(getDeviceAuditTrailFilter(filter, name))
+                .from(queryParameters)
+                .stream()
+                .map(audit -> auditInfoFactory.from(audit, thesaurus))
+                .collect(Collectors.toList()), queryParameters);
     }
 
     @GET
@@ -233,6 +260,26 @@ public class DeviceHistoryResource {
         return condition;
     }
 
+    private AuditTrailFilter getDeviceAuditTrailFilter(JsonQueryFilter filter, String name) {
+        AuditTrailFilter auditFilter = auditService.newAuditTrailFilter();
+        if (filter.hasProperty("changedOnFrom")) {
+            auditFilter.setChangedOnFrom(filter.getInstant("changedOnFrom"));
+        }
+        if (filter.hasProperty("changedOnTo")) {
+            auditFilter.setChangedOnTo(filter.getInstant("changedOnTo"));
+        }
+        if (filter.hasProperty("users")) {
+            auditFilter.setChangedBy(filter.getStringList("users"));
+        }
+        auditFilter.setCategories(filter.getStringList(AuditDomainType.DEVICE.name()));
+        auditFilter.setDomainContexts(
+                Arrays.stream(AuditDomainContextType.values())
+                        .filter(auditDomainContextType -> auditDomainContextType.domainType() == AuditDomainType.DEVICE)
+                        .collect(Collectors.toList())
+        );
+        auditFilter.setDomain(resourceHelper.findDeviceByNameOrThrowException(name).getMeter().getId());
+        return auditFilter;
+    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private class ReasonInfo extends IssueReasonInfo {

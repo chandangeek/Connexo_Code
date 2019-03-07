@@ -35,7 +35,46 @@ Ext.define('Mdc.audit.controller.Audit', {
         })
     },
 
+    getAuditTrailView: function (store) {
+        var me = this;
+        return  {
+            xtype: 'audit-setup-view',
+            convertorFn: me.valueConvertor,
+            domainConvertorFn: me.domainConvertor,
+            contextConvertorFn: me.contextConvertor,
+            store: store,
+            scopeFn: me
+        };
+    },
+
+    loadDependencies: function(scope, callbackFn){
+        var me = this,
+            timeUnitsStore = me.getStore('Mdc.store.TimeUnits');
+
+        timeUnitsStore.load({
+            callback: function () {
+                callbackFn.call(scope);
+            }
+        });
+    },
+
     showOverview: function () {
+        var me = this,
+            dependenciesLoaded = function () {
+                var widget = Ext.widget('auditSetup', {
+                    convertorFn: me.valueConvertor,
+                    domainConvertorFn: me.domainConvertor,
+                    contextConvertorFn: me.contextConvertor,
+                    store: 'Mdc.audit.store.Audit',
+                    scopeFn: me
+                });
+                me.getApplication().fireEvent('changecontentevent', widget);
+        }
+
+        me.loadDependencies(me, dependenciesLoaded);
+    },
+
+    showOverview_old: function () {
         var me = this,
             timeUnitsStore = me.getStore('Mdc.store.TimeUnits');
 
@@ -45,6 +84,7 @@ Ext.define('Mdc.audit.controller.Audit', {
                     convertorFn: me.valueConvertor,
                     domainConvertorFn: me.domainConvertor,
                     contextConvertorFn: me.contextConvertor,
+                    store: 'Mdc.audit.store.Audit',
                     scopeFn: me
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -73,7 +113,7 @@ Ext.define('Mdc.audit.controller.Audit', {
         if (record[0].auditLogsStore.getCount() > 0) {
             auditPreviewGrid.setVisible(true);
             auditPreviewGrid.getStore().loadRawData(record[0].raw['auditLogs']);
-            auditPreviewGrid.getSelectionModel().select(0);
+            auditPreviewGrid.getView() && auditPreviewGrid.getView().getEl()&& auditPreviewGrid.getSelectionModel().select(0);
             auditPreviewNoItems.setVisible(false);
         }
         else {
@@ -208,7 +248,16 @@ Ext.define('Mdc.audit.controller.Audit', {
         var me = this,
             contextReference = record.get('auditReference').contextReference;
 
-        return Ext.String.format("{0} -> {1}", record.get('auditReference').contextReference.sourceTypeName, record.get('auditReference').contextReference.sourceName);
+        if (!me.isEmptyOrNull(record.get('auditReference').contextReference.sourceTypeName) && !me.isEmptyOrNull(record.get('auditReference').contextReference.sourceName)){
+            return Ext.String.format("{0} -> {1}", record.get('auditReference').contextReference.sourceTypeName, record.get('auditReference').contextReference.sourceName);
+        }
+        else if (!me.isEmptyOrNull(record.get('auditReference').contextReference.sourceTypeName)){
+            return record.get('auditReference').contextReference.sourceTypeName;
+        }
+        else if (!me.isEmptyOrNull(record.get('auditReference').contextReference.sourceName)){
+            return record.get('auditReference').contextReference.sourceName;
+        }
+        return '';
     },
 
     formatProtocolDialectsContext: function (record, value) {
@@ -269,6 +318,20 @@ Ext.define('Mdc.audit.controller.Audit', {
     },
 
     isEmptyOrNull: function (value) {
-        return ((value != null) && (value.length == 0))
+        return (value == undefined) ||
+            (value == null) ||
+            ((value != null) && (value.length == 0));
+    },
+
+    prepareForDevice: function(view){
+        var me = this;
+
+        view.down('#audit-trail-content').setTitle('');
+        view.down('#audit-filter').down('#audit-filter-category-combo').setVisible(false);
+        Ext.each(view.down('#audit-grid').columns, function (column) {
+            if ((column.dataIndex === 'domain') || (column.dataIndex === 'auditReference')) {
+                column.setVisible(false);
+            }
+        });
     }
 });

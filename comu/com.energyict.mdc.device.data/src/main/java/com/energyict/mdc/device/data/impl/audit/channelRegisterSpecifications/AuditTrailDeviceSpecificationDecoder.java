@@ -63,8 +63,8 @@ public class AuditTrailDeviceSpecificationDecoder extends AbstractDeviceAuditDec
                         .orElseGet(() -> "")
                 );
 
-        device.ifPresent(dev -> {
-            dev.getChannels().stream()
+        if (device.isPresent() && !device.get().getMeter().isObsolete()){
+            device.get().getChannels().stream()
                     .filter(channel -> channel.getReadingType().getFullAliasName().equals(fullAliasName))
                     .findFirst()
                     .map(channel -> {
@@ -73,9 +73,7 @@ public class AuditTrailDeviceSpecificationDecoder extends AbstractDeviceAuditDec
                         builder.put("sourceId", channel.getId());
                         return builder;
                     });
-        });
-        device.ifPresent(dev -> {
-            dev.getRegisters().stream()
+            device.get().getRegisters().stream()
                     .filter(regiter -> regiter.getReadingType().getFullAliasName().equals(fullAliasName))
                     .findFirst()
                     .map(regiter -> {
@@ -84,7 +82,7 @@ public class AuditTrailDeviceSpecificationDecoder extends AbstractDeviceAuditDec
                         builder.put("sourceId", regiter.getRegisterSpecId());
                         return builder;
                     });
-        });
+        }
         builder.put("sourceName", fullAliasName);
         return builder.build();
     }
@@ -126,20 +124,24 @@ public class AuditTrailDeviceSpecificationDecoder extends AbstractDeviceAuditDec
                 .findFirst();
 
         return to.map(ReadingTypeObisCodeUsage::getObisCode)
-                .map(obisCodeTo -> {
-                            return from.map(ReadingTypeObisCodeUsage::getObisCode)
-                                    .filter(obisCodeFrom -> !obisCodeTo.equals(obisCodeFrom))
-                                    .map(obisCodeFrom -> {
-                                        AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-                                        auditLogChange.setName(getDisplayName(PropertyTranslationKeys.CHANNEL_OBISCODE));
-                                        auditLogChange.setType(SimplePropertyType.TEXT.name());
-                                        auditLogChange.setValue(obisCodeTo.toString());
-                                        auditLogChange.setPreviousValue(obisCodeFrom.toString());
-                                        return auditLogChange;
-                                    });
-                        }
-                )
-                .map(Optional::get);
+                .map(obisCodeTo -> from.map(ReadingTypeObisCodeUsage::getObisCode)
+                        .filter(obisCodeFrom -> !obisCodeTo.equals(obisCodeFrom))
+                        .map(obisCodeFrom -> {
+                            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+                            auditLogChange.setName(getDisplayName(PropertyTranslationKeys.CHANNEL_OBISCODE));
+                            auditLogChange.setType(SimplePropertyType.TEXT.name());
+                            auditLogChange.setValue(obisCodeTo.toString());
+                            auditLogChange.setPreviousValue(obisCodeFrom.toString());
+                            return auditLogChange;
+                        })
+                        .orElseGet(() -> {
+                            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+                            auditLogChange.setName(getDisplayName(PropertyTranslationKeys.CHANNEL_OBISCODE));
+                            auditLogChange.setType(SimplePropertyType.TEXT.name());
+                            auditLogChange.setValue(obisCodeTo.toString());
+                            return auditLogChange;
+                        })
+                );
     }
 
     private List<AuditLogChange> getAuditLogChangeForEndDevice() {

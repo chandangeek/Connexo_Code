@@ -8,18 +8,25 @@ import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditOperationType;
 import com.elster.jupiter.audit.AuditTrail;
 import com.elster.jupiter.audit.rest.AuditInfo;
+import com.elster.jupiter.audit.rest.AuditInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
+
+import org.osgi.service.component.annotations.Component;
 
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class AuditInfoFactory {
+@Component(name = "com.elster.jupiter.audit.rest.impl.AuditInfoFactoryImpl",
+        service = {AuditInfoFactory.class},
+        immediate = true)
+public class AuditInfoFactoryImpl implements AuditInfoFactory {
 
     @Inject
-    public AuditInfoFactory() {
+    public AuditInfoFactoryImpl() {
     }
 
+    @Override
     public AuditInfo from(AuditTrail audit, Thesaurus thesaurus) {
         AuditInfo auditInfo = new AuditInfo();
         AuditDomainContextType auditDomainContextType =
