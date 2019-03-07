@@ -77,6 +77,11 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
     }
 
     @Override
+    public String getId() {
+        return CUSTOM_PROPERTY_SET_NAME;
+    }
+
+    @Override
     public String getName() {
         return this.thesaurus.getFormat(TranslationKeys.GMR_NAME).format();
     }
