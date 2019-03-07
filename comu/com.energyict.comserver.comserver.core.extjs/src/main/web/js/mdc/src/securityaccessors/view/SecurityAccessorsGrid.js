@@ -83,7 +83,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
                         text: me.deviceTypeId
                             ? Uni.I18n.translate('general.addSecurityAccessors', 'MDC', 'Add security accessors')
                             : Uni.I18n.translate('general.addSecurityAccessor', 'MDC', 'Add security accessor'),
-                        itemId: 'mdc-add-security-accessor',
+                        itemId: 'mdc-add-security-accessor-empty-grid',
                         privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                         deviceTypeId: me.deviceTypeId
                     }
