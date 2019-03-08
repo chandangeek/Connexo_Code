@@ -42,6 +42,10 @@ public class SqlStatements {
                         "select obiscode, MODTIME from DTC_CHANNELSPEC WHERE DEVICECONFIGID = {0, number, #} and channeltypeid = {1, number, #} and MODTIME <= {2, number, #} " +
                         "union all " +
                         "select obiscode, MODTIME from DTC_CHANNELSPECJRNL WHERE DEVICECONFIGID = {0, number, #} and channeltypeid = {1, number, #} and MODTIME <= {2, number, #} " +
+                        "union all " +
+                        "select deviceobiscode, MODTIME from DTC_REGISTERSPEC WHERE DEVICECONFIGID = {0, number, #} and registertypeid = {1, number, #} and MODTIME<= {2, number, #} " +
+                        "union all " +
+                        "select deviceobiscode, MODTIME from DTC_REGISTERSPECJRNL WHERE DEVICECONFIGID = {0, number, #} and registertypeid = {1, number, #} and MODTIME<= {2, number, #} " +
            ") " +
             "order by MODTIME desc) " +
             "where ROWNUM = 1";
