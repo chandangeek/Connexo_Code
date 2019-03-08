@@ -58,6 +58,9 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .map(keyFunctionTypeInfoFactory::from)
                 .sorted(Comparator.comparing(k -> k.name, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
+        for (SecurityAccessorTypeInfo info : infos) {
+		info.defaultServiceKey = deviceType.getDefaultKeyOfSecurityAccessorType(info.id);
+        }
         return PagedInfoList.fromCompleteList("securityaccessors", infos, queryParameters);
     }
 
@@ -145,7 +148,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
-    @Path("/{securityAccessorId}/setDefaultKey")
+    @Path("/{securityAccessorId}/setdefaultkey")
     public Response setDefaultKeySecurityAccessor(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, String value) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<SecurityAccessorType> securityAccessorTypes = deviceType.getSecurityAccessorTypes();

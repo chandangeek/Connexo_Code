@@ -408,6 +408,19 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
+    public String getDefaultKeyOfSecurityAccessorType(long id) {
+        Optional<SecurityAccessorTypeOnDeviceTypeImpl> accessorTypeImpl = securityAccessorTypes.stream()
+          .filter(securityAccessorTypeOnDeviceType ->
+              securityAccessorTypeOnDeviceType.getSecurityAccessorType().getId() == id).findAny();
+        if (accessorTypeImpl.isPresent()) {
+            String keyValue = accessorTypeImpl.get().getDefaultKey();
+            byte[] key = dataVaultService.decrypt(keyValue);
+            return DatatypeConverter.printHexBinary(key);
+        }
+        return null;
+    }
+
+    @Override
     public void updateDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType, String value) {
          if (securityAccessorType.keyTypeIsHSM()) {
              Optional<SecurityAccessorTypeOnDeviceTypeImpl> accessorTypeImpl = securityAccessorTypes.stream()

@@ -276,6 +276,8 @@ public interface DeviceType extends HasId, HasName {
 
     String getDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType);
 
+    String getDefaultKeyOfSecurityAccessorType(long id);
+
     void updateDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType, String value);
 
     interface DeviceTypeBuilder {
