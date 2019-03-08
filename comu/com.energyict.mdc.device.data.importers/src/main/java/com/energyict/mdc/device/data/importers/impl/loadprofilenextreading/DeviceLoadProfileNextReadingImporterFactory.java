@@ -57,7 +57,7 @@ public class DeviceLoadProfileNextReadingImporterFactory extends AbstractDeviceD
         FileImportParser<DeviceLoadProfileNextReadingRecord> parser = new FileImportReadingsDescriptionBasedParser(
                 new DeviceLoadProfileNextReadingDescription(dateFormat, timeZone));
         DeviceLoadProfileNextReadingImportProcessor processor = new DeviceLoadProfileNextReadingImportProcessor(getContext());
-        FileImportLogger logger = new DeviceLoadProfileNextReadingImportLogger(getContext());
+        FileImportLogger logger = new DevicePerLineFileImportLogger(getContext());
         return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build();
     }
 

@@ -119,8 +119,6 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
             properties.put("DeviceDataFileImporterFactory.timeZone", defaultTimeZoneNotation());
-            //properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);  //lori
-            //properties.put("DeviceDataFileImporterFactory.timeZone", defaultTimeZoneNotation());
             return properties;
         }
     };
