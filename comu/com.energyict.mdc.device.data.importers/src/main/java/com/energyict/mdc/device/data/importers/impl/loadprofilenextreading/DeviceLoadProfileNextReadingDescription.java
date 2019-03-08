@@ -19,12 +19,10 @@ import java.util.Map;
 public class DeviceLoadProfileNextReadingDescription implements FileImportDescription<DeviceLoadProfileNextReadingRecord> {
     private final LiteralStringParser stringParser;
     private final DateParser dateParser;
-   // private final BigDecimalParser bigDecimalParser;
 
     public DeviceLoadProfileNextReadingDescription(String dateFormat, String timeZone) {
         stringParser = new LiteralStringParser();
         this.dateParser = new DateParser(dateFormat, timeZone);
-      //  this.bigDecimalParser = new BigDecimalParser(numberFormat);
     }
 
     @Override
@@ -41,12 +39,11 @@ public class DeviceLoadProfileNextReadingDescription implements FileImportDescri
                 .withSetter(record::setDeviceIdentifier)
                 .markMandatory()
                 .build());
-        // Reading type mRID
+        // LoadProfile OBIS code
         fields.put("loadProfileOBIS", CommonField.withParser(stringParser)
                 .withName("Load profile OBIS")
                 .withSetter(record::setLoadProfileOBIS)
                 .markMandatory()
-             //   .markRepetitive()
                 .build());
         // Next Reading block start date
         fields.put("nextReadingBlockDateTime", CommonField.withParser(dateParser)
