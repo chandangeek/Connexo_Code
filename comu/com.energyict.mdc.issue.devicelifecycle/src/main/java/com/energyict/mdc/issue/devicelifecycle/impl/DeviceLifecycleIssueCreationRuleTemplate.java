@@ -91,6 +91,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         setDeviceConfigurationService(deviceConfigurationService);
     }
 
+
     @Override
     public String getName() {
         return NAME;
@@ -161,7 +162,8 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueDeviceLifecycleService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(IssueDeviceLifecycleService.COMPONENT_NAME, Layer.DOMAIN)
+            .join(nlsService.getThesaurus(DeviceLifeCycleConfigurationService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
