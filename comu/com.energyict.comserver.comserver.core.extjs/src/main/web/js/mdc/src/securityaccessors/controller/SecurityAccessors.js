@@ -10,6 +10,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.securityaccessors.view.AddEditSecurityAccessor',
         'Uni.view.window.Confirmation',
         'Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow',
+        'Mdc.securityaccessors.view.SecurityAcessorsSetDefaultKeyValue',
         'Mdc.securityaccessors.view.AddSecurityAccessorToDeviceType'
     ],
 
@@ -62,6 +63,10 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             selector: 'security-accessors-privileges-edit-window'
         },
         {
+            ref: 'securityAccessorSetDefaultKeyWindow',
+            selector: 'security-accessors-set-default-key-window'
+        },
+        {
             ref: 'availableSecurityAccessorsGrid',
             selector: 'security-accessor-add-to-device-type-form #available-security-accessors-grd'
         },
@@ -108,6 +113,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             },
             '#mdc-security-accessors-privileges-edit-window-save': {
                 click: me.saveSecurityAccessor
+            },
+            '#mdc-security-accessors-set-default-key-window-save': {
+                click: me.saveDefaultKeyValue
             },
             '#mdc-security-accessor-manage-centrally-checkbox': {
                 change: me.onManageCentrallyCheck
@@ -180,14 +188,22 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             case 'activatePassiveCertificate': {
                 me.activatePassiveCertificate(me.selectedRecord);
             } break;
+            case 'setDefaultKeyValue': {
+                me.setDefaultKeyValue(me.selectedRecord);
+                Ext.widget('security-accessors-set-default-key-window', {
+                    securityAccessorRecord: me.selectedRecord
+                }).show();
+            } break;
         }
     },
 
     recordSelected: function (grid, recordParam) {
+        console.log("RECORD SELECTED!!!!");
         var me = this,
             gridMenu = me.getSecurityAccessorsGrid().down('uni-actioncolumn').menu,
             processRecord = function (record) {
                 me.selectedRecord = record;
+                console.log("doLoadRecord for record=",record);
                 me.getPreviewForm().doLoadRecord(record);
                 me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
                 gridMenu.updateMenuItems(record);
@@ -738,6 +754,59 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         });
     },
 
+    saveDefaultKeyValue: function () {
+        var me = this,
+            setDefaultKeyWindow = me.getSecurityAccessorSetDefaultKeyWindow(),
+            securityAccessorRecord = setDefaultKeyWindow.securityAccessorRecord,
+            //securityAccessorRecordInEditWindow = editWindow.securityAccessorRecord,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+            console.log("SAVE DEFAULT VALUE!!setDefaultKeyWindow=",setDefaultKeyWindow);
+
+            console.log("securityAccessorRecord = ",securityAccessorRecord);
+
+            var keyValue = setDefaultKeyWindow.down('#defaultKeyValue').getValue();
+
+            console.log("keyValue =",keyValue);
+            setDefaultKeyWindow.close();
+
+            //http://localhost:8088/api/dtc/devicetypes/2/securityaccessors/6002/setDefaultKey
+            //var url = /api/dtc/devicetypes/2/securityaccessors/6002/setDefaultKey
+
+            Ext.Ajax.request({
+                url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors/{1}/setDefaultKey', me.deviceTypeId, securityAccessorRecord.get('id')),
+                method: 'PUT',
+                jsonData: {
+                    "value": keyValue
+                },
+                success: function () {
+                    /*me.getSecurityAccessorsGrid().setLoading();
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translate('securityaccessors.removeSecurityAccessorSuccess', 'MDC', 'Security accessor removed')
+                    );
+                    me.getSecurityAccessorsGrid().down('pagingtoolbartop').resetPaging();
+                    me.getSecurityAccessorsGrid().down('pagingtoolbarbottom').resetPaging();
+                    store.load({
+                        callback: function (records, operation, success) {
+                            me.getSecurityAccessorsGrid().setLoading(false);
+                        }
+                    });*/
+                }
+            });
+
+/*
+        editWindow.close();
+        viewport.setLoading();
+        securityAccessorRecordInEditWindow.save({
+            callback: function (record, operation, success) {
+                if (success) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('securityaccessors.saveSecurityAccessorSuccess', 'MDC', 'Security accessor saved'));
+                    me.recordSelected(me.getSecurityAccessorsGrid(), securityAccessorRecordInEditWindow);
+                    viewport.setLoading(false);
+                }
+            }
+        });*/
+    },
+
     loadProperties: function(defaultPropertiesData, currentRecord) {
 
         var me = this,
@@ -852,6 +921,10 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 router.getRoute().forward(router.arguments);
             }
         });
+    },
+
+    setDefaultKeyValue: function(certificateRecord) {
+        console.log("SET DEFAULT KEY VALUE!!!!");
     },
 
     clearPassive: function(keyOrCertificateRecord, keyMode) {

@@ -28,6 +28,9 @@ Ext.define('Mdc.property.SecurityAccessors', {
 
     tmpKey: '',
 
+    PREP: 'prep',
+    GEN: 'gen',
+
     renderedFieldKeys: [],
 
     listeners: {
@@ -48,6 +51,8 @@ Ext.define('Mdc.property.SecurityAccessors', {
                 for (var index = 0; index < preparedKeys.length; index++){
                     var nameAndValue = [];
                     nameAndValue = preparedKeys[index].split(":");
+                    var itemIdForPreparedKey = nameAndValue[0] + 'prep';
+                    var itemIdForGeneratedKey = nameAndValue[0] + 'gen';
 
                     if (me.getPropForm()){
                         me.getPropForm().add({
@@ -59,16 +64,17 @@ Ext.define('Mdc.property.SecurityAccessors', {
                                             height: 100,
                                             value: nameAndValue[1],
                                             //allowBlank: false,
-                                            itemId: nameAndValue[0] + "NameId"
+                                            itemId: itemIdForPreparedKey
                                         },
                                         {
                                             xtype: 'textareafield',
                                             fieldLabel: nameAndValue[0] + "(generated signature)",
                                             width: 1000,
                                             height: 100,
+                                            value: nameAndValue[2],
                                             required: true,
                                             allowBlank: false,
-                                            itemId: nameAndValue[0]
+                                            itemId: itemIdForGeneratedKey
                                         }
                                       );
                     }
@@ -164,21 +170,41 @@ Ext.define('Mdc.property.SecurityAccessors', {
         if (me.getPropForm()){
             var raw = me.getPropForm().getValues();
             for (var index = 0; index < renderedFieldKeys.length; index++){
-                var field = me.getPropForm().getComponent(renderedFieldKeys[index]);
-                if (field !== undefined) {
-                    var tmpvalue = field.getValue(raw);
-                    console.log("Obtained value=", tmpvalue);
-                    if (tmpvalue !== ""){ //TO DO add check for multiple spaces
-                        var tmpKey = renderedFieldKeys[index];
-                        tmpvalue = tmpvalue.replace(",","[,]");
-                        tmpvalue = tmpvalue.replace(";","[;]");
 
-                        result = result + tmpKey + ":" + tmpvalue;
-                        if (renderedFieldKeys.length - index > 1 ){
-                            result = result + ",,";
-                        }
+                var preparedKey = renderedFieldKeys[index] + 'prep';
+                var preparedField = me.getPropForm().getComponent(preparedKey);
+                if (preparedField !== undefined) {
+                    var tmpPreparedValue = preparedField.getValue(raw);
+                    console.log("Obtained prepared value=", tmpPreparedValue);
+                    if (tmpPreparedValue  !== ""){ //TO DO add check for multiple spaces
+
+                        tmpPreparedValue = tmpPreparedValue.replace(",","[,]");
+                        tmpPreparedValue = tmpPreparedValue.replace(";","[;]");
+
+                        result = result + renderedFieldKeys[index] + ":" + tmpPreparedValue;
+
                     }
                 }
+                console.log("result = ",result);
+
+                var generatedKey = renderedFieldKeys[index] + 'gen';
+                var generatedField = me.getPropForm().getComponent(generatedKey);
+                    if (generatedField !== undefined) {
+                        var tmpGeneratedValue = generatedField.getValue(raw);
+                        console.log("Obtained generated value=", tmpGeneratedValue);
+                        if (tmpGeneratedValue !== ""){ //TO DO add check for multiple spaces
+                            tmpGeneratedValue = tmpGeneratedValue.replace(",","[,]");
+                            tmpGeneratedValuee = tmpGeneratedValue.replace(";","[;]");
+
+                            result = result +  ":" + tmpGeneratedValue;
+                    }
+                }
+
+
+                if (renderedFieldKeys.length - index > 1 ){
+                    result = result + ",,";
+                }
+
             }
         }
 
