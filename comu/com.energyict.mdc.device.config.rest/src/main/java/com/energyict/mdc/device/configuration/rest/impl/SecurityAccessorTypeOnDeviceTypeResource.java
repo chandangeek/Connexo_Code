@@ -140,7 +140,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
      *
      * @param deviceTypeId       Identifier of the device type for which the default key will be updated
      * @param securityAccessorId Identifier of the security accessor for which the key will be updated
-     * @param value              Default key value for the security accessor type
+     * @param info               Contains default key value for the security accessor type
      * @summary sets/updates the default key value for the device type for the given security accessor type
      */
     @PUT
@@ -149,7 +149,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     @Path("/{securityAccessorId}/setdefaultkey")
-    public Response setDefaultKeySecurityAccessor(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, String value) {
+    public Response setDefaultKeySecurityAccessor(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, ServiceKeyDefultValueInfo info) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<SecurityAccessorType> securityAccessorTypes = deviceType.getSecurityAccessorTypes();
         SecurityAccessorType keyFunctionType = deviceType.getSecurityAccessorTypes().stream()
@@ -157,8 +157,8 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
 
-	deviceType.updateDefaultKeyOfSecurityAccessorType(keyFunctionType, value);
-        return Response.ok(value).build();
+	deviceType.updateDefaultKeyOfSecurityAccessorType(keyFunctionType, info.value);
+        return Response.ok().build();
     }
 
 }

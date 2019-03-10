@@ -116,7 +116,7 @@ public class KeyAccessorResource {
      *
      * @param mrid                  mRID of device for which the key injection will be prepared
      * @param masterKeyAccessorName Identifier of the security accessor type for master key
-     * @param keyAccessorValue      Security accessor key value
+     * KeyValueInfo info            Info contains key value to be wrapped
      * @param uriInfo               uriInfo
      * @return Wrapped key for service key injection
      * @summary Wraps the key value by master key identified by master key accessor name
@@ -125,20 +125,20 @@ public class KeyAccessorResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    @Path("/{masterKeyAccessorName}/wrapServiceKeyValue/{keyAccessorValue}")
+    @Path("/{masterKeyAccessorName}/wrapServiceKeyValue/{serviceKeyValue}")
     public HardwareSecurityModuleInfo wrapKeyForServiceKeyInjection(@PathParam("mrid") String mrid,
                                                                     @PathParam("masterKeyAccessorName") String masterKeyAccessorName,
-                                                                    @PathParam("keyAccessorValue") String keyAccessorValue,
+                                                                    @PathParam("serviceKeyValue") String serviceKeyValue,
                                                                     @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND,
                         MessageSeeds.NO_SUCH_DEVICE));
         Map<String, String> masterKeyAccessor = getProperties(getSecurityAccessor(masterKeyAccessorName, device));
         try {
-            HardwareSecurityModuleInfo info = new HardwareSecurityModuleInfo();
-            info.preparedServiceKey = hsmEnergyService.prepareServiceKey(keyAccessorValue,
+            HardwareSecurityModuleInfo hsmInfo = new HardwareSecurityModuleInfo();
+            hsmInfo.preparedServiceKey = hsmEnergyService.prepareServiceKey(serviceKeyValue,
                     masterKeyAccessor.get(LABEL_PROPERTY), masterKeyAccessor.get(KEY_PROPERTY)).toHex();
-            return info;
+            return hsmInfo;
         } catch (HsmBaseException e) {
             throw exceptionFactory.newException(Response.Status.INTERNAL_SERVER_ERROR, MessageSeeds.HSM_EXCEPTION, e.getMessage());
         }
