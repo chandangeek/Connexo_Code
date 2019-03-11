@@ -18,6 +18,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
 
@@ -26,7 +27,8 @@ import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-public class Installer implements FullInstaller {
+public class Installer implements FullInstaller, Upgrader {
+    private final Logger logger = Logger.getLogger("upgrade");
     private static final int DESTINATION_SPEC_RETRY_DELAY = 60;
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
@@ -44,6 +46,11 @@ public class Installer implements FullInstaller {
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         doTry("Create service call types", this::createServiceCallTypes, logger);
         doTry("Create destination specs", this::createDestinationSpecs, logger);
+    }
+
+    @Override
+    public void migrate(DataModelUpgrader dataModelUpgrader) {
+        install(dataModelUpgrader, logger);
     }
 
     private void createServiceCallTypes() {
@@ -96,5 +103,4 @@ public class Installer implements FullInstaller {
         }
 
     }
-
 }

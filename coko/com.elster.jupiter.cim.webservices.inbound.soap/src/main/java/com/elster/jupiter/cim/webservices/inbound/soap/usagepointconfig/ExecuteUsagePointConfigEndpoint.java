@@ -7,6 +7,7 @@ package com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -44,6 +45,7 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
     private final ch.iec.tc57._2011.usagepointconfigmessage.ObjectFactory usagePointConfigMessageObjectFactory = new ch.iec.tc57._2011.usagepointconfigmessage.ObjectFactory();
     private final EndPointConfigurationService endPointConfigurationService;
     private final WebServicesService webServicesService;
+    private final ServiceCallCommands serviceCallCommands;
 
     @FunctionalInterface
     private interface ThrowingFunction<T, R> {
@@ -54,7 +56,8 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
     ExecuteUsagePointConfigEndpoint(EndPointHelper endPointHelper, ReplyTypeFactory replyTypeFactory,
             UsagePointConfigFaultMessageFactory messageFactory, UsagePointConfigFactory usagePointConfigFactory,
             TransactionService transactionService, Provider<UsagePointBuilder> usagePointBuilderProvider,
-            EndPointConfigurationService endPointConfigurationService, WebServicesService webServicesService) {
+            EndPointConfigurationService endPointConfigurationService, WebServicesService webServicesService,
+            ServiceCallCommands serviceCallCommands) {
         this.endPointHelper = endPointHelper;
         this.replyTypeFactory = replyTypeFactory;
         this.messageFactory = messageFactory;
@@ -63,6 +66,7 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
         this.usagePointBuilderProvider = usagePointBuilderProvider;
         this.endPointConfigurationService = endPointConfigurationService;
         this.webServicesService = webServicesService;
+        this.serviceCallCommands = serviceCallCommands;
     }
 
     @Override
@@ -124,15 +128,9 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
         } else {
             outboundEndPointConfiguration = Optional.of(getOutboundEndPointConfiguration(action, replyAddress));
         }
-        createServiceCallAndTransition(message, outboundEndPointConfiguration, action);
+        serviceCallCommands.createUsagePointConfigMasterServiceCall(message, outboundEndPointConfiguration, action);
         context.commit();
         return createQuickResponse(HeaderType.Verb.REPLY);
-    }
-
-    private void createServiceCallAndTransition(UsagePointConfigRequestMessageType message,
-            Optional<EndPointConfiguration> outboundEndPointConfiguration, Action action) {
-        // TODO Auto-generated method stub
-
     }
 
     private EndPointConfiguration getOutboundEndPointConfiguration(Action action, String url) throws FaultMessage {

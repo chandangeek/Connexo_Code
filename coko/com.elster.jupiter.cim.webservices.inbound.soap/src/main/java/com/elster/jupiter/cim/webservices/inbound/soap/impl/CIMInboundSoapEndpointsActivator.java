@@ -10,6 +10,7 @@ import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadi
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigServiceCallHandler;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigMasterServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.ExecuteUsagePointConfigEndpoint;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
@@ -58,17 +59,15 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
+import static com.elster.jupiter.orm.Version.version;
+
 @Singleton
-@Component(
-        name = "Kore-CIMInboundEndpointsActivator",
-        service = {MessageSeedProvider.class},
-        property = {"name=" + CIMInboundSoapEndpointsActivator.COMPONENT_NAME},
-        immediate = true)
+@Component(name = "Kore-CIMInboundEndpointsActivator", service = { MessageSeedProvider.class }, property = {
+        "name=" + CIMInboundSoapEndpointsActivator.COMPONENT_NAME }, immediate = true)
 public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     public static final String COMPONENT_NAME = "WS1";
 
@@ -98,14 +97,14 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     }
 
     @Inject
-    public CIMInboundSoapEndpointsActivator(BundleContext bundleContext, Clock clock, ThreadPrincipalService threadPrincipalService,
-                                            TransactionService transactionService, MeteringService meteringService, NlsService nlsService,
-                                            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService,
-                                            UserService userService, UsagePointLifeCycleService usagePointLifeCycleService,
-                                            CustomPropertySetService customPropertySetService, EndPointConfigurationService endPointConfigurationService,
-                                            WebServicesService webServicesService, ServiceCallService serviceCallService,
-                                            MessageService messageService, JsonService jsonService,
-                                            SendMeterReadingsProvider sendMeterReadingsProvider) {
+    public CIMInboundSoapEndpointsActivator(BundleContext bundleContext, Clock clock,
+            ThreadPrincipalService threadPrincipalService, TransactionService transactionService,
+            MeteringService meteringService, NlsService nlsService, UpgradeService upgradeService,
+            MetrologyConfigurationService metrologyConfigurationService, UserService userService,
+            UsagePointLifeCycleService usagePointLifeCycleService, CustomPropertySetService customPropertySetService,
+            EndPointConfigurationService endPointConfigurationService, WebServicesService webServicesService,
+            ServiceCallService serviceCallService, MessageService messageService, JsonService jsonService,
+            SendMeterReadingsProvider sendMeterReadingsProvider) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -150,7 +149,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
                 TypeLiteral<ObjectHolder<ReplyMasterDataLinkageConfigWebService>> replyMasterDataLinkageHolder = new TypeLiteral<ObjectHolder<ReplyMasterDataLinkageConfigWebService>>() {
                 };
                 bind(replyMasterDataLinkageHolder).toInstance(replyMasterDataLinkageConfigWebServiceHolder);
-             }
+            }
         };
     }
 
@@ -159,7 +158,8 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
+                ImmutableMap.of(version("1.1"), Installer.class));
         registerHandlers(bundleContext);
         registerServices(bundleContext);
     }
@@ -170,8 +170,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     }
 
     private void registerHandlers(BundleContext bundleContext) {
-          registerServiceCallHandler(bundleContext,
-                dataModel.getInstance(ParentGetMeterReadingsServiceCallHandler.class),
+        registerServiceCallHandler(bundleContext, dataModel.getInstance(ParentGetMeterReadingsServiceCallHandler.class),
                 ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
         registerServiceCallHandler(bundleContext,
                 dataModel.getInstance(MasterDataLinkageConfigServiceCallHandler.class),
@@ -179,6 +178,12 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         registerServiceCallHandler(bundleContext,
                 dataModel.getInstance(MasterDataLinkageConfigMasterServiceCallHandler.class),
                 MasterDataLinkageConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
+        registerServiceCallHandler(bundleContext,
+                dataModel.getInstance(UsagePointConfigMasterServiceCallHandler.class),
+                UsagePointConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
+        registerServiceCallHandler(bundleContext,
+                dataModel.getInstance(UsagePointConfigMasterServiceCallHandler.class),
+                UsagePointConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
 
     }
 
@@ -186,18 +191,17 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(ExecuteMasterDataLinkageConfigEndpoint.class),
                 "CIM MasterDataLinkageConfig");
-        registerInboundSoapEndpoint(bundleContext,
-                () -> dataModel.getInstance(ExecuteMeterReadingsEndpoint.class),
+        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterReadingsEndpoint.class),
                 "CIM MeterReadings");
-        registerInboundSoapEndpoint(bundleContext,
-                () -> dataModel.getInstance(ExecuteUsagePointConfigEndpoint.class),
+        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteUsagePointConfigEndpoint.class),
                 "CIM UsagePointConfig");
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
-                                                                                     T provider, String serviceName) {
+            T provider, String serviceName) {
         Dictionary<String, Object> properties = new Hashtable<>(ImmutableMap.of("name", serviceName));
-        serviceRegistrations.add(bundleContext.registerService(InboundSoapEndPointProvider.class, provider, properties));
+        serviceRegistrations
+                .add(bundleContext.registerService(InboundSoapEndPointProvider.class, provider, properties));
     }
 
     private void registerServiceCallHandler(BundleContext bundleContext, ServiceCallHandler provider, String name) {

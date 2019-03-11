@@ -50,7 +50,6 @@ public class UsagePointConfigDomainExtension extends AbstractPersistentDomainExt
     @Size(max = Table.MAX_STRING_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String usagePoint;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Instant requestTimestamp;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private BigDecimal parentServiceCallId;

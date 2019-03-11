@@ -21,6 +21,7 @@ import javax.inject.Provider;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -66,7 +67,10 @@ public class UsagePointConfigServiceCallHandler implements ServiceCallHandler {
             case CREATE:
                 UsagePointBuilder.PreparedUsagePointBuilder builder = usagePointBuilderProvider.get().from(usagePoint,
                         0);
-                // TODO retrieveRequestTimestamp(usagePoint).ifPresent(builder::at);
+                Instant requestTimestamp = extension.getRequestTimestamp();
+                if (requestTimestamp != null) {
+                    builder.at(requestTimestamp);
+                }
                 builder.create();
                 break;
             case UPDATE:

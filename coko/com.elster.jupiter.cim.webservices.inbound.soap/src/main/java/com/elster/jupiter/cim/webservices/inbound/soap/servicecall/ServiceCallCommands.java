@@ -3,14 +3,6 @@
  */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.DataLinkageConfigChecklist;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
@@ -54,7 +46,6 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
-import com.google.common.collect.Range;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
@@ -62,6 +53,15 @@ import ch.iec.tc57._2011.masterdatalinkageconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigRequestMessageType;
+import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ServiceCallCommands {
 
@@ -290,25 +290,26 @@ public class ServiceCallCommands {
         if (endPointConfiguration.isPresent()) {
             domainExtension.setCallbackURL(endPointConfiguration.get().getUrl());
         }
+        Instant requestTimestamp = config.getHeader().getTimestamp();
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
                 .origin(DataLinkageConfigChecklist.APPLICATION_NAME).extendedWith(domainExtension);
         ServiceCall parentServiceCall = serviceCallBuilder.create();
         final List<ch.iec.tc57._2011.usagepointconfig.UsagePoint> usagePoints = config.getPayload()
                 .getUsagePointConfig().getUsagePoint();
         for (int i = 0; i < usagePoints.size(); i++) {
-            createUsagePointConfigChildServiceCall(parentServiceCall, action, usagePoints.get(i));
+            createUsagePointConfigChildServiceCall(parentServiceCall, action, usagePoints.get(i), requestTimestamp);
         }
         return parentServiceCall;
     }
 
     private ServiceCall createUsagePointConfigChildServiceCall(ServiceCall parentServiceCall, Action action,
-            ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePoint) {
+            ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePoint, Instant requestTimestamp) {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.USAGE_POINT_CONFIG);
         UsagePointConfigDomainExtension domainExtension = new UsagePointConfigDomainExtension();
         domainExtension.setParentServiceCallId(BigDecimal.valueOf(parentServiceCall.getId()));
-        // TODO provide UsagePoint object valid for json serialization
         domainExtension.setUsagePoint(jsonService.serialize(usagePoint));
         domainExtension.setOperation(action.name());
+        domainExtension.setRequestTimestamp(requestTimestamp);
         ServiceCallBuilder serviceCallBuilder = parentServiceCall.newChildCall(serviceCallType)
                 .extendedWith(domainExtension);
         return serviceCallBuilder.create();

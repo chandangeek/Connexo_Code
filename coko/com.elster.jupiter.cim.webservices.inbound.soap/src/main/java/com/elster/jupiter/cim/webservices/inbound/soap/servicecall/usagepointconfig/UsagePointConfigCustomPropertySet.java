@@ -188,7 +188,7 @@ public class UsagePointConfigCustomPropertySet
                     .map(UsagePointConfigDomainExtension.FieldNames.USAGE_POINT.javaName()).notNull().add();
             table.column(UsagePointConfigDomainExtension.FieldNames.REQUEST_TIMESTAMP.databaseName()).number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map(UsagePointConfigDomainExtension.FieldNames.REQUEST_TIMESTAMP.javaName()).notNull().add();
+                    .map(UsagePointConfigDomainExtension.FieldNames.REQUEST_TIMESTAMP.javaName()).add();
             table.column(UsagePointConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.databaseName()).number()
                     .map(UsagePointConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName()).notNull().add();
             table.column(UsagePointConfigDomainExtension.FieldNames.ERROR_MESSAGE.databaseName()).varChar()
