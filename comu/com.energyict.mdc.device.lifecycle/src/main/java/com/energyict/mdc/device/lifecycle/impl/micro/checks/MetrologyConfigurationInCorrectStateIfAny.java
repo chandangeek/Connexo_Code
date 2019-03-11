@@ -5,6 +5,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
@@ -13,6 +14,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -20,6 +22,13 @@ import java.util.Optional;
  * Check if at least one connection is available on the device with the status: 'Active'
  */
 public class MetrologyConfigurationInCorrectStateIfAny extends TranslatableServerMicroCheck {
+    private static final String INSIGHT_LICENSE = "INS";
+    private final LicenseService licenseService;
+
+    @Inject
+    public MetrologyConfigurationInCorrectStateIfAny(LicenseService licenseService) {
+        this.licenseService = licenseService;
+    }
 
     @Override
     public String getCategory() {
@@ -28,7 +37,8 @@ public class MetrologyConfigurationInCorrectStateIfAny extends TranslatableServe
 
     @Override
     public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State state) {
-        return !isValidToStage(state, device, effectiveTimestamp) ?
+        return licenseService.getLicensedApplicationKeys().contains(INSIGHT_LICENSE)
+                && !isValidToStage(state, device, effectiveTimestamp) ?
                 fail(MicroCheckTranslations.Message.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY) :
                 Optional.empty();
     }
@@ -54,5 +64,15 @@ public class MetrologyConfigurationInCorrectStateIfAny extends TranslatableServe
             }
         }
         return true;
+    }
+
+    @Override
+    public boolean isOptionalForTransition(State fromState, State toState) {
+        return false;
+    }
+
+    @Override
+    public boolean isRequiredForTransition(State fromState, State toState) {
+        return licenseService.getLicensedApplicationKeys().contains(INSIGHT_LICENSE);
     }
 }

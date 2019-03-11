@@ -54,7 +54,6 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.MetrologyConfigurationInCorrectStateIfAny;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.MicroCheckTranslations;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
@@ -244,6 +243,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(MultiElementDeviceService.class).toInstance(multiElementDeviceService);
                 bind(ValidationService.class).toInstance(validationService);
+                bind(Clock.class).toInstance(clock);
+                bind(LicenseService.class).toInstance(licenseService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(MeteringZoneService.class).toInstance(meteringZoneService);
                 bind(ServiceCallService.class).toInstance(serviceCallService);
@@ -501,13 +502,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
-        if (licenseService.getLicensedApplicationKeys().contains("INS")) {
-            // TODO: Refactoring required
-            deviceLifeCycleConfigurationService.getMicroCheckByKey(MetrologyConfigurationInCorrectStateIfAny.class.getSimpleName())
-                    .map(ExecutableMicroCheck.class::cast)
-                    .ifPresent(microCheck -> microCheck.execute(device, effectiveTimestamp, action.getStateTransition().getTo())
-                            .ifPresent(violations::add));
-        }
         if (!violations.isEmpty()) {
             throw new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
         }

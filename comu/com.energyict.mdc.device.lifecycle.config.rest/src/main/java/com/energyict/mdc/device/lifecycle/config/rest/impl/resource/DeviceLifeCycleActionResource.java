@@ -207,7 +207,7 @@ public class DeviceLifeCycleActionResource {
         } else {
             allMicroChecks
                     .stream()
-                    .filter(microCheck -> !microCheck.getKey().equals("MetrologyConfigurationInCorrectStateIfAny"))
+                    .filter(microCheck -> microCheck.isApplicableForTransition(fromState, toState))
                     .map(microActionAndCheckInfoFactory::optional)
                     .forEach(microChecks::add);
         }
