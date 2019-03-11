@@ -14,7 +14,7 @@ import java.util.List;
 @ConsumerType
 public interface ReplyUsagePointConfigWebService {
 
-    String NAME = "CIM ReplyUsagePointConfigConfig";
+    String NAME = "CIM ReplyUsagePointConfig";
 
     /**
      * Invoked by the service call when the async inbound WS is completed
