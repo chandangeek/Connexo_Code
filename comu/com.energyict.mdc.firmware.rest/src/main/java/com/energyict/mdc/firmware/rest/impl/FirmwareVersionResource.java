@@ -163,18 +163,18 @@ public class FirmwareVersionResource {
             firmwareVersion.setImageIdentifier(firmwareVersionInfo.imageIdentifier);
         }
         firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
-        Optional.ofNullable(firmwareVersionInfo.meterFirmwareDependency)
+        firmwareVersion.setMeterFirmwareDependency(Optional.ofNullable(firmwareVersionInfo.meterFirmwareDependency)
                 .map(idWithName -> idWithName.id) // nullable too
                 .map(Number.class::cast)
                 .map(Number::longValue)
                 .map(resourceHelper::findFirmwareVersionByIdOrThrowException)
-                .ifPresent(firmwareVersion::setMeterFirmwareDependency);
-        Optional.ofNullable(firmwareVersionInfo.communicationFirmwareDependency)
+                .orElse(null));
+        firmwareVersion.setCommunicationFirmwareDependency(Optional.ofNullable(firmwareVersionInfo.communicationFirmwareDependency)
                 .map(idWithName -> idWithName.id) // nullable too
                 .map(Number.class::cast)
                 .map(Number::longValue)
                 .map(resourceHelper::findFirmwareVersionByIdOrThrowException)
-                .ifPresent(firmwareVersion::setCommunicationFirmwareDependency);
+                .orElse(null));
 
         if (firmwareVersionInfo.fileSize != null) {
             firmwareVersion.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
@@ -206,12 +206,8 @@ public class FirmwareVersionResource {
             firmwareVersion.setImageIdentifier(imageId);
         }
         parseFirmwareStatusField(status).ifPresent(firmwareVersion::setFirmwareStatus);
-        if (meterFWDependency != null) {
-            firmwareVersion.setMeterFirmwareDependency(resourceHelper.findFirmwareVersionByIdOrThrowException(meterFWDependency));
-        }
-        if (comFWDependency != null) {
-            firmwareVersion.setCommunicationFirmwareDependency(resourceHelper.findFirmwareVersionByIdOrThrowException(comFWDependency));
-        }
+        firmwareVersion.setMeterFirmwareDependency(meterFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(meterFWDependency));
+        firmwareVersion.setCommunicationFirmwareDependency(comFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(comFWDependency));
 
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
         resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
