@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 
 import ch.iec.tc57._2011.usagepointconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.usagepointconfig.Name;
