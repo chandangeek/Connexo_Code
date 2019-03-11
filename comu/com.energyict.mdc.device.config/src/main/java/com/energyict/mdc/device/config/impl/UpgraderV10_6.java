@@ -30,7 +30,7 @@ public class UpgraderV10_6 implements Upgrader {
         List<String> sql = new ArrayList<>();
         sql.add("ALTER TABLE DTC_SECACCTYPES_ON_DEVICETYPE ADD DEFAULTKEY varchar2(4000 char)");
         sql.add("ALTER TABLE DTC_SECACCTYPESONDEVTYPE_JRNL ADD DEFAULTKEY varchar2(4000 char)");
-        sql.add("ALTER TABLE DDC_KEYACCESSOR ADD SERVICEKEY1 char DEFAULT ('N')");
+        sql.add("ALTER TABLE DDC_KEYACCESSOR ADD SERVICEKEY char DEFAULT ('N')");
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
                 sql.forEach(sqlCommand -> execute(statement, sqlCommand));
