@@ -55,6 +55,17 @@ class UsagePointConfigFactory {
         this.customPropertySetService = customPropertySetService;
     }
 
+    UsagePointConfig configFrom(List<UsagePoint> usagePointList) {
+        UsagePointConfig usagePointConfig = new UsagePointConfig();
+        List<ch.iec.tc57._2011.usagepointconfig.UsagePoint> usagePointsInfo = usagePointConfig.getUsagePoint();
+        List<ch.iec.tc57._2011.usagepointconfig.ReadingType> readingTypesInfo = usagePointConfig.getReadingType();
+        Set<ReadingType> referencedReadingTypes = new HashSet<>();
+        usagePointList.stream()
+                .forEach(usagePoint -> addUsagePoint(usagePoint, usagePointsInfo, referencedReadingTypes));
+        referencedReadingTypes.stream().map(UsagePointConfigFactory::createReadingType).forEach(readingTypesInfo::add);
+        return usagePointConfig;
+    }
+
     UsagePointConfig configFrom(UsagePoint... usagePoints) {
         UsagePointConfig usagePointConfig = new UsagePointConfig();
         List<ch.iec.tc57._2011.usagepointconfig.UsagePoint> usagePointsInfo = usagePointConfig.getUsagePoint();
@@ -62,15 +73,12 @@ class UsagePointConfigFactory {
         Set<ReadingType> referencedReadingTypes = new HashSet<>();
         Arrays.stream(usagePoints)
                 .forEach(usagePoint -> addUsagePoint(usagePoint, usagePointsInfo, referencedReadingTypes));
-        referencedReadingTypes.stream()
-                .map(UsagePointConfigFactory::createReadingType)
-                .forEach(readingTypesInfo::add);
+        referencedReadingTypes.stream().map(UsagePointConfigFactory::createReadingType).forEach(readingTypesInfo::add);
         return usagePointConfig;
     }
 
-    void addUsagePoint(UsagePoint usagePoint,
-                       List<ch.iec.tc57._2011.usagepointconfig.UsagePoint> usagePoints,
-                       Set<ReadingType> allReadingTypes) {
+    void addUsagePoint(UsagePoint usagePoint, List<ch.iec.tc57._2011.usagepointconfig.UsagePoint> usagePoints,
+            Set<ReadingType> allReadingTypes) {
         ch.iec.tc57._2011.usagepointconfig.UsagePoint info = new ch.iec.tc57._2011.usagepointconfig.UsagePoint();
         info.setMRID(usagePoint.getMRID());
         info.getNames().add(createName(usagePoint.getName()));
@@ -80,17 +88,12 @@ class UsagePointConfigFactory {
         serviceCategory.setKind(serviceKind);
         info.setServiceCategory(serviceCategory);
 
-        //change life cycle fails because of this.
-        /*if (serviceKind == ServiceKind.ELECTRICITY) {
-            usagePoint.getDetail(clock.instant())
-                    .filter(ElectricityDetail.class::isInstance)
-                    .map(ElectricityDetail.class::cast)
-                    .map(ElectricityDetail::getPhaseCode)
-                    .flatMap(Optional::ofNullable)
-                    .map(PhaseCode::getValue)
-                    .map(ch.iec.tc57._2011.usagepointconfig.PhaseCode::fromValue)
-                    .ifPresent(info::setPhaseCode);
-        }*/
+        // change life cycle fails because of this.
+        /*
+         * if (serviceKind == ServiceKind.ELECTRICITY) { usagePoint.getDetail(clock.instant()) .filter(ElectricityDetail.class::isInstance) .map(ElectricityDetail.class::cast)
+         * .map(ElectricityDetail::getPhaseCode) .flatMap(Optional::ofNullable) .map(PhaseCode::getValue) .map(ch.iec.tc57._2011.usagepointconfig.PhaseCode::fromValue) .ifPresent(info::setPhaseCode);
+         * }
+         */
 
         info.setIsSdp(usagePoint.isSdp());
         info.setIsVirtual(usagePoint.isVirtual());
@@ -99,10 +102,8 @@ class UsagePointConfigFactory {
 
         Status status = new Status();
         String stateKey = usagePoint.getState().getName();
-        status.setValue(DefaultUsagePointStateFinder.findForKey(stateKey)
-                .map(DefaultState::getTranslation)
-                .map(TranslationKey::getDefaultFormat)
-                .orElse(stateKey));
+        status.setValue(DefaultUsagePointStateFinder.findForKey(stateKey).map(DefaultState::getTranslation)
+                .map(TranslationKey::getDefaultFormat).orElse(stateKey));
         info.setStatus(status);
 
         ConfigurationEvent configuration = new ConfigurationEvent();
@@ -111,11 +112,8 @@ class UsagePointConfigFactory {
 
         Set<ConnectionState> supportedStates = Arrays.stream(ConnectionState.supportedValues())
                 .collect(Collectors.toSet());
-        usagePoint.getCurrentConnectionState()
-                .map(UsagePointConnectionState::getConnectionState)
-                .filter(supportedStates::contains)
-                .map(ConnectionState::getId)
-                .map(UsagePointConnectedKind::fromValue)
+        usagePoint.getCurrentConnectionState().map(UsagePointConnectionState::getConnectionState)
+                .filter(supportedStates::contains).map(ConnectionState::getId).map(UsagePointConnectedKind::fromValue)
                 .ifPresent(info::setConnectionState);
         info.getCustomAttributeSet().addAll(getCustomAttributes(usagePoint));
 
@@ -123,15 +121,16 @@ class UsagePointConfigFactory {
     }
 
     private Collection<CustomAttributeSet> getCustomAttributes(UsagePoint usagePoint) {
-        return usagePoint.forCustomProperties().getAllPropertySets()
-                .stream()
+        return usagePoint.forCustomProperties().getAllPropertySets().stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                .map(registeredCustomPropertySet -> convertToCustomAttributeSet(registeredCustomPropertySet, usagePoint))
+                .map(registeredCustomPropertySet -> convertToCustomAttributeSet(registeredCustomPropertySet,
+                        usagePoint))
                 .collect(Collectors.toList());
 
     }
 
-    private CustomAttributeSet convertToCustomAttributeSet(UsagePointPropertySet registeredCustomPropertySet, UsagePoint usagePoint) {
+    private CustomAttributeSet convertToCustomAttributeSet(UsagePointPropertySet registeredCustomPropertySet,
+            UsagePoint usagePoint) {
         CustomAttributeSet customAttributeSet = new CustomAttributeSet();
         CustomPropertySetValues values = null;
         CustomPropertySet propertySet = registeredCustomPropertySet.getCustomPropertySet();
@@ -145,7 +144,7 @@ class UsagePointConfigFactory {
         for (PropertySpec propertySpec : propertySpecs) {
             Attribute attr = new Attribute();
             attr.setName(propertySpec.getName());
-            Object value = (values == null)?null:values.getProperty(propertySpec.getName());
+            Object value = (values == null) ? null : values.getProperty(propertySpec.getName());
             if (value == null) {
                 Object propertyValue = getDefaultPropertyValue(propertySpec);
                 attr.setValue(convertPropertyValue(propertySpec, propertyValue));
@@ -175,38 +174,31 @@ class UsagePointConfigFactory {
         return spec.getValueFactory().toStringValue(value);
     }
 
-    private void addMetrologyRequirements(UsagePoint usagePoint,
-                                          List<MetrologyRequirements> metrologyRequirements,
-                                          Set<ReadingType> allReadingTypes) {
+    private void addMetrologyRequirements(UsagePoint usagePoint, List<MetrologyRequirements> metrologyRequirements,
+            Set<ReadingType> allReadingTypes) {
         Instant now = clock.instant();
-        usagePoint.getEffectiveMetrologyConfiguration(now)
-                .ifPresent(effectiveMC -> {
-                    MetrologyConfiguration mc = effectiveMC.getMetrologyConfiguration();
-                    mc.getContracts().stream()
-                            .filter(contract -> effectiveMC.getChannelsContainer(contract, now).isPresent())
-                            .map(contract -> createMetrologyRequirement(contract, mc, allReadingTypes))
-                            .forEach(metrologyRequirements::add);
-                });
+        usagePoint.getEffectiveMetrologyConfiguration(now).ifPresent(effectiveMC -> {
+            MetrologyConfiguration mc = effectiveMC.getMetrologyConfiguration();
+            mc.getContracts().stream().filter(contract -> effectiveMC.getChannelsContainer(contract, now).isPresent())
+                    .map(contract -> createMetrologyRequirement(contract, mc, allReadingTypes))
+                    .forEach(metrologyRequirements::add);
+        });
     }
 
-    private MetrologyRequirements createMetrologyRequirement(MetrologyContract contract,
-                                                             MetrologyConfiguration mc,
-                                                             Set<ReadingType> allReadingTypes) {
+    private MetrologyRequirements createMetrologyRequirement(MetrologyContract contract, MetrologyConfiguration mc,
+            Set<ReadingType> allReadingTypes) {
         MetrologyRequirements info = new MetrologyRequirements();
         MetrologyRequirements.Names name = new MetrologyRequirements.Names();
         name.setName(mc.getName());
         info.getNames().add(name);
         info.setReason(contract.getMetrologyPurpose().getName());
         List<MetrologyRequirements.ReadingTypes> references = info.getReadingTypes();
-        contract.getDeliverables().stream()
-                .map(ReadingTypeDeliverable::getReadingType)
-                .peek(readingType -> addReadingTypeReference(readingType, references))
-                .forEach(allReadingTypes::add);
+        contract.getDeliverables().stream().map(ReadingTypeDeliverable::getReadingType)
+                .peek(readingType -> addReadingTypeReference(readingType, references)).forEach(allReadingTypes::add);
         return info;
     }
 
-    private void addReadingTypeReference(ReadingType readingType,
-                                         List<MetrologyRequirements.ReadingTypes> references) {
+    private void addReadingTypeReference(ReadingType readingType, List<MetrologyRequirements.ReadingTypes> references) {
         MetrologyRequirements.ReadingTypes reference = new MetrologyRequirements.ReadingTypes();
         reference.setRef(readingType.getMRID());
         references.add(reference);
@@ -237,26 +229,22 @@ class UsagePointConfigFactory {
 
     private static RationalNumber createRationalNumber(com.elster.jupiter.cbo.RationalNumber rational) {
         return Optional.ofNullable(rational)
-                .filter(number -> !com.elster.jupiter.cbo.RationalNumber.NOTAPPLICABLE.equals(number))
-                .map(number -> {
+                .filter(number -> !com.elster.jupiter.cbo.RationalNumber.NOTAPPLICABLE.equals(number)).map(number -> {
                     RationalNumber info = new RationalNumber();
                     info.setNumerator(BigInteger.valueOf(rational.getNumerator()));
                     info.setDenominator(BigInteger.valueOf(rational.getDenominator()));
                     return info;
-                })
-                .orElse(null);
+                }).orElse(null);
     }
 
     private static ReadingInterharmonic createReadingInterharmonic(com.elster.jupiter.cbo.RationalNumber rational) {
         return Optional.ofNullable(rational)
-                .filter(number -> !com.elster.jupiter.cbo.RationalNumber.NOTAPPLICABLE.equals(number))
-                .map(number -> {
+                .filter(number -> !com.elster.jupiter.cbo.RationalNumber.NOTAPPLICABLE.equals(number)).map(number -> {
                     ReadingInterharmonic info = new ReadingInterharmonic();
                     info.setNumerator(BigInteger.valueOf(rational.getNumerator()));
                     info.setDenominator(BigInteger.valueOf(rational.getDenominator()));
                     return info;
-                })
-                .orElse(null);
+                }).orElse(null);
     }
 
     private static Name createName(String value) {

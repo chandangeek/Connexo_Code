@@ -2,6 +2,7 @@ package com.elster.jupiter.cim.webservices.outbound.soap.usagepointconfig;
 
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import javax.xml.ws.Service;
 
 import org.apache.cxf.jaxws.JaxWsClientProxy;
 import org.apache.cxf.message.Message;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -19,6 +21,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedUsagePointOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
@@ -32,7 +35,6 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.Name;
 import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
-import ch.iec.tc57._2011.usagepointconfig.UsagePoint;
 import ch.iec.tc57._2011.usagepointconfig.UsagePointConfig;
 import ch.iec.tc57._2011.usagepointconfigmessage.ObjectFactory;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigEventMessageType;
@@ -50,10 +52,30 @@ public class ReplyUsagePointConfigServiceProvider
 
     private volatile WebServicesService webServicesService;
 
+    private volatile CustomPropertySetService customPropertySetService;
+
+    private volatile Clock clock;
+
     private final Map<String, UsagePointConfigPort> usagePointConfigPorts = new ConcurrentHashMap<>();
 
-    private ObjectFactory objectFactory = new ObjectFactory();
-    private ch.iec.tc57._2011.schema.message.ObjectFactory headerTypeFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
+    private final ObjectFactory objectFactory = new ObjectFactory();
+    private final ch.iec.tc57._2011.schema.message.ObjectFactory headerTypeFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
+    private UsagePointConfigFactory usagePointConfigFactory;
+
+    @Activate
+    public void activate() {
+        usagePointConfigFactory = new UsagePointConfigFactory(clock, customPropertySetService);
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
 
     @Reference
     public void setWebServicesService(WebServicesService webServicesService) {
@@ -86,8 +108,9 @@ public class ReplyUsagePointConfigServiceProvider
     }
 
     @Override
-    public void call(EndPointConfiguration endPointConfiguration, String operation, List<UsagePoint> successList,
-            List<FailedUsagePointOperation> failureList, BigDecimal expectedNumberOfCalls) {
+    public void call(EndPointConfiguration endPointConfiguration, String operation,
+            List<com.elster.jupiter.metering.UsagePoint> successList, List<FailedUsagePointOperation> failureList,
+            BigDecimal expectedNumberOfCalls) {
         publish(endPointConfiguration);
         try {
             Optional.ofNullable(getUsagePointConfigPorts().get(endPointConfiguration.getUrl()))
@@ -126,9 +149,8 @@ public class ReplyUsagePointConfigServiceProvider
                 .containsKey(Message.ENDPOINT_ADDRESS);
     }
 
-    private UsagePointConfig createUsagePointConfig(List<UsagePoint> successfulOperations) {
-        UsagePointConfig config = new UsagePointConfig();
-        config.getUsagePoint().addAll(successfulOperations);
+    private UsagePointConfig createUsagePointConfig(List<com.elster.jupiter.metering.UsagePoint> successfulOperations) {
+        final UsagePointConfig config = usagePointConfigFactory.configFrom(successfulOperations);
         return config;
     }
 

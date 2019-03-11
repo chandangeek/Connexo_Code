@@ -10,6 +10,7 @@ import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalin
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
+import com.elster.jupiter.cim.webservices.outbound.soap.FailedUsagePointOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
 import com.elster.jupiter.metering.Meter;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * Implementation of {@link ServiceCallHandler} interface which handles the different steps for CIM WS UsagePointConfig
  */
-public class UsagePointConfigMasterServiceCallHandler  implements ServiceCallHandler {
+public class UsagePointConfigMasterServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "UsagePointConfigMasterServiceCallHandler";
     public static final String VERSION = "v1.0";
 
@@ -141,59 +142,45 @@ public class UsagePointConfigMasterServiceCallHandler  implements ServiceCallHan
         ServiceCall child = serviceCall.findChildren().stream().findFirst().get();
         MasterDataLinkageConfigDomainExtension extensionForChild = child
                 .getExtension(MasterDataLinkageConfigDomainExtension.class).get();
-        replyUsagePointConfigWebServiceHolder.getObject().call(endPointConfiguration.get(), extensionForChild.getOperation(),
-                getSuccessfulLinkages(serviceCall), getFailedLinkages(serviceCall),
-                extension.getExpectedNumberOfCalls());
+        replyUsagePointConfigWebServiceHolder.getObject().call(endPointConfiguration.get(),
+                extensionForChild.getOperation(), getSuccessfulUsagePoints(serviceCall),
+                getFailedUsagePoints(serviceCall), extension.getExpectedNumberOfCalls());
     }
 
-    private List<FailedLinkageOperation> getFailedLinkages(ServiceCall serviceCall) {
+    private List<FailedUsagePointOperation> getFailedUsagePoints(ServiceCall serviceCall) {
         return serviceCall.findChildren().stream().filter(child -> child.getState().equals(DefaultState.FAILED))
                 .map(child -> {
-                    MasterDataLinkageConfigDomainExtension extension = child
-                            .getExtension(MasterDataLinkageConfigDomainExtension.class).get();
-                    Meter meter = findMeter(extension);
-                    UsagePoint usagePoint = findUsagePoint(extension);
-                    FailedLinkageOperation failedLinkageOperation = new FailedLinkageOperation();
-                    failedLinkageOperation.setErrorCode(extension.getErrorCode());
-                    failedLinkageOperation.setErrorMessage(extension.getErrorMessage());
-                    failedLinkageOperation.setMeterMrid(meter.getMRID());
-                    failedLinkageOperation.setMeterName(meter.getName());
-                    failedLinkageOperation.setUsagePointMrid(usagePoint.getMRID());
-                    failedLinkageOperation.setUsagePointName(usagePoint.getName());
-                    return failedLinkageOperation;
+                    UsagePointConfigDomainExtension extension = child
+                            .getExtension(UsagePointConfigDomainExtension.class).get();
+                    FailedUsagePointOperation failedUsagePointOperation = new FailedUsagePointOperation();
+                    failedUsagePointOperation.setErrorCode(extension.getErrorCode());
+                    failedUsagePointOperation.setErrorMessage(extension.getErrorMessage());
+                    ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePoint = jsonService.deserialize(
+                            extension.getUsagePoint(), ch.iec.tc57._2011.usagepointconfig.UsagePoint.class);
+                    failedUsagePointOperation.setUsagePointMrid(usagePoint.getMRID());
+                    failedUsagePointOperation.setUsagePointName(
+                            usagePoint.getNames().isEmpty() ? null : usagePoint.getNames().get(0).getName());
+                    return failedUsagePointOperation;
                 }).collect(Collectors.toList());
     }
 
-    private List<LinkageOperation> getSuccessfulLinkages(ServiceCall serviceCall) {
+    private List<UsagePoint> getSuccessfulUsagePoints(ServiceCall serviceCall) {
         return serviceCall.findChildren().stream().filter(child -> child.getState().equals(DefaultState.SUCCESSFUL))
                 .map(child -> {
-                    MasterDataLinkageConfigDomainExtension extension = child
-                            .getExtension(MasterDataLinkageConfigDomainExtension.class).get();
-                    Meter meter = findMeter(extension);
+                    UsagePointConfigDomainExtension extension = child
+                            .getExtension(UsagePointConfigDomainExtension.class).get();
                     UsagePoint usagePoint = findUsagePoint(extension);
-                    LinkageOperation linkageOperation = new FailedLinkageOperation();
-                    linkageOperation.setMeterMrid(meter.getMRID());
-                    linkageOperation.setMeterName(meter.getName());
-                    linkageOperation.setUsagePointMrid(usagePoint.getMRID());
-                    linkageOperation.setUsagePointName(usagePoint.getName());
-                    return linkageOperation;
+                    return usagePoint;
                 }).collect(Collectors.toList());
     }
 
-    private Meter findMeter(MasterDataLinkageConfigDomainExtension extension) {
-        MeterInfo meterInfo = jsonService.deserialize(extension.getMeter(), MeterInfo.class);
-        if (meterInfo.getMrid() != null) {
-            return meteringService.findMeterByMRID(meterInfo.getMrid()).get();
+    private UsagePoint findUsagePoint(UsagePointConfigDomainExtension extension) {
+        ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePointInfo = jsonService
+                .deserialize(extension.getUsagePoint(), ch.iec.tc57._2011.usagepointconfig.UsagePoint.class);
+        if (usagePointInfo.getMRID() != null) {
+            return meteringService.findUsagePointByMRID(usagePointInfo.getMRID()).get();
         }
-        return meteringService.findMeterByName(meterInfo.getName()).get();
-    }
-
-    private UsagePoint findUsagePoint(MasterDataLinkageConfigDomainExtension extension) {
-        UsagePointInfo usagePointInfo = jsonService.deserialize(extension.getUsagePoint(), UsagePointInfo.class);
-        if (usagePointInfo.getMrid() != null) {
-            return meteringService.findUsagePointByMRID(usagePointInfo.getMrid()).get();
-        }
-        return meteringService.findUsagePointByName(usagePointInfo.getName()).get();
+        return meteringService.findUsagePointByName(usagePointInfo.getNames().get(0).getName()).get();
     }
 
 }

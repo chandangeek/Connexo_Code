@@ -3,10 +3,10 @@
  */
 package com.elster.jupiter.cim.webservices.outbound.soap;
 
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import aQute.bnd.annotation.ConsumerType;
-import ch.iec.tc57._2011.usagepointconfig.UsagePoint;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,13 +22,14 @@ public interface ReplyUsagePointConfigWebService {
      * @param endPointConfiguration
      *            - the outbound end point
      * @param operation
-     *            - the operation that has been performed ("CREATE" or "CLOSE")
-     * @param successfulLinkages
-     *            - the list of successfully created linkages between usagePoints and meters
-     * @param failedLinkages
-     *            - the list of failed linkage creation attempts (between usagePoints and meters) with error message code and description
+     *            - the operation that has been performed ("CREATE" or "UPDATE")
+     * @param successList
+     *            - the list of successfully created usagePoints
+     * @param failureList
+     *            - the list of failed usagePoint creation or update attempts with error message code and description
      * @param expectedNumberOfCalls
      *            - the expected number of child calls
      */
-    void call(EndPointConfiguration endPointConfiguration, String operation, List<UsagePoint> successList,List<FailedUsagePointOperation> failureList, BigDecimal expectedNumberOfCalls);
+    void call(EndPointConfiguration endPointConfiguration, String operation, List<UsagePoint> successList,
+            List<FailedUsagePointOperation> failureList, BigDecimal expectedNumberOfCalls);
 }
