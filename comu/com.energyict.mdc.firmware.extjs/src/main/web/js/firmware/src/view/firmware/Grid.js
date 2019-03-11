@@ -55,17 +55,17 @@ Ext.define('Fwc.view.firmware.Grid', {
             dataIndex: 'status'
         },
         {
-            text: Uni.I18n.translate('firmware.field.communicationDepVersion', 'FWC', 'Min level Com FW'),
+            text: Uni.I18n.translate('firmware.field.meterDepVersion', 'FWC', 'Min level Meter FW'),
             flex: 1,
-            dataIndex: 'communicationFirmwareDependency',
+            dataIndex: 'meterFirmwareDependency',
             renderer: function (value) {
                   return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
             }
         },
         {
-            text: Uni.I18n.translate('firmware.field.meterDepVersion', 'FWC', 'Min level Meter FW'),
+            text: Uni.I18n.translate('firmware.field.communicationDepVersion', 'FWC', 'Min level Com FW'),
             flex: 1,
-            dataIndex: 'meterFirmwareDependency',
+            dataIndex: 'communicationFirmwareDependency',
             renderer: function (value) {
                   return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
             }
@@ -142,19 +142,20 @@ Ext.define('Fwc.view.firmware.Grid', {
                 }
             ]
         }else{
-            buttons =[{
-                 text: Uni.I18n.translate('firmwareVersion.add', 'FWC', 'Add firmware version'),
-                 itemId: 'addFirmware',
-                 xtype: 'button',
-                 action: 'addFirmware'
-            },
+            buttons =[
             {
                  xtype: 'button',
                  itemId: 'btn-edit-order-estimation-rules',
                  text: Uni.I18n.translate('general.editOrder', 'FWC', 'Edit order'),
                  action: 'editOrderEstimationRules',
                  href: me.router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl(me.router.arguments, {editOrder: true}),
-             }]
+            },
+            {
+                 text: Uni.I18n.translate('firmwareVersion.add', 'FWC', 'Add firmware version'),
+                 itemId: 'addFirmware',
+                 xtype: 'button',
+                 action: 'addFirmware'
+            }]
         }
         this.dockedItems = [
             {
