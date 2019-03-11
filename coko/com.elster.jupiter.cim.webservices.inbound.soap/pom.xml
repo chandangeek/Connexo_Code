@@ -39,7 +39,7 @@
                     <wsdlDirectory>src/main/resources</wsdlDirectory>
                     <wsdlFiles>
                         <wsdlFile>usagepointconfig/ExecuteUsagePointConfig.wsdl</wsdlFile>
-                        <wsdlFile>usagepointconfig/ReplyUsagePointConfig.wsdl</wsdlFile>
+                        <!-- wsdlFile>usagepointconfig/ReplyUsagePointConfig.wsdl</wsdlFile -->
                         <wsdlFile>masterdatalinkageconfig/ExecuteMasterDataLinkageConfig.wsdl</wsdlFile>
                         <!-- wsdlFile>masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl</wsdlFile-->
                     </wsdlFiles>
