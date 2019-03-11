@@ -1,16 +1,5 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.CIMInboundSoapEndpointsActivator;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.DataLinkageConfigChecklist;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.TranslationKeys;
@@ -23,12 +12,24 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+
 import com.google.inject.Module;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Component(name = "com.elster.jupiter.cim.webservices.inbound.soap.UsagePointConfigCustomPropertySet", service = CustomPropertySet.class, property = "name="
         + UsagePointConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME, immediate = true)
@@ -185,7 +186,8 @@ public class UsagePointConfigCustomPropertySet
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(UsagePointConfigDomainExtension.FieldNames.USAGE_POINT.databaseName()).varChar()
                     .map(UsagePointConfigDomainExtension.FieldNames.USAGE_POINT.javaName()).notNull().add();
-            table.column(UsagePointConfigDomainExtension.FieldNames.REQUEST_TIMESTAMP.databaseName()).varChar()
+            table.column(UsagePointConfigDomainExtension.FieldNames.REQUEST_TIMESTAMP.databaseName()).number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(UsagePointConfigDomainExtension.FieldNames.REQUEST_TIMESTAMP.javaName()).notNull().add();
             table.column(UsagePointConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.databaseName()).number()
                     .map(UsagePointConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName()).notNull().add();

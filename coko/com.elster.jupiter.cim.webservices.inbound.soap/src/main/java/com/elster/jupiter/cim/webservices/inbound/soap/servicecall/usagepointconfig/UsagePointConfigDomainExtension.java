@@ -1,11 +1,5 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig;
 
-import java.math.BigDecimal;
-import java.util.Optional;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -14,6 +8,13 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Optional;
 
 public class UsagePointConfigDomainExtension extends AbstractPersistentDomainExtension
         implements PersistentDomainExtension<ServiceCall> {
@@ -50,7 +51,7 @@ public class UsagePointConfigDomainExtension extends AbstractPersistentDomainExt
             + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String usagePoint;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private Long requestTimestamp;
+    private Instant requestTimestamp;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private BigDecimal parentServiceCallId;
     @Size(max = Table.MAX_STRING_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
@@ -72,11 +73,11 @@ public class UsagePointConfigDomainExtension extends AbstractPersistentDomainExt
         this.usagePoint = usagePoint;
     }
 
-    public Long getRequestTimestamp() {
+    public Instant getRequestTimestamp() {
         return requestTimestamp;
     }
 
-    public void setRequestTimestamp(Long requestTimestamp) {
+    public void setRequestTimestamp(Instant requestTimestamp) {
         this.requestTimestamp = requestTimestamp;
     }
 
@@ -117,8 +118,7 @@ public class UsagePointConfigDomainExtension extends AbstractPersistentDomainExt
             Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         setUsagePoint((String) propertyValues.getProperty(FieldNames.USAGE_POINT.javaName));
-        setRequestTimestamp((Long) Optional
-                .ofNullable(propertyValues.getProperty(FieldNames.REQUEST_TIMESTAMP.javaName)).orElse(0L));
+        setRequestTimestamp((Instant) propertyValues.getProperty(FieldNames.REQUEST_TIMESTAMP.javaName));
         setParentServiceCallId(new BigDecimal(
                 Optional.ofNullable(propertyValues.getProperty(FieldNames.PARENT_SERVICE_CALL.javaName()))
                         .orElse(BigDecimal.ZERO).toString()));
