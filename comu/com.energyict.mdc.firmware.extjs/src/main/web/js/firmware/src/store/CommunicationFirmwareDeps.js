@@ -4,7 +4,7 @@
 
 Ext.define('Fwc.store.CommunicationFirmwareDeps', {
     extend: 'Uni.data.store.Filterable',
-    model: 'Fwc.model.FirmwareDep',
+    model: 'Fwc.model.FirmwareCommunicationDep',
     autoLoad: false,
     proxy: {
         type: 'rest',

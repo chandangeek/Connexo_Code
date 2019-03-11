@@ -4,7 +4,7 @@
 
 Ext.define('Fwc.store.MeterFirmwareDeps', {
     extend: 'Uni.data.store.Filterable',
-    model: 'Fwc.model.FirmwareDep',
+    model: 'Fwc.model.FirmwareMeterDep',
     autoLoad: false,
     proxy: {
         type: 'rest',
