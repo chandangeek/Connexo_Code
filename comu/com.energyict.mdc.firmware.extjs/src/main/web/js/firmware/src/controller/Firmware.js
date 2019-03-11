@@ -23,7 +23,8 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.form.OptionsHydrator',
         'Fwc.form.Hydrator',
         'Uni.view.window.Confirmation',
-        'Fwc.model.SecurityAccessor'
+        'Fwc.model.SecurityAccessor',
+        'Fwc.view.firmware.MinVersionOption'
     ],
 
     stores: [
@@ -40,7 +41,9 @@ Ext.define('Fwc.controller.Firmware', {
         {ref: 'firmwareForm', selector: '#firmwareForm'},
         {ref: 'container', selector: 'viewport > #contentPanel'},
         {ref: 'firmwareOptionsEditForm', selector: '#firmwareOptionsEditForm'},
-        {ref: 'firmwareSignatureEditForm', selector: '#firmware-options-signature-edit'}
+        {ref: 'firmwareSignatureEditForm', selector: '#firmware-options-signature-edit'},
+        {ref: 'firmwareVersionsForm', selector: '#firmware-versions'},
+        {ref: 'firmwareGrid', selector: '#FirmwareGrid'}
     ],
 
     deviceTypeId: null,
@@ -107,6 +110,9 @@ Ext.define('Fwc.controller.Firmware', {
                 click: function() {
                     this.tab2Activate = 1;
                 }
+            },
+            'firmware-versions [action=saveFirmwareVersionOrder]': {
+                 click: this.saveFirmwareVersionOrder
             }
         });
     },
@@ -188,6 +194,12 @@ Ext.define('Fwc.controller.Firmware', {
                 callback: function () {
                     me.getContainer().down('firmware-form-add #disp-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount===1);
                     me.getContainer().down('firmware-form-add #radio-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount!==1);
+
+
+                    var sData = supportedFirmwareTypesStore.getRange()
+                    if (Ext.Array.filter(sData, function(item){ return item.data.id === "meter"}).length) me.getContainer().down('firmware-form-add #firmware-min-meter-version-common').show();
+                    if (Ext.Array.filter(sData, function(item){ return item.data.id === "communication"}).length) me.getContainer().down('firmware-form-add #firmware-min-communication-version-common').show();
+
                     if (supportedFirmwareTypesStore.totalCount===1) {
                         var id = me.getContainer().down('firmware-form-add #radio-firmware-type').getStore().getAt(0).data.id;
                         var onlyType = me.getContainer().down('firmware-form-add #radio-firmware-type').getStore().getAt(0).data.localizedValue;
@@ -285,29 +297,18 @@ Ext.define('Fwc.controller.Firmware', {
                 .findRecord('id', form.down('#radio-firmware-status')
                     .getValue().firmwareStatus)
         );
-        /*record.setMeterFirmwareDependency(
-                    form.down('#firmware-campaign-min-meter-version')
+        record.setMeterFirmwareDependency(
+                    form.down('#firmware-min-meter-version')
                         .getStore()
-                        .findRecord('id', form.down('#firmware-campaign-min-meter-version')
+                        .findRecord('id', form.down('#firmware-min-meter-version')
                             .getValue())
-         );
-         record.setCommunicationFirmwareDependency(
-                             form.down('#firmware-campaign-min-communication-version')
+        );
+        record.setCommunicationFirmwareDependency(
+                             form.down('#firmware-min-communication-version')
                                  .getStore()
-                                 .findRecord('id', form.down('#firmware-campaign-min-communication-version')
+                                 .findRecord('id', form.down('#firmware-min-communication-version')
                                      .getValue())
-         );*/
-
-        var minMeterVersionCbx = form.down('#firmware-campaign-min-meter-version');
-        var minCommunicationVersionCbx = form.down('#firmware-campaign-min-communication-version');
-
-        if (minMeterVersionCbx && minMeterVersionCbx.getValue()){
-            record.set('meterFirmwareDependency', {'id' : minMeterVersionCbx.getValue()})
-        }
-
-        if (minCommunicationVersionCbx && minCommunicationVersionCbx.getValue()){
-            record.set('communicationFirmwareDependency', {'id' : minCommunicationVersionCbx.getValue()})
-        }
+        );
 
         var input = form.down('filefield').button.fileInputEl.dom,
             file = input.files[0],
@@ -399,6 +400,19 @@ Ext.define('Fwc.controller.Firmware', {
                     form.setLoading(false);
                 }
             };
+
+        record.setMeterFirmwareDependency(
+                    form.down('#firmware-min-meter-version')
+                        .getStore()
+                        .findRecord('id', form.down('#firmware-min-meter-version')
+                            .getValue())
+        );
+        record.setCommunicationFirmwareDependency(
+                             form.down('#firmware-min-communication-version')
+                                 .getStore()
+                                 .findRecord('id', form.down('#firmware-min-communication-version')
+                                     .getValue())
+        );
 
         if (file) {
             var reader = new FileReader();
@@ -697,5 +711,26 @@ Ext.define('Fwc.controller.Firmware', {
                 form.setLoading(false);
             }
         });
+    },
+
+    saveFirmwareVersionOrder: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        var reader = me.getFwcStoreFirmwaresStore().getProxy().getReader();
+        var data = reader && reader.jsonData && reader.jsonData.firmwares ? reader.jsonData.firmwares : null;
+        data.sort((a,b) => (a.rank < b.rank) ? 1 : ((b.rank < a.rank) ? -1 : 0));
+
+        var url = me.getFwcStoreFirmwaresStore().getProxy().url + '/reorder';
+        if(data){
+            Ext.Ajax.request({
+                        url: url,
+                        jsonData: data,
+                        method: 'PUT',
+                        success: function (response) {
+                            router.getRoute(router.currentRoute).forward(router.arguments, null);
+                        }
+                    });
+        }
     }
 });

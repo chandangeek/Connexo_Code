@@ -31,7 +31,8 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                         grid: {
                             xtype: 'firmware-grid',
                             store: 'Fwc.store.Firmwares',
-                            showImageIdentifierColumn: me.deviceType.get('needsImageIdentifierForFirmware')
+                            showImageIdentifierColumn: me.deviceType.get('needsImageIdentifierForFirmware'),
+                            router: this.router
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',

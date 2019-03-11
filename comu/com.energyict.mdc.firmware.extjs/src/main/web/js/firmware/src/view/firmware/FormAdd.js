@@ -93,48 +93,120 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                 required: true
             },
             {
-                xtype: 'combobox',
-                itemId: 'firmware-campaign-min-meter-version',
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+                flex: 1,
+                itemId: 'firmware-min-meter-version-common',
+                hidden : true,
                 fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version meter firmware'),
-                allowBlank: false,
-                store: 'Fwc.store.MeterFirmwareDeps',
-                forceSelection: true,
-                queryMode: 'local',
-                displayField: 'name',
-                valueField: 'id',
-                hiddenName: 'meterFirmwareDependency',
-                listeners: {
-                    render: function () {
-                        var store = this.getStore();
-                        var deviceTypeId = this.up('fwc-add-form').deviceTypeId;
-                        var proxy = store.getProxy();
-                        store.getProxy().setUrl(deviceTypeId);
-                        store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'meter', property: 'firmwareType' }]));
-                    }
-                }
+                items: [
+                        {
+                            xtype: 'combobox',
+                            itemId: 'firmware-min-meter-version',
+                            allowBlank: false,
+                            store: 'Fwc.store.MeterFirmwareDeps',
+                            forceSelection: true,
+                            queryMode: 'local',
+                            displayField: 'name',
+                            valueField: 'id',
+                            hiddenName: 'meterFirmwareDependency',
+                            listeners: {
+                                beforerender: function () {
+                                    var store = this.getStore();
+                                    var deviceTypeId = this.up('fwc-add-form').deviceTypeId;
+                                    var proxy = store.getProxy();
+                                    store.getProxy().setUrl(deviceTypeId);
+                                    store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'meter', property: 'firmwareType' }]));
+                                    store.load();
+                                },
+                                change: function (combobox) {
+                                    if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-meter-version-default-button');
+                                    if (combobox.getValue()) {
+                                        this.resetButton.setDisabled(false);
+                                    } else {
+                                        this.resetButton.setDisabled(true);
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'uni-default-button',
+                            itemId: 'firmware-min-meter-version-default-button',
+                            hidden: false,
+                            disabled: true,
+                            tooltip: Uni.I18n.translate('general.clear', 'UNI', 'Clear'),
+                            margin: '0 30',
+                            handler: function () {
+                                this.previousSibling('#firmware-min-meter-version').reset();
+                            }
+
+                        }
+                       ]
             },
             {
-                xtype: 'combobox',
-                itemId: 'firmware-campaign-min-communication-version',
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+                flex: 1,
+                itemId: 'firmware-min-communication-version-common',
+                hidden : true,
                 fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version communication firmware'),
-                allowBlank: false,
-                store: 'Fwc.store.CommunicationFirmwareDeps',
-                forceSelection: true,
-                queryMode: 'local',
-                displayField: 'name',
-                valueField: 'id',
-                hiddenName: 'communicationFirmwareDependency',
-                listeners: {
-                    render: function () {
-                        var store = this.getStore();
-                        var deviceTypeId = this.up('fwc-add-form').deviceTypeId;
-                        var proxy = store.getProxy();
-                        store.getProxy().setUrl(deviceTypeId);
-                        store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'communication', property: 'firmwareType' }]));
-                    }
-                }
-            },
+                items: [
+                        {
+                            xtype: 'combobox',
+                            itemId: 'firmware-min-communication-version',
+                            allowBlank: false,
+                            store: 'Fwc.store.CommunicationFirmwareDeps',
+                            forceSelection: true,
+                            queryMode: 'local',
+                            displayField: 'name',
+                            valueField: 'id',
+                            hiddenName: 'communicationFirmwareDependency',
+                            listeners: {
+                                beforerender: function () {
+                                    var store = this.getStore();
+                                    var deviceTypeId = this.up('fwc-add-form').deviceTypeId;
+                                    var proxy = store.getProxy();
+                                    store.getProxy().setUrl(deviceTypeId);
+                                    store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'communication', property: 'firmwareType' }]));
+                                    store.load();
+                                },
+                                change: function (combobox) {
+                                    if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-communication-version-default-button');
+                                    if (combobox.getValue()) {
+                                        this.resetButton.setDisabled(false);
+                                    } else {
+                                        this.resetButton.setDisabled(true);
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'uni-default-button',
+                            itemId: 'firmware-min-communication-version-default-button',
+                            hidden: false,
+                            disabled: true,
+                            tooltip: Uni.I18n.translate('general.clear', 'UNI', 'Clear'),
+                            margin: '0 30',
+                            handler: function () {
+                                this.previousSibling('#firmware-min-communication-version').reset();
+                            }
+
+                        }
+                       ]
+            }
         ];
         me.callParent(arguments);
+    },
+    updateGrid: function() {
+        var me = this,
+            grid = me.down('#reading-types-grid'),
+            emptyLabel = me.down('#noReadingTypesForEstimationRuleLabel');
+        if (grid.getStore().count() === 0) {
+            emptyLabel.show();
+            grid.hide();
+        } else {
+            emptyLabel.hide();
+            grid.show();
+        }
     }
 });
