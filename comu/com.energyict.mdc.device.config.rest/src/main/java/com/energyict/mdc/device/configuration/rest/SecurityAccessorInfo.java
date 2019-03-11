@@ -32,4 +32,5 @@ public class SecurityAccessorInfo {
     public List<ExecutionLevelInfo> viewLevels = new ArrayList<>();
     public boolean editable = true;
     public boolean serviceKey = false;
+    public String defaultServiceKey;
 }
