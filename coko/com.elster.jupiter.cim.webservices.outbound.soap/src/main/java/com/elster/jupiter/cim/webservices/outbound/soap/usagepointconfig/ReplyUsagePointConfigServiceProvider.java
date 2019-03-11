@@ -40,7 +40,7 @@ import ch.iec.tc57._2011.usagepointconfigmessage.ObjectFactory;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigEventMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigPayloadType;
 
-@Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.usagepointconfig.provider", service = {
+@Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.replyusagepointconfig.provider", service = {
         ReplyUsagePointConfigWebService.class, OutboundSoapEndPointProvider.class }, immediate = true, property = {
                 "name=" + ReplyUsagePointConfigWebService.NAME })
 public class ReplyUsagePointConfigServiceProvider
@@ -62,11 +62,6 @@ public class ReplyUsagePointConfigServiceProvider
     private final ch.iec.tc57._2011.schema.message.ObjectFactory headerTypeFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private UsagePointConfigFactory usagePointConfigFactory;
 
-    @Activate
-    public void activate() {
-        usagePointConfigFactory = new UsagePointConfigFactory(clock, customPropertySetService);
-    }
-
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -85,6 +80,11 @@ public class ReplyUsagePointConfigServiceProvider
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addUsagePointConfigPort(UsagePointConfigPort usagePointConfigPort, Map<String, Object> properties) {
         usagePointConfigPorts.put(properties.get(URL).toString(), usagePointConfigPort);
+    }
+
+    @Activate
+    public void onActivate() {
+        usagePointConfigFactory = new UsagePointConfigFactory(clock, customPropertySetService);
     }
 
     public void removeUsagePointConfigPort(UsagePointConfigPort usagePointConfigPort) {
