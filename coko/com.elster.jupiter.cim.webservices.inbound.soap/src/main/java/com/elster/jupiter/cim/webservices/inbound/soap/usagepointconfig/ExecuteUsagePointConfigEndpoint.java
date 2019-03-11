@@ -10,6 +10,8 @@ import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -128,7 +130,9 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
         } else {
             outboundEndPointConfiguration = Optional.of(getOutboundEndPointConfiguration(action, replyAddress));
         }
-        serviceCallCommands.createUsagePointConfigMasterServiceCall(message, outboundEndPointConfiguration, action);
+        ServiceCall serviceCall = serviceCallCommands.createUsagePointConfigMasterServiceCall(message,
+                outboundEndPointConfiguration, action);
+        serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
         context.commit();
         return createQuickResponse(HeaderType.Verb.REPLY);
     }

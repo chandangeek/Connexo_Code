@@ -11,6 +11,7 @@ import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadi
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigMasterServiceCallHandler;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.ExecuteUsagePointConfigEndpoint;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
@@ -178,12 +179,10 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         registerServiceCallHandler(bundleContext,
                 dataModel.getInstance(MasterDataLinkageConfigMasterServiceCallHandler.class),
                 MasterDataLinkageConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
-        registerServiceCallHandler(bundleContext,
-                dataModel.getInstance(UsagePointConfigMasterServiceCallHandler.class),
+        registerServiceCallHandler(bundleContext, dataModel.getInstance(UsagePointConfigMasterServiceCallHandler.class),
                 UsagePointConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
-        registerServiceCallHandler(bundleContext,
-                dataModel.getInstance(UsagePointConfigMasterServiceCallHandler.class),
-                UsagePointConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
+        registerServiceCallHandler(bundleContext, dataModel.getInstance(UsagePointConfigServiceCallHandler.class),
+                UsagePointConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
 
     }
 
