@@ -16,16 +16,6 @@ public class SqlStatements {
             "order by MODTIME desc) " +
             "where ROWNUM = 1";
 
-    public String READING_TYPE_SQL = "select READINGTYPEMRID from " +
-            "( " +
-                    "select READINGTYPEMRID, MODTIME from ( " +
-                        "select READINGTYPEMRID, MODTIME from DDC_OVERRULEDOBISCODE WHERE deviceid = {0, number, #} and MODTIME<= {1, number, #} " +
-                        "union all " +
-                        "select READINGTYPEMRID, MODTIME from DDC_OVERRULEDOBISCODEJRNL WHERE deviceid = {0, number, #} and MODTIME<= {1, number, #} " +
-            ") " +
-            "order by MODTIME desc) " +
-            "where ROWNUM = 1";
-
     public String MEASUREMENTTYPE_SQL = "select ID from " +
             "( " +
                     "select ID, MODTIME from ( " +
@@ -36,16 +26,16 @@ public class SqlStatements {
             "order by MODTIME desc) " +
             "where ROWNUM = 1";
 
-    public String OBISCODE_SQL = "select obiscode from" +
+    public String SPEC_SQL = "select obiscode, SourceType from" +
             "(" +
-                    "select obiscode, MODTIME from ( " +
-                        "select obiscode, MODTIME from DTC_CHANNELSPEC WHERE DEVICECONFIGID = {0, number, #} and channeltypeid = {1, number, #} and MODTIME <= {2, number, #} " +
+                    "select obiscode, MODTIME, SourceType from ( " +
+                        "select obiscode, MODTIME, ''CHANNEL'' SourceType from DTC_CHANNELSPEC WHERE DEVICECONFIGID = {0, number, #} and channeltypeid = {1, number, #} and MODTIME <= {2, number, #} " +
                         "union all " +
-                        "select obiscode, MODTIME from DTC_CHANNELSPECJRNL WHERE DEVICECONFIGID = {0, number, #} and channeltypeid = {1, number, #} and MODTIME <= {2, number, #} " +
+                        "select obiscode, MODTIME, ''CHANNEL'' SourceType from DTC_CHANNELSPECJRNL WHERE DEVICECONFIGID = {0, number, #} and channeltypeid = {1, number, #} and MODTIME <= {2, number, #} " +
                         "union all " +
-                        "select deviceobiscode, MODTIME from DTC_REGISTERSPEC WHERE DEVICECONFIGID = {0, number, #} and registertypeid = {1, number, #} and MODTIME<= {2, number, #} " +
+                        "select deviceobiscode, MODTIME, ''REGISTER'' SourceType from DTC_REGISTERSPEC WHERE DEVICECONFIGID = {0, number, #} and registertypeid = {1, number, #} and MODTIME<= {2, number, #} " +
                         "union all " +
-                        "select deviceobiscode, MODTIME from DTC_REGISTERSPECJRNL WHERE DEVICECONFIGID = {0, number, #} and registertypeid = {1, number, #} and MODTIME<= {2, number, #} " +
+                        "select deviceobiscode, MODTIME, ''REGISTER'' SourceType from DTC_REGISTERSPECJRNL WHERE DEVICECONFIGID = {0, number, #} and registertypeid = {1, number, #} and MODTIME<= {2, number, #} " +
            ") " +
             "order by MODTIME desc) " +
             "where ROWNUM = 1";

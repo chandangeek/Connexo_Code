@@ -97,29 +97,36 @@ Ext.define('Mdc.audit.controller.Audit', {
             auditGrid = me.getAuditGrid(),
             auditPreview = me.getAuditPreview(),
             auditPreviewGrid = me.getAuditPreviewGrid(),
-            auditPreviewNoItems = me.getAuditPreviewNoItem();
+            auditPreviewNoItems = me.getAuditPreviewNoItem(),
+            isUpdateOperation = record[0].get('operationType') === 'UPDATE';
 
-        Ext.each(auditPreviewGrid.columns, function (column) {
-            if (column.dataIndex === 'previousValue') {
-                column.setVisible(record[0].get('operationType') == 'UPDATE');
-            }
-            if (column.dataIndex === 'value') {
-                column.setText(record[0].get('operationType') == 'UPDATE' ? Uni.I18n.translate('audit.preview.changedTo', 'MDC', 'Changed to') :
-                    Uni.I18n.translate('audit.preview.value', 'MDC', 'Value'));
-            }
-
-        });
-
+        auditPreview.suspendLayouts();
         if (record[0].auditLogsStore.getCount() > 0) {
             auditPreviewGrid.setVisible(true);
             auditPreviewGrid.getStore().loadRawData(record[0].raw['auditLogs']);
-            auditPreviewGrid.getView() && auditPreviewGrid.getView().getEl()&& auditPreviewGrid.getSelectionModel().select(0);
+            auditPreviewGrid.getView() && auditPreviewGrid.getView().getEl() && auditPreviewGrid.getSelectionModel().select(0);
             auditPreviewNoItems.setVisible(false);
+
+            Ext.each(auditPreviewGrid.columns, function (column) {
+                if (column.dataIndex === 'previousValue') {
+                    column.isVisible() != isUpdateOperation &&  column.setVisible(isUpdateOperation);
+                }
+                if (column.dataIndex === 'value') {
+                    column.setText(isUpdateOperation ? Uni.I18n.translate('audit.preview.changedTo', 'MDC', 'Changed to') :
+                        Uni.I18n.translate('audit.preview.value', 'MDC', 'Value'));
+                }
+
+            });
         }
         else {
             auditPreviewGrid.setVisible(false);
             auditPreviewNoItems.setVisible(true);
         }
+        auditPreview.resumeLayouts();
+        auditPreviewGrid.doLayout();
+
+        auditGrid.getView().focus();
+        auditPreview.setLoading(false);
         auditGrid.getView().focus();
         auditPreview.setLoading(false);
     },
@@ -269,6 +276,9 @@ Ext.define('Mdc.audit.controller.Audit', {
             contextReference = record.get('auditReference').contextReference,
             sourceType = record.get('auditReference').contextReference.sourceType;
 
+        if (me.isEmptyOrNull(record.get('auditReference').name) || me.isEmptyOrNull(contextReference.sourceId)){
+            return '';
+        }
         if (sourceType === 'CHANNEL'){
             return '<a href="#/devices/' + record.get('auditReference').name + '/channels' + '/'+ contextReference.sourceId +  '">'
         }

@@ -35,7 +35,6 @@ public class AuditTrailRegisterCPSDecoder extends AbstractCPSAuditDecoder {
         super(ormService, thesaurus, meteringService, serverDeviceService, customPropertySetService);
     }
 
-
     @Override
     protected void decodeReference() {
         try {
