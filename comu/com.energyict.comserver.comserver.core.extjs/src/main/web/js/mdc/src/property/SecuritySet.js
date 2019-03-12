@@ -197,31 +197,22 @@ Ext.define('Mdc.property.SecuritySet', {
             var properties = accessor.currentProperties();
             var accessorId = accessor.get('id');
             var defaultServiceKeyValue = accessor.get('defaultServiceKey');
-            console.log("ACCESSOR=",accessor );
-            console.log("ACCESSOR ID =", accessorId);
-            console.log("defaultServiceKeyValue  =", defaultServiceKeyValue );
 
             properties.each(function (property) {
                 property.set('name', nameOfAccessor);
                 var propertyKey = property.get('key');
-                console.log("PROPERTY KEY!!!=",propertyKey);
-                if (propertyKey !== "label"){
 
-                    console.log("NOT LABEL!!!!");
+                if (propertyKey !== "label"){
                     var keyToset = nameOfAccessor;//nameOfAccessor + propertyKey; TO DO move it to place where load if finished !!!!!!!!!
                     property.set('key', keyToset);//to get unigue key compose it from nameOfAccessor and property Key
-                    console.log("SET DEFAULT VALUIE = ",defaultServiceKeyValue);
                     property.data.value = defaultServiceKeyValue;
-                    property.data.default = defaultServiceKeyValue;
+                    property.data['default'] = defaultServiceKeyValue;
 
                     var type = property.getType();
                     fieldType = registry.getProperty(type);
 
 
                     console.log("PROPERTY =",property);
-                    /*console.log("PROPERTY PARAMS = ",property.getPropertyParams());
-                    console.log("KEY TO FINE =",property.get('key'));
-                    console.log("TRY TO FIND FIELD = ",me.up('property-form').down(property.get('key')));*/
 
                     tmpKey = property.get('key');
 
