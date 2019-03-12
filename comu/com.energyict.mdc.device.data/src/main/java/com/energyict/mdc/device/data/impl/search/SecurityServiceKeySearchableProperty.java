@@ -79,15 +79,21 @@ public class SecurityServiceKeySearchableProperty extends AbstractSearchableDevi
         if (condition.getClass().isAssignableFrom(Comparison.class)) {
             SqlBuilder sqlBuilder = new SqlBuilder();
             Comparison comparison = (Comparison) condition;
-            String value = "N";
+/*            String value = "N";
             if (comparison.getValues()[0].toString().equalsIgnoreCase("true")) {
                 value = "Y";
             }
+*/ 
             sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
             sqlBuilder.openBracket();
             //Devices having a service key
-            sqlBuilder.append("SELECT DISTINCT DEVICE FROM DDC_KEYACCESSOR WHERE DDC_KEYACCESSOR.SERVICEKEY = '" + value
-                    + "'");
+            String query = "SELECT DISTINCT DEVICE FROM DDC_KEYACCESSOR WHERE DDC_KEYACCESSOR.SERVICEKEY = 'Y'";
+            if (comparison.getValues()[0].toString().equalsIgnoreCase("true"))
+            {
+            	sqlBuilder.append(query);
+	    } else {
+                sqlBuilder.append("SELECT ID FROM DDC_DEVICE WHERE ID NOT IN (" + query + ")");
+	    }
             sqlBuilder.closeBracket();
             return sqlBuilder;
         }

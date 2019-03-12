@@ -140,7 +140,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
      *
      * @param deviceTypeId       Identifier of the device type for which the default key will be updated
      * @param securityAccessorId Identifier of the security accessor for which the key will be updated
-     * @param value              Default key value for the security accessor type
+     * @param info               Contains default key value for the security accessor type
      * @summary sets/updates the default key value for the device type for the given security accessor type
      */
     @PUT

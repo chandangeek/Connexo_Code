@@ -292,17 +292,17 @@ public class KeyAccessorTypeResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    @Path("/{keyAccessorTypeName}/storetempvalue/{value}")
+    @Path("/{keyAccessorTypeName}/storetempvalue")
     public Response storeTempValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
-                                   @PathParam("value") String value,
+                                   KeyInfo info,
                                    @Context UriInfo uriInfo) {
 
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
         List<PropertyInfo> tempProperties = new ArrayList<>();
-        tempProperties.add(createPropertyInfo(KEY_PROPERTY, value));
-        tempProperties.add(createPropertyInfo(LABEL_PROPERTY, "EVN-FMI-PEM01"));
+        tempProperties.add(createPropertyInfo(KEY_PROPERTY, info.value));
+       	tempProperties.add(createPropertyInfo(LABEL_PROPERTY, info.label));
         List<PropertySpec> propertySpecs = securityAccessor.getPropertySpecs();
         Map<String, Object> properties = propertyValueInfoService.findPropertyValues(propertySpecs, tempProperties);
 
@@ -311,7 +311,7 @@ public class KeyAccessorTypeResource {
         if (currentTempValue.isPresent()) {
             SecurityValueWrapper tempValueWrapper = currentTempValue.get();
             tempValueWrapper.setProperties(properties);
-        } else if (!value.isEmpty()) {
+        } else if (! info.value.isEmpty()) {
             SecurityValueWrapper securityValueWrapper = securityManagementService.newSymmetricKeyWrapper(securityAccessor.getKeyAccessorType());
             securityValueWrapper.setProperties(properties);
             securityAccessor.setTempValue(securityValueWrapper);
