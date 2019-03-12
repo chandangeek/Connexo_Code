@@ -117,9 +117,13 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                     if (record && (record.get('checkOptions').length === 0 || record.get('isAllowed') === false)) {
                                         field.hide();
                                     } else {
-                                        field.show();
                                         var currFirmCheck = value && value["CURRENT_FIRMWARE_CHECK"];
                                         var masterFirmCheck = value && value["MASTER_FIRMWARE_CHECK"];
+                                        if ((!currFirmCheck || !currFirmCheck.activatedFor || !currFirmCheck.activatedFor.length) && (!masterFirmCheck || !masterFirmCheck.activatedFor || !masterFirmCheck.activatedFor.length)){
+                                            field.hide();
+                                            return;
+                                        }
+                                        field.show();
                                         if (currFirmCheck){
                                             var optTpl = [];
                                             var optVals = {'FINAL' : 'Final status of target firmware', 'TEST' : 'Test status of target firmware'};
@@ -132,10 +136,9 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                             }
                                         }
                                         if (masterFirmCheck){
-                                            //var header = '<b>The target firmware version should have a higher rank than the current firmware version on the device with the same type</b></br>';
                                             var optMasterTpl = [];
                                             var optVals = {'FINAL' : 'Final status of target firmware on slave device', 'TEST' : 'Test status of target firmware on slave device'};
-                                            currFirmCheck['activatedFor'].forEach(function(item){
+                                            masterFirmCheck['activatedFor'].forEach(function(item){
                                                 optMasterTpl.push({"localizedValue" : optVals[item]});
                                             })
                                             if (optMasterTpl && optMasterTpl.length){
