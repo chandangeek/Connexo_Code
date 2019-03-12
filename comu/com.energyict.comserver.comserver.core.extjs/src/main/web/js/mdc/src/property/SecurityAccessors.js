@@ -21,8 +21,6 @@ Ext.define('Mdc.property.SecurityAccessors', {
         field: 'Ext.form.field.Field'
     },
 
-    //margin: '0 0 0 0',
-
     msgTarget: 'under',
     width: 600,
 
@@ -63,7 +61,6 @@ Ext.define('Mdc.property.SecurityAccessors', {
                                             width: 1000,
                                             height: 100,
                                             value: nameAndValue[1],
-                                            //allowBlank: false,
                                             itemId: itemIdForPreparedKey
                                         },
                                         {
@@ -95,8 +92,6 @@ Ext.define('Mdc.property.SecurityAccessors', {
         console.log("PROPERTY =",me.property.data.value);
 
         me.securitySetsStore = Ext.create('Ext.data.Store', {
-            //fields: ['name'/*, 'readingType'*/],
-
             model: 'Mdc.model.DeviceSecuritySetting',
             proxy: {
                 type: 'rest',
@@ -108,8 +103,6 @@ Ext.define('Mdc.property.SecurityAccessors', {
         });
 
         me.securityAccessorsStore = Ext.create('Ext.data.Store', {
-                    //fields: ['name'/*, 'readingType'*/],
-
                     model: 'Mdc.securityaccessors.model.DeviceSecurityKey',
                     proxy: {
                         type: 'rest',
@@ -129,9 +122,8 @@ Ext.define('Mdc.property.SecurityAccessors', {
 
         return [
                     {
-                        //xtype: 'property-form',
                         xtype: 'form',
-                        itemId: 'my-form-xromvyu',
+                        itemId: 'accessors-property-form',
                         ui: 'large',
                         width: '100%',
                         defaults: {
@@ -143,7 +135,7 @@ Ext.define('Mdc.property.SecurityAccessors', {
     },
 
     setReadOnly: function(readOnly){
-        console.log("TRY TO SET READ ONLY");
+
     },
 
     getGrid: function () {
@@ -151,7 +143,6 @@ Ext.define('Mdc.property.SecurityAccessors', {
     },
 
     getPropForm: function() {
-        //return this.down('property-form');
         return this.down('form');
     },
 
@@ -163,9 +154,6 @@ Ext.define('Mdc.property.SecurityAccessors', {
 
         var result = "";
 
-        //var raw = me.getPropForm().getFieldValues();
-        //onsole.log("IS FORM VALID = ",me.getPropForm().isValid());
-        //var raw = me.up('property-form').getValues();
         console.log("renderedFieldKeys=",renderedFieldKeys );
         if (me.getPropForm()){
             var raw = me.getPropForm().getValues();
@@ -194,7 +182,7 @@ Ext.define('Mdc.property.SecurityAccessors', {
                         console.log("Obtained generated value=", tmpGeneratedValue);
                         if (tmpGeneratedValue !== ""){ //TO DO add check for multiple spaces
                             tmpGeneratedValue = tmpGeneratedValue.replace(",","[,]");
-                            tmpGeneratedValuee = tmpGeneratedValue.replace(";","[;]");
+                            tmpGeneratedValue = tmpGeneratedValue.replace(";","[;]");
 
                             result = result +  ":" + tmpGeneratedValue;
                     }
@@ -208,15 +196,8 @@ Ext.define('Mdc.property.SecurityAccessors', {
             }
         }
 
-        console.log("RAW VALUES = ",raw);
-
-
-
-        console.log("RESULT ======",result);
+        console.log("RESULT =",result);
         return result;
-        /*return _.map(me.getGrid().getSelectionModel().getSelection(), function (record) {
-            return record.get('readingType').mRID;
-        }).join(';');*/
     },
 
     getRawValue: function () {

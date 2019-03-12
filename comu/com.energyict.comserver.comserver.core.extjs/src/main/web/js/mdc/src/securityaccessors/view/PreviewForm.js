@@ -23,7 +23,8 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
         items: []
     },
 
-    doLoadRecord: function(record) {
+    doLoadRecord: function(record, defaultKeyValue) {
+        console.log("DOLOADRECORD!!!!!!!");
         var me = this,
             leftItems = {
                 defaults: {
@@ -101,9 +102,12 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         name: 'viewLevelsInfo'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('securityaccessors.editPrivileges', 'MDC', 'Edit privileges'),
-                        xtype: 'execution-level-displayfield',
-                        name: 'editLevelsInfo'
+                        fieldLabel: 'Default service key',
+                        name: 'defaultServiceKey',
+                        renderer: function () {
+                            var val = defaultKeyValue;
+                            return val;
+                        }
                     }
                 ]
             }

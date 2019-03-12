@@ -121,6 +121,9 @@ public class SecurityAccessorResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()),
                 securityAccessorInfoFactory::asKeyWithLevels);
+        for (SecurityAccessorInfo info : collect) {
+            info.defaultServiceKey = device.getDeviceType().getDefaultKeyOfSecurityAccessorType(info.id);
+        }
         return PagedInfoList.fromCompleteList("keys", collect, queryParameters);
     }
 
@@ -136,7 +139,9 @@ public class SecurityAccessorResource {
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
         SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType)
                 .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(securityAccessorType, device));
-        return Response.ok(securityAccessorInfoFactory.asKey(securityAccessor)).build();
+        SecurityAccessorInfo info = securityAccessorInfoFactory.asKey(securityAccessor);
+        info.defaultServiceKey = device.getDeviceType().getDefaultKeyOfSecurityAccessorType(securityAccessorType.getId());
+        return Response.ok(info).build();
     }
 
     @GET

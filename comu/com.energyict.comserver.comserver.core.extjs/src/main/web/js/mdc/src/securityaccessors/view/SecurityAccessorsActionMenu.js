@@ -16,7 +16,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 section: this.SECTION_EDIT
             },
             {
-                text: 'EDIT!!!',//Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                 action: 'edit',
                 itemId: 'menu-sa-edit',
@@ -24,7 +24,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 section: this.SECTION_EDIT
             },
             {
-                text: "REMOVE!!!",//Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                 action: 'remove',
                 itemId: 'menu-sa-remove',
@@ -49,10 +49,9 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 section: this.SECTION_EDIT
             },
             {
-                text: "SET DEFAULT KEY",//Uni.I18n.translate('general.activatePassiveCertificate', 'MDC', 'Activate passive certificate'),
+                text: Uni.I18n.translate('general.setDefaultKeyValue', 'MDC', 'Set default key value'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
-                //checkPassive: true,
-                //hidden: true,
+                hidden: true,
                 action: 'setDefaultKeyValue',
                 itemId: 'menu-sa-set-default-value',
                 section: this.SECTION_EDIT
@@ -63,14 +62,18 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
         this.callParent(arguments);
     },
     updateMenuItems: function (record) {
+        console.log("UPDATE MENU ITEMS !!!!!!!!!!!",record.get('keyType').name);
         this.down('#menu-sa-clear-passive-certificate')
         && this.down('#menu-sa-clear-passive-certificate')
                 .setVisible(!this.deviceTypeId && record.get('passiveCertificate'));
         this.down('#menu-sa-activate-passive-certificate')
         &&  this.down('#menu-sa-activate-passive-certificate')
                 .setVisible(!this.deviceTypeId && record.get('passiveCertificate'));
-        /*this.down('#menu-sa-change-privileges')
+        this.down('#menu-sa-change-privileges')
         &&  this.down('#menu-sa-change-privileges')
-                .setVisible(!this.deviceTypeId && record.get('isKey'));*/
+                .setVisible(!this.deviceTypeId && record.get('isKey'));
+        this.down('#menu-sa-set-default-value')
+                &&  this.down('#menu-sa-set-default-value')
+                        .setVisible(record.get('keyType').name == 'HSM Key');
     }
 });

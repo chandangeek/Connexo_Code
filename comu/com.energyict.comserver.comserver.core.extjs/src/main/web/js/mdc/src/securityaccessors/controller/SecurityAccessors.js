@@ -82,6 +82,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     deviceTypeId: null,
     deviceType: null,
     selectedRecord: undefined,
+    recordToSetKey: null,
 
     init: function () {
         var me = this;
@@ -198,13 +199,13 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     },
 
     recordSelected: function (grid, recordParam) {
-        console.log("RECORD SELECTED!!!!");
+        console.log("RECORD SELECTED!!!! with default service key = ", recordParam.get('defaultServiceKey'));
         var me = this,
             gridMenu = me.getSecurityAccessorsGrid().down('uni-actioncolumn').menu,
-            processRecord = function (record) {
+            processRecord = function (record, defaultKeyValue) {
                 me.selectedRecord = record;
                 console.log("doLoadRecord for record=",record);
-                me.getPreviewForm().doLoadRecord(record);
+                me.getPreviewForm().doLoadRecord(record, defaultKeyValue);
                 me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
                 gridMenu.updateMenuItems(record);
                 gridMenu.record = record;
@@ -222,11 +223,34 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
         var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
 
-        model.load(recordParam.get('id'), {
-            success: function (keyRecord) {
-                processRecord(keyRecord);
-            }
-        });
+        if (recordParam.get('keyType').name == 'HSM Key'){
+                console.log("GET INFORMATION!!!!!");
+                Ext.Ajax.request({
+                    url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors/{1}', me.deviceTypeId,recordParam.get('id')),
+                    method: 'GET',
+                    success: function (response) {
+                        var data = Ext.JSON.decode(response.responseText);
+                        console.log("OBTAINED DATA!!!!!!!",data.defaultServiceKey);
+                        model.load(recordParam.get('id'), {
+                               success: function (keyRecord) {
+                                   recordToSetKey = keyRecord;
+                                   processRecord(keyRecord, data.defaultServiceKey);
+                               }
+                        });
+                    }
+                });
+
+
+
+        } else {
+            model.load(recordParam.get('id'), {
+                success: function (keyRecord) {
+                    processRecord(keyRecord,'-');
+                }
+            });
+        }
+
+
     },
 
     reconfigureMenu: function (deviceType, view) {
@@ -753,7 +777,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             }
         });
     },
-
+    /*XROMVYU*/
     saveDefaultKeyValue: function () {
         var me = this,
             setDefaultKeyWindow = me.getSecurityAccessorSetDefaultKeyWindow(),
@@ -769,42 +793,26 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             console.log("keyValue =",keyValue);
             setDefaultKeyWindow.close();
 
-            //http://localhost:8088/api/dtc/devicetypes/2/securityaccessors/6002/setDefaultKey
-            //var url = /api/dtc/devicetypes/2/securityaccessors/6002/setDefaultKey
+            viewport.setLoading();
 
             Ext.Ajax.request({
-                url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors/{1}/setDefaultKey', me.deviceTypeId, securityAccessorRecord.get('id')),
+                url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors/{1}/setdefaultkey', me.deviceTypeId, securityAccessorRecord.get('id')),
                 method: 'PUT',
                 jsonData: {
-                    "value": keyValue
+                   "value": keyValue
                 },
-                success: function () {
-                    /*me.getSecurityAccessorsGrid().setLoading();
-                    me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translate('securityaccessors.removeSecurityAccessorSuccess', 'MDC', 'Security accessor removed')
-                    );
-                    me.getSecurityAccessorsGrid().down('pagingtoolbartop').resetPaging();
-                    me.getSecurityAccessorsGrid().down('pagingtoolbarbottom').resetPaging();
-                    store.load({
-                        callback: function (records, operation, success) {
-                            me.getSecurityAccessorsGrid().setLoading(false);
-                        }
-                    });*/
-                }
-            });
+                success: function (response) {
+                    console.log("KEY WAS SET RESPONSE = ",response);
+                    //var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
 
-/*
-        editWindow.close();
-        viewport.setLoading();
-        securityAccessorRecordInEditWindow.save({
-            callback: function (record, operation, success) {
-                if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('securityaccessors.saveSecurityAccessorSuccess', 'MDC', 'Security accessor saved'));
-                    me.recordSelected(me.getSecurityAccessorsGrid(), securityAccessorRecordInEditWindow);
+                    me.getPreviewForm().doLoadRecord(recordToSetKey, keyValue);
+
+                },
+
+                callback: function () {
                     viewport.setLoading(false);
                 }
-            }
-        });*/
+            });
     },
 
     loadProperties: function(defaultPropertiesData, currentRecord) {
