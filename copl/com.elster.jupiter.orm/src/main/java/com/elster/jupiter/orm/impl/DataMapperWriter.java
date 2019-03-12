@@ -99,7 +99,6 @@ public class DataMapperWriter<T> {
             }
         }
         refresh(object, true);
-        new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT, false).audit();
         for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
             if (constraint.isComposition()) {
                 Field field = constraint.reverseField(object.getClass());
@@ -114,6 +113,7 @@ public class DataMapperWriter<T> {
                 }
             }
         }
+        new AuditTrailDataWriter(dataMapper, object, now, UnexpectedNumberOfUpdatesException.Operation.INSERT, false).audit();
     }
 
     private boolean needsRefreshAfterBatchInsert() {

@@ -61,20 +61,20 @@ public class CustomPropertySetRegistrationTopicHandler implements TopicHandler {
                                     .domainReferences(cps.getPersistenceSupport().domainForeignKeyName(), "FK_DDC_DEVICE_ENDDEVICE")
                                     .contextReferenceColumn(HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                                     .build());
-                } else if (cps.getDomainClass().equals(ChannelSpec.class)) {
+                } else if (cps.getDomainClass().equals(ChannelSpec.class) && cps.getContextClass()!= null) {
                     this.ormService.getDataModel(cps.getPersistenceSupport().componentName())
                             .ifPresent(dataModel -> dataModel.getTable(cps.getPersistenceSupport().tableName())
                                     .audit("")
                                     .domainContext(AuditDomainContextType.DEVICE_CHANNEL_CUSTOM_ATTRIBUTES.ordinal())
-                                    .domainReferenceColumn("device")
+                                    .domainReferences(cps.getPersistenceSupport().contextForeignKeyName(), "FK_DDC_DEVICE_ENDDEVICE")
                                     .contextReferenceColumn(cps.getPersistenceSupport().domainFieldName(), HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                                     .build());
-                } else if (cps.getDomainClass().equals(RegisterSpec.class)) {
+                } else if ((cps.getDomainClass().equals(RegisterSpec.class) && cps.getContextClass()!= null)) {
                     this.ormService.getDataModel(cps.getPersistenceSupport().componentName())
                             .ifPresent(dataModel -> dataModel.getTable(cps.getPersistenceSupport().tableName())
                                     .audit("")
                                     .domainContext(AuditDomainContextType.DEVICE_REGISTER_CUSTOM_ATTRIBUTES.ordinal())
-                                    .domainReferenceColumn("device")
+                                    .domainReferences(cps.getPersistenceSupport().contextForeignKeyName(), "FK_DDC_DEVICE_ENDDEVICE")
                                     .contextReferenceColumn(cps.getPersistenceSupport().domainFieldName(), HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                                     .build());
                 } else if (cps.getDomainClass().equals(DeviceProtocolDialectPropertyProvider.class)) {

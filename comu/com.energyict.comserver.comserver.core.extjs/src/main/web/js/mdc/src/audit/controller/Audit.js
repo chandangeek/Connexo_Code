@@ -108,8 +108,8 @@ Ext.define('Mdc.audit.controller.Audit', {
             auditPreviewNoItems.setVisible(false);
 
             Ext.each(auditPreviewGrid.columns, function (column) {
-                if (column.dataIndex === 'previousValue') {
-                    column.isVisible() != isUpdateOperation &&  column.setVisible(isUpdateOperation);
+                if ((column.dataIndex === 'previousValue') && ((auditPreviewGrid.getView().getEl() == undefined || column.isVisible() != isUpdateOperation))){
+                     column.setVisible(isUpdateOperation);
                 }
                 if (column.dataIndex === 'value') {
                     column.setText(isUpdateOperation ? Uni.I18n.translate('audit.preview.changedTo', 'MDC', 'Changed to') :
