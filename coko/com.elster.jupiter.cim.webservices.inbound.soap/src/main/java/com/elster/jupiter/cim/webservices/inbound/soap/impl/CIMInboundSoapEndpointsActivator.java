@@ -14,6 +14,7 @@ import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointcon
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.ExecuteUsagePointConfigEndpoint;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -90,6 +91,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile JsonService jsonService;
     private volatile SendMeterReadingsProvider sendMeterReadingsProvider;
     private final ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
+    private final ObjectHolder<ReplyUsagePointConfigWebService> replyUsagePointConfigWebServiceHolder = new ObjectHolder<>();
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
@@ -150,6 +152,9 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
                 TypeLiteral<ObjectHolder<ReplyMasterDataLinkageConfigWebService>> replyMasterDataLinkageHolder = new TypeLiteral<ObjectHolder<ReplyMasterDataLinkageConfigWebService>>() {
                 };
                 bind(replyMasterDataLinkageHolder).toInstance(replyMasterDataLinkageConfigWebServiceHolder);
+                TypeLiteral<ObjectHolder<ReplyUsagePointConfigWebService>> replyUsagePointHolder = new TypeLiteral<ObjectHolder<ReplyUsagePointConfigWebService>>() {
+                };
+                bind(replyUsagePointHolder).toInstance(replyUsagePointConfigWebServiceHolder);
             }
         };
     }
@@ -301,6 +306,15 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
 
     public void removeReplyMasterDataLinkageConfigWebServiceClient(ReplyMasterDataLinkageConfigWebService webService) { // NOSONAR we cannot remove this parameter
         replyMasterDataLinkageConfigWebServiceHolder.unsetObject();
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void addReplyUsagePointConfigWebServiceClient(ReplyUsagePointConfigWebService webService) {
+        replyUsagePointConfigWebServiceHolder.setObject(webService);
+    }
+
+    public void removeReplyUsagePointConfigWebServiceClient(ReplyUsagePointConfigWebService webService) { // NOSONAR we cannot remove this parameter
+        replyUsagePointConfigWebServiceHolder.unsetObject();
     }
 
     @Override

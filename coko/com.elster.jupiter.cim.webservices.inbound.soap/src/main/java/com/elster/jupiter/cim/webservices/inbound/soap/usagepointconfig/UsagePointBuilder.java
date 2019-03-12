@@ -72,6 +72,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class UsagePointBuilder {
+    public static final String USAGE_POINT_NAME = "UsagePointName";
     private static final String CONNECTION_STATE_PROPERTY_NAME = "set.connection.state.property.name";
     private static final String METROLOGY_CONFIGURATION = "MetrologyConfiguration";
     private static final String STATUS_CHANGE = "Change Status";
@@ -556,7 +557,7 @@ public class UsagePointBuilder {
     private String retrieveName(List<Name> names) throws FaultMessage {
         String nameString = null;
         if (names.size() > 1) {
-            nameString = names.stream().filter(name -> "UsagePointName".equals(name.getNameType().getName()))
+            nameString = names.stream().filter(name -> USAGE_POINT_NAME.equals(name.getNameType().getName()))
                     .findFirst().map(Name::getName).orElse(null);
         } else if (names.size() == 1) {
             nameString = names.get(0).getName();
