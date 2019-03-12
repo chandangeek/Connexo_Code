@@ -871,6 +871,23 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
                 "ErrorMessage");
     }
 
+    @Test
+    public void testAsync() throws Exception {
+        // Prepare request
+        UsagePointConfig usagePointConfig = new UsagePointConfig();
+        ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePointInfo
+                = createUsagePoint("\t\n\r ", USAGE_POINT_NAME, PhaseCode.S_1, UsagePointConnectedKind.LOGICALLY_DISCONNECTED);
+        usagePointConfig.getUsagePoint().add(usagePointInfo);
+        UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
+        usagePointConfigRequest.getHeader().setAsyncReplyFlag(true);
+
+        // Execute
+        getInstance(ExecuteUsagePointConfigEndpoint.class).changeUsagePointConfig(usagePointConfigRequest);
+
+        // Assert service call
+        verify(serviceCall).requestTransition(com.elster.jupiter.servicecall.DefaultState.PENDING);
+    }
+
     private ch.iec.tc57._2011.usagepointconfig.UsagePoint createUsagePoint(String mRID, String name, PhaseCode phaseCode,
                                                                            UsagePointConnectedKind connectionState) {
         ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePoint = new ch.iec.tc57._2011.usagepointconfig.UsagePoint();

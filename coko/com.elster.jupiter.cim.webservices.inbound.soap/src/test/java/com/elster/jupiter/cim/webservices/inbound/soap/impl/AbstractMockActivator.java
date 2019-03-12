@@ -5,6 +5,8 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -97,9 +99,13 @@ public abstract class AbstractMockActivator {
     @Mock
     DestinationSpec destinationSpec;
     @Mock
-    ServiceCall serviceCall;
+    protected ServiceCall serviceCall;
 
     private CIMInboundSoapEndpointsActivator activator;
+    @Mock
+    private ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
+    @Mock
+    private ReplyUsagePointConfigWebService replyUsagePointConfigWebService;
 
     @Before
     public void init() {
@@ -123,13 +129,15 @@ public abstract class AbstractMockActivator {
                 .thenReturn(Optional.of(destinationSpec));
         when(messageService.getQueueTableSpec(ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME))
                 .thenReturn(Optional.of(queueTableSpec));
+        when(serviceCall.newChildCall(any(ServiceCallType.class))).thenReturn(builder);
     }
 
     private void initActivator() {
         activator = new CIMInboundSoapEndpointsActivator(mock(BundleContext.class), clock, threadPrincipalService,
                 transactionService, meteringService, nlsService, upgradeService, metrologyConfigurationService,
                 userService, usagePointLifeCycleService, customPropertySetService, endPointConfigurationService,
-                webServicesService, serviceCallService, messageService, jsonService, sendMeterReadingsProvider);
+                webServicesService, serviceCallService, messageService, jsonService, sendMeterReadingsProvider,
+                replyMasterDataLinkageConfigWebService, replyUsagePointConfigWebService);
     }
 
     protected <T> T getInstance(Class<T> clazz) {

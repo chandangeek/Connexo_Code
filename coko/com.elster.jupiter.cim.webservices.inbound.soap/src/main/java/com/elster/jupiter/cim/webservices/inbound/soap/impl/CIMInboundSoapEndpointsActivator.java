@@ -107,7 +107,9 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
             UsagePointLifeCycleService usagePointLifeCycleService, CustomPropertySetService customPropertySetService,
             EndPointConfigurationService endPointConfigurationService, WebServicesService webServicesService,
             ServiceCallService serviceCallService, MessageService messageService, JsonService jsonService,
-            SendMeterReadingsProvider sendMeterReadingsProvider) {
+            SendMeterReadingsProvider sendMeterReadingsProvider,
+            ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService,
+            ReplyUsagePointConfigWebService replyUsagePointConfigWebService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -125,6 +127,8 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         setMessageService(messageService);
         setJsonService(jsonService);
         setSendMeterReadingsProvider(sendMeterReadingsProvider);
+        addReplyMasterDataLinkageConfigWebServiceClient(replyMasterDataLinkageConfigWebService);
+        addReplyUsagePointConfigWebServiceClient(replyUsagePointConfigWebService);
         activate(bundleContext);
     }
 
