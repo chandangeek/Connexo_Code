@@ -295,11 +295,11 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    public void addReplyMeterConfigWebServiceClient(ReplyMasterDataLinkageConfigWebService webService) {
+    public void addReplyMasterDataLinkageConfigWebServiceClient(ReplyMasterDataLinkageConfigWebService webService) {
         replyMasterDataLinkageConfigWebServiceHolder.setObject(webService);
     }
 
-    public void removeReplyMeterConfigWebServiceClient(ReplyMasterDataLinkageConfigWebService webService) { // NOSONAR we cannot remove this parameter
+    public void removeReplyMasterDataLinkageConfigWebServiceClient(ReplyMasterDataLinkageConfigWebService webService) { // NOSONAR we cannot remove this parameter
         replyMasterDataLinkageConfigWebServiceHolder.unsetObject();
     }
 
