@@ -114,7 +114,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 renderer: function (value, field) {
                                     var result = '',
                                         record = field.up('form').getRecord();
-                                    if (record && record.get('checkOptions').length === 0) {
+                                    if (record && (record.get('checkOptions').length === 0 || record.get('isAllowed') === false)) {
                                         field.hide();
                                     } else {
                                         field.show();
