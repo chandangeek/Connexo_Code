@@ -1,9 +1,7 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.parent;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -14,6 +12,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 public abstract class AbstractMasterCustomPropertySet<E extends AbstractMasterDomainExtension>
         implements CustomPropertySet<ServiceCall, E> {

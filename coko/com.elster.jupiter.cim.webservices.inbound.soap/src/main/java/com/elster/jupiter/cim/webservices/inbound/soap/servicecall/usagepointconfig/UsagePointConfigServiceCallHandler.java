@@ -4,10 +4,10 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.parent.AbstractServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.Action;
 import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.UsagePointBuilder;
 import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.json.JsonService;
@@ -27,7 +27,7 @@ import java.util.Optional;
 /**
  * Implementation of {@link ServiceCallHandler} interface which handles the different steps for CIM WS UsagePointConfig
  */
-public class UsagePointConfigServiceCallHandler implements ServiceCallHandler {
+public class UsagePointConfigServiceCallHandler extends AbstractServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "UsagePointConfigServiceCallHandler";
     public static final String VERSION = "v1.0";
 
@@ -42,23 +42,7 @@ public class UsagePointConfigServiceCallHandler implements ServiceCallHandler {
     }
 
     @Override
-    public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
-        switch (newState) {
-        case PENDING:
-            serviceCall.requestTransition(DefaultState.ONGOING);
-            break;
-        case ONGOING:
-            processCall(serviceCall);
-            break;
-        case SUCCESSFUL:
-        case FAILED:
-        default:
-            break;
-        }
-    }
-
-    private void processCall(ServiceCall serviceCall) {
+    protected void process(ServiceCall serviceCall) {
         UsagePointConfigDomainExtension extension = serviceCall.getExtension(UsagePointConfigDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
         UsagePoint usagePoint = jsonService.deserialize(extension.getUsagePoint(), UsagePoint.class);

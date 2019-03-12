@@ -1,10 +1,7 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.parent;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
@@ -14,6 +11,12 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import java.math.BigDecimal;
+import java.util.Optional;
 
 public abstract class AbstractMasterDomainExtension extends AbstractPersistentDomainExtension
         implements PersistentDomainExtension<ServiceCall> {

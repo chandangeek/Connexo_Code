@@ -1,15 +1,19 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.parent;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.DataLinkageConfigChecklist;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
+
 import com.google.inject.Module;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public abstract class AbstractMasterCustomPropertyPersistenceSupport<E extends AbstractMasterDomainExtension>
         implements PersistenceSupport<ServiceCall, E> {

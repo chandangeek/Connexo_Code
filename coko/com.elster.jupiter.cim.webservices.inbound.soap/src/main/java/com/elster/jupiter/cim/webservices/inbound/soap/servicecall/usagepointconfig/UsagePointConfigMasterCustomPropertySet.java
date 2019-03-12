@@ -1,9 +1,7 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig;
-
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.CIMInboundSoapEndpointsActivator;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.parent.AbstractMasterCustomPropertyPersistenceSupport;
@@ -17,6 +15,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
 
 @Component(name = "com.elster.jupiter.cim.webservices.inbound.soap.UsagePointConfigMasterCustomPropertySet", service = CustomPropertySet.class, property = "name="
         + UsagePointConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME, immediate = true)
@@ -62,12 +65,12 @@ public class UsagePointConfigMasterCustomPropertySet
 
     @Override
     public PropertySpecService getPropertySpecService() {
-        return this.propertySpecService;
+        return propertySpecService;
     }
 
     @Override
     public Thesaurus getThesaurus() {
-        return this.thesaurus;
+        return thesaurus;
     }
 
     @Override

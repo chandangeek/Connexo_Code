@@ -7,6 +7,7 @@ package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatali
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ObjectHolder;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.parent.AbstractMasterServiceCallHandler;
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
@@ -22,20 +23,17 @@ import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link ServiceCallHandler} interface which handles the different steps for CIM WS MasterDataLinkageConfig
  */
-public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceCallHandler {
+public class MasterDataLinkageConfigMasterServiceCallHandler extends
+        AbstractMasterServiceCallHandler<MasterDataLinkageConfigMasterDomainExtension, ReplyMasterDataLinkageConfigWebService> {
     public static final String SERVICE_CALL_HANDLER_NAME = "MasterDataLinkageConfigMasterServiceCallHandler";
     public static final String VERSION = "v1.0";
 
-    private final EndPointConfigurationService endPointConfigurationService;
-    private final ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder;
     private final JsonService jsonService;
     private final MeteringService meteringService;
 
@@ -43,103 +41,20 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
     public MasterDataLinkageConfigMasterServiceCallHandler(EndPointConfigurationService endPointConfigurationService,
             ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder,
             JsonService jsonService, MeteringService meteringService) {
-        this.endPointConfigurationService = endPointConfigurationService;
-        this.replyMasterDataLinkageConfigWebServiceHolder = replyMasterDataLinkageConfigWebServiceHolder;
+        super(MasterDataLinkageConfigMasterDomainExtension.class, replyMasterDataLinkageConfigWebServiceHolder,
+                endPointConfigurationService);
         this.jsonService = jsonService;
         this.meteringService = meteringService;
     }
 
     @Override
-    public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        switch (newState) {
-        case ONGOING:
-            serviceCall.findChildren().stream().forEach(child -> child.requestTransition(DefaultState.PENDING));
-            break;
-        case SUCCESSFUL:
-            sendResponseToOutboundEndPoint(serviceCall);
-            break;
-        case FAILED:
-            sendResponseToOutboundEndPoint(serviceCall);
-            break;
-        case PARTIAL_SUCCESS:
-            sendResponseToOutboundEndPoint(serviceCall);
-            break;
-        case PENDING:
-            serviceCall.requestTransition(DefaultState.ONGOING);
-            break;
-        default:
-            // No specific action required for these states
-            break;
-        }
-    }
-
-    @Override
-    public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall childServiceCall, DefaultState oldState,
-            DefaultState newState) {
-        switch (newState) {
-        case SUCCESSFUL:
-        case FAILED:
-            updateCounter(parentServiceCall, newState);
-            break;
-        case CANCELLED:
-        case REJECTED:
-        default:
-            // No specific action required for these states
-            break;
-        }
-    }
-
-    private void updateCounter(ServiceCall serviceCall, DefaultState state) {
-        MasterDataLinkageConfigMasterDomainExtension extension = serviceCall
-                .getExtension(MasterDataLinkageConfigMasterDomainExtension.class)
-                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-
-        BigDecimal successfulCalls = extension.getActualNumberOfSuccessfulCalls();
-        BigDecimal failedCalls = extension.getActualNumberOfFailedCalls();
-        BigDecimal expectedCalls = extension.getExpectedNumberOfCalls();
-
-        if (DefaultState.SUCCESSFUL.equals(state)) {
-            successfulCalls = successfulCalls.add(BigDecimal.ONE);
-            extension.setActualNumberOfSuccessfulCalls(successfulCalls);
-        } else {
-            failedCalls = failedCalls.add(BigDecimal.ONE);
-            extension.setActualNumberOfFailedCalls(failedCalls);
-        }
-        serviceCall.update(extension);
-
-        if (extension.getExpectedNumberOfCalls().compareTo(successfulCalls.add(failedCalls)) <= 0) {
-            if (successfulCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
-                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-            } else if (failedCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.FAILED)) {
-                serviceCall.requestTransition(DefaultState.FAILED);
-            } else if (serviceCall.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
-                serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
-            }
-        }
-    }
-
-    private void sendResponseToOutboundEndPoint(ServiceCall serviceCall) {
-        if (replyMasterDataLinkageConfigWebServiceHolder.getObject() == null) {
-            return;
-        }
-        MasterDataLinkageConfigMasterDomainExtension extension = serviceCall
-                .getExtension(MasterDataLinkageConfigMasterDomainExtension.class)
-                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-        if (extension.getCallbackURL() == null) {
-            return;
-        }
-        Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService
-                .findEndPointConfigurations().find().stream().filter(EndPointConfiguration::isActive)
-                .filter(epc -> !epc.isInbound()).filter(epc -> epc.getUrl().equals(extension.getCallbackURL()))
-                .findAny();
-        if (!endPointConfiguration.isPresent()) {
-            return;
-        }
-
+    protected void sendReply(ReplyMasterDataLinkageConfigWebService replyWebService,
+            EndPointConfiguration endPointConfiguration, ServiceCall serviceCall,
+            MasterDataLinkageConfigMasterDomainExtension extension) {
         ServiceCall child = serviceCall.findChildren().stream().findFirst().get();
         MasterDataLinkageConfigDomainExtension extensionForChild = child
                 .getExtension(MasterDataLinkageConfigDomainExtension.class).get();
-        replyMasterDataLinkageConfigWebServiceHolder.getObject().call(endPointConfiguration.get(), extensionForChild.getOperation(),
+        replyWebService.call(endPointConfiguration, extensionForChild.getOperation(),
                 getSuccessfulLinkages(serviceCall), getFailedLinkages(serviceCall),
                 extension.getExpectedNumberOfCalls());
     }
