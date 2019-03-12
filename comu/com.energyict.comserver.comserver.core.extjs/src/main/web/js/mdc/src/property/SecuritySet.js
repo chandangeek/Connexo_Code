@@ -36,18 +36,12 @@ Ext.define('Mdc.property.SecuritySet', {
                 console.log("deviceName from context = ",me.up('property-form').context.deviceName);
                 var deviceNameToSet = me.up('property-form').context.deviceName;
                 me.securitySetsStore.getProxy().url = '/api/ddr/devices/' + deviceNameToSet + '/securityproperties/hsm';
-                console.log("SET X!!!!!!!!!!!!!!!!!!!!!!");
-               // me.getPropForm().setX(100);
+
                 me.securitySetsStore.load(function () {
-
-
-                    console.log("GET FIRST RECORD!!!!!!!!!!!!!!!!!");
-                    //var record = me.securitySetsStore.first();
 
                     me.securityAccessorsStore.getProxy().url = '/api/ddr/devices/' + deviceNameToSet + '/securityaccessors/keys';
                     me.securityAccessorsStore.load(function () {
                         me.getGrid().getSelectionModel().selectAll();
-                    /* RENDER ACCESSORS HER!!!!!!!!!*/
                     })
                 });
             }
@@ -72,8 +66,6 @@ Ext.define('Mdc.property.SecuritySet', {
         });
 
         me.securityAccessorsStore = Ext.create('Ext.data.Store', {
-                    //fields: ['name'/*, 'readingType'*/],
-
                     model: 'Mdc.securityaccessors.model.DeviceSecurityKey',
                     proxy: {
                         type: 'rest',
@@ -144,7 +136,6 @@ Ext.define('Mdc.property.SecuritySet', {
 
                                 dockedItems: [
                                     {
-                                        //xtype: 'container',
                                         xtype: 'label',
                                         dock: 'bottom',
                                         itemId: 'version-date-field-error-container',
@@ -152,8 +143,9 @@ Ext.define('Mdc.property.SecuritySet', {
                                         hidden: true,
                                         cls: 'x-form-invalid-under'
                                     }
-                                ]
-                            }
+                                ],
+                            },
+
                         ]
                     },
                         {
@@ -204,7 +196,10 @@ Ext.define('Mdc.property.SecuritySet', {
             var nameOfAccessor = accessor.get('name');
             var properties = accessor.currentProperties();
             var accessorId = accessor.get('id');
+            var defaultServiceKeyValue = accessor.get('defaultServiceKey');
+            console.log("ACCESSOR=",accessor );
             console.log("ACCESSOR ID =", accessorId);
+            console.log("defaultServiceKeyValue  =", defaultServiceKeyValue );
 
             properties.each(function (property) {
                 property.set('name', nameOfAccessor);
@@ -215,14 +210,18 @@ Ext.define('Mdc.property.SecuritySet', {
                     console.log("NOT LABEL!!!!");
                     var keyToset = nameOfAccessor;//nameOfAccessor + propertyKey; TO DO move it to place where load if finished !!!!!!!!!
                     property.set('key', keyToset);//to get unigue key compose it from nameOfAccessor and property Key
+                    console.log("SET DEFAULT VALUIE = ",defaultServiceKeyValue);
+                    property.data.value = defaultServiceKeyValue;
+                    property.data.default = defaultServiceKeyValue;
 
                     var type = property.getType();
                     fieldType = registry.getProperty(type);
 
 
                     console.log("PROPERTY =",property);
+                    /*console.log("PROPERTY PARAMS = ",property.getPropertyParams());
                     console.log("KEY TO FINE =",property.get('key'));
-                    console.log("TRY TO FIND FIELD = ",me.up('property-form').down(property.get('key')));
+                    console.log("TRY TO FIND FIELD = ",me.up('property-form').down(property.get('key')));*/
 
                     tmpKey = property.get('key');
 
@@ -244,16 +243,8 @@ Ext.define('Mdc.property.SecuritySet', {
                                             editButtonTooltip: "Edit",
                                             removeButtonTooltip: "Remove",
                                             blankText: "This field is required",
-                                            propertyParams : null,
-                                            listeners: {
-                                                change: {
-                                                    fn: function (newValue) {
-                                                        console.log("CHANGE FOR FIELD !!! mewValue=",mewValue);
-                                                    }
-                                                }
-                                            }
+                                            propertyParams : property.getPropertyParams()
                                         }));
-                        //me.up('property-form').add(field);
                         me.getPropForm().add(field);
                         renderedKeys.push(keyToset);
                     } else {
@@ -264,14 +255,6 @@ Ext.define('Mdc.property.SecuritySet', {
                     }
                 }
             });
-
-
-
-
-                         //console.log("REMOVE FROM FORM AuthenticationKeykey!!!!!!!!!!!!");
-                         //me.up('property-form').remove('AuthenticationKeykey');
-                         //me.up('property-form').remove('AuthenticationKeykey');
-
         })
         Ext.resumeLayouts(true);
     },
@@ -295,8 +278,7 @@ Ext.define('Mdc.property.SecuritySet', {
                 }
             })
         })
-        console.log("accessorIdArray = ",accessorIdArray);
-        console.log("RENDER ACCESSORS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
         me.renderAccessors(accessorIdArray);
 
 
@@ -319,14 +301,7 @@ Ext.define('Mdc.property.SecuritySet', {
         var result = "";
         var resultSets = "";
         var resultAccessors = "";
-        //console.log("GET VALUE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! for key =",tmpKey);
-        //console.log("GET VALUE for tmpKey=",tmpKey);
-        //var field = me.up('property-form');//.down(tmpKey);
-        //console.log("field = ",field);
-        //var value = this.down('txt-name').getValue();
-        //console.log('Obtained value = ',value);
-       //console.log("field value = ",field.getValue());
-       //var raw = me.up('property-form').getFieldValues();
+
        var selectedSets = [];
         _.map(me.getGrid().getSelectionModel().getSelection(), function (record) {
                     console.log("SELECTED RECORDS = ",record.get('name'));
@@ -338,8 +313,7 @@ Ext.define('Mdc.property.SecuritySet', {
                 })
 
         if (selectedSets.length == 0){
-            /*requred field is not selected. just send empty result */
-            console.log("REQUIRED IS NOT SELECTED !!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            /* requred field is not selected. just send empty result */
             return ;
         }
 
@@ -352,7 +326,6 @@ Ext.define('Mdc.property.SecuritySet', {
 
 
         var raw = me.getPropForm().getFieldValues();
-        console.log("RAW VALUES = ",raw);
 
         for( var index = 0 ; index < renderedKeys.length ; index++){
             console.log("index =",index);
@@ -378,9 +351,10 @@ Ext.define('Mdc.property.SecuritySet', {
 
         }
 
+        /* Format of value is <list of sets> ;; <list of accessors> */
         result = resultSets + ";;" + resultAccessors;
 
-        console.log("RESULT ======",result);
+        console.log("RESULT =",result);
         return result;
     },
 
@@ -401,7 +375,6 @@ Ext.define('Mdc.property.SecuritySet', {
     },
 
     isValid: function(){
-        console.log("ISVALID IS CALLED FOR SECURITY SET!!!!!!!!!!!!");
         return false;
     },
 
@@ -411,7 +384,6 @@ Ext.define('Mdc.property.SecuritySet', {
     },
 
     markInvalid: function (msg) {
-        console.log("MARK IS INVALID msg =",msg);
         Ext.suspendLayouts();
         this.getErrorContainer().setText(msg);
         this.getErrorContainer().show();
@@ -419,7 +391,6 @@ Ext.define('Mdc.property.SecuritySet', {
     },
 
     clearInvalid: function () {
-        console.log("CLEAR INVALID");
         this.getErrorContainer().hide();
     }
 });

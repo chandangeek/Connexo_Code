@@ -10,7 +10,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
             {
                 text: Uni.I18n.translate('general.changePrivileges', 'MDC', 'Change privileges'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
-                hidden: true,
+                //hidden: true,
                 action: 'changePrivileges',
                 itemId: 'menu-sa-change-privileges',
                 section: this.SECTION_EDIT
@@ -47,11 +47,22 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 action: 'activatePassiveCertificate',
                 itemId: 'menu-sa-activate-passive-certificate',
                 section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.setDefaultKeyValue', 'MDC', 'Set default key value'),
+                privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
+                hidden: true,
+                action: 'setDefaultKeyValue',
+                itemId: 'menu-sa-set-default-value',
+                section: this.SECTION_EDIT
             }
+
+
         ];
         this.callParent(arguments);
     },
     updateMenuItems: function (record) {
+        console.log("UPDATE MENU ITEMS !!!!!!!!!!!",record.get('keyType').name);
         this.down('#menu-sa-clear-passive-certificate')
         && this.down('#menu-sa-clear-passive-certificate')
                 .setVisible(!this.deviceTypeId && record.get('passiveCertificate'));
@@ -61,5 +72,8 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
         this.down('#menu-sa-change-privileges')
         &&  this.down('#menu-sa-change-privileges')
                 .setVisible(!this.deviceTypeId && record.get('isKey'));
+        this.down('#menu-sa-set-default-value')
+                &&  this.down('#menu-sa-set-default-value')
+                        .setVisible(record.get('keyType').name == 'HSM Key');
     }
 });

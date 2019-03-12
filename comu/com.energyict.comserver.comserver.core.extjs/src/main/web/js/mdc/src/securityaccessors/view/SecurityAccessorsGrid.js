@@ -94,7 +94,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('securityaccessors.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Security accessors per page'),
+                itemsPerPageMsg: 'SECURITY ACCESSORS PER PAGE!!!',//Uni.I18n.translate('securityaccessors.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Security accessors per page'),
                 dock: 'bottom'
             }
         ];

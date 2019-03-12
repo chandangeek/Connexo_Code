@@ -16,7 +16,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
         var me = this;
         me.items = [
             {
-                text: "EDIT!!!!!!!",//Uni.I18n.translate('general.Edit', 'MDC', 'Edit'),
+                text: Uni.I18n.translate('general.Edit', 'MDC', 'Edit'),
                 privileges: Mdc.privileges.Device.canAdministrateDevice(),
                 itemId: 'mdc-device-security-accessors-action-menu-edit',
                 action: me.keyMode ? 'editDeviceKey' : 'editDeviceCertificate',
@@ -64,9 +64,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
                 section: me.SECTION_VIEW
             },
             {
-                text: me.keyMode
-                    ? Uni.I18n.translate('general.unmarkServiceKey', 'MDC', 'Unmark service key')
-                    : Uni.I18n.translate('general.clearPassiveCertificate', 'MDC', 'Clear passive certificate'),
+                text:  Uni.I18n.translate('general.unmarkServiceKey', 'MDC', 'Unmark service key'),
                 privileges: Mdc.privileges.Device.canAdministrateDevice(),
                 checkServiceKey: true,
                 action: 'unmarkServiceKey',

@@ -100,7 +100,7 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
                                             },
                                             {
                                                 xtype: 'button',
-                                                text: 'CNACEL !!!!',//Uni.I18n.translate('general.cancel', 'BPM', 'Cancel'),
+                                                text: Uni.I18n.translate('general.cancel', 'BPM', 'Cancel'),
                                                 itemId: 'cancel-link-button',
                                                 action: 'cancelStartProcess',
                                                 ui: 'link'
