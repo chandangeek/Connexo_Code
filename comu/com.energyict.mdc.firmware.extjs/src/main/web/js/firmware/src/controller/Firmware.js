@@ -23,8 +23,7 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.form.OptionsHydrator',
         'Fwc.form.Hydrator',
         'Uni.view.window.Confirmation',
-        'Fwc.model.SecurityAccessor',
-        'Fwc.view.firmware.MinVersionOption'
+        'Fwc.model.SecurityAccessor'
     ],
 
     stores: [
