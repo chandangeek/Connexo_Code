@@ -6,6 +6,9 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.rest.AppServerHelper;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.rest.AuditI18N;
+import com.elster.jupiter.audit.rest.AuditInfoFactory;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
@@ -190,10 +193,12 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile OrmService ormService;
     private volatile com.elster.jupiter.tasks.TaskService tskService;
     private volatile CommandRuleService commandRuleService;
+    private volatile AuditService auditService;
 
 
     private volatile SecurityAccessorResourceHelper securityAccessorResourceHelper;
     private volatile com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory securityAccessorInfoFactory;
+    private volatile com.elster.jupiter.audit.rest.AuditInfoFactory auditInfoFactory;
     private volatile TrustStoreValuesProvider trustStoreValuesProvider;
     private volatile AliasSearchFilterFactory aliasSearchFilterFactory;
     private volatile RegisteredDevicesKpiService registeredDevicesKpiService;
@@ -245,7 +250,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 CrlRequestTaskResource.class,
                 DeviceZoneResource.class,
                 ProcessResource.class,
-                AppServerHelper.class
+                AppServerHelper.class,
+                AuditService.class
         );
     }
 
@@ -338,6 +344,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setAuditService(AuditService auditService) {
+        this.auditService = auditService;
+    }
+
+    @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
@@ -379,6 +390,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus(AuditI18N.COMPONENT_NAME, Layer.REST))
                 .join(nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
@@ -439,6 +451,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setSecurityAccessorInfoFactory(com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory securityAccessorInfoFactory) {
         this.securityAccessorInfoFactory = securityAccessorInfoFactory;
+    }
+
+    @Reference
+    public void setAuditInfoFactory(AuditInfoFactory auditInfoFactory) {
+        this.auditInfoFactory = auditInfoFactory;
     }
 
     @Reference
@@ -766,6 +783,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(crlRequestService).to(CrlRequestService.class);
             bind(EndDeviceZoneInfoFactory.class).to(EndDeviceZoneInfoFactory.class);
             bind(DeviceZoneResource.class).to(DeviceZoneResource.class);
+            bind(auditService).to(AuditService.class);
+            bind(AuditInfoFactory.class).to(AuditInfoFactory.class);
+            bind(auditInfoFactory).to(AuditInfoFactory.class);
 
         }
     }

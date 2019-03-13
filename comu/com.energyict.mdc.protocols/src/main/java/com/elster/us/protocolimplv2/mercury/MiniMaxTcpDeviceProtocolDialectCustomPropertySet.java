@@ -5,7 +5,6 @@
 package com.elster.us.protocolimplv2.mercury;
 
 import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
@@ -26,9 +25,8 @@ import javax.inject.Inject;
 public class MiniMaxTcpDeviceProtocolDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, MiniMaxTcpDeviceProtocolDialectProperties> {
 
     @Inject
-    public MiniMaxTcpDeviceProtocolDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
+    public MiniMaxTcpDeviceProtocolDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
-        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Override

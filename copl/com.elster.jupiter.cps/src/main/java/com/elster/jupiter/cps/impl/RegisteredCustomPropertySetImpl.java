@@ -93,10 +93,9 @@ class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, Pe
         return this;
     }
 
-    void updateCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined){
+    void updateCustomPropertySet(CustomPropertySet customPropertySet){
         this.logicalId = customPropertySet.getId();
         this.customPropertySet = customPropertySet;
-        this.systemDefined = systemDefined;
     }
 
     @Override
