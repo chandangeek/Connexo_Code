@@ -274,20 +274,23 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
             if (firmwareVersion != null) {
                 return deviceMessageIdList.stream()
                         .filter(deviceMessageId -> this.validateImageIdentifier(deviceMessageId, firmwareVersion.getImageIdentifier()))
-                        .findFirst();
+                        .findFirst()
+                        .map(Optional::of)
+                        .orElseGet(deviceMessageIdList.stream()::findFirst);
             } else {
                 // If an image identifier message is present, get that first. See CXO-7821 for more details
-                Optional<DeviceMessageId> messageIdOptional = deviceMessageIdList.stream()
-                        .filter(DeviceMessageId.needsImageIdentifier()::contains)
-                        .findFirst();
-                return messageIdOptional.isPresent() ? messageIdOptional : deviceMessageIdList.stream().findFirst();
+                return deviceMessageIdList.stream()
+                        .filter(deviceMessageSpecificationService::needsImageIdentifierAtFirmwareUpload)
+                        .findFirst()
+                        .map(Optional::of)
+                        .orElseGet(deviceMessageIdList.stream()::findFirst);
             }
         }
         return Optional.empty();
     }
 
     private boolean validateImageIdentifier(DeviceMessageId deviceMessageId, String imageIdentifier) {
-        return (imageIdentifier != null) == DeviceMessageId.needsImageIdentifier().contains(deviceMessageId);
+        return (imageIdentifier != null) == deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(deviceMessageId);
     }
 
     private List<DeviceMessageId> getDeviceMessageIdList(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOption) {
@@ -360,6 +363,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return new FirmwareVersionImpl.FirmwareVersionImplBuilder(dataModel.getInstance(FirmwareVersionImpl.class), deviceType, firmwareVersion, status, type);
     }
 
+    @Override
     public FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type, String imageIdentifier) {
         return new FirmwareVersionImpl.FirmwareVersionImplBuilder(dataModel.getInstance(FirmwareVersionImpl.class), deviceType, firmwareVersion, status, type, imageIdentifier);
     }
