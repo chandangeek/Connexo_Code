@@ -1,0 +1,97 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:met="http://iec.ch/TC57/2011/MeterConfigMessage"
+                  xmlns:mes="http://iec.ch/TC57/2011/schema/message"
+                  xmlns:met1="http://iec.ch/TC57/2011/MeterConfig#"
+                  xmlns:cus="http://connexo.elster.com/2017/schema/customattributes"
+                  xmlns:sec="http://connexo.elster.com/2018/schema/securitykeys"
+                  xmlns:xenc="http://www.w3.org/2001/04/xmlenc#"
+                  xmlns:ds="http://www.w3.org/2000/09/xmldsig#">>
+    <soapenv:Header/>
+    <soapenv:Body>
+        <met:CreateMeterConfig>
+            <met:Header>
+                <mes:Verb>create</mes:Verb>
+                <mes:Noun>MeterConfig</mes:Noun>
+            </met:Header>
+            <met:Payload>
+                <met1:MeterConfig>
+                    <met1:Meter>
+                        <!-- Optional -->
+                        <met1:lotNumber>batch</met1:lotNumber>
+                        <!-- Optional -->
+                        <met1:serialNumber>000001</met1:serialNumber>
+                        <!-- Required -->
+                        <met1:type>Actaris SL7000</met1:type>
+                        <!-- Optional. For now ignored -->
+                        <met1:ComFunction/>
+                        <!-- Required -->
+                        <met1:SimpleEndDeviceFunction ref="123"/>
+                        <!-- Optional -->
+                        <met1:EndDeviceInfo>
+                            <met1:AssetModel>
+                                <!-- Optional -->
+                                <met1:modelNumber>1.0</met1:modelNumber>
+                                <!-- Optional -->
+                                <met1:modelVersion>2.0</met1:modelVersion>
+                                <!-- Optional -->
+                                <met1:Manufacturer>
+                                    <met1:Names>
+                                        <met1:name>manufacturer</met1:name>
+                                    </met1:Names>
+                                </met1:Manufacturer>
+                            </met1:AssetModel>
+                        </met1:EndDeviceInfo>
+                        <!-- Required -->
+                        <met1:lifecycle>
+                            <!-- Required -->
+                            <met1:receivedDate>2017-12-01</met1:receivedDate>
+                        </met1:lifecycle>
+                        <!-- Optional -->
+                        <!-- No multiplier => multiplier = 1 -->
+                        <!-- List of multipliers => only first one is processed -->
+                        <met1:MeterMultipliers>
+                            <met1:value>1</met1:value>
+                        </met1:MeterMultipliers>
+                        <!-- Optional -->
+                        <!-- No name => name = serial number -->
+                        <!-- No serial number => name = MRID -->
+                        <met1:Names>
+                            <met1:name>DEVICE-000</met1:name>
+                        </met1:Names>
+                        <sec:SecurityKey>
+                            <sec:symmetricKey>
+                                <xenc:CipherData>
+                                    <xenc:CipherValue>
+                                        YWP6bL4mwueTwG+WvkXeDZRscRZq9LaxOLPlxurp8yOftNZIY7OOybFx51tG+zRegC2WwrDWPzORcoMszUM8vIZROC93V3Nkf97yYp9RLEqnt0Jodlkz0wAg2LxouAW0L9SxeeMHoPxNo9WOTi7dOCgLIk93m8JSTIUt32rgcFDfj7+wZtOkNpAYU8o1MaSoQ7rhBrqEVCXhzSTagJ/b8vqNHBh8MvXb9piaXZDbhiu7qvMMjMuUQLswVwdTiIAy3roHxo1OUcwcw/AnNLf01GQtz5WKDPIMR3mMEqqfJnPW6RiATznBIa3x3npcYnqJqM8NiijN9rLNvCV7ILWZAg==
+                                    </xenc:CipherValue>
+                                </xenc:CipherData>
+                            </sec:symmetricKey>
+                            <sec:publicKey>
+                                <ds:Modulus>
+                                    ANXQkxRDxFgRo2btLoEHZ6Y9S8Tp1dUu43YZYUvLHTC4/p2/DFlY7uDjuNfv4A3NuyrD0f89VkhlzsrzYZvvvhKjM9IhKWumrW0xbe6BoN2kuDGCLtqveWItOGEYSt1cOg1pgswvcSMSh9iQDe6N1CpRRd56WRDp8X/BuM66uldSyMn7fYb0WgMmJF5BGZwIvw7vw5yO9mKnjpt+nV1nIQZd7ogwcfIo9UTZILy0lyFEEykACMfoj2YeXPju5IKLxeUpIA6HM9tW2I7BTUaRq9Nv2WGF7B4VCH+yHRQqcjlavioP6BgACxBWFJJFGOiM6+Ol/aHwbeYfly/WcPPI8Ms=
+                                </ds:Modulus>
+                                <ds:Exponent>AQAB</ds:Exponent>
+                            </sec:publicKey>
+                            <sec:securityAccessorName>password</sec:securityAccessorName>
+                            <sec:securityAccessorKey>
+                                <xenc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#aes256-cbc"/>
+                                <xenc:CipherData>
+                                    <xenc:CipherValue>nJTYAqMU8id/ZBz331+HyeNCB13CqPXhNLV2GR5YpHh3HsnwCnSxfnnOfrLlgPdi</xenc:CipherValue>
+                                </xenc:CipherData>
+                            </sec:securityAccessorKey>
+                        </sec:SecurityKey>
+                    </met1:Meter>
+                    <!-- Required -->
+                    <met1:SimpleEndDeviceFunction>
+                        <!-- Required -->
+                        <met1:mRID>123</met1:mRID>
+                        <!-- Required -->
+                        <met1:configID>Prosumers</met1:configID>
+                        <!-- Optional. For now ignored -->
+                        <met1:firmwareID>1.0</met1:firmwareID>
+                    </met1:SimpleEndDeviceFunction>
+                </met1:MeterConfig>
+            </met:Payload>
+        </met:CreateMeterConfig>
+    </soapenv:Body>
+</soapenv:Envelope>

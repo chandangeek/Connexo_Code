@@ -32,7 +32,8 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         'Mdc.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnDevice',
         'Mdc.store.device.MeterActivations',
         'Isu.store.Issues',
-        'Mdc.store.device.IssuesAlarms'
+        'Mdc.store.device.IssuesAlarms',
+        'Mdc.audit.store.DeviceAudit'
     ],
 
     models: [
@@ -57,6 +58,9 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         this.control({
             '#device-history-issues-alarms-tab #issues-alarms-grid': {
                 select: this.showIssueAndAlarmPreview
+            },
+            '#history-panel #device-history-tab-panel': {
+                tabchange: this.historyTabPanelChange
             }
         });
         this.getController('Mdc.controller.setup.ApplyAlarmAction');
@@ -93,6 +97,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                 me.showDeviceLifeCycleHistory();
                 me.showCustomAttributeSetsHistory(deviceId);
                 me.showIssuesAndAlarms(deviceId);
+                me.showAuditTrail(deviceId);
             }
         });
     },
@@ -143,8 +148,20 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         if (queryParams.activeTab === 'issues') {
             me.getTabPanel().setActiveTab('device-history-issues-alarms-tab');
         }
+    },
 
+    showAuditTrail: function (deviceId) {
+        var me = this,
+            auditController = me.getController('Mdc.audit.controller.Audit'),
+            auditTrailTab = me.getPage().down('#device-history-audit-trail-tab'),
+            dependenciesLoaded = function () {
+                var deviceDeviceAudit = me.getStore('Mdc.audit.store.DeviceAudit');
+                deviceDeviceAudit.getProxy().setUrl(deviceId);
+                auditTrailTab.add(auditController.getAuditTrailView(deviceDeviceAudit));
+                auditController.prepareForDevice(auditTrailTab.down('audit-setup-view'));
+            };
 
+        auditController.loadDependencies(this, dependenciesLoaded);
     },
 
     showCustomAttributeSetsHistory: function (deviceId) {
@@ -152,7 +169,6 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.DeviceCustomAttributeSets');
 
         customAttributesStore.getProxy().setExtraParam('deviceId', deviceId);
-
         customAttributesStore.load(function () {
             me.getPage().loadCustomAttributeSets(this);
             me.showCustomAttributeSet(deviceId);
@@ -196,7 +212,10 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         me.getTabPanel().on('tabchange', function(tabpanel, tabItem) {
             if (tabItem.itemId !== 'device-history-firmware-tab'
                 && tabItem.itemId !== 'device-history-life-cycle-tab'
-                && tabItem.itemId !== 'device-history-meter-activations-tab' && tabItem.itemId !== 'device-history-issues-alarms-tab') {
+                && tabItem.itemId !== 'device-history-meter-activations-tab'
+                && tabItem.itemId !== 'device-history-issues-alarms-tab'
+                && tabItem.itemId !== 'device-history-audit-trail-tab')
+            {
                 router.queryParams = {};
                 if (tabItem.customAttributeSetId) {
                     router.queryParams.customAttributeSetId = tabItem.customAttributeSetId;
@@ -289,5 +308,19 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         preview.loadRecord(record);
         preview.currentUserId = me.currentUserId;
         Ext.resumeLayouts();
+    },
+
+    historyTabPanelChange: function(tabPanel, newCard, oldCard, eOpts){
+        var me = this;
+
+        if (newCard.itemId === 'device-history-audit-trail-tab'){
+            var auditPreviewGrid = newCard.down('#audit-preview #audit-preview-grid');
+
+            if (auditPreviewGrid.getView() && auditPreviewGrid.getView().getEl() &&
+                auditPreviewGrid.getSelectionModel().getSelection() &&
+                auditPreviewGrid.getSelectionModel().getSelection().length ==0){
+                auditPreviewGrid.getSelectionModel().select(0);
+            }
+        }
     }
 });

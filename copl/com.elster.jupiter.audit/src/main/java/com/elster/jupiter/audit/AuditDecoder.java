@@ -15,7 +15,7 @@ public interface AuditDecoder {
 
     String getName();
 
-    Object getReference();
+    Object getContextReference();
 
     boolean isRemoved();
 

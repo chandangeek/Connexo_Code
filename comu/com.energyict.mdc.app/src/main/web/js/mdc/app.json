@@ -25,6 +25,7 @@
         "com.elster.jupiter.servicecall.extjs",
         "com.elster.jupiter.appserver.extjs",
         "com.energyict.mdc.issue.devicelifecycle.extjs"
+        "com.energyict.mdc.tou.campaign.extjs"
     ],
 
     "id": "28c552c9-436e-4d93-8f74-038373138820"

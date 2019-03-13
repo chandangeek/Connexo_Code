@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class AuditReferenceInfo {
 
     private String name;
-    private Object reference;
+    private Object contextReference;
     private boolean removed;
 
     public String getName() {
@@ -24,12 +24,12 @@ public class AuditReferenceInfo {
         this.name = name;
     }
 
-    public Object getReference() {
-        return reference;
+    public Object getContextReference() {
+        return contextReference;
     }
 
-    public void setReference(Object reference) {
-        this.reference = reference;
+    public void setContextReference(Object contextReference) {
+        this.contextReference = contextReference;
     }
 
     public boolean getRemoved() {

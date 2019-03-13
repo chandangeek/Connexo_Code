@@ -366,6 +366,18 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.alarms.rest</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tou.campaign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tou.campaign.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tou.campaign.extjs</artifactId>
+        </dependency>
 
     </dependencies>
 

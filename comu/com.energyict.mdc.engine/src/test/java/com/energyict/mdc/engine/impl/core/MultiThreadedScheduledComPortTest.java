@@ -630,6 +630,7 @@ public class MultiThreadedScheduledComPortTest {
         };
     }
 
+    @Ignore
     @Test(timeout = TIMEOUT)
     public void testExecuteTasksWithNoWork() throws InterruptedException {
         ComServerDAO comServerDAO = getMockedComServerDAO();
@@ -656,6 +657,7 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
+    @Ignore
     @Test(timeout = TIMEOUT)
     public void startupCleansTasks() throws InterruptedException {
         ComServerDAO comServerDAO = getMockedComServerDAO();
@@ -685,6 +687,7 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
+    @Ignore
     @Test(timeout = TIMEOUT)
     public void testExecuteTasksInParallel() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = getMockedComServerDAO();
@@ -808,6 +811,7 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
+    @Ignore
     @Test(timeout = TIMEOUT)
     public void testExecuteTasksOneByOne() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = getMockedComServerDAO();

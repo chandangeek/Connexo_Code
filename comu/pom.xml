@@ -447,6 +447,24 @@
 			</dependency>
 			<dependency>
 				<groupId>com.energyict</groupId>
+				<artifactId>mdc.tou.campaign</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
+				<artifactId>mdc.tou.campaign.extjs</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
+				<artifactId>mdc.tou.campaign.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
 				<artifactId>mdc.upl</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
@@ -710,6 +728,9 @@
 				<module>com.energyict.mdc.sap.soap.wsdl</module>
 				<module>com.energyict.mdc.scheduling</module>
 				<module>com.energyict.mdc.scheduling.rest</module>
+				<module>com.energyict.mdc.tou.campaign</module>
+				<module>com.energyict.mdc.tou.campaign.extjs</module>
+				<module>com.energyict.mdc.tou.campaign.rest</module>
 				<module>com.energyict.mdc.tasks</module>
 				<module>com.energyict.mdc.tasks.rest</module>
 				<module>com.energyict.mdc.usagepoint.data.rest</module>				

@@ -72,9 +72,9 @@ public class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
 
     public Optional<MeterActivation> getCurrentMeterActivation() {
         if (this.currentMeterActivation == null) {
-            if (getDevice().getMeter().isPresent()) {
+            if (getDevice().getMeterReference().isPresent()) {
                 this.currentMeterActivation = getDevice()
-                        .getMeter().get()
+                        .getMeterReference().get()
                         .getCurrentMeterActivation()
                         .map(MeterActivation.class::cast);
             } else {
@@ -102,7 +102,7 @@ public class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
     }
 
     public Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp) {
-        return getMultiplier(this.getDevice().getMeter().get().getMeterActivation(multiplierEffectiveTimeStamp));
+        return getMultiplier(this.getDevice().getMeterReference().get().getMeterActivation(multiplierEffectiveTimeStamp));
     }
 
     public Instant getMultiplierEffectiveTimeStamp() {

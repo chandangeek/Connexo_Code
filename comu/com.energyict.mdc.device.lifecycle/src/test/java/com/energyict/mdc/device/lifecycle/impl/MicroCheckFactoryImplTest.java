@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -45,6 +46,8 @@ public class MicroCheckFactoryImplTest {
     private ValidationService validationService;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private MeteringZoneService meteringZoneService;
 
     @Before
     public void initializeMocks() {
@@ -75,7 +78,7 @@ public class MicroCheckFactoryImplTest {
     }
 
     private MicroCheckFactoryImpl getTestInstance() {
-        return new MicroCheckFactoryImpl(this.nlsService, this.topologyService, this.multiElementDeviceService, this.validationService, meteringService);
+        return new MicroCheckFactoryImpl(this.nlsService, this.topologyService, this.multiElementDeviceService, this.validationService, meteringService, meteringZoneService);
     }
 
 }

@@ -13,6 +13,8 @@ public enum TranslationKeys implements TranslationKey {
     DOMAIN_NAME("serviceCall", "Service call"),
     CALL_BACK_URL("callbackUrl", "Callback URL"),
     METER_CONFIG("meterConfig", "Meter config"),
+    METER_MRID("meterMrid", "Meter MRID"),
+    METER_NAME("meterName", "Meter name"),
     PARENT_SERVICE_CALL("parentServiceCall", "Parent service call"),
     ERROR_MESSAGE("errorMessage", "Error message"),
     ERROR_CODE("errorCode", "Error code"),

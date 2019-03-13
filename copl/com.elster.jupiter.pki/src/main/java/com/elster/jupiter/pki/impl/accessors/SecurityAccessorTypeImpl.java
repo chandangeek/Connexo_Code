@@ -74,6 +74,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     private SessionKeyCapability importCapability;
     private SessionKeyCapability renewCapability;
     private int keySize;
+    private boolean isReversible;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -203,7 +204,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
 
     @Override
     public HsmKeyType getHsmKeyType() {
-        return new HsmKeyType(hsmJssKeyType, label, importCapability, renewCapability, keySize);
+        return new HsmKeyType(hsmJssKeyType, label, importCapability, renewCapability, keySize, isReversible);
     }
 
     @Override
@@ -257,6 +258,10 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
 
     protected void setRenewCapability(SessionKeyCapability renewCapability) {
         this.renewCapability = renewCapability;
+    }
+
+    protected void reversible(boolean isReversible) {
+        this.isReversible = isReversible;
     }
 
     protected void setKeySize(int keySize) {
@@ -327,7 +332,8 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         LABEL("label"),
         IMPORT_CAPABILITY("importCapability"),
         RENEW_CAPABILITY("renewCapability"),
-        KEY_SIZE("keySize");
+        KEY_SIZE("keySize"),
+        REVERSIBLE("isReversible");
 
 
         private final String javaFieldName;
@@ -390,6 +396,12 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         @Override
         public Updater keySize(int keySize) {
             SecurityAccessorTypeImpl.this.setKeySize(keySize);
+            return this;
+        }
+
+        @Override
+        public Updater reversible(boolean reversible) {
+            SecurityAccessorTypeImpl.this.reversible(reversible);
             return this;
         }
 

@@ -38,8 +38,8 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     }
 
     @Override
-    public Object getReference() {
-        return new Object();
+    public Object getContextReference() {
+        return "";
     }
 
     @Override
@@ -132,7 +132,6 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     }
 
     protected abstract void decodeReference();
-
 
     protected Optional<AuditLogChange> getAuditLogChangeForString(String from, String to, TranslationKey translationKey) {
         if (to.compareTo(from) != 0) {

@@ -62,7 +62,8 @@ public enum TransitionType {
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
                     MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.LINKED_WITH_USAGE_POINT);
+                    MicroCheck.LINKED_WITH_USAGE_POINT,
+                    MicroCheck.AT_LEAST_ONE_ZONE_LINKED);
         }
         @Override
         public Set<MicroCheck> requiredChecks() {
@@ -137,7 +138,8 @@ public enum TransitionType {
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
                     MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.LINKED_WITH_USAGE_POINT);
+                    MicroCheck.LINKED_WITH_USAGE_POINT,
+                    MicroCheck.AT_LEAST_ONE_ZONE_LINKED);
         }
         @Override
         public Set<MicroCheck> requiredChecks() {
@@ -214,7 +216,8 @@ public enum TransitionType {
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
                     MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE,
                     MicroCheck.DEFAULT_CONNECTION_AVAILABLE,
-                    MicroCheck.LINKED_WITH_USAGE_POINT);
+                    MicroCheck.LINKED_WITH_USAGE_POINT,
+                    MicroCheck.AT_LEAST_ONE_ZONE_LINKED);
         }
 
         @Override

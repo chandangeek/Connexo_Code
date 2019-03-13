@@ -90,6 +90,10 @@ Ext.onReady(function () {
         {
             name: 'Apr',
             path: '../../apps/apr/src'
+        },
+        {
+            name: 'Tou',
+            path: '../../apps/tou/src'
         }
 //        {
 //            name: 'PlaygroundApp',

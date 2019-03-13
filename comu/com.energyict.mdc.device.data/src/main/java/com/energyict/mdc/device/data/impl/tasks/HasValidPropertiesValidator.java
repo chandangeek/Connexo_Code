@@ -113,7 +113,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         for (PropertySpec propertySpec : this.getRequiredPropertySpecs(connectionType)) {
             String propertySpecName = propertySpec.getName();
             if (validConnectionTaskInIncompleteState &&
-                    ((hasEmptyLocalValue(properties, propertySpecName) && (hasEmptyInheritedValue(properties, propertySpecName))) || !hasValue(properties, propertySpecName))) {
+                    ((hasEmptyLocalValue(properties, propertySpecName) && (hasEmptyInheritedValue(properties, propertySpecName))))) {
                 context.disableDefaultConstraintViolation();
                 if (connectionTask.isAllowIncomplete()) {
                     context
