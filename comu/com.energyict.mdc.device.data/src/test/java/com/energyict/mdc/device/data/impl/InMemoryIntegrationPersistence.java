@@ -234,6 +234,7 @@ public class InMemoryIntegrationPersistence {
     private SecurityManagementService securityManagementService;
     private HsmEnergyService hsmEnergyService;
     private AuditService auditService;
+    private OrmService ormService;
     private MeteringZoneService meteringZoneService;
 
     public InMemoryIntegrationPersistence() {
@@ -335,8 +336,8 @@ public class InMemoryIntegrationPersistence {
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
-            injector.getInstance(OrmService.class);
-            injector.getInstance(AuditService.class);
+            this.ormService = injector.getInstance(OrmService.class);
+            this.auditService = injector.getInstance(AuditService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
@@ -382,7 +383,6 @@ public class InMemoryIntegrationPersistence {
             this.deviceMessageService = injector.getInstance(DeviceMessageService.class);
             this.securityManagementService = injector.getInstance(SecurityManagementService.class);
             injector.getInstance(UsagePointLifeCycleService.class);
-            this.auditService = injector.getInstance(AuditService.class);
             initHeadEndInterface();
             initializePrivileges();
             ctx.commit();
@@ -433,6 +433,7 @@ public class InMemoryIntegrationPersistence {
         this.issueService = mock(IssueService.class, RETURNS_DEEP_STUBS);
         when(this.issueService.findStatus(any())).thenReturn(Optional.empty());
         cronExpressionParser = new DefaultCronExpressionParser();
+        when(this.bundleContext.getProperty("enable.auditing")).thenReturn("true");
     }
 
     private Privilege mockPrivilege(EditPrivilege privilege1) {
@@ -521,6 +522,10 @@ public class InMemoryIntegrationPersistence {
 
     public AuditService getAuditService() {
         return auditService;
+    }
+
+    public OrmService getOrmService() {
+        return ormService;
     }
 
     public SchedulingService getSchedulingService() {

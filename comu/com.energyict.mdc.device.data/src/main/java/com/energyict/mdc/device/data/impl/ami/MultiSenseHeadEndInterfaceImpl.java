@@ -131,6 +131,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         this.endDeviceCommandFactory = endDeviceCommandFactory;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Activate
     public void activate(BundleContext bundleContext) {
         if (bundleContext != null) {

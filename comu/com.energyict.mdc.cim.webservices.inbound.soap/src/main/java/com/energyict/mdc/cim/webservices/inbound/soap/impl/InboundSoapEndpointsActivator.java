@@ -60,6 +60,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import com.energyict.mdc.cim.webservices.inbound.soap.getmeterconfig.GetMeterConfigEndpoint;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
@@ -69,7 +70,6 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -86,6 +86,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     public static final String COMPONENT_NAME = "SIM";
 
     private static final String CIM_MERER_CONFIG = "CIM MeterConfig";
+    private static final String CIM_GET_METER_CONFIG = "CIM GetMeterConfig";
     private static final String CIM_GET_END_DEVICE_EVENTS = "CIM GetEndDeviceEvents";
     private static final String CIM_END_DEVICE_EVENTS = "CIM EndDeviceEvents";
 
@@ -223,6 +224,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 
     private void registerServices(BundleContext bundleContext) {
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterConfigEndpoint.class), CIM_MERER_CONFIG);
+        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetMeterConfigEndpoint.class), CIM_GET_METER_CONFIG);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetEndDeviceEventsEndpoint.class), CIM_GET_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteEndDeviceEventsEndpoint.class), CIM_END_DEVICE_EVENTS);
     }

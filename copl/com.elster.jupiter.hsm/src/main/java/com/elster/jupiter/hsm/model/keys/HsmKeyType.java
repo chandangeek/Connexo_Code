@@ -90,4 +90,16 @@ public class HsmKeyType {
     public boolean isReversible() {
         return isReversible;
     }
+
+    @Override
+    public String toString() {
+        return "HsmKeyType{" +
+                "hsmJssKeyType=" + hsmJssKeyType +
+                ", label='" + label + '\'' +
+                ", importCapability=" + importCapability +
+                ", renewCapability=" + renewCapability +
+                ", keySize=" + keySize +
+                ", isReversible=" + isReversible +
+                '}';
+    }
 }

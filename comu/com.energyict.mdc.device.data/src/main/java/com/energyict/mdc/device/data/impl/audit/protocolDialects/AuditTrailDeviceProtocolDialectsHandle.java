@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.data.impl.audit.deviceCustomPropertySet;
+package com.energyict.mdc.device.data.impl.audit.protocolDialects;
 
 import com.elster.jupiter.audit.AuditDecoder;
 import com.elster.jupiter.audit.AuditDomainContextType;
@@ -14,8 +14,12 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.data.impl.audit.channelCustomPropertySet.AuditTrailChannelCPSDecoder;
+import com.energyict.mdc.device.data.impl.audit.deviceProtocol.AuditTrailDeviceProtocolDecoder;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -24,18 +28,19 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component(
-        name = "com.energyict.mdc.device.data.audit.customPropertySet",
+        name = "com.energyict.mdc.device.data.audit.deviceProtocolDialects",
         service = {AuditTrailDecoderHandle.class},
         immediate = true)
-public class AuditTrailCustomPropertySetHandle implements AuditTrailDecoderHandle {
+public class AuditTrailDeviceProtocolDialectsHandle implements AuditTrailDecoderHandle {
 
-    private final AuditDomainContextType auditDomainContextType = AuditDomainContextType.DEVICE_CUSTOM_ATTRIBUTES;
+    private final AuditDomainContextType auditDomainContextType = AuditDomainContextType.DEVICE_PROTOCOL_DIALECTS_PROPS;
 
     private volatile OrmService ormService;
     private volatile ServerDeviceService serverDeviceService;
     private volatile MeteringService meteringService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile Thesaurus thesaurus;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     @Reference
     public void setOrmService(OrmService ormService) {
@@ -72,8 +77,13 @@ public class AuditTrailCustomPropertySetHandle implements AuditTrailDecoderHandl
         return Arrays.asList("privilege.view.device", "privilege.administrate.deviceData");
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     @Override
     public AuditDecoder getAuditDecoder(AuditTrailReference reference) {
-        return new AuditTrailCustomPropertySetDecoder(ormService, thesaurus, meteringService, serverDeviceService, customPropertySetService).init(reference);
+        return new AuditTrailDeviceProtocolDialectsDecoder(ormService, thesaurus, meteringService, serverDeviceService, customPropertySetService, propertyValueInfoService).init(reference);
     }
 }
