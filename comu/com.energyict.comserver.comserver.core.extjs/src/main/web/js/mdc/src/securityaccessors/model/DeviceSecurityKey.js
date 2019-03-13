@@ -46,9 +46,7 @@ Ext.define('Mdc.securityaccessors.model.DeviceSecurityKey', {
         },
 
         setUrl: function (deviceId) {
-            console.log("SET URL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",this.url);
             this.url = this.urlTpl.replace('{deviceId}', deviceId);
-            console.log("URL = ",this.url);
         }
     }
 

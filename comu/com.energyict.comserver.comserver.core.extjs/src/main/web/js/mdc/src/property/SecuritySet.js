@@ -6,11 +6,11 @@ Ext.define('Mdc.property.SecuritySet', {
     extend: 'Uni.property.view.property.Base',
     requires: [
         'Uni.grid.column.ReadingType',
-         'Mdc.model.DeviceSecuritySetting'
+        'Mdc.model.DeviceSecuritySetting'
     ],
 
     defaults: {
-        labelWidth: 250,
+        labelWidth: 150,
         resetButtonHidden: true
     },
 
@@ -39,10 +39,25 @@ Ext.define('Mdc.property.SecuritySet', {
 
                 me.securitySetsStore.load(function () {
 
-                    me.securityAccessorsStore.getProxy().url = '/api/ddr/devices/' + deviceNameToSet + '/securityaccessors/keys';
-                    me.securityAccessorsStore.load(function () {
-                        me.getGrid().getSelectionModel().selectAll();
-                    })
+                    console.log("SETS ARE LOADED !!!!!!!!!=",me.securitySetsStore.getCount());
+
+                    if (me.securitySetsStore.getCount() == 0){
+                        me.down('#sets-container').hide();
+                        me.down('#accessors-container').hide();
+                        me.down('#no-security-sets').show();
+                    }else{
+                        me.down('#sets-container').show();
+                        me.down('#accessors-container').show();
+                        me.down('#no-security-sets').hide();
+
+                        me.securityAccessorsStore.getProxy().url = '/api/ddr/devices/' + deviceNameToSet + '/securityaccessors/keys';
+                        me.securityAccessorsStore.load(function () {
+                            me.getGrid().getSelectionModel().selectAll();
+                        })
+
+                    }
+
+
                 });
             }
         }
@@ -86,28 +101,22 @@ Ext.define('Mdc.property.SecuritySet', {
         return [
 
                     {
-                        xtype: 'form',
-                        fieldLable: "LABLE FOR CONTAINER!!!",
-                        itemId: 'sct-bottom-container',
+                        //xtype: 'form',
+                        xtype: 'fieldcontainer',
+                        itemId: 'sets-container',
                         width: '100%',
+                        hidden: true,
+                        labelWidth: 150,
+                        fieldLabel: Uni.I18n.translate('securityacessrors.securitySets', 'MDC', "Security sets"),
+                        required: true,
                         layout: 'column',
                         items: [
-                            {
-                                xtype: 'label',
-                                //required: true,
-                                align: 'right',
-                                width: '160',
-                                minWidth: '160',
-                                //margin: '0 0 0 0',
-                                text: "Securiy sets",
-                                itemId: 'secutiry-sets-label-id'
-                            },
                             {
                                 xtype: 'grid',
                                 itemId: 'metrology-configuration-outputs-grid',
                                 hideHeaders: true,
                                 store: me.securitySetsStore,
-                                width: 600,
+                                width: 400,
                                 margin: 0,
                                 padding: 0,
                                 scroll: false,
@@ -148,30 +157,37 @@ Ext.define('Mdc.property.SecuritySet', {
 
                         ]
                     },
-                        {
-                            xtype: 'label',
-                            required: true,
-                            margin: '20 0 0 0',
-                            text: "Security accessors",
-                            itemId: 'secutiry-accessors-label-id'
-                        },
-                        {
-                            xtype: 'property-form',
-                            itemId: 'my-form-xromvyu',
-                            //floating: true,
-                            //ui: 'large',
-                            width: '100%',
-                            defaults: {
-                                labelWidth: 50
-                            },
-                            listeners:{
-                                'afterrender': function(panel){
-                                    console.log("SET POSITION!!!!!!!!!!!!!!!!",panel);
-                                    panel.setPosition(-100,true);
-                                    console.log("AFTER SET POSITION!!!!!!!!!!!!!!!!",panel);
-                                }
+                    {
+                        //xtype: 'form',
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('securityacessrors.securityAccessors', 'MDC', "Security accessors"),
+                        itemId: 'accessors-container',
+                        width: '100%',
+                        layout: 'column',
+                        requred: true,
+                        hidden: true,
+                        labelWidth: 150,
+                        items: [
+                            {
+                                xtype: 'property-form',
+                                itemId: 'acessors-property-form',
+                                margin: '10 0 0 0',
+                                width: 600
                             }
+                        ]
+
+                    },
+                    {
+                        xtype: 'component',
+                        html: Uni.I18n.translate('securityacessrors.noSecuritySets', 'MDC', 'There are no security sets on the device'),
+                        itemId: 'no-security-sets',
+                        hidden: true,
+                        style: {
+                            'color': '#FF0000',
+                            'margin': '6px 10px 6px 0px'
                         }
+                    }
+
 
         ];
     },
@@ -255,22 +271,33 @@ Ext.define('Mdc.property.SecuritySet', {
         var selections = me.getGrid().getSelectionModel().getSelection();
         console.log("selections =",selections);
         var accessorIdArray = [];
-        selections.forEach(function (selection) {
 
-            selection.properties().each(function (property) {
-                console.log("PROPERTY  = ", property);
-                console.log("PRINT ID OF THE PROPERTY = ",property.raw.propertyValueInfo.value.id);
-                var idToAdd = property.raw.propertyValueInfo.value.id;
-                console.log("idToAdd = ",idToAdd);
-                console.log("accessorIdArray.indexOf(idToAdd)=",accessorIdArray.indexOf(idToAdd));
-                if(!(accessorIdArray.indexOf(idToAdd)>=0)){
-                /* Id of secutrityAccessor is not in array. Add it to array */
-                    accessorIdArray.push(idToAdd);
-                }
-            })
-        })
+        if (selections.length == 0)
+        {
+            console.log("HIDE ACCESSORS!!!");
+            me.down('#accessors-container').hide();
 
-        me.renderAccessors(accessorIdArray);
+        }else{
+            console.log("SHOW ACCESSORS!!!");
+            me.down('#accessors-container').show();
+            selections.forEach(function (selection) {
+
+                    selection.properties().each(function (property) {
+                        console.log("PROPERTY  = ", property);
+                        console.log("PRINT ID OF THE PROPERTY = ",property.raw.propertyValueInfo.value.id);
+                        var idToAdd = property.raw.propertyValueInfo.value.id;
+                        console.log("idToAdd = ",idToAdd);
+                        console.log("accessorIdArray.indexOf(idToAdd)=",accessorIdArray.indexOf(idToAdd));
+                        if(!(accessorIdArray.indexOf(idToAdd)>=0)){
+                        /* Id of secutrityAccessor is not in array. Add it to array */
+                            accessorIdArray.push(idToAdd);
+                        }
+                    })
+                })
+
+            me.renderAccessors(accessorIdArray);
+        }
+
 
 
     },
@@ -345,7 +372,6 @@ Ext.define('Mdc.property.SecuritySet', {
         /* Format of value is <list of sets> ;; <list of accessors> */
         result = resultSets + ";;" + resultAccessors;
 
-        console.log("RESULT =",result);
         return result;
     },
 

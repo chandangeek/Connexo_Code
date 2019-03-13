@@ -16,8 +16,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAcessorsSetDefaultKeyValue', {
             editItems = [],
             value = false;
 
-        me.setTitle(Uni.I18n.translate('securityaccessors.changePrivilegesOfX', 'MDC', "Change privileges of '{0}'", me.securityAccessorRecord.get('name'), false));
-
+        me.setTitle(Uni.I18n.translate('securityaccessors.setDefaultServiceKey', 'MDC', "Set default service key"));
 
         me.items = {
             xtype: 'form',
@@ -32,9 +31,8 @@ Ext.define('Mdc.securityaccessors.view.SecurityAcessorsSetDefaultKeyValue', {
                     xtype: 'textfield',
                     name: 'defaultKeyValue',
                     itemId: 'defaultKeyValue',
-                    fieldLabel: 'KEY VALUE',//Uni.I18n.translate('endPointAdd.name', 'WSS', 'Name'),
-                    allowBlank: false,
-                    required: true
+                    fieldLabel: Uni.I18n.translate('securityaccessors.defaultKeyValue', 'MDC', 'Default key value'),
+                    allowBlank: false
                 },
                 {
                     xtype: 'fieldcontainer',
@@ -43,7 +41,6 @@ Ext.define('Mdc.securityaccessors.view.SecurityAcessorsSetDefaultKeyValue', {
                     items: [
                         {
                             xtype: 'button',
-                            //itemId: 'mdc-security-accessors-privileges-edit-window-save',
                             itemId: 'mdc-security-accessors-set-default-key-window-save',
                             text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                             ui: 'action'
