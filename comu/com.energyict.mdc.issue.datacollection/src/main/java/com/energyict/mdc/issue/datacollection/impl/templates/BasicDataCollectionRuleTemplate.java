@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
@@ -12,18 +13,27 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.RaiseEventUrgencyFactory;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
+import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -31,14 +41,25 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
@@ -51,6 +72,7 @@ import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEv
         service = CreationRuleTemplate.class,
         immediate = true)
 public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTemplate {
+    private static final Logger LOG = Logger.getLogger(BasicDataCollectionRuleTemplate.class.getName());
     static final String NAME = "BasicDataCollectionRuleTemplate";
 
     public static final String EVENTTYPE = NAME + ".eventType";
@@ -59,17 +81,24 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     private static final String DEFAULT_VALUE = "Do nothing";
     private static final Long DEFAULT_KEY = 0L;
 
+    private List<DeviceLifeCycleInDeviceTypeInfo> deviceLifeCycleInDeviceTypes = new ArrayList<>();
+
+    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+
     //for OSGI
     public BasicDataCollectionRuleTemplate() {
     }
 
     @Inject
-    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService) {
+    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
 
         activate();
     }
@@ -96,6 +125,16 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         super.setPropertySpecService(propertySpecService);
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     @Override
@@ -172,9 +211,23 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         EventTypes eventTypes = new EventTypes(getThesaurus(), CONNECTION_LOST, DEVICE_COMMUNICATION_FAILURE, UNABLE_TO_CONNECT, UNKNOWN_INBOUND_DEVICE, UNKNOWN_OUTBOUND_DEVICE);
         HashMap<Long, String> possibleActionValues = getPossibleValues();
 
+        if(deviceLifeCycleInDeviceTypes.isEmpty()) {
+            clearAndRecalculateCache();
+        }
+        DeviceLifeCycleInDeviceTypeInfo[] deviceLifeCycleInDeviceTypepossibleValues = deviceLifeCycleInDeviceTypes.stream().toArray(DeviceLifeCycleInDeviceTypeInfo[]::new);
+
         EventTypeInfo[] possibleValues = possibleActionValues.entrySet().stream()
                 .map(entry -> new EventTypeInfo(entry.getKey(), entry.getValue()))
                 .toArray(EventTypeInfo[]::new);
+        builder.add(propertySpecService
+                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory())
+                .named(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .markMultiValued(";")
+                .addValues(deviceLifeCycleInDeviceTypepossibleValues)
+                .markExhaustive(PropertySelectionMode.LIST)
+                .finish());
         builder.add(propertySpecService
                 .specForValuesOf(new EventTypeValueFactory(eventTypes))
                 .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
@@ -325,6 +378,162 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
             } else {
                 builder.addNull(Types.VARCHAR);
             }
+        }
+    }
+
+    public void clearAndRecalculateCache() {
+        deviceLifeCycleInDeviceTypes.clear();
+        deviceConfigurationService.findAllDeviceTypes()
+                .find().stream()
+                .sorted(Comparator.comparing(DeviceType::getId))
+                .forEach(deviceType -> deviceLifeCycleInDeviceTypes.add(new DeviceLifeCycleInDeviceTypeInfo(deviceType, deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
+                        .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), deviceLifeCycleConfigurationService)));
+    }
+
+    private static final String SEPARATOR = ":";
+    public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES = NAME + ".deviceLifecyleInDeviceTypes";
+
+    private class DeviceLifeCycleInDeviceTypeInfoValueFactory implements ValueFactory<HasIdAndName>, DeviceLifeCycleInDeviceTypePropertyFactory {
+        @Override
+        public HasIdAndName fromStringValue(String stringValue) {
+            List<String> values = Arrays.asList(stringValue.split(SEPARATOR));
+            if (values.size() != 3) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
+                        "properties." + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES,
+                        String.valueOf(3),
+                        String.valueOf(values.size()));
+            }
+            long deviceTypeId = Long.parseLong(values.get(0));
+            DeviceType deviceType = deviceConfigurationService
+                    .findDeviceType(deviceTypeId)
+                    .orElseThrow(() -> new IllegalArgumentException("Devicetype with id " + deviceTypeId + " does not exist"));
+            if (!(deviceType.getDeviceLifeCycle().getId() == Long.parseLong(values.get(1)))) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ARGUMENT,
+                        "properties." + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES,
+                        values.get(1));
+            }
+
+            List<Long> stateIds = Arrays.stream(values.get(2)
+                    .split(","))
+                    .map(String::trim)
+                    .mapToLong(Long::parseLong).boxed().collect(Collectors.toList());
+
+            List<State> states = deviceLifeCycleConfigurationService
+                    .findAllDeviceLifeCycles().find()
+                    .stream().map(lifecycle -> lifecycle.getFiniteStateMachine().getStates())
+                    .flatMap(Collection::stream)
+                    .filter(stateValue -> stateIds.contains(stateValue.getId())).collect(Collectors.toList());
+            return new DeviceLifeCycleInDeviceTypeInfo(deviceType, states, deviceLifeCycleConfigurationService);
+        }
+
+        @Override
+        public String toStringValue(HasIdAndName object) {
+            return String.valueOf(object.getId());
+        }
+
+        @Override
+        public Class<HasIdAndName> getValueType() {
+            return HasIdAndName.class;
+        }
+
+        @Override
+        public HasIdAndName valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(HasIdAndName object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, HasIdAndName value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            } else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, HasIdAndName value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            } else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+    }
+
+    static class DeviceLifeCycleInDeviceTypeInfo extends HasIdAndName {
+
+        private DeviceType deviceType;
+        private List<State> states;
+        private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+
+        DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, List<State> states, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+            this.deviceType = deviceType;
+            this.states = new CopyOnWriteArrayList<>(states);
+            this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        }
+
+
+        @Override
+        public String getId() {
+            return deviceType.getId() + SEPARATOR + deviceType.getDeviceLifeCycle().getId() + SEPARATOR + states.stream().map(HasId::getId).map(String::valueOf)
+                    .collect(Collectors.joining(","));
+        }
+
+        @Override
+        public String getName() {
+            try {
+                JSONObject jsonObj = new JSONObject();
+                jsonObj.put("deviceTypeName", deviceType.getName());
+                jsonObj.put("lifeCycleStateName", states.stream().map(state -> getStateName(state) + " (" + deviceType.getDeviceLifeCycle().getName() + ")").collect(Collectors.toList()));
+                return jsonObj.toString();
+            } catch (JSONException e) {
+                LOG.log(Level.SEVERE, e.getMessage(), e);
+            }
+            return "";
+        }
+
+        protected DeviceType getDeviceType() {
+            return deviceType;
+        }
+
+        private String getStateName(State state) {
+            return DefaultState
+                    .from(state)
+                    .map(deviceLifeCycleConfigurationService::getDisplayName)
+                    .orElseGet(state::getName);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof DeviceLifeCycleInDeviceTypeInfo)) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
+
+            DeviceLifeCycleInDeviceTypeInfo that = (DeviceLifeCycleInDeviceTypeInfo) o;
+
+            if (!deviceType.equals(that.deviceType)) {
+                return false;
+            }
+            return states.equals(that.states);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + deviceType.hashCode();
+            result = 31 * result + states.hashCode();
+            return result;
         }
     }
 
