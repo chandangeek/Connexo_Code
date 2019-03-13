@@ -39,8 +39,10 @@ public class AuditTrailDataWriter<T> {
     public void audit() throws SQLException {
         if (getTable().hasAudit() && doJournal(getColumns()) && isAuditEnabled()) {
             DataMapperReader<? super T> reader = getTable().getDataMapper().getReader();
-            if (((operation == UnexpectedNumberOfUpdatesException.Operation.UPDATE) &&
-                        isSomethingChanged(object, reader.findByPrimaryKey(getTable().getPrimaryKey(object)).get(), getColumns()))) {
+            if (operation == UnexpectedNumberOfUpdatesException.Operation.UPDATE){
+                if (!isSomethingChanged(object, reader.findByPrimaryKey(getTable().getPrimaryKey(object)).get(), getColumns())){
+                    isTouch = true;
+                }
                 getAuditDomain(object, instant, operation);
             }
             else  if (operation == UnexpectedNumberOfUpdatesException.Operation.INSERT){
