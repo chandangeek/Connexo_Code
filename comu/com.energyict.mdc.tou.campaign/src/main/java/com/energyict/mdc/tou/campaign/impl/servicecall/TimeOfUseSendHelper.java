@@ -69,7 +69,7 @@ public class TimeOfUseSendHelper {
                         .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.SERVICE_CALL_PARENT_NOT_FOUND))
                         .getExtension(TimeOfUseCampaignDomainExtension.class)
                         .orElse(null);
-        if (timeOfUseCampaign.getActivationOption().equals(TranslationKeys.IMMEDIATELY.getKey())) {
+        if (timeOfUseCampaignService.withVerification(timeOfUseCampaign)) {
             if (!timeOfUseCampaignService.getActiveVerificationTask(device).isPresent()) {
                 serviceCall.log(LogLevel.SEVERE,
                         thesaurus.getString(MessageSeeds.DEVICE_DOESNT_CONTAIN_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getKey(),

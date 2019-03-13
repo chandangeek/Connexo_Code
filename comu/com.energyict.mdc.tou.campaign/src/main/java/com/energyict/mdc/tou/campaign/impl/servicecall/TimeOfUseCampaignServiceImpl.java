@@ -645,4 +645,9 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                         || (!findComTaskExecution(device, comTaskEnablement).isOnHold()))
                 .findAny();
     }
+
+    boolean withVerification(TimeOfUseCampaign timeOfUseCampaign) {
+        String activationOption = timeOfUseCampaign.getActivationOption();
+        return (activationOption.equals(TranslationKeys.IMMEDIATELY.getKey())||activationOption.equals(TranslationKeys.ON_DATE.getKey()));
+    }
 }
