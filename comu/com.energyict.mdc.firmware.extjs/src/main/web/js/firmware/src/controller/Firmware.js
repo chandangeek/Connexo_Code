@@ -23,8 +23,7 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.form.OptionsHydrator',
         'Fwc.form.Hydrator',
         'Uni.view.window.Confirmation',
-        'Fwc.model.SecurityAccessor',
-        'Fwc.view.firmware.MinVersionOption'
+        'Fwc.model.SecurityAccessor'
     ],
 
     stores: [
@@ -719,7 +718,7 @@ Ext.define('Fwc.controller.Firmware', {
 
         var reader = me.getFwcStoreFirmwaresStore().getProxy().getReader();
         var data = reader && reader.jsonData && reader.jsonData.firmwares ? reader.jsonData.firmwares : null;
-        data.sort((a,b) => (a.rank < b.rank) ? 1 : ((b.rank < a.rank) ? -1 : 0));
+        data.sort(function(a,b){ return (a.rank < b.rank) ? 1 : ((b.rank < a.rank) ? -1 : 0)});
 
         var url = me.getFwcStoreFirmwaresStore().getProxy().url + '/reorder';
         if(data){

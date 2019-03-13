@@ -126,24 +126,26 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                         field.show();
                                         if (currFirmCheck){
                                             var optTpl = [];
-                                            var optVals = {'FINAL' : 'Final status of target firmware', 'TEST' : 'Test status of target firmware'};
+                                            var optCurrFirmVals = {'FINAL' : 'Final FW status', 'TEST' : 'Test FW status'};
                                             currFirmCheck['activatedFor'].forEach(function(item){
-                                                optTpl.push({"localizedValue" : optVals[item]});
+                                                optTpl.push({"localizedValue" : optCurrFirmVals[item]});
                                             })
                                             if (optTpl && optTpl.length){
+                                                result += '<div style="margin-bottom:10px">Master has a latest firmware</div>';
                                                 var tpl = Ext.create('FirmwareOptionsXTemplate');
-                                                result += tpl.apply(optTpl);
+                                                result += ('<div style="margin-bottom:10px">' + tpl.apply(optTpl) + '</div>');
                                             }
                                         }
                                         if (masterFirmCheck){
                                             var optMasterTpl = [];
-                                            var optVals = {'FINAL' : 'Final status of target firmware on slave device', 'TEST' : 'Test status of target firmware on slave device'};
+                                            var optMasterVals = {'FINAL' : 'Final master FW status', 'TEST' : 'Test master FW status'};
                                             masterFirmCheck['activatedFor'].forEach(function(item){
-                                                optMasterTpl.push({"localizedValue" : optVals[item]});
+                                                optMasterTpl.push({"localizedValue" : optMasterVals[item]});
                                             })
                                             if (optMasterTpl && optMasterTpl.length){
+                                                result += '<div style="margin-bottom:10px">FW version has a higher ranking</div>';
                                                 var tpl = Ext.create('FirmwareOptionsXTemplate');
-                                                result += tpl.apply(optMasterTpl);
+                                                result += ('<div style="margin-bottom:10px">' + tpl.apply(optMasterTpl) + '</div>');
                                             }
                                         }
                                     }
