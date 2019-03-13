@@ -6,4 +6,5 @@ Export-Package:  \
 	com.energyict.mdc.device.config,\
 	com.energyict.mdc.device.config.events,\
 	com.energyict.mdc.device.config.exceptions,\
+	om.energyict.mdc.device.config.properties,\
 	com.energyict.mdc.device.config.security
