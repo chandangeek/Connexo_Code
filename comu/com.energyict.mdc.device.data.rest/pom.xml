@@ -338,6 +338,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.zone</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>audit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>audit.rest</artifactId>
+        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>
@@ -466,11 +474,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>hsm</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>audit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

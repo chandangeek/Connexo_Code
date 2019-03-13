@@ -42,35 +42,43 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
 
     @Override
     protected void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap, Logger logger) throws HsmBaseException {
-        String wrapperkeyLabel = deviceKey.getWrapKeyLabel();
 
-        AsymmetricAlgorithm wrapperKeyAlgorithm = getAvailableAsymmetricAlgorithm(wrapKeyMap, wrapperkeyLabel);
-        SymmetricAlgorithm symmetricAlgorithm = getAvailableSymmetricAlgorithm(deviceKey);
+        try {
+            String wrapperkeyLabel = deviceKey.getWrapKeyLabel();
 
-        ImportFileDeviceKey importFileDeviceKey = new ImportFileDeviceKey(deviceKey.getCipherData().getCipherValue());
-        byte[] initVector = importFileDeviceKey.getInitializationVector();
-        byte[] deviceKeyBytes = importFileDeviceKey.getCipher();
+            AsymmetricAlgorithm wrapperKeyAlgorithm = getAvailableAsymmetricAlgorithm(wrapKeyMap, wrapperkeyLabel);
+            SymmetricAlgorithm symmetricAlgorithm = getAvailableSymmetricAlgorithm(deviceKey);
 
-        String securityAccessorName = deviceKey.getName();
-        Optional<SecurityAccessorType> optionalSecurityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger);
-        if (optionalSecurityAccessorType.isPresent()) {
-            SecurityAccessorType securityAccessorType = optionalSecurityAccessorType.get();
-            ImportKeyRequest ikr = new ImportKeyRequest(wrapperkeyLabel, wrapperKeyAlgorithm, wrapKeyMap.get(wrapperkeyLabel).getSymmetricKey().getCipherData().getCipherValue(), symmetricAlgorithm, deviceKeyBytes, initVector, securityAccessorType.getHsmKeyType());
-            com.elster.jupiter.hsm.model.keys.HsmKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
+            ImportFileDeviceKey importFileDeviceKey = new ImportFileDeviceKey(deviceKey.getCipherData().getCipherValue());
+            byte[] initVector = importFileDeviceKey.getInitializationVector();
+            byte[] deviceKeyBytes = importFileDeviceKey.getCipher();
 
-            Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
-            if (securityAccessorOptional.flatMap(SecurityAccessor::getActualValue).isPresent()) {
-                log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
+            String securityAccessorName = deviceKey.getName();
+            Optional<SecurityAccessorType> optionalSecurityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger);
+            if (optionalSecurityAccessorType.isPresent()) {
+                SecurityAccessorType securityAccessorType = optionalSecurityAccessorType.get();
+                ImportKeyRequest ikr = new ImportKeyRequest(wrapperkeyLabel, wrapperKeyAlgorithm, wrapKeyMap.get(wrapperkeyLabel)
+                        .getSymmetricKey()
+                        .getCipherData()
+                        .getCipherValue(), symmetricAlgorithm, deviceKeyBytes, initVector, securityAccessorType.getHsmKeyType());
+                com.elster.jupiter.hsm.model.keys.HsmKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
+
+                Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
+                if (securityAccessorOptional.flatMap(SecurityAccessor::getActualValue).isPresent()) {
+                    log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
+                } else {
+                    SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
+                    HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
+                    hsmKey.setKey(hsmEncryptedKey.getKey(), hsmEncryptedKey.getLabel());
+                    securityAccessor.setActualValue(hsmKey);
+                    securityAccessor.save();
+                }
             } else {
-                SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
-                HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
-                hsmKey.setKey(hsmEncryptedKey.getKey(), hsmEncryptedKey.getLabel());
-                securityAccessor.setActualValue(hsmKey);
-                securityAccessor.save();
+                logger.warning("No security accessor found for name:" + securityAccessorName);
             }
-        }
-        else {
-            logger.warning("No security accessor found for name:" + securityAccessorName);
+        } catch (HsmBaseException e) {
+            logger.log(java.util.logging.Level.SEVERE, "Failed to import key for sec accessor:" + deviceKey.getName() + " for device:" + device.getName());
+            throw(e);
         }
     }
 

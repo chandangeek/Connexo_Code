@@ -34,7 +34,7 @@ public abstract class AbstractDeviceAuditDecoder extends AbstractAuditDecoder {
     public String getName() {
         return device
                 .map(Device::getName)
-                .orElseThrow(() -> new IllegalArgumentException("Device cannot be found"));
+                .orElseGet(() -> "");
     }
 
     @Override
@@ -61,8 +61,8 @@ public abstract class AbstractDeviceAuditDecoder extends AbstractAuditDecoder {
     }
 
     protected boolean isDomainObsolete() {
-        return Optional.ofNullable(endDevice).map(ed ->
-                ed.get().getObsoleteTime()
+        return endDevice.map(ed ->
+                ed.getObsoleteTime()
                         .filter(obsoleteTime -> (obsoleteTime.isAfter(getAuditTrailReference().getModTimeStart()) || obsoleteTime.equals(getAuditTrailReference().getModTimeStart())) &&
                                 (obsoleteTime.isBefore(getAuditTrailReference().getModTimeEnd()) || obsoleteTime.equals(getAuditTrailReference().getModTimeEnd())))
                         .isPresent())
