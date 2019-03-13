@@ -14,10 +14,12 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.json.JsonService;
 
 import java.math.BigDecimal;
@@ -98,13 +100,17 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
     private Meter meter;
     @Mock
     private UsagePoint usagePoint;
+    @Mock
+    private WebServicesService webServicesService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private Thesaurus thesaurus;
 
     @Before
     public void setup() {
         replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
         replyMasterDataLinkageConfigWebServiceHolder.setObject(replyMasterDataLinkageConfigWebService);
         handler = new MasterDataLinkageConfigMasterServiceCallHandler(endPointConfigurationService,
-                replyMasterDataLinkageConfigWebServiceHolder, jsonService, meterService);
+                replyMasterDataLinkageConfigWebServiceHolder, jsonService, meterService, thesaurus, webServicesService);
 
         when(endPointConfigurationService.findEndPointConfigurations().find().stream())
                 .thenReturn(Stream.of(endPointConfiguration));
@@ -154,6 +160,8 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
         when(meterService.findUsagePointByName(anyString())).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getMRID()).thenReturn(USAGE_POINT_MRID);
         when(usagePoint.getName()).thenReturn(USAGE_POINT_NAME);
+
+        when(webServicesService.isPublished(any(EndPointConfiguration.class))).thenReturn(true);
 
     }
 

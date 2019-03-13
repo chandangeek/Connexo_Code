@@ -12,11 +12,13 @@ import com.elster.jupiter.cim.webservices.outbound.soap.FailedUsagePointOperatio
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.json.JsonService;
 
 import ch.iec.tc57._2011.usagepointconfig.Name;
@@ -40,9 +42,10 @@ public class UsagePointConfigMasterServiceCallHandler extends
     @Inject
     public UsagePointConfigMasterServiceCallHandler(EndPointConfigurationService endPointConfigurationService,
             ObjectHolder<ReplyUsagePointConfigWebService> replyUsagePointConfigWebServiceHolder,
-            JsonService jsonService, MeteringService meteringService) {
+            JsonService jsonService, MeteringService meteringService, Thesaurus thesaurus,
+            WebServicesService webServicesService) {
         super(UsagePointConfigMasterDomainExtension.class, replyUsagePointConfigWebServiceHolder,
-                endPointConfigurationService);
+                endPointConfigurationService, thesaurus, webServicesService);
         this.jsonService = jsonService;
         this.meteringService = meteringService;
     }

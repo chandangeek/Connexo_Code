@@ -14,11 +14,13 @@ import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageCo
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
@@ -40,9 +42,10 @@ public class MasterDataLinkageConfigMasterServiceCallHandler extends
     @Inject
     public MasterDataLinkageConfigMasterServiceCallHandler(EndPointConfigurationService endPointConfigurationService,
             ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder,
-            JsonService jsonService, MeteringService meteringService) {
+            JsonService jsonService, MeteringService meteringService, Thesaurus thesaurus,
+            WebServicesService webServicesService) {
         super(MasterDataLinkageConfigMasterDomainExtension.class, replyMasterDataLinkageConfigWebServiceHolder,
-                endPointConfigurationService);
+                endPointConfigurationService, thesaurus, webServicesService);
         this.jsonService = jsonService;
         this.meteringService = meteringService;
     }

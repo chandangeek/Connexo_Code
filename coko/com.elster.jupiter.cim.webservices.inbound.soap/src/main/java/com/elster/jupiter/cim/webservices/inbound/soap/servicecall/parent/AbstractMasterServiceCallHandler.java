@@ -3,12 +3,16 @@
  */
 package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.parent;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ObjectHolder;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -27,12 +31,17 @@ public abstract class AbstractMasterServiceCallHandler<T extends AbstractMasterD
     private Class<T> extensionClass;
     private final ObjectHolder<R> replyWebServiceHolder;
     private final EndPointConfigurationService endPointConfigurationService;
+    private final Thesaurus thesaurus;
+    private final WebServicesService webServicesService;
 
     protected AbstractMasterServiceCallHandler(Class<T> extensionClass, ObjectHolder<R> replyWebServiceHolder,
-            EndPointConfigurationService endPointConfigurationService) {
+            EndPointConfigurationService endPointConfigurationService, Thesaurus thesaurus,
+            WebServicesService webServicesService) {
         this.extensionClass = extensionClass;
         this.replyWebServiceHolder = replyWebServiceHolder;
         this.endPointConfigurationService = endPointConfigurationService;
+        this.thesaurus = thesaurus;
+        this.webServicesService = webServicesService;
     }
 
     /**
@@ -86,12 +95,13 @@ public abstract class AbstractMasterServiceCallHandler<T extends AbstractMasterD
     }
 
     private void sendResponseToOutboundEndPoint(ServiceCall serviceCall) {
-        if (replyWebServiceHolder.getObject() == null) {
-            return;
-        }
         T extension = serviceCall.getExtension(extensionClass)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
         if (extension.getCallbackURL() == null) {
+            return;
+        }
+        if (replyWebServiceHolder.getObject() == null) {
+            logErrorAboutMissingEndpoint(serviceCall, extension);
             return;
         }
         Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService
@@ -99,10 +109,24 @@ public abstract class AbstractMasterServiceCallHandler<T extends AbstractMasterD
                 .filter(epc -> !epc.isInbound()).filter(epc -> epc.getUrl().equals(extension.getCallbackURL()))
                 .findAny();
         if (!endPointConfiguration.isPresent()) {
+            logErrorAboutMissingEndpoint(serviceCall, extension);
+            return;
+        }
+        if (!webServicesService.isPublished(endPointConfiguration.get())) {
+            webServicesService.publishEndPoint(endPointConfiguration.get());
+        }
+        if (!webServicesService.isPublished(endPointConfiguration.get())) {
+            serviceCall.log(LogLevel.SEVERE,
+                    MessageSeeds.NO_PUBLISHED_END_POINT_WITH_URL.translate(thesaurus, extension.getCallbackURL()));
             return;
         }
 
         sendReply(replyWebServiceHolder.getObject(), endPointConfiguration.get(), serviceCall, extension);
+    }
+
+    private void logErrorAboutMissingEndpoint(ServiceCall serviceCall, T extension) {
+        serviceCall.log(LogLevel.SEVERE,
+                MessageSeeds.NO_END_POINT_WITH_URL.translate(thesaurus, extension.getCallbackURL()));
     }
 
     private void updateCounter(ServiceCall serviceCall, DefaultState state) {
