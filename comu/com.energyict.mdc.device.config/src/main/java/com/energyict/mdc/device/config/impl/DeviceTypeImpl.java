@@ -9,7 +9,6 @@ import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -80,6 +79,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -152,7 +152,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private ProtocolPluggableService protocolPluggableService;
     private DeviceConfigurationService deviceConfigurationService;
     private CustomPropertySetService customPropertySetService;
-    private DataVaultService dataVaultService;
 
     private DeviceTypePurpose deviceTypePurpose = DeviceTypePurpose.REGULAR;
     private boolean deviceTypePurposeChanged = false;
@@ -163,13 +162,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private DeviceProtocol localDeviceProtocol;
 
     @Inject
-    public DeviceTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, CustomPropertySetService customPropertySetService, DataVaultService dataVaultService) {
+    public DeviceTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, CustomPropertySetService customPropertySetService) {
         super(DeviceType.class, dataModel, eventService, thesaurus);
         this.clock = clock;
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.customPropertySetService = customPropertySetService;
-        this.dataVaultService = dataVaultService;
     }
 
     private DeviceTypeImpl initializeRegular(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
@@ -400,8 +398,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                     .findAny();
             if (accessorTypeImpl.isPresent()) {
                 String keyValue = accessorTypeImpl.get().getDefaultKey();
-                byte[] key = dataVaultService.decrypt(keyValue);
-                return DatatypeConverter.printHexBinary(key);
+                if (keyValue != null) {
+                    byte[] key = Base64.getDecoder().decode(keyValue);
+                    return DatatypeConverter.printHexBinary(key);
+                }
             }
         }
     	return null;
@@ -414,8 +414,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
               securityAccessorTypeOnDeviceType.getSecurityAccessorType().getId() == id).findAny();
         if (accessorTypeImpl.isPresent()) {
             String keyValue = accessorTypeImpl.get().getDefaultKey();
-            byte[] key = dataVaultService.decrypt(keyValue);
-            return DatatypeConverter.printHexBinary(key);
+            if (keyValue != null) {
+                byte[] key = Base64.getDecoder().decode(keyValue);
+                return DatatypeConverter.printHexBinary(key);
+            }
         }
         return null;
     }
@@ -428,10 +430,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                             securityAccessorTypeOnDeviceType.getSecurityAccessorType().equals(securityAccessorType))
                     .findAny();
                 byte[] key = DatatypeConverter.parseHexBinary(value);
-                value = dataVaultService.encrypt(key);
-                if (accessorTypeImpl.isPresent()) {
-                    accessorTypeImpl.get().setDefaultKey(value);
-                }
+                accessorTypeImpl.ifPresent(accessorType -> {
+                    accessorType.setDefaultKey(Base64.getEncoder().encodeToString(key));
+                });
          }
     }
 

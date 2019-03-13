@@ -79,11 +79,6 @@ public class SecurityServiceKeySearchableProperty extends AbstractSearchableDevi
         if (condition.getClass().isAssignableFrom(Comparison.class)) {
             SqlBuilder sqlBuilder = new SqlBuilder();
             Comparison comparison = (Comparison) condition;
-/*            String value = "N";
-            if (comparison.getValues()[0].toString().equalsIgnoreCase("true")) {
-                value = "Y";
-            }
-*/ 
             sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
             sqlBuilder.openBracket();
             //Devices having a service key
