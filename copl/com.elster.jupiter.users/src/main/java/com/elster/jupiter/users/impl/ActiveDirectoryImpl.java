@@ -11,6 +11,8 @@ import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
+import org.osgi.framework.BundleContext;
+
 import javax.inject.Inject;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -31,6 +33,7 @@ import javax.naming.ldap.StartTlsResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
@@ -42,12 +45,13 @@ import static com.elster.jupiter.util.Checks.is;
 
 final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
+    private static final Pattern REAL_GROUP_NAME_PATTERN = Pattern.compile("=(.*?),");
     static final String TYPE_IDENTIFIER = "ACD";
     private static final Logger LOGGER = Logger.getLogger(ActiveDirectoryImpl.class.getSimpleName());
 
     @Inject
-    ActiveDirectoryImpl(DataModel dataModel, UserService userService) {
-        super(dataModel, userService);
+    ActiveDirectoryImpl(DataModel dataModel, UserService userService, BundleContext context) {
+        super(dataModel, userService, context);
         setType(TYPE_IDENTIFIER);
     }
 
@@ -73,23 +77,21 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             String attrIDs[] = { "memberOf" };
             SearchControls controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, attrIDs, true, true);
             String name = getGroupName() == null ? "" : getBaseUser();
-            NamingEnumeration<SearchResult> answer = context.search(name,
-                    "(&(objectClass=person)(userPrincipalName=" + user.getName() + "@" + getRealDomain(getBase())
-                            + "))",
-                    controls);
+            NamingEnumeration<SearchResult> answer = context.search(name, "(&(objectClass=person)(userPrincipalName="
+                    + user.getName() + "@" + getRealDomain(getBase()) + "))", controls);
             while (answer.hasMoreElements()) {
                 Attributes attrs = answer.nextElement().getAttributes();
                 NamingEnumeration<? extends Attribute> e = attrs.getAll();
                 while (e.hasMoreElements()) {
                     Attribute attr = e.nextElement();
                     for (int i = 0; i < attr.size(); ++i) {
-                        Group group = userService.findOrCreateGroup(getRealGroupName(attr.get(i).toString()));
-                        groupList.add(group);
+                        userService.findGroup(getRealGroupName(attr.get(i).toString())).ifPresent(groupList::add);
                     }
                 }
             }
         } catch (NamingException e) {
-            return ((UserImpl) user).doGetGroups();
+            LOGGER.severe(e.getLocalizedMessage());
+            throw new LdapServerException(userService.getThesaurus());
         }
         return groupList;
     }
@@ -201,13 +203,11 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private String getRealGroupName(String rdn) {
-        String result = rdn;
-        Pattern pattern = Pattern.compile("=(.*?),");
-        Matcher matcher = pattern.matcher(rdn);
+        Matcher matcher = REAL_GROUP_NAME_PATTERN.matcher(rdn);
         if (matcher.find()) {
-            result = matcher.group(1);
+            return matcher.group(1);
         }
-        return result;
+        return rdn;
     }
 
     @Override
@@ -418,5 +418,29 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             env.put(Context.SECURITY_PROTOCOL, "ssl");
         }
         return env;
+    }
+
+    @Override
+    public List<String> getGroupNames() {
+        if (getBaseGroup() == null) {
+            return Collections.emptyList();
+        }
+        List<String> names = new ArrayList<>();
+        try {
+            DirContext context = new InitialDirContext(
+                    createEnvironment(getUrl(), getDirectoryUser(), getPasswordDecrypt()));
+            String[] attrIDs = { "cn" };
+            SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, attrIDs, true, true);
+            NamingEnumeration<SearchResult> groupEnumeration = context.search(getBaseGroup(),
+                    "(objectClass=groupOfNames)", controls);
+            while (groupEnumeration.hasMoreElements()) {
+                String name = groupEnumeration.next().getAttributes().get("cn").get().toString();
+                names.add(getRealGroupName(name));
+            }
+        } catch (NamingException e) {
+            LOGGER.severe(e.getLocalizedMessage());
+            throw new LdapServerException(userService.getThesaurus());
+        }
+        return names;
     }
 }

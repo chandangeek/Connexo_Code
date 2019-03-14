@@ -12,6 +12,8 @@ import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.UserService;
 
+import org.osgi.framework.BundleContext;
+
 import javax.naming.Context;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -25,51 +27,69 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.util.Hashtable;
 
-public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImpl implements LdapUserDirectory{
-    @Size(max = 128, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImpl implements LdapUserDirectory {
+    private static final String MANAGE_GROUP_INTERNALLY_PROPERTY_NAME = "ldap.roles";
+    @Size(max = 128, groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String directoryUser;
-    @Size(max = 128, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @Size(max = 128, groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String password;
     private String description;
-    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String url;
-    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String backupUrl;
-    @Size(max = 4, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4 + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @Size(max = 4, groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4 + "}")
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String securityProtocol;
-    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String baseUser;
-    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String baseGroup;
-    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String groupName;
     private Long trustStoreId;
-    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String certificateAlias;
     private boolean manageGroupsInternal;
+    private final BundleContext context;
 
+    final Hashtable<String, Object> commonEnvLDAP = new Hashtable<String, Object>() {
+        {
+            put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+            put(Context.SECURITY_AUTHENTICATION, "simple");
+        }
+    };
 
-    final Hashtable<String, Object> commonEnvLDAP = new Hashtable<String, Object>(){{
-        put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        put(Context.SECURITY_AUTHENTICATION, "simple");
-    }};
-
-    public AbstractLdapDirectoryImpl(DataModel dataModel, UserService userService) {
+    public AbstractLdapDirectoryImpl(DataModel dataModel, UserService userService, BundleContext context) {
         super(dataModel, userService);
+        this.context = context;
     }
 
     @Override
     public boolean isManageGroupsInternal() {
-        return manageGroupsInternal;
+        String property = context.getProperty(MANAGE_GROUP_INTERNALLY_PROPERTY_NAME);
+        return !Boolean.valueOf(property); // defaults to true
     }
 
     @Override
-    public void setManageGroupsInternal(boolean manageGroupsInternal){
-        this.manageGroupsInternal = manageGroupsInternal;
+    public void setManageGroupsInternal(boolean manageGroupsInternal) {
+        // no longer used
     }
 
     @Override
@@ -88,32 +108,32 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     }
 
     @Override
-    public String getSecurity(){
+    public String getSecurity() {
         return securityProtocol;
     }
 
     @Override
-    public String getBackupUrl(){
+    public String getBackupUrl() {
         return backupUrl;
     }
 
     @Override
-    public String getDescription(){
+    public String getDescription() {
         return description;
     }
 
     @Override
-    public void setSecurity(String security){
+    public void setSecurity(String security) {
         securityProtocol = security;
     }
 
     @Override
-    public void setDescription(String description){
+    public void setDescription(String description) {
         this.description = description;
     }
 
     @Override
-    public void setBackupUrl(String backupUrl){
+    public void setBackupUrl(String backupUrl) {
         this.backupUrl = backupUrl;
     }
 
@@ -129,13 +149,13 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
 
     @Override
     public void setPassword(String password) {
-        if(!"".equals(password)) {
+        if (!"".equals(password)) {
             this.password = userService.getDataVaultService().encrypt(password.getBytes());
         }
     }
 
     @Override
-    public String getBaseUser(){
+    public String getBaseUser() {
         return baseUser;
     }
 
@@ -154,7 +174,7 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
         this.baseGroup = baseGroup;
     }
 
-    protected String getPasswordDecrypt(){
+    protected String getPasswordDecrypt() {
         return new String(userService.getDataVaultService().decrypt(getPassword()));
     }
 
@@ -162,7 +182,8 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
         if (sslSecurityProperties.getTrustedStore() != null) {
             try {
                 KeyManagerFactory kmf = null;
-                if (sslSecurityProperties.getKeyStore() != null && sslSecurityProperties.getKeyStorePassword() != null) {
+                if (sslSecurityProperties.getKeyStore() != null
+                        && sslSecurityProperties.getKeyStorePassword() != null) {
                     kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
                     kmf.init(sslSecurityProperties.getKeyStore(), sslSecurityProperties.getKeyStorePassword());
                 }
@@ -171,7 +192,8 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
                 SSLContext ctx = SSLContext.getInstance(protocol);
                 ctx.init(kmf != null ? kmf.getKeyManagers() : null, tmf.getTrustManagers(), null);
                 return ctx.getSocketFactory();
-            } catch (KeyStoreException | NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException e) {
+            } catch (KeyStoreException | NoSuchAlgorithmException | KeyManagementException
+                    | UnrecoverableKeyException e) {
                 return (SSLSocketFactory) SSLSocketFactory.getDefault();
             }
         }
@@ -188,7 +210,6 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     protected String getBase() {
         return getGroupName() == null ? getBaseUser() : getGroupName();
     }
-
 
     @Override
     public String getGroupName() {

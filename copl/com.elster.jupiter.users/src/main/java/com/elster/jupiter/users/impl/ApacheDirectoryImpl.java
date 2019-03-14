@@ -11,6 +11,8 @@ import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
+import org.osgi.framework.BundleContext;
+
 import javax.inject.Inject;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -31,20 +33,23 @@ import javax.naming.ldap.StartTlsResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
 final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
-    static String TYPE_IDENTIFIER = "APD";
+    private static final String CN = "cn";
+    private static final String[] CN_ARRAY = { CN };
+    static final String TYPE_IDENTIFIER = "APD";
     private static final Logger LOGGER = Logger.getLogger(ApacheDirectoryImpl.class.getSimpleName());
 
     private StartTlsResponse tls = null;
 
     @Inject
-    ApacheDirectoryImpl(DataModel dataModel, UserService userService) {
-        super(dataModel, userService);
+    ApacheDirectoryImpl(DataModel dataModel, UserService userService, BundleContext context) {
+        super(dataModel, userService, context);
         setType(TYPE_IDENTIFIER);
     }
 
@@ -72,16 +77,16 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         List<Group> groupList = new ArrayList<>();
         try {
             DirContext context = new InitialDirContext(env);
-            String[] attrIDs = { "cn" };
+            String[] attrIDs = CN_ARRAY;
             SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, attrIDs, true, true);
             NamingEnumeration<SearchResult> answer = context.search(getBaseGroup(),
                     "(&(objectClass=groupOfNames)(member=uid=" + user.getName() + "," + getBase() + "))", controls);
             while (answer.hasMore()) {
-                Group group = userService.findOrCreateGroup(answer.next().getAttributes().get("cn").get().toString());
-                groupList.add(group);
+                userService.findGroup(answer.next().getAttributes().get(CN).get().toString()).ifPresent(groupList::add);
             }
         } catch (NamingException e) {
-            return ((UserImpl) user).doGetGroups();
+            LOGGER.severe(e.getLocalizedMessage());
+            throw new LdapServerException(userService.getThesaurus());
         }
         return groupList;
     }
@@ -271,9 +276,10 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         List<LdapUser> ldapUsers = new ArrayList<>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.OBJECT_SCOPE);
-        NamingEnumeration groupEnumeration = ctx.search(getGroupName(), "(objectClass=groupOfNames)", controls);
+        NamingEnumeration<SearchResult> groupEnumeration = ctx.search(getGroupName(), "(objectClass=groupOfNames)",
+                controls);
         if (groupEnumeration.hasMore()) {
-            SearchResult groupSearchResult = (SearchResult) groupEnumeration.next();
+            SearchResult groupSearchResult = groupEnumeration.next();
             Attributes groupAttributes = groupSearchResult.getAttributes();
             Attribute memberAttribute = groupAttributes.get("member");
             NamingEnumeration<?> membersEnumeration = memberAttribute.getAll();
@@ -289,15 +295,15 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         List<LdapUser> ldapUsers = new ArrayList<>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
+        NamingEnumeration<SearchResult> results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
         while (results.hasMore()) {
             addUser(results, ldapUsers);
         }
         return ldapUsers;
     }
 
-    private void addUser(NamingEnumeration results, List<LdapUser> ldapUsers) throws NamingException {
-        SearchResult searchResult = (SearchResult) results.next();
+    private void addUser(NamingEnumeration<SearchResult> results, List<LdapUser> ldapUsers) throws NamingException {
+        SearchResult searchResult = results.next();
         Attributes attributes = searchResult.getAttributes();
         if (attributes.get("uid") != null) {
             LdapUser ldapUser = new LdapUserImpl();
@@ -328,7 +334,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             filter = "(&(objectClass=person)(" + memberUser + "))";
         }
 
-        NamingEnumeration userEnumeration = ctx.search(start, filter, userControls);
+        NamingEnumeration<SearchResult> userEnumeration = ctx.search(start, filter, userControls);
         if (userEnumeration.hasMore()) {
             addUser(userEnumeration, ldapUsers);
         }
@@ -374,7 +380,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         try {
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
-            NamingEnumeration results;
+            NamingEnumeration<SearchResult> results;
             if (getGroupName() == null) {
                 controls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
                 results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
@@ -383,7 +389,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 results = ctx.search("", "(&(objectClass=person)(uid=" + user + "))", controls);
             }
             while (results.hasMore()) {
-                SearchResult searchResult = (SearchResult) results.next();
+                SearchResult searchResult = results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if (attributes.get("uid") != null) {
                     if (attributes.get("uid").toString().equals("uid: " + user)) {
@@ -424,9 +430,9 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
             String name = getGroupName() == null ? "" : getBaseUser();
-            NamingEnumeration results = ctx.search(name, "(uid=" + user + ")", controls);
+            NamingEnumeration<SearchResult> results = ctx.search(name, "(uid=" + user + ")", controls);
             while (results.hasMore()) {
-                SearchResult searchResult = (SearchResult) results.next();
+                SearchResult searchResult = results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if (attributes.get("uid") != null) {
                     if (attributes.get("uid").toString().equals("uid: " + user)) {
@@ -466,9 +472,9 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
             String name = getGroupName() == null ? "" : getBaseUser();
-            NamingEnumeration results = ctx.search(name, "(uid=" + user + ")", controls);
+            NamingEnumeration<SearchResult> results = ctx.search(name, "(uid=" + user + ")", controls);
             while (results.hasMore()) {
-                SearchResult searchResult = (SearchResult) results.next();
+                SearchResult searchResult = results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if (attributes.get("uid") != null) {
                     if (attributes.get("uid").toString().equals("uid: " + user)) {
@@ -527,6 +533,35 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             principal = name;
         }
         env.put(Context.SECURITY_PRINCIPAL, principal);
+    }
+
+    @Override
+    public List<String> getGroupNames() {
+        if (getBaseGroup() == null) {
+            return Collections.emptyList();
+        }
+        Hashtable<String, Object> env = new Hashtable<>();
+        env.putAll(commonEnvLDAP);
+        env.put(Context.PROVIDER_URL, getUrl());
+        env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
+        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
+
+        List<String> names = new ArrayList<>();
+        DirContext context;
+        try {
+            context = new InitialDirContext(env);
+            SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, CN_ARRAY, true, true);
+            NamingEnumeration<SearchResult> groupEnumeration = context.search(getBaseGroup(),
+                    "(objectClass=groupOfNames)", controls);
+            while (groupEnumeration.hasMore()) {
+                Attributes attributes = groupEnumeration.next().getAttributes();
+                names.add(attributes.get(CN).get().toString());
+            }
+        } catch (NamingException e) {
+            LOGGER.severe(e.getLocalizedMessage());
+            throw new LdapServerException(userService.getThesaurus());
+        }
+        return names;
     }
 
 }

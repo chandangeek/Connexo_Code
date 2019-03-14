@@ -129,7 +129,6 @@ public class UserDirectoryResource {
             ldapUserDirectory.setUrl(info.url);
             ldapUserDirectory.setBackupUrl(info.backupUrl);
             ldapUserDirectory.setDefault(info.isDefault);
-            ldapUserDirectory.setManageGroupsInternal(true);
             ldapUserDirectory.setGroupName(info.groupName);
             ldapUserDirectory.update();
             if (!(info.securityProtocol == null || info.securityProtocol.toUpperCase().contains("NONE")) && (info.trustStore != null || info.certificateAlias != null)) {
