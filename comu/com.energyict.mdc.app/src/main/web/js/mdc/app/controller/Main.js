@@ -104,7 +104,7 @@ Ext.define('MdcApp.controller.Main', {
         'Dbp.controller.Main',
         'Scs.controller.Main',
         'Dal.controller.Main',
-        'Idl.controller.Main'
+        'Idl.controller.Main',
         'Tou.controller.Main'
 
     ],
