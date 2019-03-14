@@ -165,7 +165,7 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
 
     private class ParentGetMeterReadingsCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, ParentGetMeterReadingsDomainExtension> {
         private final String TABLE_NAME = PREFIX + "_METER_READINGS_SC_CPS";
-        private final String FK = String.format("FK_{0}_MRSCCPS_SC", PREFIX );
+        private final String FK = String.format("FK_%s_MRSCCPS_SC", PREFIX );
 
         @Override
         public String componentName() {
