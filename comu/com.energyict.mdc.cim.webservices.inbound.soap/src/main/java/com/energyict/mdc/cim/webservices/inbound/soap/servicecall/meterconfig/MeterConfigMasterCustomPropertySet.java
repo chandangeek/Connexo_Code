@@ -207,7 +207,6 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
             table.column(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName())
                     .varChar()
                     .map(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName())
-                    .notNull()
                     .add();
         }
 
