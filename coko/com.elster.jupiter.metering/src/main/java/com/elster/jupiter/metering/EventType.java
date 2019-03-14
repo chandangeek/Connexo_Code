@@ -50,6 +50,7 @@ public enum EventType {
                     .create();
         }
     },
+
     METERREADING_CREATED("meterreading/CREATED") {
         @Override
         public void install(EventService eventService) {
@@ -186,8 +187,11 @@ public enum EventType {
     READING_TYPE_DELIVERABLE_CREATED("readingtypedeliverable/CREATED"),
     READING_TYPE_DELIVERABLE_UPDATED("readingtypedeliverable/UPDATED"),
     READING_TYPE_DELIVERABLE_DELETED("readingtypedeliverable/DELETED"),
-    METROLOGY_CONTRACT_DELETED("metrologycontract/DELETED"),;
-
+    METROLOGY_CONTRACT_DELETED("metrologycontract/DELETED"),
+    METER_LINKED("meter/LINKED"),
+    METER_UNLINKED("meter/UNLINKED"),
+    ;
+    /* XROMVYU EVENTS !!!!! */
     private static final String NAMESPACE = "com/elster/jupiter/metering/";
     private final String topic;
     private boolean hasMRID;

@@ -66,8 +66,10 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
                 EventType.METER_CREATED,
                 EventType.METER_UPDATED,
                 EventType.METER_DELETED,
-                EventType.METERREADING_CREATED,
-                EventType.READINGS_DELETED);
+                EventType.METERREADING_CREATED/*,
+                EventType.READINGS_DELETED,
+                EventType.METER_LINKED,
+                EventType.METER_UNLINKED*/);
     }
 
     @Override
