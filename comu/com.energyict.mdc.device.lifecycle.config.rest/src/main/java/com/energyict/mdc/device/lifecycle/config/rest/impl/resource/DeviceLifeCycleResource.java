@@ -230,7 +230,7 @@ public class DeviceLifeCycleResource {
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("privileges", privileges, queryParams);
     }
-
+    /* XROMVYU */
     @GET
     @Path("/eventtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")

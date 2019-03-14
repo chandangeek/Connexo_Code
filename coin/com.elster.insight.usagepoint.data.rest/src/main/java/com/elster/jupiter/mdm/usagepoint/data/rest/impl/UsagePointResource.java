@@ -580,6 +580,7 @@ public class UsagePointResource {
     public Response activateMeters(@PathParam("name") String name, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.version);
         Stage stage = usagePoint.getState().getStage().get();
+        /* XROMVYU HERE ADD EVENT !!!!!!! */
         if (!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey()) && !stage.getName()
                 .equals(UsagePointStage.OPERATIONAL.getKey()) && !stage.getName()
                 .equals(UsagePointStage.SUSPENDED.getKey())) {

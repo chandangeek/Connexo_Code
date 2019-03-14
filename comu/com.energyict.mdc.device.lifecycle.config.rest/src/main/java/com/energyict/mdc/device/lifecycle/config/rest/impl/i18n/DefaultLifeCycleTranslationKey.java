@@ -24,9 +24,11 @@ public enum DefaultLifeCycleTranslationKey implements TranslationKey {
     TRANSITION_CONNECTION_TASK_CLEAR_DEFAULT("com/energyict/mdc/device/data/connectiontask/CLEARDEFAULT", "Unmark a connection method as the default for a device"),
     TRANSITION_CONNECTION_TASK_FAILURE("com/energyict/mdc/connectiontask/FAILURE", "Failure to setup a connection with a device"),
     TRANSITION_CONNECTION_TASK_COMPLETION("com/energyict/mdc/connectiontask/COMPLETION", "Successful completion of a connection with a device"),
+
     TRANSITION_COMMUNICATION_TOPOLOGY_CHANGED("com/energyict/mdc/outboundcommunication/DEVICETOPOLOGYCHANGED", "Topology of a gateway device changed"),
     TRANSITION_DEVICE_CREATED("com/energyict/mdc/device/data/device/CREATED", "Creation of a device"),
     TRANSITION_DEVICE_UPDATED("com/energyict/mdc/device/data/device/UPDATED", "Change a device"),
+
     TRANSITION_DEVICE_DELETED("com/energyict/mdc/device/data/device/DELETED", "Deletion of a device"),
     TRANSITION_DEVICE_MESSAGE_CREATED("com/energyict/mdc/device/data/deviceMessage/CREATED", "Creation of a command on a device"),
     TRANSITION_DEVICE_MESSAGE_UPDATED("com/energyict/mdc/device/data/deviceMessage/UPDATED", "Change of a command on a device"),
@@ -34,8 +36,12 @@ public enum DefaultLifeCycleTranslationKey implements TranslationKey {
     TRANSITION_PROTOCOL_DIALECT_CREATED("com/energyict/mdc/device/data/protocoldialectproperties/CREATED", "Creation of protocol dialect properties on a device"),
     TRANSITION_PROTOCOL_DIALECT_UPDATED("com/energyict/mdc/device/data/protocoldialectproperties/UPDATED", "Change of protocol dialect properties on a device"),
     TRANSITION_PROTOCOL_DIALECT_DELETED("com/energyict/mdc/device/data/protocoldialectproperties/DELETED", "Deletion of protocol dialect properties on a device"),
+
     TRANSITION_METER_READING_CREATED("com/elster/jupiter/metering/meterreading/CREATED", "Creation of a device reading"),
     TRANSITION_METER_READING_DELETED("com/elster/jupiter/metering/reading/DELETED", "Deletion of a device reading"),
+
+    TRANSITION_METER_LINKED("com/elster/jupiter/metering/meter/LINKED", "METER LINKED"),
+    TRANSITION_METER_UNLINKED("com/elster/jupiter/metering/meter/UNLINKED", "METER UNLINKED"),
 
     PRIVILEGE_LEVEL_1("privilege.level.ONE", "Level 1"),
     PRIVILEGE_LEVEL_2("privilege.level.TWO", "Level 2"),
