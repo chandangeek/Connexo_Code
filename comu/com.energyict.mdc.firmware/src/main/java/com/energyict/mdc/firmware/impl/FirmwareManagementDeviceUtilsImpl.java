@@ -29,7 +29,6 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
@@ -298,7 +297,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public boolean isReadOutAfterLastFirmwareUpgrade() {
-        List<DeviceMessageStatus> badStatuses = Arrays.asList(DeviceMessageStatus.CANCELED, DeviceMessageStatus.FAILED);
+        Set<DeviceMessageStatus> badStatuses = EnumSet.of(DeviceMessageStatus.CANCELED, DeviceMessageStatus.FAILED);
         Optional<Instant> lastUpgrade = getFirmwareMessages().stream()
                 .filter(message -> !badStatuses.contains(message.getStatus()))
                 .map(DeviceMessage::getReleaseDate)
@@ -306,6 +305,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         Optional<Instant> lastReadOut = device.getComTaskExecutions().stream()
                 .filter(ComTaskExecution::isConfiguredToReadStatusInformation)
                 .map(ComTaskExecution::getLastSuccessfulCompletionTimestamp)
+                .filter(Objects::nonNull)
                 .max(Comparator.naturalOrder());
         return lastReadOut
                 .filter(readOut -> !lastUpgrade.isPresent() || readOut.isAfter(lastUpgrade.get()))
