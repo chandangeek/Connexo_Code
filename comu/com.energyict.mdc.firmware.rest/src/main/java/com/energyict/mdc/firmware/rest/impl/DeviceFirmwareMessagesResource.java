@@ -12,7 +12,6 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -122,7 +121,10 @@ public class DeviceFirmwareMessagesResource {
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(device.getDeviceType(), info.uploadOption, firmwareVersion);
         DeviceMessageSpec firmwareMessageSpec = resourceHelper.findFirmwareMessageSpecOrThrowException(firmwareMessageId);
         if (!force) {
-            performFirmwareRankingChecks(device, firmwareVersion);
+            Optional<ConfirmationInfo> confirmationInfoOptional = performFirmwareRankingChecks(device, firmwareVersion);
+            if (confirmationInfoOptional.isPresent()) {
+                return Response.status(Response.Status.BAD_REQUEST).entity(confirmationInfoOptional.get()).build();
+            }
         }
         if (deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(firmwareMessageId) && firmwareVersion.getImageIdentifier() != null) {
             firmwareMessageInfoFactory.initImageIdentifier(info, firmwareVersion.getImageIdentifier());
@@ -141,19 +143,37 @@ public class DeviceFirmwareMessagesResource {
         return Response.status(Response.Status.CREATED).build();
     }
 
-    private void performFirmwareRankingChecks(Device device, FirmwareVersion firmwareVersion) {
+    private Optional<ConfirmationInfo> performFirmwareRankingChecks(Device device, FirmwareVersion firmwareVersion) {
+        ConfirmationInfo confirmationInfo = new ConfirmationInfo();
         if (firmwareVersion.getFirmwareType() != FirmwareType.CA_CONFIG_IMAGE) {
             FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
-            RestValidationBuilder validationBuilder = new RestValidationBuilder();
-            firmwareService.getFirmwareChecks()
-                    .forEach(check -> {
-                        try {
-                            check.execute(utils, firmwareVersion);
-                        } catch (FirmwareCheck.FirmwareCheckException e) {
-                            validationBuilder.addValidationError(new LocalizedFieldValidationException(e.getMessageSeed(), check.getTitle(thesaurus), e.getMessageArgs()));
-                        }
-                    });
-            validationBuilder.validate();
+            firmwareService.getFirmwareChecks().forEach(check -> {
+                try {
+                    check.execute(utils, firmwareVersion);
+                } catch (FirmwareCheck.FirmwareCheckException e) {
+                    confirmationInfo.errors.add(new ErrorInfo(check.getKey(), check.getTitle(thesaurus), e.getLocalizedMessage()));
+                }
+            });
+        }
+        return Optional.of(confirmationInfo)
+                .filter(confirmation -> !confirmation.errors.isEmpty());
+    }
+
+    private static class ConfirmationInfo {
+        public final boolean confirmation = true;
+        public final boolean success = false;
+        public List<ErrorInfo> errors = new ArrayList<>();
+    }
+
+    private static class ErrorInfo {
+        public String id;
+        public String title;
+        public String msg;
+
+        private ErrorInfo(String id, String title, String msg) {
+            this.id = id;
+            this.title = title;
+            this.msg = msg;
         }
     }
 
