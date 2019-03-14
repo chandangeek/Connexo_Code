@@ -24,7 +24,7 @@
         "com.energyict.mdc.bpm.extjs",
         "com.elster.jupiter.servicecall.extjs",
         "com.elster.jupiter.appserver.extjs",
-        "com.energyict.mdc.issue.devicelifecycle.extjs"
+        "com.energyict.mdc.issue.devicelifecycle.extjs",
         "com.energyict.mdc.tou.campaign.extjs"
     ],
 
