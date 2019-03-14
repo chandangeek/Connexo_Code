@@ -22,6 +22,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.inject.AbstractModule;
@@ -50,7 +51,8 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
         LOGICAL_REGISTER_NUMBER("logicalRegisterNumber"),
         PROFILE_NUMBER("profileNumber"),
         IN_USE("inUse"),
-        BILLING_FACTOR("billingFactor"),;
+        BILLING_FACTOR("billingFactor"),
+        DEVICE_REF("deviceRef"),;
 
         Fields(String javaName) {
             this.javaName = javaName;
@@ -74,6 +76,7 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
         private BigDecimal billingFactor;
 
         private Reference<ChannelSpec> channelSpec = ValueReference.absent();
+        private Reference<Device> deviceRef = ValueReference.absent();
         private Long device;
 
         @Override
@@ -172,6 +175,21 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
                     .map(Fields::name)
                     .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
         }
+
+        @Override
+        public String contextFieldName() {
+            return Fields.DEVICE_REF.javaName();
+        }
+
+        @Override
+        public String contextColumnName() {
+            return Fields.DEVICE.javaName();
+        }
+
+        @Override
+        public String contextForeignKeyName() {
+            return PREFIX + "_SAP_INFO_"+ Fields.DEVICE.javaName().toUpperCase() + "_FK";
+        }
     }
 
     private Thesaurus thesaurus;
@@ -221,6 +239,11 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
     @Override
     public Class<ChannelSpec> getDomainClass() {
         return ChannelSpec.class;
+    }
+
+    @Override
+    public Class getContextClass() {
+        return Device.class;
     }
 
     @Override

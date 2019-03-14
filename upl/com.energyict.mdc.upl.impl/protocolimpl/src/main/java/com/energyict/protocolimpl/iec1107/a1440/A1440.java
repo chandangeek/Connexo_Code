@@ -765,7 +765,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             byteArrayOutputStream.write(name.getBytes());
             this.flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
-            data = this.flagIEC1107Connection.receiveRawData();
+            data = this.flagIEC1107Connection.receiveRawData(edisNotation);
         } else {
             DataDumpParser ddp = new DataDumpParser(getDataReadout());
             data = ddp.getRegisterStrValue(edisNotation).getBytes();
