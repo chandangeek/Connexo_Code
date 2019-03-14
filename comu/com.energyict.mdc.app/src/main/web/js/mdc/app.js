@@ -36,6 +36,10 @@ Ext.onReady(function () {
             path: '../../apps/idv/src'
         },
         {
+            name: 'Idl',
+            path: '../../apps/idl/src'
+        },
+        {
             name: 'Dal',
             path: '../../apps/dal/src'
         },
