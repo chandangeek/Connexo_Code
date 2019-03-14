@@ -94,9 +94,9 @@ public abstract class AbstractMockActivator {
     @Mock
     private QueueTableSpec queueTableSpec;
     @Mock
-    DestinationSpec destinationSpec;
+    protected DestinationSpec destinationSpec;
     @Mock
-    ServiceCall serviceCall;
+    protected ServiceCall serviceCall;
 
     private CIMInboundSoapEndpointsActivator activator;
 

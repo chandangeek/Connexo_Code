@@ -366,7 +366,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                                                                  List<com.elster.jupiter.metering.EndDevice> existedEndDevices) {
         Map<String, String> notFoundReadingTypesOnDevices = new HashMap<>();
 
-        for (com.elster.jupiter.metering.EndDevice endDevice: existedEndDevices){
+        for (com.elster.jupiter.metering.EndDevice endDevice: existedEndDevices) {
             Set<String> notFoundReadingTypes = new HashSet<>();
             existedReadingTypes.forEach(readingType -> {
                 Meter meter = (Meter) endDevice;
@@ -436,10 +436,10 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         Set<String> existedmRIDs = endDeviceList.stream()
                 .map(endDevice -> endDevice.getMRID())
                 .collect(Collectors.toSet());
-        notFoundNames.addAll(requiredMRIDs.stream()
+        notFoundMRIDs.addAll(requiredMRIDs.stream()
                 .filter(mrid -> !existedmRIDs.contains(mrid))
                 .collect(Collectors.toSet()));
-        notFoundMRIDs.addAll(requiredNames.stream()
+        notFoundNames.addAll(requiredNames.stream()
                 .filter(name -> !existedNames.contains(name))
                 .collect(Collectors.toSet()));
     }
