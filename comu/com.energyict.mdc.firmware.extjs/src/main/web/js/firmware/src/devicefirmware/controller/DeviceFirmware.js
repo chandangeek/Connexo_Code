@@ -14,7 +14,8 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
     requires: [
         'Mdc.model.Device',
-        'Uni.util.Common'
+        'Uni.util.Common',
+        'Uni.view.window.Confirmation'
     ],
 
     models: [
@@ -90,6 +91,23 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         });
     },
 
+    forceUpload: function(record, container, router){
+        var me = this;
+        var errorMsg = me.getUploadPage().down('#form-errors');
+        record.getProxy().setExtraParam('force', true);
+        record.save({
+                    success: function () {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.success', 'FWC', 'Firmware upload scheduled'));
+                        container.setLoading(false);
+                        router.getRoute('devices/device/firmware').forward();
+                    },
+                    failure: function (record, resp) {
+                        errorMsg.show();
+                        container.setLoading(false);
+                    }
+        });
+    },
+
     uploadFirmware: function () {
         var me = this,
             uploadPage = me.getUploadPage(),
@@ -134,28 +152,67 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                     var responseText = Ext.decode(response.responseText, true);
                     if (responseText && responseText.errors) {
                         var errorsArr = [];
-                        Ext.each(responseText.errors, function (error) {
-                            var errorKeyArr = error.id.split('.');
-                            errorKeyArr.shift(); // remove first item, as it is not presented in property
-                            errorsArr.push({id: errorKeyArr.join('.'), msg: error.msg});
-                        });
-                        var errorsWithoutId = '',
-                            code = '';
-                        if (responseText && responseText.errorCode) {
-                            code = responseText.errorCode;
-                        }
-                        var foundMessagesWithoutId = false;
-                        Ext.each(errorsArr, function (error) {
-                            if (Ext.isEmpty(error['id']) && !Ext.isEmpty(error['msg'])) {
-                                foundMessagesWithoutId = true;
-                                errorsWithoutId = errorsWithoutId + error['msg'];
+                        var canFurtherUpload = responseText.confirmation;
+
+                        var confirmationWindow = Ext.create('Uni.view.window.Confirmation',{
+                            confirmText: 'Upload',
+                            confirmation: function () {
+                                 uploadPage.setLoading(true);
+                                 this.hide();
+                                 me.forceUpload(record, container, router);
                             }
                         });
-                        if (foundMessagesWithoutId) {
-                            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors.title', 'FWC', 'Couldn\'t perform your action'), Uni.I18n.translate('deviceFirmware.upgrade.errors', 'FWC', 'Firmware upload failed!') + '.' + errorsWithoutId, code);
-                        } else {
-                            errorMsg.show();
-                            propertyForm.markInvalid(errorsArr);
+                        confirmationWindow.itemCnt = 0;
+
+                        confirmationWindow.addItem = function(text, padding){
+                            this.itemCnt++;
+                            confirmationWindow.insert(this.itemCnt, {
+                                            xtype: 'displayfield',
+                                            padding: padding,
+                                            value: text,
+                                            htmlEncode: false
+                            });
+                        }
+
+                        Ext.each(responseText.errors, function (error) {
+                            var errorId = error.id;
+                            if( !canFurtherUpload ){
+                                var errorKeyArr = errorId.split('.');
+                                errorKeyArr.shift(); // remove first item, as it is not presented in property
+                                errorId = errorKeyArr.join('.')
+                            }else{
+                                errorId = error.title;
+                            }
+                            errorsArr.push({id: errorId, msg: error.msg});
+                        });
+                        if (canFurtherUpload){
+                            confirmationWindow.addItem('Some firmware version check have been unsuccessful:', '-10 0');
+                            Ext.each(errorsArr, function (error) {
+                                confirmationWindow.addItem('<b>' + error['id'] + '</b>', '-10 0');
+                                confirmationWindow.addItem('-' + error['msg'], '-10 10');
+                            });
+                            confirmationWindow.show({
+                                  title: 'Upload firmware?',
+                            });
+                        }else{
+                            var errorsWithoutId = '',
+                                code = '';
+                            if (responseText && responseText.errorCode) {
+                                code = responseText.errorCode;
+                            }
+                            var foundMessagesWithoutId = false;
+                            Ext.each(errorsArr, function (error) {
+                                if (Ext.isEmpty(error['id']) && !Ext.isEmpty(error['msg'])) {
+                                    foundMessagesWithoutId = true;
+                                    errorsWithoutId = errorsWithoutId + error['msg'];
+                                }
+                            });
+                            if (foundMessagesWithoutId) {
+                                me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors.title', 'FWC', 'Couldn\'t perform your action'), Uni.I18n.translate('deviceFirmware.upgrade.errors', 'FWC', 'Firmware upload failed!') + '.' + errorsWithoutId, code);
+                            } else {
+                                errorMsg.show();
+                                propertyForm.markInvalid(errorsArr);
+                            }
                         }
                         uploadPage.setLoading(false);
                     }
