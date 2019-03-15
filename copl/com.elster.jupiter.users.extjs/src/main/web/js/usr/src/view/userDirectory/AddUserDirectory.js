@@ -246,12 +246,12 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                 listeners: {
                                     click: function () {
                                         var me = Ext.getCmp(this.id),
-											dnTypeCombo = me.up('contentcontainer').down('#rdo-user-dn-type');
-										if (dnTypeCombo.getValue().dnType === 'GDN') {
-											me.up('contentcontainer').fireEvent('displayextendedinfo', me);
-										} else {
-											me.up('contentcontainer').fireEvent('displayinfo', me);
-										}
+                                            dnTypeCombo = me.up('contentcontainer').down('#rdo-user-dn-type');
+                                        if (dnTypeCombo.getValue().dnType === 'GDN' || dnTypeCombo.getValue().dnType === 'BGP') {
+                                            me.up('contentcontainer').fireEvent('displayextendedinfo', me);
+                                        } else {
+                                            me.up('contentcontainer').fireEvent('displayinfo', me);
+                                        }
                                     }
                                 }
                             }
@@ -267,7 +267,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         inputType: 'password',
                         fieldLabel: Uni.I18n.translate('userDirectories.userPassword', 'USR', 'Password')
                     },
-					{
+                    {
                         xtype: 'radiogroup',
                         itemId: 'rdo-user-dn-type',
                         required: true,
@@ -279,29 +279,45 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         },
                         items: [
                             {
-								itemId: 'rdo-user-dn-type-udn',
+                                itemId: 'rdo-user-dn-type-udn',
                                 boxLabel: Uni.I18n.translate('userDirectories.dnType.userBaseDN', 'USR', 'User base DN'),
                                 inputValue: 'UDN',
-								checked: true
+                                checked: true
                             },
                             {
-								itemId: 'rdo-user-dn-type-gdn',
+                                itemId: 'rdo-user-dn-type-gdn',
                                 boxLabel: Uni.I18n.translate('userDirectories.dnType.groupDN', 'USR', 'Group DN'),
                                 inputValue: 'GDN'
+                            },
+                            {
+                                itemId: 'rdo-user-dn-type-bgp',
+                                boxLabel: Uni.I18n.translate('userDirectories.dnType.groupBaseDN', 'USR', 'Group base DN'),
+                                inputValue: 'BGP'
                             }
                         ],
-						listeners: {
+                        listeners: {
                             change: function (field, newValue) {
                                 var baseUserTextbox = me.down('#txt-baseUser');
-								var groupDNTextbox = me.down('#txt-groupDN');
+                                var groupDNTextbox = me.down('#txt-groupDN');
+                                var baseGroupTextbox = me.down('#txt-baseGroup');
                                 if (newValue.dnType === 'UDN') {
-									baseUserTextbox.setVisible(true);
-									groupDNTextbox.setVisible(false);
-									groupDNTextbox.allowBlank = true;
-                                } else if(newValue.dnType === 'GDN') {
-									baseUserTextbox.setVisible(false);
-									groupDNTextbox.setVisible(true);
-									groupDNTextbox.allowBlank = false;
+                                    baseUserTextbox.setVisible(true);
+                                    groupDNTextbox.setVisible(false);
+                                    baseGroupTextbox.setVisible(false);
+                                    groupDNTextbox.allowBlank = true;
+                                    baseGroupTextbox.allowBlank = true;
+                                } else if (newValue.dnType === 'GDN') {
+                                    baseUserTextbox.setVisible(false);
+                                    groupDNTextbox.setVisible(true);
+                                    baseGroupTextbox.setVisible(false);
+                                    groupDNTextbox.allowBlank = false;
+                                    baseGroupTextbox.allowBlank = true;
+                                } else if (newValue.dnType === 'BGP') {
+                                    baseUserTextbox.setVisible(false);
+                                    groupDNTextbox.setVisible(false);
+                                    baseGroupTextbox.setVisible(true);
+                                    groupDNTextbox.allowBlank = true;
+                                    baseGroupTextbox.allowBlank = false;
                                 }
                             }
                         }
@@ -312,14 +328,14 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         itemId: 'txt-baseUser',
                         fieldLabel: Uni.I18n.translate('userDirectories.baseUser', 'USR', 'User base DN')
                     },
-					{
+                    {
                         xtype: 'textfield',
                         name: 'groupName',
                         itemId: 'txt-groupDN',
-						required: true,
+                        required: true,
                         fieldLabel: Uni.I18n.translate('userDirectories.groupDN', 'USR', 'Group DN'),
-						hidden: true,
-						listeners: {
+                        hidden: true,
+                        listeners: {
                             afterrender: function (field) {
                                 if (me.edit) {
                                     field.focus(false, 200);
@@ -331,8 +347,16 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         xtype: 'textfield',
                         name: 'baseGroup',
                         itemId: 'txt-baseGroup',
+                        required: true,
                         fieldLabel: Uni.I18n.translate('userDirectories.baseGroup', 'USR', 'Group base DN'),
-                        hidden: true
+                        hidden: true,
+                        listeners: {
+                            afterrender: function (field) {
+                                if (me.edit) {
+                                    field.focus(false, 200);
+                                }
+                            }
+                        }
                     },
                     {
                         xtype: 'container',
@@ -368,29 +392,43 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
             certificateCombo = me.down('#cbo-certificate-alias'),
             certificateCheckbox = me.down('#authentication-checkbox'),
             trustStoreCombo = me.down('#cbo-trust-store'),
-			baseUserTextbox = me.down('#txt-baseUser'),
-			groupDNTextbox = me.down('#txt-groupDN'),
-			radioUdn = me.down('#rdo-user-dn-type-udn'),
-			radioGdn = me.down('#rdo-user-dn-type-gdn');
+            baseUserTextbox = me.down('#txt-baseUser'),
+            groupDNTextbox = me.down('#txt-groupDN'),
+            baseGroupTextbox = me.down('#txt-baseGroup'),
+            radioUdn = me.down('#rdo-user-dn-type-udn'),
+            radioGdn = me.down('#rdo-user-dn-type-gdn'),
+            radioBgp = me.down('#rdo-user-dn-type-bgp');
 
         addUserDirectoryForm.loadRecord(record);
 
         protocolSource.setVisible(record.get('securityProtocol') !== 'NONE');
         protocolSource.setDisabled(record.get('securityProtocol') === 'NONE');
-		
-		if(record.get('groupName')) {
-			record.set('dnType', 'GDN');
-			radioUdn.setValue(false);
-			radioGdn.setValue(true);
-			groupDNTextbox.allowBlank = false;
-		} else {
-			record.set('dnType', 'UDN');
-			radioUdn.setValue(true);
-			radioGdn.setValue(false);
-			groupDNTextbox.allowBlank = true;
-		}
-		baseUserTextbox.setVisible(record.get('dnType') === 'UDN');
-		groupDNTextbox.setVisible(record.get('dnType') === 'GDN');
+        
+        if (record.get('baseUser')){
+            record.set('dnType', 'UDN');
+            radioUdn.setValue(true);
+            radioGdn.setValue(false);
+            radioBgp.setValue(false);
+            groupDNTextbox.allowBlank = true;
+            baseGroupTextbox.allowBlank = true;
+        } else if (record.get('groupName')) {
+            record.set('dnType', 'GDN');
+            radioUdn.setValue(false);
+            radioGdn.setValue(true);
+            radioBgp.setValue(false);
+            groupDNTextbox.allowBlank = false;
+            baseGroupTextbox.allowBlank = true;
+        } else if(record.get('baseGroup')){
+            record.set('dnType', 'BGP');
+            radioUdn.setValue(false);
+            radioGdn.setValue(false);
+            radioBgp.setValue(true);
+            groupDNTextbox.allowBlank = true;
+            baseGroupTextbox.allowBlank = false;
+        }
+        baseUserTextbox.setVisible(record.get('dnType') === 'UDN');
+        groupDNTextbox.setVisible(record.get('dnType') === 'GDN');
+        baseGroupTextbox.setVisible(record.get('dnType') === 'BGP');
 
         certificateCheckbox.setValue(!!record.get('certificateAlias'));
         if (record.get('certificateAlias')) {
@@ -406,4 +444,3 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
         }
     }
 });
-
