@@ -4,8 +4,12 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceBuilder;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 
 public class DeviceBuilderImpl implements DeviceBuilder {
@@ -22,6 +26,7 @@ public class DeviceBuilderImpl implements DeviceBuilder {
     private Integer yearOfCertification;
 
     private DeviceDataModelService deviceDataModelService;
+    private Multimap<String, String> zones = ArrayListMultimap.create();
 
     public DeviceBuilderImpl(DeviceConfiguration deviceConfiguration, String name, Instant startDate, DeviceDataModelService deviceDataModelService) {
         this.deviceConfiguration = deviceConfiguration;
@@ -73,6 +78,12 @@ public class DeviceBuilderImpl implements DeviceBuilder {
     }
 
     @Override
+    public DeviceBuilder withZones(Multimap <String, String> zones) {
+        this.zones = zones;
+        return this;
+    }
+
+    @Override
     public Device create() {
         Device device = this.deviceDataModelService.dataModel()
                 .getInstance(DeviceImpl.class)
@@ -85,6 +96,7 @@ public class DeviceBuilderImpl implements DeviceBuilder {
         Optional.ofNullable(yearOfCertification).ifPresent(device::setYearOfCertification);
         device.save();
         Optional.ofNullable(batch).ifPresent(b -> this.deviceDataModelService.batchService().findOrCreateBatch(b).addDevice(device));
+        for (Map.Entry<String, String> zone : zones.entries()) { device.addZone(zone.getKey(), zone.getValue());}
         return device;
     }
 }

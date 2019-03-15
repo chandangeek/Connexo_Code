@@ -7,6 +7,7 @@ package com.elster.jupiter.cim.webservices.inbound.soap.meterreadings;
 import com.elster.jupiter.util.streams.Functions;
 
 import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
+import ch.iec.tc57._2011.getmeterreadings.EndDevice;
 import ch.iec.tc57._2011.getmeterreadings.GetMeterReadings;
 import ch.iec.tc57._2011.getmeterreadings.Name;
 import ch.iec.tc57._2011.getmeterreadings.NameType;
@@ -36,10 +37,6 @@ public class GetMeterReadingsRequestBuilder {
         Arrays.stream(periods)
                 .forEach(period -> withTimePeriod(source, period.lowerEndpoint(), period.upperEndpoint()));
         return this;
-    }
-
-    GetMeterReadingsRequestBuilder withTimePeriod(Instant start, Instant end) {
-        return withTimePeriod(null, start, end);
     }
 
     GetMeterReadingsRequestBuilder withTimePeriod(String source, Instant start, Instant end) {
@@ -95,6 +92,15 @@ public class GetMeterReadingsRequestBuilder {
                 .flatMap(Functions.asStream())
                 .forEach(names::add);
         getMeterReadings.getUsagePoint().add(usagePoint);
+        return this;
+    }
+
+    GetMeterReadingsRequestBuilder withEndDevice(String mRID, String name) {
+        EndDevice endDevice = new EndDevice();
+        endDevice.setMRID(mRID);
+        List<Name> names = endDevice.getNames();
+        name(name, null).ifPresent(names::add);
+        getMeterReadings.getEndDevice().add(endDevice);
         return this;
     }
 

@@ -25,6 +25,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -220,8 +221,8 @@ public class InMemoryIntegrationPersistence {
                 new DeviceLifeCycleModule(),
                 new CustomPropertySetsModule(),
                 new CalendarModule(),
-                new MeteringZoneModule(),
-                new PkiModule());
+                new PkiModule(),
+                new MeteringZoneModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.transactionService = this.injector.getInstance(TransactionService.class);
@@ -374,6 +375,7 @@ public class InMemoryIntegrationPersistence {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
 
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));

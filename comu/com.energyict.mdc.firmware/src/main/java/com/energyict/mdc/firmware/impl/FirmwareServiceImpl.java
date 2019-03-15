@@ -38,6 +38,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -119,6 +120,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private volatile DeviceMessageService deviceMessageService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
@@ -147,6 +149,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                                QueryService queryService,
                                DeviceConfigurationService deviceConfigurationService,
                                DeviceMessageSpecificationService deviceMessageSpecificationService,
+                               DeviceMessageService deviceMessageService,
                                DeviceService deviceService,
                                EventService eventService,
                                TaskService taskService,
@@ -163,6 +166,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         setDeviceServices(deviceService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        setDeviceMessageService(deviceMessageService);
         setEventService(eventService);
         setTaskService(taskService);
         setMessageService(messageService);
@@ -177,6 +181,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
     }
 
     @Reference
@@ -410,9 +419,9 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         Condition condition = where(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.FINAL)
                 .or(where(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.TEST))
                 .and(where(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(device.getDeviceType()));
-        // Current firmware version is not in the list
+        // Current firmware version is not in the list (only for non-beacon devices)
         Optional<ActivatedFirmwareVersion> activeFirmwareVersion = getActiveFirmwareVersion(device, firmwareType);
-        if (activeFirmwareVersion.isPresent()) {
+        if ((activeFirmwareVersion.isPresent()) && !(isBeaconType(device))) {
             condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName())
                     .isNotEqual(activeFirmwareVersion.get().getFirmwareVersion().getFirmwareVersion()));
         }
@@ -421,6 +430,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
             condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).isEqualTo(firmwareType));
         }
         return dataModel.mapper(FirmwareVersion.class).select(condition, Order.descending(FirmwareVersionImpl.Fields.RANK.fieldName()));
+    }
+
+    private boolean isBeaconType(Device device) {
+        return device.getDeviceType().getDeviceProtocolPluggableClass().get().getName().contains("Elster EnergyICT Beacon3100 G3 DLMS");
     }
 
     @Override
@@ -688,6 +701,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(QueryService.class).toInstance(queryService);
                     bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                     bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+                    bind(DeviceMessageService.class).toInstance(deviceMessageService);
                     bind(DeviceService.class).toInstance(deviceService);
                     bind(EventService.class).toInstance(eventService);
                     bind(TaskService.class).toInstance(taskService);

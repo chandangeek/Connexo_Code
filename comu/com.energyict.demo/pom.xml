@@ -246,6 +246,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.issue.devicelifecycle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.firmware</artifactId>
         </dependency>
         <dependency>
@@ -435,6 +439,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>audit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.zone</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

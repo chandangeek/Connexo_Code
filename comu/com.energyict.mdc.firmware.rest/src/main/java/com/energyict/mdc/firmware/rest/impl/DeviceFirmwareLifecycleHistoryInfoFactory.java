@@ -31,16 +31,13 @@ public class DeviceFirmwareLifecycleHistoryInfoFactory {
 
     public List<DeviceFirmwareLifecycleHistoryInfo> getDeviceFirmwareHistoryInfosListFromDevice(Device device) {
         FirmwareManagementDeviceUtils versionUtils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
-        List<DeviceMessage> deviceMessageList = device.getMessages();
-        List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList = new ArrayList<>();
-        if (!deviceMessageList.isEmpty()) {
-            firmwareVersionList = getDeviceFirmwareHistoryInfos(deviceMessageList, versionUtils);
-        }
+        List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList = getDeviceFirmwareHistoryInfos(versionUtils);
         return sortDescendingByUploadedOnTimestampDeviceFirmwareHistoryInfos(firmwareVersionList);
     }
 
-    private List<DeviceFirmwareLifecycleHistoryInfo> getDeviceFirmwareHistoryInfos(List<DeviceMessage> deviceMessageList, FirmwareManagementDeviceUtils versionUtils) {
+    private List<DeviceFirmwareLifecycleHistoryInfo> getDeviceFirmwareHistoryInfos(FirmwareManagementDeviceUtils versionUtils) {
         List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList = new ArrayList<>();
+        List<DeviceMessage> deviceMessageList = versionUtils.getFirmwareMessages();
         for (DeviceMessage deviceMessage : deviceMessageList) {
             firmwareVersionList.add(new DeviceFirmwareLifecycleHistoryInfo(deviceMessage, versionUtils, thesaurus));
         }

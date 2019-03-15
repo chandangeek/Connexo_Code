@@ -20,8 +20,8 @@ public class HsmKeyManagerImpl implements X509KeyManager {
     public HsmKeyManagerImpl(KeyStore keyStore, char[] password, String clientTlsPrivateKeyAlias, X509Certificate[] certificateChain) throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException {
         this.clientTlsPrivateKeyAlias = clientTlsPrivateKeyAlias;
         this.certificateChain = certificateChain;
-        //important to add here the provider used by HSM
-        Security.addProvider(new JSSJCAProvider());
+
+        setHSMProvider();
 
         KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmfactory.init(keyStore, password);
@@ -38,6 +38,11 @@ public class HsmKeyManagerImpl implements X509KeyManager {
         }
 
         throw new KeyStoreException("A default key manager could not be found.");
+    }
+
+    private void setHSMProvider() {
+        //the bellow code is needed as a workaround for using JSSJCAProvider with priority over SunEC
+        Security.insertProviderAt(new JSSJCAProvider(), 1);
     }
 
     /**

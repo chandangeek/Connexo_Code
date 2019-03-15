@@ -18,11 +18,10 @@ Ext.define('Mdc.view.setup.devicezones.Details', {
     ],
 
     router: null,
-    deviceZoneId: null,
+    device: null,
 
     initComponent: function () {
         var me = this;
-
         me.content = {
             xtype: 'container',
                 layout: {
@@ -60,9 +59,8 @@ Ext.define('Mdc.view.setup.devicezones.Details', {
                     xtype: 'preview-container',
                     itemId: 'search-preview-container',
                     grid: {
-                        xtype: 'devicesOfZoneGrid',
-                        service: me.service,
-                        searchLink: me.searchLink
+                        xtype: 'zone-details-grid',
+                        itemId: 'zone-details-devices-grid'
                     },
                     emptyComponent: {
                         xtype: 'uni-form-empty-message',

@@ -147,6 +147,11 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 },
                                 {
                                     xtype: 'displayfield',
+                                    fieldLabel: Uni.I18n.translate('communicationtasks.task.retries', 'MDC', 'Max number of tries'),
+                                    name: 'maxNumberOfTries'
+                                },
+                                {
+                                    xtype: 'displayfield',
                                     name: 'securitySettings',
                                     fieldLabel: Uni.I18n.translate('general.securitySets', 'MDC', 'Security sets')
                                 },

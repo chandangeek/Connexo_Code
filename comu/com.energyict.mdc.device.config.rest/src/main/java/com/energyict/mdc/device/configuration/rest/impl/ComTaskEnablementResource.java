@@ -107,6 +107,9 @@ public class ComTaskEnablementResource {
         }
 
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
+
+        setComTaskMaxNumberOfTries(comTaskEnablement.getComTask(), info.maxNumberOfTries);
+
         return Response.status(Response.Status.CREATED).entity(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
     }
 
@@ -138,6 +141,8 @@ public class ComTaskEnablementResource {
         } else {
             comTaskEnablement.useDefaultConnectionTask(Boolean.TRUE);
         }
+
+        setComTaskMaxNumberOfTries(comTaskEnablement.getComTask(), info.maxNumberOfTries);
 
         comTaskEnablement.save();
         return Response.ok(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
@@ -247,5 +252,10 @@ public class ComTaskEnablementResource {
         return this.taskService
                 .findComTask(comTaskId)
                 .orElseThrow(() -> new WebApplicationException("No such communication task", Response.status(Response.Status.NOT_FOUND).entity("No such communication task").build()));
+    }
+
+    private void setComTaskMaxNumberOfTries(ComTask comTask, int maxNumberOfTries) {
+      comTask.setMaxNrOfTries(maxNumberOfTries);
+      comTask.save();
     }
 }

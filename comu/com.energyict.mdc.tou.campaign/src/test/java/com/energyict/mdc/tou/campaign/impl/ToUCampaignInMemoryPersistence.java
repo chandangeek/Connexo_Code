@@ -17,6 +17,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
@@ -104,6 +105,7 @@ public class ToUCampaignInMemoryPersistence {
         //    bind(MeteringGroupsService.class).toInstance(mock(MeteringGroupsService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(KieResources.class).to(ResourceFactoryServiceImpl.class);

@@ -69,6 +69,7 @@ public class DataModelImpl implements DataModel {
     // persistent fields
     private String name;
     private String description;
+    private String enablePartition;
 
     // associations
     private final List<TableImpl<?>> tables = new ArrayList<>();
@@ -84,6 +85,7 @@ public class DataModelImpl implements DataModel {
     @Inject
     DataModelImpl(OrmService ormService) {
         this.ormService = (OrmServiceImpl) ormService;
+        this.enablePartition = Optional.ofNullable(this.ormService.getEnablePartition()).orElse("true");
     }
 
     DataModelImpl init(String name, String description, Version version) {
@@ -323,7 +325,16 @@ public class DataModelImpl implements DataModel {
     }
 
     private boolean isPartitioningEnabled(Connection connection) {
+        if (enablePartition.toLowerCase().equals("false")) {
+            return false;
+        }
         try (Statement statement = connection.createStatement()) {
+            try (ResultSet resultSet = statement.executeQuery("SELECT version FROM PRODUCT_COMPONENT_VERSION WHERE product LIKE 'Oracle Database%'")) {
+                if(!isPartitionEnabledInOracleVersion(resultSet)) {
+                    LOGGER.warning("Partitioning is not enabled in Oracle versions before 12.2");
+                    return false;
+                }
+            }
             try (ResultSet resultSet = statement.executeQuery("SELECT * FROM v$option WHERE parameter = 'Partitioning'")) {
                 if (resultSet.next()) {
                     return resultSet.getBoolean("value");
@@ -333,6 +344,21 @@ public class DataModelImpl implements DataModel {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
+    }
+
+    private boolean isPartitionEnabledInOracleVersion(ResultSet resultSet) throws SQLException{
+        if(!resultSet.next()) {
+            return false;
+        }
+        String[] oracleVersion = resultSet.getString("version").split("\\.");
+        if(oracleVersion.length < 2) {
+            return false;
+        }
+        //The Oracle version should be higher than 12.2...
+        if(Double.parseDouble(oracleVersion[0] + "." + oracleVersion[1]) < 12.2) {
+            return false;
+        }
+        return true;
     }
 
     public Optional<TableImpl<?>> getTable(Class<?> clazz) {

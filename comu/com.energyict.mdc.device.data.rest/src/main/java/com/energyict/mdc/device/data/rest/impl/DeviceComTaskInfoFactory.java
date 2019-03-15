@@ -102,6 +102,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceComTasksInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
         deviceComTasksInfo.connectionFunctionInfo = comTaskExecution.getConnectionFunction().isPresent() ? new ConnectionFunctionInfo(comTaskExecution.getConnectionFunction().get()) : null;
+        deviceComTasksInfo.maxNumberOfTries = comTaskExecution.getMaxNumberOfTries();
         setConnectionMethodInfo(comTaskExecution, comTaskEnablement, deviceComTasksInfo);
         setConnectionStrategy(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
     }
@@ -130,6 +131,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceComTasksInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
         deviceComTasksInfo.connectionFunctionInfo = comTaskExecution.getConnectionFunction().isPresent() ? new ConnectionFunctionInfo(comTaskExecution.getConnectionFunction().get()) : null;
+        deviceComTasksInfo.maxNumberOfTries = comTaskExecution.getMaxNumberOfTries();
         setConnectionMethodInfo(comTaskExecution, comTaskEnablement, deviceComTasksInfo);
         setConnectionStrategy(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
     }
@@ -144,6 +146,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
         deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         deviceComTasksInfo.connectionFunctionInfo = comTaskEnablement.getConnectionFunction().isPresent() ? new ConnectionFunctionInfo(comTaskEnablement.getConnectionFunction().get()) : null;
+        deviceComTasksInfo.maxNumberOfTries = comTaskEnablement.getComTask().getMaxNumberOfTries();
         setConnectionMethodInfo(comTaskEnablement, device, deviceComTasksInfo);
         setConnectionTaskStrategy(deviceComTasksInfo, comTaskEnablement);
         return deviceComTasksInfo;

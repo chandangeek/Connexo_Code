@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
@@ -50,6 +51,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     private final Thesaurus thesaurus;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final FirmwareService firmwareService;
+    private final DeviceMessageService deviceMessageService;
     private final TaskService taskService;
 
     private Device device;
@@ -58,11 +60,12 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     private Map<DeviceMessageId, Optional<ProtocolSupportedFirmwareOptions>> uploadOptionsCache;
 
     @Inject
-    public FirmwareManagementDeviceUtilsImpl(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, FirmwareService firmwareService, TaskService taskService) {
+    public FirmwareManagementDeviceUtilsImpl(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, FirmwareService firmwareService, TaskService taskService, DeviceMessageService deviceMessageService) {
         this.thesaurus = thesaurus;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.firmwareService = firmwareService;
         this.taskService = taskService;
+        this.deviceMessageService = deviceMessageService;
         this.uploadOptionsCache = new HashMap<>();
         this.firmwareMessages = new ArrayList<>();
     }
@@ -78,14 +81,17 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         Map<FirmwareType, DeviceMessage> uploadMessages = new HashMap<>();
         Map<String, DeviceMessage> activationMessages = new HashMap<>();
         // only firmware upgrade, no revoked messages and only one message for each firmware type
-        this.device.getMessages().stream().filter(candidate -> candidate.getSpecification().getCategory().getId() == this.deviceMessageSpecificationService.getFirmwareCategory().getId()
-                && !DeviceMessageStatus.CANCELED.equals(candidate.getStatus())).forEach(candidate -> {
-            if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
-                compareAndSwapUploadMessage(uploadMessages, candidate);
-            } else {
-                activationMessages.put(candidate.getTrackingId(), candidate);
-            }
-        });
+        this.deviceMessageService.findDeviceFirmwareMessages(device)
+                .stream()
+                .filter(candidate -> candidate.getSpecification().getCategory().getId() == this.deviceMessageSpecificationService.getFirmwareCategory().getId()
+                        && !DeviceMessageStatus.CANCELED.equals(candidate.getStatus()))
+                .forEach(candidate -> {
+                    if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
+                        compareAndSwapUploadMessage(uploadMessages, candidate);
+                    } else {
+                        activationMessages.put(candidate.getTrackingId(), candidate);
+                    }
+                });
         this.firmwareMessages.addAll(uploadMessages.values());
         this.firmwareMessages.addAll(this.firmwareMessages.stream()
                 .map(message -> activationMessages.get(String.valueOf(message.getId())))
@@ -149,7 +155,12 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     public Optional<Instant> getActivationDateFromMessage(DeviceMessage message) {
         Optional<DeviceMessageAttribute> activationDateMessageAttr = message.getAttributes().stream()
                 .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
-                .filter(deviceMessageAttribute -> deviceMessageAttribute.getSpecification().getValueFactory().getValueType().equals(Date.class))
+                .filter(deviceMessageAttribute -> {
+                    if(deviceMessageAttribute.getSpecification() != null) {
+                        return deviceMessageAttribute.getSpecification().getValueFactory().getValueType().equals(Date.class);
+                    }
+                    return false;
+                })
                 .findFirst();
         return activationDateMessageAttr.map(deviceMessageAttribute -> ((Date) deviceMessageAttribute.getValue()).toInstant());
     }
