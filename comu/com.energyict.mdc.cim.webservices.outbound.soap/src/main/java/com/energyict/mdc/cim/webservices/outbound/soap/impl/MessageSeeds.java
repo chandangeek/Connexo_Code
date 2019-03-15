@@ -12,7 +12,6 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     // General
-    NO_WEB_SERVICE_ENDPOINTS(1, "NoWebServiceEndpoints", "No published web service endpoint is found to send the request."),
     GENERAL_ATTRIBUTES(6001, "GeneralAttributes", "General attributes"),
     ;
 
@@ -69,10 +68,4 @@ public enum MessageSeeds implements MessageSeed {
         return thesaurus.getSimpleFormat(this).format(args);
     }
 
-    public static final class Keys {
-        public static final String FIELD_TOO_LONG = "FieldTooLong";
-        public static final String THIS_FIELD_IS_REQUIRED = "ThisFieldIsRequired";
-        public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
-        public static final String FIELD_HAS_UNEXPECTED_SIZE = "FieldHasUnexpectedSize";
-        public static final String UNKNOWN_PROPERTY = "UnknownProperty";
-    }}
+}
