@@ -284,10 +284,23 @@ public class UserDirectoryResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    @GET
+    @Path("/{id}/extgroups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE,
+            com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
+    public PagedInfoList getExtGroups(@BeanParam JsonQueryParameters queryParameters, @PathParam("id") long id) {
+        LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
+        List<String> groupNames = ldapUserDirectory.getGroupNames();
+        List<String> sortedGroupNames = ListPager.of(groupNames)
+                .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null)).find().stream()
+                .sorted().collect(toList());
+        return PagedInfoList.fromCompleteList("extgroups", sortedGroupNames, queryParameters);
+    }
+
     private RestQuery<UserDirectory> getUserDirectoriesQuery() {
         Query<UserDirectory> query = userService.getLdapDirectories();
         return restQueryService.wrap(query);
     }
-
 
 }

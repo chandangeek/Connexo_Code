@@ -6,10 +6,10 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.LdapServerException;
 import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Pair;
 
 import org.osgi.framework.BundleContext;
 
@@ -32,20 +32,16 @@ import javax.naming.ldap.StartTlsResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
+final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     private static final String CN = "cn";
     private static final String[] CN_ARRAY = { CN };
     static final String TYPE_IDENTIFIER = "APD";
     private static final Logger LOGGER = Logger.getLogger(ApacheDirectoryImpl.class.getSimpleName());
-
-    private StartTlsResponse tls = null;
 
     @Inject
     ApacheDirectoryImpl(DataModel dataModel, UserService userService, BundleContext context) {
@@ -68,25 +64,30 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             return ((UserImpl) user).doGetGroups();
         }
 
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, getUrl());
-        env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
+        return getSomethingFromLdap(this::doGetGroups, user);
+    }
 
+    private List<Group> doGetGroups(DirContext context, Object... args) throws NamingException {
+        // https://issues.apache.org/jira/browse/DIRSERVER-1844 ApacheDS does not support memberOf virtual attribute
+        // so we cannot find user and check their groups. Instead we find groups which have the user as member
+        User user = (User) args[0];
         List<Group> groupList = new ArrayList<>();
-        try {
-            DirContext context = new InitialDirContext(env);
-            String[] attrIDs = CN_ARRAY;
-            SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, attrIDs, true, true);
-            NamingEnumeration<SearchResult> answer = context.search(getBaseGroup(),
-                    "(&(objectClass=groupOfNames)(member=uid=" + user.getName() + "," + getBase() + "))", controls);
-            while (answer.hasMore()) {
-                userService.findGroup(answer.next().getAttributes().get(CN).get().toString()).ifPresent(groupList::add);
-            }
-        } catch (NamingException e) {
-            LOGGER.severe(e.getLocalizedMessage());
-            throw new LdapServerException(userService.getThesaurus());
+        String name;
+        int scope;
+        if (getBaseGroup() == null) {
+            // search all groups
+            name = "";
+            scope = SearchControls.SUBTREE_SCOPE;
+        } else {
+            // search all groups which are direct children of baseGroup
+            name = getBaseGroup();
+            scope = SearchControls.ONELEVEL_SCOPE;
+        }
+        SearchControls controls = new SearchControls(scope, 0, 0, CN_ARRAY, true, true);
+        NamingEnumeration<SearchResult> answer = context.search(name,
+                "(&(objectClass=groupOfNames)(member=uid=" + user.getName() + "," + getBase() + "))", controls);
+        while (answer.hasMore()) {
+            userService.findGroup(answer.next().getAttributes().get(CN).get().toString()).ifPresent(groupList::add);
         }
         return groupList;
     }
@@ -165,6 +166,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
+        StartTlsResponse tls = null;
         try {
             LdapContext ctx = new InitialLdapContext(env, null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
@@ -196,74 +198,48 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     }
 
-    private List<String> getUrls() {
-        List<String> urls = new ArrayList<>();
-        urls.add(getUrl().trim());
-        if (getBackupUrl() != null) {
-            String[] backupUrls = getBackupUrl().split(";");
-            Arrays.stream(backupUrls).forEach(s -> urls.add(s.trim()));
-        }
-        return urls;
+    @Override
+    public List<LdapUser> getLdapUsers() {
+        return getSomethingFromLdap(this::doGetLdapUsers);
     }
 
     @Override
-    public List<LdapUser> getLdapUsers() {
-        List<String> urls = getUrls();
-        if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
-            return getLdapUsersSimple(urls);
-        } else if (getSecurity().toUpperCase().contains("SSL")) {
-            return getLdapUsersSSL(urls, getSslSecurityProperties());
-        } else if (getSecurity().toUpperCase().contains("TLS")) {
-            return getLdapUsersTLS(urls, getSslSecurityProperties());
+    public boolean getLdapUserStatus(String userName) {
+        return getSomethingFromLdap(this::doGetLdapUserStatus, userName);
+    }
+
+    private Boolean doGetLdapUserStatus(DirContext ctx, Object... args) throws NamingException {
+        String user = (String) args[0];
+        SearchControls controls = new SearchControls();
+        NamingEnumeration<SearchResult> results;
+        if (getGroupName() == null) {
+            // search in groupName which contains users as direct children
+            controls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+            results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
         } else {
-            return null;
+            // search in whole tree
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            results = ctx.search("", "(&(objectClass=person)(uid=" + user + "))", controls);
         }
-    }
-
-    private List<LdapUser> getLdapUsersSimple(List<String> urls) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
-        putSecurityPrincipal(env);
-        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-        try {
-            DirContext ctx = new InitialDirContext(env);
-            return doGetLdapUsers(ctx);
-        } catch (NumberFormatException | NamingException e) {
-            if (urls.size() > 1) {
-                urls.remove(0);
-                return getLdapUsersSimple(urls);
+        while (results.hasMore()) {
+            SearchResult searchResult = results.next();
+            Attributes attributes = searchResult.getAttributes();
+            if (attributes.get("uid") != null) {
+                if (attributes.get("uid").toString().equals("uid: " + user)) {
+                    if (attributes.get("pwdAccountLockedTime") != null) {
+                        return !"000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString());
+                    }
+                } else {
+                    return false;
+                }
             } else {
-                throw new LdapServerException(userService.getThesaurus());
+                return false;
             }
         }
+        return true;
     }
 
-    private List<LdapUser> getLdapUsersSSL(List<String> urls, SslSecurityProperties sslSecurityProperties) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
-        putSecurityPrincipal(env);
-        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-        env.put(Context.SECURITY_PROTOCOL, "ssl");
-        env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
-        ManagedSSLSocketFactory
-                .setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, "SSL")));
-        Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
-        try {
-            DirContext ctx = new InitialDirContext(env);
-            return doGetLdapUsers(ctx);
-        } catch (NumberFormatException | NamingException e) {
-            if (urls.size() > 1) {
-                urls.remove(0);
-                return getLdapUsersSSL(urls, sslSecurityProperties);
-            } else {
-                throw new LdapServerException(userService.getThesaurus());
-            }
-        }
-    }
-
-    private List<LdapUser> doGetLdapUsers(DirContext ctx) throws NamingException {
+    private List<LdapUser> doGetLdapUsers(DirContext ctx, Object... args) throws NamingException {
         if (getGroupName() != null) {
             return doGetLdapUsersFromGroupName(ctx);
         }
@@ -281,7 +257,7 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         if (groupEnumeration.hasMore()) {
             SearchResult groupSearchResult = groupEnumeration.next();
             Attributes groupAttributes = groupSearchResult.getAttributes();
-            Attribute memberAttribute = groupAttributes.get("member");
+            Attribute memberAttribute = groupAttributes.get(MEMBER);
             NamingEnumeration<?> membersEnumeration = memberAttribute.getAll();
             while (membersEnumeration.hasMore()) {
                 String userDN = (String) membersEnumeration.next();
@@ -340,191 +316,6 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
-    private List<LdapUser> getLdapUsersTLS(List<String> urls, SslSecurityProperties sslSecurityProperties) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
-        try {
-            LdapContext ctx = new InitialLdapContext(env, null);
-            ExtendedRequest tlsRequest = new StartTlsRequest();
-            ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
-            tls = (StartTlsResponse) tlsResponse;
-            tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
-            putSecurityPrincipal(env);
-            env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-            return doGetLdapUsers(ctx);
-        } catch (NumberFormatException | IOException | NamingException e) {
-            if (urls.size() > 1) {
-                urls.remove(0);
-                return getLdapUsersTLS(urls, sslSecurityProperties);
-            } else {
-                throw new LdapServerException(userService.getThesaurus());
-            }
-        } finally {
-            if (tls != null) {
-                try {
-                    tls.close();
-                } catch (IOException e) {
-                    throw new UnderlyingIOException(e);
-                }
-            }
-        }
-    }
-
-    private boolean getLdapUserStatusSimple(String user, List<String> urls) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
-        putSecurityPrincipal(env);
-        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-        try {
-            DirContext ctx = new InitialDirContext(env);
-            SearchControls controls = new SearchControls();
-            NamingEnumeration<SearchResult> results;
-            if (getGroupName() == null) {
-                controls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-                results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
-            } else {
-                controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-                results = ctx.search("", "(&(objectClass=person)(uid=" + user + "))", controls);
-            }
-            while (results.hasMore()) {
-                SearchResult searchResult = results.next();
-                Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("uid") != null) {
-                    if (attributes.get("uid").toString().equals("uid: " + user)) {
-                        if (attributes.get("pwdAccountLockedTime") != null) {
-                            return !"000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString());
-                        }
-                    } else {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            }
-            return true;
-        } catch (NumberFormatException | NamingException e) {
-            if (urls.size() > 1) {
-                urls.remove(0);
-                return getLdapUserStatusSimple(user, urls);
-            } else {
-                throw new LdapServerException(userService.getThesaurus());
-            }
-        }
-    }
-
-    private boolean getLdapUserStatusSSL(String user, List<String> urls, SslSecurityProperties sslSecurityProperties) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
-        putSecurityPrincipal(env);
-        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-        env.put(Context.SECURITY_PROTOCOL, "ssl");
-        env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
-        ManagedSSLSocketFactory
-                .setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, "SSL")));
-        Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
-        try {
-            DirContext ctx = new InitialDirContext(env);
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            String name = getGroupName() == null ? "" : getBaseUser();
-            NamingEnumeration<SearchResult> results = ctx.search(name, "(uid=" + user + ")", controls);
-            while (results.hasMore()) {
-                SearchResult searchResult = results.next();
-                Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("uid") != null) {
-                    if (attributes.get("uid").toString().equals("uid: " + user)) {
-                        if (attributes.get("pwdAccountLockedTime") != null) {
-                            return !"000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString());
-                        }
-                    } else {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            }
-            return true;
-        } catch (NumberFormatException | NamingException e) {
-            if (urls.size() > 1) {
-                urls.remove(0);
-                return getLdapUserStatusSSL(user, urls, sslSecurityProperties);
-            } else {
-                throw new LdapServerException(userService.getThesaurus());
-            }
-        }
-    }
-
-    private boolean getLdapUserStatusTLS(String user, List<String> urls, SslSecurityProperties sslSecurityProperties) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
-        try {
-            LdapContext ctx = new InitialLdapContext(env, null);
-            ExtendedRequest tlsRequest = new StartTlsRequest();
-            ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
-            tls = (StartTlsResponse) tlsResponse;
-            tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
-            putSecurityPrincipal(env);
-            env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            String name = getGroupName() == null ? "" : getBaseUser();
-            NamingEnumeration<SearchResult> results = ctx.search(name, "(uid=" + user + ")", controls);
-            while (results.hasMore()) {
-                SearchResult searchResult = results.next();
-                Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("uid") != null) {
-                    if (attributes.get("uid").toString().equals("uid: " + user)) {
-                        if (attributes.get("pwdAccountLockedTime") != null) {
-                            return !"000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString());
-                        }
-                    } else {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            }
-            return true;
-        } catch (NumberFormatException | IOException | NamingException e) {
-            if (urls.size() > 1) {
-                urls.remove(0);
-                return getLdapUserStatusTLS(user, urls, sslSecurityProperties);
-            } else {
-                throw new LdapServerException(userService.getThesaurus());
-            }
-        } finally {
-            if (tls != null) {
-                try {
-                    tls.close();
-                } catch (IOException e) {
-                    throw new UnderlyingIOException(e);
-                }
-            }
-        }
-    }
-
-    @Override
-    public boolean getLdapUserStatus(String userName) {
-        List<String> urls = getUrls();
-        if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
-            return getLdapUserStatusSimple(userName, urls);
-        } else if (getSecurity().toUpperCase().contains("SSL")) {
-            return getLdapUserStatusSSL(userName, urls, getSslSecurityProperties());
-        } else if (getSecurity().toUpperCase().contains("TLS")) {
-            return getLdapUserStatusTLS(userName, urls, getSslSecurityProperties());
-        } else {
-            return false;
-        }
-    }
-
-    private void putSecurityPrincipal(Hashtable<String, Object> env) {
-        putSecurityPrincipal(getDirectoryUser(), env);
-    }
-
     private void putSecurityPrincipal(String name, Hashtable<String, Object> env) {
         String principal;
         if (getGroupName() == null) {
@@ -536,32 +327,53 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     @Override
-    public List<String> getGroupNames() {
-        if (getBaseGroup() == null) {
-            return Collections.emptyList();
-        }
+    protected DirContext createDirContextSimple(String url) throws NamingException {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, getUrl());
-        env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
+        env.put(Context.PROVIDER_URL, url);
+        putSecurityPrincipal(env);
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-
-        List<String> names = new ArrayList<>();
-        DirContext context;
-        try {
-            context = new InitialDirContext(env);
-            SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, CN_ARRAY, true, true);
-            NamingEnumeration<SearchResult> groupEnumeration = context.search(getBaseGroup(),
-                    "(objectClass=groupOfNames)", controls);
-            while (groupEnumeration.hasMore()) {
-                Attributes attributes = groupEnumeration.next().getAttributes();
-                names.add(attributes.get(CN).get().toString());
-            }
-        } catch (NamingException e) {
-            LOGGER.severe(e.getLocalizedMessage());
-            throw new LdapServerException(userService.getThesaurus());
-        }
-        return names;
+        return new InitialDirContext(env);
     }
 
+    private void putSecurityPrincipal(Hashtable<String, Object> env) {
+        putSecurityPrincipal(getDirectoryUser(), env);
+    }
+
+    @Override
+    protected DirContext createDirContextSsl(String url, SslSecurityProperties sslSecurityProperties)
+            throws NamingException {
+        Hashtable<String, Object> env = new Hashtable<>();
+        env.putAll(commonEnvLDAP);
+        env.put(Context.PROVIDER_URL, url);
+        putSecurityPrincipal(env);
+        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
+        env.put(Context.SECURITY_PROTOCOL, "ssl");
+        env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
+        ManagedSSLSocketFactory
+                .setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, "SSL")));
+        Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
+        return new InitialDirContext(env);
+    }
+
+    @Override
+    protected Pair<LdapContext, StartTlsResponse> createDirContextTls(String url,
+            SslSecurityProperties sslSecurityProperties) throws NamingException, IOException {
+        Hashtable<String, Object> env = new Hashtable<>();
+        env.putAll(commonEnvLDAP);
+        env.put(Context.PROVIDER_URL, url);
+        LdapContext ctx = new InitialLdapContext(env, null);
+        ExtendedRequest tlsRequest = new StartTlsRequest();
+        ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
+        StartTlsResponse tls = (StartTlsResponse) tlsResponse;
+        try {
+            tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
+            putSecurityPrincipal(env);
+            env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
+        } catch (IOException | RuntimeException e) {
+            tls.close();
+            throw e;
+        }
+        return Pair.of(ctx, tls);
+    }
 }

@@ -6,10 +6,10 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.LdapServerException;
 import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Pair;
 
 import org.osgi.framework.BundleContext;
 
@@ -32,8 +32,6 @@ import javax.naming.ldap.StartTlsResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
@@ -43,8 +41,9 @@ import java.util.regex.Pattern;
 
 import static com.elster.jupiter.util.Checks.is;
 
-final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
+final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
 
+    private static final String[] ARRAY_MEMBER_OF = { "memberOf" };
     private static final Pattern REAL_GROUP_NAME_PATTERN = Pattern.compile("=(.*?),");
     static final String TYPE_IDENTIFIER = "ACD";
     private static final Logger LOGGER = Logger.getLogger(ActiveDirectoryImpl.class.getSimpleName());
@@ -70,28 +69,30 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             return ((UserImpl) user).doGetGroups();
         }
 
+        return getSomethingFromLdap(this::doGetGroups, user);
+    }
+
+    private List<Group> doGetGroups(DirContext context, Object... args) throws NamingException {
+        User user = (User) args[0];
+        if (isManageGroupsInternal()) {
+            return ((UserImpl) user).doGetGroups();
+        }
+
         List<Group> groupList = new ArrayList<>();
-        try {
-            DirContext context = new InitialDirContext(
-                    createEnvironment(getUrl(), getDirectoryUser(), getPasswordDecrypt()));
-            String attrIDs[] = { "memberOf" };
-            SearchControls controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, attrIDs, true, true);
-            String name = getGroupName() == null ? "" : getBaseUser();
-            NamingEnumeration<SearchResult> answer = context.search(name, "(&(objectClass=person)(userPrincipalName="
-                    + user.getName() + "@" + getRealDomain(getBase()) + "))", controls);
-            while (answer.hasMoreElements()) {
-                Attributes attrs = answer.nextElement().getAttributes();
-                NamingEnumeration<? extends Attribute> e = attrs.getAll();
-                while (e.hasMoreElements()) {
-                    Attribute attr = e.nextElement();
-                    for (int i = 0; i < attr.size(); ++i) {
-                        userService.findGroup(getRealGroupName(attr.get(i).toString())).ifPresent(groupList::add);
-                    }
+        SearchControls controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, ARRAY_MEMBER_OF, true, true);
+        String name = getGroupName() == null ? "" : getGroupName();
+        NamingEnumeration<SearchResult> answer = context.search(name,
+                "(&(objectClass=person)(userPrincipalName=" + user.getName() + "@" + getRealDomain(getBase()) + "))",
+                controls);
+        while (answer.hasMoreElements()) {
+            Attributes attrs = answer.nextElement().getAttributes();
+            NamingEnumeration<? extends Attribute> e = attrs.getAll();
+            while (e.hasMoreElements()) {
+                Attribute attr = e.nextElement();
+                for (int i = 0; i < attr.size(); ++i) {
+                    userService.findGroup(getRealGroupName(attr.get(i).toString())).ifPresent(groupList::add);
                 }
             }
-        } catch (NamingException e) {
-            LOGGER.severe(e.getLocalizedMessage());
-            throw new LdapServerException(userService.getThesaurus());
         }
         return groupList;
     }
@@ -187,22 +188,13 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
-    private List<String> getUrls() {
-        List<String> urls = new ArrayList<>();
-        urls.add(getUrl().trim());
-        if (getBackupUrl() != null) {
-            String[] backupUrls = getBackupUrl().split(";");
-            Arrays.stream(backupUrls).forEach(s -> urls.add(s.trim()));
-        }
-        return urls;
-    }
-
     private String getRealDomain(String baseDN) {
         String normalizedDN = baseDN.toLowerCase();
         return normalizedDN.substring(normalizedDN.indexOf("dc=")).replace("dc=", "").replace(",", ".");
     }
 
-    private String getRealGroupName(String rdn) {
+    @Override
+    protected String getRealGroupName(String rdn) {
         Matcher matcher = REAL_GROUP_NAME_PATTERN.matcher(rdn);
         if (matcher.find()) {
             return matcher.group(1);
@@ -212,72 +204,10 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     @Override
     public List<LdapUser> getLdapUsers() {
-        List<String> urls = getUrls();
-        if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
-            return getLdapUsersSimple(urls);
-        } else if (getSecurity().toUpperCase().contains("SSL")) {
-            return getLdapUsersSSL(urls, getSslSecurityProperties());
-        } else if (getSecurity().toUpperCase().contains("TLS")) {
-            return getLdapUsersTLS(urls, getSslSecurityProperties());
-        } else {
-            return null;
-        }
+        return getSomethingFromLdap(this::getLdapUsersFromContext);
     }
 
-    private List<LdapUser> getLdapUsersSimple(List<String> urls) {
-        try {
-            return getLdapUsersFromContext(
-                    new InitialDirContext(createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt())));
-        } catch (NumberFormatException | NamingException e) {
-            if (urls.size() > 1) {
-                return getLdapUsersSimple(urls.subList(1, urls.size()));
-            } else {
-                throw new LdapServerException(userService.getThesaurus());
-            }
-        }
-    }
-
-    private List<LdapUser> getLdapUsersSSL(List<String> urls, SslSecurityProperties sslSecurityProperties) {
-        try {
-            return getLdapUsersFromContext(new InitialDirContext(createEnvironment(urls.get(0), getDirectoryUser(),
-                    getPasswordDecrypt(), "ssl", sslSecurityProperties)));
-        } catch (NumberFormatException | NamingException e) {
-            if (urls.size() > 1) {
-                return getLdapUsersSSL(urls.subList(1, urls.size()), sslSecurityProperties);
-            } else {
-                throw new LdapServerException(userService.getThesaurus());
-            }
-        }
-    }
-
-    private List<LdapUser> getLdapUsersTLS(List<String> urls, SslSecurityProperties sslSecurityProperties) {
-        StartTlsResponse tls = null;
-        try {
-            LdapContext ctx = new InitialLdapContext(
-                    createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt()), null);
-            ExtendedRequest tlsRequest = new StartTlsRequest();
-            ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
-            tls = (StartTlsResponse) tlsResponse;
-            tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
-            return getLdapUsersFromContext(ctx);
-        } catch (NumberFormatException | IOException | NamingException e) {
-            if (urls.size() > 1) {
-                return getLdapUsersTLS(urls.subList(1, urls.size()), sslSecurityProperties);
-            } else {
-                throw new LdapServerException(userService.getThesaurus());
-            }
-        } finally {
-            if (tls != null) {
-                try {
-                    tls.close();
-                } catch (IOException e) {
-                    throw new UnderlyingIOException(e);
-                }
-            }
-        }
-    }
-
-    private List<LdapUser> getLdapUsersFromContext(DirContext ctx) throws NamingException {
+    private List<LdapUser> getLdapUsersFromContext(DirContext ctx, Object... args) throws NamingException {
         List<LdapUser> ldapUsers = new ArrayList<>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -306,60 +236,8 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         return ldapUsers;
     }
 
-    private boolean getLdapUserStatusSimple(String user, List<String> urls) {
-        try {
-            return getUserStatusFromContext(user,
-                    new InitialDirContext(createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt())));
-        } catch (NumberFormatException | NamingException e) {
-            if (urls.size() > 1) {
-                return getLdapUserStatusSimple(user, urls.subList(1, urls.size()));
-            } else {
-                throw new LdapServerException(userService.getThesaurus());
-            }
-        }
-    }
-
-    private boolean getLdapUserStatusSSL(String user, List<String> urls, SslSecurityProperties sslSecurityProperties) {
-        try {
-            return getUserStatusFromContext(user, new InitialDirContext(createEnvironment(urls.get(0),
-                    getDirectoryUser(), getPasswordDecrypt(), "ssl", sslSecurityProperties)));
-        } catch (NumberFormatException | NamingException e) {
-            if (urls.size() > 1) {
-                return getLdapUserStatusSSL(user, urls.subList(1, urls.size()), sslSecurityProperties);
-            } else {
-                throw new LdapServerException(userService.getThesaurus());
-            }
-        }
-    }
-
-    private boolean getLdapUserStatusTLS(String user, List<String> urls, SslSecurityProperties sslSecurityProperties) {
-        StartTlsResponse tls = null;
-        try {
-            LdapContext ctx = new InitialLdapContext(
-                    createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt()), null);
-            ExtendedRequest tlsRequest = new StartTlsRequest();
-            ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
-            tls = (StartTlsResponse) tlsResponse;
-            tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
-            return getUserStatusFromContext(user, ctx);
-        } catch (NumberFormatException | IOException | NamingException e) {
-            if (urls.size() > 1) {
-                return getLdapUserStatusTLS(user, urls.subList(1, urls.size()), sslSecurityProperties);
-            } else {
-                throw new LdapServerException(userService.getThesaurus());
-            }
-        } finally {
-            if (tls != null) {
-                try {
-                    tls.close();
-                } catch (IOException e) {
-                    throw new UnderlyingIOException(e);
-                }
-            }
-        }
-    }
-
-    private boolean getUserStatusFromContext(String user, DirContext context) throws NamingException {
+    private boolean getUserStatusFromContext(DirContext context, Object... args) throws NamingException {
+        String user = (String) args[0];
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration results;
@@ -384,16 +262,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     @Override
     public boolean getLdapUserStatus(String userName) {
-        List<String> urls = getUrls();
-        if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
-            return getLdapUserStatusSimple(userName, urls);
-        } else if (getSecurity().toUpperCase().contains("SSL")) {
-            return getLdapUserStatusSSL(userName, urls, getSslSecurityProperties());
-        } else if (getSecurity().toUpperCase().contains("TLS")) {
-            return getLdapUserStatusTLS(userName, urls, getSslSecurityProperties());
-        } else {
-            return false;
-        }
+        return getSomethingFromLdap(this::getUserStatusFromContext, userName);
     }
 
     private Hashtable<String, Object> createEnvironment(String url, String username, String password) {
@@ -421,26 +290,26 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     @Override
-    public List<String> getGroupNames() {
-        if (getBaseGroup() == null) {
-            return Collections.emptyList();
-        }
-        List<String> names = new ArrayList<>();
-        try {
-            DirContext context = new InitialDirContext(
-                    createEnvironment(getUrl(), getDirectoryUser(), getPasswordDecrypt()));
-            String[] attrIDs = { "cn" };
-            SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, attrIDs, true, true);
-            NamingEnumeration<SearchResult> groupEnumeration = context.search(getBaseGroup(),
-                    "(objectClass=groupOfNames)", controls);
-            while (groupEnumeration.hasMoreElements()) {
-                String name = groupEnumeration.next().getAttributes().get("cn").get().toString();
-                names.add(getRealGroupName(name));
-            }
-        } catch (NamingException e) {
-            LOGGER.severe(e.getLocalizedMessage());
-            throw new LdapServerException(userService.getThesaurus());
-        }
-        return names;
+    protected DirContext createDirContextSimple(String url) throws NamingException {
+        return new InitialDirContext(createEnvironment(url, getDirectoryUser(), getPasswordDecrypt()));
+    }
+
+    @Override
+    protected DirContext createDirContextSsl(String url, SslSecurityProperties sslSecurityProperties)
+            throws NamingException {
+        return new InitialDirContext(
+                createEnvironment(url, getDirectoryUser(), getPasswordDecrypt(), "ssl", sslSecurityProperties));
+    }
+
+    @Override
+    protected Pair<LdapContext, StartTlsResponse> createDirContextTls(String url,
+            SslSecurityProperties sslSecurityProperties) throws NamingException, IOException {
+        LdapContext ctx = new InitialLdapContext(createEnvironment(url, getDirectoryUser(), getPasswordDecrypt()),
+                null);
+        ExtendedRequest tlsRequest = new StartTlsRequest();
+        ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
+        StartTlsResponse tls = (StartTlsResponse) tlsResponse;
+        tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
+        return Pair.of(ctx, tls);
     }
 }
