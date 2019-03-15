@@ -332,7 +332,6 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         name: 'baseGroup',
                         itemId: 'txt-baseGroup',
                         fieldLabel: Uni.I18n.translate('userDirectories.baseGroup', 'USR', 'Group base DN'),
-                        hidden: true
                     },
                     {
                         xtype: 'container',
