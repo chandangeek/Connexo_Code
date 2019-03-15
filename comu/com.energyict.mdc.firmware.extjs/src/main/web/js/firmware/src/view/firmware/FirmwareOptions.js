@@ -124,18 +124,6 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                             return;
                                         }
                                         field.show();
-                                        if (currFirmCheck){
-                                            var optTpl = [];
-                                            var optCurrFirmVals = {'FINAL' : 'Final FW status', 'TEST' : 'Test FW status'};
-                                            currFirmCheck['activatedFor'].forEach(function(item){
-                                                optTpl.push({"localizedValue" : optCurrFirmVals[item]});
-                                            })
-                                            if (optTpl && optTpl.length){
-                                                result += '<div style="margin-bottom:10px">Master has a latest firmware</div>';
-                                                var tpl = Ext.create('FirmwareOptionsXTemplate');
-                                                result += ('<div style="margin-bottom:10px">' + tpl.apply(optTpl) + '</div>');
-                                            }
-                                        }
                                         if (masterFirmCheck){
                                             var optMasterTpl = [];
                                             var optMasterVals = {'FINAL' : 'Final master FW status', 'TEST' : 'Test master FW status'};
@@ -143,9 +131,21 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                                 optMasterTpl.push({"localizedValue" : optMasterVals[item]});
                                             })
                                             if (optMasterTpl && optMasterTpl.length){
-                                                result += '<div style="margin-bottom:10px">FW version has a higher ranking</div>';
+                                                result += '<div style="margin-bottom:10px">Master has a latest firmware</div>';
                                                 var tpl = Ext.create('FirmwareOptionsXTemplate');
                                                 result += ('<div style="margin-bottom:10px">' + tpl.apply(optMasterTpl) + '</div>');
+                                            }
+                                        }
+                                        if (currFirmCheck){
+                                            var optTpl = [];
+                                            var optCurrFirmVals = {'FINAL' : 'Final FW status', 'TEST' : 'Test FW status'};
+                                            currFirmCheck['activatedFor'].forEach(function(item){
+                                                optTpl.push({"localizedValue" : optCurrFirmVals[item]});
+                                            })
+                                            if (optTpl && optTpl.length){
+                                                result += '<div style="margin-bottom:10px">FW version has a higher ranking</div>';
+                                                var tpl = Ext.create('FirmwareOptionsXTemplate');
+                                                result += ('<div style="margin-bottom:10px">' + tpl.apply(optTpl) + '</div>');
                                             }
                                         }
                                     }
