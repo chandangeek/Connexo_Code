@@ -75,7 +75,7 @@ Ext.define('Usr.controller.UserDirectories', {
             },
             'usr-add-user-directory': {
                 displayinfo: this.displayInfo,
-                displayextendedinfo: this.displayExtendedInfo
+				displayextendedinfo: this.displayExtendedInfo
             },
             '#btn-user-directory-synchronize-users': {
                 click: this.synchronizeUsers
@@ -107,9 +107,8 @@ Ext.define('Usr.controller.UserDirectories', {
         previewForm.loadRecord(record);
         previewForm.down('#protocol-source-certificates').setVisible(record.get('certificateAlias'));
         previewForm.down('#protocol-source-trustStores').setVisible(record.get('trustStore'));
-        previewForm.down('#usr-user-directory-user-base-dn').setVisible(record.get('baseUser') || (!record.get('groupName') && !record.get('baseGroup')));
-        previewForm.down('#usr-user-directory-user-group-dn').setVisible(record.get('groupName'));
-        previewForm.down('#usr-user-directory-group-base-dn').setVisible(record.get('baseGroup'));
+		previewForm.down('#usr-user-directory-user-base-dn').setVisible(record.get('baseUser') || !record.get('groupName'));
+		previewForm.down('#usr-user-directory-user-group-dn').setVisible(record.get('groupName'));
         preview.down('usr-user-directory-action-menu').record = record;
         preview.down('#btn-user-directory-preview-action-menu').setVisible(!(record.get('id') === 0 && record.get('isDefault')));
         Ext.resumeLayouts();
@@ -217,22 +216,13 @@ Ext.define('Usr.controller.UserDirectories', {
                     userDirectoryRecord.set('certificateAlias', null);
                 }
             }
-            
-            var dnTypeValue = userDirectoryRecord.get('dnType');
-            if (dnTypeValue === 'UDN') {
-                userDirectoryRecord.set('groupName', null);
-                userDirectoryRecord.set('baseGroup', null);
-            } else if (dnTypeValue === 'GDN') {
-                userDirectoryRecord.set('baseUser', null);
-                userDirectoryRecord.set('baseGroup', null);
-            } else if(dnTypeValue === 'BGP') {
-                userDirectoryRecord.set('baseUser', null);
-                userDirectoryRecord.set('groupName', null);
-            } else {
-                userDirectoryRecord.set('baseUser', null);
-                userDirectoryRecord.set('groupName', null);
-                userDirectoryRecord.set('baseGroup', null);
-            }
+			
+			var dnTypeValue = userDirectoryRecord.get('dnType');
+			if (dnTypeValue === 'GDN') {
+				userDirectoryRecord.set('baseUser', null);
+			} else if(dnTypeValue === 'UDN') {
+				userDirectoryRecord.set('groupName', null);
+			}
 
             userDirectoryRecord.set('securityProtocolInfo', {
                 name: addUserDirectoryForm.down('#cbo-security-protocol').getValue()
@@ -311,11 +301,11 @@ Ext.define('Usr.controller.UserDirectories', {
         if (typeField) {
             typeField.setDisabled(true);
         }
-        
-        var dnTypeRadioGroup = addUserDirectoryView.down('#rdo-user-dn-type');
-        if (dnTypeRadioGroup) {
-            dnTypeRadioGroup.setDisabled(true);
-        }
+		
+		var dnTypeRadioGroup = addUserDirectoryView.down('#rdo-user-dn-type');
+		if (dnTypeRadioGroup) {
+			dnTypeRadioGroup.setDisabled(true);
+		}
 
         var userDirectory = me.getModel('Usr.model.MgmUserDirectory');
         userDirectory.load(userDirectoryId, {
@@ -504,8 +494,8 @@ Ext.define('Usr.controller.UserDirectories', {
 
         infoDialog.show();
     },
-    
-    displayExtendedInfo: function (panel) {
+	
+	displayExtendedInfo: function (panel) {
         infoDialog = Ext.create('widget.window', {
             title: Uni.I18n.translate('userDirectories.userInfoTitle', 'USR', 'LDAP user info'),
             closable: true,
@@ -520,7 +510,7 @@ Ext.define('Usr.controller.UserDirectories', {
             items: [
                 {
                     xtype: 'container',
-                    html: Uni.I18n.translate('userDirectories.userInfoContentExtended', 'USR', 'An LDAP username with sufficient privileges to view the sections of the directory that contain the information for LDAP users. If \'DN Type\' radio has value \'Group DN\' or \'Group base DN\', then the username should be specified by its full DN.')
+                    html: Uni.I18n.translate('userDirectories.userInfoContentExtended', 'USR', 'An LDAP username with sufficient privileges to view the sections of the directory that contain the information for LDAP users. If the user directory has a Group DN instead of a User base DN, the username should be specified by providing its full DN.')
                 }
             ]
         });
