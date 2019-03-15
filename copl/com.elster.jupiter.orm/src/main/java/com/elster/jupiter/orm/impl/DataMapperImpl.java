@@ -506,6 +506,10 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return writer;
 	}
 
+	public DataMapperReader<T> getReader() {
+		return reader;
+	}
+
 	@Override
 	public Optional<T> getEager(Object ... key) {
 		return getTable().getQuery(getApi()).getOptional(key);

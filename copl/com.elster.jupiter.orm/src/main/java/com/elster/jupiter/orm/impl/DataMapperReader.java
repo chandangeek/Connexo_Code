@@ -81,7 +81,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
         return fragments;
     }
 
-    Optional<T> findByPrimaryKey(KeyValue keyValue) throws SQLException {
+    public Optional<T> findByPrimaryKey(KeyValue keyValue) throws SQLException {
         List<T> result = find(getPrimaryKeyFragments(keyValue), null, LockMode.NONE);
         if (result.size() > 1) {
             throw new NotUniqueException(keyValue.toString());

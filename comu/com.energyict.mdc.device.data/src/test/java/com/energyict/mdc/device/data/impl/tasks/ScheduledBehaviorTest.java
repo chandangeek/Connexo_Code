@@ -81,7 +81,7 @@ public class ScheduledBehaviorTest {
 
     private ComTask createComTask(int nbRetries) {
         ComTask comTask1 = mock(ComTask.class);
-        when(comTask1.getMaxNrOfTries()).thenReturn(nbRetries);
+        when(comTask1.getMaxNumberOfTries()).thenReturn(nbRetries);
         return comTask1;
     }
 }

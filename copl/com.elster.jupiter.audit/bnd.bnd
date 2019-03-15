@@ -1,5 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
-Export-Package: com.elster.jupiter.audit,
-    com.elster.jupiter.audit.security,\
+Export-Package: com.elster.jupiter.audit,\
+    com.elster.jupiter.audit.security
 Private-Package: com.elster.jupiter.audit.impl

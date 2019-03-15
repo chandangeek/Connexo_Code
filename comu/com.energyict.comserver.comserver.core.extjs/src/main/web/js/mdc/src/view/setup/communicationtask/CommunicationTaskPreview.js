@@ -82,6 +82,10 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
                             name: 'priority'
                         },
                         {
+                            fieldLabel: Uni.I18n.translate('communicationtasks.task.retries', 'MDC', 'Max number of tries'),
+                            name: 'maxNumberOfTries'
+                        },
+                        {
                             fieldLabel: Uni.I18n.translate('communicationtasks.task.ignoreNextExecutionSpecsForInbound', 'MDC', 'Always execute for inbound'),
                             name: 'ignoreNextExecutionSpecsForInbound',
                             renderer: function (value) {
