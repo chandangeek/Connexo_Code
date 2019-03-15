@@ -60,7 +60,6 @@ import java.util.logging.Logger;
 @Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.servicecall.MeterConfigServiceCallHandler", service = ServiceCallHandler.class, immediate = true, property = "name="
         + MeterConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
 public class MeterConfigServiceCallHandler implements ServiceCallHandler {
-	private static final Logger LOGGER = Logger.getLogger(SecurityHelper.class.getName());
     public static final String SERVICE_CALL_HANDLER_NAME = "MeterConfigServiceCallHandler";
     public static final String VERSION = "v1.0";
 
@@ -177,7 +176,6 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         } else {
             extension.setErrorMessage(faultMessage.getLocalizedMessage());
         }
-        LOGGER.log(Level.SEVERE,extension.getErrorMessage(),faultMessage);
         serviceCall.update(extension);
         serviceCall.requestTransition(DefaultState.FAILED);
         // we need to remove device in case it was already created, throwing exception does not rollback transaction
