@@ -4,6 +4,12 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.hsm.HsmEnergyService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
@@ -14,14 +20,30 @@ import com.energyict.mdc.cim.webservices.inbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityHelper;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.schema.message.ErrorType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,15 +61,23 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
 
     private volatile DeviceService deviceService;
     private volatile EndPointConfigurationService endPointConfigurationService;
-    private volatile JsonService jsonService;
+    private volatile ReplyMeterConfigWebService replyMeterConfigWebService;
+    private volatile BatchService batchService;
+    private volatile Clock clock;
+    private volatile DeviceLifeCycleService deviceLifeCycleService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile Thesaurus thesaurus;
 
-    private ReplyMeterConfigWebService replyMeterConfigWebService;
+    private ReplyTypeFactory replyTypeFactory;
+    private MeterConfigFaultMessageFactory messageFactory;
+    private DeviceBuilder deviceBuilder;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         switch (newState) {
             case ONGOING:
-                serviceCall.findChildren().stream().forEach(child -> child.requestTransition(DefaultState.PENDING));
+                serviceCall.findChildren().stream().forEach(child -> processChild(child));
                 break;
             case SUCCESSFUL:
                 sendResponseToOutboundEndPoint(serviceCall);
@@ -84,7 +114,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         }
     }
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    @Reference
     public void addReplyMeterConfigWebServiceClient(ReplyMeterConfigWebService webService) {
         this.replyMeterConfigWebService = webService;
     }
@@ -104,8 +134,63 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     }
 
     @Reference
-    public void setJsonService(JsonService jsonService) {
-        this.jsonService = jsonService;
+    public void setBatchService(BatchService batchService) {
+        this.batchService = batchService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
+        this.deviceLifeCycleService = deviceLifeCycleService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(
+            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    private void processChild(ServiceCall child) {
+        MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
+        OperationEnum operation = OperationEnum.getFromString(extensionFor.getOperation());
+        if (OperationEnum.GET.equals(operation)) {
+            try {
+                getDeviceBuilder().findDevice(Optional.ofNullable(extensionFor.getMeterMrid()), extensionFor.getMeterName());
+            } catch (Exception faultMessage) {
+                if (faultMessage instanceof FaultMessage) {
+                    Optional<ErrorType> errorType = ((FaultMessage) faultMessage).getFaultInfo().getReply().getError().stream().findFirst();
+                    if (errorType.isPresent()) {
+                        extensionFor.setErrorMessage(errorType.get().getDetails());
+                        extensionFor.setErrorCode(errorType.get().getCode());
+                    } else {
+                        extensionFor.setErrorMessage(faultMessage.getLocalizedMessage());
+                    }
+                } else if (faultMessage instanceof ConstraintViolationException) {
+                    extensionFor.setErrorMessage(((ConstraintViolationException) faultMessage).getConstraintViolations().stream()
+                            .findFirst()
+                            .map(ConstraintViolation::getMessage)
+                            .orElseGet(faultMessage::getMessage));
+                } else {
+                    extensionFor.setErrorMessage(faultMessage.getLocalizedMessage());
+                }
+                child.update(extensionFor);
+                child.requestTransition(DefaultState.FAILED);
+            }
+        }
     }
 
     private void updateCounter(ServiceCall serviceCall, DefaultState state) {
@@ -162,8 +247,10 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                 .filter(child -> child.getState().equals(DefaultState.SUCCESSFUL))
                 .forEach(child ->  {
                     MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-                    MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
-                    deviceService.findDeviceByName(meter.getDeviceName()).ifPresent(devices::add);
+                    Optional<Device> device = findDevice(Optional.ofNullable(extensionFor.getMeterMrid()), extensionFor.getMeterName());
+                    if (device.isPresent()) {
+                        devices.add(device.get());
+                    }
                 });
         return devices;
     }
@@ -175,14 +262,40 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                 .filter(child -> child.getState().equals(DefaultState.FAILED))
                 .forEach(child ->  {
                     MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-                    MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
                     FailedMeterOperation failedMeterOperation = new FailedMeterOperation();
                     failedMeterOperation.setErrorCode(extensionFor.getErrorCode());
                     failedMeterOperation.setErrorMessage(extensionFor.getErrorMessage());
-                    failedMeterOperation.setmRID(meter.getmRID());
-                    failedMeterOperation.setMeterName(meter.getDeviceName());
+                    failedMeterOperation.setmRID(extensionFor.getMeterMrid());
+                    failedMeterOperation.setMeterName(extensionFor.getMeterName());
                     failedMeterOperations.add(failedMeterOperation);
                 });
         return failedMeterOperations;
     }
+
+    private Optional<Device> findDevice(Optional<String> mrid, String deviceName) {
+        return mrid.isPresent() ? deviceService.findDeviceByMrid(mrid.get()) : deviceService.findDeviceByName(deviceName);
+    }
+
+    private DeviceBuilder getDeviceBuilder() {
+        if (deviceBuilder == null) {
+            deviceBuilder = new DeviceBuilder(batchService, clock, deviceLifeCycleService, deviceConfigurationService,
+                    deviceService, getMessageFactory(), deviceLifeCycleConfigurationService);
+        }
+        return deviceBuilder;
+    }
+
+    private MeterConfigFaultMessageFactory getMessageFactory() {
+        if (messageFactory == null) {
+            messageFactory = new MeterConfigFaultMessageFactory(thesaurus, getReplyTypeFactory());
+        }
+        return messageFactory;
+    }
+
+    private ReplyTypeFactory getReplyTypeFactory() {
+        if (replyTypeFactory == null) {
+            replyTypeFactory = new ReplyTypeFactory(thesaurus);
+        }
+        return replyTypeFactory;
+    }
+
 }

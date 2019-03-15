@@ -215,7 +215,6 @@
                     <wsdlFiles>
                         <wsdlFile>enddeviceevents/SendEndDeviceEvents.wsdl</wsdlFile>
                         <wsdlFile>meterconfig/ReplyMeterConfig.wsdl</wsdlFile>
-                        <wsdlFile>meterconfig/SendMeterConfig.wsdl</wsdlFile>
                         <wsdlFile>getenddeviceevents/GetEndDeviceEvents.wsdl</wsdlFile>
                     </wsdlFiles>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>

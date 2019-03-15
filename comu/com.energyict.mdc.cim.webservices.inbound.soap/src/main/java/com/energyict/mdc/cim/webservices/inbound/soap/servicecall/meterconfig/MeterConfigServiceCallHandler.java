@@ -132,9 +132,12 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 
     private void processMeterConfigServiceCall(ServiceCall serviceCall) {
         MeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-        MeterInfo meterInfo = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
-        Device device = null;
+        MeterInfo meterInfo = null;
         OperationEnum operation = OperationEnum.getFromString(extensionFor.getOperation());
+        if (!OperationEnum.GET.equals(operation)) {
+            meterInfo = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
+        }
+        Device device = null;
         try {
             switch (operation) {
             case CREATE:

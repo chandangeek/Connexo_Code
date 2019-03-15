@@ -27,8 +27,6 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-
 import javax.inject.Inject;
 
 import java.math.BigDecimal;
@@ -245,6 +243,18 @@ public class DeviceBuilder {
         Optional<DefaultState> defaultState = DefaultState
 	.from(authorizedTransitionAction.getStateTransition().getTo());
         return defaultState.isPresent() && defaultState.get().getDefaultFormat().equals(state);
+    }
+
+    public Device findDevice(Optional<String> mrid, String deviceName) throws FaultMessage {
+        Device device = mrid.isPresent() ? findDeviceByMRID(mrid.get(), deviceName) :
+                deviceService.findDeviceByName(deviceName)
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.NO_DEVICE_WITH_NAME, deviceName));
+        return device;
+    }
+
+    private Device findDeviceByMRID(String mrid, String deviceName) throws FaultMessage {
+        return deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.NO_DEVICE_WITH_MRID, mrid));
     }
 
     private Device updateDevice(Device device) throws FaultMessage {

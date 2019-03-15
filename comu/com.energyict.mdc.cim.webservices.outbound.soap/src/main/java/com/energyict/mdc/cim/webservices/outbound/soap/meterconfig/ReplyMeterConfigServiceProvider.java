@@ -59,8 +59,8 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
     private final Map<String, MeterConfigPort> meterConfigPorts = new ConcurrentHashMap<>();
     private final List<MeterConfigExtendedDataFactory> meterConfigExtendedDataFactories = new ArrayList<>();
-    private final MeterConfigFactory meterConfigFactory = new MeterConfigFactory();
 
+    private volatile MeterConfigFactory meterConfigFactory;
     private volatile DeviceService deviceService;
     private volatile WebServicesService webServicesService;
 
@@ -68,10 +68,11 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         // for OSGI purposes
     }
 
-    public ReplyMeterConfigServiceProvider(DeviceService deviceService, WebServicesService webServicesService) {
+    public ReplyMeterConfigServiceProvider(DeviceService deviceService, WebServicesService webServicesService, MeterConfigFactory meterConfigFactory) {
         this();
         setDeviceService(deviceService);
         setWebServicesService(webServicesService);
+        setMeterConfigFactory(meterConfigFactory);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -108,6 +109,11 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     @Reference
     public void setWebServicesService(WebServicesService webServicesService) {
         this.webServicesService = webServicesService;
+    }
+
+    @Reference
+    public void setMeterConfigFactory(MeterConfigFactory meterConfigFactory) {
+        this.meterConfigFactory = meterConfigFactory;
     }
 
     @Override
@@ -163,6 +169,9 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
                                 case UPDATE:
                                     meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED));
                                     break;
+                                case GET:
+                                    meterConfigPortService.replyMeterConfig(createResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.REPLY));
+                                    break;
                             }
                         } catch (FaultMessage faultMessage) {
                             endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
@@ -184,6 +193,11 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         getMeterConfigExtendedDataFactories().forEach(meterConfigExtendedDataFactory -> {
             meterConfigExtendedDataFactory.extendData(devices, meterConfig);
         });
+        return meterConfig;
+    }
+
+    private MeterConfig getMeterConfig(List<Device> devices) {
+        MeterConfig meterConfig = meterConfigFactory.asGetMeterConfig(devices);
         return meterConfig;
     }
 

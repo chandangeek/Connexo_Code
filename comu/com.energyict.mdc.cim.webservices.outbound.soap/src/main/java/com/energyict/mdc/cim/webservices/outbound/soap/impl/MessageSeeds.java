@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.cim.webservices.outbound.soap.sendmeterconfig;
+package com.energyict.mdc.cim.webservices.outbound.soap.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -34,7 +34,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return WebServiceActivator.COMPONENT_NAME;
+        return "CIM";
     }
 
     @Override

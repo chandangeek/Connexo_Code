@@ -45,6 +45,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
@@ -237,7 +238,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
         // set payload
         MeterConfigPayloadType meterConfigPayload = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
-        meterConfigPayload.setMeterConfig(meterConfigFactory.asMeterConfig(device));
+        meterConfigPayload.setMeterConfig(Verb.GET.equals(verb) ? meterConfigFactory.asGetMeterConfig(device) : meterConfigFactory.asMeterConfig(device));
         responseMessage.setPayload(meterConfigPayload);
 
         return responseMessage;
@@ -291,5 +292,31 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     public MeterConfigResponseMessageType deleteMeterConfig(
             MeterConfigRequestMessageType deleteMeterConfigRequestMessage) throws FaultMessage {
         throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public MeterConfigResponseMessageType getMeterConfig(MeterConfigRequestMessageType getMeterConfigRequestMessage) throws FaultMessage {
+        endPointHelper.setSecurityContext();
+        try (TransactionContext context = transactionService.getContext()) {
+            MeterConfig meterConfig = getMeterConfigRequestMessage.getPayload().getMeterConfig();
+            //get mrid or name of device
+            if (Boolean.TRUE.equals(getMeterConfigRequestMessage.getHeader().isAsyncReplyFlag())) {
+                // call asynchronously
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(getMeterConfigRequestMessage));
+                createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET);
+                context.commit();
+                return createQuickResponseMessage(HeaderType.Verb.REPLY);
+            } else {
+                // call synchronously
+                Meter meter = meterConfig.getMeter().stream().findFirst()
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
+                MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
+                Optional<String> mrid = Optional.ofNullable(meterInfo.getmRID());
+                Device device = deviceBuilder.findDevice(mrid, meterInfo.getDeviceName());
+                return createResponseMessage(device, HeaderType.Verb.GET);
+            }
+        } catch (VerboseConstraintViolationException e) {
+            throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG_EVENTS, e.getLocalizedMessage());
+        }
     }
 }
