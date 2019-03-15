@@ -3,8 +3,8 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -37,11 +37,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
@@ -287,16 +285,22 @@ public class KeyAccessorTypeResource {
         return keyAccessorTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
 
+    /**
+     * Set the passive/temp key for the device for the given security accessor type.
+     *
+     * @param mrid mRID of device for which the key will be updated
+     * @param keyAccessorTypeName Name of the security accessor type
+     * @param uriInfo uriInfo
+     * @summary sets the passive/temp key for the device / keyAccessorType
+     */
     @PUT
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{keyAccessorTypeName}/storetempvalue")
-    public Response storeTempValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
-                                   KeyInfo info,
+    public Response storeTempValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName, KeyInfo info,
                                    @Context UriInfo uriInfo) {
-
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
@@ -307,7 +311,6 @@ public class KeyAccessorTypeResource {
         Map<String, Object> properties = propertyValueInfoService.findPropertyValues(propertySpecs, tempProperties);
 
         Optional<SecurityValueWrapper> currentTempValue = securityAccessor.getTempValue();
-
         if (currentTempValue.isPresent()) {
             SecurityValueWrapper tempValueWrapper = currentTempValue.get();
             tempValueWrapper.setProperties(properties);
@@ -323,10 +326,10 @@ public class KeyAccessorTypeResource {
     /**
      * Mark key as service key for the device for the given security accessor type.
      *
-     * @param mrid mRID of device for which the key will be updated
+     * @param mrid mRID of device for which the key will be marked
      * @param keyAccessorTypeName name of the security accessor type
      * @param uriInfo uriInfo
-     * @summary Mark key as service key
+     * @summary Mark key as service key for the device / keyAccessorType
      */
     @PUT
     @Transactional
@@ -335,7 +338,7 @@ public class KeyAccessorTypeResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{keyAccessorTypeName}/markservicekey")
     public Response markServiceKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
-                                          @Context UriInfo uriInfo) {
+                                   @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
@@ -347,10 +350,10 @@ public class KeyAccessorTypeResource {
     /**
      * Unmark key as service key for the device for the given security accessor type.
      *
-     * @param mrid mRID of device for which the key will be updated
+     * @param mrid mRID of device for which the key will be unmarked
      * @param keyAccessorTypeName name of the security accessor type
      * @param uriInfo uriInfo
-     * @summary Unmark key as service key
+     * @summary Unmark key as service key for the device / keyAccessorType
      */
     @PUT
     @Transactional
@@ -359,7 +362,7 @@ public class KeyAccessorTypeResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{keyAccessorTypeName}/unmarkservicekey")
     public Response unmarkServiceKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
-                                          @Context UriInfo uriInfo) {
+                                     @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
