@@ -90,7 +90,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
             DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
             DeviceService deviceService, JsonService jsonService, CustomPropertySetService customPropertySetService,
             SecurityManagementService securityManagementService, HsmEnergyService hsmEnergyService,
-            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,MeterConfigFaultMessageFactory faultMessageFactory) {
+            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.batchService = batchService;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.clock = clock;
