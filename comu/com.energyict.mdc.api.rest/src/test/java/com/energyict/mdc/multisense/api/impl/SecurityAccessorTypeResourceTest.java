@@ -23,9 +23,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -38,13 +40,14 @@ import static org.mockito.Mockito.when;
 public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyTest {
 
     private Device device;
+    private DeviceType deviceType;
     private SecurityPropertySet sps1, sps2;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        DeviceType deviceType = mockDeviceType(1L, "device type", 1001L);
+        deviceType = mockDeviceType(1L, "device type", 1001L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(2L, "device config", deviceType, 1002L);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationAccessLevel(3);
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mockEncryptionAccessLevel(4);
@@ -68,7 +71,11 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
 
         sps1.getConfigurationSecurityProperties().stream().forEach(property -> securityAccessorTypes.add(property.getSecurityAccessorType()));
         sps2.getConfigurationSecurityProperties().stream().forEach(property -> securityAccessorTypes.add(property.getSecurityAccessorType()));
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
         when(device.getDeviceType().getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
+        when(device.getSecurityAccessor(Mockito.any(SecurityAccessorType.class))).thenReturn(Optional.of(securityAccessor2));
+        when(securityAccessor2.getActualValue()).thenReturn(Optional.of("ABCD"));
     }
 
     @Test
@@ -105,6 +112,12 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
         assertThat(model.<String>get("$.link")).isNull();
         assertThat(model.<Integer>get("$.id")).isEqualTo(321);
         assertThat(model.<String>get("$.name")).isEqualTo("AK");
+    }
+
+    @Test
+    public void testValidateKeyAccessorType() throws Exception {
+        Response response = target("/devices/XAS/keyAccessorTypes/AK/validate").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test

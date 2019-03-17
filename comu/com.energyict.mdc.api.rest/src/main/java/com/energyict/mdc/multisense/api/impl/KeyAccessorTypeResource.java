@@ -241,6 +241,31 @@ public class KeyAccessorTypeResource {
         return keyAccessorTypeInfoFactory.from(securityAccessorType, uriInfo, fieldSelection.getFields());
     }
 
+   /**
+     * Validates if key type exists and has value for a device.
+     *
+     * @param name The name of the key type
+     * @param uriInfo uriInfo
+     * @return Device information and links to related resources
+     * @summary Validates key type identified by name for a device
+     */
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{keyAccessorTypeName}/validate")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public Response  validateKeyAccessorType(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String name, @Context UriInfo uriInfo) {
+        Device device = deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        DeviceType devicetype = device.getDeviceType();
+        SecurityAccessorType securityAccessorType = getSecurityAccessorTypeOrThrowException(name, devicetype);
+        SecurityAccessor securityAccessor = getSecurityAccessorOrThrowException(name, device);
+        if (! securityAccessor.getActualValue().isPresent()) {
+	        throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE);
+        }
+        return Response.ok().build();
+    }
+
     private SecurityAccessorType getSecurityAccessorTypeOrThrowException(String name, DeviceType devicetype) {
         return devicetype.getSecurityAccessorTypes().stream().filter(keyAccessorType1 -> keyAccessorType1.getName().equals(name)).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSORTYPE_FOR_DEVICE));
@@ -306,7 +331,7 @@ public class KeyAccessorTypeResource {
         SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
         List<PropertyInfo> tempProperties = new ArrayList<>();
         tempProperties.add(createPropertyInfo(KEY_PROPERTY, info.value));
-       	tempProperties.add(createPropertyInfo(LABEL_PROPERTY, info.label));
+       	tempProperties.add(createPropertyInfo(LABEL_PROPERTY, securityAccessor.getKeyAccessorType().getHsmKeyType().getLabel()));
         List<PropertySpec> propertySpecs = securityAccessor.getPropertySpecs();
         Map<String, Object> properties = propertyValueInfoService.findPropertyValues(propertySpecs, tempProperties);
 

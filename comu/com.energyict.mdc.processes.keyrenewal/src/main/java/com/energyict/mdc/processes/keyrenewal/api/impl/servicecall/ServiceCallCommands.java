@@ -103,7 +103,7 @@ public class ServiceCallCommands {
     }
 
     private ServiceCallTypes getServiceCallTypesFor(DeviceCommandInfo deviceCommandInfo) {
-        if (deviceCommandInfo.command.equals("RENEW_KEY")) {
+        if (deviceCommandInfo.command.name().equals("RENEW_KEY")) {
             return ServiceCallTypes.RENEW_KEY;
         }
         return ServiceCallTypes.TEST_COMMUNICATION;

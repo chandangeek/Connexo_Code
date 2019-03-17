@@ -22,7 +22,7 @@ import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.upl.TypedProperties;
 import com.jayway.jsonpath.JsonModel;
 
-import com.sun.mail.iap.Response;
+import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -110,7 +110,7 @@ public class SecurityAccessorResourceTest extends MultisensePublicApiJerseyTest 
 
     @Test
     public void testWrapServiceKeyValue() throws Exception {
-        Response response = target("/devices/XAS/keyAccessors/Password/wrapServiceKeyValue/AK/ABCDABCDABCDABCDABCDABCDABCDABCD").request().get();
+        Response response = target("/devices/XAS/keyAccessors/Password/wrapServiceKeyValue/ABCDABCDABCDABCDABCDABCDABCDABCD").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 

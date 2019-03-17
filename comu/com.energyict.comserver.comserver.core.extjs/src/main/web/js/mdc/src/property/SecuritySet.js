@@ -298,7 +298,6 @@ Ext.define('Mdc.property.SecuritySet', {
                     console.log("SELECTED RECORDS = ",record.get('name'));
                     var tmpSetName = record.get('name');
                     tmpSetName = tmpSetName.replace(",","[,]");
-                    tmpSetName = tmpSetName.replace(";","[;]");
                     selectedSets.push(tmpSetName);
                     return record;//.get('readingType').mRID;
                 })
@@ -331,8 +330,9 @@ Ext.define('Mdc.property.SecuritySet', {
                     tmpKey = tmpKey.replace(";","[;]");
                     tmpvalue = tmpvalue.replace(",","[,]");
                     tmpvalue = tmpvalue.replace(";","[;]");
+		    tmpvalue = tmpvalue.replace(":","[:]");
 
-                    resultAccessors = resultAccessors + tmpKey + ":" + tmpvalue;
+                    resultAccessors = resultAccessors + tmpKey + "::" + tmpvalue;
                     if (renderedKeys.length - index > 1 ){
                         resultAccessors = resultAccessors + ",,";
                     }
