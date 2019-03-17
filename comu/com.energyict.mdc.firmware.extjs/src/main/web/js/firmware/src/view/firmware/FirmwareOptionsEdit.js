@@ -123,14 +123,25 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                        if (mainOptionShown){
                            mainOption.show();
 
-                           finalOption.setValue(modelData['activatedFor'].indexOf('FINAL') !==-1);
-                           testOption.setValue(modelData['activatedFor'].indexOf('TEST') !==-1);
+                           finalOptionVal = modelData['activatedFor'].indexOf('FINAL') !==-1;
+                           testOptionVal = modelData['activatedFor'].indexOf('TEST') !==-1;
+                           if (finalOptionVal && testOptionVal) mainOption.setValue(true);
+                           finalOption.setValue(finalOptionVal);
+                           testOption.setValue(testOptionVal);
 
-                           mainOption.handler = function(comp){
-                              if (comp) {
-                                  comp.value ? finalOption.setValue(true) : ( finalOption.setValue(false), testOption.setValue(false));
-                              }
-                           };
+                           finalOption.on('change', function(checkBox, newVal, oldVal){
+                                if (newVal === oldVal) return;
+                                if (newVal === testOption.getValue()) mainOption.setValue(newVal);
+                           });
+                           testOption.on('change', function(checkBox, newVal, oldVal){
+                                if (newVal === oldVal) return;
+                                if (newVal === finalOption.getValue()) mainOption.setValue(newVal);
+                           });
+
+                           mainOption.on('change', function(checkBox, newVal, oldVal){
+                              if (newVal === oldVal) return;
+                              if (newVal) finalOption.setValue(true);
+                           });
 
                        }
                        else{
