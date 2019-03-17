@@ -30,7 +30,6 @@ public class UpgraderV10_6 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        //dataModelUpgrader.upgrade(dataModel, version(10, 6));
         upgradeAuditTable();
 
     }

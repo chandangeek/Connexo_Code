@@ -406,6 +406,10 @@ public class DataExportTaskResource {
         });
 
         ExportTask dataExportTask = builder.create();
+        // Next line is needed here while this is the mechanism we have: config is saved at db save time (journal) and we need to make sure that
+        // next run is after we save them: CONM-676
+        // This is ugly but working with what we have ... also I hope that this is included in a transaction as annotated and will be rolled back if this validation fails
+        ScheduleValidator.validate(info.nextRun, clock.instant());
         info.destinations.forEach(destinationInfo -> destinationInfo.type.create(serviceLocator, dataExportTask, destinationInfo));
         return Response.status(Response.Status.CREATED)
                 .entity(dataExportTaskInfoFactory.asInfo(dataExportTask))

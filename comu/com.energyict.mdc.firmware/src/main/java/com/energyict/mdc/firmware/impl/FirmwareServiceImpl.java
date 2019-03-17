@@ -36,6 +36,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -107,6 +108,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private volatile DeviceMessageService deviceMessageService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
@@ -132,6 +134,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                                QueryService queryService,
                                DeviceConfigurationService deviceConfigurationService,
                                DeviceMessageSpecificationService deviceMessageSpecificationService,
+                               DeviceMessageService deviceMessageService,
                                DeviceService deviceService,
                                EventService eventService,
                                TaskService taskService,
@@ -147,6 +150,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         setDeviceServices(deviceService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        setDeviceMessageService(deviceMessageService);
         setEventService(eventService);
         setTaskService(taskService);
         setMessageService(messageService);
@@ -160,6 +164,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
     }
 
     @Reference
@@ -641,6 +650,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(QueryService.class).toInstance(queryService);
                     bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                     bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+                    bind(DeviceMessageService.class).toInstance(deviceMessageService);
                     bind(DeviceService.class).toInstance(deviceService);
                     bind(EventService.class).toInstance(eventService);
                     bind(TaskService.class).toInstance(taskService);

@@ -19,6 +19,7 @@ import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
 import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -72,15 +73,19 @@ public class SecurityAccessorInfoFactory {
         return info;
     }
 
-    public SecurityAccessorInfo asKeyWithLevels(SecurityAccessor<?> securityAccessor) {
-        SecurityAccessorInfo info = asKey(securityAccessor);
-
+    public List<SecurityAccessorInfo> asKeyWithLevels(List<SecurityAccessor> securityAccessors) {
+        List<SecurityAccessorInfo> securityAccessorInfos = new ArrayList<>();
         List<Group> groups = userService.getGroups();
-        Set<SecurityAccessorUserAction> userActions = securityAccessor.getKeyAccessorType().getUserActions();
-        info.editLevels = executionLevelInfoFactory.getEditPrivileges(userActions, groups);
-        info.viewLevels = executionLevelInfoFactory.getViewPrivileges(userActions, groups);
+        for (SecurityAccessor<?> securityAccessor: securityAccessors) {
+            SecurityAccessorInfo info = asKey(securityAccessor);
+            Set<SecurityAccessorUserAction> userActions = securityAccessor.getKeyAccessorType().getUserActions();
+            info.editLevels = executionLevelInfoFactory.getEditPrivileges(userActions, groups);
+            info.viewLevels = executionLevelInfoFactory.getViewPrivileges(userActions, groups);
 
-        return info;
+            securityAccessorInfos.add(info);
+        }
+
+        return securityAccessorInfos;
     }
 
     public SecurityAccessorInfo asCertificate(SecurityAccessor<?> securityAccessor,

@@ -474,7 +474,7 @@ public class ColumnImpl implements Column {
         }
     }
 
-    boolean isMAC() {
+    public boolean isMAC() {
         return Column.MACFIELDNAME.equals(fieldName);
     }
 

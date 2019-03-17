@@ -71,7 +71,9 @@ public final class OrmServiceImpl implements OrmService {
     private volatile SchemaInfoProvider schemaInfoProvider;
     private volatile TransactionService transactionService;
     private final String ENABLE_PARTITION_PROPERTY = "enable.partitioning";
+    private final String ENABLE_AUDIT_PROPERTY = "enable.auditing";
     private String enablePartition;
+    private String enableAuditing;
     private Registration clearCacheOnRollBackRegistration;
 
     // For OSGi purposes
@@ -141,6 +143,10 @@ public final class OrmServiceImpl implements OrmService {
         return threadPrincipalService.getPrincipal();
     }
 
+    public String getEnableAuditing() {
+        return enableAuditing;
+    }
+
     public String getEnablePartition() {
         return enablePartition;
     }
@@ -207,6 +213,7 @@ public final class OrmServiceImpl implements OrmService {
 
     @Activate
     public void activate(BundleContext context) {
+        enableAuditing = context.getProperty(ENABLE_AUDIT_PROPERTY);
         enablePartition = context.getProperty(ENABLE_PARTITION_PROPERTY);
         createDataModel(false);
         createExistingTableDataModel();

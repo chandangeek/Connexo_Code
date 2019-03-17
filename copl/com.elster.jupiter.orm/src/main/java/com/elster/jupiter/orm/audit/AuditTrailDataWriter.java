@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.DataMapperReader;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.orm.impl.TableSqlGenerator;
 
@@ -36,9 +37,43 @@ public class AuditTrailDataWriter<T> {
     }
 
     public void audit() throws SQLException {
-        if (getTable().hasAudit() && doJournal(getColumns())) {
-            getAuditDomain(object, instant, operation);
+        if (getTable().hasAudit() && doJournal(getColumns()) && isAuditEnabled()) {
+            DataMapperReader<? super T> reader = getTable().getDataMapper().getReader();
+            if (operation == UnexpectedNumberOfUpdatesException.Operation.UPDATE){
+                if (!isSomethingChanged(object, reader.findByPrimaryKey(getTable().getPrimaryKey(object)).get(), getColumns())){
+                    isTouch = true;
+                }
+                getAuditDomain(object, instant, operation);
+            }
+            else  if (operation == UnexpectedNumberOfUpdatesException.Operation.INSERT){
+                getAuditDomain(reader.findByPrimaryKey(getTable().getPrimaryKey(object)).get(), instant, operation);
+            }
+            else  if (operation == UnexpectedNumberOfUpdatesException.Operation.DELETE){
+                getAuditDomain(object, instant, operation);
+            }
         }
+    }
+
+    public boolean isSomethingChanged(Object object, Object oldObject, List<ColumnImpl> columns) throws SQLException {
+        return columns.stream()
+                .filter(ColumnImpl::alwaysJournal)
+                .filter(column -> {
+                    if (column.isMAC()) {
+                        return false;
+                    }
+                    Object newValue = column.domainValue(object);
+                    Object oldValue = column.domainValue(object);
+                    return !(newValue == null ? oldValue == null : column.domainValue(object).equals(column.domainValue(oldObject)));
+                })
+                .count() > 0;
+    }
+
+    private boolean isAuditEnabled() {
+        return getAuditEnabledProperty().toLowerCase().equals("true");
+    }
+
+    private String getAuditEnabledProperty() {
+        return Optional.ofNullable(getTable().getDataModel().getOrmService().getEnableAuditing()).orElse("false");
     }
 
     private List<ColumnImpl> getColumns() {
@@ -76,6 +111,7 @@ public class AuditTrailDataWriter<T> {
             resolveIncompleteContextIdentifier(object);
             contextAuditIdentifiers.stream()
                     .filter(contextIdentifierEntry -> (contextIdentifierEntry.getDomainContext() == tableAudit.getDomainContext()) &&
+                          //  (contextIdentifierEntry.getOperation() == operation.ordinal()) &&
                             (contextIdentifierEntry.getPkDomainColumn() == getPkColumnByIndex(pkDomainColumns, 0)) &&
                             (contextIdentifierEntry.getPkContextColumn() == getPkColumnByIndex(pkContextColumns, 0)))
                     .findFirst()
@@ -94,6 +130,7 @@ public class AuditTrailDataWriter<T> {
                                 updateContextAuditIdentifiers(new DomainContextIdentifier().setId(nextVal)
                                         .setDomainContext(tableAudit.getDomainContext())
                                         .setPkDomainColumn(getPkColumnByIndex(pkDomainColumns, 0))
+                                //        .setPkContextColumn(getPkColumnByIndex(pkContextColumns, 0))
                                         .setOperation(operation.ordinal())
                                         .setObject(object)
                                         .setTableAudit(tableAudit)
@@ -139,6 +176,7 @@ public class AuditTrailDataWriter<T> {
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMEEND
                 statement.setLong(index++, getPkColumnByIndex(pkDomainColumns, 0));
                 statement.setLong(index++, getPkColumnByIndex(pkContextColumns, 0));
+                statement.setLong(index++, getPkColumnByIndex(pkContextColumns, 1));
                 statement.setLong(index++, operation.ordinal()); // operation
                 statement.setLong(index++, now.toEpochMilli()); // create time
                 statement.setString(index++, getCurrentUserName()); //user name

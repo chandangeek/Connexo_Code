@@ -36,7 +36,8 @@ public class AuditTrailImpl implements AuditTrail {
         MODTIMESTART("modTimeStart"),
         MODTIMEEND("modTimeEnd"),
         PKDOMAIN("pkDomain"),
-        PKCONTEXT("pkContext"),
+        PKCONTEXT1("pkContext1"),
+        PKCONTEXT2("pkContext2"),
         OPERATION("operation"),
         CREATETIME("createTime"),
         USERNAME("userName");
@@ -63,7 +64,8 @@ public class AuditTrailImpl implements AuditTrail {
     private Instant modTimeStart;
     private Instant modTimeEnd;
     private long pkDomain;
-    private long pkContext;
+    private long pkContext1;
+    private long pkContext2;
 
     @Inject
     AuditTrailImpl(DataModel dataModel, AuditService auditService, Thesaurus thesaurus) {
@@ -141,8 +143,13 @@ public class AuditTrailImpl implements AuditTrail {
     }
 
     @Override
-    public long getPkContext() {
-        return pkContext;
+    public long getPkContext1() {
+        return pkContext1;
+    }
+
+    @Override
+    public long getPkContext2() {
+        return pkContext2;
     }
 
     private List<AuditDecoder> getAuditDecoders() {
