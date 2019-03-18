@@ -58,6 +58,18 @@ Ext.define('Fwc.controller.Firmware', {
                         .forward();
                 }
             },
+            'firmware-versions [action=applyAll]': {
+                click: function () {
+                    var editBtn = this.getFirmwareVersionsForm().down('#btn-edit-order-estimation-rules');
+                    if (editBtn) editBtn.disable()
+                }
+            },
+            'firmware-versions [action=clearAll]': {
+                click: function () {
+                    var editBtn = this.getFirmwareVersionsForm().down('#btn-edit-order-estimation-rules');
+                    if (editBtn) editBtn.enable()
+                }
+            },
             'firmware-versions actioncolumn': {
                 editFirmware: function (firmware) {
                     this.getController('Uni.controller.history.Router')
@@ -679,7 +691,10 @@ Ext.define('Fwc.controller.Firmware', {
             backUrl = router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl();
 
         this.tab2Activate = 0;
-        form.updateRecord();
+        if (!form.updateRecord()){
+            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors.title', 'FWC', 'Couldn\'t perform your action'), Uni.I18n.translate('firmware.specs.save.validationError', 'FWC', 'You must select at least one item in the group'));
+            return;
+        }
         allowedOptionsError.removeAll();
         form.getRecord().save({
             backUrl: backUrl,

@@ -28,7 +28,7 @@ Ext.define('Fwc.view.firmware.Grid', {
                 if (this.isEditedRank) {
                     rIndex = maxRankValue ? maxRankValue - rowIndex : rIndex;
                     Ext.each(dataSource.proxy.reader.jsonData.firmwares, function(data) {
-                        if (record.getId() === data.id) data.rank = rIndex - 1;
+                        if (record.getId() === data.id) data.rank = rIndex;
                     });
                 }
                 return rIndex;
