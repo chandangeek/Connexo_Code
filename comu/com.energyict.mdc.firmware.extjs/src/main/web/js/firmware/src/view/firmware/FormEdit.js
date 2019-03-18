@@ -67,7 +67,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                             xtype: 'combobox',
                             itemId: 'firmware-min-meter-version',
                             allowBlank: false,
-                            store: 'Fwc.store.MeterFirmwareDeps',
+                            store: 'Fwc.store.MeterFirmwareDepsEdit',
                             forceSelection: true,
                             queryMode: 'local',
                             displayField: 'name',
@@ -76,11 +76,24 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                             listeners: {
                                 beforerender: function () {
                                     var store = this.getStore();
-                                    var deviceTypeId = this.up('firmware-form-edit').router.arguments.deviceTypeId;
+                                    var me = this;
+                                    var formRecord = this.up('firmware-form-edit').getRecord();
+                                    var versionId = formRecord.getId();
+                                    var currMeterId;
+                                    var curMeterVersion = formRecord.getMeterFirmwareDependency();
+                                    if (curMeterVersion){
+                                        currMeterId = curMeterVersion.getId();
+                                    }
                                     var proxy = store.getProxy();
-                                    store.getProxy().setUrl(deviceTypeId);
+                                    store.getProxy().setUrl(versionId);
                                     store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'meter', property: 'firmwareType' }]));
-                                    store.load();
+                                    if (store.length == 0)
+                                    store.load(function (data) {
+                                        for (var iCnt = 0; iCnt < data.length; iCnt++){
+                                            var item = data[iCnt];
+                                            if (item.getId() === currMeterId) me.setValue(item);
+                                        }
+                                    });
                                 },
                                 change: function (combobox) {
                                     if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-meter-version-default-button');
@@ -117,7 +130,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                             xtype: 'combobox',
                             itemId: 'firmware-min-communication-version',
                             allowBlank: false,
-                            store: 'Fwc.store.CommunicationFirmwareDeps',
+                            store: 'Fwc.store.CommunicationFirmwareDepsEdit',
                             forceSelection: true,
                             queryMode: 'local',
                             displayField: 'name',
@@ -125,12 +138,24 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                             hiddenName: 'communicationFirmwareDependency',
                             listeners: {
                                 beforerender: function () {
+                                    var me = this;
                                     var store = this.getStore();
-                                    var deviceTypeId = this.up('firmware-form-edit').router.arguments.deviceTypeId;
+                                    var formRecord = this.up('firmware-form-edit').getRecord();
+                                    var versionId = formRecord.getId();
+                                    var currCommunicationId;
+                                    var curCommunicationVersion = formRecord.getCommunicationFirmwareDependency();
+                                    if (curCommunicationVersion){
+                                        currCommunicationId = curCommunicationVersion.getId();
+                                    }
                                     var proxy = store.getProxy();
-                                    store.getProxy().setUrl(deviceTypeId);
+                                    store.getProxy().setUrl(versionId);
                                     store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'communication', property: 'firmwareType' }]));
-                                    store.load();
+                                    store.load(function (data) {
+                                        for (var iCnt = 0; iCnt < data.length; iCnt++){
+                                            var item = data[iCnt];
+                                            if (item.getId() === currCommunicationId) me.setValue(item);
+                                        }
+                                    });
                                 },
                                 change: function (combobox) {
                                     if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-communication-version-default-button');

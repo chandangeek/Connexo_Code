@@ -33,7 +33,9 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.store.SupportedFirmwareTypes',
         'Fwc.store.SecurityAccessors',
         'Fwc.store.MeterFirmwareDeps',
-        'Fwc.store.CommunicationFirmwareDeps'
+        'Fwc.store.CommunicationFirmwareDeps',
+        'Fwc.store.MeterFirmwareDepsEdit',
+        'Fwc.store.CommunicationFirmwareDepsEdit'
     ],
 
     refs: [
