@@ -69,20 +69,6 @@ Ext.define('Fwc.view.firmware.Grid', {
             renderer: function (value) {
                   return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
             }
-        },
-        {
-            xtype: 'uni-actioncolumn',
-            width: 120,
-            isDisabled: function(view, rowIndex, colIndex, item, record) {
-                return !Mdc.privileges.DeviceType.canAdministrate()
-                    || (record.getAssociatedData().firmwareStatus
-                    && record.getAssociatedData().firmwareStatus.id === 'deprecated'
-                    );
-            },
-            menu: {
-                xtype: 'firmware-action-menu',
-                itemId: 'firmware-action-menu'
-            }
         }
     ],
 
@@ -156,6 +142,21 @@ Ext.define('Fwc.view.firmware.Grid', {
                  xtype: 'button',
                  action: 'addFirmware'
             }]
+
+            me.columns.push({
+            xtype: 'uni-actioncolumn',
+            width: 120,
+            isDisabled: function(view, rowIndex, colIndex, item, record) {
+                return !Mdc.privileges.DeviceType.canAdministrate()
+                    || (record.getAssociatedData().firmwareStatus
+                    && record.getAssociatedData().firmwareStatus.id === 'deprecated'
+                    );
+            },
+            menu: {
+                xtype: 'firmware-action-menu',
+                itemId: 'firmware-action-menu'
+            }
+        });
         }
         this.dockedItems = [
             {
