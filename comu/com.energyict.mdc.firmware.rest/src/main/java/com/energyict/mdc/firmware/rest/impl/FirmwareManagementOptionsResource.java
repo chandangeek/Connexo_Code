@@ -17,8 +17,6 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
-import com.google.common.collect.ImmutableMap;
-
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -28,21 +26,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Path("/devicetypes/{deviceTypeId}/firmwaremanagementoptions/{id}")
 public class FirmwareManagementOptionsResource {
-    private static final Map<FirmwareCheckManagementOption, Predicate<DeviceType>> CHECKS_WITH_APPLICABILITIES = ImmutableMap.of(
-            FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK, deviceType -> true,
-            FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK, deviceType -> true // !deviceType.isDirectlyAddressable() TODO: rework design first
-    );
-
     private final DeviceConfigurationService deviceConfigurationService;
     private final FirmwareService firmwareService;
     private final Thesaurus thesaurus;
@@ -77,15 +69,12 @@ public class FirmwareManagementOptionsResource {
                 .forEach(op -> firmwareManagementOptionsInfo.supportedOptions.add(new ManagementOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
         allowedMgtOptions
                 .forEach(op -> firmwareManagementOptionsInfo.allowedOptions.add(new ManagementOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
-        CHECKS_WITH_APPLICABILITIES.forEach((checkManagementOption, deviceTypePredicate) -> {
-            if (deviceTypePredicate.test(deviceType)) {
+        Arrays.stream(FirmwareCheckManagementOption.values()).forEach(checkManagementOption ->
                 firmwareManagementOptionsInfo.checkOptions.put(checkManagementOption,
                         firmwareMgtOptions
                                 .map(options -> options.getTargetFirmwareStatuses(checkManagementOption))
                                 .map(CheckManagementOptionInfo::new)
-                                .orElseGet(CheckManagementOptionInfo::new));
-            }
-        });
+                                .orElseGet(CheckManagementOptionInfo::new)));
 
         firmwareManagementOptionsInfo.isAllowed = !allowedMgtOptions.isEmpty();
         firmwareManagementOptionsInfo.version = firmwareMgtOptions.map(FirmwareManagementOptions::getVersion).orElse(0L);
@@ -118,10 +107,9 @@ public class FirmwareManagementOptionsResource {
                     .collect(Collectors.toSet());
             FirmwareManagementOptions options = firmwareManagementOptions.orElseGet(() -> firmwareService.newFirmwareManagementOptions(deviceType));
             options.setOptions(newAllowedOptions);
-            CHECKS_WITH_APPLICABILITIES.forEach((checkManagementOption, deviceTypePredicate) ->
+            Arrays.stream(FirmwareCheckManagementOption.values()).forEach(checkManagementOption ->
                     options.activateFirmwareCheckWithStatuses(checkManagementOption,
                             Optional.ofNullable(info.checkOptions.get(checkManagementOption))
-                                    .filter(checkOptions -> deviceTypePredicate.test(deviceType))
                                     .map(CheckManagementOptionInfo::getActivatedFor)
                                     .orElseGet(() -> EnumSet.noneOf(FirmwareStatus.class))));
             options.save();

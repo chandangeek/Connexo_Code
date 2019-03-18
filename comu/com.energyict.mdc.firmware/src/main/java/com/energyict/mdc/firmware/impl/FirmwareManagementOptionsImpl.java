@@ -92,18 +92,6 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
     }
 
     @Override
-    public boolean isActivated(FirmwareCheckManagementOption checkManagementOption) {
-        switch (checkManagementOption) {
-            case CURRENT_FIRMWARE_CHECK:
-                return checkCurrentFirmwareForFinalFirmwareUpload || checkCurrentFirmwareForTestFirmwareUpload;
-            case MASTER_FIRMWARE_CHECK:
-                return checkMasterFirmwareForFinalFirmwareUpload || checkMasterFirmwareForTestFirmwareUpload;
-            default:
-                throw new IllegalArgumentException("Unknown firmware check management option!");
-        }
-    }
-
-    @Override
     public EnumSet<FirmwareStatus> getTargetFirmwareStatuses(FirmwareCheckManagementOption checkManagementOption) {
         EnumSet<FirmwareStatus> statuses = EnumSet.noneOf(FirmwareStatus.class);
         switch (checkManagementOption) {
