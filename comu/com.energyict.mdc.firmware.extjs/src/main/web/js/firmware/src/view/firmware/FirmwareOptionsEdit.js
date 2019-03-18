@@ -131,7 +131,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
 
                            finalOption.on('change', function(checkBox, newVal, oldVal){
                                 if (newVal === oldVal) return;
-                                if (newVal === testOption.getValue()) mainOption.setValue(newVal);
+                                if (newVal === testOption.getValue() ) mainOption.setValue(newVal);
                            });
                            testOption.on('change', function(checkBox, newVal, oldVal){
                                 if (newVal === oldVal) return;
@@ -141,6 +141,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                            mainOption.on('change', function(checkBox, newVal, oldVal){
                               if (newVal === oldVal) return;
                               if (newVal) finalOption.setValue(true);
+                              else { finalOption.setValue(false); testOption.setValue(false);}
                            });
 
                        }
