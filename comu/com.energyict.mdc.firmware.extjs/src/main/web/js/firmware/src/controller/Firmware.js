@@ -525,14 +525,18 @@ Ext.define('Fwc.controller.Firmware', {
                     me.deviceTypeId = deviceTypeId;
                     me.getApplication().fireEvent('changecontentevent', view);
                     me.tab2Activate = undefined;
+                    var router = me.getController('Uni.controller.history.Router');
                     var callbackFunc = function () {
                         me.reconfigureMenu(deviceType, view);
                         firmwareStore.getProxy().setUrl(deviceType.getId());
-                        firmwareStore.load({
+                        var options = {
                             callback: function () {
                                 viewport.setLoading(false);
                             }
-                        });
+                        }
+                        if (router && router.queryParams && router.queryParams.editOrder && !!router.queryParams.editOrder) options.limit = options.pageSize = 500;
+                        else options.limit = options.pageSize = 10;
+                        firmwareStore.load(options);
                     };
 
                     var widget = view.down('firmware-options'),
@@ -546,6 +550,11 @@ Ext.define('Fwc.controller.Firmware', {
                                 if (view.down('fwc-view-firmware-versions-topfilter')) {
                                     view.down('fwc-view-firmware-versions-topfilter').showOrHideFirmwareTypeFilter(supportedFirmwareTypesStore.totalCount !== 1);
                                 }
+
+                                var sData = supportedFirmwareTypesStore.getRange()
+                                if (Ext.Array.filter(sData, function(item){ return item.data.id === "meter"}).length) me.getFirmwareGrid().down('#minMeterLevel').show();
+                                if (Ext.Array.filter(sData, function(item){ return item.data.id === "communication"}).length) me.getFirmwareGrid().down('#minCommLevel').show();
+
                                 var signatureCheckContainer = widget ? widget.down('#security-check-container') : null;
                                 if (signatureCheckContainer) {
                                     if(optionsRecord.get('validateFirmwareFileSignature')){
