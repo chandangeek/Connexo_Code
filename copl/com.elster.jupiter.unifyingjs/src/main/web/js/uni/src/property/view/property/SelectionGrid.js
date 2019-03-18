@@ -16,7 +16,8 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
         {id: 'issueReasons.name', value: Uni.I18n.translate('process.issueReasons', 'UNI', 'Issue reason'), order: 1},
         {id: 'alarmReasons.name', value: Uni.I18n.translate('process.alarmReasons', 'UNI', 'Alarm reason'), order: 1},
         {id: 'metrologyConfigurations.name', value: Uni.I18n.translate('process.metrologyConfiguration', 'UNI', 'Metrology configuration'), order: 1},
-        {id: 'connectionStates.name', value: Uni.I18n.translate('process.connectionState', 'UNI', 'Connection state'), order: 1}
+        {id: 'connectionStates.name', value: Uni.I18n.translate('process.connectionState', 'UNI', 'Connection state'), order: 1},
+        {id: 'comTaskSelector.name', value: Uni.I18n.translate('autoRescheduler.comtaskName', 'UNI', 'Name'), order: 1}
     ],
 
     getEditCmp: function () {
@@ -162,7 +163,8 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
 
     setValue: function (values) {
         var me = this,
-            grid = me.down('#selection-grid');
+            grid = me.down('#selection-grid'),
+            noItem = me.down('#no-item-defined');
 
         if (grid) {
             var store = grid.getStore(),
@@ -187,6 +189,30 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
                 grid.hide();
             }
             Ext.resumeLayouts(true);
+        } else if (!noItem) {
+            this.callParent([values]);
+        }
+    },
+
+    getDisplayCmp: function () {
+        var me=this,
+            store = me.getProperty().getPredefinedPropertyValues().possibleValues();
+
+        return {
+            xtype: 'displayfield',
+            name: me.getName(),
+            itemId: me.key + 'displayfield',
+            renderer: function (data) {
+                var result = '';
+
+                Ext.isArray(data) && Ext.Array.each(data, function (item) {
+                    var flag = store.getById(item);
+
+                    flag && (result += '- ' + Ext.String.htmlEncode(flag.get('name')) + '<br>');
+                });
+
+                return (Ext.isEmpty(result) ? '-' : result);
+            }
         }
     },
 
