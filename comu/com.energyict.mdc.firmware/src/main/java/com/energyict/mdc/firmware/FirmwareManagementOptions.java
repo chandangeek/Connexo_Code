@@ -33,7 +33,5 @@ public interface FirmwareManagementOptions {
 
     long getVersion();
 
-    boolean isActivated(FirmwareCheckManagementOption checkManagementOption);
-
     EnumSet<FirmwareStatus> getTargetFirmwareStatuses(FirmwareCheckManagementOption checkManagementOption);
 }

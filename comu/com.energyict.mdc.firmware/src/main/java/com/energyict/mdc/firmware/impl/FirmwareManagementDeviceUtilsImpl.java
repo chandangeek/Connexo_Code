@@ -81,17 +81,14 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         Map<FirmwareType, DeviceMessage> uploadMessages = new HashMap<>();
         Map<String, DeviceMessage> activationMessages = new HashMap<>();
         // only firmware upgrade, no revoked messages and only one message for each firmware type
-        this.deviceMessageService.findDeviceFirmwareMessages(device)
-                .stream()
-                .filter(candidate -> candidate.getSpecification().getCategory().getId() == this.deviceMessageSpecificationService.getFirmwareCategory().getId()
-                        && !DeviceMessageStatus.CANCELED.equals(candidate.getStatus()))
-                .forEach(candidate -> {
-                    if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
-                        compareAndSwapUploadMessage(uploadMessages, candidate);
-                    } else {
-                        activationMessages.put(candidate.getTrackingId(), candidate);
-                    }
-                });
+        this.device.getMessages().stream().filter(candidate -> candidate.getSpecification().getCategory().getId() == this.deviceMessageSpecificationService.getFirmwareCategory().getId()
+                && !DeviceMessageStatus.CANCELED.equals(candidate.getStatus())).forEach(candidate -> {
+            if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
+                compareAndSwapUploadMessage(uploadMessages, candidate);
+            } else {
+                activationMessages.put(candidate.getTrackingId(), candidate);
+            }
+        });
         this.firmwareMessages.addAll(uploadMessages.values());
         this.firmwareMessages.addAll(this.firmwareMessages.stream()
                 .map(message -> activationMessages.get(String.valueOf(message.getId())))
