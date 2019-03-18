@@ -16,6 +16,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.inject.Module;
@@ -39,6 +40,7 @@ public class RegisterTypeOneCustomPropertySet implements CustomPropertySet<Regis
 
     public static final String TABLE_NAME = "RVK_CPS_REGISTER_ONE";
     public static final String FK_CPS_REGISTER_ONE = "FK_CPS_REGISTER_ONE";
+    public static final String FK_REGISTER_DEVICE_ONE = "FK_REGISTER_DEVICE_ONE";
 
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceService deviceService;
@@ -99,6 +101,11 @@ public class RegisterTypeOneCustomPropertySet implements CustomPropertySet<Regis
     public String getDomainClassDisplayName() {
         return this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME_REGISTER).format(); //CONM-332
         //return "Register";
+    }
+
+    @Override
+    public Class getContextClass() {
+        return Device.class;
     }
 
     @Override
@@ -211,6 +218,21 @@ public class RegisterTypeOneCustomPropertySet implements CustomPropertySet<Regis
                             .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
                             .notNull()
                             .add());
+        }
+
+        @Override
+        public String contextFieldName() {
+            return RegisterTypeOneDomainExtension.FieldNames.DEVICE_REF.javaName();
+        }
+
+        @Override
+        public String contextColumnName() {
+            return RegisterTypeOneDomainExtension.FieldNames.DEVICE.databaseName();
+        }
+
+        @Override
+        public String contextForeignKeyName() {
+            return FK_REGISTER_DEVICE_ONE;
         }
 
         @Override

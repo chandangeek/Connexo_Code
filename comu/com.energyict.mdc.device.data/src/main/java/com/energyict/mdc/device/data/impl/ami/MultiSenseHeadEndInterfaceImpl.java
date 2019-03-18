@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterface",
-        service = {HeadEndInterface.class},
+        service = {HeadEndInterface.class, MultiSenseHeadEndInterface.class},
         property = "name=MultiSenseHeadEndInterface", immediate = true)
 public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterface {
 
@@ -129,6 +129,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     @Reference
     public void setEndDeviceCommandFactory(EndDeviceCommandFactory endDeviceCommandFactory) {
         this.endDeviceCommandFactory = endDeviceCommandFactory;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Activate

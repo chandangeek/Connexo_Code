@@ -128,6 +128,7 @@
                     <wsdlFiles>
                         <wsdlFile>enddeviceconfig/ReplyEndDeviceConfig.wsdl</wsdlFile>
                         <wsdlFile>meterreadings/SendMeterReadings.wsdl</wsdlFile>
+                        <wsdlFile>meterreadings/GetMeterReadings.wsdl</wsdlFile>
                     </wsdlFiles>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
                     <bindingDirectory>${basedir}/src/main/resources/binding</bindingDirectory>

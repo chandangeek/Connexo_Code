@@ -133,6 +133,19 @@ public interface CustomPropertySetService {
      */
     List<RegisteredCustomPropertySet> findActiveCustomPropertySets();
 
+
+    /**
+     * Finds all {@link RegisteredCustomPropertySet}s.
+     * For remembrence's sake:
+     * <ul>
+     * <li>a CustomPropertySet that has registered before but is currently not deployed in the OSGi container will NOT be returned</li>
+     * <li>a CustomPropertySet that was registered by the system will be returned</li>
+     * </ul>
+     *
+     * @return The List of RegisteredCustomPropertySet
+     */
+    List<RegisteredCustomPropertySet> findAllCustomPropertySets();
+
     /**
      * Finds all {@link RegisteredCustomPropertySet}s that are currently active
      * and that provide custom properties for the specified domain class.

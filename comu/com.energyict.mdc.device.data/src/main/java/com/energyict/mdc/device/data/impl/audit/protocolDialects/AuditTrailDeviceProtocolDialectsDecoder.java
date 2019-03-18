@@ -129,12 +129,12 @@ public class AuditTrailDeviceProtocolDialectsDecoder extends AbstractCPSAuditDec
 
 
     protected Optional<RegisteredCustomPropertySet> getCustomPropertySet() {
-        return getCustomPropertySetFromActive();
+        return getCustomPropertySetFromAll();
     }
 
-    private Optional<RegisteredCustomPropertySet> getCustomPropertySetFromActive(){
+    private Optional<RegisteredCustomPropertySet> getCustomPropertySetFromAll(){
         return customPropertySetService
-                .findActiveCustomPropertySets()
+                .findAllCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .filter(x -> x.getId() == getAuditTrailReference().getPkContext2())

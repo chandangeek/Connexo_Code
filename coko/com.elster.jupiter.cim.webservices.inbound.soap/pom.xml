@@ -38,8 +38,6 @@
                 <configuration>
                     <wsdlDirectory>src/main/resources</wsdlDirectory>
                     <wsdlFiles>
-                        <wsdlFile>meterreading/GetMeterReadings.wsdl</wsdlFile>
-                        <wsdlFile>meterreading/SendMeterReadings.wsdl</wsdlFile>
                         <wsdlFile>usagepointconfig/ExecuteUsagePointConfig.wsdl</wsdlFile>
                         <wsdlFile>usagepointconfig/ReplyUsagePointConfig.wsdl</wsdlFile>
                         <wsdlFile>masterdatalinkageconfig/ExecuteMasterDataLinkageConfig.wsdl</wsdlFile>
@@ -120,7 +118,19 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cim.webservices.outbound.soap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
@@ -167,11 +177,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

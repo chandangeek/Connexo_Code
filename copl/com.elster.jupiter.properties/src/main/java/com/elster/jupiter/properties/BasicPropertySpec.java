@@ -6,6 +6,7 @@ package com.elster.jupiter.properties;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Optional;
 
 public class BasicPropertySpec implements PropertySpec, Serializable {
 
@@ -158,11 +159,16 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
     @SuppressWarnings("unchecked")
     private boolean isPossibleValue(Object value, ValueFactory valueFactory) {
         Object dbValue = valueFactory.valueToDatabase(value);
-        return getPossibleValues()
+        return isDefaultEqual(dbValue, valueFactory) || getPossibleValues()
                 .getAllValues()
                 .stream()
                 .map(valueFactory::valueToDatabase)
                 .anyMatch(possibleDbValue -> possibleDbValue.equals(dbValue));
+    }
+
+    private boolean isDefaultEqual(Object dbValue, ValueFactory valueFactory) {
+        Object defaultPossibleValue = getPossibleValues().getDefault();
+        return Optional.ofNullable(defaultPossibleValue).isPresent() ? dbValue.equals(valueFactory.valueToDatabase(defaultPossibleValue)) : false;
     }
 
     @SuppressWarnings("unchecked")

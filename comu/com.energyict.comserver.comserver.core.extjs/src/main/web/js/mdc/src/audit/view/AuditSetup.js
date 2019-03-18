@@ -5,7 +5,7 @@
 Ext.define('Mdc.audit.view.AuditSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.auditSetup',
-
+    xtype: 'audit-setup-view',
     requires: [
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
@@ -20,6 +20,7 @@ Ext.define('Mdc.audit.view.AuditSetup', {
         me.content = [
             {
                 ui: 'large',
+                itemId: 'audit-trail-content',
                 title: Uni.I18n.translate('audit.auditTrail', 'MDC', 'Audit trail'),
                 items: [
                     {
@@ -27,6 +28,7 @@ Ext.define('Mdc.audit.view.AuditSetup', {
                         grid: {
                             xtype: 'auditGrid',
                             itemId: 'audit-grid',
+                            store: me.store,
                             domainConvertorFn: me.domainConvertorFn,
                             contextConvertorFn: me.contextConvertorFn,
                             scopeFn: me.scopeFn
@@ -51,6 +53,7 @@ Ext.define('Mdc.audit.view.AuditSetup', {
                 dockedItems: [
                     {
                         dock: 'top',
+                        store: me.store,
                         xtype: 'auditFilter',
                         itemId: 'audit-filter'
                     }
