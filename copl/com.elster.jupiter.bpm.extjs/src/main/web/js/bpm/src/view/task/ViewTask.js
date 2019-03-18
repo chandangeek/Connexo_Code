@@ -204,7 +204,7 @@ Ext.define('Bpm.view.task.ViewTask', {
                 ]
             },
             {
-                title: "TASK EXECUTION!!!",//Uni.I18n.translate('bpm.task.taskExecution', 'BPM', 'Task execution'),
+                title: Uni.I18n.translate('bpm.task.taskExecution', 'BPM', 'Task execution'),
                 ui: 'medium',
                 xtype: 'property-form',
                 isEdit: false,

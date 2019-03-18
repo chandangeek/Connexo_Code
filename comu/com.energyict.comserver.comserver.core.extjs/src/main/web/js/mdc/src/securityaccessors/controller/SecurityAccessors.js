@@ -233,7 +233,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     method: 'GET',
                     success: function (response) {
                         var data = Ext.JSON.decode(response.responseText);
-                        console.log("OBTAINED DATA!!!!!!!",data.defaultServiceKey);
                         model.load(recordParam.get('id'), {
                                success: function (keyRecord) {
                                    recordToSetKey = keyRecord;
@@ -935,7 +934,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     },
 
     setDefaultKeyValue: function(certificateRecord) {
-        console.log("SET DEFAULT KEY VALUE!!!!");
     },
 
     clearPassive: function(keyOrCertificateRecord, keyMode) {
