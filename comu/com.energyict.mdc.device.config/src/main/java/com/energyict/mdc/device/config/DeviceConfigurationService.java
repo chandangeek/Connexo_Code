@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -367,4 +368,6 @@ public interface DeviceConfigurationService {
      * @return
      */
     List<DeviceConfiguration> getDeviceConfigsByDeviceGroup(EndDeviceGroup endDeviceGroup);
+
+    DeviceLifeCycleInDeviceTypeInfo[] getDeviceLifeCycleInDeviceTypeInfoPossibleValues();
 }

@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.config.properties;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ValueFactory;
@@ -11,12 +9,9 @@ import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFac
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.impl.MessageSeeds;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -28,8 +23,9 @@ import java.util.stream.Collectors;
 public class DeviceLifeCycleInDeviceTypeInfoValueFactory implements ValueFactory<HasIdAndName>, DeviceLifeCycleInDeviceTypePropertyFactory {
 
     protected volatile Thesaurus thesaurus;
-    static final String NAME = "BasicDataCollectionRuleTemplate";
+
     private static final String SEPARATOR = ":";
+    static final String NAME = "DeviceLifeCycleInDeviceType";
     public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES = NAME + ".deviceLifecyleInDeviceTypes";
 
     private volatile DeviceConfigurationService deviceConfigurationService;
@@ -37,43 +33,10 @@ public class DeviceLifeCycleInDeviceTypeInfoValueFactory implements ValueFactory
 
     //DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService
 
-    //for OSGI
-    public DeviceLifeCycleInDeviceTypeInfoValueFactory() {
-    }
+    public DeviceLifeCycleInDeviceTypeInfoValueFactory() {}
 
-    @Inject
-    public DeviceLifeCycleInDeviceTypeInfoValueFactory(NlsService nlsService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        this();
-        setNlsService(nlsService);
-        setDeviceConfigurationService(deviceConfigurationService);
-        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-        activate();
-    }
-
-    @Activate
-    public void activate() {
-    }
-
-    @Reference
-    public final void setNlsService(NlsService nlsService) {
-        this.setThesaurus(nlsService.getThesaurus(DeviceLifeCycleConfigurationService.COMPONENT_NAME, Layer.DOMAIN));
-    }
-
-    public Thesaurus getThesaurus() {
-        return thesaurus;
-    }
-
-    protected void setThesaurus(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
-    }
-
-    @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+    public DeviceLifeCycleInDeviceTypeInfoValueFactory(DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
-    }
-
-    @Reference
-    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 

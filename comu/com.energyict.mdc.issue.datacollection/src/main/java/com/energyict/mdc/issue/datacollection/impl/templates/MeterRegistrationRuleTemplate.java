@@ -12,9 +12,13 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.event.UnregisteredFromGatewayEvent;
@@ -37,18 +41,21 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
     public static final String NAME = "MeterRegistrationRuleTemplate";
     public static final String DELAY = NAME + ".delay";
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
+    public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES = NAME + ".deviceLifecyleInDeviceTypes";
 
     //For OSGI
     public MeterRegistrationRuleTemplate() {
     }
 
     @Inject
-    public MeterRegistrationRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService) {
+    public MeterRegistrationRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService,  DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         activate();
     }
 
@@ -59,6 +66,15 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
+        builder.add(propertySpecService
+                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService))
+                .named(DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .markMultiValued(";")
+                .addValues(deviceConfigurationService.getDeviceLifeCycleInDeviceTypeInfoPossibleValues())
+                .markExhaustive(PropertySelectionMode.LIST)
+                .finish());
         builder.add(propertySpecService
                 .longSpec()
                 .named(DELAY, TranslationKeys.PARAMETER_NAME_DELAY_IN_HOURS)
@@ -102,6 +118,7 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
                 "rule \"Unregistered from gateway @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : UnregisteredFromGatewayEvent(resolveEvent == false)\n" +
+                "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Putting issue on queue by unregistered from gateway rule=@{ruleId}\");\n" +
                 "\tlong delay = @{" + DELAY + "} * 3600;\n" +
@@ -152,6 +169,16 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
     @Reference
     public void setIssueService(IssueService issueService) {
         super.setIssueService(issueService);
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        super.setDeviceConfigurationService(deviceConfigurationService);
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        super.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
     }
 
 

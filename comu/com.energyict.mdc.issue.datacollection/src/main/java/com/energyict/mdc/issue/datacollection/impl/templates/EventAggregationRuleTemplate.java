@@ -10,7 +10,11 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
@@ -22,6 +26,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.LongStream;
@@ -39,17 +44,21 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     public static final String THRESHOLD = NAME + ".threshold";
     public static final String EVENTTYPE = NAME + ".eventType";
 
+    public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES = NAME + ".deviceLifecyleInDeviceTypes";
+
     //For OSGI
     public EventAggregationRuleTemplate() {
     }
 
     @Inject
-    public EventAggregationRuleTemplate(NlsService nlsService, IssueService issueService, IssueDataCollectionService issueDataCollectionService, PropertySpecService propertySpecService) {
+    public EventAggregationRuleTemplate(NlsService nlsService, IssueService issueService, IssueDataCollectionService issueDataCollectionService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         setNlsService(nlsService);
         setIssueService(issueService);
         setIssueDataCollectionService(issueDataCollectionService);
         setPropertySpecService(propertySpecService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         activate();
     }
 
@@ -77,6 +86,16 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
         super.setPropertySpecService(propertySpecService);
     }
 
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        super.setDeviceConfigurationService(deviceConfigurationService);
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        super.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+    }
+
     @Override
     public String getContent() {
         return "package com.energyict.mdc.issue.datacollection\n" +
@@ -86,6 +105,7 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
                 "rule \"Events from meters of concentrator @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : DataCollectionEvent( eventType == \"@{" + EVENTTYPE + "}\" )\n" +
+                "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
                 "\teval( event.computeCurrentThreshold() > @{" + THRESHOLD + "} )\n" +
                 "then\n" +
                 "\tSystem.out.println(\"Events from meters of concentrator @{ruleId}\");\n" +
@@ -117,6 +137,15 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
+        builder.add(propertySpecService
+                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService))
+                .named(DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .markMultiValued(";")
+                .addValues(deviceConfigurationService.getDeviceLifeCycleInDeviceTypeInfoPossibleValues())
+                .markExhaustive(PropertySelectionMode.LIST)
+                .finish());
         builder.add(propertySpecService
                 .longSpec()
                 .named(THRESHOLD, TranslationKeys.PARAMETER_NAME_THRESHOLD)

@@ -21,6 +21,7 @@ public class DeviceLifeCycleInDeviceTypeInfo extends HasIdAndName {
     private List<State> states;
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
+    static final String NAME = "BasicDataCollectionRuleTemplate";
     private static final String SEPARATOR = ":";
     private static final Logger LOG = Logger.getLogger(DeviceLifeCycleInDeviceTypeInfo.class.getName());
 
