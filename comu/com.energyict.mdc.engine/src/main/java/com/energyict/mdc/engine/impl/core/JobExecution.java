@@ -311,14 +311,16 @@ public abstract class JobExecution implements ScheduledJob {
     private void addCompletionEvent() {
         ExecutionContext executionContext = this.getExecutionContext();
         if (executionContext != null) {
-            executionContext.getStoreCommand().add(
-                    new PublishConnectionCompletionEvent(
-                            this.getConnectionTask(),
-                            this.getComPort(),
-                            this.getSuccessfulComTaskExecutions(),
-                            this.getFailedComTaskExecutions(),
-                            this.getNotExecutedComTaskExecutions(),
-                            this.executionContext.getDeviceCommandServiceProvider()));
+            if (!executionContext.connectionFailed()) {
+                executionContext.getStoreCommand().add(
+                        new PublishConnectionCompletionEvent(
+                                this.getConnectionTask(),
+                                this.getComPort(),
+                                this.getSuccessfulComTaskExecutions(),
+                                this.getFailedComTaskExecutions(),
+                                this.getNotExecutedComTaskExecutions(),
+                                this.executionContext.getDeviceCommandServiceProvider()));
+            }
         } else {
             // Failure was in the preparation that creates the ExecutionContext
             LOGGER.log(
