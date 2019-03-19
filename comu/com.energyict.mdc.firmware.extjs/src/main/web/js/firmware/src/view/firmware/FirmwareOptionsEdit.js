@@ -105,16 +105,18 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                            if (masterFirmwareMainOption){
                               masterFirmwareMainOption.setValue(true);
                               var masterFirmwareCheckFinal = me.down('#masterFirmwareCheckFinal');
+                              var masterFirmwareCheckTest = me.down('#masterFirmwareCheckTest');
                               if (masterFirmwareCheckFinal) masterFirmwareCheckFinal.setValue(true);
+                              if (masterFirmwareCheckTest) masterFirmwareCheckTest.setValue(false);
                            }
                            var currentFirmwareCheckFinal = me.down('#currentFirmwareCheckFinal');
                            var currentFirmwareCheckTest = me.down('#currentFirmwareCheckTest');
+                           var currentFirmwareCheck = me.down('#currentFirmwareCheck');
 
-                           if (currentFirmwareCheckFinal && currentFirmwareCheckTest){
-                                if (!currentFirmwareCheckFinal.getValue() && !currentFirmwareCheckTest.getValue()){
-                                    currentFirmwareCheckFinal.disable();
-                                    currentFirmwareCheckTest.disable();
-                                }
+                           if (currentFirmwareCheck){
+                                currentFirmwareCheck.setValue(false);
+                                if (currentFirmwareCheckFinal) currentFirmwareCheckFinal.setValue(false);
+                                if (currentFirmwareCheckTest) currentFirmwareCheckTest.setValue(false);
                            }
                         }
                     }, allowedCheckBox);
@@ -192,7 +194,6 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         if (currentFirmwareCheck.getValue() && !rankOptions.length) return false;
                     }
                     if ( masterFirmwareMainOption && !masterFirmwareMainOption.hidden){
-                        if (!masterFirmwareMainOption.getValue()) return false;
                         checkOptions["MASTER_FIRMWARE_CHECK"] = {};
                         var mOptions = checkOptions["MASTER_FIRMWARE_CHECK"]["activatedFor"] = [];
                         if (masterFirmwareCheckFinal && masterFirmwareCheckFinal.getValue()) mOptions.push("FINAL");
