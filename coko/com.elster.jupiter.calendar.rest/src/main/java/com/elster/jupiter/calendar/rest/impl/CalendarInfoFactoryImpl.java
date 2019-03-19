@@ -106,13 +106,15 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         CalendarInfo calendarInfo = new CalendarInfo();
         addBasicInformation(calendar, calendarInfo);
         Map<Long, PeriodTransition> periodTransitions = new HashMap<>();
-        Map<LocalDate, DayType> dayTypesPerDay = calculateWeekInfo(calendar, localDate, periodTransitions);
+        Map<LocalDate, ExtendedDayType> dayTypesPerDay = calculateWeekInfo(calendar, localDate, periodTransitions);
         calendarInfo.weekTemplate = new ArrayList<>();
         Map<Long, DayType> dayTypes = new HashMap<>();
         Map<Long, Event> events = new HashMap<>();
+        List<ExceptionalOccurrence> exceptionalOccurrences = new ArrayList<>();
         int counter = -1;
         for (LocalDate date : dayTypesPerDay.keySet()) {
-            DayType dayType = dayTypesPerDay.get(date);
+            ExtendedDayType extendedDayType = dayTypesPerDay.get(date);
+            DayType dayType = extendedDayType.getDayType();
             DayInfo dayInfo = new DayInfo();
             dayInfo.name = thesaurus.getFormat(TranslationKeys.from(date.getDayOfWeek().name())).format();
             LocalDate calculatedDate = localDate.plusDays(counter);
@@ -124,6 +126,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
             dayType.getEventOccurrences()
                     .forEach(eventOccurrence -> events.put(eventOccurrence.getEvent()
                             .getId(), eventOccurrence.getEvent()));
+            extendedDayType.getExceptionalOccurrence().ifPresent(exceptionalOccurrences::add);
             counter++;
         }
         List<DayType> dayTypesList = new ArrayList<>();
@@ -138,6 +141,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         periodList.addAll(periodTransitions.values());
         addPeriods(calendarInfo, periodList);
 
+        addSpecialDays(calendarInfo, exceptionalOccurrences);
         return calendarInfo;
     }
 
@@ -145,36 +149,36 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         return calendar.getStartYear().getValue() <= calculatedDate.getYear();
     }
 
-    private Map<LocalDate, DayType> calculateWeekInfo(Calendar calendar, LocalDate localDate, Map<Long, PeriodTransition> periodTransistions) {
-        Map<LocalDate, DayType> dayTypesPerDay = new LinkedHashMap<>(DayOfWeek.values().length + 1);
+    private Map<LocalDate, ExtendedDayType> calculateWeekInfo(Calendar calendar, LocalDate localDate, Map<Long, PeriodTransition> periodTransistions) {
+        Map<LocalDate, ExtendedDayType> dayTypesPerDay = new LinkedHashMap<>(DayOfWeek.values().length + 1);
         for (int i = -1; i < DayOfWeek.values().length; i++) {
-            DayType dayType = getDaytypeForDate(calendar, localDate.plusDays(i), periodTransistions);
-            dayTypesPerDay.put(localDate.plusDays(i), dayType);
+            ExtendedDayType extendedDayType = getExtendedDayTypeForDate(calendar, localDate.plusDays(i), periodTransistions);
+            dayTypesPerDay.put(localDate.plusDays(i), extendedDayType);
         }
 
         return dayTypesPerDay;
     }
 
 
-    private DayType getDaytypeForDate(Calendar calendar, LocalDate localDate, Map<Long, PeriodTransition> periodTransistions) {
-        DayType dayType = null;
+    private ExtendedDayType getExtendedDayTypeForDate(Calendar calendar, LocalDate localDate, Map<Long, PeriodTransition> periodTransistions) {
+        ExtendedDayType extendedDayType = null;
         List<PeriodTransition> transitions = calendar.getTransitions();
         for (int i = 0; i < transitions.size(); i++) {
             if (i == transitions.size() - 1) {
-                dayType = transitions.get(i).getPeriod().getDayType(localDate.getDayOfWeek());
+                extendedDayType = new ExtendedDayType(transitions.get(i).getPeriod().getDayType(localDate.getDayOfWeek()));
                 periodTransistions.put(transitions.get(i).getPeriod().getId(), transitions.get(i));
                 break;
             } else if (isBetween(localDate, transitions.get(i), transitions.get(i + 1))) {
-                dayType = transitions.get(i).getPeriod().getDayType(localDate.getDayOfWeek());
+                extendedDayType = new ExtendedDayType(transitions.get(i).getPeriod().getDayType(localDate.getDayOfWeek()));
                 periodTransistions.put(transitions.get(i).getPeriod().getId(), transitions.get(i));
                 break;
             }
         }
         Optional<ExceptionalOccurrence> exception = checkException(calendar, localDate);
         if (exception.isPresent()) {
-            dayType = exception.get().getDayType();
+            extendedDayType = new ExtendedDayType(exception.get().getDayType(), exception.get());
         }
-        return dayType;
+        return extendedDayType;
     }
 
     private Optional<ExceptionalOccurrence> checkException(Calendar calendar, LocalDate localDate) {
@@ -296,4 +300,25 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
+    private static class ExtendedDayType {
+        private DayType dayType;
+        private ExceptionalOccurrence exceptionalOccurrence;
+
+        public ExtendedDayType(DayType dayType, ExceptionalOccurrence exceptionalOccurrence) {
+            this(dayType);
+            this.exceptionalOccurrence = exceptionalOccurrence;
+        }
+
+        public ExtendedDayType(DayType dayType) {
+            this.dayType = dayType;
+        }
+
+        public DayType getDayType() {
+            return dayType;
+        }
+
+        public Optional<ExceptionalOccurrence> getExceptionalOccurrence() {
+            return Optional.ofNullable(exceptionalOccurrence);
+        }
+    }
 }
