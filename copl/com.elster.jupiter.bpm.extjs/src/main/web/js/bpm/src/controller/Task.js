@@ -527,7 +527,7 @@ Ext.define('Bpm.controller.Task', {
                         var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
                         loggedUser = decoded && decoded.data && decoded.data.length > 0 ? decoded.data[0].name : '';
 
-                        me.getApplication().fireEvent('acknowledge', "TASK ASSIGNED!!!!!!!!!!!!!!!!!"/*Uni.I18n.translate('editProcess.successMsg.assigned', 'BPM', 'Task assigned')*/);
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editProcess.successMsg.assigned', 'BPM', 'Task assigned'));
                         if (me.getMainGrid()) {
                             me.getMainGrid().getStore().load();
                         }

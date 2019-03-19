@@ -102,8 +102,9 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         name: 'viewLevelsInfo'
                     },
                     {
-                        fieldLabel: 'Default service key',
+                        fieldLabel: Uni.I18n.translate('securityaccessors.defaultServiceKey', 'MDC', 'Default service key'),
                         name: 'defaultServiceKey',
+                        hidden: !(record.get('keyType').name == 'HSM Key'),
                         renderer: function () {
                             var val = defaultKeyValue;
                             return val;

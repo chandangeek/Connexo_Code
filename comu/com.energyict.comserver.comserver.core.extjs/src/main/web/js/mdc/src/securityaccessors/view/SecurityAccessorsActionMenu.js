@@ -49,7 +49,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 section: this.SECTION_EDIT
             },
             {
-                text: Uni.I18n.translate('general.setDefaultKeyValue', 'MDC', 'Set default key value'),
+                text: Uni.I18n.translate('general.setDefaultServiceKey', 'MDC', 'Set default service key'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                 hidden: true,
                 action: 'setDefaultKeyValue',
@@ -62,7 +62,6 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
         this.callParent(arguments);
     },
     updateMenuItems: function (record) {
-        console.log("UPDATE MENU ITEMS !!!!!!!!!!!",record.get('keyType').name);
         this.down('#menu-sa-clear-passive-certificate')
         && this.down('#menu-sa-clear-passive-certificate')
                 .setVisible(!this.deviceTypeId && record.get('passiveCertificate'));

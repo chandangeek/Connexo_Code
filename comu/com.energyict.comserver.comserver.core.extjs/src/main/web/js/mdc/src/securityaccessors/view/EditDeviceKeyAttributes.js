@@ -74,7 +74,7 @@ Ext.define('Mdc.securityaccessors.view.EditDeviceKeyAttributes', {
                                 {
                                     xtype: 'displayfield',
                                     emptyValueDisplay: '',
-                                    fieldLabel: 'PASSIVE KEEEY'//Uni.I18n.translate('general.passiveKey', 'MDC', 'Passive key')
+                                    fieldLabel: Uni.I18n.translate('general.passiveKey', 'MDC', 'Passive key')
                                 }
                             ]
                         },
