@@ -79,8 +79,6 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
         Instant now = this.clock.instant();
         if (is(collectedData.getActiveCalendar()).presentAndEqualTo(collectedData.getPassiveCalendar())) {
             this.setActiveCalendar(collectedData.getActiveCalendar().get(), now);
-            this.device.clearPassiveCalendar();
-            this.device.clearPlannedPassiveCalendar();
         } else {
             collectedData.getActiveCalendar().ifPresent(activeCalendarName -> this.setActiveCalendar(activeCalendarName, now));
             collectedData.getPassiveCalendar().ifPresent(passiveCalendarName -> this.setPassiveCalendar(passiveCalendarName, now));

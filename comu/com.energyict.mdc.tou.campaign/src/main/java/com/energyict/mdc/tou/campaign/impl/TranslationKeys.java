@@ -27,6 +27,7 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_MESSAGE_ID("deviceMessageId", "Device message id"),
     TIME_OF_USE_CAMPAIGN_CPS("TimeOfUseCampaignCustomPropertySet", "Time of use campaign custom property set"),
     TIME_OF_USE_ITEM_CPS("TimeOfUseItemCustomPropertySet", "Time of use item custom property set"),
+    WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "With unique calendar name"),
     ;
 
 

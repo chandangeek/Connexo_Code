@@ -25,5 +25,7 @@ public interface TimeOfUseCampaignBuilder {
     TimeOfUseCampaignBuilder addUpdateType(String updateType);
     TimeOfUseCampaignBuilder addValidationTimeout(long validationTimeout);
 
+    TimeOfUseCampaignBuilder addWithUniqueCalendarName(boolean withCalendarNameValidation);
+
     TimeOfUseCampaign create();
 }
