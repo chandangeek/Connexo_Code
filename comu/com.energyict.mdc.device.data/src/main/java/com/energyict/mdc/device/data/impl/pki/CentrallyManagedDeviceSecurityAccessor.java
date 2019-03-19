@@ -137,7 +137,7 @@ public abstract class CentrallyManagedDeviceSecurityAccessor<T extends SecurityV
 
     @Override
     public boolean getServiceKey() {
-        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorType());
+        return false;
     }
 
     private static class CentrallyManagedCertificateAccessor extends CentrallyManagedDeviceSecurityAccessor<CertificateWrapper> implements CertificateAccessor {

@@ -131,7 +131,7 @@ public class SecurityServiceKeySearchableProperty extends AbstractSearchableDevi
 
     @Override
     protected TranslationKey getNameTranslationKey() {
-        return PropertyTranslationKeys.SERVICE_KEY;
+        return PropertyTranslationKeys.SERVICE_KEYS;
     }
 
     @Override
