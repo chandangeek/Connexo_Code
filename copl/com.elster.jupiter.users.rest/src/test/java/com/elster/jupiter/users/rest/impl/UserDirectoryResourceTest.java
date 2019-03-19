@@ -4,38 +4,27 @@
 
 package com.elster.jupiter.users.rest.impl;
 
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.LdapUserDirectory;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.users.rest.LocaleInfo;
-import com.elster.jupiter.users.rest.UserInfo;
-import com.elster.jupiter.users.rest.UserInfoFactory;
-import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import java.security.KeyStore;
+import com.jayway.jsonpath.JsonModel;
+
 import java.security.cert.X509Certificate;
-import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
+import org.junit.Test;
+
 import org.mockito.Mock;
-import org.mockito.internal.verification.VerificationModeFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,7 +46,8 @@ public class UserDirectoryResourceTest extends UsersRestApplicationJerseyTest {
     @Test
     public void testGetUsersFromDirectory() {
         when(userService.getLdapUserDirectory(1L)).thenReturn(userDirectory);
-        when(securityManagementService.getUserDirectoryCertificateUsage(userDirectory)).thenReturn(Optional.of(directoryCertificateUsage));
+        when(securityManagementService.getUserDirectoryCertificateUsage(userDirectory))
+                .thenReturn(Optional.of(directoryCertificateUsage));
         when(directoryCertificateUsage.getDirectory()).thenReturn(userDirectory);
         when(userDirectory.getId()).thenReturn(1L);
         when(userDirectory.getLdapUsers()).thenReturn(Collections.singletonList(ldapUser));
@@ -73,5 +63,37 @@ public class UserDirectoryResourceTest extends UsersRestApplicationJerseyTest {
 
         JsonModel model = JsonModel.model(response);
         assertThat(model.<String>get("$.extusers[0].name")).isEqualTo("testUser");
+    }
+
+    @Test
+    public void testGetExtGroups() {
+        when(userService.getLdapUserDirectory(1L)).thenReturn(userDirectory);
+        when(userDirectory.getGroupNames()).thenReturn(Arrays.asList("group2", "group3", "group1"));
+
+        String response = target("/userdirectories/1/extgroups").request().get(String.class);
+
+        verify(userDirectory).getGroupNames();
+
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<String>get("$.extgroups[0]")).isEqualTo("group1");
+        assertThat(model.<String>get("$.extgroups[1]")).isEqualTo("group2");
+        assertThat(model.<String>get("$.extgroups[2]")).isEqualTo("group3");
+    }
+
+    @Test
+    public void testGetExtImportedGroups() {
+        when(userService.getLdapUserDirectory(1L)).thenReturn(userDirectory);
+        when(userDirectory.getGroupNames()).thenReturn(Arrays.asList("group2", "group3", "group5", "group4", "group1"));
+        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
+        when(userService.findGroup("group5")).thenReturn(Optional.of(mock(Group.class)));
+        when(userService.findGroup("group1")).thenReturn(Optional.of(mock(Group.class)));
+
+        String response = target("/userdirectories/1/extimportedgroups").request().get(String.class);
+
+        verify(userDirectory).getGroupNames();
+
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<String>get("$.extimportedgroups[0]")).isEqualTo("group1");
+        assertThat(model.<String>get("$.extimportedgroups[1]")).isEqualTo("group5");
     }
 }
