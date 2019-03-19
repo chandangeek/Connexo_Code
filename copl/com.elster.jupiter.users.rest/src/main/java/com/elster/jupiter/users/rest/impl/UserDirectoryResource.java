@@ -24,6 +24,7 @@ import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.rest.LdapGroupsInfo;
 import com.elster.jupiter.users.rest.LdapUsersInfo;
 import com.elster.jupiter.users.rest.LdapUsersInfos;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
@@ -52,6 +53,8 @@ import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -305,7 +308,7 @@ public class UserDirectoryResource {
     }
 
     /**
-     * Gets a list of group names from LDAP
+     * Gets a list of groups from LDAP
      *
      * @param queryParameters
      * @param id
@@ -317,21 +320,25 @@ public class UserDirectoryResource {
     @RolesAllowed({ Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE,
             com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
     public PagedInfoList getExtGroups(@BeanParam JsonQueryParameters queryParameters, @PathParam("id") long id) {
-        List<String> sortedGroupNames = getLDAPGroups(queryParameters, id);
-        return PagedInfoList.fromCompleteList("extgroups", sortedGroupNames, queryParameters);
+        List<LdapGroupsInfo> groups = getLDAPGroups(queryParameters, id, null);
+        return PagedInfoList.fromCompleteList("extgroups", groups, queryParameters);
     }
 
-    private List<String> getLDAPGroups(JsonQueryParameters queryParameters, long id) {
+    private List<LdapGroupsInfo> getLDAPGroups(JsonQueryParameters queryParameters, long id,
+            Function<String, Boolean> filterFunction) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
         List<String> groupNames = ldapUserDirectory.getGroupNames();
-        List<String> sortedGroupNames = ListPager.of(groupNames)
-                .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null)).find().stream()
-                .sorted().collect(toList());
-        return sortedGroupNames;
+        Stream<String> streamOfNames = ListPager.of(groupNames)
+                .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null)).find()
+                .stream();
+        if (filterFunction != null) {
+            streamOfNames = streamOfNames.filter(filterFunction::apply);
+        }
+        return streamOfNames.sorted().map(LdapGroupsInfo::new).collect(toList());
     }
 
     /**
-     * Gets a list of group names which were imported into Connexo from LDAP
+     * Gets a list of groups which were imported into Connexo from LDAP
      *
      * @param queryParameters
      * @param id
@@ -344,9 +351,9 @@ public class UserDirectoryResource {
             com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
     public PagedInfoList getExtImportedGroups(@BeanParam JsonQueryParameters queryParameters,
             @PathParam("id") long id) {
-        List<String> sortedGroupNames = getLDAPGroups(queryParameters, id).stream()
-                .filter(name -> userService.findGroup(name).isPresent()).collect(toList());
-        return PagedInfoList.fromCompleteList("extimportedgroups", sortedGroupNames, queryParameters);
+        List<LdapGroupsInfo> groups = getLDAPGroups(queryParameters, id,
+                name -> userService.findGroup(name).isPresent());
+        return PagedInfoList.fromCompleteList("extimportedgroups", groups, queryParameters);
     }
 
     private RestQuery<UserDirectory> getUserDirectoriesQuery() {

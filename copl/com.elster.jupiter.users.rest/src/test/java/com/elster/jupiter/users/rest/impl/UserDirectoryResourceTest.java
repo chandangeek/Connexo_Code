@@ -75,9 +75,9 @@ public class UserDirectoryResourceTest extends UsersRestApplicationJerseyTest {
         verify(userDirectory).getGroupNames();
 
         JsonModel model = JsonModel.model(response);
-        assertThat(model.<String>get("$.extgroups[0]")).isEqualTo("group1");
-        assertThat(model.<String>get("$.extgroups[1]")).isEqualTo("group2");
-        assertThat(model.<String>get("$.extgroups[2]")).isEqualTo("group3");
+        assertThat(model.<String>get("$.extgroups[0].name")).isEqualTo("group1");
+        assertThat(model.<String>get("$.extgroups[1].name")).isEqualTo("group2");
+        assertThat(model.<String>get("$.extgroups[2].name")).isEqualTo("group3");
     }
 
     @Test
@@ -93,7 +93,7 @@ public class UserDirectoryResourceTest extends UsersRestApplicationJerseyTest {
         verify(userDirectory).getGroupNames();
 
         JsonModel model = JsonModel.model(response);
-        assertThat(model.<String>get("$.extimportedgroups[0]")).isEqualTo("group1");
-        assertThat(model.<String>get("$.extimportedgroups[1]")).isEqualTo("group5");
+        assertThat(model.<String>get("$.extimportedgroups[0].name")).isEqualTo("group1");
+        assertThat(model.<String>get("$.extimportedgroups[1].name")).isEqualTo("group5");
     }
 }
