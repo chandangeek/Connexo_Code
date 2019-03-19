@@ -10,8 +10,10 @@ import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
+import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
+import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.calendar.rest.CategoryInfo;
@@ -19,6 +21,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -27,11 +30,14 @@ import javax.inject.Inject;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -76,6 +82,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         addEvents(calendarInfo, calendar.getEvents()); // TODO
         addDayTypes(calendarInfo, calendar.getDayTypes());
         addDaysPerType(calendarInfo, calendar.getPeriods(), calendar.getDayTypes());
+        addSpecialDays(calendarInfo, calendar.getExceptionalOccurrences());
         return calendarInfo;
     }
 
@@ -108,7 +115,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
             DayType dayType = dayTypesPerDay.get(date);
             DayInfo dayInfo = new DayInfo();
             dayInfo.name = thesaurus.getFormat(TranslationKeys.from(date.getDayOfWeek().name())).format();
-            LocalDate calculatedDate  = localDate.plusDays(counter);
+            LocalDate calculatedDate = localDate.plusDays(counter);
             dayInfo.date = calculatedDate.toEpochDay();
             dayInfo.inCalendar = isDayInCalendar(calendar, calculatedDate);
             dayInfo.type = dayType.getId();
@@ -117,7 +124,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
             dayType.getEventOccurrences()
                     .forEach(eventOccurrence -> events.put(eventOccurrence.getEvent()
                             .getId(), eventOccurrence.getEvent()));
-            counter ++;
+            counter++;
         }
         List<DayType> dayTypesList = new ArrayList<>();
         dayTypesList.addAll(dayTypes.values());
@@ -214,7 +221,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         calendarInfo.daysPerType = new ArrayList<>();
         Map<Long, LinkedHashSet<String>> daysPerDaytype = new HashMap<>();
         dayTypes.forEach(dayType -> daysPerDaytype.put(dayType.getId(), new LinkedHashSet<>()));
-        for(Period period: periods) {
+        for (Period period : periods) {
             Stream.of(DayOfWeek.values())
                     .forEach(dow -> daysPerDaytype.get(period.getDayType(dow).getId()).add(thesaurus.getFormat(TranslationKeys.from(dow.name())).format()));
         }
@@ -223,6 +230,40 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
                 .forEach(key -> calendarInfo.daysPerType.add(new DaysPerTypeInfo(key, new ArrayList<>(daysPerDaytype.get(key)))));
     }
 
+    private void addSpecialDays(CalendarInfo calendarInfo, List<ExceptionalOccurrence> exceptionalOccurrences) {
+        calendarInfo.fixedSpecialDays = new ArrayList<>();
+        calendarInfo.recurrentSpecialDays = new ArrayList<>();
+        exceptionalOccurrences.forEach(exceptionalOccurrence -> {
+            if (exceptionalOccurrence instanceof FixedExceptionalOccurrence) {
+                calendarInfo.fixedSpecialDays.add(createExceptionalOccurrence((FixedExceptionalOccurrence) exceptionalOccurrence));
+            } else if (exceptionalOccurrence instanceof RecurrentExceptionalOccurrence) {
+                calendarInfo.recurrentSpecialDays.add(createExceptionalOccurrence((RecurrentExceptionalOccurrence) exceptionalOccurrence));
+            }
+        });
+    }
+
+    private ExceptionalOccurrenceInfo createExceptionalOccurrence(FixedExceptionalOccurrence exceptionalOccurrence) {
+        ExceptionalOccurrenceInfo exceptionalOccurrenceInfo = new ExceptionalOccurrenceInfo();
+        exceptionalOccurrenceInfo.id = exceptionalOccurrence.getId();
+        exceptionalOccurrenceInfo.dayType = new IdWithNameInfo();
+        exceptionalOccurrenceInfo.dayType.id = exceptionalOccurrence.getDayType().getId();
+        exceptionalOccurrenceInfo.dayType.name = exceptionalOccurrence.getDayType().getName();
+        exceptionalOccurrenceInfo.day = exceptionalOccurrence.getOccurrence().getDayOfMonth();
+        exceptionalOccurrenceInfo.month = exceptionalOccurrence.getOccurrence().getMonth().name();
+        exceptionalOccurrenceInfo.year = exceptionalOccurrence.getOccurrence().getYear();
+        return exceptionalOccurrenceInfo;
+    }
+
+    private ExceptionalOccurrenceInfo createExceptionalOccurrence(RecurrentExceptionalOccurrence exceptionalOccurrence) {
+        ExceptionalOccurrenceInfo exceptionalOccurrenceInfo = new ExceptionalOccurrenceInfo();
+        exceptionalOccurrenceInfo.id = exceptionalOccurrence.getId();
+        exceptionalOccurrenceInfo.dayType = new IdWithNameInfo();
+        exceptionalOccurrenceInfo.dayType.id = exceptionalOccurrence.getDayType().getId();
+        exceptionalOccurrenceInfo.dayType.name = exceptionalOccurrence.getDayType().getName();
+        exceptionalOccurrenceInfo.day = exceptionalOccurrence.getOccurrence().getDayOfMonth();
+        exceptionalOccurrenceInfo.month = exceptionalOccurrence.getOccurrence().getMonth().name();
+        return exceptionalOccurrenceInfo;
+    }
 
     private DayTypeInfo createDayType(DayType dayType) {
         DayTypeInfo dayTypeInfo = new DayTypeInfo();
