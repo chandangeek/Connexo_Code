@@ -4,26 +4,19 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig;
 
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
-import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityHelper;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -37,12 +30,9 @@ import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -197,23 +187,23 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         MeterConfigMasterDomainExtension extension = serviceCall.getExtension(MeterConfigMasterDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
-        BigDecimal successfulCalls = extension.getActualNumberOfSuccessfulCalls();
-        BigDecimal failedCalls = extension.getActualNumberOfFailedCalls();
-        BigDecimal expectedCalls = extension.getExpectedNumberOfCalls();
+        long successfulCalls = extension.getActualNumberOfSuccessfulCalls();
+        long failedCalls = extension.getActualNumberOfFailedCalls();
+        long expectedCalls = extension.getExpectedNumberOfCalls();
 
         if (DefaultState.SUCCESSFUL.equals(state)) {
-            successfulCalls = successfulCalls.add(BigDecimal.ONE);
+            successfulCalls++;
             extension.setActualNumberOfSuccessfulCalls(successfulCalls);
         } else {
-            failedCalls = failedCalls.add(BigDecimal.ONE);
+            failedCalls++;
             extension.setActualNumberOfFailedCalls(failedCalls);
         }
         serviceCall.update(extension);
 
-        if (extension.getExpectedNumberOfCalls().compareTo(successfulCalls.add(failedCalls)) <= 0) {
-            if (successfulCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
+        if (expectedCalls <= successfulCalls + failedCalls) {
+            if (successfulCalls >= expectedCalls && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-            } else if (failedCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.FAILED)) {
+            } else if (failedCalls >= expectedCalls && serviceCall.canTransitionTo(DefaultState.FAILED)) {
                 serviceCall.requestTransition(DefaultState.FAILED);
             } else if (serviceCall.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
                 serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
@@ -235,12 +225,12 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
 
         replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
-                getSuccessfullyProceededDevices(serviceCall),
-                getUnsuccessfullyProceededDevices(serviceCall),
+                getSuccessfullyProcessedDevices(serviceCall),
+                getUnsuccessfullyProcessedDevices(serviceCall),
                 extensionFor.getExpectedNumberOfCalls());
     }
 
-    private List<Device> getSuccessfullyProceededDevices(ServiceCall serviceCall) {
+    private List<Device> getSuccessfullyProcessedDevices(ServiceCall serviceCall) {
         List<Device> devices = new ArrayList<>();
         serviceCall.findChildren()
                 .stream()
@@ -255,7 +245,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         return devices;
     }
 
-    private List<FailedMeterOperation> getUnsuccessfullyProceededDevices(ServiceCall serviceCall) {
+    private List<FailedMeterOperation> getUnsuccessfullyProcessedDevices(ServiceCall serviceCall) {
         List<FailedMeterOperation> failedMeterOperations = new ArrayList<>();
         serviceCall.findChildren()
                 .stream()

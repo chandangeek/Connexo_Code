@@ -99,9 +99,9 @@ public class ServiceCallCommands {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_METER_CONFIG);
 
         MeterConfigMasterDomainExtension meterConfigMasterDomainExtension = new MeterConfigMasterDomainExtension();
-        meterConfigMasterDomainExtension.setActualNumberOfSuccessfulCalls(new BigDecimal(0));
-        meterConfigMasterDomainExtension.setActualNumberOfFailedCalls(new BigDecimal(0));
-        meterConfigMasterDomainExtension.setExpectedNumberOfCalls(BigDecimal.valueOf(meterConfig.getMeter().size()));
+        meterConfigMasterDomainExtension.setActualNumberOfSuccessfulCalls(0l);
+        meterConfigMasterDomainExtension.setActualNumberOfFailedCalls(0l);
+        meterConfigMasterDomainExtension.setExpectedNumberOfCalls(Long.valueOf(meterConfig.getMeter().size()));
         meterConfigMasterDomainExtension.setCallbackURL(outboundEndPointConfiguration.getUrl());
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()

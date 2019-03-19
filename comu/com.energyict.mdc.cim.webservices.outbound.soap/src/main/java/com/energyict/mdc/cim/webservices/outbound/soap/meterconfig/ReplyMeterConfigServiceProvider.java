@@ -37,7 +37,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
 import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -155,7 +154,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
 
     @Override
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
-                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls) {
+                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls) {
         publish(endPointConfiguration);
         try {
             Optional.ofNullable(getMeterConfigPorts().get(endPointConfiguration.getUrl()))
@@ -224,14 +223,14 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         return meterConfigEventMessageType;
     }
 
-    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls, HeaderType.Verb verb) {
+    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb) {
         MeterConfigEventMessageType meterConfigEventMessageType = createResponseMessage(meterConfig, verb);
 
         // set reply
         ReplyType replyType = cimMessageObjectFactory.createReplyType();
-        if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(meterConfig.getMeter().size())) == 0) {
+        if (expectedNumberOfCalls == meterConfig.getMeter().size()) {
             replyType.setResult(ReplyType.Result.OK);
-        } else if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(failedDevices.size())) == 0) {
+        } else if (expectedNumberOfCalls == failedDevices.size()) {
             replyType.setResult(ReplyType.Result.FAILED);
         } else {
             replyType.setResult(ReplyType.Result.PARTIAL);

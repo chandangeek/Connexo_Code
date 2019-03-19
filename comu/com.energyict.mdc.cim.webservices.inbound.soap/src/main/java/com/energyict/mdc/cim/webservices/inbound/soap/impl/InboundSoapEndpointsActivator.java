@@ -84,7 +84,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     public static final String COMPONENT_NAME = "SIM";
 
     private static final String CIM_MERER_CONFIG = "CIM MeterConfig";
-    private static final String CIM_GET_METER_CONFIG = "CIM GetMeterConfig";
     private static final String CIM_GET_END_DEVICE_EVENTS = "CIM GetEndDeviceEvents";
     private static final String CIM_END_DEVICE_EVENTS = "CIM EndDeviceEvents";
 

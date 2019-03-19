@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
@@ -11,8 +12,8 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.upl.TypedProperties;
 
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
@@ -40,13 +41,15 @@ import java.util.stream.Collectors;
 
 class MeterConfigFactory {
 
-    private volatile CustomPropertySetService customPropertySetService;
-    private volatile Clock clock;
+    private final CustomPropertySetService customPropertySetService;
+    private final Clock clock;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public MeterConfigFactory(CustomPropertySetService customPropertySetService, Clock clock) {
+    public MeterConfigFactory(CustomPropertySetService customPropertySetService, Clock clock, Thesaurus thesaurus) {
         this.customPropertySetService = customPropertySetService;
         this.clock = clock;
+        this.thesaurus = thesaurus;
     }
 
     MeterConfig asMeterConfig(Device device) {
@@ -104,7 +107,7 @@ class MeterConfigFactory {
         if (device.getDeviceType().getDeviceProtocolPluggableClass().isPresent()) {
             List<PropertySpec> propertySpecs = device.getDeviceType().getDeviceProtocolPluggableClass().get().getDeviceProtocol().getPropertySpecs();
             CustomAttributeSet attributeSet = new CustomAttributeSet();
-            attributeSet.setId(MessageSeeds.GENERAL_ATTRIBUTES.getDefaultFormat());
+            attributeSet.setId(thesaurus.getFormat(TranslationKeys.GENERAL_ATTRIBUTES).format());
             for (PropertySpec propertySpec : propertySpecs) {
                 Attribute attr = new Attribute();
                 attr.setName(propertySpec.getName());

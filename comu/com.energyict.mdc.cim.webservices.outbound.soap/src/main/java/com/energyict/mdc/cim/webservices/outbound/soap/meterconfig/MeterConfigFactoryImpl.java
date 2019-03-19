@@ -4,8 +4,11 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.cim.webservices.outbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
@@ -38,8 +41,11 @@ import java.util.stream.Collectors;
 @Component(name="com.energyict.mdc.cim.webservices.outbound.soap.meterconfig.MeterConfigFactory", service=MeterConfigFactory.class)
 public class MeterConfigFactoryImpl implements MeterConfigFactory {
 
+    private static final String COMPONENT_NAME = "SIM";
+
     private volatile CustomPropertySetService customPropertySetService;
     private volatile Clock clock;
+    private volatile Thesaurus thesaurus;
 
     public MeterConfigFactoryImpl() {
         // for OSGI purposes
@@ -53,6 +59,11 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.SOAP);
     }
 
     @Override
@@ -180,7 +191,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         if (device.getDeviceType().getDeviceProtocolPluggableClass().isPresent()) {
             List<PropertySpec> propertySpecs = device.getDeviceType().getDeviceProtocolPluggableClass().get().getDeviceProtocol().getPropertySpecs();
             CustomAttributeSet attributeSet = new CustomAttributeSet();
-            attributeSet.setId(MessageSeeds.GENERAL_ATTRIBUTES.getDefaultFormat());
+            attributeSet.setId(thesaurus.getFormat(TranslationKeys.GENERAL_ATTRIBUTES).format());
             for (PropertySpec propertySpec : propertySpecs) {
                 Attribute attr = new Attribute();
                 attr.setName(propertySpec.getName());
