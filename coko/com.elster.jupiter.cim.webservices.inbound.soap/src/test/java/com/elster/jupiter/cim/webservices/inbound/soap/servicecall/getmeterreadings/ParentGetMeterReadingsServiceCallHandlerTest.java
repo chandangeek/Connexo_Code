@@ -224,9 +224,7 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
         verify(sendMeterReadingsProvider).call(any(), eq(HeaderType.Verb.CREATED), any());
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
-        verify(serviceCall).log(LogLevel.FINE,
-                MessageFormat.format("Data successfully sent for source {0}, time range {1}",
-                        SOURCE, timeRangeSet));
+        verify(serviceCall).log(LogLevel.FINE,"Data successfully sent for source 'Meter', time range [(2017-04-30T12:00:00Z‥2017-05-31T12:00:00Z]]");
     }
 
     @Test
@@ -236,9 +234,7 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
         verify(sendMeterReadingsProvider).call(any(), eq(HeaderType.Verb.CREATED), any());
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
-        verify(serviceCall).log(LogLevel.FINE,
-                MessageFormat.format("Data successfully sent for source {0}, time range {1}",
-                        SOURCE, timeRangeSet));
+        verify(serviceCall).log(LogLevel.FINE,"Data successfully sent for source 'Meter', time range [(2017-04-30T12:00:00Z‥2017-05-31T12:00:00Z]]");
 
     }
 
@@ -249,8 +245,6 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         parentGetMeterReadingsServiceCallHandler.onStateChange(serviceCall, DefaultState.PAUSED, DefaultState.ONGOING);
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
         verify(sendMeterReadingsProvider).call(any(), eq(HeaderType.Verb.CREATED), any());
-        verify(serviceCall).log(LogLevel.SEVERE,
-                MessageFormat.format("Unable to send meter readings data for source {0}, time range {1}",
-                        SOURCE, timeRangeSet));
+        verify(serviceCall).log(LogLevel.SEVERE,"Unable to send meter readings data for source 'Meter', time range [(2017-04-30T12:00:00Z‥2017-05-31T12:00:00Z]]");
     }
 }

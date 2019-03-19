@@ -62,10 +62,10 @@ public class Installer implements FullInstaller {
         Optional<ServiceCallType> serviceCallTypeOptional = serviceCallService.findServiceCallType(handlerName, version);
         if (!serviceCallTypeOptional.isPresent()) {
             RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.
-                    findActiveCustomPropertySet(ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME)
+                    findActiveCustomPropertySet(ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_ID)
                     .orElseThrow(() -> new IllegalStateException(MessageFormat
                             .format("Could not find active custom property set {0}",
-                                    ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME)));
+                                    ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_ID)));
 
             serviceCallService.createServiceCallType(handlerName, version)
                     .handler(handlerName)

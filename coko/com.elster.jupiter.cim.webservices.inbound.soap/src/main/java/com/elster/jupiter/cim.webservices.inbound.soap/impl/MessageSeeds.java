@@ -76,10 +76,10 @@ public enum MessageSeeds implements MessageSeed {
     END_DEVICES_NOT_FOUND(3006, "DevicesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
     NO_END_DEVICES(3007, "NoDevices", "No devices have been found."),
     NO_READING_TYPES(3008, "NoReadingTypes", "No reading types have been found."),
-    READING_TYPES_WITH_MRID_NOT_FOUND(3009, "ReadingTypesWithMridNotFound", "Reading type(s) with MRID(s) ''{0}'' not found in the system.", Level.WARNING),
-    READING_TYPES_WITH_NAME_NOT_FOUND(3010, "ReadingTypesWithNameNotFound", "Reading type(s) with name(s) ''{0}'' not found in the system.", Level.WARNING),
-    READING_TYPES_NOT_FOUND_IN_THE_SYSTEM(3011, "ReadingTypesNotFoundInTheSystem", "Reading type(s) with MRID(s) ''{0}'' and name(s) ''{1}'' not found in the system.", Level.WARNING),
-    READING_TYPES_NOT_FOUND_ON_DEVICE(3012, "ReadingTypesNotFoundOnDevice", "Reading type(s) not found on device ''{0}'': ''{1}''.", Level.WARNING),
+    READING_TYPES_WITH_MRID_NOT_FOUND(3009, "ReadingTypesWithMridNotFound", "Reading type(s) with MRID(s) ''{0}'' is(are) not found in the system.", Level.WARNING),
+    READING_TYPES_WITH_NAME_NOT_FOUND(3010, "ReadingTypesWithNameNotFound", "Reading type(s) with name(s) ''{0}'' is(are) not found in the system.", Level.WARNING),
+    READING_TYPES_NOT_FOUND_IN_THE_SYSTEM(3011, "ReadingTypesNotFoundInTheSystem", "Reading type(s) with MRID(s) ''{0}'' and name(s) ''{1}'' is(are) not found in the system.", Level.WARNING),
+    READING_TYPES_NOT_FOUND_ON_DEVICE(3012, "ReadingTypesNotFoundOnDevice", "Reading type(s) is(are) not found on device ''{0}'': ''{1}''.", Level.WARNING),
 
 
     // master data linkage

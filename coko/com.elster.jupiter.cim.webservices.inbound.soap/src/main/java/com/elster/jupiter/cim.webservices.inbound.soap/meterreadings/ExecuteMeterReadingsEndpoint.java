@@ -285,7 +285,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         }
     }
 
-    private void checkGetMeterReading(GetMeterReadings getMeterReadings, Boolean async) throws FaultMessage {
+    private void checkGetMeterReading(GetMeterReadings getMeterReadings, boolean async) throws FaultMessage {
         if (!getMeterReadings.getEndDeviceGroup().isEmpty()) {
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.UNSUPPORTED_ELEMENT, "EndDeviceGroup", GET_METER_READINGS_ITEM)
                     .get();
@@ -303,9 +303,9 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         checkSources(getMeterReadings.getReading(), async);
     }
 
-    private void checkSources(List<Reading> readings, Boolean async) throws FaultMessage {
+    private void checkSources(List<Reading> readings, boolean async) throws FaultMessage {
         for (int i = 0; i < readings.size(); ++i) {
-            if (Boolean.TRUE.equals(async)) {
+            if (async) {
                 checkAsyncSource(readings.get(i).getSource(), i);
             } else {
                 checkSyncSource(readings.get(i).getSource(), i);

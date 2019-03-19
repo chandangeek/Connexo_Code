@@ -998,11 +998,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getCode().equals("WS13009")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getDetails().equals("Reading type(s) with MRID(s) '0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0' not found in the system.")));
+                .anyMatch(error -> error.getDetails().equals("Reading type(s) with MRID(s) '0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0' is(are) not found in the system.")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getCode().equals("WS13012")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getDetails().equals("Reading type(s) not found on device 'SPE01000001': '11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0'.")));
+                .anyMatch(error -> error.getDetails().equals("Reading type(s) is(are) not found on device 'SPE01000001': '11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0'.")));
     }
 
     @Test
@@ -1036,7 +1036,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .anyMatch(error -> error.getCode().equals("WS13011")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails()
-                        .equals("Reading type(s) with MRID(s) '0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0' and name(s) '[Monthly] Secondary Delta A+ (kWh)' not found in the system.")));
+                        .equals("Reading type(s) with MRID(s) '0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0' and name(s) '[Monthly] Secondary Delta A+ (kWh)' is(are) not found in the system.")));
     }
 
     @Test
@@ -1069,7 +1069,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .anyMatch(error -> error.getCode().equals("WS13010")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails()
-                        .equals("Reading type(s) with name(s) '[15-minute] Secondary Delta A+ (kWh)' not found in the system.")));
+                        .equals("Reading type(s) with name(s) '[15-minute] Secondary Delta A+ (kWh)' is(are) not found in the system.")));
     }
 
     @Test

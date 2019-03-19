@@ -73,8 +73,8 @@ public class MeterReadingsBuilder {
     private UsagePoint usagePoint;
     private List<EndDevice> endDevices;
     private Set<MetrologyPurpose> purposes;
-    private Set<String> readingTypeMRIDs = Collections.EMPTY_SET;
-    private Set<String> readingTypeFullAliasNames = Collections.EMPTY_SET;
+    private Set<String> readingTypeMRIDs = Collections.emptySet();
+    private Set<String> readingTypeFullAliasNames = Collections.emptySet();
     private RangeSet<Instant> timePeriods;
 
     private Set<ReadingType> referencedReadingTypes;
