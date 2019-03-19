@@ -37,7 +37,7 @@ public class AuditTrailDataWriter<T> {
     }
 
     public void audit() throws SQLException {
-        if (getTable().hasAudit() && doJournal(getColumns()) && isAuditEnabled()) {
+        if (isAuditEnabled() && getTable().hasAudit() && doJournal(getColumns())) {
             DataMapperReader<? super T> reader = getTable().getDataMapper().getReader();
             if (operation == UnexpectedNumberOfUpdatesException.Operation.UPDATE){
                 if (!isSomethingChanged(object, reader.findByPrimaryKey(getTable().getPrimaryKey(object)).get(), getColumns())){
@@ -130,7 +130,7 @@ public class AuditTrailDataWriter<T> {
                                 updateContextAuditIdentifiers(new DomainContextIdentifier().setId(nextVal)
                                         .setDomainContext(tableAudit.getDomainContext())
                                         .setPkDomainColumn(getPkColumnByIndex(pkDomainColumns, 0))
-                                //        .setPkContextColumn(getPkColumnByIndex(pkContextColumns, 0))
+                                        .setPkContextColumn(getPkColumnByIndex(pkContextColumns, 0))
                                         .setOperation(operation.ordinal())
                                         .setObject(object)
                                         .setTableAudit(tableAudit)

@@ -990,7 +990,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         private final CustomPropertySet customPropertySet;
         private Table underConstruction;
         private Column domainReference;
-        private Optional<Column> contextReference = Optional.empty();
         private Column customPropertySetReference;
         private List<Column> customPrimaryKeyColumns;
 
@@ -1055,7 +1054,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             this.domainReference = this.addDomainColumnTo(this.underConstruction, this.customPropertySet);
             this.customPropertySetReference = this.addPropertySetColumnTo(this.underConstruction, this.customPropertySet);
             this.customPrimaryKeyColumns = new ArrayList<>(this.customPropertySet.getPersistenceSupport().addCustomPropertyPrimaryKeyColumnsTo(this.underConstruction));
-            this.contextReference = this.addContextColumnTo(this.underConstruction, this.customPropertySet);
         }
 
         private String tableNameFor(CustomPropertySet customPropertySet) {
@@ -1088,32 +1086,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .add();
             return domainReference;
         }
-
-        /**
-         * Adds a column and a foreign key to the specified {@link Table}
-         * that references the domain class of the {@link CustomPropertySet}.
-         *
-         * @param table The Table
-         * @param customPropertySet The CustomPropertySet
-         * @see CustomPropertySet#getDomainClass()
-         */
-        private Optional<Column> addContextColumnTo(Table table, CustomPropertySet customPropertySet) {
-            PersistenceSupport persistenceSupport = customPropertySet.getPersistenceSupport();
-            String contextColumnName = persistenceSupport.contextColumnName();
-            if ((contextColumnName == null) || contextColumnName.isEmpty() || !table.getColumn(persistenceSupport.contextColumnName()).isPresent()){
-                return Optional.empty();
-            }
-
-            Column contextReference = (Column)(table.getColumn(persistenceSupport.contextColumnName()).get());
-            table
-                .foreignKey(persistenceSupport.contextForeignKeyName())
-                .on(contextReference)
-                .references(customPropertySet.getContextClass())
-                .map(persistenceSupport.contextFieldName())
-                .add();
-            return Optional.of(contextReference);
-        }
-
         /**
          * Adds a column and a foreign key to the specified {@link Table}
          * that references the {@link CustomPropertySet}.
