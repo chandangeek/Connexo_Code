@@ -48,7 +48,7 @@ public class DeviceLoadProfileNextReadingImportProcessor extends AbstractDeviceD
             device = findDeviceByIdentifier(data.getDeviceIdentifier())
                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
         }
-        validateDeviceState(data, device);
+        //validateDeviceState(data, device);
     }
 
     private void validateDeviceState(DeviceLoadProfileNextReadingRecord data, Device device) {
@@ -61,7 +61,7 @@ public class DeviceLoadProfileNextReadingImportProcessor extends AbstractDeviceD
         }
     }
 
-    // initial erau private
+    // initial were private
     public Optional<LoadProfile> getLoadProfileByOBIS(Device device, String loadProfileOBISCode){
 
         Optional<LoadProfile> loadProfileWithValidOBISCode = device.getLoadProfiles()
@@ -71,7 +71,7 @@ public class DeviceLoadProfileNextReadingImportProcessor extends AbstractDeviceD
        return loadProfileWithValidOBISCode;
     }
 
-    // initial erau private
+    // initial were private
      public void addNextBlockDateToLoadProfile(Device device, LoadProfile loadProfile, Optional<ZonedDateTime> nextReadingBlockDateTime){
 
         if (nextReadingBlockDateTime.isPresent()){
