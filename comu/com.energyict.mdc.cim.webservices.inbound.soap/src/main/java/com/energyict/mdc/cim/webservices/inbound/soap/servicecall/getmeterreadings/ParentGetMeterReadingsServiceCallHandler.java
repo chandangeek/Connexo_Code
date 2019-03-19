@@ -1,13 +1,17 @@
-package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings;
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.elster.jupiter.cim.webservices.inbound.soap.meterreadings.MeterReadingsBuilder;
+package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings;
+
+import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingsBuilder;
+import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 
@@ -23,7 +27,6 @@ import javax.inject.Provider;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

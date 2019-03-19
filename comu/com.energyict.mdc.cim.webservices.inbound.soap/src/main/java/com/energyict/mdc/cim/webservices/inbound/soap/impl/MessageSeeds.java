@@ -24,6 +24,8 @@ public enum MessageSeeds implements MessageSeed {
             "Either element ''mRID'' or ''Names'' with ''NameType.name'' = ''{0}'' is required under ''{1}'' for identification purpose"),
     UNSUPPORTED_ELEMENT(9, "UnsupportedElement", "Element ''{0}'' under ''{1}'' is not supported"),
     UNSUPPORTED_VALUE(10, "UnsupportedValue", "Element ''{0}'' contains unsupported value ''{1}''. Must be one of: {2}"),
+    THIS_FIELD_IS_REQUIRED(11, Keys.THIS_FIELD_IS_REQUIRED, "This field is required"),
+    FIELD_TOO_LONG(12, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
 
     // meter config
     UNABLE_TO_CREATE_DEVICE(1001, "UnableToCreateDevice", "Unable to create device"),
@@ -83,6 +85,23 @@ public enum MessageSeeds implements MessageSeed {
     ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY(5002, "ElementByRefNotFoundOrEmpty", "Element by reference ''{0}'' not found or has an empty value"),
     IS_NOT_ALLOWED_TO_HAVE_DUPLICATED_ZONE_TYPES(5003, "DuplicatedZoneType", "Is not allowed to send the same zone type more than once, a device can be assigned to only one zone from a zone type"),
     GENERAL_ATTRIBUTES(6001, "GeneralAttributes", "General attributes"),
+
+    // meter readings
+    UNABLE_TO_GET_READINGS(7001, "UnableToGetReadings", "Unable to get readings."),
+    NO_PURPOSES_WITH_NAMES(7002, "NoPurposesWithNames", "No metrology purposes are found for names: {0}."),
+    END_DEVICES_WITH_MRID_NOT_FOUND(7004, "DevicesWithMridNotFound", "Couldn''t find device(s) with MRID(s) ''{0}''.", Level.WARNING),
+    END_DEVICES_WITH_NAME_NOT_FOUND(7005, "DevicesWithNamesNotFound", "Couldn''t find device(s) with name(s) ''{0}''.", Level.WARNING),
+    END_DEVICES_NOT_FOUND(7006, "DevicesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
+    NO_END_DEVICES(7007, "NoDevices", "No devices have been found."),
+    NO_READING_TYPES(7008, "NoReadingTypes", "No reading types have been found."),
+    READING_TYPES_WITH_MRID_NOT_FOUND(7009, "ReadingTypesWithMridNotFound", "Reading type(s) with MRID(s) ''{0}'' is(are) not found in the system.", Level.WARNING),
+    READING_TYPES_WITH_NAME_NOT_FOUND(7010, "ReadingTypesWithNameNotFound", "Reading type(s) with name(s) ''{0}'' is(are) not found in the system.", Level.WARNING),
+    READING_TYPES_NOT_FOUND_IN_THE_SYSTEM(7011, "ReadingTypesNotFoundInTheSystem", "Reading type(s) with MRID(s) ''{0}'' and name(s) ''{1}'' is(are) not found in the system.", Level.WARNING),
+    READING_TYPES_NOT_FOUND_ON_DEVICE(7012, "ReadingTypesNotFoundOnDevice", "Reading type(s) is(are) not found on device ''{0}'': ''{1}''.", Level.WARNING),
+    NO_USAGE_POINT_WITH_MRID(7013, "NoUsagePointWithMRID", "No usage point is found by MRID ''{0}''."),
+    NO_USAGE_POINT_WITH_NAME(7014, "NoUsagePointWithName", "No usage point is found by name ''{0}''."),
+
+    NO_HEAD_END_INTERFACE_FOUND(8004, "NoHeadEndInterfaceFound", "No head end interface found for device with MRID ''{0}''"),
     ;
 
     private final int number;

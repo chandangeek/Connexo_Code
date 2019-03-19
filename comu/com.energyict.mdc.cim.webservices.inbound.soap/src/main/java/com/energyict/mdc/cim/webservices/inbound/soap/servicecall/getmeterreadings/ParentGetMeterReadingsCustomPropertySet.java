@@ -1,7 +1,11 @@
-package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings;
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.CIMInboundSoapEndpointsActivator;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.TranslationKeys;
+package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings;
+
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
@@ -30,7 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.cim.webservices.inbound.soap.ParentGetMeterReadingsCustomPropertySet",
+@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.ParentGetMeterReadingsCustomPropertySet",
         service = CustomPropertySet.class,
         property = "name=" + ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
         immediate = true)
@@ -74,7 +78,7 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
     @Reference
     @SuppressWarnings("unused") // For OSGi framework
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(CIMInboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
+        this.thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
     }
 
     @Override

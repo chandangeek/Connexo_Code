@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.elster.jupiter.cim.webservices.inbound.soap.task;
+package com.energyict.mdc.cim.webservices.inbound.soap.task;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
@@ -14,7 +14,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
-@Component(name = "com.elster.jupiter.cim.webservices.inbound.soap.ReadMeterChangeMessageHandlerFactory",
+@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.ReadMeterChangeMessageHandlerFactory",
         service = MessageHandlerFactory.class,
         property = {"subscriber=" + ReadMeterChangeMessageHandlerFactory.TASK_SUBSCRIBER,
                 "destination=" + ReadMeterChangeMessageHandlerFactory.DESTINATION},

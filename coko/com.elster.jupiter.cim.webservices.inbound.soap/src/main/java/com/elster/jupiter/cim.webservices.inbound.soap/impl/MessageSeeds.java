@@ -25,8 +25,6 @@ public enum MessageSeeds implements MessageSeed {
             "Either element ''mRID'' or ''Names'' with ''NameType.name'' = ''{0}'' is required under ''{1}'' for identification purpose."),
     UNSUPPORTED_ELEMENT(9, "UnsupportedElement", "Element ''{0}'' under ''{1}'' is not supported."),
     UNSUPPORTED_VALUE(10, "UnsupportedValue", "Element ''{0}'' contains unsupported value ''{1}''. Must be one of: {2}."),
-    THIS_FIELD_IS_REQUIRED(11, Keys.THIS_FIELD_IS_REQUIRED, "This field is required"),
-    FIELD_TOO_LONG(12, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
 
     // meter config
     UNABLE_TO_CREATE_DEVICE(1001, "UnableToCreateDevice", "Unable to create device"),
@@ -66,22 +64,6 @@ public enum MessageSeeds implements MessageSeed {
     WRONG_ENUM_FORMAT(2027, "WrongEnumFormat", "Wrong enumeration value for attribute {0}. Possible values: {1}."),
     MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE(2028, "MissingRequiredCustomAttributeValue", "Attribute {0} is required on custom attribute set {1}."),
 
-    // meter readings
-    UNABLE_TO_GET_READINGS(3001, "UnableToGetReadings", "Unable to get readings."),
-    NO_PURPOSES_WITH_NAMES(3002, "NoPurposesWithNames", "No metrology purposes are found for names: {0}."),
-    INVALID_OR_EMPTY_TIME_PERIOD(3003, "InvalidOrEmptyTimePeriod",
-            "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
-    END_DEVICES_WITH_MRID_NOT_FOUND(3004, "DevicesWithMridNotFound", "Couldn''t find device(s) with MRID(s) ''{0}''.", Level.WARNING),
-    END_DEVICES_WITH_NAME_NOT_FOUND(3005, "DevicesWithNamesNotFound", "Couldn''t find device(s) with name(s) ''{0}''.", Level.WARNING),
-    END_DEVICES_NOT_FOUND(3006, "DevicesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
-    NO_END_DEVICES(3007, "NoDevices", "No devices have been found."),
-    NO_READING_TYPES(3008, "NoReadingTypes", "No reading types have been found."),
-    READING_TYPES_WITH_MRID_NOT_FOUND(3009, "ReadingTypesWithMridNotFound", "Reading type(s) with MRID(s) ''{0}'' is(are) not found in the system.", Level.WARNING),
-    READING_TYPES_WITH_NAME_NOT_FOUND(3010, "ReadingTypesWithNameNotFound", "Reading type(s) with name(s) ''{0}'' is(are) not found in the system.", Level.WARNING),
-    READING_TYPES_NOT_FOUND_IN_THE_SYSTEM(3011, "ReadingTypesNotFoundInTheSystem", "Reading type(s) with MRID(s) ''{0}'' and name(s) ''{1}'' is(are) not found in the system.", Level.WARNING),
-    READING_TYPES_NOT_FOUND_ON_DEVICE(3012, "ReadingTypesNotFoundOnDevice", "Reading type(s) is(are) not found on device ''{0}'': ''{1}''.", Level.WARNING),
-
-
     // master data linkage
     UNABLE_TO_LINK_METER(4001, "UnableToLinkMeter", "Unable to link meter to usage point"),
     UNABLE_TO_UNLINK_METER(4002, "UnableToUnlinkMeter", "Unable to unlink meter from usage point"),
@@ -90,12 +72,6 @@ public enum MessageSeeds implements MessageSeed {
     METER_AND_USAGE_POINT_NOT_LINKED(4004, "MeterAndUsagePointNotLinked",
             "Meter ''{0}'' is not linked to usage point ''{1}'' at the given time ''{2}''."),
     NO_METER_ROLE_WITH_KEY(4005, "NoMeterRoleWithKey", "No meter role is found by key ''{0}''."),
-
-    // async
-    COULD_NOT_FIND_SERVICE_CALL_TYPE(5001, "CouldNotFindServiceCallType", "Could''t find service call type {0} with version {1}"),
-    NO_END_POINT_WITH_URL(5002, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
-    NO_PUBLISHED_END_POINT_WITH_URL(5003, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
-    NO_HEAD_END_INTERFACE_FOUND(5004, "NoHeadEndInterfaceFound", "No head end interface found for device with MRID ''{0}''"),
     ;
 
     private final int number;
@@ -155,10 +131,5 @@ public enum MessageSeeds implements MessageSeed {
         } else {
             return ErrorType.Level.INFORM;
         }
-    }
-
-    public static final class Keys {
-        public static final String FIELD_TOO_LONG = "FieldTooLong";
-        public static final String THIS_FIELD_IS_REQUIRED = "ThisFieldIsRequired";
     }
 }

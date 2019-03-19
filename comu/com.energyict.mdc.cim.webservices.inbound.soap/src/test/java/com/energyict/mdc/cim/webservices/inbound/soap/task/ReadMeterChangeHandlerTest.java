@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.cim.webservices.inbound.soap.task;
+package com.energyict.mdc.cim.webservices.inbound.soap.task;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.Message;

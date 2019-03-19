@@ -2,7 +2,7 @@
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.cim.webservices.inbound.soap.meterreadings;
+package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
 
 import com.elster.jupiter.util.streams.Functions;
 

@@ -156,6 +156,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.app</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cim.webservices.outbound.soap</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>

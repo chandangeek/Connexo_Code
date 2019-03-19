@@ -5,14 +5,8 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.ExecuteMasterDataLinkageConfigEndpoint;
-import com.elster.jupiter.cim.webservices.inbound.soap.meterreadings.ExecuteMeterReadingsEndpoint;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.ExecuteUsagePointConfigEndpoint;
-import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
@@ -22,17 +16,12 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.json.JsonService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -50,11 +39,9 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 @Singleton
 @Component(
@@ -76,12 +63,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile UserService userService;
     private volatile UsagePointLifeCycleService usagePointLifeCycleService;
     private volatile CustomPropertySetService customPropertySetService;
-    private volatile EndPointConfigurationService endPointConfigurationService;
-    private volatile WebServicesService webServicesService;
-    private volatile ServiceCallService serviceCallService;
-    private volatile MessageService messageService;
-    private volatile JsonService jsonService;
-    private volatile SendMeterReadingsProvider sendMeterReadingsProvider;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
@@ -94,10 +75,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
                                             TransactionService transactionService, MeteringService meteringService, NlsService nlsService,
                                             UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService,
                                             UserService userService, UsagePointLifeCycleService usagePointLifeCycleService,
-                                            CustomPropertySetService customPropertySetService, EndPointConfigurationService endPointConfigurationService,
-                                            WebServicesService webServicesService, ServiceCallService serviceCallService,
-                                            MessageService messageService, JsonService jsonService,
-                                            SendMeterReadingsProvider sendMeterReadingsProvider) {
+                                            CustomPropertySetService customPropertySetService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -109,12 +87,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         setUserService(userService);
         setUsagePointLifeCycleService(usagePointLifeCycleService);
         setCustomPropertySetService(customPropertySetService);
-        setEndPointConfigurationService(endPointConfigurationService);
-        setWebServicesService(webServicesService);
-        setServiceCallService(serviceCallService);
-        setMessageService(messageService);
-        setJsonService(jsonService);
-        setSendMeterReadingsProvider(sendMeterReadingsProvider);
         activate(bundleContext);
     }
 
@@ -133,12 +105,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(UserService.class).toInstance(userService);
                 bind(UsagePointLifeCycleService.class).toInstance(usagePointLifeCycleService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
-                bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
-                bind(WebServicesService.class).toInstance(webServicesService);
-                bind(ServiceCallService.class).toInstance(serviceCallService);
-                bind(MessageService.class).toInstance(messageService);
-                bind(SendMeterReadingsProvider.class).toInstance(sendMeterReadingsProvider);
-                bind(JsonService.class).toInstance(jsonService);
             }
         };
     }
@@ -147,9 +113,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     public void activate(BundleContext bundleContext) {
         dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(getModule());
-
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
-        registerHandlers();
         registerServices(bundleContext);
     }
 
@@ -158,19 +121,10 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         serviceRegistrations.forEach(ServiceRegistration::unregister);
     }
 
-    private void registerHandlers() {
-        Map<String, Object> options = ImmutableMap.of("name", ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
-        serviceCallService.addServiceCallHandler(dataModel.getInstance(ParentGetMeterReadingsServiceCallHandler.class),
-                options);
-    }
-
     private void registerServices(BundleContext bundleContext) {
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(ExecuteMasterDataLinkageConfigEndpoint.class),
                 "CIM MasterDataLinkageConfig");
-        registerInboundSoapEndpoint(bundleContext,
-                () -> dataModel.getInstance(ExecuteMeterReadingsEndpoint.class),
-                "CIM MeterReadings");
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(ExecuteUsagePointConfigEndpoint.class),
                 "CIM UsagePointConfig");
@@ -231,41 +185,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
-    }
-
-    @Reference
-    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
-        this.endPointConfigurationService = endPointConfigurationService;
-    }
-
-    @Reference
-    public void setWebServicesService(WebServicesService webServicesService) {
-        this.webServicesService = webServicesService;
-    }
-
-    @Reference
-    public void setServiceCallService(ServiceCallService serviceCallService) {
-        this.serviceCallService = serviceCallService;
-    }
-
-    @Reference(target = "(name=" + ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
-    public void setParentGetMeterReadingsCustomPropertySet(CustomPropertySet customPropertySet) {
-        // PATCH; required for proper startup; do not delete
-    }
-
-    @Reference
-    public final void setMessageService(MessageService messageService) {
-        this.messageService = messageService;
-    }
-
-    @Reference
-    public void setJsonService(JsonService jsonService) {
-        this.jsonService = jsonService;
-    }
-
-    @Reference
-    public void setSendMeterReadingsProvider(SendMeterReadingsProvider sendMeterReadingsProvider) {
-        this.sendMeterReadingsProvider = sendMeterReadingsProvider;
     }
 
     @Override

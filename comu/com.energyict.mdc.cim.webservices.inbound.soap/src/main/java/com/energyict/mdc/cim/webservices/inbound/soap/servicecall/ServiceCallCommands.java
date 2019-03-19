@@ -5,9 +5,18 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
 import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
+
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ami.CompletionOptions;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -25,16 +34,22 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigParser;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingFaultMessageFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ReadingSourceEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterconfig.*;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.google.common.collect.Range;
@@ -43,6 +58,8 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ServiceCallCommands {
 
@@ -51,7 +68,8 @@ public class ServiceCallCommands {
         METER_CONFIG(MeterConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MeterConfigServiceCallHandler.VERSION, MeterConfigCustomPropertySet.class.getName()),
         GET_END_DEVICE_EVENTS(GetEndDeviceEventsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, GetEndDeviceEventsServiceCallHandler.VERSION, GetEndDeviceEventsCustomPropertySet.class.getName()),
         MASTER_GET_METER_CONFIG(GetMeterConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, GetMeterConfigMasterServiceCallHandler.VERSION, GetMeterConfigMasterCustomPropertySet.class.getName()),
-        GET_METER_CONFIG(GetMeterConfigItemServiceCallHandler.SERVICE_CALL_HANDLER_NAME, GetMeterConfigItemServiceCallHandler.VERSION, GetMeterConfigItemCustomPropertySet.class.getName());
+        GET_METER_CONFIG(GetMeterConfigItemServiceCallHandler.SERVICE_CALL_HANDLER_NAME, GetMeterConfigItemServiceCallHandler.VERSION, GetMeterConfigItemCustomPropertySet.class.getName()),
+        GET_METER_READINGS(ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ParentGetMeterReadingsServiceCallHandler.VERSION, ParentGetMeterReadingsCustomPropertySet.class.getName());
 
         private final String typeName;
         private final String typeVersion;
@@ -85,12 +103,15 @@ public class ServiceCallCommands {
     private final GetMeterConfigFaultMessageFactory getMeterConfigFaultMessageFactory;
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
+    private final MeterReadingFaultMessageFactory faultMessageFactory;
+    private final MessageService messageService;
 
     @Inject
     public ServiceCallCommands(DeviceService deviceService, JsonService jsonService,
                                MeterConfigParser meterConfigParser, MeterConfigFaultMessageFactory meterConfigFaultMessageFactory,
                                ServiceCallService serviceCallService, EndDeviceEventsBuilder endDeviceEventsBuilder,
-                               Thesaurus thesaurus, GetMeterConfigParser getMeterConfigParser, GetMeterConfigFaultMessageFactory getMeterConfigFaultMessageFactory) {
+                               Thesaurus thesaurus, GetMeterConfigParser getMeterConfigParser, GetMeterConfigFaultMessageFactory getMeterConfigFaultMessageFactory,
+                               MeterReadingFaultMessageFactory faultMessageFactory, MessageService messageService) {
         this.deviceService = deviceService;
         this.jsonService = jsonService;
         this.endDeviceEventsBuilder = endDeviceEventsBuilder;
@@ -100,6 +121,9 @@ public class ServiceCallCommands {
         this.thesaurus = thesaurus;
         this.getMeterConfigParser = getMeterConfigParser;
         this.getMeterConfigFaultMessageFactory = getMeterConfigFaultMessageFactory;
+        this.faultMessageFactory = faultMessageFactory;
+        this.messageService = messageService;
+
     }
 
     @TransactionRequired
@@ -235,5 +259,115 @@ public class ServiceCallCommands {
             return deviceService.findDeviceByName(meterInfo.getDeviceName())
                     .orElseThrow(meterConfigFaultMessageFactory.meterConfigFaultMessageSupplier(meterInfo.getDeviceName(), MessageSeeds.NO_DEVICE_WITH_NAME, meterInfo.getDeviceName()));
         }
+    }
+
+    @TransactionRequired
+    public ServiceCall createParentGetMeterReadingsServiceCall(String source, String replyAddress,
+                                                               DateTimeInterval timePeriod,
+                                                               List<EndDevice> existedEndDevices,
+                                                               List<ReadingType> existedReadingTypes) throws
+            ch.iec.tc57._2011.getmeterreadings.FaultMessage {
+        ServiceCallType serviceCallType = getServiceCallType(ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
+                ParentGetMeterReadingsServiceCallHandler.VERSION);
+        ParentGetMeterReadingsDomainExtension parentGetMeterReadingsDomainExtension = new ParentGetMeterReadingsDomainExtension();
+        parentGetMeterReadingsDomainExtension.setSource(source);
+        parentGetMeterReadingsDomainExtension.setCallbackUrl(replyAddress);
+        parentGetMeterReadingsDomainExtension.setTimePeriodStart(timePeriod.getStart());
+        parentGetMeterReadingsDomainExtension.setTimePeriodEnd(timePeriod.getEnd());
+        parentGetMeterReadingsDomainExtension.setReadingTypes(getReadingTypesString(existedReadingTypes));
+        parentGetMeterReadingsDomainExtension.setEndDevices(getEndDevicesString(existedEndDevices));
+
+        ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
+                .origin("MultiSense")
+                .extendedWith(parentGetMeterReadingsDomainExtension);
+        ServiceCall parentServiceCall = serviceCallBuilder.create();
+        parentServiceCall.requestTransition(DefaultState.PENDING);
+        parentServiceCall.requestTransition(DefaultState.ONGOING);
+        if (ReadingSourceEnum.SYSTEM.getSource().equals(source)) {
+            initiateReading(parentServiceCall);
+            return parentServiceCall;
+        }
+        boolean meterReadingRunning = false;
+        for (EndDevice endDevice: existedEndDevices) {
+            if (endDevice instanceof com.elster.jupiter.metering.Meter) {
+                com.elster.jupiter.metering.Meter meter = (com.elster.jupiter.metering.Meter)endDevice;
+                if (isMeterReadingRequired(source, meter, existedReadingTypes,  timePeriod.getEnd())) {
+                    readMeter(parentServiceCall, meter, existedReadingTypes);
+                    meterReadingRunning = true;
+                }
+            }
+        }
+        if (!meterReadingRunning) {
+            initiateReading(parentServiceCall);
+            return parentServiceCall;
+        }
+        parentServiceCall.requestTransition(DefaultState.WAITING);
+        return parentServiceCall;
+    }
+
+    private void initiateReading(ServiceCall serviceCall) {
+        serviceCall.requestTransition(DefaultState.PAUSED);
+        serviceCall.requestTransition(DefaultState.ONGOING);
+    }
+
+    private void readMeter(ServiceCall parentServiceCall, com.elster.jupiter.metering.Meter meter, List<ReadingType> readingTypes) throws
+            ch.iec.tc57._2011.getmeterreadings.FaultMessage {
+        HeadEndInterface headEndInterface = meter.getHeadEndInterface()
+                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                        MessageSeeds.NO_HEAD_END_INTERFACE_FOUND, meter.getMRID())
+                );
+        CompletionOptions completionOptions = headEndInterface.readMeter(meter, readingTypes, parentServiceCall);
+        messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION)
+                .ifPresent(destinationSpec ->
+                        completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(parentServiceCall.getId()),
+                                destinationSpec));
+    }
+
+    private boolean isMeterReadingRequired(String source, com.elster.jupiter.metering.Meter meter, List<ReadingType> readingTypes, Instant endTime) {
+        if (ReadingSourceEnum.METER.getSource().equals(source)) {
+            return true;
+        }
+        if (ReadingSourceEnum.HYBRID.getSource().equals(source)) {
+            return meter.getChannelsContainers().stream().
+                    anyMatch(container -> isChannelContainerReadOutRequired(container, readingTypes, endTime));
+        }
+        return false;
+    }
+
+    private boolean isChannelContainerReadOutRequired(ChannelsContainer channelsContainer, List<ReadingType> readingTypes, Instant endTime) {
+        Set<String> readingTypeMRIDs = readingTypes.stream().map(ert -> ert.getMRID()).collect(Collectors.toSet());
+        Range<Instant> range = channelsContainer.getInterval().toOpenClosedRange();
+        if (!range.lowerEndpoint().isBefore(endTime)) {
+            return false;
+        }
+        if (range.hasUpperBound()) {
+            endTime = endTime.isBefore(range.upperEndpoint()) ? endTime : range.upperEndpoint();
+        }
+        for (Channel channel : channelsContainer.getChannels()) {
+            Instant endInstant = channel.truncateToIntervalLength(endTime);
+            for (ReadingType readingType : channel.getReadingTypes()) {
+                if (readingTypeMRIDs.contains(readingType.getMRID())) {
+                    Instant instant = channel.getLastDateTime();
+                    if (instant == null || instant.isBefore(endInstant)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private String getReadingTypesString(List<ReadingType> existedReadingTypes) {
+        return existedReadingTypes.stream().map(ert -> ert.getMRID()).collect(Collectors.joining(";"));
+    }
+
+    private String getEndDevicesString(List<EndDevice> existedEndDevices) {
+        return existedEndDevices.stream().map(eed -> eed.getMRID()).collect(Collectors.joining(";"));
+    }
+
+    private ServiceCallType getServiceCallType(String handlerName, String version) {
+        return serviceCallService.findServiceCallType(handlerName, version)
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
+                        .format(handlerName, version)));
     }
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.cim.webservices.inbound.soap.meterreadings;
+package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
@@ -152,7 +152,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                 Set<ErrorType> errorTypes = getErrorTypes(notFoundDeviceMRIDs, notFoundDeviceNames, existedEndDevices,
                                                           notFoundRTMRIDs, notFoundRTNames, existedReadingTypes);
                 if (endDevices.size() > 1) {
-                    errorTypes.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, END_DEVICE_LIST_ITEM));
+                    errorTypes.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null, END_DEVICE_LIST_ITEM));
                 }
                 MeterReadings meterReadings = builder
                         .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
@@ -172,7 +172,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                     .build();
             MeterReadingsResponseMessageType meterReadingsResponseMessageType = createMeterReadingsResponseMessageType(meterReadings);
             meterReadingsResponseMessageType.setReply(usagePoints.size() > 1 ?
-                    replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, USAGE_POINTS_LIST_ITEM) :
+                    replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null, USAGE_POINTS_LIST_ITEM) :
                     replyTypeFactory.okReplyType());
             return meterReadingsResponseMessageType;
 
@@ -238,33 +238,34 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         Set<ErrorType> errorTypes = new HashSet<>();
         // reading types issue
         if (!notFoundRTMRIDs.isEmpty() && !notFoundRTNames.isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_NOT_FOUND_IN_THE_SYSTEM,
+            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_NOT_FOUND_IN_THE_SYSTEM, null,
                     combineNotFoundElementMessage(notFoundRTMRIDs),
                     combineNotFoundElementMessage(notFoundRTNames)));
         } else if (!notFoundRTMRIDs.isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_WITH_MRID_NOT_FOUND,
+            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_WITH_MRID_NOT_FOUND, null,
                     combineNotFoundElementMessage(notFoundRTMRIDs)));
         } else if (!notFoundRTNames.isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_WITH_NAME_NOT_FOUND,
+            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_WITH_NAME_NOT_FOUND, null,
                     combineNotFoundElementMessage(notFoundRTNames)));
         }
 
         // devices issue
         if (!notFoundMRIDs.isEmpty() && !notFoundNames.isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_NOT_FOUND,
+            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_NOT_FOUND, null,
                     combineNotFoundElementMessage(notFoundMRIDs),
                     combineNotFoundElementMessage(notFoundNames)));
         } else if(!notFoundMRIDs.isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_MRID_NOT_FOUND,
+            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_MRID_NOT_FOUND, null,
                     combineNotFoundElementMessage(notFoundMRIDs)));
         } else if(!notFoundNames.isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_NAME_NOT_FOUND,
+            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_NAME_NOT_FOUND, null,
                     combineNotFoundElementMessage(notFoundNames)));
         }
         Map<String, String> notFoundReadingTypesOnDevices = getNotFoundReadingTypesOnDevices(existedReadingTypes, existedEndDevices);
         notFoundReadingTypesOnDevices
                 .forEach((device, readingTypesMessage) ->
-                        errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_NOT_FOUND_ON_DEVICE, device, readingTypesMessage
+                        errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_NOT_FOUND_ON_DEVICE, null,
+                                device, readingTypesMessage
                 )));
         return errorTypes;
     }

@@ -4,11 +4,14 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -17,6 +20,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
@@ -39,7 +44,10 @@ import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndD
 import com.energyict.mdc.cim.webservices.inbound.soap.getmeterconfig.GetMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ExecuteMeterReadingsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -72,6 +80,7 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 
 @Singleton
@@ -88,6 +97,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private static final String CIM_GET_METER_CONFIG = "CIM GetMeterConfig";
     private static final String CIM_GET_END_DEVICE_EVENTS = "CIM GetEndDeviceEvents";
     private static final String CIM_END_DEVICE_EVENTS = "CIM EndDeviceEvents";
+    private static final String CIM_METER_READINGS = "CIM MeterReadings";
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -96,6 +106,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringService meteringService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
@@ -115,6 +126,9 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile HsmEnergyService hsmEnergyService;
     private volatile SecurityManagementService securityManagementService;
 	private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile SendMeterReadingsProvider sendMeterReadingsProvider;
+    private volatile MessageService messageService;
+    private volatile OrmService ormService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -134,7 +148,10 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          JsonService jsonService, CustomPropertySetService customPropertySetService,
                                          WebServicesService webServicesService, InboundCIMWebServiceExtension webServiceExtensionFactory,
                                          HsmEnergyService hsmEnergyService, SecurityManagementService securityManagementService,
-                                         DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+                                         DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                         MetrologyConfigurationService metrologyConfigurationService,
+                                         SendMeterReadingsProvider sendMeterReadingsProvider, MessageService messageService,
+                                         OrmService ormService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -156,10 +173,14 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setCustomPropertySetService(customPropertySetService);
         setWebServicesService(webServicesService);
         setWebServiceExtensionFactory(webServiceExtensionFactory);
+        setMetrologyConfigurationService(metrologyConfigurationService);
+        setSendMeterReadingsProvider(sendMeterReadingsProvider);
+        setMessageService(messageService);
         activate(bundleContext);
         setHsmEnergyService(hsmEnergyService);
         setSecurityManagementService(securityManagementService);
 		setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+		setOrmService(ormService);
     }
 
     private Module getModule() {
@@ -192,18 +213,24 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(HsmEnergyService.class).toInstance(hsmEnergyService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
 				bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
+                bind(SendMeterReadingsProvider.class).toInstance(sendMeterReadingsProvider);
+                bind(MessageService.class).toInstance(messageService);
             }
         };
     }
 
     @Activate
     public void activate(BundleContext bundleContext) {
-        dataModel = upgradeService.newNonOrmDataModel();
+        dataModel = ormService.newDataModel(COMPONENT_NAME, "Multisense SOAP webservices");
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
+                Version.version(10, 6), UpgraderV10_6.class
+        ));
 
         addConverter(new ObisCodePropertyValueConverter());
+        registerHandlers();
         registerServices(bundleContext);
     }
 
@@ -211,6 +238,12 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     public void stop() {
         serviceRegistrations.forEach(ServiceRegistration::unregister);
         converters.forEach(propertyValueInfoService::removePropertyValueInfoConverter);
+    }
+
+    private void registerHandlers() {
+        Map<String, Object> options = ImmutableMap.of("name", ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(ParentGetMeterReadingsServiceCallHandler.class),
+                options);
     }
 
     private void addConverter(PropertyValueConverter converter) {
@@ -223,6 +256,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetMeterConfigEndpoint.class), CIM_GET_METER_CONFIG);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetEndDeviceEventsEndpoint.class), CIM_GET_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteEndDeviceEventsEndpoint.class), CIM_END_DEVICE_EVENTS);
+        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterReadingsEndpoint.class), CIM_METER_READINGS);
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
@@ -362,6 +396,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         // PATCH; required for proper startup; do not delete
     }
 
+    @Reference(target = "(name=" + ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setParentGetMeterReadingsCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
     @Reference
     public void setHsmEnergyService(HsmEnergyService hsmEnergyService) {
         this.hsmEnergyService = hsmEnergyService;
@@ -377,6 +416,26 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 			DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
 		this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
 	}
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setSendMeterReadingsProvider(SendMeterReadingsProvider sendMeterReadingsProvider) {
+        this.sendMeterReadingsProvider = sendMeterReadingsProvider;
+    }
+
+    @Reference
+    public final void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
 
     @Override
     public Layer getLayer() {

@@ -2,9 +2,8 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings;
+package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.meterreadings.MeterReadingsBuilder;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.domain.util.Finder;
@@ -18,6 +17,8 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+
+import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingsBuilder;
 
 import ch.iec.tc57._2011.meterreadings.MeterReading;
 import ch.iec.tc57._2011.meterreadings.MeterReadings;
@@ -64,7 +65,6 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
     private static final Instant endDate = JUNE_1ST.toInstant();
     private static final String END_DEVICE1_MRID = "f86cdede-c8ee-42c8-8c58-dc8f26fe41ac";
     private static final String MIN15_MRID = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    private final RangeSet<Instant> timeRangeSet = getTimeRangeSet(startDate, endDate);
 
     @Mock
     private com.elster.jupiter.metering.Meter meter1;
@@ -163,8 +163,8 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         return finder;
     }
 
-    private void mockFindEndDevices(com.elster.jupiter.metering.EndDevice... endDevices) {
-        List<com.elster.jupiter.metering.EndDevice> devices = new ArrayList<>();
+    private void mockFindEndDevices(EndDevice... endDevices) {
+        List<EndDevice> devices = new ArrayList<>();
         devices.addAll(Arrays.asList(endDevices));
         when(meteringService.getEndDeviceQuery()).thenReturn(endDeviceQuery);
         when(meteringService.getEndDeviceQuery().select(anyObject())).thenReturn(devices);
