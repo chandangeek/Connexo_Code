@@ -204,6 +204,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             properties.put(
                     BasicDataCollectionRuleTemplate.RADIOGROUP,
                     getIssueUrgencyIncreaseProps());
+            properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
         } else if (template.getName().equals(BASIC_DATA_VALIDATION_RULE_TEMPLATE)) {
             List<HasIdAndName> deviceConfigurations = new ArrayList<>();
             deviceConfigurationService.findDeviceTypeByName("Elster A1800").get().getConfigurations()
@@ -222,6 +223,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             if (!deviceConfigurations.isEmpty()) {
                 properties.put(BASIC_DATA_VALIDATION_RULE_TEMPLATE + ".deviceConfigurations", deviceConfigurations);
             }
+            properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
         } else if (template.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE)) {
             properties.put(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getTamperingCode(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
             properties.put(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getTamperingCode(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
