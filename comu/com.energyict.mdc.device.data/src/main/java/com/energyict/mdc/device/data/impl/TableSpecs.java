@@ -380,11 +380,12 @@ public enum TableSpecs {
             Column comTask = table.column("COMTASK").number().add();
             Column comSchedule = table.column("COMSCHEDULE").number().add();
             Column nextExecutionSpecs = table.column("NEXTEXECUTIONSPECS").number().add();
-            table.column("LASTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName()).add();
+            table.column("LASTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName()).notAudited().add();
             Column nextExecutionTimestamp = table.column("NEXTEXECUTIONTIMESTAMP")
                     .number()
                     .conversion(NUMBERINUTCSECONDS2INSTANT)
                     .map(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName())
+                    .notAudited()
                     .add();
             Column comPort = table.column("COMPORT").number().add();
             Column obsoleteDate = table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2INSTANT).map(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).add();
@@ -397,13 +398,14 @@ public enum TableSpecs {
                     .map(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName())
                     .add();
             table.column("EXECUTIONPRIORITY").number().conversion(NUMBER2INT).map(ComTaskExecutionFields.EXECUTION_PRIORITY.fieldName()).add();
-            table.column("EXECUTIONSTART").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.EXECUTIONSTART.fieldName()).add();
+            table.column("EXECUTIONSTART").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ComTaskExecutionFields.EXECUTIONSTART.fieldName()).notAudited().add();
             table.column("LASTSUCCESSFULCOMPLETION")
                     .number()
                     .conversion(NUMBERINUTCSECONDS2INSTANT)
                     .map(ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName())
+                    .notAudited()
                     .add();
-            table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName()).add();
+            table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName()).notAudited().add();
             table.column("ONHOLD").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.ONHOLD.fieldName()).since(version(10, 2)).add();
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add().upTo(Version.version(10, 2));
@@ -451,6 +453,7 @@ public enum TableSpecs {
             table.audit(DDC_COMTASKEXEC.name())
                     .domainContext(AuditDomainContextType.DEVICE_COMTASKS.ordinal())
                     .domainReferences("FK_DDC_COMTASKEXEC_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
+                    .contextReferenceColumn("COMTASK")
                     .build();
         }
     },
