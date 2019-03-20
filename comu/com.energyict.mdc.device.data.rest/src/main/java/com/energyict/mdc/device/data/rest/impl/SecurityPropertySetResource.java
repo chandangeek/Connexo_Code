@@ -61,7 +61,7 @@ public class SecurityPropertySetResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<SecurityPropertySetInfo> securityPropertySetInfos = securityPropertySetInfoFactory.asInfo(device, uriInfo);
         for (SecurityPropertySetInfo info : securityPropertySetInfos) {
-	    info.hasServiceKeys = device.getSecurityAccessors().stream().anyMatch(t -> t.getServiceKey());
+	        info.hasServiceKeys = device.getSecurityAccessors().stream().anyMatch(t -> t.getServiceKey());
         }
         List<SecurityPropertySetInfo> pagedInfos = ListPager.of(securityPropertySetInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList("securityPropertySets", pagedInfos, queryParameters);
@@ -90,7 +90,7 @@ public class SecurityPropertySetResource {
         SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
         SecurityPropertySetInfo info = securityPropertySetInfoFactory.asInfo(device, uriInfo, securityPropertySet);
         info.hasServiceKeys = device.getSecurityAccessors().stream().anyMatch(t -> t.getServiceKey());
-        return Response.ok().build();
+        return Response.ok().build(info);
     }
 
     private SecurityPropertySet getSecurityPropertySetOrThrowException(long securityPropertySetId, Device device) {
