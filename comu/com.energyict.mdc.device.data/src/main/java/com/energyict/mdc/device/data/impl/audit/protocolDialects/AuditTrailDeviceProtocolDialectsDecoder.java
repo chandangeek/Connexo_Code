@@ -74,17 +74,7 @@ public class AuditTrailDeviceProtocolDialectsDecoder extends AbstractCPSAuditDec
                 return auditLogChanges;
             }
 
-            if (getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.UPDATE) {
-                CustomPropertySetValues toCustomPropertySetValues = getCustomPropertySetValues(registeredCustomPropertySet.get(), getAuditTrailReference().getModTimeEnd());
-                CustomPropertySetValues fromCustomPropertySetValues = getCustomPropertySetValues(registeredCustomPropertySet.get(), getAuditTrailReference().getModTimeStart()
-                        .minusMillis(1));
-                getPropertySpecs()
-                        .forEach(propertySpec ->
-                                getAuditLogChangeForUpdate(toCustomPropertySetValues, fromCustomPropertySetValues, propertySpec).ifPresent(auditLogChanges::add)
-                        );
-            }
-
-            if (getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT) {
+            if (getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT ||getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.UPDATE ) {
                 CustomPropertySetValues customPropertySetValues = getCustomPropertySetValues(registeredCustomPropertySet.get(), getAuditTrailReference().getModTimeEnd());
                 getPropertySpecs()
                         .forEach(propertySpec ->
@@ -160,7 +150,17 @@ public class AuditTrailDeviceProtocolDialectsDecoder extends AbstractCPSAuditDec
         if (registeredCustomPropertySet.getCustomPropertySet().isVersioned()) {
             customPropertySetValues = customPropertySetService.getUniqueHistoryValuesForVersion(customPropertySet,protocolDialectProperties.get()  , at, at);
             if (customPropertySetValues.isEmpty()) {
-                customPropertySetValues = customPropertySetService.getUniqueValuesModifiedBetweenFor(customPropertySet, protocolDialectProperties.get(), getAuditTrailReference().getModTimeStart(), getAuditTrailReference().getModTimeEnd());
+                List<CustomPropertySetValues> listCustomPropertyValues = customPropertySetService.getListOfValuesModifiedBetweenFor(customPropertySet, protocolDialectProperties.get(), getAuditTrailReference().getModTimeStart(), getAuditTrailReference().getModTimeEnd());
+                if(listCustomPropertyValues.size() > 1) {
+                    for (CustomPropertySetValues customValues : listCustomPropertyValues) {
+                        if (getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.UPDATE && customValues.getEffectiveRange().hasUpperBound())
+                            customPropertySetValues = customValues;
+                        else if (getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT && !customValues.getEffectiveRange().hasUpperBound())
+                            customPropertySetValues = customValues;
+                    }
+                } else if (listCustomPropertyValues.size() > 0){
+                    customPropertySetValues = listCustomPropertyValues.get(0);
+                }
             }
         } else {
             customPropertySetValues = customPropertySetService.getUniqueHistoryValuesFor(customPropertySet,  protocolDialectProperties.get(), at);
