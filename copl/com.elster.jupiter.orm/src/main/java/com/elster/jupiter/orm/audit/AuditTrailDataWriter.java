@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.DataMapperReader;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.orm.impl.TableSqlGenerator;
 
@@ -37,8 +38,34 @@ public class AuditTrailDataWriter<T> {
 
     public void audit() throws SQLException {
         if (getTable().hasAudit() && doJournal(getColumns()) && isAuditEnabled()) {
-            getAuditDomain(object, instant, operation);
+            DataMapperReader<? super T> reader = getTable().getDataMapper().getReader();
+            if (operation == UnexpectedNumberOfUpdatesException.Operation.UPDATE){
+                if (!isSomethingChanged(object, reader.findByPrimaryKey(getTable().getPrimaryKey(object)).get(), getColumns())){
+                    isTouch = true;
+                }
+                getAuditDomain(object, instant, operation);
+            }
+            else  if (operation == UnexpectedNumberOfUpdatesException.Operation.INSERT){
+                getAuditDomain(reader.findByPrimaryKey(getTable().getPrimaryKey(object)).get(), instant, operation);
+            }
+            else  if (operation == UnexpectedNumberOfUpdatesException.Operation.DELETE){
+                getAuditDomain(object, instant, operation);
+            }
         }
+    }
+
+    public boolean isSomethingChanged(Object object, Object oldObject, List<ColumnImpl> columns) throws SQLException {
+        return columns.stream()
+                .filter(ColumnImpl::alwaysJournal)
+                .filter(column -> {
+                    if (column.isMAC()) {
+                        return false;
+                    }
+                    Object newValue = column.domainValue(object);
+                    Object oldValue = column.domainValue(object);
+                    return !(newValue == null ? oldValue == null : column.domainValue(object).equals(column.domainValue(oldObject)));
+                })
+                .count() > 0;
     }
 
     private boolean isAuditEnabled() {

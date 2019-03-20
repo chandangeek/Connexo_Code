@@ -41,7 +41,7 @@ public class AuditResource {
 
     private final TransactionService transactionService;
     private final AuditService auditService;
-    private final AuditInfoFactory auditInfoFactory;
+    private final AuditInfoFactoryImpl auditInfoFactory;
     private final AuditLogInfoFactory auditLogInfoFactory;
     private final Thesaurus thesaurus;
     private final UserService userService;
@@ -50,7 +50,7 @@ public class AuditResource {
     public AuditResource(TransactionService transactionService,
                          AuditService auditService,
                          UserService userService,
-                         AuditInfoFactory auditInfoFactory,
+                         AuditInfoFactoryImpl auditInfoFactory,
                          AuditLogInfoFactory auditLogInfoFactory,
                          Thesaurus thesaurus) {
         super();

@@ -262,11 +262,23 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
                             }
                         });
 
+                List<Instant> allMultipliers = timeSlices.entrySet().stream()
+                        .sorted(Comparator.comparing(Map.Entry::getKey))
+                        .map(Map.Entry::getKey)
+                        .collect(Collectors.toList());
+
                 Optional<BigDecimal> fromMultiplier = timeSlices.entrySet().stream()
                         .filter(timeSlice -> timeSlice.getKey().isAfter(getAuditTrailReference().getModTimeStart()) || timeSlice.getKey().equals(getAuditTrailReference().getModTimeStart()))
                         .sorted(Comparator.comparing(Map.Entry::getKey))
                         .map(Map.Entry::getValue)
                         .findFirst();
+
+                List<BigDecimal> toMultipliers = timeSlices.entrySet().stream()
+                        .filter(timeSlice -> timeSlice.getKey().isAfter(getAuditTrailReference().getModTimeEnd()))
+                        .sorted(Comparator.comparing(Map.Entry::getKey))
+                        .map(Map.Entry::getValue)
+                        .collect(Collectors.toList());
+
                 Optional<BigDecimal> toMultiplier = timeSlices.entrySet().stream()
                         .filter(timeSlice -> timeSlice.getKey().isAfter(getAuditTrailReference().getModTimeEnd()))
                         .sorted(Comparator.comparing(Map.Entry::getKey))

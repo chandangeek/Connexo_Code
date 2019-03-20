@@ -32,6 +32,7 @@ public class ComTaskInfo {
 
     public Long id;
     public String name;
+    public int maxNrOfTries;
     public boolean inUse;
     public List<ProtocolTaskInfo> commands;
     public List<MessageCategoryInfo> messages;
@@ -41,6 +42,7 @@ public class ComTaskInfo {
         ComTaskInfo comTaskInfo = new ComTaskInfo();
         comTaskInfo.id = comTask.getId();
         comTaskInfo.name = comTask.getName();
+        comTaskInfo.maxNrOfTries = comTask.getMaxNumberOfTries();
         comTaskInfo.inUse = false; //TODO: Real Implementation
         comTaskInfo.version = comTask.getVersion();
         return comTaskInfo;
