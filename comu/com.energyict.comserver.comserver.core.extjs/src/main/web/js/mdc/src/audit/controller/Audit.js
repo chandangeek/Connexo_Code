@@ -205,7 +205,7 @@ Ext.define('Mdc.audit.controller.Audit', {
                 rendererLink = isRemoved == true ? me.formatEntityWithNameContext(record, value) : me.formatConnectionMethodsHRef(record, value) + '</a>';
                 break;
             case 'DEVICE_COMTASKS':
-                rendererLink = isRemoved == true ?  me.formatComTasksContext(record, value) : me.formatComTasksHRef(record, value) + '</a>';;
+                rendererLink = me.formatComTasksHRef(record, value) + '</a>';;
                 break;
             default:
                 rendererLink = value;
