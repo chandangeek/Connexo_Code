@@ -33,7 +33,6 @@ public class AuditTrailDeviceComTasksHandle implements AuditTrailDecoderHandle {
     private volatile ServerDeviceService serverDeviceService;
     private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
-    private volatile TaskService taskService;
 
     @SuppressWarnings("unused") // for OSGI
     public AuditTrailDeviceComTasksHandle() {
@@ -57,10 +56,6 @@ public class AuditTrailDeviceComTasksHandle implements AuditTrailDecoderHandle {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
-    }
-    @Reference
-    public void setTaskService(TaskService taskService) {
-        this.taskService = taskService;
     }
 
     @Override
