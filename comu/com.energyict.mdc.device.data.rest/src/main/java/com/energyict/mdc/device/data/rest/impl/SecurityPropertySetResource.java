@@ -90,7 +90,7 @@ public class SecurityPropertySetResource {
         SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
         SecurityPropertySetInfo info = securityPropertySetInfoFactory.asInfo(device, uriInfo, securityPropertySet);
         info.hasServiceKeys = device.getSecurityAccessors().stream().anyMatch(t -> t.getServiceKey());
-        return Response.ok().build(info);
+        return Response.ok(info).build();
     }
 
     private SecurityPropertySet getSecurityPropertySetOrThrowException(long securityPropertySetId, Device device) {
