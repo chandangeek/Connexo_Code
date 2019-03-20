@@ -155,7 +155,7 @@ public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDir
                 @SuppressWarnings("unchecked")
                 NamingEnumeration<String> cnAttributesEnumeration = (NamingEnumeration<String>) cnAttributes.get(CN)
                         .getAll();
-                while (cnAttributesEnumeration.hasMore()) {
+                if (cnAttributesEnumeration.hasMore()) {
                     names.add(cnAttributesEnumeration.next());
                 }
             }
