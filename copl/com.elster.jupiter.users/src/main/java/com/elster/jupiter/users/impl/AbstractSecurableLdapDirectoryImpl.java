@@ -4,7 +4,9 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.LdapServerException;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 
@@ -14,6 +16,7 @@ import javax.inject.Inject;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -29,6 +32,9 @@ import java.util.List;
 public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDirectoryImpl {
     protected static final String MEMBER = "member";
     protected static final String[] MEMBER_ARRAY = { MEMBER };
+    protected static final String CN = "cn";
+    protected static final String[] CN_ARRAY = { CN };
+
     @Inject
     protected AbstractSecurableLdapDirectoryImpl(DataModel dataModel, UserService userService, BundleContext context) {
         super(dataModel, userService, context);
@@ -41,6 +47,8 @@ public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDir
 
     protected abstract Pair<LdapContext, StartTlsResponse> createDirContextTls(String url,
             SslSecurityProperties sslSecurityProperties) throws NamingException, IOException;
+
+    protected abstract List<Group> doGetGroups(DirContext context, Object... args) throws NamingException;
 
     protected interface FunctionWithNamingException<T, R> {
         R apply(T t, Object... args) throws NamingException;
@@ -120,7 +128,7 @@ public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDir
         urls.add(getUrl().trim());
         if (getBackupUrl() != null) {
             String[] backupUrls = getBackupUrl().split(";");
-            Arrays.stream(backupUrls).forEach(s -> urls.add(getRealGroupName(s).trim()));
+            Arrays.stream(backupUrls).forEach(s -> urls.add(s.trim()));
         }
         return urls;
     }
@@ -143,15 +151,28 @@ public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDir
             NamingEnumeration<?> membersEnumeration = memberAttributes.getAll();
             while (membersEnumeration.hasMore()) {
                 String member = (String) membersEnumeration.next();
-                names.add(getRealGroupName(member));
+                Attributes cnAttributes = context.getAttributes(member, CN_ARRAY);
+                @SuppressWarnings("unchecked")
+                NamingEnumeration<String> cnAttributesEnumeration = (NamingEnumeration<String>) cnAttributes.get(CN)
+                        .getAll();
+                while (cnAttributesEnumeration.hasMore()) {
+                    names.add(cnAttributesEnumeration.next());
+                }
             }
         }
         return names;
     }
 
-    protected String getRealGroupName(String member) {
-        return member;
+    @Override
+    public final List<Group> getGroups(User user) {
+        if (isManageGroupsInternal()) {
+            return ((UserImpl) user).doGetGroups();
+        }
+        try {
+            return getSomethingFromLdap(this::doGetGroups, user);
+        } catch (Exception ex) {
+            return ((UserImpl) user).doGetGroups();
+        }
     }
-
 
 }

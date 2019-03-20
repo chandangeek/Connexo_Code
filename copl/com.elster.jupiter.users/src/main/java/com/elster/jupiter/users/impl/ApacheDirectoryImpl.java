@@ -38,8 +38,6 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
-    private static final String CN = "cn";
-    private static final String[] CN_ARRAY = { CN };
     static final String TYPE_IDENTIFIER = "APD";
     private static final Logger LOGGER = Logger.getLogger(ApacheDirectoryImpl.class.getSimpleName());
 
@@ -59,19 +57,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     }
 
     @Override
-    public List<Group> getGroups(User user) {
-        if (isManageGroupsInternal()) {
-            return ((UserImpl) user).doGetGroups();
-        }
-
-        try {
-            return getSomethingFromLdap(this::doGetGroups, user);
-        } catch (Exception ex) {
-            return ((UserImpl) user).doGetGroups();
-        }
-    }
-
-    private List<Group> doGetGroups(DirContext context, Object... args) throws NamingException {
+    protected List<Group> doGetGroups(DirContext context, Object... args) throws NamingException {
         List<Group> groupList = new ArrayList<>();
         // https://issues.apache.org/jira/browse/DIRSERVER-1844 ApacheDS does not support memberOf virtual attribute
         // so we cannot find user and check their groups. Instead we find groups which have the user as member
@@ -99,7 +85,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             NamingEnumeration<String> groupEnumeration = (NamingEnumeration<String>) memberAttributes.get(MEMBER)
                     .getAll();
             controls = new SearchControls(SearchControls.OBJECT_SCOPE, 0, 0, CN_ARRAY, true, true);
-            // search all members of base group
+            // search all members of base group which have the user as member
             while (groupEnumeration.hasMore()) {
                 String groupMember = groupEnumeration.next();
                 answer = context.search(groupMember, groupFilter, controls);
@@ -346,12 +332,14 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         String start;
         String filter;
         if (memberUser.indexOf(',') > 2) {
-            // cn=John Doe,dc=example,dc=com
+            // uid=John123,dc=example,dc=com
             userControls.setSearchScope(SearchControls.OBJECT_SCOPE);
             start = memberUser; //
             filter = "(objectClass=person)";
         } else {
-            // uid=Join123
+            // uid=John123
+            // WARNING: roles will be managed internally even if Connexo property ldap.roles=true
+            // because member is not in expected form "uid=userName,..." where "..." is parent DN like "dc=example,dc=com"
             userControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
             start = "";
             filter = "(&(objectClass=person)(" + memberUser + "))";

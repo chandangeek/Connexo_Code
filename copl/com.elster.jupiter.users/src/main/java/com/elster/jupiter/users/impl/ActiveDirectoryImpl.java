@@ -44,7 +44,7 @@ import static com.elster.jupiter.util.Checks.is;
 final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
 
     private static final String[] ARRAY_MEMBER_OF = { "memberOf" };
-    private static final Pattern REAL_GROUP_NAME_PATTERN = Pattern.compile("=(.*?),");
+    private static final Pattern REAL_GROUP_NAME_PATTERN = Pattern.compile("(.+?)=([^,]*).*");
     static final String TYPE_IDENTIFIER = "ACD";
     private static final Logger LOGGER = Logger.getLogger(ActiveDirectoryImpl.class.getSimpleName());
 
@@ -64,18 +64,7 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     }
 
     @Override
-    public List<Group> getGroups(User user) {
-        if (isManageGroupsInternal()) {
-            return ((UserImpl) user).doGetGroups();
-        }
-        try {
-            return getSomethingFromLdap(this::doGetGroups, user);
-        } catch (Exception ex) {
-            return ((UserImpl) user).doGetGroups();
-        }
-    }
-
-    private List<Group> doGetGroups(DirContext context, Object... args) throws NamingException {
+    protected List<Group> doGetGroups(DirContext context, Object... args) throws NamingException {
         User user = (User) args[0];
         if (isManageGroupsInternal()) {
             return ((UserImpl) user).doGetGroups();
@@ -196,11 +185,10 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         return normalizedDN.substring(normalizedDN.indexOf("dc=")).replace("dc=", "").replace(",", ".");
     }
 
-    @Override
-    protected String getRealGroupName(String rdn) {
+    private String getRealGroupName(String rdn) {
         Matcher matcher = REAL_GROUP_NAME_PATTERN.matcher(rdn);
         if (matcher.find()) {
-            return matcher.group(1);
+            return matcher.group(2);
         }
         return rdn;
     }
@@ -214,14 +202,14 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         List<LdapUser> ldapUsers = new ArrayList<>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration results;
+        NamingEnumeration<SearchResult> results;
         if (getGroupName() == null) {
             results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
         } else {
             results = ctx.search("", "(&(objectclass=person)(memberOf=" + getGroupName() + "))", controls);
         }
         while (results.hasMore()) {
-            SearchResult searchResult = (SearchResult) results.next();
+            SearchResult searchResult = results.next();
             Attributes attributes = searchResult.getAttributes();
             if (attributes.get("sAMAccountName") != null) {
                 LdapUser ldapUser = new LdapUserImpl();
@@ -243,14 +231,14 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         String user = (String) args[0];
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration results;
+        NamingEnumeration<SearchResult> results;
         if (getGroupName() == null) {
             results = context.search(getBaseUser(), "(sAMAccountName=" + user + ")", controls);
         } else {
             results = context.search("", "(&(objectClass=person)(sAMAccountName=" + user + "))", controls);
         }
         while (results.hasMore()) {
-            SearchResult searchResult = (SearchResult) results.next();
+            SearchResult searchResult = results.next();
             Attributes attributes = searchResult.getAttributes();
             if (attributes.get("useraccountcontrol") != null) {
                 return isUserActive(attributes.get("useraccountcontrol"));
