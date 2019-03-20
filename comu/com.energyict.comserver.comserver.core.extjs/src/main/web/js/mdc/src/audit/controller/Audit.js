@@ -277,11 +277,9 @@ Ext.define('Mdc.audit.controller.Audit', {
         return Ext.String.format("{0}", value);
     },
 
-    formatComTasksContext: function (record, value) {
-        return Ext.String.format("{0}", value);
-    },
-
     formatEntityWithNameContext: function (record, value) {
+        if(this.isEmptyOrNull(record.get('auditReference').contextReference.name))
+            return Ext.String.format("{0}", value);
         return Ext.String.format("{0} -> {1}", value, record.get('auditReference').contextReference.name);
     },
 
@@ -331,10 +329,9 @@ Ext.define('Mdc.audit.controller.Audit', {
     },
 
     formatComTasksHRef: function (record, value) {
-        var me = this,
-            contextReference = record.get('auditReference').contextReference;
+        var me = this;
 
-        return '<a href="#/devices/' + record.get('auditReference').name + '/communicationtasks">' +  Ext.String.format("{0} -> {1}", value, contextReference.sourceName);
+        return '<a href="#/devices/' + record.get('auditReference').name + '/communicationtasks">' +  me.formatEntityWithNameContext(record, value);
     },
 
     extractPeriod: function(contextReference){
