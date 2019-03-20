@@ -201,6 +201,10 @@ Ext.define('Mdc.audit.controller.Audit', {
             case 'DEVICE_PROTOCOL_DIALECTS_PROPS':
                 rendererLink = isRemoved == true ? me.formatProtocolDialectsContext(record, value) : me.formatProtocolDialectsHRef(record, value) + '</a>';
                 break;
+            case 'DEVICE_COMTASKS':
+                rendererLink = isRemoved == true ?  me.formatComTasksContext(record, value) : me.formatComTasksHRef(record, value) + '</a>';;
+                break;
+
             default:
                 rendererLink = value;
         }
@@ -271,6 +275,10 @@ Ext.define('Mdc.audit.controller.Audit', {
         return Ext.String.format("{0}", value);
     },
 
+    formatComTasksContext: function (record, value) {
+        return Ext.String.format("{0}", value);
+    },
+
     formatDeviceDataSourceHRef: function (record) {
         var me = this,
             contextReference = record.get('auditReference').contextReference,
@@ -307,6 +315,13 @@ Ext.define('Mdc.audit.controller.Audit', {
             periodStr = this.extractPeriod(contextReference);
 
         return '<a href="#/devices/' + record.get('auditReference').name + '/protocols">' +  Ext.String.format("{0} -> {1} ({2})", value, contextReference.name, periodStr);
+    },
+
+    formatComTasksHRef: function (record, value) {
+        var me = this,
+            contextReference = record.get('auditReference').contextReference;
+
+        return '<a href="#/devices/' + record.get('auditReference').name + '/communicationtasks">' +  Ext.String.format("{0} -> {1}", value, contextReference.sourceName);
     },
 
     extractPeriod: function(contextReference){

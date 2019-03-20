@@ -448,6 +448,10 @@ public enum TableSpecs {
                     .reverseMap("comTaskExecutions").composition()
                     .add();
             table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextExecutionTimestamp, priority, connectionTask, obsoleteDate, comPort).add();
+            table.audit(DDC_COMTASKEXEC.name())
+                    .domainContext(AuditDomainContextType.DEVICE_COMTASKS.ordinal())
+                    .domainReferences("FK_DDC_COMTASKEXEC_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
+                    .build();
         }
     },
 
