@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,12 +78,26 @@ public class AuditTrailconnectionMethodDecoder extends AbstractCPSAuditDecoder {
         }
 
         if (getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.UPDATE) {
-            CustomPropertySetValues toCustomPropertySetValues = getCustomPropertySetValues(registeredCustomPropertySet.get(), getAuditTrailReference().getModTimeEnd());
-            CustomPropertySetValues fromCustomPropertySetValues = getCustomPropertySetValues(registeredCustomPropertySet.get(), getAuditTrailReference().getModTimeStart().minusMillis(1));
-            getPropertySpecs()
-                    .forEach(propertySpec ->
-                            getAuditLogChangeForUpdate(toCustomPropertySetValues, fromCustomPropertySetValues, propertySpec).ifPresent(auditLogChanges::add)
-                    );
+            List<CustomPropertySetValues> listCustomPropertyValues = customPropertySetService.getListOfValuesModifiedBetweenFor(registeredCustomPropertySet.get()
+                    .getCustomPropertySet(), connectionTask.get(), getAuditTrailReference().getModTimeStart(), getAuditTrailReference().getModTimeEnd());
+
+            Optional<CustomPropertySetValues> fromCustomPropertySetValues = listCustomPropertyValues.stream()
+                    .sorted(Comparator.comparing(cpv -> cpv.getEffectiveRange().lowerEndpoint()))
+                    .findFirst();
+            Optional<CustomPropertySetValues> toCustomPropertySetValues = listCustomPropertyValues.stream()
+                    .sorted(Comparator.comparing(cpv -> cpv.getEffectiveRange().lowerEndpoint()))
+                    .skip(1)
+                    .findFirst();
+
+            if (fromCustomPropertySetValues.isPresent() && toCustomPropertySetValues.isPresent()){
+                getPropertySpecs()
+                        .forEach(propertySpec ->
+                                getAuditLogChangeForUpdate(toCustomPropertySetValues.get(), fromCustomPropertySetValues.get(), propertySpec).ifPresent(auditLogChanges::add)
+                        );
+            }
+           /* CustomPropertySetValues toCustomPropertySetValues1 = getCustomPropertySetValues(registeredCustomPropertySet.get(), getAuditTrailReference().getModTimeEnd());
+            CustomPropertySetValues fromCustomPropertySetValues2 = getCustomPropertySetValues(registeredCustomPropertySet.get(), getAuditTrailReference().getModTimeStart().minusMillis(1));*/
+
         }
 
         if (getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT) {
@@ -104,7 +119,6 @@ public class AuditTrailconnectionMethodDecoder extends AbstractCPSAuditDecoder {
         CustomPropertySetValues customPropertySetValues;
         CustomPropertySet customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
         ConnectionTask<?, ?> ct = connectionTask.get();
-        Long deviceId = device.get().getId();
 
         customPropertySetValues = customPropertySetService.getUniqueHistoryValuesForVersion(customPropertySet, ct, at, at);
         if (customPropertySetValues.isEmpty()) {

@@ -235,12 +235,15 @@ class ActiveCustomPropertySet {
     <T extends PersistentDomainExtension<D>, D> List<T> getListVersionedValuesEntityModifiedBetweenFor(D businessObject, boolean ignorePrivileges, Instant start, Instant end, Object... additionalPrimaryKeyColumnValues) {
         if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
             this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            Condition modTime = where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isGreaterThanOrEqual(start)
+                    .and(where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isLessThanOrEqual(end));
+            Condition createTime = where(HardCodedFieldNames.CREATION_TIME.javaName()).isGreaterThanOrEqual(start)
+                    .and(where(HardCodedFieldNames.CREATION_TIME.javaName()).isLessThanOrEqual(end));
             Condition condition =
                     this.addAdditionalPrimaryKeyColumnConditionsTo(
                             where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
                                     .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
-                                    .and(where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isGreaterThanOrEqual(start))
-                                    .and(where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isLessThanOrEqual(end)),
+                                    .and(modTime.or(createTime)),
                             additionalPrimaryKeyColumnValues);
             return this.getListValuesEntityFor(
                     condition,
