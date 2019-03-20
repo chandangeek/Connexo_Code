@@ -14,6 +14,7 @@ public enum AuditDomainContextType {
     DEVICE_CHANNEL_CUSTOM_ATTRIBUTES("auditDomainContext.deviceChannelCustomAttributes", AuditDomainType.DEVICE),
     DEVICE_REGISTER_CUSTOM_ATTRIBUTES("auditDomainContext.deviceRegisterCustomAttributes", AuditDomainType.DEVICE),
     DEVICE_PROTOCOL_DIALECTS_PROPS("auditDomainContext.deviceProtocolDialectsProps", AuditDomainType.DEVICE),
+    DEVICE_COMTASKS("auditDomainContext.deviceComTasks", AuditDomainType.DEVICE),
     DEVICE_CONNECTION_METHODS("auditDomainContext.deviceConnectionMethods", AuditDomainType.DEVICE);
 
     private final String domainContextType;

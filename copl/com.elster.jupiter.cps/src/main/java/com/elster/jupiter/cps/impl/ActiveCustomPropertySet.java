@@ -232,6 +232,25 @@ class ActiveCustomPropertySet {
         }
     }
 
+    <T extends PersistentDomainExtension<D>, D> List<T> getListVersionedValuesEntityModifiedBetweenFor(D businessObject, boolean ignorePrivileges, Instant start, Instant end, Object... additionalPrimaryKeyColumnValues) {
+        if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            Condition condition =
+                    this.addAdditionalPrimaryKeyColumnConditionsTo(
+                            where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
+                                    .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
+                                    .and(where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isGreaterThanOrEqual(start))
+                                    .and(where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isLessThanOrEqual(end)),
+                            additionalPrimaryKeyColumnValues);
+            return this.getListValuesEntityFor(
+                    condition,
+                    () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " modified between " + start + " and " + end + " against business object " + businessObject);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+
     @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getVersionedValuesHistoryEntityFor(D businessObject, boolean ignorePrivileges, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyColumnValues) {
         if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
@@ -265,6 +284,10 @@ class ActiveCustomPropertySet {
         else {
             return Optional.of(extensions.get(0));
         }
+    }
+
+    <T extends PersistentDomainExtension<D>, D> List<T> getListValuesEntityFor(Condition condition, Supplier<String> errorMessageSupplier) {
+        return this.getMapper().select(condition);
     }
 
     @SuppressWarnings("unchecked")

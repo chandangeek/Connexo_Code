@@ -204,6 +204,9 @@ Ext.define('Mdc.audit.controller.Audit', {
             case 'DEVICE_CONNECTION_METHODS':
                 rendererLink = isRemoved == true ? me.formatEntityWithNameContext(record, value) : me.formatConnectionMethodsHRef(record, value) + '</a>';
                 break;
+            case 'DEVICE_COMTASKS':
+                rendererLink = isRemoved == true ?  me.formatComTasksContext(record, value) : me.formatComTasksHRef(record, value) + '</a>';;
+                break;
             default:
                 rendererLink = value;
         }
@@ -274,6 +277,10 @@ Ext.define('Mdc.audit.controller.Audit', {
         return Ext.String.format("{0}", value);
     },
 
+    formatComTasksContext: function (record, value) {
+        return Ext.String.format("{0}", value);
+    },
+
     formatEntityWithNameContext: function (record, value) {
         return Ext.String.format("{0} -> {1}", value, record.get('auditReference').contextReference.name);
     },
@@ -318,10 +325,16 @@ Ext.define('Mdc.audit.controller.Audit', {
 
     formatConnectionMethodsHRef: function (record, value) {
         var me = this,
-            contextReference = record.get('auditReference').contextReference,
-            periodStr = this.extractPeriod(contextReference);
+            contextReference = record.get('auditReference').contextReference;
 
         return '<a href="#/devices/' + record.get('auditReference').name + '/connectionmethods">' + me.formatEntityWithNameContext(record, value);
+    },
+
+    formatComTasksHRef: function (record, value) {
+        var me = this,
+            contextReference = record.get('auditReference').contextReference;
+
+        return '<a href="#/devices/' + record.get('auditReference').name + '/communicationtasks">' +  Ext.String.format("{0} -> {1}", value, contextReference.sourceName);
     },
 
     extractPeriod: function(contextReference){

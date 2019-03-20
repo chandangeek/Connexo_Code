@@ -16,6 +16,7 @@ public enum AuditDomainContextTranslationKeys implements TranslationKey {
     DEVICE_CHANNEL_CUSTOM_ATTRIBUTES(AuditDomainContextType.DEVICE_CHANNEL_CUSTOM_ATTRIBUTES, "Channel"),
     DEVICE_REGISTER_CUSTOM_ATTRIBUTES(AuditDomainContextType.DEVICE_REGISTER_CUSTOM_ATTRIBUTES, "Register"),
     DEVICE_PROTOCOL_DIALECTS_PROPS(AuditDomainContextType.DEVICE_PROTOCOL_DIALECTS_PROPS, "Protocol Dialects"),
+    DEVICE_COMTASKS(AuditDomainContextType.DEVICE_COMTASKS, "Communication tasks"),
     DEVICE_CONNECTION_METHODS(AuditDomainContextType.DEVICE_CONNECTION_METHODS, "Connection methods"),
     ;
 
