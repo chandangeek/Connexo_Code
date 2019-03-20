@@ -109,6 +109,12 @@ public class SecurityAccessorResourceTest extends MultisensePublicApiJerseyTest 
     }
 
     @Test
+    public void testWrapServiceKeyValue() throws Exception {
+        Response response = target("/devices/XAS/keyAccessors/Password/wrapServiceKeyValue/ABCDABCDABCDABCDABCDABCDABCDABCD").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
     public void testGetSingleKeyAccessorWithFields() throws Exception {
         Response response = target("/devices/XAS/keyAccessors/Password").queryParam("fields", "name").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

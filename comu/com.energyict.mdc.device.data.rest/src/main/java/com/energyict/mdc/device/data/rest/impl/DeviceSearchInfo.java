@@ -11,6 +11,7 @@ import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
@@ -43,6 +44,7 @@ public class DeviceSearchInfo {
     public String manufacturer;
     public String modelNbr;
     public String modelVersion;
+    public Boolean serviceKeys;
 
     public static DeviceSearchInfo from(Device device, GatewayRetriever gatewayRetriever,
                                         IssueRetriever issueService, Thesaurus thesaurus,
@@ -82,6 +84,12 @@ public class DeviceSearchInfo {
         searchInfo.manufacturer = device.getManufacturer();
         searchInfo.modelNbr = device.getModelNumber();
         searchInfo.modelVersion = device.getModelVersion();
+        for (SecurityAccessor accessor : device.getSecurityAccessors()) {
+            if (accessor.getServiceKey()) {
+	        searchInfo.serviceKeys = true;
+		break;
+	    }
+	}
         return searchInfo;
     }
 

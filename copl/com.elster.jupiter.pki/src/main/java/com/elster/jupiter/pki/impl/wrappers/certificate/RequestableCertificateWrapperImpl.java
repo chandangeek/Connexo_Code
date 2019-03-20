@@ -81,18 +81,26 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
                 if (!new org.bouncycastle.asn1.x500.X500Name(certificate.getSubjectDN().getName()).equals(csr.getSubject())) {
                     throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_SUBJECT_DN_MISMATCH);
                 }
-                if (!getCertificateKeyUsages(certificate).containsAll(getCsrKeyUsages(csr))
-                        || !getCsrKeyUsages(csr).containsAll(getCertificateKeyUsages(certificate))) {
-                    throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_KEY_USAGE_MISMATCH);
-                }
-                if (!getCertificateExtendedKeyUsages(certificate).containsAll(this.getCsrExtendedKeyUsages(csr))
-                        || !this.getCsrExtendedKeyUsages(csr).containsAll(getCertificateExtendedKeyUsages(certificate))) {
-                    throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_EXTENDED_KEY_USAGES_MISMATCH);
+
+                //key usage mismatch should warn the user, but not fail the whole validation
+                try {
+                    validateCertificateKeyUsagesMatchCsr(certificate, csr);
+                }catch (PkiLocalizedException e) {
+                    e.printStackTrace();
                 }
             } catch (IOException e) {
                 throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_PUBLIC_KEY_MISMATCH);
             }
         });
+    }
+
+    private void validateCertificateKeyUsagesMatchCsr(X509Certificate certificate, PKCS10CertificationRequest csr) {
+        if (!getCsrKeyUsages(csr).containsAll(getCertificateKeyUsages(certificate))) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_KEY_USAGE_MISMATCH);
+        }
+        if (!this.getCsrExtendedKeyUsages(csr).containsAll(getCertificateExtendedKeyUsages(certificate))) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_EXTENDED_KEY_USAGES_MISMATCH);
+        }
     }
 
     @Override

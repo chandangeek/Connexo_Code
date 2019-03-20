@@ -64,7 +64,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.ReadingType',
         'Uni.property.view.property.NoneOrTimeDuration',
         'Uni.property.view.property.UsagePoint',
-        'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations'
+        'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations',
+        'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions'
     ],
 
     /**
@@ -82,6 +83,7 @@ Ext.define('Uni.property.controller.Registry', {
         DATE: 'Uni.property.view.property.Date',
         DEVICECONFIGURATIONLIST: 'Uni.property.view.property.deviceconfigurations.DeviceConfigurations',
         METROLOGYCONFIGURATIONLIST: 'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations',
+        LIFECYCLETRANSITION:'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
         DURATION: 'Uni.property.view.property.Period',
         EAN13: 'Uni.property.view.property.Text',
         EAN18: 'Uni.property.view.property.Text',
@@ -140,7 +142,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.store.DeviceSubDomains',
         'Uni.property.store.DeviceEventOrActions',
         'Uni.property.store.RelativePeriodsWithCount',
-        'Uni.property.store.ReadingTypes'
+        'Uni.property.store.ReadingTypes',
+        'Uni.property.store.PropertyDeviceLifecycleTransition'
     ],
 
     /**

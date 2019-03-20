@@ -52,7 +52,8 @@ public enum SimplePropertyType implements PropertyType {
     TWO_VALUES_DIFFERENCE(TwoValuesDifferenceValueFactory.class),
     NONE_OR_BIGDECIMAL(NoneOrBigDecimalValueFactory.class),
     NONE_OR_TIMEDURATION(NoneOrTimeDurationValueFactory.class),
-    INTEGER(Integer.class);
+    INTEGER(Integer.class),
+    LIFECYCLETRANSITION(ListValueFactory.class);
 
 
     private Class typeClass;

@@ -16,7 +16,7 @@ import ch.iec.tc57._2011.schema.message.ReplyType;
 import javax.inject.Inject;
 import java.util.function.Supplier;
 
-class MeterReadingFaultMessageFactory {
+public class MeterReadingFaultMessageFactory {
 
     private final ObjectFactory meterReadingMessageObjectFactory = new ObjectFactory();
 
@@ -24,12 +24,12 @@ class MeterReadingFaultMessageFactory {
     private final ReplyTypeFactory replyTypeFactory;
 
     @Inject
-    MeterReadingFaultMessageFactory(Thesaurus thesaurus, ReplyTypeFactory replyTypeFactory) {
+    public MeterReadingFaultMessageFactory(Thesaurus thesaurus, ReplyTypeFactory replyTypeFactory) {
         this.thesaurus = thesaurus;
         this.replyTypeFactory = replyTypeFactory;
     }
 
-    Supplier<FaultMessage> createMeterReadingFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
+    public Supplier<FaultMessage> createMeterReadingFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
         return () -> createMeterReadingFaultMessage(replyTypeFactory.failureReplyType(messageSeed, args));
     }
 

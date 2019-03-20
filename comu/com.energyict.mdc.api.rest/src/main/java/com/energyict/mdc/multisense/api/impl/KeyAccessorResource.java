@@ -112,11 +112,11 @@ public class KeyAccessorResource {
     }
 
     /**
-     * Wraps the key value by master key for service key injection.
+     * Wraps the service key value by master key for service key injection.
      *
      * @param mrid                  mRID of device for which the key injection will be prepared
      * @param masterKeyAccessorName Identifier of the security accessor type for master key
-     * KeyValueInfo info            Info contains key value to be wrapped
+     * @param serviceKeyValue       Service key value to be wrapped
      * @param uriInfo               uriInfo
      * @return Wrapped key for service key injection
      * @summary Wraps the key value by master key identified by master key accessor name

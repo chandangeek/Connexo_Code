@@ -78,7 +78,7 @@ public class AuditDeviceAttributesIT extends AuditDeviceBase {
         assertThat(auditTrailValue.getDomainContext()).isEqualTo(AuditDomainContextType.DEVICE_ATTRIBUTES);
         assertThat(auditTrailValue.getUser()).isEqualTo(inMemoryPersistence.getMockedUser().getName());
         assertThat(auditTrailValue.getPkDomain()).isEqualTo(device.getId());
-        assertThat(auditTrailValue.getPkContext()).isEqualTo(0);
+        assertThat(auditTrailValue.getPkContext1()).isEqualTo(0);
 
         List<AuditLogChange> auditLogChanges = auditTrail.get().getLogs();
         assertThat(auditLogChanges).hasSize(to.size());
@@ -109,7 +109,7 @@ public class AuditDeviceAttributesIT extends AuditDeviceBase {
         assertThat(auditTrailValue.getDomainContext()).isEqualTo(AuditDomainContextType.DEVICE_ATTRIBUTES);
         assertThat(auditTrailValue.getUser()).isEqualTo(inMemoryPersistence.getMockedUser().getName());
         assertThat(auditTrailValue.getPkDomain()).isEqualTo(device.getId());
-        assertThat(auditTrailValue.getPkContext()).isEqualTo(0);
+        assertThat(auditTrailValue.getPkContext1()).isEqualTo(0);
 
         List<AuditLogChange> auditLogChanges = auditTrail.get().getLogs();
         to.forEach((key, value) -> {

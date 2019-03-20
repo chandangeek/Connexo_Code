@@ -120,6 +120,7 @@ public class ComTaskResource {
 
         ComTask comTask = resourceHelper.lockComTaskOrThrowException(comTaskInfo);
         comTask.setName(comTaskInfo.name);
+        comTask.setMaxNrOfTries(comTaskInfo.maxNrOfTries);
         List<ProtocolTask> currentProtocolTasks = new ArrayList<>(comTask.getProtocolTasks());
 
         currentProtocolTasks.stream()

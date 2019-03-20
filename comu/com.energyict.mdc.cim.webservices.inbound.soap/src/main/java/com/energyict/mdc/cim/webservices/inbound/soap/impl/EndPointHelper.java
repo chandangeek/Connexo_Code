@@ -7,27 +7,23 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
-import com.energyict.mdc.app.MdcAppService;
-
 import javax.inject.Inject;
-
 import java.security.Principal;
 
 public class EndPointHelper {
 
-    private static final String DEFAULT_USER_NAME = "MDC inbound webservice";
+    private static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
 
     private final ThreadPrincipalService threadPrincipalService;
     private final UserService userService;
     private final TransactionService transactionService;
 
     @Inject
-    public EndPointHelper(ThreadPrincipalService threadPrincipalService, UserService userService,
-            TransactionService transactionService) {
+    public EndPointHelper(ThreadPrincipalService threadPrincipalService,
+                          UserService userService,
+                          TransactionService transactionService) {
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
         this.transactionService = transactionService;
@@ -36,16 +32,11 @@ public class EndPointHelper {
     public void setSecurityContext() {
         Principal principal = threadPrincipalService.getPrincipal();
         if (principal == null) {
-            threadPrincipalService.set(() -> DEFAULT_USER_NAME);
-        }
-        if (!(principal instanceof User)) {
             try (TransactionContext context = transactionService.getContext()) {
-                User user = userService.findUser(DEFAULT_USER_NAME, userService.getRealm()).orElseGet(() -> {
-                    User newUser = userService.createUser(DEFAULT_USER_NAME, DEFAULT_USER_NAME);
-                    return newUser;
+                userService.findUser(BATCH_EXECUTOR_USER_NAME, userService.getRealm()).ifPresent(user -> {
+                    threadPrincipalService.set(user);
+                    context.commit();
                 });
-                threadPrincipalService.set(user);
-                context.commit();
             }
         }
     }

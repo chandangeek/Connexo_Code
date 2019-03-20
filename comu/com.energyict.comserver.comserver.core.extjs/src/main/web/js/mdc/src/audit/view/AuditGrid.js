@@ -5,7 +5,6 @@
 Ext.define('Mdc.audit.view.AuditGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.auditGrid',
-    store: 'Mdc.audit.store.Audit',
     requires: [],
 
     initComponent: function () {

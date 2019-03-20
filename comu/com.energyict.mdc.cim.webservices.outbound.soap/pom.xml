@@ -90,6 +90,10 @@
             <artifactId>issue</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.alarms</artifactId>
         </dependency>
@@ -184,11 +188,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>
             <scope>test</scope>
         </dependency>
@@ -216,6 +215,7 @@
                     <wsdlFiles>
                         <wsdlFile>enddeviceevents/SendEndDeviceEvents.wsdl</wsdlFile>
                         <wsdlFile>meterconfig/ReplyMeterConfig.wsdl</wsdlFile>
+                        <wsdlFile>meterconfig/SendMeterConfig.wsdl</wsdlFile>
                         <wsdlFile>getenddeviceevents/GetEndDeviceEvents.wsdl</wsdlFile>
                     </wsdlFiles>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>

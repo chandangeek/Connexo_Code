@@ -133,7 +133,6 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     protected abstract void decodeReference();
 
-
     protected Optional<AuditLogChange> getAuditLogChangeForString(String from, String to, TranslationKey translationKey) {
         if (to.compareTo(from) != 0) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();

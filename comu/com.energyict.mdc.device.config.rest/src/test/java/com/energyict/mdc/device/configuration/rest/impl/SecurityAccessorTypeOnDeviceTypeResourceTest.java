@@ -209,6 +209,23 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
     }
 
     @Test
+    public void testSetDefaultKeySecurityAccessorTypeValueOnDeviceType() throws Exception {
+        DeviceType deviceType = mockDeviceType("device type 1", 66);
+        when(deviceConfigurationService.findAndLockDeviceType(66, 13)).thenReturn(Optional.of(deviceType));
+
+        SecurityAccessorType securityAccessorType1 = mockKeyAccessorType(1, 2, "NameX", "Epic description");
+        when(securityManagementService.findAndLockSecurityAccessorType(1, 2)).thenReturn(Optional.of(securityAccessorType1));
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(securityAccessorType1));
+
+        ServiceKeyDefultValueInfo info = new ServiceKeyDefultValueInfo();
+        info.value = "ABCDABCD";
+
+        Response response = target("/devicetypes/66/securityaccessors/1/setdefaultkey").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(deviceType).updateDefaultKeyOfSecurityAccessorType(securityAccessorType1, info.value);
+    }
+
+    @Test
     public void testAddKeyAccessorTypesFailedDueToDeviceTypeConflict() throws Exception {
         DeviceType deviceType = mockDeviceType("device type 1", 66);
         when(deviceConfigurationService.findAndLockDeviceType(66, 13)).thenReturn(Optional.empty());

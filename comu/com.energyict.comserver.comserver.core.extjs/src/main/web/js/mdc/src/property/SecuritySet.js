@@ -325,7 +325,6 @@ Ext.define('Mdc.property.SecuritySet', {
                     console.log("SELECTED RECORDS = ",record.get('name'));
                     var tmpSetName = record.get('name');
                     tmpSetName = tmpSetName.replace(",","[,]");
-                    tmpSetName = tmpSetName.replace(";","[;]");
                     selectedSets.push(tmpSetName);
                     return record;//.get('readingType').mRID;
                 })

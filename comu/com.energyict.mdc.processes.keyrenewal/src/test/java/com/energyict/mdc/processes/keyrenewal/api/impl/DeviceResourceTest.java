@@ -283,4 +283,24 @@ public class DeviceResourceTest {
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
     }
 
+    @Test
+    public void testCommunicationForSecuritySetTest() throws Exception {
+        when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(meteringService.findEndDeviceByMRID(DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        DeviceCommandInfo deviceCommandInfo = new DeviceCommandInfo();
+        deviceCommandInfo.callbackError = "errorURL";
+        deviceCommandInfo.command = Command.RENEW_KEY;
+        deviceCommandInfo.callbackSuccess = "successURL";
+        deviceCommandInfo.securityPropertySet = "SET";
+
+        // Business method
+        Response response = deviceResource.testCommunicationForSecuritySet(DEVICE_MRID, deviceCommandInfo, uriInfo);
+
+        // Asserts
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.WAITING);
+        verify(headEndController).performTestCommunicationForSecuritySet(endDevice, serviceCall, deviceCommandInfo, device);
+        assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
+    }
 }

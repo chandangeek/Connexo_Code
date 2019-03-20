@@ -119,10 +119,9 @@ public class SecurityAccessorResource {
             com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public PagedInfoList getKeys(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()),
-                securityAccessorInfoFactory::asKeyWithLevels);
+        List<SecurityAccessorInfo> collect = getSecurityAccessorKeyInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()));
         for (SecurityAccessorInfo info : collect) {
-		info.defaultServiceKey = device.getDeviceType().getDefaultKeyOfSecurityAccessorType(info.id);
+            info.defaultServiceKey = device.getDeviceType().getDefaultKeyOfSecurityAccessorType(info.id);
         }
         return PagedInfoList.fromCompleteList("keys", collect, queryParameters);
     }
@@ -169,7 +168,7 @@ public class SecurityAccessorResource {
             com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public PagedInfoList getCertificates(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, kat -> CERTIFICATES.contains(kat.getKeyType().getCryptographicType()), (keyAccessor) -> securityAccessorInfoFactory
+        List<SecurityAccessorInfo> collect = getSecurityAccessorCertificateInfos(device, kat -> CERTIFICATES.contains(kat.getKeyType().getCryptographicType()), (keyAccessor) -> securityAccessorInfoFactory
                 .asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider));
         return PagedInfoList.fromCompleteList("certificates", collect, queryParameters);
     }
@@ -516,7 +515,17 @@ public class SecurityAccessorResource {
         return properties.values().stream().anyMatch(Objects::nonNull);
     }
 
-    private List<SecurityAccessorInfo> getSecurityAccessorInfos(Device device, Predicate<SecurityAccessorType> keyAccessorPredicate,
+    private List<SecurityAccessorInfo> getSecurityAccessorKeyInfos(Device device, Predicate<SecurityAccessorType> keyAccessorPredicate) {
+        List<SecurityAccessor> securityAccessors = device.getDeviceType().getSecurityAccessorTypes().stream()
+                .filter(keyAccessorPredicate)
+                .map(kat -> device.getSecurityAccessor(kat).orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(kat, device)))
+                .collect(toList());
+
+        return securityAccessorInfoFactory.asKeyWithLevels(securityAccessors);
+
+    }
+
+    private List<SecurityAccessorInfo> getSecurityAccessorCertificateInfos(Device device, Predicate<SecurityAccessorType> keyAccessorPredicate,
                                                                 Function<SecurityAccessor, SecurityAccessorInfo> infoCreator) {
         return device.getDeviceType().getSecurityAccessorTypes().stream()
                 .filter(keyAccessorPredicate)

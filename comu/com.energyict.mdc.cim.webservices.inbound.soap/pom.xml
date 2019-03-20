@@ -280,6 +280,7 @@
                     <wsdlDirectory>src/main/resources</wsdlDirectory>
                     <wsdlFiles>
                         <wsdlFile>meterconfig/ExecuteMeterConfig.wsdl</wsdlFile>
+                        <wsdlFile>meterconfig/GetMeterConfig.wsdl</wsdlFile>
                         <wsdlFile>getenddeviceevents/GetEndDeviceEvents.wsdl</wsdlFile>
                         <wsdlFile>enddeviceevents/ReceiveEndDeviceEvents.wsdl</wsdlFile>
                     </wsdlFiles>

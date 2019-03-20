@@ -41,6 +41,8 @@ public class ComTaskEnablementInfo {
     public ConnectionFunctionInfo connectionFunctionInfo;
     public long version;
     public VersionInfo<Long> parent;
+    @JsonProperty("maxNumberOfTries")
+    public Integer maxNumberOfTries;
 
     public ComTaskEnablementInfo() {
     }
@@ -64,6 +66,7 @@ public class ComTaskEnablementInfo {
         comTaskEnablementInfo.connectionFunctionInfo = comTaskEnablement.getConnectionFunction().isPresent() ? new ConnectionFunctionInfo(comTaskEnablement.getConnectionFunction().get()) : null;
         DeviceConfiguration deviceConfiguration = comTaskEnablement.getDeviceConfiguration();
         comTaskEnablementInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+        comTaskEnablementInfo.maxNumberOfTries = comTaskEnablement.getComTask().getMaxNumberOfTries();
         return comTaskEnablementInfo;
     }
 

@@ -9,11 +9,13 @@ import com.elster.jupiter.customtask.CustomTask;
 import com.elster.jupiter.customtask.CustomTaskBuilder;
 import com.elster.jupiter.customtask.CustomTaskFactory;
 import com.elster.jupiter.customtask.CustomTaskOccurrence;
+import com.elster.jupiter.customtask.CustomTaskProperty;
 import com.elster.jupiter.customtask.CustomTaskService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -296,6 +298,48 @@ public class CustomTaskServiceImpl implements ICustomTaskService, TranslationKey
        return Stream.of(
                 Stream.of(TranslationKeys.values()))
                 .flatMap(Function.identity())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean usedByAutorescheduleTask(Long comTaskId) {
+        Condition condition = where("name").isEqualTo("comTaskSelector");
+        List<CustomTaskProperty> properties = dataModel.query(CustomTaskProperty.class)
+                .select(condition);
+
+        return properties.stream().filter(property -> propertyContainsId(property, comTaskId)).findFirst().isPresent();
+    }
+
+    private boolean propertyContainsId (CustomTaskProperty property, Long comTaskId) {
+        String value = property.getStringValue().replace("[","").replace("]","");
+        ArrayList<String> comTaskIds = new ArrayList<>(Arrays.asList(value.split(", ")));
+
+        return comTaskIds.contains(comTaskId + "");
+    }
+
+    @Override
+    public List<CustomTaskProperty> findPropertyByComTaskId(Long comTaskId, int skip, int limit) {
+        Condition condition = where("name").isEqualTo("comTaskSelector");
+
+        return dataModel.query(CustomTaskProperty.class)
+                .select(condition)
+                .stream()
+                .filter(property -> propertyContainsId(property, comTaskId))
+                .skip(skip)
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CustomTaskProperty> findPropertyByDeviceGroupName(String endDeviceGroupName, int skip, int limit) {
+        Condition condition = where("name").isEqualTo("groupSelector");
+
+        return  dataModel.query(CustomTaskProperty.class)
+                .select(condition)
+                .stream()
+                .filter(property -> property.getStringValue().equals(endDeviceGroupName))
+                .skip(skip)
+                .limit(limit)
                 .collect(Collectors.toList());
     }
 

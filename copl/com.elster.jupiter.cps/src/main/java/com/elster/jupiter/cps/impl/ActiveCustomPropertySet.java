@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
@@ -29,12 +30,13 @@ import com.google.common.collect.Range;
 
 import java.text.MessageFormat;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -93,12 +95,16 @@ class ActiveCustomPropertySet {
     <T extends PersistentDomainExtension<D>, D> Optional<T> getNonVersionedValuesHistoryEntityFor(D businessObject, Instant at, Object... additionalPrimaryKeyColumnValues) {
         if (this.registeredCustomPropertySet.isViewableByCurrentUser()) {
             this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            List<Comparison> comparisons = new ArrayList<>();
+
+            comparisons.add(Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject));
+            comparisons.add(Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet));
+            comparisons.addAll(getAdditionalPrimaryKeyColumnComparisonsTo(additionalPrimaryKeyColumnValues));
+
 
             return this.getMapper()
                     .at(at)
-                    .find(Arrays.asList(
-                            Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject),
-                            Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet)))
+                    .find(comparisons)
                     .stream()
                     .map(o -> ((JournalEntry<T>) o).get()).findFirst();
         } else {
@@ -136,6 +142,13 @@ class ActiveCustomPropertySet {
                         .reduce(
                             Condition.TRUE,
                             Condition::and));
+    }
+
+    private List<Comparison> getAdditionalPrimaryKeyColumnComparisonsTo(Object... additionalPrimaryKeyColumnValues) {
+        Iterator<Object> pkValueIterator = Iterators.forArray(additionalPrimaryKeyColumnValues);
+        return this.getAdditionalPrimaryKeyColumns()
+                        .map(pkColumn -> Operator.EQUAL.compare(this.fieldNameFor(pkColumn), pkValueIterator.next()))
+                        .collect(Collectors.toList());
     }
 
     private String fieldNameFor(Column pkColumn) {
@@ -223,12 +236,15 @@ class ActiveCustomPropertySet {
     <T extends PersistentDomainExtension<D>, D> Optional<T> getVersionedValuesHistoryEntityFor(D businessObject, boolean ignorePrivileges, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyColumnValues) {
         if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
             this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            List<Comparison> comparisons = new ArrayList<>();
+
+            comparisons.add(Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject));
+            comparisons.add(Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet));
+            comparisons.addAll(getAdditionalPrimaryKeyColumnComparisonsTo(additionalPrimaryKeyColumnValues));
+
             return this.getMapper()
                     .at(at)
-                    .find(Arrays.asList(
-                            Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject),
-                            Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet)))
-
+                    .find(comparisons)
                     .stream()
                     .map(o -> ((JournalEntry<T>) o).get()).findFirst();
         } else {

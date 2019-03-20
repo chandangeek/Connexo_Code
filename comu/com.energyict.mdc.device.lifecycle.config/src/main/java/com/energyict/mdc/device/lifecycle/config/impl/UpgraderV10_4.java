@@ -8,6 +8,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.Upgrader;
 
+import com.energyict.mdc.device.lifecycle.config.EventType;
+
 import javax.inject.Inject;
 
 public class UpgraderV10_4 implements Upgrader {

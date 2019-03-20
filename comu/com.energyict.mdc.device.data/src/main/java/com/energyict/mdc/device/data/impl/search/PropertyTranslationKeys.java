@@ -51,6 +51,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CHANNEL_INTERVAL("device.channel.interval", "Interval"),
     CHANNEL_LAST_READING("device.channel.last.reading", "Last reading"),
     CHANNEL_LAST_VALUE("device.channel.last.value", "Timestamp last value"),
+    OVERFLOW_VALUE("device.dataSource.overflowValue","Overflow value"),
+    NUMBER_OF_FRACTION_DIGITS("device.dataSource.numberOfFractionDigits", "Number of fraction digits"),
     LOGBOOK("device.logbook", "Logbook"),
     LOGBOOK_NAME("device.logbook.name", "Name"),
     LOGBOOK_OBISCODE("device.logbook.obiscode", "OBIS code"),
@@ -107,7 +109,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_MODEL_VERSION("device.model.version", "Model version"),
     DEVICE_ATTRIBUTES("device.attributes", "Device attributes"),
     DEVICE_MASTER_SEARCH_CRITERION_NAME("device.master.searchcriterion.search", "Has master device"),
-    SERVICE_KEY("device.security.servicekey", "Service key"),
+    SERVICE_KEYS("device.security.servicekeys", "Has service keys"),
     ZONE_NAME("device.zoneName", "Zone name"),
     ZONE_TYPE("device.zoneType","Zone type"),
     ZONE("device.zone", "Zone")
