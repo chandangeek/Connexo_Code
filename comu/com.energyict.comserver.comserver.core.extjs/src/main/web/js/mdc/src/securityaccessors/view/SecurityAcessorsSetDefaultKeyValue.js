@@ -32,7 +32,8 @@ Ext.define('Mdc.securityaccessors.view.SecurityAcessorsSetDefaultKeyValue', {
                     name: 'defaultKeyValue',
                     itemId: 'defaultKeyValue',
                     fieldLabel: Uni.I18n.translate('securityaccessors.defaultKeyValue', 'MDC', 'Default key value'),
-                    allowBlank: false
+                    allowBlank: false,
+                    margin: '20 0 0 0',
                 },
                 {
                     xtype: 'fieldcontainer',

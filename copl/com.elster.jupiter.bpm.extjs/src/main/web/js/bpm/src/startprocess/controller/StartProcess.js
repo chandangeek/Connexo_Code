@@ -49,15 +49,12 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
         }
         propertyForm = processStartContent.down('property-form');
         startProcessPanel.setLoading();
-        console.log("loadJbpmForm!!!!!!!!!!");
         me.processRecord = processRecord.lastSelection[0].data;
         processContent.getProxy().setUrl(me.processRecord.deploymentId);
         processContent.load(me.processRecord.processId, {
             success: function (startProcessRecord) {
-                console.log("PROCESS INFORMATION WAS LOADED OK!!!!!!!!",startProcessRecord);
                 processStartContent.startProcessRecord = startProcessRecord;
                 if (startProcessRecord && startProcessRecord.properties() && startProcessRecord.properties().count()) {
-                    console.log("LOAD RECORD!!!!!!!!",startProcessRecord);
                     propertyForm.loadRecord(startProcessRecord);
                     propertyForm.show();
                 } else {
@@ -67,7 +64,6 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
                 propertyForm.up('#process-start-content').doLayout();
             },
             failure: function (record, operation) {
-                console.log("PROCESS INFORMATION WAS NOT LOADED OK!!!!!!!!");
                 startProcessPanel.setLoading(false);
                 propertyForm.hide();
                 propertyForm.up('#process-start-content').doLayout();
@@ -107,8 +103,6 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
             formErrorsPanel = form.down('#form-errors'),
             businessObject = {};
 
-        console.log("START PROCESS BUTTON WAS PRESSED!!!!!");
-
         if (form.isValid()) {
             if (!formErrorsPanel.isHidden()) {
                 formErrorsPanel.hide();
@@ -144,8 +138,6 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
                     ]);
                 }
             }
-
-            console.log("START PROCESS FOR ",startProcessRecord);
 
             startProcessRecord.save({
                 success: function () {

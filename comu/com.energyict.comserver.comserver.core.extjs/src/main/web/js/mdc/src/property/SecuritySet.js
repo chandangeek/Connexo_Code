@@ -31,16 +31,10 @@ Ext.define('Mdc.property.SecuritySet', {
         afterrender: {
             fn: function () {
                 var me = this;
-
-                console.log("LOAD DELIVERABLES!!!!");
-                console.log("deviceName from context = ",me.up('property-form').context.deviceName);
                 var deviceNameToSet = me.up('property-form').context.deviceName;
                 me.securitySetsStore.getProxy().url = '/api/ddr/devices/' + deviceNameToSet + '/securityproperties/hsm';
 
                 me.securitySetsStore.load(function () {
-
-                    console.log("SETS ARE LOADED !!!!!!!!!=",me.securitySetsStore.getCount());
-
                     if (me.securitySetsStore.getCount() == 0){
                         me.down('#sets-container').hide();
                         me.down('#accessors-container').hide();
@@ -65,8 +59,6 @@ Ext.define('Mdc.property.SecuritySet', {
 
     getEditCmp: function () {
         var me = this;
-
-        console.log("getEditCmp!!!!!!!!!!");
 
         me.securitySetsStore = Ext.create('Ext.data.Store', {
 
@@ -101,7 +93,6 @@ Ext.define('Mdc.property.SecuritySet', {
         return [
 
                     {
-                        //xtype: 'form',
                         xtype: 'fieldcontainer',
                         itemId: 'sets-container',
                         width: '100%',
@@ -131,7 +122,6 @@ Ext.define('Mdc.property.SecuritySet', {
                                 }),
                                 listeners:{
                                     selectionchange:function(selModel, selected) {
-                                        console.log("SELECTION IS CHANGED !!!!!!!!!!!!!");
                                         me.selectionChanged();
                                     }
                                 },
@@ -158,7 +148,6 @@ Ext.define('Mdc.property.SecuritySet', {
                         ]
                     },
                     {
-                        //xtype: 'form',
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('securityacessrors.securityAccessors', 'MDC', "Security accessors"),
                         itemId: 'accessors-container',
@@ -205,7 +194,6 @@ Ext.define('Mdc.property.SecuritySet', {
         arrayToRender = array;
 
         var propertiesToRender = [];
-        console.log("CLEAR FORM");
         me.getPropForm().removeAll();
 
        me.securityAccessorsStore.each(function (accessor) {
@@ -219,22 +207,18 @@ Ext.define('Mdc.property.SecuritySet', {
                 var propertyKey = property.get('key');
 
                 if (propertyKey !== "label"){
-                    var keyToset = nameOfAccessor;//nameOfAccessor + propertyKey; TO DO move it to place where load if finished !!!!!!!!!
-                    property.set('key', keyToset);//to get unigue key compose it from nameOfAccessor and property Key
+                    var keyToset = nameOfAccessor;
+                    property.set('key', keyToset);
                     property.data.value = defaultServiceKeyValue;
                     property.data['default'] = defaultServiceKeyValue;
 
                     var type = property.getType();
                     fieldType = registry.getProperty(type);
 
-
-                    console.log("PROPERTY =",property);
-
                     tmpKey = property.get('key');
 
                     if (arrayToRender.indexOf(accessorId) >=0 )
                     {
-                        console.log("FIELD TYPE =",fieldType);
                         /* If accessor in array to render then add it to form */
                         var field = Ext.create(fieldType, Ext.apply(me.defaults, {
                                             property: property,
@@ -256,8 +240,6 @@ Ext.define('Mdc.property.SecuritySet', {
                         renderedKeys.push(keyToset);
                     } else {
                     /* Accessor is not in array so delete in from the form */
-                        console.log("REMOVE PROPERTY = ",property.get('key'));
-                        console.log("PRINT THE FORM = ", me.up('property-form'))
                         //me.up('property-form').remove(property.get('key'));
                     }
                 }
@@ -269,25 +251,18 @@ Ext.define('Mdc.property.SecuritySet', {
     selectionChanged: function() {
         var me = this;
         var selections = me.getGrid().getSelectionModel().getSelection();
-        console.log("selections =",selections);
         var accessorIdArray = [];
 
         if (selections.length == 0)
         {
-            console.log("HIDE ACCESSORS!!!");
             me.down('#accessors-container').hide();
 
         }else{
-            console.log("SHOW ACCESSORS!!!");
             me.down('#accessors-container').show();
             selections.forEach(function (selection) {
 
                     selection.properties().each(function (property) {
-                        console.log("PROPERTY  = ", property);
-                        console.log("PRINT ID OF THE PROPERTY = ",property.raw.propertyValueInfo.value.id);
                         var idToAdd = property.raw.propertyValueInfo.value.id;
-                        console.log("idToAdd = ",idToAdd);
-                        console.log("accessorIdArray.indexOf(idToAdd)=",accessorIdArray.indexOf(idToAdd));
                         if(!(accessorIdArray.indexOf(idToAdd)>=0)){
                         /* Id of secutrityAccessor is not in array. Add it to array */
                             accessorIdArray.push(idToAdd);
@@ -297,9 +272,6 @@ Ext.define('Mdc.property.SecuritySet', {
 
             me.renderAccessors(accessorIdArray);
         }
-
-
-
     },
 
     getGrid: function () {
@@ -322,11 +294,10 @@ Ext.define('Mdc.property.SecuritySet', {
 
        var selectedSets = [];
         _.map(me.getGrid().getSelectionModel().getSelection(), function (record) {
-                    console.log("SELECTED RECORDS = ",record.get('name'));
                     var tmpSetName = record.get('name');
                     tmpSetName = tmpSetName.replace(",","[,]");
                     selectedSets.push(tmpSetName);
-                    return record;//.get('readingType').mRID;
+                    return record;
                 })
 
         if (selectedSets.length == 0){
@@ -345,13 +316,10 @@ Ext.define('Mdc.property.SecuritySet', {
         var raw = me.getPropForm().getFieldValues();
 
         for( var index = 0 ; index < renderedKeys.length ; index++){
-            console.log("index =",index);
-            console.log("keys[i] =",renderedKeys[index]);
             var field = me.getPropForm().getComponent(renderedKeys[index]);
             if (field !== undefined) {
                 var tmpvalue = field.getValue(raw);
-                console.log("Obtained value=", tmpvalue);
-                if (tmpvalue !== ""){ //TO DO add check for multiple spaces
+                if (tmpvalue !== ""){
                     var tmpKey = renderedKeys[index];
                     tmpKey = tmpKey.replace(",","[,]");
                     tmpKey = tmpKey.replace(";","[;]");
@@ -364,11 +332,8 @@ Ext.define('Mdc.property.SecuritySet', {
                         resultAccessors = resultAccessors + ",,";
                     }
                 }
-
             }
-
         }
-
         /* Format of value is <list of sets> ;; <list of accessors> */
         result = resultSets + ";;" + resultAccessors;
 

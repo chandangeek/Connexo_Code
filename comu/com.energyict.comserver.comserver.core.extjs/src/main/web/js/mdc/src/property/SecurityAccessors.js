@@ -26,9 +26,7 @@ Ext.define('Mdc.property.SecurityAccessors', {
 
     tmpKey: '',
 
-    PREP: 'prep',
-    GEN: 'gen',
-
+    isEditParameters: true,
     renderedFieldKeys: [],
 
     listeners: {
@@ -44,8 +42,6 @@ Ext.define('Mdc.property.SecurityAccessors', {
 
                 preparedKeys = me.property.data.value.split(",,");
 
-                console.log("PREPARED KEYS = ",preparedKeys);
-
                 for (var index = 0; index < preparedKeys.length; index++){
                     var nameAndValue = [];
                     nameAndValue = preparedKeys[index].split(":");
@@ -53,7 +49,8 @@ Ext.define('Mdc.property.SecurityAccessors', {
                     var itemIdForGeneratedKey = nameAndValue[0] + 'gen';
 
                     if (me.getPropForm()){
-                        me.getPropForm().add({
+                        if(me.isEditParameters){
+                            me.getPropForm().add({
                                             xtype: 'textareafield',
                                             fieldLabel: nameAndValue[0] + "(prepared key)",
                                             labelWidth: 250,
@@ -68,12 +65,54 @@ Ext.define('Mdc.property.SecurityAccessors', {
                                             fieldLabel: nameAndValue[0] + "(generated signature)",
                                             width: 1000,
                                             height: 100,
+                                            margin: '0 0 20 0',
                                             value: nameAndValue[2],
                                             required: true,
                                             allowBlank: false,
                                             itemId: itemIdForGeneratedKey
                                         }
                                       );
+
+                        }else{
+                            me.getPropForm().add({
+                                            xtype: 'displayfield',
+                                            fieldLabel: nameAndValue[0] + "(prepared key)",
+                                            readOnly: true,
+                                            value: nameAndValue[1],
+                                            itemId: itemIdForPreparedKey,
+                                            renderer: function(value){
+                                                var numberOfInterations = Math.floor(value.length/120);
+                                                var initialLength = value.length
+                                                var resultValue = value;
+                                                for (var i = 0; i < numberOfInterations; i++)
+                                                {
+                                                    resultValue = resultValue.substr(0, 120*(i+1)+i*8) + '<br>' + resultValue.substr(120*(i+1)+i*8);
+                                                }
+                                                return resultValue;
+                                            }
+                                        },
+                                        {
+                                            xtype: 'displayfield',
+                                            fieldLabel: nameAndValue[0] + "(generated signature)",
+                                            readOnly: true,
+                                            value: nameAndValue[2],
+                                            itemId: itemIdForGeneratedKey,
+                                            renderer: function(value){
+                                                var numberOfInterations = Math.floor(value.length/100);
+                                                var initialLength = value.length
+                                                var resultValue = value;
+                                                for (var i = 0; i < numberOfInterations; i++)
+                                                {
+                                                    resultValue = resultValue.substr(0, 100*(i+1)+i*8) + '<br>' + resultValue.substr(100*(i+1)+i*8);
+                                                }
+                                                return resultValue;
+                                            }
+                                        }
+                                      );
+
+
+                        }
+
                     }
 
                     tmpArray.push(nameAndValue[0]);
@@ -86,10 +125,6 @@ Ext.define('Mdc.property.SecurityAccessors', {
 
     getEditCmp: function () {
         var me = this;
-
-        console.log("getEditCmp!!!!!!!!!!");
-
-        console.log("PROPERTY =",me.property.data.value);
 
         me.securitySetsStore = Ext.create('Ext.data.Store', {
             model: 'Mdc.model.DeviceSecuritySetting',
@@ -134,6 +169,11 @@ Ext.define('Mdc.property.SecurityAccessors', {
         ];
     },
 
+    getDisplayCmp: function(){
+        this.isEditParameters = false;
+        return this.getEditCmp();
+    },
+
     setReadOnly: function(readOnly){
 
     },
@@ -154,7 +194,6 @@ Ext.define('Mdc.property.SecurityAccessors', {
 
         var result = "";
 
-        console.log("renderedFieldKeys=",renderedFieldKeys );
         if (me.getPropForm()){
             var raw = me.getPropForm().getValues();
             for (var index = 0; index < renderedFieldKeys.length; index++){
@@ -163,8 +202,7 @@ Ext.define('Mdc.property.SecurityAccessors', {
                 var preparedField = me.getPropForm().getComponent(preparedKey);
                 if (preparedField !== undefined) {
                     var tmpPreparedValue = preparedField.getValue(raw);
-                    console.log("Obtained prepared value=", tmpPreparedValue);
-                    if (tmpPreparedValue  !== ""){ //TO DO add check for multiple spaces
+                    if (tmpPreparedValue  !== ""){
 
                         tmpPreparedValue = tmpPreparedValue.replace(",","[,]");
                         tmpPreparedValue = tmpPreparedValue.replace(";","[;]");
@@ -173,14 +211,12 @@ Ext.define('Mdc.property.SecurityAccessors', {
 
                     }
                 }
-                console.log("result = ",result);
 
                 var generatedKey = renderedFieldKeys[index] + 'gen';
                 var generatedField = me.getPropForm().getComponent(generatedKey);
                     if (generatedField !== undefined) {
                         var tmpGeneratedValue = generatedField.getValue(raw);
-                        console.log("Obtained generated value=", tmpGeneratedValue);
-                        if (tmpGeneratedValue !== ""){ //TO DO add check for multiple spaces
+                        if (tmpGeneratedValue !== ""){
                             tmpGeneratedValue = tmpGeneratedValue.replace(",","[,]");
                             tmpGeneratedValue = tmpGeneratedValue.replace(";","[;]");
 
@@ -195,8 +231,6 @@ Ext.define('Mdc.property.SecurityAccessors', {
 
             }
         }
-
-        console.log("RESULT =",result);
         return result;
     },
 
@@ -243,6 +277,6 @@ Ext.define('Mdc.property.SecurityAccessors', {
 
     setLocalizedName: function(name) {
              fieldLabel = "";
-         }
+    }
 
 });

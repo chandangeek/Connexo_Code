@@ -8,7 +8,8 @@ Ext.define('Bpm.controller.Task', {
         'Bpm.privileges.BpmManagement',
         'Bpm.controller.FilterSortTasks',
         'Bpm.controller.OpenTask',
-        'Uni.component.sort.model.Sort'
+        'Uni.component.sort.model.Sort',
+        'Mdc.property.SecurityAccessors'
     ],
     views: [
         'Bpm.view.task.Tasks',
@@ -88,7 +89,6 @@ Ext.define('Bpm.controller.Task', {
             listLink,
             task = me.getModel('Bpm.model.task.Task'),
             performTask = me.getModel('Bpm.model.task.OpenTask');
-            console.log("PERFORM LOAD OF TASKS!!!!!!!!");
         listLink = me.makeLinkToList(router);
         task.load(taskId, {
             success: function (taskRecord) {
@@ -284,7 +284,6 @@ Ext.define('Bpm.controller.Task', {
 
     findProcessVariable: function (processNodeRecord, variableName) {
         var nodes = processNodeRecord.processInstanceNodes();
-        console.log(nodes);
         var continueLoop = true;
         var returnVariable = undefined;
         if (!Ext.isEmpty(nodes)) {
