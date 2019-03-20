@@ -82,6 +82,7 @@ public class TableImpl<T> implements Table<T> {
     private int position;
     private boolean cached;
     private boolean autoInstall = true;
+    private boolean forceJournal = false;
     private int indexOrganized = -1;
     private transient RangeSet<Version> versions = TreeRangeSet.<Version>create().complement();
     private RangeMap<Version, String> nameHistory = TreeRangeMap.create();
@@ -473,7 +474,13 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public JournalTableVersionOptions setJournalTableName(String journalTableName) {
-        if (hasAutoChange()) {
+        return setJournalTableName(journalTableName, false);
+    }
+
+    @Override
+    public JournalTableVersionOptions setJournalTableName(String journalTableName, boolean forceJournal) {
+        this.forceJournal = forceJournal;
+        if (!forceJournal && hasAutoChange()) {
             throw new IllegalStateException(" A table with foreign key using cascading or set null delete rule cannot have a journal table ");
         }
         this.journalNameHistory.put(Range.all(), journalTableName);
@@ -483,6 +490,11 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public boolean hasJournal() {
         return this.getJournalTableName() != null;
+    }
+
+    @Override
+    public boolean hasForceJournal() {
+        return this.forceJournal;
     }
 
     @Override
