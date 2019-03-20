@@ -13,6 +13,8 @@ Ext.define('Fwc.view.firmware.FormAdd', {
         var me = this;
             router = me.router,
             deviceTypeId = me.deviceTypeId;
+
+
         me.items = [
             {
                 xtype: 'uni-form-error-message',
@@ -104,27 +106,20 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                             xtype: 'combobox',
                             itemId: 'firmware-min-meter-version',
                             allowBlank: false,
-                            store: 'Fwc.store.MeterFirmwareDeps',
-                            forceSelection: true,
+                            name: 'meterFirmwareDependency',
                             queryMode: 'local',
                             displayField: 'name',
                             valueField: 'id',
                             hiddenName: 'meterFirmwareDependency',
                             listeners: {
-                                beforerender: function () {
-                                    var store = this.getStore();
-                                    var deviceTypeId = this.up('fwc-add-form').deviceTypeId;
-                                    var proxy = store.getProxy();
-                                    store.getProxy().setUrl(deviceTypeId);
-                                    store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'meter', property: 'firmwareType' }]));
-                                    store.load();
-                                },
-                                change: function (combobox) {
-                                    if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-meter-version-default-button');
-                                    if (combobox.getValue()) {
-                                        this.resetButton.setDisabled(false);
-                                    } else {
-                                        this.resetButton.setDisabled(true);
+                                change: {
+                                    fn : function (combobox) {
+                                        if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-meter-version-default-button');
+                                        if (combobox.getValue()) {
+                                            this.resetButton.setDisabled(false);
+                                        } else {
+                                            this.resetButton.setDisabled(true);
+                                        }
                                     }
                                 }
                             }
@@ -156,20 +151,11 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                             itemId: 'firmware-min-communication-version',
                             allowBlank: false,
                             store: 'Fwc.store.CommunicationFirmwareDeps',
-                            forceSelection: true,
-                            queryMode: 'local',
                             displayField: 'name',
                             valueField: 'id',
                             hiddenName: 'communicationFirmwareDependency',
+                            queryMode: 'local',
                             listeners: {
-                                beforerender: function () {
-                                    var store = this.getStore();
-                                    var deviceTypeId = this.up('fwc-add-form').deviceTypeId;
-                                    var proxy = store.getProxy();
-                                    store.getProxy().setUrl(deviceTypeId);
-                                    store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'communication', property: 'firmwareType' }]));
-                                    store.load();
-                                },
                                 change: function (combobox) {
                                     if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-communication-version-default-button');
                                     if (combobox.getValue()) {
@@ -195,6 +181,21 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                        ]
             }
         ];
+
+        function setCbxStore(cbxId, storeName, storeType){
+            var store = Ext.data.StoreManager.lookup(storeName);
+            var proxy = store.getProxy();
+            proxy.setUrl(deviceTypeId);
+            proxy.setExtraParam('filter', Ext.encode([{ value: storeType, property: 'firmwareType' }]));
+            store.load(function (records) {
+                 if (!Ext.isEmpty(records)) {
+                       me.down('#' + cbxId).bindStore(store);
+                 }
+            });
+        }
+        setCbxStore('firmware-min-meter-version', 'Fwc.store.MeterFirmwareDeps', 'meter');
+        setCbxStore('firmware-min-communication-version', 'Fwc.store.CommunicationFirmwareDeps', 'communication');
+
         me.callParent(arguments);
     },
     updateGrid: function() {

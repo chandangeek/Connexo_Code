@@ -27,9 +27,6 @@ Ext.define('Fwc.view.firmware.Grid', {
                 var maxRankValue = this.maxRankValue;
                 if (this.isEditedRank) {
                     rIndex = maxRankValue ? maxRankValue - rowIndex : rIndex;
-                    Ext.each(dataSource.proxy.reader.jsonData.firmwares, function(data) {
-                        if (record.getId() === data.id) data.rank = rIndex;
-                    });
                 }
                 return rIndex;
             }
@@ -89,6 +86,18 @@ Ext.define('Fwc.view.firmware.Grid', {
             me.maxRankValue = records && records[0] && records[0].data && records[0].data.rank ? records[0].data.rank : 0;
         })
 
+        function delColbyId(itemIds, cols){
+            return Ext.Array.filter(cols, function(item){
+              var exists = false;
+              Ext.Array.each(itemIds, function(itemId){
+                  if (itemId === item.itemId) exists = true;
+              })
+              return !exists;
+            });
+        }
+
+         me.columns = delColbyId(['ordering-col', 'uni-actioncolumn'] , me.columns);
+
         if (me.editOrder) {
             me.viewConfig = {
                  plugins: {
@@ -108,8 +117,10 @@ Ext.define('Fwc.view.firmware.Grid', {
             me.selModel = {
                  mode: 'MULTI'
             };
+
             me.columns.push({
                  header: Uni.I18n.translate('general.ordering', 'EST', 'Ordering'),
+                 itemId: 'ordering-col',
                  align: 'center',
                  renderer: function () {
                         return '<span class="icon-stack3"></span>';
@@ -146,9 +157,9 @@ Ext.define('Fwc.view.firmware.Grid', {
                  xtype: 'button',
                  action: 'addFirmware'
             }]
-
             me.columns.push({
             xtype: 'uni-actioncolumn',
+            itemId: 'uni-actioncolumn',
             width: 120,
             isDisabled: function(view, rowIndex, colIndex, item, record) {
                 return !Mdc.privileges.DeviceType.canAdministrate()

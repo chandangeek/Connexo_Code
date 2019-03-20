@@ -742,15 +742,27 @@ Ext.define('Fwc.controller.Firmware', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        var reader = me.getFwcStoreFirmwaresStore().getProxy().getReader();
-        var data = reader && reader.jsonData && reader.jsonData.firmwares ? reader.jsonData.firmwares : null;
-        data.sort(function(a,b){ return (a.rank < b.rank) ? 1 : ((b.rank < a.rank) ? -1 : 0)});
+        var firmvareView = me.getFirmwareGrid().getView();
+        var dataForSend = [];
+
+        if(firmvareView){
+            var rawData = firmvareView.dataSource && firmvareView.dataSource.data && firmvareView.dataSource.data.items;
+            if (rawData){
+                 for (var i = 0; i < rawData.length; i++){
+                    var reader = me.getFwcStoreFirmwaresStore().getProxy().getReader();
+                    var storeData = reader && reader.jsonData && reader.jsonData.firmwares ? reader.jsonData.firmwares : null;
+                     Ext.each(storeData, function(data) {
+                          if (rawData[i].data.id === data.id) dataForSend.push(data);
+                     });
+                 }
+            }
+        }
 
         var url = me.getFwcStoreFirmwaresStore().getProxy().url + '/reorder';
-        if(data){
+        if(dataForSend){
             Ext.Ajax.request({
                         url: url,
-                        jsonData: data,
+                        jsonData: dataForSend,
                         method: 'PUT',
                         success: function (response) {
                             router.getRoute(router.currentRoute).forward(router.arguments, null);
