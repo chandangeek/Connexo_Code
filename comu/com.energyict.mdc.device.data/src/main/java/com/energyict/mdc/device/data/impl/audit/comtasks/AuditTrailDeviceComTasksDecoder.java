@@ -50,7 +50,7 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
             completed.set(true);
             builder.put("sourceType", "COMTASK");
             builder.put("sourceTypeName", getDisplayName(PropertyTranslationKeys.COMTASK));
-            builder.put("sourceName", comTask.get().getName());
+            builder.put("name", comTask.get().getName());
             builder.put("sourceId", comTask.get().getId());
         }
         return builder.build();
