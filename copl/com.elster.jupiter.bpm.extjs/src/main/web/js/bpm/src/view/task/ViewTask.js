@@ -43,7 +43,7 @@ Ext.define('Bpm.view.task.ViewTask', {
                 layout: {
                     type: 'fit'
                 },
-                title: "TASK ATTRIBUTES",//Uni.I18n.translate('bpm.task.taskAttributes', 'BPM', 'Task attributes'),
+                title: Uni.I18n.translate('bpm.task.taskAttributes', 'BPM', 'Task attributes'),
                 ui: 'medium',
                 margin: '-4 0 0 0',
                 flex: 1,

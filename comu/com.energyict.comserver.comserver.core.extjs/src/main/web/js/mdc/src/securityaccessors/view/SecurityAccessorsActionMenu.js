@@ -73,6 +73,6 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 .setVisible(!this.deviceTypeId && record.get('isKey'));
         this.down('#menu-sa-set-default-value')
                 &&  this.down('#menu-sa-set-default-value')
-                        .setVisible(record.get('keyType').name == 'HSM Key');
+                        .setVisible(this.deviceTypeId && record.get('keyType').name == 'HSM Key');
     }
 });

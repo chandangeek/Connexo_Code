@@ -23,8 +23,8 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
         items: []
     },
 
-    doLoadRecord: function(record, defaultKeyValue) {
-        console.log("DOLOADRECORD!!!!!!!");
+    doLoadRecord: function(record, defaultKeyValue, deviceTypeId) {
+        console.log("DOLOADRECORD!!!!!!!",deviceTypeId);
         var me = this,
             leftItems = {
                 defaults: {
@@ -104,10 +104,10 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                     {
                         fieldLabel: Uni.I18n.translate('securityaccessors.defaultServiceKey', 'MDC', 'Default service key'),
                         name: 'defaultServiceKey',
-                        hidden: !(record.get('keyType').name == 'HSM Key'),
+                        hidden: !(record.get('keyType').name == 'HSM Key' && deviceTypeId),
                         renderer: function () {
                             var val = defaultKeyValue;
-                            return val;
+                            return Ext.isEmpty(val) ? '-' : val;
                         }
                     }
                 ]

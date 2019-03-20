@@ -242,7 +242,7 @@ Ext.define('Bpm.controller.OpenTask', {
                                             me.getModel('Bpm.model.task.OpenTask').load(taskId, {
                                                 success: function (newOpenTaskRecord) {
                                                     me.loadJbpmForm(taskRecord, isAssignee, newOpenTaskRecord);
-                                                    me.getApplication().fireEvent('acknowledge', "TASK STARTED X!!!!!!!!!!!"/*Uni.I18n.translate('bpm.task.openTask.started', 'BPM', 'Task started.')*/);
+                                                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.started', 'BPM', 'Task started.'));
                                                 }
                                             });
                                         }

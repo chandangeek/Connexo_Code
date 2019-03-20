@@ -205,7 +205,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             processRecord = function (record, defaultKeyValue) {
                 me.selectedRecord = record;
                 console.log("doLoadRecord for record=",record);
-                me.getPreviewForm().doLoadRecord(record, defaultKeyValue);
+                me.getPreviewForm().doLoadRecord(record, defaultKeyValue, me.deviceTypeId);
                 me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
                 gridMenu.updateMenuItems(record);
                 gridMenu.record = record;
@@ -223,7 +223,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
         var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
 
-        if (recordParam.get('keyType').name == 'HSM Key'){
+
+        if (recordParam.get('keyType').name == 'HSM Key' && me.deviceTypeId){
                 console.log("GET INFORMATION!!!!!");
                 Ext.Ajax.request({
                     url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors/{1}', me.deviceTypeId,recordParam.get('id')),
@@ -776,7 +777,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             }
         });
     },
-    /*XROMVYU*/
+
     saveDefaultKeyValue: function () {
         var me = this,
             setDefaultKeyWindow = me.getSecurityAccessorSetDefaultKeyWindow(),
@@ -802,9 +803,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 },
                 success: function (response) {
                     console.log("KEY WAS SET RESPONSE = ",response);
-                    //var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
-
-                    me.getPreviewForm().doLoadRecord(recordToSetKey, keyValue);
+                    me.getPreviewForm().doLoadRecord(recordToSetKey, keyValue, me.deviceTypeId);
 
                 },
 
