@@ -64,32 +64,78 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             return ((UserImpl) user).doGetGroups();
         }
 
-        return getSomethingFromLdap(this::doGetGroups, user);
+        try {
+            return getSomethingFromLdap(this::doGetGroups, user);
+        } catch (Exception ex) {
+            return ((UserImpl) user).doGetGroups();
+        }
     }
 
     private List<Group> doGetGroups(DirContext context, Object... args) throws NamingException {
+        List<Group> groupList = new ArrayList<>();
         // https://issues.apache.org/jira/browse/DIRSERVER-1844 ApacheDS does not support memberOf virtual attribute
         // so we cannot find user and check their groups. Instead we find groups which have the user as member
         User user = (User) args[0];
-        List<Group> groupList = new ArrayList<>();
-        String name;
-        int scope;
+        SearchResult userSearchResult = findLDAPUser(context, user);
+        if (userSearchResult == null) {
+            throw new NamingException(); // no need to provide message, the exception is caught in getSomethingXXX and next URL is used
+        }
+
+        String parentDnSuffix = getParentDnSuffix(userSearchResult);
+        SearchControls controls;
+
+        NamingEnumeration<SearchResult> answer;
+        String groupFilter = new StringBuilder("(&(objectClass=groupOfNames)(member=uid=").append(user.getName())
+                .append(parentDnSuffix).append("))").toString();
         if (getBaseGroup() == null) {
             // search all groups
-            name = "";
-            scope = SearchControls.SUBTREE_SCOPE;
+            controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, CN_ARRAY, true, true);
+            answer = context.search("", groupFilter, controls);
+            addExistingGroupsToList(answer, groupList);
         } else {
-            // search all groups which are direct children of baseGroup
-            name = getBaseGroup();
-            scope = SearchControls.ONELEVEL_SCOPE;
+            // find members of base group
+            Attributes memberAttributes = context.getAttributes(getBaseGroup(), MEMBER_ARRAY);
+            @SuppressWarnings("unchecked")
+            NamingEnumeration<String> groupEnumeration = (NamingEnumeration<String>) memberAttributes.get(MEMBER)
+                    .getAll();
+            controls = new SearchControls(SearchControls.OBJECT_SCOPE, 0, 0, CN_ARRAY, true, true);
+            // search all members of base group
+            while (groupEnumeration.hasMore()) {
+                String groupMember = groupEnumeration.next();
+                answer = context.search(groupMember, groupFilter, controls);
+                addExistingGroupsToList(answer, groupList);
+            }
+
         }
-        SearchControls controls = new SearchControls(scope, 0, 0, CN_ARRAY, true, true);
-        NamingEnumeration<SearchResult> answer = context.search(name,
-                "(&(objectClass=groupOfNames)(member=uid=" + user.getName() + "," + getBase() + "))", controls);
+        return groupList;
+    }
+
+    private void addExistingGroupsToList(NamingEnumeration<SearchResult> answer, List<Group> groupList)
+            throws NamingException {
         while (answer.hasMore()) {
             userService.findGroup(answer.next().getAttributes().get(CN).get().toString()).ifPresent(groupList::add);
         }
-        return groupList;
+    }
+
+    private String getParentDnSuffix(SearchResult userSearchResult) {
+        String fullDn = userSearchResult.getNameInNamespace();
+        int indexOfComma = fullDn.indexOf(',');
+        if (indexOfComma > 0) {
+            return fullDn.substring(indexOfComma);
+        } else {
+            return "";
+        }
+    }
+
+    private SearchResult findLDAPUser(DirContext context, User user) throws NamingException {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        NamingEnumeration<SearchResult> answer = context.search("",
+                "(&(objectClass=person)(uid=" + user.getName() + "))", controls);
+        if (answer.hasMore()) {
+            return answer.next();
+        }
+        return null;
     }
 
     @Override
@@ -258,9 +304,10 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             SearchResult groupSearchResult = groupEnumeration.next();
             Attributes groupAttributes = groupSearchResult.getAttributes();
             Attribute memberAttribute = groupAttributes.get(MEMBER);
-            NamingEnumeration<?> membersEnumeration = memberAttribute.getAll();
+            @SuppressWarnings("unchecked")
+            NamingEnumeration<String> membersEnumeration = (NamingEnumeration<String>) memberAttribute.getAll();
             while (membersEnumeration.hasMore()) {
-                String userDN = (String) membersEnumeration.next();
+                String userDN = membersEnumeration.next();
                 findAndAddUser(userDN, ldapUsers, ctx);
             }
         }

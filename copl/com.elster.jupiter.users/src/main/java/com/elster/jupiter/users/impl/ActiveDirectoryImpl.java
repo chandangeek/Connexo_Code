@@ -68,8 +68,11 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         if (isManageGroupsInternal()) {
             return ((UserImpl) user).doGetGroups();
         }
-
-        return getSomethingFromLdap(this::doGetGroups, user);
+        try {
+            return getSomethingFromLdap(this::doGetGroups, user);
+        } catch (Exception ex) {
+            return ((UserImpl) user).doGetGroups();
+        }
     }
 
     private List<Group> doGetGroups(DirContext context, Object... args) throws NamingException {
@@ -80,7 +83,7 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
 
         List<Group> groupList = new ArrayList<>();
         SearchControls controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, ARRAY_MEMBER_OF, true, true);
-        String name = getGroupName() == null ? "" : getGroupName();
+        String name = getGroupName() == null ? getBaseUser() : "";
         NamingEnumeration<SearchResult> answer = context.search(name,
                 "(&(objectClass=person)(userPrincipalName=" + user.getName() + "@" + getRealDomain(getBase()) + "))",
                 controls);
