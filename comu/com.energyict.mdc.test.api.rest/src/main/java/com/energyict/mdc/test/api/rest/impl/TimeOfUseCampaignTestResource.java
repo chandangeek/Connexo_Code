@@ -29,7 +29,7 @@ public class TimeOfUseCampaignTestResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteCampaign(@PathParam("id") long id) {
-        timeOfUseCampaignService.deleteCampaign(id);
+        timeOfUseCampaignService.getCampaign(id).get().delete();
         return Response.noContent().build();
     }
 }
