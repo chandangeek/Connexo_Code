@@ -112,7 +112,7 @@ public class UserDirectoryResourceTest extends UsersRestApplicationJerseyTest {
         infos.ldapGroups = Arrays.asList(group1, group2);
         Entity<LdapGroupsInfos> entity = Entity.json(infos);
 
-        target("/userdirectories/1/groups").request().post(entity);
+        target("/userdirectories/groups").request().post(entity);
 
         verify(userService).findOrCreateGroup(groupName1);
         verify(userService).findOrCreateGroup(groupName2);

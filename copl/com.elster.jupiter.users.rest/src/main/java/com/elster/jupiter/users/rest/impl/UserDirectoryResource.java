@@ -363,13 +363,12 @@ public class UserDirectoryResource {
     }
 
     @POST
-    @Path("/{id}/groups")
+    @Path("/groups")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({ Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE,
             com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
-    public Response saveGroups(LdapGroupsInfos infos, @PathParam("id") long id,
-            @Context SecurityContext securityContext) {
+    public Response saveGroups(LdapGroupsInfos infos, @Context SecurityContext securityContext) {
         try (TransactionContext context = transactionService.getContext()) {
             infos.ldapGroups.stream().forEach(s -> userService.findOrCreateGroup(s.name));
             context.commit();
