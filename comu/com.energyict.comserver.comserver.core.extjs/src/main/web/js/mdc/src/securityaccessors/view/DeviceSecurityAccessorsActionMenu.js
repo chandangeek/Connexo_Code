@@ -103,7 +103,6 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
                 }
 
                 if (Ext.isDefined(item.checkServiceKey)) {
-                    console.log("SET VISIBILITY FOR unmarkAction. serviceKey = ",serviceKey);
                     visible = serviceKey;
                 }
 

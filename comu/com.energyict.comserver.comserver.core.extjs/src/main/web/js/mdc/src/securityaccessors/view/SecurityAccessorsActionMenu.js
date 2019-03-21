@@ -10,7 +10,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
             {
                 text: Uni.I18n.translate('general.changePrivileges', 'MDC', 'Change privileges'),
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
-                //hidden: true,
+                hidden: true,
                 action: 'changePrivileges',
                 itemId: 'menu-sa-change-privileges',
                 section: this.SECTION_EDIT

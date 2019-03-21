@@ -124,7 +124,6 @@ Ext.define('Uni.property.form.Property', {
                         blankText: me.blankText,
                         propertyParams : property.getPropertyParams()
                     }));
-
                     me.add(field);
                     field.on('checkRestoreAll', function () {
                         me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());

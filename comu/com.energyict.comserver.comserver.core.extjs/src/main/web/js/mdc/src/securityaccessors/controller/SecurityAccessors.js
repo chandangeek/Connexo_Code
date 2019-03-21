@@ -193,7 +193,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 me.activatePassiveCertificate(me.selectedRecord);
             } break;
             case 'setDefaultKeyValue': {
-                me.setDefaultKeyValue(me.selectedRecord);
                 Ext.widget('security-accessors-set-default-key-window', {
                     securityAccessorRecord: me.selectedRecord
                 }).show();
@@ -202,12 +201,10 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     },
 
     recordSelected: function (grid, recordParam) {
-        console.log("RECORD SELECTED!!!! with default service key = ", recordParam.get('defaultServiceKey'));
         var me = this,
             gridMenu = me.getSecurityAccessorsGrid().down('uni-actioncolumn').menu,
             processRecord = function (record, defaultKeyValue) {
                 me.selectedRecord = record;
-                console.log("doLoadRecord for record=",record);
                 me.getPreviewForm().doLoadRecord(record, defaultKeyValue, me.deviceTypeId);
                 me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
                 gridMenu.updateMenuItems(record);
@@ -228,7 +225,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
 
         if (recordParam.get('keyType').name == 'HSM Key' && me.deviceTypeId){
-                console.log("GET INFORMATION!!!!!");
                 Ext.Ajax.request({
                     url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors/{1}', me.deviceTypeId,recordParam.get('id')),
                     method: 'GET',
@@ -785,15 +781,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         var me = this,
             setDefaultKeyWindow = me.getSecurityAccessorSetDefaultKeyWindow(),
             securityAccessorRecord = setDefaultKeyWindow.securityAccessorRecord,
-            //securityAccessorRecordInEditWindow = editWindow.securityAccessorRecord,
             viewport = Ext.ComponentQuery.query('viewport')[0];
-            console.log("SAVE DEFAULT VALUE!!setDefaultKeyWindow=",setDefaultKeyWindow);
-
-            console.log("securityAccessorRecord = ",securityAccessorRecord);
 
             var keyValue = setDefaultKeyWindow.down('#defaultKeyValue').getValue();
-
-            console.log("keyValue =",keyValue);
             setDefaultKeyWindow.close();
 
             viewport.setLoading();
@@ -805,7 +795,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                    "value": keyValue
                 },
                 success: function (response) {
-                    console.log("KEY WAS SET RESPONSE = ",response);
                     me.getPreviewForm().doLoadRecord(recordToSetKey, keyValue, me.deviceTypeId);
 
                 },
@@ -930,9 +919,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 router.getRoute().forward(router.arguments);
             }
         });
-    },
-
-    setDefaultKeyValue: function(certificateRecord) {
     },
 
     clearPassive: function(keyOrCertificateRecord, keyMode) {

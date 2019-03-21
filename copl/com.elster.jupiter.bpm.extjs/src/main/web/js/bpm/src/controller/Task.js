@@ -399,8 +399,6 @@ Ext.define('Bpm.controller.Task', {
             route,
             record;
 
-        console.log("CHOOOSE ACTION!!!!");
-
         if ((item.action == 'assignToMeTask') || (item.action == 'unassignedTask')) {
             return;
         }

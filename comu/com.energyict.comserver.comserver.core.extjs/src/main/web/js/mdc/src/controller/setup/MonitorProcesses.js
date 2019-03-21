@@ -100,7 +100,6 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
 
                 me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
-                console.log("CREATE START PROCESS FORM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 widget = Ext.widget('device-processes-start', {
                     device: device,
                     properties: {
