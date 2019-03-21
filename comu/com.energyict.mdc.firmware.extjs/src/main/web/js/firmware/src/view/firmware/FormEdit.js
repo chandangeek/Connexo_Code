@@ -74,7 +74,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                             valueField: 'id',
                             hiddenName: 'meterFirmwareDependency',
                             listeners: {
-                                beforerender: function () {
+                               beforerender: function () {
                                     var store = this.getStore();
                                     var me = this;
                                     var formRecord = this.up('firmware-form-edit').getRecord();
@@ -87,7 +87,6 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                                     var proxy = store.getProxy();
                                     store.getProxy().setUrl(versionId);
                                     store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'meter', property: 'firmwareType' }]));
-                                    if (store.length == 0)
                                     store.load(function (data) {
                                         for (var iCnt = 0; iCnt < data.length; iCnt++){
                                             var item = data[iCnt];

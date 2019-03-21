@@ -57,10 +57,14 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                     change: function(radio, newValue){
                         if(newValue && Ext.isString(newValue.firmwareType)){
                             if(newValue.firmwareType !== 'caConfigImage'){
+                                me.down('#firmware-min-meter-version-common').show();
+                                me.down('#firmware-min-communication-version-common').show();
                                 me.down('#text-imageIdentifier').show();
                                 me.down('#text-firmware-version').setFieldLabel(
                                     Uni.I18n.translate('general.version', 'FWC', 'Version'));
                             } else {
+                                me.down('#firmware-min-meter-version-common').hide();
+                                me.down('#firmware-min-communication-version-common').hide();
                                 me.down('#text-imageIdentifier').hide();
                                 me.down('#text-firmware-version').setFieldLabel(
                                     Uni.I18n.translate('general.versionImageIdentifier', 'FWC', 'Version/Image identifier'));
@@ -106,7 +110,6 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                             xtype: 'combobox',
                             itemId: 'firmware-min-meter-version',
                             allowBlank: false,
-                            name: 'meterFirmwareDependency',
                             queryMode: 'local',
                             displayField: 'name',
                             valueField: 'id',

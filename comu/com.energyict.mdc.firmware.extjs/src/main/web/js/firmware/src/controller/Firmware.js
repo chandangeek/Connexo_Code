@@ -249,6 +249,17 @@ Ext.define('Fwc.controller.Firmware', {
                         'firmware-edit',
                         {deviceType: deviceType, record: firmware}
                     );
+                    var supportedFirmwareTypesStore = Ext.getStore('Fwc.store.SupportedFirmwareTypes');
+                    supportedFirmwareTypesStore.getProxy().setUrl(deviceType.getId());
+                    supportedFirmwareTypesStore.load({
+                          scope: this,
+                          callback: function () {
+                            var sData = supportedFirmwareTypesStore.getRange()
+                            if (!Ext.Array.filter(sData, function(item){ return item.data.id === "meter"}).length) me.getContainer().down('firmware-edit #firmware-min-meter-version-common').hide();
+                            if (!Ext.Array.filter(sData, function(item){ return item.data.id === "communication"}).length) me.getContainer().down('firmware-edit #firmware-min-communication-version-common').hide();
+                          }
+                    });
+
 
                     var widget = me.getContainer().down('firmware-edit');
                     me.reconfigureMenu(deviceType, widget);
