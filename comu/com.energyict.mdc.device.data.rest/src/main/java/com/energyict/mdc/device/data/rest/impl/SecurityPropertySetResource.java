@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import javax.annotation.security.RolesAllowed;
@@ -32,6 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Handles SecurityPropertySets on devices
@@ -61,7 +63,14 @@ public class SecurityPropertySetResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<SecurityPropertySetInfo> securityPropertySetInfos = securityPropertySetInfoFactory.asInfo(device, uriInfo);
         for (SecurityPropertySetInfo info : securityPropertySetInfos) {
-	        info.hasServiceKeys = device.getSecurityAccessors().stream().anyMatch(t -> t.getServiceKey());
+            SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(info.id, device);
+            List<SecurityAccessor> listOfSecurityAccessors = device.getSecurityAccessors().stream()
+                    .filter(keyAccessor ->
+                            securityPropertySet.getConfigurationSecurityProperties().stream().anyMatch(configurationSecurityProperty ->
+                                    configurationSecurityProperty.getSecurityAccessorType().getId() == keyAccessor.getKeyAccessorType().getId()
+                            )
+                    ).collect(Collectors.toList());
+	        info.hasServiceKeys = listOfSecurityAccessors.stream().anyMatch(t -> t.getServiceKey());
         }
         List<SecurityPropertySetInfo> pagedInfos = ListPager.of(securityPropertySetInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList("securityPropertySets", pagedInfos, queryParameters);
@@ -89,7 +98,13 @@ public class SecurityPropertySetResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
         SecurityPropertySetInfo info = securityPropertySetInfoFactory.asInfo(device, uriInfo, securityPropertySet);
-        info.hasServiceKeys = device.getSecurityAccessors().stream().anyMatch(t -> t.getServiceKey());
+        List<SecurityAccessor> listOfSecurityAccessors = device.getSecurityAccessors().stream()
+                .filter(keyAccessor ->
+                        securityPropertySet.getConfigurationSecurityProperties().stream().anyMatch(configurationSecurityProperty ->
+                                configurationSecurityProperty.getSecurityAccessorType().getId() == keyAccessor.getKeyAccessorType().getId()
+                        )
+                ).collect(Collectors.toList());
+        info.hasServiceKeys = listOfSecurityAccessors.stream().anyMatch(t -> t.getServiceKey());
         return Response.ok(info).build();
     }
 
