@@ -24,7 +24,6 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
     },
 
     doLoadRecord: function(record, defaultKeyValue, deviceTypeId) {
-        console.log("DOLOADRECORD!!!!!!!",deviceTypeId);
         var me = this,
             leftItems = {
                 defaults: {

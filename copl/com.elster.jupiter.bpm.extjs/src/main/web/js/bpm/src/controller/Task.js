@@ -8,8 +8,7 @@ Ext.define('Bpm.controller.Task', {
         'Bpm.privileges.BpmManagement',
         'Bpm.controller.FilterSortTasks',
         'Bpm.controller.OpenTask',
-        'Uni.component.sort.model.Sort',
-        'Mdc.property.SecurityAccessors'
+        'Uni.component.sort.model.Sort'
     ],
     views: [
         'Bpm.view.task.Tasks',
@@ -399,8 +398,6 @@ Ext.define('Bpm.controller.Task', {
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             route,
             record;
-
-        console.log("CHOOOSE ACTION!!!!");
 
         if ((item.action == 'assignToMeTask') || (item.action == 'unassignedTask')) {
             return;

@@ -193,12 +193,9 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             activeInfo = me.getKeyPreview().down('#mdc-device-security-accessor-preview-active-info'),
             passiveInfo = me.getKeyPreview().down('#mdc-device-security-accessor-preview-passive-info');
 
-        console.log("KEY SELECTED !!!!");
-
         Ext.suspendLayouts();
         me.getKeyPreview().doLoadRecord(record);
         if (actionsMenu) {
-            console.log("ACTION MENU record =",record);
             actionsMenu.record = record;
         }
 
@@ -846,23 +843,8 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             var me = this;
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
-            console.log("UNMARK ACTION IS SELECTED record = ",deviceSecurityAccessorRecord);
-            console.log("DEVICE ID = ",this.deviceId);
-
             me.deviceKeyRecord = deviceSecurityAccessorRecord;
-
-            console.log("KEY NAME  = ",me.deviceKeyRecord.get('name'));
-            console.log("SERVICEKEY  = ",me.deviceKeyRecord.get('serviceKey'));
-            console.log("RECORD BEFORE UPDATE record = ",me.deviceKeyRecord);
-
-            //me.deviceKeyRecord.beginEdit();
-            //me.deviceKeyRecord.set('name', 'XXXNAME');
             me.deviceKeyRecord.set('serviceKey', false);
-            //me.deviceKeyRecord.endEdit();
-
-            console.log("KEY NAME  = ",me.deviceKeyRecord.get('name'));
-            console.log("SERVICEKEY  = ",me.deviceKeyRecord.get('serviceKey'));
-            console.log("UPDATED RECORD record = ",me.deviceKeyRecord);
 
             viewport.setLoading();
 
@@ -877,52 +859,12 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 method: 'PUT',
                 jsonData: Ext.encode(deviceSecurityAccessorRecord.getData()),
                 success: function () {
-                            //me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.passiveKey.activated', 'MDC', 'Passive key activated'));
-                            me.getApplication().fireEvent('acknowledge', 'Service key unmarked');
-                            /*var router = me.getController('Uni.controller.history.Router'),
-                                splittedPath = router.currentRoute.split('/');
-                            splittedPath.pop();
-                            router.getRoute(splittedPath.join('/') + '/' + 'keys').forward(router.arguments);*/
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.serviceKey.unmarked', 'MDC', 'Service key unmarked'));
                 },
                 callback: function () {
                     viewport.setLoading(false);
                 }
             });
-
-            /*me.deviceKeyRecord.getProxy().setUrl(me.deviceId);
-                    me.deviceKeyRecord.save({
-                        success: function () {
-                            me.getApplication().fireEvent('acknowledge', 'Service key unmarked');
-                            //me.navigateToKeysOverview();
-                        },
-                        failure: function(record, operation) {
-                            /*var json = Ext.decode(operation.response.responseText, true);
-                            if (json && json.errors) {
-                                Ext.each(json.errors, function (error) {
-                                    var parts = error.id.split('.');
-                                    if (parts[0] === 'currentProperties') {
-                                        me.deviceKeyRecord.currentProperties().each(function (property) {
-                                            if (parts[1] === property.get('key')) {
-                                                activePropsForm.down('[fieldLabel=' + property.name + ']').markInvalid(error.msg);
-                                                return false;
-                                            }
-                                        });
-                                    } else if (parts[0] === 'tempProperties') {
-                                        me.deviceKeyRecord.tempProperties().each(function (property) {
-                                            if (parts[1] === property.get('key')) {
-                                                passivePropsForm.down('[fieldLabel='+property.name+']').markInvalid(error.msg);
-                                                return false;
-                                            }
-                                        });
-                                    }
-                                });
-                                errorMsgPnl.show();
-                            }*/
-                        /*},
-                        callback: function () {
-                            viewport.setLoading(false);
-                        }
-                    });*/
 
     },
 

@@ -49,10 +49,12 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
         }
         propertyForm = processStartContent.down('property-form');
         startProcessPanel.setLoading();
+
         me.processRecord = processRecord.lastSelection[0].data;
         processContent.getProxy().setUrl(me.processRecord.deploymentId);
         processContent.load(me.processRecord.processId, {
             success: function (startProcessRecord) {
+
                 processStartContent.startProcessRecord = startProcessRecord;
                 if (startProcessRecord && startProcessRecord.properties() && startProcessRecord.properties().count()) {
                     propertyForm.loadRecord(startProcessRecord);
@@ -77,6 +79,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
             widget = me.getStartProcessPanel(),
             form = widget.down('#start-process-form'),
             formErrorsPanel = form.down('#form-errors');
+
         if (!formErrorsPanel.isHidden()) {
             formErrorsPanel.hide();
         }
