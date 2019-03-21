@@ -72,6 +72,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignModule;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceImpl;
+import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemPropertySet;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
