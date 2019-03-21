@@ -16,7 +16,6 @@ import org.osgi.framework.BundleContext;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -40,8 +39,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -144,7 +141,9 @@ public class AbstractSecurableLdapDirectoryImplTest {
     @Mock
     private StartTlsResponse tlsResponse;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private SearchResult searchResult;
+    private SearchResult searchResult1;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private SearchResult searchResult2;
 
     @Before
     public void setup() {
@@ -173,30 +172,21 @@ public class AbstractSecurableLdapDirectoryImplTest {
     public void testGetGroupNames() throws NamingException {
         sut.setBaseGroup("cn=my base group,dc=some, dc=com");
         NamingEnumeration<SearchResult> groupEnumeration = new MyNamingEnumeration<>(
-                Arrays.asList(searchResult).iterator());
-        String group1DN = "cn=group1, dc=example, dc=com";
-        String group2DN = "cn=group2, dc=anotherexample, dc=com";
-        NamingEnumeration<String> membersEnumeration = new MyNamingEnumeration<>(
-                Arrays.asList(group1DN, group2DN).iterator());
-        Attribute memberAttribute = mock(Attribute.class);
-        when(searchResult.getAttributes().get(AbstractSecurableLdapDirectoryImpl.MEMBER)).thenReturn(memberAttribute);
-        doReturn(membersEnumeration).when(memberAttribute).getAll();
+                Arrays.asList(searchResult1, searchResult2).iterator());
         String group1Name = "firstGroup";
-        prepareAttribute(group1DN, group1Name);
         String group2Name = "secondGroup";
-        prepareAttribute(group2DN, group2Name);
+        prepareAttribute(searchResult1, group1Name);
+        prepareAttribute(searchResult2, group2Name);
 
         when(dirContext.search(anyString(), anyString(), any(SearchControls.class))).thenReturn(groupEnumeration);
 
         assertThat(sut.getGroupNames()).hasSize(2).contains(group1Name).contains(group2Name);
     }
 
-    private void prepareAttribute(String groupDN, String groupName) throws NamingException {
-        Attributes cnAttributes = mock(Attributes.class);
-        when(dirContext.getAttributes(eq(groupDN), any(String[].class))).thenReturn(cnAttributes);
+    private void prepareAttribute(SearchResult searchResult, String groupName) throws NamingException {
         Attribute cnAttribute = mock(Attribute.class);
-        when(cnAttributes.get(AbstractSecurableLdapDirectoryImpl.CN)).thenReturn(cnAttribute);
-        doReturn(new MyNamingEnumeration<String>(Arrays.asList(groupName).iterator())).when(cnAttribute).getAll();
+        when(searchResult.getAttributes().get(AbstractSecurableLdapDirectoryImpl.CN)).thenReturn(cnAttribute);
+        when(cnAttribute.get()).thenReturn(groupName);
     }
 
 }

@@ -8,6 +8,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.LdapServerException;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 
 import org.osgi.framework.BundleContext;
@@ -16,7 +17,6 @@ import javax.inject.Inject;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDirectoryImpl {
     protected static final String MEMBER = "member";
@@ -134,8 +135,8 @@ public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDir
     }
 
     @Override
-    public List<String> getGroupNames() {
-        if (getBaseGroup() == null) {
+    public final List<String> getGroupNames() {
+        if (Checks.is(getBaseGroup()).emptyOrOnlyWhiteSpace()) {
             return Collections.emptyList();
         }
         return getSomethingFromLdap(this::doGetGroupNames);
@@ -143,24 +144,24 @@ public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDir
 
     private List<String> doGetGroupNames(DirContext context, Object... args) throws NamingException {
         List<String> names = new ArrayList<>();
-        SearchControls controls = new SearchControls(SearchControls.OBJECT_SCOPE, 0, 0, MEMBER_ARRAY, true, true);
+        SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, CN_ARRAY, true, true);
         NamingEnumeration<SearchResult> groupEnumeration = context.search(getBaseGroup(), "(objectClass=groupOfNames)",
                 controls);
-        if (groupEnumeration.hasMore()) {
-            Attribute memberAttributes = groupEnumeration.next().getAttributes().get(MEMBER);
-            NamingEnumeration<?> membersEnumeration = memberAttributes.getAll();
-            while (membersEnumeration.hasMore()) {
-                String member = (String) membersEnumeration.next();
-                Attributes cnAttributes = context.getAttributes(member, CN_ARRAY);
-                @SuppressWarnings("unchecked")
-                NamingEnumeration<String> cnAttributesEnumeration = (NamingEnumeration<String>) cnAttributes.get(CN)
-                        .getAll();
-                if (cnAttributesEnumeration.hasMore()) {
-                    names.add(cnAttributesEnumeration.next());
+        processCn(groupEnumeration, names::add);
+        return names;
+    }
+
+    protected void processCn(NamingEnumeration<SearchResult> enumeration, Consumer<String> consumer)
+            throws NamingException {
+        while (enumeration.hasMore()) {
+            Attribute cnAttribute = enumeration.next().getAttributes().get(CN);
+            if (cnAttribute != null) {
+                String cn = (String) cnAttribute.get();
+                if (!Checks.is(cn).emptyOrOnlyWhiteSpace()) {
+                    consumer.accept(cn);
                 }
             }
         }
-        return names;
     }
 
     @Override

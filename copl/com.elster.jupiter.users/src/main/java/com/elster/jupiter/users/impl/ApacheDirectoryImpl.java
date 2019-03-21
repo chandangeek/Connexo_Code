@@ -9,6 +9,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 
 import org.osgi.framework.BundleContext;
@@ -66,41 +67,22 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         if (userSearchResult == null) {
             throw new NamingException(); // no need to provide message, the exception is caught in getSomethingXXX and next URL is used
         }
-
         String parentDnSuffix = getParentDnSuffix(userSearchResult);
-        SearchControls controls;
-
-        NamingEnumeration<SearchResult> answer;
         String groupFilter = new StringBuilder("(&(objectClass=groupOfNames)(member=uid=").append(user.getName())
                 .append(parentDnSuffix).append("))").toString();
-        if (getBaseGroup() == null) {
-            // search all groups
-            controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, CN_ARRAY, true, true);
-            answer = context.search("", groupFilter, controls);
-            addExistingGroupsToList(answer, groupList);
+        String name;
+        int scope;
+        if (Checks.is(getBaseGroup()).emptyOrOnlyWhiteSpace()) {
+            name = "";
+            scope = SearchControls.SUBTREE_SCOPE;
         } else {
-            // find members of base group
-            Attributes memberAttributes = context.getAttributes(getBaseGroup(), MEMBER_ARRAY);
-            @SuppressWarnings("unchecked")
-            NamingEnumeration<String> groupEnumeration = (NamingEnumeration<String>) memberAttributes.get(MEMBER)
-                    .getAll();
-            controls = new SearchControls(SearchControls.OBJECT_SCOPE, 0, 0, CN_ARRAY, true, true);
-            // search all members of base group which have the user as member
-            while (groupEnumeration.hasMore()) {
-                String groupMember = groupEnumeration.next();
-                answer = context.search(groupMember, groupFilter, controls);
-                addExistingGroupsToList(answer, groupList);
-            }
-
+            name = getBaseGroup();
+            scope = SearchControls.ONELEVEL_SCOPE;
         }
+        SearchControls controls = new SearchControls(scope, 0, 0, CN_ARRAY, true, true);
+        NamingEnumeration<SearchResult> answer = context.search(name, groupFilter, controls);
+        processCn(answer, cn -> userService.findGroup(cn).ifPresent(groupList::add));
         return groupList;
-    }
-
-    private void addExistingGroupsToList(NamingEnumeration<SearchResult> answer, List<Group> groupList)
-            throws NamingException {
-        while (answer.hasMore()) {
-            userService.findGroup(answer.next().getAttributes().get(CN).get().toString()).ifPresent(groupList::add);
-        }
     }
 
     private String getParentDnSuffix(SearchResult userSearchResult) {
