@@ -23,7 +23,7 @@ Ext.define('Tou.controller.Detail', {
         }
     ],
 
-    showDetail: function (touCampaignName) {
+    showDetail: function (touCampaignId) {
         var me = this,
         router = me.getController('Uni.controller.history.Router'),
         pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
@@ -33,7 +33,7 @@ Ext.define('Tou.controller.Detail', {
             });
 
         pageView.setLoading();
-        me.getModel('Tou.model.TouCampaign').load(touCampaignName, {
+        me.getModel('Tou.model.TouCampaign').load(touCampaignId, {
             success: function (record) {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 Ext.suspendLayouts();

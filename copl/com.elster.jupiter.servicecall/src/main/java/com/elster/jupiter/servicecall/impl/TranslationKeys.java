@@ -39,7 +39,7 @@ public enum TranslationKeys implements TranslationKey {
     TRANSITION_FROM_ONGOING_TO_CANCELLED(DefaultState.ONGOING.getKey()+DefaultCustomStateTransitionEventType.CANCELLED.getSymbol(), "Cancel"),
     TRANSITION_FROM_CANCELLED_TO_PENDING(DefaultState.CANCELLED.getKey() + DefaultCustomStateTransitionEventType.PENDING.getSymbol(), "Retry"),
     TRANSITION_FROM_FAILED_TO_PENDING(DefaultState.FAILED.getKey() + DefaultCustomStateTransitionEventType.PENDING.getSymbol(), "Retry"),
-    TRANSITION_FROM_CREATED_TO_ONGOING(DefaultState.CREATED.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Wait"),
+    TRANSITION_FROM_CREATED_TO_ONGOING(DefaultState.CREATED.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Activate"),
     TRANSITION_FROM_REJECT_TO_PENDING(DefaultState.REJECTED.getKey() + DefaultCustomStateTransitionEventType.PENDING.getSymbol(), "Retry"),
     TRANSITION_FROM_REJECT_TO_FAILED(DefaultState.REJECTED.getKey() + DefaultCustomStateTransitionEventType.FAILED.getSymbol(), "Failed"),
     SERVICE_CALL_DOMAIN_NAME("com.elster.jupiter.servicecall.ServiceCall", "Service call");
