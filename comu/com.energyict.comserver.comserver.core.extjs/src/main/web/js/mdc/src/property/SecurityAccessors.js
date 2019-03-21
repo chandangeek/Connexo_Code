@@ -88,7 +88,7 @@ Ext.define('Mdc.property.SecurityAccessors', {
                                                 {
                                                     resultValue = resultValue.substr(0, 120*(i+1)+i*8) + '<br>' + resultValue.substr(120*(i+1)+i*8);
                                                 }
-                                                return resultValue;
+                                                return Ext.isEmpty(resultValue) ? '-' : resultValue;
                                             }
                                         },
                                         {
@@ -105,7 +105,7 @@ Ext.define('Mdc.property.SecurityAccessors', {
                                                 {
                                                     resultValue = resultValue.substr(0, 100*(i+1)+i*8) + '<br>' + resultValue.substr(100*(i+1)+i*8);
                                                 }
-                                                return resultValue;
+                                                return Ext.isEmpty(resultValue) ? '-' : resultValue;
                                             }
                                         }
                                       );
