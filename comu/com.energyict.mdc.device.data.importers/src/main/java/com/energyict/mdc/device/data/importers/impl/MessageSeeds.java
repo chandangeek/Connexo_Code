@@ -53,6 +53,7 @@ public enum MessageSeeds implements MessageSeed {
     READING_DATE_INCORRECT_FOR_MINUTES_CHANNEL(215, "ReadingDateIncorrectForMinutesChannel", "Can''t process line {0}: Reading date is incorrect for reading type {1}. Reading date of minutes reading must be divisible by {2} ({3}).", Level.WARNING),
     READING_TYPE_DUPLICATED_OBIS_CODE(216, "ReadingTypeDuplicatedObisCode", "Can''t process line {0}: Channel or register obis code {1} is duplicated on device {2}.", Level.WARNING),
     INVALID_DEVICE_LOADPROFILE_OBIS_CODE(217, "InvalidLoadProfileObisCode", "Can''t process line {0}: Invalid load profile obis code {1} on device {2}.", Level.WARNING),   //lori
+    INVALID_DEVICE_LOGBOOK_OBIS_CODE(218, "InvalidLogBookObisCode", "Can''t process line {0}: Invalid logbook obis code {1} on device {2}.", Level.WARNING),
 
 
     NO_CONNECTION_METHOD_ON_DEVICE(301, "NoSuchConnectionMethodOnDevice", "Can''t process line {0}: Connection method {1} is not supported on the device.", Level.WARNING),
