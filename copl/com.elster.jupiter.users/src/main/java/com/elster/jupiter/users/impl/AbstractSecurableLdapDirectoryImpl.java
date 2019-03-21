@@ -145,10 +145,14 @@ public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDir
     private List<String> doGetGroupNames(DirContext context, Object... args) throws NamingException {
         List<String> names = new ArrayList<>();
         SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, CN_ARRAY, true, true);
-        NamingEnumeration<SearchResult> groupEnumeration = context.search(getBaseGroup(), "(objectClass=groupOfNames)",
+        NamingEnumeration<SearchResult> groupEnumeration = context.search(getBaseGroup(), getFilterForGroupNames(),
                 controls);
         processCn(groupEnumeration, names::add);
         return names;
+    }
+
+    protected String getFilterForGroupNames() {
+        return "(objectClass=groupOfNames)";
     }
 
     protected void processCn(NamingEnumeration<SearchResult> enumeration, Consumer<String> consumer)

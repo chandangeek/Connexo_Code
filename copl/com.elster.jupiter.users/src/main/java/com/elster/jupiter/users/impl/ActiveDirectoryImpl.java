@@ -317,4 +317,9 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         }
         return Pair.of(ctx, tls);
     }
+
+    @Override
+    protected String getFilterForGroupNames() {
+        return "(objectClass=group)";
+    }
 }
