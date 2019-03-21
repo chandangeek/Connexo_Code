@@ -103,7 +103,7 @@ Ext.define('Mdc.property.SecurityAccessors', {
                                                 var resultValue = value;
                                                 for (var i = 0; i < numberOfInterations; i++)
                                                 {
-                                                    resultValue = resultValue.substr(0, 100*(i+1)+i*8) + '<br>' + resultValue.substr(100*(i+1)+i*8);
+                                                    resultValue = resultValue.substr(0, 120*(i+1)+i*8) + '<br>' + resultValue.substr(120*(i+1)+i*8);
                                                 }
                                                 return Ext.isEmpty(resultValue) ? '-' : resultValue;
                                             }
