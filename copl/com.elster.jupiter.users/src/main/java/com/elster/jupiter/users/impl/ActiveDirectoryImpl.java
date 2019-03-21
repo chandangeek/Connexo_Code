@@ -78,8 +78,6 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             while (e.hasMoreElements()) {
                 Attribute attr = e.nextElement();
                 for (int i = 0; i < attr.size(); ++i) {
-                    // TODO test that memberOf value starts with "cn=" since that's what getRealGroupName expects
-                    // otherwise we will need to find the group and get its cn value
                     userService.findGroup(getRealGroupName(attr.get(i).toString())).ifPresent(groupList::add);
                 }
             }
