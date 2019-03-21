@@ -48,7 +48,15 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             xtype: 'displayfield',
             itemId: 'disp-firmware-type',
             fieldLabel: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
-            name: 'type'
+            name: 'type',
+            renderer: function (value){
+                var form = this.up('firmware-form-edit');
+                if (form){
+                    if (value === 'Image') { form.down('#firmware-min-meter-version-common').hide(); form.down('#firmware-min-communication-version').hide();}
+                    else {form.down('#firmware-min-meter-version-common').show(); form.down('#firmware-min-communication-version').show(); }
+                }
+                return value;
+            }
         },
         {
             xtype: 'displayfield',
