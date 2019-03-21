@@ -8,6 +8,9 @@ public class LdapGroupsInfo {
 
     public String name;
 
+    public LdapGroupsInfo() {
+    }
+
     public LdapGroupsInfo(String name) {
         this.name = name;
     }

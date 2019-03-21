@@ -25,6 +25,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.LdapGroupsInfo;
+import com.elster.jupiter.users.rest.LdapGroupsInfos;
 import com.elster.jupiter.users.rest.LdapUsersInfo;
 import com.elster.jupiter.users.rest.LdapUsersInfos;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
@@ -359,6 +360,21 @@ public class UserDirectoryResource {
     private RestQuery<UserDirectory> getUserDirectoriesQuery() {
         Query<UserDirectory> query = userService.getLdapDirectories();
         return restQueryService.wrap(query);
+    }
+
+    @POST
+    @Path("/{id}/groups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE,
+            com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
+    public Response saveGroups(LdapGroupsInfos infos, @PathParam("id") long id,
+            @Context SecurityContext securityContext) {
+        try (TransactionContext context = transactionService.getContext()) {
+            infos.ldapGroups.stream().forEach(s -> userService.findOrCreateGroup(s.name));
+            context.commit();
+        }
+        return Response.status(Response.Status.OK).build();
     }
 
 }

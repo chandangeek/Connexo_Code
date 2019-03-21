@@ -10,8 +10,12 @@ import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.LdapUserDirectory;
+import com.elster.jupiter.users.rest.LdapGroupsInfo;
+import com.elster.jupiter.users.rest.LdapGroupsInfos;
 
 import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.client.Entity;
 
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -95,5 +99,24 @@ public class UserDirectoryResourceTest extends UsersRestApplicationJerseyTest {
         JsonModel model = JsonModel.model(response);
         assertThat(model.<String>get("$.extimportedgroups[0].name")).isEqualTo("group1");
         assertThat(model.<String>get("$.extimportedgroups[1].name")).isEqualTo("group5");
+    }
+
+    @Test
+    public void testSaveGroups() {
+        when(userService.getLdapUserDirectory(1L)).thenReturn(userDirectory);
+        when(userDirectory.getGroupNames()).thenReturn(Arrays.asList("group2", "group3", "group1"));
+        LdapGroupsInfos infos = new LdapGroupsInfos();
+        infos.total = 2;
+        String groupName1 = "gr1";
+        String groupName2 = "gr2";
+        LdapGroupsInfo group1 = new LdapGroupsInfo(groupName1);
+        LdapGroupsInfo group2 = new LdapGroupsInfo(groupName2);
+        infos.ldapGroups = Arrays.asList(group1, group2);
+        Entity<LdapGroupsInfos> entity = Entity.json(infos);
+
+        target("/userdirectories/1/groups").request().post(entity);
+
+        verify(userService).findOrCreateGroup(groupName1);
+        verify(userService).findOrCreateGroup(groupName2);
     }
 }
