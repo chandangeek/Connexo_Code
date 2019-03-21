@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -23,6 +24,11 @@ public class TimeOfUseItemPersistenceSupport implements PersistenceSupport<Servi
     private static final String TABLE_NAME = TimeOfUseCampaignService.COMPONENT_NAME + "_" + "TU2_ITEMS";
     private static final String FK_NAME = "FK_" + TABLE_NAME;
     public static final String COMPONENT_NAME = "TU2";
+    private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
+
+    public TimeOfUseItemPersistenceSupport(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
+        this.timeOfUseCampaignService = timeOfUseCampaignService;
+    }
 
     @Override
     public String componentName() {
@@ -51,7 +57,13 @@ public class TimeOfUseItemPersistenceSupport implements PersistenceSupport<Servi
 
     @Override
     public Optional<Module> module() {
-        return Optional.empty();
+        return Optional.of(new AbstractModule() {
+            @Override
+            public void configure() {
+                bind(TimeOfUseCampaignServiceImpl.class).toInstance(timeOfUseCampaignService);
+                bind(TimeOfUseCampaignService.class).toInstance(timeOfUseCampaignService);
+            }
+        });
     }
 
     @Override

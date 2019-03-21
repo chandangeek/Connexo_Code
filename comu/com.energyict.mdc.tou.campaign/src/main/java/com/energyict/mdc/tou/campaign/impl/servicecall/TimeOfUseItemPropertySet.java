@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -29,13 +30,17 @@ public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
     private volatile DeviceService deviceService;
+    private volatile DataModel dataModel;
+    private volatile TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
 
     @Inject
     public TimeOfUseItemPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService,
-                                    CustomPropertySetService customPropertySetService, DeviceService deviceService) {
+                                    CustomPropertySetService customPropertySetService, DeviceService deviceService,
+                                    DataModel dataModel, TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.deviceService = deviceService;
+        this.timeOfUseCampaignService = timeOfUseCampaignService;
         customPropertySetService.addCustomPropertySet(this);
     }
 
@@ -61,7 +66,7 @@ public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, 
 
     @Override
     public PersistenceSupport<ServiceCall, TimeOfUseItemDomainExtension> getPersistenceSupport() {
-        return new TimeOfUseItemPersistenceSupport();
+        return new TimeOfUseItemPersistenceSupport(timeOfUseCampaignService);
     }
 
     @Override

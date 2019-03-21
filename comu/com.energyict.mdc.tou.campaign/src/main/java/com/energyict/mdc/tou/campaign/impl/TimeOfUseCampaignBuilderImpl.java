@@ -5,6 +5,7 @@
 package com.energyict.mdc.tou.campaign.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
@@ -29,9 +30,11 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     public String updateType;
     public Long validationTimeout;
     private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
+    private final DataModel dataModel;
 
-    public TimeOfUseCampaignBuilderImpl(TimeOfUseCampaignService timeOfUseCampaignService) {
+    public TimeOfUseCampaignBuilderImpl(TimeOfUseCampaignService timeOfUseCampaignService, DataModel dataModel) {
         this.timeOfUseCampaignService = (TimeOfUseCampaignServiceImpl) timeOfUseCampaignService;
+        this.dataModel = dataModel;
     }
 
     @Override
@@ -91,7 +94,7 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
 
     @Override
     public TimeOfUseCampaign create() {
-        TimeOfUseCampaignDomainExtension timeOfUseCampaign = new TimeOfUseCampaignDomainExtension();
+        TimeOfUseCampaignDomainExtension timeOfUseCampaign = dataModel.getInstance(TimeOfUseCampaignDomainExtension.class);
         timeOfUseCampaign.setName(name);
         timeOfUseCampaign.setDeviceType(deviceType);
         timeOfUseCampaign.setDeviceGroup(deviceGroup);

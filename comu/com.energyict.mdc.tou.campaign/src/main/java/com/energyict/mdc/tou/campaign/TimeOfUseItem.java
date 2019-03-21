@@ -17,5 +17,9 @@ public interface TimeOfUseItem {
 
     ServiceCall getServiceCall();
 
+    ServiceCall retry();
+
+    ServiceCall cancel();
+
     long getParentServiceCallId();
 }

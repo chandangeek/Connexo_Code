@@ -36,7 +36,7 @@ public class TimeOfUseCampaignInfoFactory {
     public TimeOfUseCampaign build(TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
         Instant activationStart = timeOfUseCampaignInfo.activationStart;
         Instant activationEnd = timeOfUseCampaignInfo.activationEnd;
-        if (forToday(activationStart)) {
+        if (isForToday(activationStart)) {
             if (activationStart.isAfter(activationEnd)) {
                 activationEnd = getToday(clock).plusSeconds(getSecondsInDays(1)).plusSeconds(activationEnd.getEpochSecond());
             } else {
@@ -94,13 +94,13 @@ public class TimeOfUseCampaignInfoFactory {
         info.devices.add(new DevicesStatusAndQuantity(getDeviceStatus(DefaultState.ONGOING, thesaurus), 0L));
         info.devices.add(new DevicesStatusAndQuantity(getDeviceStatus(DefaultState.PENDING, thesaurus), 0L));
         info.devices.add(new DevicesStatusAndQuantity(getDeviceStatus(DefaultState.CANCELLED, thesaurus), 0L));
-        timeOfUseCampaignService.getChildrenStatusFromCampaign(campaign.getId()).forEach((deviceStatus, quantity) ->
+        campaign.getNumbersOfChildrenWithStatuses().forEach((deviceStatus, quantity) ->
                 info.devices.stream().filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.equals(getDeviceStatus(deviceStatus, thesaurus)))
                         .findAny().ifPresent(devicesStatusAndQuantity -> devicesStatusAndQuantity.quantity = quantity));
         return info;
     }
 
-    private boolean forToday(Instant activationStart) {
+    private boolean isForToday(Instant activationStart) {
         return getToday(clock).plusSeconds(activationStart.getEpochSecond()).isAfter(clock.instant());
     }
 

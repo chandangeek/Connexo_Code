@@ -75,7 +75,7 @@ public class TimeOfUseCampaignResource {
 
     @GET
     @Transactional
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getToUCampaigns(@BeanParam JsonQueryParameters queryParameters) {
         QueryStream<? extends TimeOfUseCampaign> campaigns = timeOfUseCampaignService.streamAllCampaigns().join(ServiceCall.class)
@@ -90,7 +90,7 @@ public class TimeOfUseCampaignResource {
     @GET
     @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getToUCampaign(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaign(id)
@@ -102,7 +102,7 @@ public class TimeOfUseCampaignResource {
     @GET
     @Transactional
     @Path("/{id}/devices")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getToUCampaignDevices(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         List<String> states = filter.getStringList("status").stream().map(DefaultState::valueOf).map(DefaultState::getKey).collect(Collectors.toList());
@@ -120,7 +120,7 @@ public class TimeOfUseCampaignResource {
     @POST
     @Transactional
     @Path("/create")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response createToUCampaign(TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
         TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignInfoFactory.build(timeOfUseCampaignInfo);
@@ -130,67 +130,76 @@ public class TimeOfUseCampaignResource {
     @PUT
     @Transactional
     @Path("/retryDevice")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response retryDevice(IdWithNameInfo id) {
-        Device device = deviceService.findDeviceById(((Number) id.id).longValue()).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_WITH_ID_NOT_FOUND, id));
+        Device device = deviceService.findDeviceById(((Number) id.id).longValue()).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_WITH_ID_ISNT_FOUND, id));
         ServiceCall serviceCall = timeOfUseCampaignService.findActiveServiceCallByDevice(device).get();
+        TimeOfUseItem timeOfUseItem = timeOfUseCampaignService.streamDevicesInCampaigns()
+                .filter(Where.where("id").isEqualTo(serviceCall.getId()))
+                .findAny().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.TOU_ITEM_WITH_ID_ISNT_FOUND, serviceCall.getId()));
         serviceCallService.lockServiceCall(serviceCall.getId())
                 .orElseThrow(conflictFactory.contextDependentConflictOn(serviceCall.getType().getName())
                         .withActualVersion(() -> getCurrentCampaignVersion(serviceCall.getId()))
                         .supplier());
-        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.createOnRetry(device);
+        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.createOnRetry(timeOfUseItem);
         return Response.ok(deviceInCampaignInfo).build();
     }
 
     @PUT
     @Transactional
     @Path("/cancelDevice")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response cancelDevice(IdWithNameInfo id) {
-        Device device = deviceService.findDeviceById(((Number) id.id).longValue()).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_WITH_ID_NOT_FOUND, id));
+        Device device = deviceService.findDeviceById(((Number) id.id).longValue())
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, id));
         ServiceCall serviceCall = timeOfUseCampaignService.findActiveServiceCallByDevice(device).get();
+        TimeOfUseItem timeOfUseItem = timeOfUseCampaignService.streamDevicesInCampaigns()
+                .filter(Where.where("id").isEqualTo(serviceCall.getId()))
+                .findAny().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.TOU_ITEM_WITH_ID_ISNT_FOUND, serviceCall.getId()));
         serviceCallService.lockServiceCall(serviceCall.getId())
                 .orElseThrow(conflictFactory.contextDependentConflictOn(serviceCall.getType().getName())
                         .withActualVersion(() -> getCurrentCampaignVersion(serviceCall.getId()))
                         .supplier());
-        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.createOnCancel(device);
+        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.createOnCancel(timeOfUseItem);
         return Response.ok(deviceInCampaignInfo).build();
     }
 
     @PUT
     @Transactional
     @Path("/{id}/edit")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response edit(@PathParam("id") long id, TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
         timeOfUseCampaignService.findAndLockToUCampaignByIdAndVersion(timeOfUseCampaignInfo.id, timeOfUseCampaignInfo.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(timeOfUseCampaignInfo.name)
                         .withActualVersion(() -> getCurrentCampaignVersion(timeOfUseCampaignInfo.id))
                         .supplier());
-        timeOfUseCampaignService.edit(id, timeOfUseCampaignInfo.name, timeOfUseCampaignInfo.activationStart, timeOfUseCampaignInfo.activationEnd);
+        timeOfUseCampaignService.getCampaign(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.CAMPAIGN_WITH_ID_ISNT_FOUND, id))
+                .edit(timeOfUseCampaignInfo.name, timeOfUseCampaignInfo.activationStart, timeOfUseCampaignInfo.activationEnd);
         return Response.ok(timeOfUseCampaignInfo).build();
     }
 
     @PUT
     @Transactional
     @Path("/{id}/cancel")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
-    public Response cancel(@PathParam("id") Long id, TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
+    public Response cancel(@PathParam("id") long id, TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
         timeOfUseCampaignService.findAndLockToUCampaignByIdAndVersion(timeOfUseCampaignInfo.id, timeOfUseCampaignInfo.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(timeOfUseCampaignInfo.name)
                         .withActualVersion(() -> getCurrentCampaignVersion(timeOfUseCampaignInfo.id))
                         .supplier());
-        timeOfUseCampaignService.cancelCampaign(id);
+        TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaign(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.CAMPAIGN_WITH_ID_ISNT_FOUND, id));
+        timeOfUseCampaign.cancel();
         return Response.ok().build();
     }
 
     @GET
     @Transactional
     @Path("/devicetypes")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getDeviceTypesForCalendars(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithNameInfo> deviceTypes = new ArrayList<>();
@@ -202,12 +211,12 @@ public class TimeOfUseCampaignResource {
     @GET
     @Transactional
     @Path("/getoptions")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getSendOptionsForType(@QueryParam("type") Long deviceTypeId) {
         DeviceType deviceType = timeOfUseCampaignService.getDeviceTypesWithCalendars().stream()
                 .filter(deviceType1 -> deviceType1.getId() == deviceTypeId)
-                .findAny().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_NOT_FOUND, deviceTypeId));
+                .findAny().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, deviceTypeId));
         DeviceTypeAndOptionsInfo deviceTypeAndOptionsInfo = deviceTypeAndOptionsInfoFactory.create(deviceType);
         return Response.ok(deviceTypeAndOptionsInfo).build();
     }

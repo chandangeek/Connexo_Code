@@ -64,12 +64,10 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignModule;
-import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemPropertySet;
+import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceImpl;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -92,7 +90,7 @@ public class ToUCampaignInMemoryPersistence {
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
-    private static class MockModule extends AbstractModule {
+    private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
@@ -171,9 +169,7 @@ public class ToUCampaignInMemoryPersistence {
             injector.getInstance(CompletionOptionsCustomPropertySet.class);
             injector.getInstance(OnDemandReadServiceCallCustomPropertySet.class);
             injector.getInstance(CommunicationTestServiceCallCustomPropertySet.class);
-            injector.getInstance(TimeOfUseItemPropertySet.class);
-            injector.getInstance(TimeOfUseCampaignService.class);
-
+            injector.getInstance(TimeOfUseCampaignServiceImpl.class);
             ctx.commit();
         }
     }

@@ -111,7 +111,6 @@ public class ToUCampaignServiceTest {
     @Before
     public void setUp() {
         timeOfUseSendHelper = new TimeOfUseSendHelper(thesaurus, deviceConfigurationService, deviceMessageSpecificationService, timeOfUseCampaignService);
-        //when(dataModel.getInstance(TimeOfUseSendHelper.class)).thenReturn(timeOfUseSendHelper);
         when(nlsService.getThesaurus(anyString(), any())).thenReturn(thesaurus);
         when(upgradeService.newNonOrmDataModel()).thenReturn(dataModel);
         when(customPropertySetService.findActiveCustomPropertySet(TimeOfUseCampaignCustomPropertySet.CUSTOM_PROPERTY_SET_ID)).thenReturn(Optional.ofNullable(registeredCustomPropertySet));
@@ -156,7 +155,7 @@ public class ToUCampaignServiceTest {
         when(endDevice.getId()).thenReturn(1L);
         EndDeviceGroup group = mock(EndDeviceGroup.class);
         when(group.getMembers((Instant) any())).thenReturn(Collections.singletonList(endDevice));
-        timeOfUseCampaignService.cancelDevice(device);
+        timeOfUseItem.cancel();
         verify(serviceCall).requestTransition(DefaultState.CANCELLED);
     }
 
@@ -198,7 +197,7 @@ public class ToUCampaignServiceTest {
         when(endDevice.getId()).thenReturn(1L);
         EndDeviceGroup group = mock(EndDeviceGroup.class);
         when(group.getMembers((Instant) any())).thenReturn(Collections.singletonList(endDevice));
-        timeOfUseCampaignService.retryDevice(device);
+        timeOfUseItem.retry();
         verify(serviceCall).requestTransition(DefaultState.PENDING);
     }
 
@@ -227,7 +226,6 @@ public class ToUCampaignServiceTest {
 
     private TimeOfUseCampaignDomainExtension createCampaignExtension() {
         TimeOfUseCampaignDomainExtension timeOfUseCampaignDomainExtension = mock(TimeOfUseCampaignDomainExtension.class);
-//        when(timeOfUseCampaignDomainExtension.getActivationDate())
         when(timeOfUseCampaignDomainExtension.getUpdateType()).thenReturn("fullCalendar");
         when(timeOfUseCampaignDomainExtension.getActivationStart()).thenReturn(Instant.ofEpochSecond(36000));
         when(timeOfUseCampaignDomainExtension.getCalendar()).thenReturn(calendar);

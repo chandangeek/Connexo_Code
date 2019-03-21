@@ -6,13 +6,21 @@ package com.energyict.mdc.tou.campaign.impl.servicecall;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.tou.campaign.TimeOfUseItem;
+import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
+import javax.inject.Inject;
 import java.util.Optional;
 
 public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, TimeOfUseItem {
@@ -41,12 +49,24 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
         }
     }
 
+    private final DataModel dataModel;
+    private final Thesaurus thesaurus;
+    private final ServiceCallService serviceCallService;
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
     @IsPresent
     private Reference<Device> device = Reference.empty();
     private long parentServiceCallId;
     private Reference<DeviceMessage> deviceMessage = Reference.empty();
+
+
+    @Inject
+    public TimeOfUseItemDomainExtension(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
+        super();
+        this.dataModel = timeOfUseCampaignService.getDataModel();
+        thesaurus = dataModel.getInstance(Thesaurus.class);
+        serviceCallService = dataModel.getInstance(ServiceCallService.class);
+    }
 
     @Override
     public Device getDevice() {
@@ -61,6 +81,32 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     @Override
     public ServiceCall getServiceCall() {
         return serviceCall.get();
+    }
+
+    @Override
+    public ServiceCall cancel() {
+        ServiceCall serviceCall = getServiceCall();
+        if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
+            serviceCall.requestTransition(DefaultState.CANCELLED);
+        }
+        return serviceCallService.getServiceCall(serviceCall.getId()).get();
+    }
+
+    @Override
+    public ServiceCall retry() {
+        ServiceCall serviceCall = getServiceCall();
+        if (serviceCall.canTransitionTo(DefaultState.PENDING)) {
+            getDevice().getMessages().stream()
+                    .filter(deviceMessage -> (deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING)
+                            || deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING)))
+                    .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 0)
+                    .forEach(DeviceMessage::revoke);
+            serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.RETRIED_BY_USER.getKey(), MessageSeeds.RETRIED_BY_USER.getDefaultFormat()));
+            dataModel.getInstance(TimeOfUseSendHelper.class)
+                    .setCalendarOnDevice(getDevice(), serviceCall);
+            return serviceCallService.getServiceCall(serviceCall.getId()).get();
+        }
+        return serviceCall;
     }
 
     @Override
@@ -80,9 +126,6 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
         this.deviceMessage.set(deviceMessage);
     }
 
-    public TimeOfUseItemDomainExtension() {
-        super();
-    }
 
     @Override
     public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {

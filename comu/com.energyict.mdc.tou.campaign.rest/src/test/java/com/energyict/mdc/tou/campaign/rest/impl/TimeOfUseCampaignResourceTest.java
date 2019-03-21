@@ -17,6 +17,7 @@ import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
+import com.energyict.mdc.tou.campaign.TimeOfUseItem;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import com.jayway.jsonpath.JsonModel;
@@ -145,6 +146,8 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
     @Test
     public void testRetryDevice() throws Exception {
         Device device = mock(Device.class);
+        TimeOfUseItem timeOfUseItem = mock(TimeOfUseItem.class);
+        when(timeOfUseItem.getDevice()).thenReturn(device);
         when(device.getId()).thenReturn(1L);
         when(device.getName()).thenReturn("TestDevice");
         ServiceCall serviceCall = mock(ServiceCall.class);
@@ -158,7 +161,9 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         when(deviceService.findDeviceById(1L)).thenReturn(Optional.of(device));
         when(timeOfUseCampaignService.findActiveServiceCallByDevice(device)).thenReturn(Optional.of(serviceCall));
         when(serviceCallService.lockServiceCall(1)).thenReturn(Optional.of(serviceCall));
-        when(timeOfUseCampaignService.retryDevice(device)).thenReturn(serviceCall);
+        QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(timeOfUseItem), QueryStream.class);
+        when(timeOfUseCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
+        when(timeOfUseItem.retry()).thenReturn(serviceCall);
         IdWithNameInfo idWithNameInfo = new IdWithNameInfo();
         idWithNameInfo.id = 1L;
         Response response = target("toucampaigns/retryDevice").request().put(Entity.json(idWithNameInfo));
@@ -173,6 +178,8 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
     @Test
     public void testCancelDevice() throws Exception {
         Device device = mock(Device.class);
+        TimeOfUseItem timeOfUseItem = mock(TimeOfUseItem.class);
+        when(timeOfUseItem.getDevice()).thenReturn(device);
         when(device.getId()).thenReturn(1L);
         when(device.getName()).thenReturn("TestDevice");
         ServiceCall serviceCall = mock(ServiceCall.class);
@@ -186,7 +193,9 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         when(deviceService.findDeviceById(1L)).thenReturn(Optional.of(device));
         when(timeOfUseCampaignService.findActiveServiceCallByDevice(device)).thenReturn(Optional.of(serviceCall));
         when(serviceCallService.lockServiceCall(1)).thenReturn(Optional.of(serviceCall));
-        when(timeOfUseCampaignService.cancelDevice(device)).thenReturn(serviceCall);
+        QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(timeOfUseItem), QueryStream.class);
+        when(timeOfUseCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
+        when(timeOfUseItem.cancel()).thenReturn(serviceCall);
         IdWithNameInfo idWithNameInfo = new IdWithNameInfo();
         idWithNameInfo.id = 1L;
         Response response = target("toucampaigns/cancelDevice").request().put(Entity.json(idWithNameInfo));
@@ -204,8 +213,9 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         TimeOfUseCampaign timeOfUseCampaign = createMockCampaign();
         when(timeOfUseCampaignService.findAndLockToUCampaignByIdAndVersion(timeOfUseCampaignInfo.id, timeOfUseCampaignInfo.version))
                 .thenReturn(Optional.of(timeOfUseCampaign));
+        when(timeOfUseCampaignService.getCampaign(3)).thenReturn(Optional.of(timeOfUseCampaign));
         Response response = target("toucampaigns/3/edit").request().put(Entity.json(timeOfUseCampaignInfo));
-        verify(timeOfUseCampaignService).edit(timeOfUseCampaignInfo.id, timeOfUseCampaignInfo.name, timeOfUseCampaignInfo.activationStart, timeOfUseCampaignInfo.activationEnd);
+        verify(timeOfUseCampaign).edit(timeOfUseCampaignInfo.name, timeOfUseCampaignInfo.activationStart, timeOfUseCampaignInfo.activationEnd);
     }
 
     @Test
@@ -214,8 +224,9 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         TimeOfUseCampaign timeOfUseCampaign = createMockCampaign();
         when(timeOfUseCampaignService.findAndLockToUCampaignByIdAndVersion(timeOfUseCampaignInfo.id, timeOfUseCampaignInfo.version))
                 .thenReturn(Optional.of(timeOfUseCampaign));
+        when(timeOfUseCampaignService.getCampaign(3)).thenReturn(Optional.of(timeOfUseCampaign));
         Response response = target("toucampaigns/3/cancel").request().put(Entity.json(timeOfUseCampaignInfo));
-        verify(timeOfUseCampaignService).cancelCampaign(timeOfUseCampaignInfo.id);
+        verify(timeOfUseCampaign).cancel();
     }
 
     @Test

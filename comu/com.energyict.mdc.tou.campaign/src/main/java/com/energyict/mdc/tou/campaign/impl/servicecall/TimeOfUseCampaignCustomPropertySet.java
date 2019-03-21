@@ -14,7 +14,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 
 import javax.inject.Inject;
@@ -29,11 +28,11 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
-    private final TimeOfUseCampaignService timeOfUseCampaignService;
+    private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
 
     @Inject
     public TimeOfUseCampaignCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService,
-                                              TimeOfUseCampaignService timeOfUseCampaignService) {
+                                              TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.timeOfUseCampaignService = timeOfUseCampaignService;

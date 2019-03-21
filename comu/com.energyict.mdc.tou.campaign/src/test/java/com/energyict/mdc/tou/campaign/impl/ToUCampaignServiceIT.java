@@ -17,6 +17,7 @@ import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
@@ -35,7 +36,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignCustomPropertySet;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignDomainExtension;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceCallHandler;
@@ -86,7 +86,7 @@ public class ToUCampaignServiceIT {
     private static ServiceCallService serviceCallService;
     private static MeteringGroupsService meteringGroupsService;
     private static TransactionService transactionService;
-    private static TimeOfUseCampaignService timeOfUseCampaignService;
+    private static TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
     private static ServiceCallHandler serviceCallHandler;
     private static CalendarService calendarService;
     private static DeviceConfigurationService deviceConfigurationService;
@@ -106,13 +106,14 @@ public class ToUCampaignServiceIT {
     public static void setUp() {
         inMemoryPersistence.activate();
         serviceCallService = inMemoryPersistence.get(ServiceCallService.class);
-        timeOfUseCampaignService = inMemoryPersistence.get(TimeOfUseCampaignService.class);
+        timeOfUseCampaignService = inMemoryPersistence.get(TimeOfUseCampaignServiceImpl.class);
         meteringGroupsService = inMemoryPersistence.get(MeteringGroupsService.class);
         transactionService = inMemoryPersistence.get(TransactionService.class);
         calendarService = inMemoryPersistence.get(CalendarService.class);
         deviceConfigurationService = inMemoryPersistence.get(DeviceConfigurationService.class);
         deviceMessageSpecificationService = inMemoryPersistence.get(DeviceMessageSpecificationService.class);
         protocolPluggableService = inMemoryPersistence.get(ProtocolPluggableService.class);
+        inMemoryPersistence.get(OrmService.class).getDataModels();
         List<DeviceMessageSpec> deviceMessageIds;
         deviceMessageIds = new ArrayList<>();
         DeviceMessageSpec deviceMessageSpec1 = mock(DeviceMessageSpec.class);
@@ -152,7 +153,7 @@ public class ToUCampaignServiceIT {
             eventService.addTopicHandler(inMemoryPersistence.get(ServiceCallStateChangeTopicHandler.class));
             PropertySpecService propertySpecService = inMemoryPersistence.get(PropertySpecService.class);
             serviceCallCPS = new TimeOfUseCampaignCustomPropertySet(thesaurus, propertySpecService, timeOfUseCampaignService);
-            serviceCallHandler = new TimeOfUseCampaignServiceCallHandler((TimeOfUseCampaignServiceImpl) timeOfUseCampaignService);
+            serviceCallHandler = new TimeOfUseCampaignServiceCallHandler(timeOfUseCampaignService);
             serviceCallService.addServiceCallHandler(serviceCallHandler, ImmutableMap.of("name", TimeOfUseCampaignServiceCallHandler.NAME));
             serviceCallService.addServiceCallHandler(serviceCallHandler, ImmutableMap.of("name", TimeOfUseItemServiceCallHandler.NAME));
             return null;
@@ -220,10 +221,7 @@ public class ToUCampaignServiceIT {
         timeOfUseCampaign1.setName("tou-c-2");
         timeOfUseCampaign1.setActivationStart(Instant.ofEpochSecond(1544450000));
         timeOfUseCampaign1.setActivationEnd(Instant.ofEpochSecond(1544460000));
-        timeOfUseCampaignService.edit(serviceCallService.getServiceCallFinder()
-                .find()
-                .get(0)
-                .getId(), timeOfUseCampaign1.getName(), timeOfUseCampaign1.getActivationStart(), timeOfUseCampaign1.getActivationEnd());
+        timeOfUseCampaign1.edit(timeOfUseCampaign1.getName(), timeOfUseCampaign1.getActivationStart(), timeOfUseCampaign1.getActivationEnd());
         assertThat(serviceCallService.getServiceCallFinder().stream().findAny().get()
                 .getExtension(TimeOfUseCampaignDomainExtension.class).get().getName()).isEqualTo(timeOfUseCampaign1.getName());
         assertThat(serviceCallService.getServiceCallFinder().stream().findAny().get()
@@ -245,7 +243,6 @@ public class ToUCampaignServiceIT {
         DeviceType trueType = deviceConfigurationService.newDeviceType("Elster 999", deviceProtocolPluggableClass);
         Calendar calendar = makeCalendar("cal01", "2");
         calendar.activate();
-
         deviceConfigurationService.findAllDeviceTypes().find().get(0).addCalendar(calendar);
         Set<ProtocolSupportedCalendarOptions> set = new HashSet<>();
         set.add(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR);
@@ -253,15 +250,14 @@ public class ToUCampaignServiceIT {
         timeOfUseOptions.setOptions(set);
         timeOfUseOptions.save();
         deviceConfigurationService.findTimeOfUseOptions(trueType).get().setOptions(set);
-        //   makeCampaign(null, 0, 0, null, null, null, null, null, 0);
         assertThat(timeOfUseCampaignService.getDeviceTypesWithCalendars()).contains(trueType);
     }
 
     @Test
     @Transactional
     public void cancelCampaignTest() {
-        makeDefaultCampaign();
-        timeOfUseCampaignService.cancelCampaign(serviceCallService.getServiceCallFinder().find().get(0).getId());
+        TimeOfUseCampaign timeOfUseCampaign = makeDefaultCampaign();
+        timeOfUseCampaign.cancel();
         assertThat(serviceCallService.getServiceCallFinder().find().get(0).getLogs().find().contains("campaign cancelled by user"));
     }
 
@@ -273,7 +269,7 @@ public class ToUCampaignServiceIT {
     private TimeOfUseCampaignDomainExtension makeCampaign(String name, long activationStart, long activationEnd, Calendar calendar,
                                                           String group, DeviceType deviceType, String updateType,
                                                           String activationOption, Instant activationDate, long timeValidation) {
-        TimeOfUseCampaignDomainExtension timeOfUseCampaign = new TimeOfUseCampaignDomainExtension();
+        TimeOfUseCampaignDomainExtension timeOfUseCampaign = new TimeOfUseCampaignDomainExtension(timeOfUseCampaignService);
         timeOfUseCampaign.setName(name == null ? "tou-c-1" : name);
         timeOfUseCampaign.setActivationStart(Instant.ofEpochSecond(activationStart == 0 ? 1544400000 : activationStart));
         timeOfUseCampaign.setActivationEnd(Instant.ofEpochSecond(activationEnd == 0 ? 1544410000 : activationEnd));
@@ -284,7 +280,7 @@ public class ToUCampaignServiceIT {
         timeOfUseCampaign.setActivationOption(activationOption == null ? "immediately" : activationOption);
         timeOfUseCampaign.setActivationDate(activationDate == null ? clock.instant() : activationDate);
         timeOfUseCampaign.setValidationTimeout(timeValidation == 0 ? 120 : timeValidation);
-        ((TimeOfUseCampaignServiceImpl) timeOfUseCampaignService).createServiceCallAndTransition(timeOfUseCampaign);
+        timeOfUseCampaignService.createServiceCallAndTransition(timeOfUseCampaign);
         return timeOfUseCampaign;
     }
 

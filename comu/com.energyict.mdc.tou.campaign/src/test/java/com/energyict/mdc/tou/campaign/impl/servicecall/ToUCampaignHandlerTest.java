@@ -8,6 +8,8 @@ package com.energyict.mdc.tou.campaign.impl.servicecall;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -54,6 +56,8 @@ public class ToUCampaignHandlerTest {
     private TimeOfUseCampaignServiceImpl timeOfUseCampaignService = mock(TimeOfUseCampaignServiceImpl.class);
     private Clock clock = mock(Clock.class);
     private ServiceCallService serviceCallService = mock(ServiceCallService.class);
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+    ;
     private TimeOfUseCampaignHandler timeOfUseCampaignHandler;
     private ComTaskExecution calendarComTaskExecution = createCalendarTaskMock();
     private ComTaskExecution verificationComTaskExecution = createVerificationTaskMock();
@@ -72,7 +76,7 @@ public class ToUCampaignHandlerTest {
         when(timeOfUseCampaignService.findActiveServiceCallByDevice(any())).thenReturn(Optional.of(serviceCall));
         when(serviceCallService.lockServiceCall(anyLong())).thenReturn(Optional.of(serviceCall));
         when(event.getType()).thenReturn(eventType);
-        timeOfUseCampaignHandler = new TimeOfUseCampaignHandler(timeOfUseCampaignService, clock, serviceCallService);
+        timeOfUseCampaignHandler = new TimeOfUseCampaignHandler(timeOfUseCampaignService, clock, serviceCallService, thesaurus);
     }
 
     @Test
