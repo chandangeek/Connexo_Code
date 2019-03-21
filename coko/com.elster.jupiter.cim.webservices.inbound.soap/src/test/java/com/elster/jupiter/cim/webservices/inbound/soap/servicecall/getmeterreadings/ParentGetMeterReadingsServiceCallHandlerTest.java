@@ -19,6 +19,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 
+import ch.iec.tc57._2011.meterreadings.MeterReading;
 import ch.iec.tc57._2011.meterreadings.MeterReadings;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.google.common.collect.Range;
@@ -220,6 +221,9 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
     @Test
     public void testServiceCallFromPausedToOngoingSuccessCase() {
         mockFindEndDevices(meter1);
+        List<MeterReading> mrList = mock(List.class);
+        when(meterReadings.getMeterReading()).thenReturn(mrList);
+        when(mrList.isEmpty()).thenReturn(false);
         parentGetMeterReadingsServiceCallHandler.onStateChange(serviceCall, DefaultState.PAUSED, DefaultState.ONGOING);
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
         verify(sendMeterReadingsProvider).call(any(), eq(HeaderType.Verb.CREATED), any());
@@ -230,6 +234,9 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
     @Test
     public void testServiceCallFromOngoingToPartialSuccessCase() {
         mockFindEndDevices(meter1);
+        List<MeterReading> mrList = mock(List.class);
+        when(meterReadings.getMeterReading()).thenReturn(mrList);
+        when(mrList.isEmpty()).thenReturn(false);
         parentGetMeterReadingsServiceCallHandler.onStateChange(serviceCall, DefaultState.ONGOING, DefaultState.PARTIAL_SUCCESS);
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
         verify(sendMeterReadingsProvider).call(any(), eq(HeaderType.Verb.CREATED), any());
@@ -241,6 +248,9 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
     @Test
     public void testOutboundCallFailedCase() {
         mockFindEndDevices(meter1);
+        List<MeterReading> mrList = mock(List.class);
+        when(meterReadings.getMeterReading()).thenReturn(mrList);
+        when(mrList.isEmpty()).thenReturn(false);
         when(sendMeterReadingsProvider.call(any(), eq(HeaderType.Verb.CREATED), any())).thenReturn(false);
         parentGetMeterReadingsServiceCallHandler.onStateChange(serviceCall, DefaultState.PAUSED, DefaultState.ONGOING);
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));

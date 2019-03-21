@@ -99,8 +99,16 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                         source, timeRangeSet));
             return;
         }
+        if (meterReadings == null || meterReadings.getMeterReading().isEmpty()) {
+            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+            serviceCall.log(LogLevel.FINE,
+                    MessageFormat.format("No meter readings are found for source ''{0}'', time range {1}",
+                            source, timeRangeSet));
+            return;
+        }
         EndPointConfiguration endPointConfiguration = getEndPointConfiguration(serviceCall, callbackUrl);
         if (endPointConfiguration == null) {
+            serviceCall.requestTransition(DefaultState.FAILED);
             return;
         }
         boolean isOk = sendMeterReadingsProvider.call(meterReadings, HeaderType.Verb.CREATED, endPointConfiguration);
