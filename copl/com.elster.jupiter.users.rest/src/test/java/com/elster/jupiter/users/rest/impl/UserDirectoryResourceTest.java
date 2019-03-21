@@ -103,8 +103,6 @@ public class UserDirectoryResourceTest extends UsersRestApplicationJerseyTest {
 
     @Test
     public void testSaveGroups() {
-        when(userService.getLdapUserDirectory(1L)).thenReturn(userDirectory);
-        when(userDirectory.getGroupNames()).thenReturn(Arrays.asList("group2", "group3", "group1"));
         LdapGroupsInfos infos = new LdapGroupsInfos();
         infos.total = 2;
         String groupName1 = "gr1";
