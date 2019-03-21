@@ -43,6 +43,8 @@ import static com.elster.jupiter.util.Checks.is;
 
 final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
 
+    private static final String USERACCOUNTCONTROL = "useraccountcontrol";
+    private static final String S_AM_ACCOUNT_NAME = "sAMAccountName";
     private static final String[] ARRAY_MEMBER_OF = { "memberOf" };
     private static final Pattern REAL_GROUP_NAME_PATTERN = Pattern.compile("(.+?)=([^,]*).*");
     static final String TYPE_IDENTIFIER = "ACD";
@@ -66,17 +68,11 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     @Override
     protected List<Group> doGetGroups(DirContext context, Object... args) throws NamingException {
         User user = (User) args[0];
-        if (isManageGroupsInternal()) {
-            return ((UserImpl) user).doGetGroups();
-        }
-
         List<Group> groupList = new ArrayList<>();
-        SearchControls controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, ARRAY_MEMBER_OF, true, true);
-        String name = getGroupName() == null ? getBaseUser() : "";
-        NamingEnumeration<SearchResult> answer = context.search(name,
-                "(&(objectClass=person)(userPrincipalName=" + user.getName() + "@" + getRealDomain(getBase()) + "))",
-                controls);
-        while (answer.hasMoreElements()) {
+        SearchControls controls = new SearchControls(getScopeForUserSearch(), 0, 0, ARRAY_MEMBER_OF, true, true);
+        NamingEnumeration<SearchResult> answer = context.search(getNameForUserSearch(),
+                "(&(objectClass=person)(sAMAccountName=" + user.getName() + "))", controls);
+        if (answer.hasMoreElements()) {
             Attributes attrs = answer.nextElement().getAttributes();
             NamingEnumeration<? extends Attribute> e = attrs.getAll();
             while (e.hasMoreElements()) {
@@ -203,22 +199,23 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     private List<LdapUser> getLdapUsersFromContext(DirContext ctx, Object... args) throws NamingException {
         List<LdapUser> ldapUsers = new ArrayList<>();
         SearchControls controls = new SearchControls();
-        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration<SearchResult> results;
+        controls.setSearchScope(getScopeForUserSearch());
+        String filter;
         if (getGroupName() == null) {
-            results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
+            filter = "(objectclass=person)";
         } else {
-            results = ctx.search("", "(&(objectclass=person)(memberOf=" + getGroupName() + "))", controls);
+            filter = "(&(objectclass=person)(memberOf=" + getGroupName() + "))";
         }
+        NamingEnumeration<SearchResult> results = ctx.search(getNameForUserSearch(), filter, controls);
         while (results.hasMore()) {
             SearchResult searchResult = results.next();
             Attributes attributes = searchResult.getAttributes();
-            if (attributes.get("sAMAccountName") != null) {
+            if (attributes.get(S_AM_ACCOUNT_NAME) != null) {
                 LdapUser ldapUser = new LdapUserImpl();
-                ldapUser.setUsername(attributes.get("sAMAccountName").get().toString());
+                ldapUser.setUsername(attributes.get(S_AM_ACCOUNT_NAME).get().toString());
                 ldapUser.setStatus(true);
-                if (attributes.get("useraccountcontrol") != null) {
-                    ldapUser.setStatus(isUserActive(attributes.get("useraccountcontrol")));
+                if (attributes.get(USERACCOUNTCONTROL) != null) {
+                    ldapUser.setStatus(isUserActive(attributes.get(USERACCOUNTCONTROL)));
                 } else {
                     ldapUser.setStatus(true);
                 }
@@ -229,21 +226,31 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         return ldapUsers;
     }
 
+    private int getScopeForUserSearch() {
+        if (getGroupName() == null) {
+            return SearchControls.ONELEVEL_SCOPE;
+        }
+        return SearchControls.SUBTREE_SCOPE;
+    }
+
+    private String getNameForUserSearch() {
+        if (getGroupName() == null) {
+            return getBaseUser();
+        }
+        return "";
+    }
+
     private boolean getUserStatusFromContext(DirContext context, Object... args) throws NamingException {
         String user = (String) args[0];
         SearchControls controls = new SearchControls();
-        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration<SearchResult> results;
-        if (getGroupName() == null) {
-            results = context.search(getBaseUser(), "(sAMAccountName=" + user + ")", controls);
-        } else {
-            results = context.search("", "(&(objectClass=person)(sAMAccountName=" + user + "))", controls);
-        }
+        controls.setSearchScope(getScopeForUserSearch());
+        NamingEnumeration<SearchResult> results = context.search(getNameForUserSearch(),
+                "(sAMAccountName=" + user + ")", controls);
         while (results.hasMore()) {
             SearchResult searchResult = results.next();
             Attributes attributes = searchResult.getAttributes();
-            if (attributes.get("useraccountcontrol") != null) {
-                return isUserActive(attributes.get("useraccountcontrol"));
+            if (attributes.get(USERACCOUNTCONTROL) != null) {
+                return isUserActive(attributes.get(USERACCOUNTCONTROL));
             }
         }
         return false;
@@ -302,7 +309,12 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         ExtendedRequest tlsRequest = new StartTlsRequest();
         ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
         StartTlsResponse tls = (StartTlsResponse) tlsResponse;
-        tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
+        try {
+            tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
+        } catch (IOException | RuntimeException e) {
+            tls.close();
+            throw e;
+        }
         return Pair.of(ctx, tls);
     }
 }
