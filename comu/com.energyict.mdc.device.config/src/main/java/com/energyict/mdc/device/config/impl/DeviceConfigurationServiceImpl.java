@@ -1068,7 +1068,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return deviceLifeCycleInDeviceTypes.stream().toArray(DeviceLifeCycleInDeviceTypeInfo[]::new);
     }
 
-    private void clearAndRecalculateCache() {
+    public void clearAndRecalculateCache() {
         deviceLifeCycleInDeviceTypes.clear();
         findAllDeviceTypes()
                 .find().stream()

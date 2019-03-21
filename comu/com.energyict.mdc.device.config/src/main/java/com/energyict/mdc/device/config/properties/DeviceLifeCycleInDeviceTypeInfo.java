@@ -51,7 +51,7 @@ public class DeviceLifeCycleInDeviceTypeInfo extends HasIdAndName {
         return "";
     }
 
-    protected DeviceType getDeviceType() {
+    public DeviceType getDeviceType() {
         return deviceType;
     }
 

@@ -15,6 +15,7 @@ import com.energyict.mdc.device.alarms.impl.DeviceAlarmUtil;
 import com.energyict.mdc.device.alarms.impl.event.VetoDeviceTypeDeleteException;
 import com.energyict.mdc.device.config.DeviceType;
 
+import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -45,7 +46,7 @@ public class RemoveDeviceTypeTopicHandler implements TopicHandler{
                 .map(rule -> (List)rule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES))
                 .filter(list -> !list.isEmpty())
                 .map(list -> list.get(0))
-                .map(rule -> (BasicDeviceAlarmRuleTemplate.DeviceLifeCycleInDeviceTypeInfo) rule)
+                .map(rule -> (DeviceLifeCycleInDeviceTypeInfo) rule)
                 .anyMatch(info -> info.getDeviceType().getId() == deviceType.getId());
         if(deviceTypeInUse) {
             throw new VetoDeviceTypeDeleteException(deviceAlarmService.thesaurus(), deviceType);

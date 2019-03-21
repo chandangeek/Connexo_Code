@@ -370,4 +370,5 @@ public interface DeviceConfigurationService {
     List<DeviceConfiguration> getDeviceConfigsByDeviceGroup(EndDeviceGroup endDeviceGroup);
 
     DeviceLifeCycleInDeviceTypeInfo[] getDeviceLifeCycleInDeviceTypeInfoPossibleValues();
+    void clearAndRecalculateCache();
 }
