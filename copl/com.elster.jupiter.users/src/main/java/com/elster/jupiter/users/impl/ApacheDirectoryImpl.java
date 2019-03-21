@@ -313,11 +313,12 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         SearchControls userControls = new SearchControls();
         String start;
         String filter;
-        if (memberUser.indexOf(',') > 2) {
+        int indexOfComma = memberUser.indexOf(',');
+        if (indexOfComma > 2) {
             // uid=John123,dc=example,dc=com
-            userControls.setSearchScope(SearchControls.OBJECT_SCOPE);
-            start = memberUser; //
-            filter = "(objectClass=person)";
+            userControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+            start = memberUser.substring(indexOfComma + 1); // dc=example,dc=com
+            filter = "(&(objectClass=person)(" + memberUser.substring(0, indexOfComma) + "))"; // "(&(objectClass=person)(uid=John123))"
         } else {
             // uid=John123
             // WARNING: roles will be managed internally even if Connexo property ldap.roles=true
