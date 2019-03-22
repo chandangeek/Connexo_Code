@@ -43,6 +43,8 @@ import static com.elster.jupiter.util.Checks.is;
 
 final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
 
+    private static final String OBJECTCLASS_PERSON = "(objectclass=person)";
+    private static final String OBJECT_CLASS_GROUP = "(objectClass=group)";
     private static final String USERACCOUNTCONTROL = "useraccountcontrol";
     private static final String S_AM_ACCOUNT_NAME = "sAMAccountName";
     private static final String[] ARRAY_MEMBER_OF = { "memberOf" };
@@ -89,11 +91,11 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     public Optional<User> authenticate(String name, String password) {
         List<String> urls = getUrls();
         LOGGER.info("AUTH: Autheticating ActiveDirectory user\n");
-        if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
+        if (getSecurity() == null || getSecurity().toUpperCase().contains(NONE)) {
             return authenticateSimple(name, password, urls);
-        } else if (getSecurity().toUpperCase().contains("SSL")) {
+        } else if (getSecurity().toUpperCase().contains(SSL)) {
             return authenticateSSL(name, password, urls, getSslSecurityProperties());
-        } else if (getSecurity().toUpperCase().contains("TLS")) {
+        } else if (getSecurity().toUpperCase().contains(TLS)) {
             return authenticateTLS(name, password, urls, getSslSecurityProperties());
         } else {
             return Optional.empty();
@@ -119,7 +121,7 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     }
 
     private String getUserNameForAuthentication(String name) {
-        String base = getBase();
+        String base = getGroupName() == null ? getBaseUser() : getGroupName();
         return name + "@" + getRealDomain(base);
     }
 
@@ -128,8 +130,8 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         LOGGER.info("AUTH: SSL applied\n");
 
         try {
-            new InitialDirContext(createEnvironment(urls.get(0), getUserNameForAuthentication(name), password, "ssl",
-                    sslSecurityProperties));
+            new InitialDirContext(createEnvironment(urls.get(0), getUserNameForAuthentication(name), password,
+                    LOWERCASE_SSL, sslSecurityProperties));
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
             LOGGER.severe("AUTH: SSL authetication failed\n");
@@ -154,7 +156,7 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
-            tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
+            tls.negotiate(getSocketFactory(sslSecurityProperties, TLS));
             return findUser(name);
         } catch (NumberFormatException | IOException | NamingException e) {
             LOGGER.severe("AUTH: TLS authetication failed\n");
@@ -200,7 +202,7 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         controls.setSearchScope(getScopeForUserSearch());
         String filter;
         if (getGroupName() == null) {
-            filter = "(objectclass=person)";
+            filter = OBJECTCLASS_PERSON;
         } else {
             filter = "(&(objectclass=person)(memberOf=" + getGroupName() + "))";
         }
@@ -279,14 +281,15 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         env.put(Context.SECURITY_PRINCIPAL, username);
         env.put(Context.SECURITY_CREDENTIALS, password);
         if (sslSecurityProperties != null && securityProtocol != null && sslSecurityProperties.getTrustedStore() != null
-                && !is(securityProtocol).emptyOrOnlyWhiteSpace() && securityProtocol.toLowerCase().contains("ssl")) {
+                && !is(securityProtocol).emptyOrOnlyWhiteSpace()
+                && securityProtocol.toLowerCase().contains(LOWERCASE_SSL)) {
             env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
             ManagedSSLSocketFactory.setSocketFactory(
                     new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, securityProtocol)));
             Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
         }
         if (!is(securityProtocol).emptyOrOnlyWhiteSpace()) {
-            env.put(Context.SECURITY_PROTOCOL, "ssl");
+            env.put(Context.SECURITY_PROTOCOL, LOWERCASE_SSL);
         }
         return env;
     }
@@ -300,7 +303,7 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     protected DirContext createDirContextSsl(String url, SslSecurityProperties sslSecurityProperties)
             throws NamingException {
         return new InitialDirContext(
-                createEnvironment(url, getDirectoryUser(), getPasswordDecrypt(), "ssl", sslSecurityProperties));
+                createEnvironment(url, getDirectoryUser(), getPasswordDecrypt(), LOWERCASE_SSL, sslSecurityProperties));
     }
 
     @Override
@@ -312,7 +315,7 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
         StartTlsResponse tls = (StartTlsResponse) tlsResponse;
         try {
-            tls.negotiate(getSocketFactory(sslSecurityProperties, "TLS"));
+            tls.negotiate(getSocketFactory(sslSecurityProperties, TLS));
         } catch (IOException | RuntimeException e) {
             tls.close();
             throw e;
@@ -322,6 +325,6 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
 
     @Override
     protected String getFilterForGroupNames() {
-        return "(objectClass=group)";
+        return OBJECT_CLASS_GROUP;
     }
 }

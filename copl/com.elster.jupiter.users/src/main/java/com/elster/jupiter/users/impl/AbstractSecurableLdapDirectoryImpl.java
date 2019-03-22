@@ -32,7 +32,12 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDirectoryImpl {
-    private static final String OBJECT_CLASS_GROUP_OF_NAMES = "(objectClass=groupOfNames)";
+    protected static final String NONE = "NONE";
+    protected static final String LOWERCASE_SSL = "ssl";
+    protected static final String SSL = "SSL";
+    protected static final String TLS = "TLS";
+
+    protected static final String OBJECT_CLASS_GROUP_OF_NAMES = "(objectClass=groupOfNames)";
     protected static final String MEMBER = "member";
     protected static final String[] MEMBER_ARRAY = { MEMBER };
     protected static final String CN = "cn";

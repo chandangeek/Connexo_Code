@@ -207,10 +207,6 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
         return sslSecurityProperties;
     }
 
-    protected String getBase() {
-        return getGroupName() == null ? getBaseUser() : getGroupName();
-    }
-
     @Override
     public String getGroupName() {
         return groupName;
