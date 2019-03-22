@@ -97,8 +97,15 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
 
     private SearchResult findLDAPUser(DirContext context, User user) throws NamingException {
         SearchControls controls = new SearchControls();
-        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration<SearchResult> answer = context.search("",
+        String name;
+        if (getGroupName() == null) {
+            name = getBaseUser();
+            controls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+        } else {
+            name = "";
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        }
+        NamingEnumeration<SearchResult> answer = context.search(name,
                 "(&(objectClass=person)(uid=" + user.getName() + "))", controls);
         if (answer.hasMore()) {
             return answer.next();
