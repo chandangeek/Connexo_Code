@@ -84,9 +84,10 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
 
     private void onComTaskFailed(ComTaskExecution comTaskExecution) {
         if (isForCalendar(comTaskExecution)) {
-            if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
+            Optional<TimeOfUseCampaign> timeOfUseCampaignOptional = timeOfUseCampaignService.getCampaignOn(comTaskExecution);
+            if (timeOfUseCampaignOptional.isPresent()) {
                 boolean planning = true;
-                TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaignOn(comTaskExecution).get();
+                TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignOptional.get();
                 Device device = comTaskExecution.getDevice();
                 if (plannedCalendarIsOnCampaign(device, timeOfUseCampaign)) {
                     if (device.calendars().getPlannedPassive()
@@ -94,7 +95,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                             .map(DeviceMessage::getStatus)
                             .filter(deviceMessageStatus -> deviceMessageStatus.equals(DeviceMessageStatus.FAILED))
                             .isPresent()) {
-                        ServiceCall serviceCall = timeOfUseCampaignService.findActiveServiceCallByDevice(device).get();
+                        ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device).get().getServiceCall();
                         serviceCallService.lockServiceCall(serviceCall.getId());
                         serviceCall.requestTransition(DefaultState.FAILED);
                         timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.CALENDAR_INSTALLATION_FAILED, LogLevel.WARNING);
@@ -103,17 +104,18 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                 }
                 if (planning) {
                     if (device.getComTaskExecutions().stream()
-                            .noneMatch(comTaskExecution1 -> comTaskExecution1.getNextExecutionTimestamp().equals(timeOfUseCampaign.getActivationStart()))) {
-                        comTaskExecution.schedule(timeOfUseCampaign.getActivationStart());
+                            .noneMatch(comTaskExecution1 -> comTaskExecution1.getNextExecutionTimestamp().equals(timeOfUseCampaign.getUploadPeriodStart()))) {
+                        comTaskExecution.schedule(timeOfUseCampaign.getUploadPeriodStart());
                     }
                 }
             }
         } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
                 .anyMatch(StatusInformationTask.class::isInstance)) {
-            if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
-                TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaignOn(comTaskExecution).get();
+            Optional<TimeOfUseCampaign> timeOfUseCampaignOptional = timeOfUseCampaignService.getCampaignOn(comTaskExecution);
+            if (timeOfUseCampaignOptional.isPresent()) {
+                TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignOptional.get();
                 if (isWithVerification(timeOfUseCampaign)) {
-                    ServiceCall serviceCall = timeOfUseCampaignService.findActiveServiceCallByDevice(comTaskExecution.getDevice()).get();
+                    ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
                     if (serviceCall.getExtension(TimeOfUseItemDomainExtension.class)
                             .flatMap(TimeOfUseItemDomainExtension::getDeviceMessage)
                             .map(DeviceMessage::getStatus)
@@ -131,9 +133,10 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
 
     private void onComTaskCompleted(ComTaskExecution comTaskExecution) {
         if (isForCalendar(comTaskExecution)) {
-            if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
+            Optional<TimeOfUseCampaign> timeOfUseCampaignOptional = timeOfUseCampaignService.getCampaignOn(comTaskExecution);
+            if (timeOfUseCampaignOptional.isPresent()) {
                 boolean planning = true;
-                TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaignOn(comTaskExecution).get();
+                TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignOptional.get();
                 Device device = comTaskExecution.getDevice();
                 if (plannedCalendarIsOnCampaign(device, timeOfUseCampaign)) {
                     if (device.calendars().getPlannedPassive()
@@ -141,7 +144,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                             .map(DeviceMessage::getStatus)
                             .filter(deviceMessageStatus -> deviceMessageStatus.equals(DeviceMessageStatus.CONFIRMED))
                             .isPresent()) {
-                        ServiceCall serviceCall = timeOfUseCampaignService.findActiveServiceCallByDevice(comTaskExecution.getDevice()).get();
+                        ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
                         if (!isWithVerification(timeOfUseCampaign)) {
                             serviceCallService.lockServiceCall(serviceCall.getId());
                             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
@@ -157,18 +160,19 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                 }
                 if (planning) {
                     if (device.getComTaskExecutions().stream()
-                            .noneMatch(comTaskExecution1 -> comTaskExecution1.getNextExecutionTimestamp().equals(timeOfUseCampaign.getActivationStart()))) {
-                        comTaskExecution.schedule(timeOfUseCampaign.getActivationStart());
+                            .noneMatch(comTaskExecution1 -> comTaskExecution1.getNextExecutionTimestamp().equals(timeOfUseCampaign.getUploadPeriodStart()))) {
+                        comTaskExecution.schedule(timeOfUseCampaign.getUploadPeriodStart());
                     }
                 }
             }
         } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
                 .anyMatch(StatusInformationTask.class::isInstance)) {
-            if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
-                TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaignOn(comTaskExecution).get();
+            Optional<TimeOfUseCampaign> timeOfUseCampaignOptional = timeOfUseCampaignService.getCampaignOn(comTaskExecution);
+            if (timeOfUseCampaignOptional.isPresent()) {
+                TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignOptional.get();
                 if (isWithVerification(timeOfUseCampaign)) {
                     if (comTaskExecution.getDevice().calendars().getActive().isPresent()) {
-                        ServiceCall serviceCall = timeOfUseCampaignService.findActiveServiceCallByDevice(comTaskExecution.getDevice()).get();
+                        ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
                         if (serviceCall.getExtension(TimeOfUseItemDomainExtension.class)
                                 .flatMap(TimeOfUseItemDomainExtension::getDeviceMessage)
                                 .map(DeviceMessage::getStatus)
@@ -195,14 +199,13 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
 
     private void onComTaskStarted(ComTaskExecution comTaskExecution) {
         if (isForCalendar(comTaskExecution)) {
-            if (timeOfUseCampaignService.getCampaignOn(comTaskExecution).isPresent()) {
+            Optional<TimeOfUseCampaign> timeOfUseCampaignOptional = timeOfUseCampaignService.getCampaignOn(comTaskExecution);
+            if (timeOfUseCampaignOptional.isPresent()) {
                 boolean planning = true;
-                TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignService.getCampaignOn(comTaskExecution).get();
+                TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignOptional.get();
                 Device device = comTaskExecution.getDevice();
-                ServiceCall serviceCall = timeOfUseCampaignService.findActiveServiceCallByDevice(device).get();
-                TimeOfUseItem timeOfUseItem = timeOfUseCampaignService.streamDevicesInCampaigns()
-                        .filter(Where.where("id").isEqualTo(serviceCall.getId()))
-                        .findAny().orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.TOU_ITEM_WITH_ID_NOT_FOUND, serviceCall.getId()));
+                TimeOfUseItem timeOfUseItem = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device).get();
+                ServiceCall serviceCall = timeOfUseItem.getServiceCall();
                 if (shouldCalendarBeInstalled(device)) {
                     if (plannedCalendarIsOnCampaign(device, timeOfUseCampaign)) {
                         serviceCallService.lockServiceCall(serviceCall.getId());
@@ -225,8 +228,8 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                 }
                 if (planning) {
                     if (device.getComTaskExecutions().stream()
-                            .noneMatch(comTaskExecution1 -> comTaskExecution1.getNextExecutionTimestamp().equals(timeOfUseCampaign.getActivationStart()))) {
-                        comTaskExecution.schedule(timeOfUseCampaign.getActivationStart());
+                            .noneMatch(comTaskExecution1 -> comTaskExecution1.getNextExecutionTimestamp().equals(timeOfUseCampaign.getUploadPeriodStart()))) {
+                        comTaskExecution.schedule(timeOfUseCampaign.getUploadPeriodStart());
                     }
                 }
             }
@@ -291,7 +294,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
             }
             comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
         } else {
-            ServiceCall serviceCall = timeOfUseCampaignService.findActiveServiceCallByDevice(device).get();
+            ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device).get().getServiceCall();
             serviceCallService.lockServiceCall(serviceCall.getId());
             timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.ACTIVE_VERIFICATION_TASK_ISNT_FOUND, LogLevel.SEVERE);
             serviceCall.requestTransition(DefaultState.FAILED);

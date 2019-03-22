@@ -98,8 +98,8 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         timeOfUseCampaign.setName(name);
         timeOfUseCampaign.setDeviceType(deviceType);
         timeOfUseCampaign.setDeviceGroup(deviceGroup);
-        timeOfUseCampaign.setActivationStart(activationStart);
-        timeOfUseCampaign.setActivationEnd(activationEnd);
+        timeOfUseCampaign.setUploadPeriodStart(activationStart);
+        timeOfUseCampaign.setUploadPeriodEnd(activationEnd);
         timeOfUseCampaign.setCalendar(calendar);
         timeOfUseCampaign.setUpdateType(updateType);
         timeOfUseCampaign.setActivationOption(activationOption);

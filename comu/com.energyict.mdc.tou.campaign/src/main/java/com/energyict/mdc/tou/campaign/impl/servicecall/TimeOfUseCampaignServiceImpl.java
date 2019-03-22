@@ -396,7 +396,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .isPresent()) {
             return MessageSeeds.DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR;
         }
-        if (!findActiveServiceCallByDevice(device).isPresent()) {
+        if (!findActiveTimeOfUseItemByDevice(device).isPresent()) {
             ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.TIME_OF_USE_CAMPAIGN_ITEM);
             TimeOfUseItemDomainExtension timeOfUseItemDomainExtension = dataModel.getInstance(TimeOfUseItemDomainExtension.class);
             timeOfUseItemDomainExtension.setDevice(device);
@@ -444,10 +444,8 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
 
     @Override
     public Optional<TimeOfUseCampaign> getCampaignOn(ComTaskExecution comTaskExecution) {
-        return findActiveServiceCallByDevice(comTaskExecution.getDevice())
-                .flatMap(ServiceCall::getParent)
-                .flatMap(serviceCall -> serviceCall.getExtension(TimeOfUseCampaignDomainExtension.class))
-                .map(TimeOfUseCampaign.class::cast);
+        Optional<TimeOfUseItem> timeOfUseItem = findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice());
+        return timeOfUseItem.map(timeOfUseItem1 -> getCampaign(timeOfUseItem1.getParentServiceCallId())).orElse(null);
     }
 
     @Override
@@ -499,13 +497,13 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     @Override
-    public Optional<ServiceCall> findActiveServiceCallByDevice(Device device) {
+    public Optional<TimeOfUseItem> findActiveTimeOfUseItemByDevice(Device device) {
         List<String> states = new ArrayList<>();
         states.add(DefaultState.ONGOING.getKey());
         states.add(DefaultState.PENDING.getKey());
         return streamDevicesInCampaigns().join(ServiceCall.class).join(ServiceCall.class).join(State.class)
                 .filter(Where.where("device").isEqualTo(device))
-                .filter(Where.where("serviceCall.parent.state.name").in(states)).findAny().map(TimeOfUseItem::getServiceCall);
+                .filter(Where.where("serviceCall.parent.state.name").in(states)).findAny().map(TimeOfUseItem.class::cast);
     }
 
     private Optional<Device> findDeviceByServiceCall(ServiceCall serviceCall) {
@@ -526,11 +524,11 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         ormService.getDataModel(TimeOfUseItemPersistenceSupport.COMPONENT_NAME).get().stream(TimeOfUseItemDomainExtension.class).join(ServiceCall.class)
                 .filter(Where.where("serviceCall.parent").isEqualTo(timeOfUseCampaign.getServiceCall()))
                 .forEach(timeOfUseItemDomainExtension -> timeOfUseItemDomainExtension.getDeviceMessage().ifPresent(deviceMessage -> {
-                    deviceMessage.setReleaseDate(timeOfUseCampaign.getActivationStart());
+                    deviceMessage.setReleaseDate(timeOfUseCampaign.getUploadPeriodStart());
                     deviceMessage.save();
                     findCalendarsComTaskExecutions(timeOfUseItemDomainExtension.getDevice())
                             .findAny().ifPresent(comTaskExecution -> dataModel.getInstance(TimeOfUseSendHelper.class)
-                            .scheduleCampaign(comTaskExecution, timeOfUseCampaign.getActivationStart(), timeOfUseCampaign.getActivationEnd()));
+                            .scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd()));
                 }));
     }
 

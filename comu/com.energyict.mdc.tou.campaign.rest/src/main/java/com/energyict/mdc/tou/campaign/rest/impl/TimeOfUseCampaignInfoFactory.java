@@ -68,8 +68,8 @@ public class TimeOfUseCampaignInfoFactory {
         timeOfUseCampaignInfo.name = campaign.getName();
         timeOfUseCampaignInfo.deviceType = new IdWithNameInfo(campaign.getDeviceType().getId(), campaign.getDeviceType().getName());
         timeOfUseCampaignInfo.deviceGroup = campaign.getDeviceGroup();
-        timeOfUseCampaignInfo.activationStart = campaign.getActivationStart();
-        timeOfUseCampaignInfo.activationEnd = campaign.getActivationEnd();
+        timeOfUseCampaignInfo.activationStart = campaign.getUploadPeriodStart();
+        timeOfUseCampaignInfo.activationEnd = campaign.getUploadPeriodEnd();
         timeOfUseCampaignInfo.calendar = new IdWithNameInfo(campaign.getCalendar().getId(), campaign.getCalendar().getName());
         timeOfUseCampaignInfo.updateType = campaign.getUpdateType();
         timeOfUseCampaignInfo.activationOption = campaign.getActivationOption();

@@ -10,11 +10,13 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    NO_TIME_OF_USE_CAMPAIGN_IS_FOUND(1, "NoTimeOfUseCampaignIsFound", "No time of use campaign is found."),
-    DEVICE_WITH_ID_ISNT_FOUND(2, "DeviceWithIdIsntFound", "Device with id {0} not found."),
-    DEVICETYPE_WITH_ID_ISNT_FOUND(3, "DeviceTypeWithIdIsntFound", "DeviceType with id {0} is''nt found."),
-    TOU_ITEM_WITH_ID_ISNT_FOUND(4, "TimeOfUseItemWithIdIsntFound", "Time of use item with id {0} is''nt found."),
-    CAMPAIGN_WITH_ID_ISNT_FOUND(5, "CampaignWithIdIsntFound", "Campaign with id {0} is''nt found."),
+    NO_TIME_OF_USE_CAMPAIGN_IS_FOUND(1, "NoTimeOfUseCampaignIsFound", "Time of use campaign isn''t found."),
+    DEVICE_WITH_ID_ISNT_FOUND(2, "DeviceWithIdIsntFound", "Device with id {0} isn''t found."),
+    DEVICETYPE_WITH_ID_ISNT_FOUND(3, "DeviceTypeWithIdIsntFound", "DeviceType with id {0} isn''t found."),
+    TOU_ITEM_WITH_DEVICE_ISNT_FOUND(4, "TimeOfUseItemWithDeviceIsntFound", "Time of use item with device {0} isn''t found."),
+    CAMPAIGN_WITH_ID_ISNT_FOUND(5, "CampaignWithIdIsntFound", "Campaign with id {0} isn''t found."),
+    NO_TOU_OPTIONS_ON_DEVICE_TYPE(6, "NoTouOptionsOnDeviceType", "Time of use options aren''t found on device type ''{0}''."),
+
     ;
 
     private final int number;

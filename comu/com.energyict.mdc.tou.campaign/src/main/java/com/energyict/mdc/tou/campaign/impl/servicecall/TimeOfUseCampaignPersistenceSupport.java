@@ -83,15 +83,15 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_GROUP.javaName())
                 .notNull()
                 .add();
-        table.column(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_START.databaseName())
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.UPLOAD_PERIOD_START.databaseName())
                 .number()
                 .conversion(ColumnConversion.NUMBER2INSTANT)
-                .map(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_START.javaName())
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.UPLOAD_PERIOD_START.javaName())
                 .add();
-        table.column(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_END.databaseName())
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.UPLOAD_PERIOD_END.databaseName())
                 .number()
                 .conversion(ColumnConversion.NUMBER2INSTANT)
-                .map(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_END.javaName())
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.UPLOAD_PERIOD_END.javaName())
                 .add();
         Column calendar = table.column(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR.databaseName())
                 .number()

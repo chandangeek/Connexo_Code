@@ -17,7 +17,6 @@ import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
@@ -113,7 +112,6 @@ public class ToUCampaignServiceIT {
         deviceConfigurationService = inMemoryPersistence.get(DeviceConfigurationService.class);
         deviceMessageSpecificationService = inMemoryPersistence.get(DeviceMessageSpecificationService.class);
         protocolPluggableService = inMemoryPersistence.get(ProtocolPluggableService.class);
-        inMemoryPersistence.get(OrmService.class).getDataModels();
         List<DeviceMessageSpec> deviceMessageIds;
         deviceMessageIds = new ArrayList<>();
         DeviceMessageSpec deviceMessageSpec1 = mock(DeviceMessageSpec.class);
@@ -206,8 +204,8 @@ public class ToUCampaignServiceIT {
         assertThat(timeOfUseCampaign1.getName()).isEqualTo(name);
         assertThat(timeOfUseCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);
         assertThat(timeOfUseCampaign1.getDeviceType()).isEqualTo(deviceType1);
-        assertThat(timeOfUseCampaign1.getActivationStart()).isEqualTo(activationStart);
-        assertThat(timeOfUseCampaign1.getActivationEnd()).isEqualTo(activationEnd);
+        assertThat(timeOfUseCampaign1.getUploadPeriodStart()).isEqualTo(activationStart);
+        assertThat(timeOfUseCampaign1.getUploadPeriodEnd()).isEqualTo(activationEnd);
         assertThat(timeOfUseCampaign1.getCalendar()).isEqualTo(calendar1);
         assertThat(timeOfUseCampaign1.getActivationOption()).isEqualTo(activationOption);
         assertThat(timeOfUseCampaign1.getUpdateType()).isEqualTo(updateType);
@@ -219,15 +217,15 @@ public class ToUCampaignServiceIT {
     public void editCampaignTest() {
         TimeOfUseCampaignDomainExtension timeOfUseCampaign1 = makeDefaultCampaign();
         timeOfUseCampaign1.setName("tou-c-2");
-        timeOfUseCampaign1.setActivationStart(Instant.ofEpochSecond(1544450000));
-        timeOfUseCampaign1.setActivationEnd(Instant.ofEpochSecond(1544460000));
-        timeOfUseCampaign1.edit(timeOfUseCampaign1.getName(), timeOfUseCampaign1.getActivationStart(), timeOfUseCampaign1.getActivationEnd());
+        timeOfUseCampaign1.setUploadPeriodStart(Instant.ofEpochSecond(1544450000));
+        timeOfUseCampaign1.setUploadPeriodEnd(Instant.ofEpochSecond(1544460000));
+        timeOfUseCampaign1.update();
         assertThat(serviceCallService.getServiceCallFinder().stream().findAny().get()
                 .getExtension(TimeOfUseCampaignDomainExtension.class).get().getName()).isEqualTo(timeOfUseCampaign1.getName());
         assertThat(serviceCallService.getServiceCallFinder().stream().findAny().get()
-                .getExtension(TimeOfUseCampaignDomainExtension.class).get().getActivationStart()).isEqualTo(timeOfUseCampaign1.getActivationStart());
+                .getExtension(TimeOfUseCampaignDomainExtension.class).get().getUploadPeriodStart()).isEqualTo(timeOfUseCampaign1.getUploadPeriodStart());
         assertThat(serviceCallService.getServiceCallFinder().stream().findAny().get()
-                .getExtension(TimeOfUseCampaignDomainExtension.class).get().getActivationEnd()).isEqualTo(timeOfUseCampaign1.getActivationEnd());
+                .getExtension(TimeOfUseCampaignDomainExtension.class).get().getUploadPeriodEnd()).isEqualTo(timeOfUseCampaign1.getUploadPeriodEnd());
     }
 
     @Test
@@ -271,8 +269,8 @@ public class ToUCampaignServiceIT {
                                                           String activationOption, Instant activationDate, long timeValidation) {
         TimeOfUseCampaignDomainExtension timeOfUseCampaign = new TimeOfUseCampaignDomainExtension(timeOfUseCampaignService);
         timeOfUseCampaign.setName(name == null ? "tou-c-1" : name);
-        timeOfUseCampaign.setActivationStart(Instant.ofEpochSecond(activationStart == 0 ? 1544400000 : activationStart));
-        timeOfUseCampaign.setActivationEnd(Instant.ofEpochSecond(activationEnd == 0 ? 1544410000 : activationEnd));
+        timeOfUseCampaign.setUploadPeriodStart(Instant.ofEpochSecond(activationStart == 0 ? 1544400000 : activationStart));
+        timeOfUseCampaign.setUploadPeriodEnd(Instant.ofEpochSecond(activationEnd == 0 ? 1544410000 : activationEnd));
         timeOfUseCampaign.setCalendar(calendar == null ? makeCalendar("Re-Cu-01", "1") : calendar);
         timeOfUseCampaign.setDeviceGroup(group == null ? "group1" : group);
         timeOfUseCampaign.setDeviceType(deviceType == null ? deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass) : deviceType);

@@ -104,12 +104,12 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
                         .finish(),
                 propertySpecService
                         .specForValuesOf(new InstantFactory())
-                        .named(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_START.javaName(), TranslationKeys.ACTIVATION_START)
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.UPLOAD_PERIOD_START.javaName(), TranslationKeys.ACTIVATION_START)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
                         .specForValuesOf(new InstantFactory())
-                        .named(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_END.javaName(), TranslationKeys.ACTIVATION_END)
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.UPLOAD_PERIOD_END.javaName(), TranslationKeys.ACTIVATION_END)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService

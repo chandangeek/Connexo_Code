@@ -53,7 +53,7 @@ public class DeviceInCampaignInfoFactoryTest {
 
     @Test
     public void retryTest() {
-        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.createOnRetry(timeOfUseItem);
+        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.create(device, timeOfUseItem.retry());
         assertEquals(deviceInCampaignInfo.device.name, "TestDevice");
         assertEquals(deviceInCampaignInfo.device.id, 1L);
         assertEquals(deviceInCampaignInfo.status, "Pending");
@@ -63,7 +63,7 @@ public class DeviceInCampaignInfoFactoryTest {
 
     @Test
     public void cancelTest() {
-        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.createOnCancel(timeOfUseItem);
+        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.create(device, timeOfUseItem.cancel());
         assertEquals(deviceInCampaignInfo.device.name, "TestDevice");
         assertEquals(deviceInCampaignInfo.device.id, 1L);
         assertEquals(deviceInCampaignInfo.status, "Cancelled");

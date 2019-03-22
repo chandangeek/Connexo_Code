@@ -24,14 +24,6 @@ public class DeviceInCampaignInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public DeviceInCampaignInfo createOnCancel(TimeOfUseItem timeOfUseItem) {
-        return create(timeOfUseItem.getDevice(), timeOfUseItem.cancel());
-    }
-
-    public DeviceInCampaignInfo createOnRetry(TimeOfUseItem timeOfUseItem) {
-        return create(timeOfUseItem.getDevice(), timeOfUseItem.retry());
-    }
-
     public DeviceInCampaignInfo create(Device device, ServiceCall serviceCall) {
         return new DeviceInCampaignInfo(new IdWithNameInfo(device.getId(), device.getName()),
                 getDeviceStatus(serviceCall.getState(), thesaurus),

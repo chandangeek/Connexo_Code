@@ -33,7 +33,7 @@ public interface TimeOfUseCampaignService {
 
     List<DeviceType> getDeviceTypesWithCalendars();
 
-    Optional<ServiceCall> findActiveServiceCallByDevice(Device device);
+    Optional<TimeOfUseItem> findActiveTimeOfUseItemByDevice(Device device);
 
     Optional<TimeOfUseCampaign> findAndLockToUCampaignByIdAndVersion(long id, long version);
 

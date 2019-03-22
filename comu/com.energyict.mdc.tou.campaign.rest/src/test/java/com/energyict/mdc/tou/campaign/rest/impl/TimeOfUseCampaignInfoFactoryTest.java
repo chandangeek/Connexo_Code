@@ -98,8 +98,8 @@ public class TimeOfUseCampaignInfoFactoryTest {
         when(timeOfUseCampaign.getName()).thenReturn("TestCampaign");
         when(timeOfUseCampaign.getDeviceType()).thenReturn(deviceType);
         when(timeOfUseCampaign.getDeviceGroup()).thenReturn("TestGroup");
-        when(timeOfUseCampaign.getActivationStart()).thenReturn(Instant.ofEpochSecond(100));
-        when(timeOfUseCampaign.getActivationEnd()).thenReturn(Instant.ofEpochSecond(200));
+        when(timeOfUseCampaign.getUploadPeriodStart()).thenReturn(Instant.ofEpochSecond(100));
+        when(timeOfUseCampaign.getUploadPeriodEnd()).thenReturn(Instant.ofEpochSecond(200));
         when(timeOfUseCampaign.getCalendar()).thenReturn(calendar);
         when(timeOfUseCampaign.getUpdateType()).thenReturn("fullCalendar");
         when(timeOfUseCampaign.getActivationOption()).thenReturn("immediately");

@@ -87,7 +87,7 @@ public class TimeOfUseSendHelper {
             sendCalendarInfo.activationDate = timeOfUseCampaign.getActivationOption()
                     .equals(TranslationKeys.IMMEDIATELY.getKey()) ? serviceCall.getCreationTime() : timeOfUseCampaign.getActivationDate();
             sendCalendarInfo.calendarUpdateOption = timeOfUseCampaign.getUpdateType();
-            sendCalendarInfo.releaseDate = timeOfUseCampaign.getActivationStart();
+            sendCalendarInfo.releaseDate = timeOfUseCampaign.getUploadPeriodStart();
             sendCalendarInfo.contract = null;//bigdec
             sendCalendarInfo.type = null;//string
             Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device, deviceConfigurationService);
@@ -104,7 +104,7 @@ public class TimeOfUseSendHelper {
                 comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add();
             }
             if (comTaskExecution.getConnectionTask().isPresent()) {
-                scheduleCampaign(comTaskExecution, timeOfUseCampaign.getActivationStart(), timeOfUseCampaign.getActivationEnd());
+                scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd());
                 TimeOfUseItemDomainExtension extension = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get();
                 extension.setDeviceMessage(deviceMessage);
                 serviceCall.update(extension);
