@@ -66,7 +66,8 @@ Ext.define('Tou.view.ActivateCalendar', {
                             uploadFileDateContainer.enable();
                             uploadFileDateContainer.setValue(moment().startOf('day').add('days', 1));
                         }
-                        if (newValue[me.groupName] == 'immediately') {
+                        if (newValue[me.groupName] === 'immediately'
+                         || newValue[me.groupName] === 'onDate') {
                             timeoutFld.show();
                         } else {
                             timeoutFld.hide();
