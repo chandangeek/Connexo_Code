@@ -192,6 +192,8 @@ public enum EventType {
     METROLOGY_CONTRACT_DELETED("metrologycontract/DELETED"),
     ;
     /* XROMVYU EVENTS !!!!!!!!! */
+    ;
+    /* XROMVYU EVENTS !!!!! */
     private static final String NAMESPACE = "com/elster/jupiter/metering/";
     private final String topic;
     private boolean hasMRID;
