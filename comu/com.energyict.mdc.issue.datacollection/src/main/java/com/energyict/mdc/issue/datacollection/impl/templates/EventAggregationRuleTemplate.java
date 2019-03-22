@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.LongStream;
 
+import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNABLE_TO_CONNECT;
@@ -43,8 +44,6 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     public static final String NAME = "EventAggregationRuleTemplate";
     public static final String THRESHOLD = NAME + ".threshold";
     public static final String EVENTTYPE = NAME + ".eventType";
-
-    public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES = NAME + ".deviceLifecyleInDeviceTypes";
 
     //For OSGI
     public EventAggregationRuleTemplate() {
@@ -139,7 +138,7 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
         Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(propertySpecService
                 .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService))
-                .named(DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
+                .named(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .markMultiValued(";")

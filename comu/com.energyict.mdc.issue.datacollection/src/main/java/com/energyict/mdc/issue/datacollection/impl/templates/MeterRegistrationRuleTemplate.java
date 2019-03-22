@@ -34,6 +34,8 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
+import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
+
 @Component(name = "com.energyict.mdc.issue.datacollection.MeterRegistrationRuleTemplate",
         property = {"name=" + MeterRegistrationRuleTemplate.NAME},
         service = CreationRuleTemplate.class, immediate = true)
@@ -41,7 +43,6 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
     public static final String NAME = "MeterRegistrationRuleTemplate";
     public static final String DELAY = NAME + ".delay";
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
-    public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES = NAME + ".deviceLifecyleInDeviceTypes";
 
     //For OSGI
     public MeterRegistrationRuleTemplate() {
@@ -68,7 +69,7 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(propertySpecService
                 .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService))
-                .named(DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
+                .named(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .markMultiValued(";")

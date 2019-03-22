@@ -49,6 +49,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNABLE_TO_CONNECT;
@@ -67,7 +68,6 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
     public static final String RADIOGROUP = NAME + ".increaseurgency";
     private static final String DEFAULT_VALUE = "Do nothing";
-    public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES = NAME + ".deviceLifecyleInDeviceTypes";
     private static final Long DEFAULT_KEY = 0L;
 
     //for OSGI
@@ -200,7 +200,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 .toArray(EventTypeInfo[]::new);
         builder.add(propertySpecService
                 .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService))
-                .named(DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
+                .named(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .markMultiValued(";")

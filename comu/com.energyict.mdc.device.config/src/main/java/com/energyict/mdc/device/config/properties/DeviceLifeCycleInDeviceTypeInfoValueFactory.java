@@ -33,7 +33,7 @@ public class DeviceLifeCycleInDeviceTypeInfoValueFactory implements ValueFactory
 
     //DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService
 
-    public DeviceLifeCycleInDeviceTypeInfoValueFactory() {}
+    //public DeviceLifeCycleInDeviceTypeInfoValueFactory() {}
 
     public DeviceLifeCycleInDeviceTypeInfoValueFactory(DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
