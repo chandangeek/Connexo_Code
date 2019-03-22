@@ -11,13 +11,10 @@ Ext.define('Usr.model.MgmUserDirectoryGroup', {
     
     proxy: {
         type: 'rest',
-        urlTpl: '/api/usr/userdirectories/groups',
+        url: '/api/usr/userdirectories/groups',
         reader: {
             type: 'json',
             root: 'rules'
-        }/*,
-        setUrl: function (userDirectoryId) {
-            this.url = this.urlTpl.replace('{userDirectoryId}', userDirectoryId);
-        }*/
+        }
     }
 });
