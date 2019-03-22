@@ -20,6 +20,11 @@ Ext.define('Usr.view.userDirectory.AddGroupsGrid', {
                 header: Uni.I18n.translate('general.groupName', 'USR', 'Group name'),
                 dataIndex: 'name',
                 flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.groupDescription', 'USR', 'Description'),
+                dataIndex: 'description',
+                flex: 2
             }
         ]
     },

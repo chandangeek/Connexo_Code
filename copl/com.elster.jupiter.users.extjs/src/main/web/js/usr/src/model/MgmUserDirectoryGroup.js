@@ -6,7 +6,8 @@ Ext.define('Usr.model.MgmUserDirectoryGroup', {
     extend: 'Ext.data.Model',
     fields: [
        'id',
-       'name'
+       'name',
+	   'description'
     ],
     
     proxy: {

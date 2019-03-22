@@ -123,6 +123,11 @@ Ext.define('Usr.view.userDirectory.Synchronize', {
                                             dataIndex: 'name',
                                             flex: 2
                                         },
+										{
+                                            header: Uni.I18n.translate('general.groupDescription', 'USR', 'Description'),
+                                            dataIndex: 'description',
+                                            flex: 4
+                                        },
                                         {
                                             xtype: 'actioncolumn',
                                             align: 'right',

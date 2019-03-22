@@ -522,6 +522,7 @@ Ext.define('Usr.controller.UserDirectories', {
 							userDirectoryGroupsStore.each(function (record) {
 								var group = Ext.create(Usr.model.MgmUserDirectoryGroup);
 								group.set('name', record.get('name'));
+								group.set('description', record.get('description'));
 								groupsList.push(group);
 							});
 							groups.ldapGroups().add(groupsList);
