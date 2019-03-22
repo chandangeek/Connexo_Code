@@ -509,32 +509,9 @@ Ext.define('Usr.controller.UserDirectories', {
 		var userDirectory = me.getModel('Usr.model.MgmUserDirectory');
         userDirectory.load(router.arguments.userDirectoryId, {
             success: function (userDirectoryRecord) {
-				
-				var groups = Ext.create(Usr.model.MgmUserDirectoryGroups);
-							
-							userDirectoryGroupsStore.each(function (grpRec) {
-								var group = Ext.create(Usr.model.MgmUserDirectoryGroup);
-								group.set('name', grpRec.get('name'));
-								
-								groupsList.push(group);
-							});
-							
-							groups.ldapGroups().add(groupsList);
-							groups.save({
-								success: function(grpRecord) {
-									me.userDirectoryUsersStoreLoaded = false;
-									me.userDirectoryGroupsStoreLoaded = false;
-									router.getRoute('administration/userdirectories').forward();
-								},
-								failure: function(grpRecord, operation) {
-									
-								}
-							});
-				
-				
-				/*
 				var baseGroupValue = userDirectoryRecord.get('baseGroup');
 				var groupPanelVisible = baseGroupValue && baseGroupValue.trim() !== '';
+				
 				users.ldapUsers().add(usersList);
 				users.getProxy().setUrl(router.arguments.userDirectoryId);
 				users.save({
@@ -542,14 +519,11 @@ Ext.define('Usr.controller.UserDirectories', {
 						if(groupPanelVisible) {
 							
 							var groups = Ext.create(Usr.model.MgmUserDirectoryGroups);
-							
-							userDirectoryGroupsStore.each(function (grpRec) {
+							userDirectoryGroupsStore.each(function (record) {
 								var group = Ext.create(Usr.model.MgmUserDirectoryGroup);
-								group.set('name', grpRec.get('name'));
-								
+								group.set('name', record.get('name'));
 								groupsList.push(group);
 							});
-							
 							groups.ldapGroups().add(groupsList);
 							groups.save({
 								success: function(grpRecord) {
@@ -571,7 +545,6 @@ Ext.define('Usr.controller.UserDirectories', {
 					failure: function (usrRecord, operation) {
 					}
 				});
-				*/
 			}
 		});
     },
