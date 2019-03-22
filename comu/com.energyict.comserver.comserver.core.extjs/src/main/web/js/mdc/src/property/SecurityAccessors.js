@@ -52,7 +52,7 @@ Ext.define('Mdc.property.SecurityAccessors', {
                         if(me.isEditParameters){
                             me.getPropForm().add({
                                             xtype: 'textareafield',
-                                            fieldLabel: nameAndValue[0] + "(prepared key)",
+                                            fieldLabel: nameAndValue[0] + " (prepared key)",
                                             labelWidth: 250,
                                             readOnly: true,
                                             width: 1000,
@@ -62,7 +62,7 @@ Ext.define('Mdc.property.SecurityAccessors', {
                                         },
                                         {
                                             xtype: 'textareafield',
-                                            fieldLabel: nameAndValue[0] + "(generated signature)",
+                                            fieldLabel: nameAndValue[0] + " (generated signature)",
                                             width: 1000,
                                             height: 100,
                                             margin: '0 0 20 0',
@@ -76,7 +76,7 @@ Ext.define('Mdc.property.SecurityAccessors', {
                         }else{
                             me.getPropForm().add({
                                             xtype: 'displayfield',
-                                            fieldLabel: nameAndValue[0] + "(prepared key)",
+                                            fieldLabel: nameAndValue[0] + " (prepared key)",
                                             readOnly: true,
                                             value: nameAndValue[1],
                                             itemId: itemIdForPreparedKey,
@@ -93,7 +93,7 @@ Ext.define('Mdc.property.SecurityAccessors', {
                                         },
                                         {
                                             xtype: 'displayfield',
-                                            fieldLabel: nameAndValue[0] + "(generated signature)",
+                                            fieldLabel: nameAndValue[0] + " (generated signature)",
                                             readOnly: true,
                                             value: nameAndValue[2],
                                             itemId: itemIdForGeneratedKey,
