@@ -235,7 +235,11 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         if (getGroupName() == null) {
             return getBaseUser();
         }
-        return "";
+        int indexOfOu = getGroupName().toLowerCase().lastIndexOf(",ou=");
+        if (indexOfOu >= 0) {
+            return getGroupName().substring(indexOfOu + 1);
+        }
+        return getGroupName();
     }
 
     private boolean getUserStatusFromContext(DirContext context, Object... args) throws NamingException {
