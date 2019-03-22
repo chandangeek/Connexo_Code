@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+
 import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -49,6 +50,8 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.Range;
+import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.events.EventService;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -82,13 +85,15 @@ public class ResourceHelper {
     private final UserService userService;
     private final ThreadPrincipalService threadPrincipalService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
+    private volatile EventService eventService;
 
     @Inject
     public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory, MetrologyConfigurationService metrologyConfigurationService,
                           UsagePointLifeCycleService usagePointLifeCycleService, Clock clock, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
                           ValidationService validationService, EstimationService estimationService, Thesaurus thesaurus, UserService userService,
-                          ThreadPrincipalService threadPrincipalService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+                          ThreadPrincipalService threadPrincipalService, CustomPropertySetInfoFactory customPropertySetInfoFactory,
+                          EventService eventService) {
         super();
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
@@ -104,6 +109,7 @@ public class ResourceHelper {
         this.userService = userService;
         this.threadPrincipalService = threadPrincipalService;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+        this.eventService = eventService;
     }
 
     public MeterRole findMeterRoleOrThrowException(String key) {
@@ -354,9 +360,12 @@ public class ResourceHelper {
     }
 
     private void replaceOrActivateMeter(UsagePointMeterActivator linker, Instant activationTime, String meterName, MeterRole meterRole) {
+        /* METER!!!!!!*/
         Meter meter = findMeterByNameOrThrowException(meterName);
         linker.clear(meterRole);
         linker.activate(activationTime, meter, meterRole);
+        System.out.println("POST EVENT LINK!!!!!!!!!!!!!!!!!!!!!!");
+        eventService.postEvent(EventType.METER_LINKED.topic(), meter);
     }
 
     private void validateUnlinkMeters(UsagePoint usagePoint, MeterRole meterRole) {

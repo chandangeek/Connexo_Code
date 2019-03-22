@@ -87,7 +87,7 @@ public class DeviceLifeCycleActionResource {
         AuthorizedAction action = resourceHelper.findAuthorizedActionByIdOrThrowException(deviceLifeCycle, actionId);
         return Response.ok(authorizedActionInfoFactory.from(action)).build();
     }
-    /* XROMVYU CREATION OF NEW TRANSITION */
+    /* XROMVYU CREATION OF NEW TRANSITION !!!!!!!!!!!! */
     @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")

@@ -587,6 +587,7 @@ public class UsagePointResource {
             throw UsagePointMeterActivationException.usagePointIncorrectStage(thesaurus);
         }
         try {
+            System.out.println("PERFORM ACTIVATION!!!!!");
             resourceHelper.performMeterActivations(info, usagePoint);
         } catch (UsagePointMeterActivationException ex) {
             new RestValidationBuilder().addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "meterRole", ex.getMessageArgs())).validate();
