@@ -624,6 +624,7 @@ Ext.define('Usr.controller.UserDirectories', {
                 if (userDirectoryGroupsStore.findExact('name', record.get('name')) == -1) {
                     var group = Ext.create('Usr.model.MgmUserDirectoryGroup');
                     group.set('name', record.get('name'));
+					group.set('description', record.get('description'));
                     userDirectoryGroupsStore.add(group);
                 }
             }
