@@ -5,6 +5,7 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.LdapGroup;
 import com.elster.jupiter.users.LdapServerException;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -28,13 +30,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 
 public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDirectoryImpl {
+    private static final String OBJECT_CLASS_GROUP_OF_NAMES = "(objectClass=groupOfNames)";
     protected static final String MEMBER = "member";
     protected static final String[] MEMBER_ARRAY = { MEMBER };
     protected static final String CN = "cn";
-    protected static final String[] CN_ARRAY = { CN };
+    protected static final String DESCRIPTION = "description";
+    private static final String[] CN_AND_DESCRIPTION = new String[] { CN, DESCRIPTION };
 
     @Inject
     protected AbstractSecurableLdapDirectoryImpl(DataModel dataModel, UserService userService, BundleContext context) {
@@ -53,6 +56,10 @@ public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDir
 
     protected interface FunctionWithNamingException<T, R> {
         R apply(T t, Object... args) throws NamingException;
+    }
+
+    protected interface BiConsumerWithNamingException<T, U> {
+        void accept(T t, U u) throws NamingException;
     }
 
     protected <T> T getSomethingFromLdap(FunctionWithNamingException<DirContext, T> doGetSomething, Object... args) {
@@ -135,34 +142,44 @@ public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDir
     }
 
     @Override
-    public final List<String> getGroupNames() {
+    public final List<LdapGroup> getLdapGroups() {
         if (Checks.is(getBaseGroup()).emptyOrOnlyWhiteSpace()) {
             return Collections.emptyList();
         }
         return getSomethingFromLdap(this::doGetGroupNames);
     }
 
-    private List<String> doGetGroupNames(DirContext context, Object... args) throws NamingException {
-        List<String> names = new ArrayList<>();
-        SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, CN_ARRAY, true, true);
+    private List<LdapGroup> doGetGroupNames(DirContext context, Object... args) throws NamingException {
+        List<LdapGroup> ldapGroups = new ArrayList<>();
+        SearchControls controls = new SearchControls(SearchControls.ONELEVEL_SCOPE, 0, 0, CN_AND_DESCRIPTION, true,
+                true);
         NamingEnumeration<SearchResult> groupEnumeration = context.search(getBaseGroup(), getFilterForGroupNames(),
                 controls);
-        processCn(groupEnumeration, names::add);
-        return names;
+        processCn(groupEnumeration, (String cn, Attributes attributes) -> {
+            LdapGroup ldapGroup = new LdapGroupImpl();
+            ldapGroup.setName(cn);
+            Attribute descriptionAttribute = attributes.get(DESCRIPTION);
+            if (descriptionAttribute != null) {
+                ldapGroup.setDescription((String) descriptionAttribute.get());
+            }
+            ldapGroups.add(ldapGroup);
+        });
+        return ldapGroups;
     }
 
     protected String getFilterForGroupNames() {
-        return "(objectClass=groupOfNames)";
+        return OBJECT_CLASS_GROUP_OF_NAMES;
     }
 
-    protected void processCn(NamingEnumeration<SearchResult> enumeration, Consumer<String> consumer)
-            throws NamingException {
+    protected void processCn(NamingEnumeration<SearchResult> enumeration,
+            BiConsumerWithNamingException<String, Attributes> consumer) throws NamingException {
         while (enumeration.hasMore()) {
-            Attribute cnAttribute = enumeration.next().getAttributes().get(CN);
+            Attributes attributes = enumeration.next().getAttributes();
+            Attribute cnAttribute = attributes.get(CN);
             if (cnAttribute != null) {
                 String cn = (String) cnAttribute.get();
                 if (!Checks.is(cn).emptyOrOnlyWhiteSpace()) {
-                    consumer.accept(cn);
+                    consumer.accept(cn, attributes);
                 }
             }
         }

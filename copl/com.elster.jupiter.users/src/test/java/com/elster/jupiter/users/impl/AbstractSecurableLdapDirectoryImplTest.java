@@ -5,6 +5,7 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.LdapGroup;
 import com.elster.jupiter.users.LdapServerException;
 import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.User;
@@ -155,38 +156,50 @@ public class AbstractSecurableLdapDirectoryImplTest {
     }
 
     @Test
-    public void testGetGroupNamesWithoutBaseGroup() {
-        assertThat(sut.getGroupNames()).isEmpty();
+    public void testGetLdapGroupsWithoutBaseGroup() {
+        assertThat(sut.getLdapGroups()).isEmpty();
     }
 
     @SuppressWarnings("unchecked")
     @Test(expected = LdapServerException.class)
-    public void testGetGroupNamesShouldThrowLdapServerExceptionWhenExceptionHappens() throws NamingException {
+    public void testGetLdapGroupsShouldThrowLdapServerExceptionWhenExceptionHappens() throws NamingException {
         sut.setBaseGroup("my base group");
         when(dirContext.search(anyString(), anyString(), any(SearchControls.class))).thenThrow(NamingException.class);
 
-        sut.getGroupNames();
+        sut.getLdapGroups();
     }
 
     @Test
-    public void testGetGroupNames() throws NamingException {
+    public void testGetLdapGroups() throws NamingException {
         sut.setBaseGroup("cn=my base group,dc=some, dc=com");
         NamingEnumeration<SearchResult> groupEnumeration = new MyNamingEnumeration<>(
                 Arrays.asList(searchResult1, searchResult2).iterator());
         String group1Name = "firstGroup";
         String group2Name = "secondGroup";
-        prepareAttribute(searchResult1, group1Name);
-        prepareAttribute(searchResult2, group2Name);
+        String group2Description = "description of second group";
+        prepareAttribute(searchResult1, group1Name, null);
+        prepareAttribute(searchResult2, group2Name, group2Description);
 
         when(dirContext.search(anyString(), anyString(), any(SearchControls.class))).thenReturn(groupEnumeration);
 
-        assertThat(sut.getGroupNames()).hasSize(2).contains(group1Name).contains(group2Name);
+        List<LdapGroup> ldapGroups = sut.getLdapGroups();
+        assertThat(ldapGroups).hasSize(2);
+        assertThat(ldapGroups.get(0).getName()).isEqualTo(group1Name);
+        assertThat(ldapGroups.get(0).getDescription()).isNull();
+        assertThat(ldapGroups.get(1).getName()).isEqualTo(group2Name);
+        assertThat(ldapGroups.get(1).getDescription()).isEqualTo(group2Description);
+
     }
 
-    private void prepareAttribute(SearchResult searchResult, String groupName) throws NamingException {
+    private void prepareAttribute(SearchResult searchResult, String groupName, String groupDescription)
+            throws NamingException {
         Attribute cnAttribute = mock(Attribute.class);
         when(searchResult.getAttributes().get(AbstractSecurableLdapDirectoryImpl.CN)).thenReturn(cnAttribute);
         when(cnAttribute.get()).thenReturn(groupName);
+        Attribute descriptionAttribute = mock(Attribute.class);
+        when(searchResult.getAttributes().get(AbstractSecurableLdapDirectoryImpl.DESCRIPTION))
+                .thenReturn(descriptionAttribute);
+        when(descriptionAttribute.get()).thenReturn(groupDescription);
     }
 
 }

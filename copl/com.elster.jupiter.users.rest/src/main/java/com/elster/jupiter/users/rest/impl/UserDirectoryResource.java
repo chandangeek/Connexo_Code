@@ -19,6 +19,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.users.LdapGroup;
 import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.User;
@@ -326,16 +327,17 @@ public class UserDirectoryResource {
     }
 
     private List<LdapGroupsInfo> getLDAPGroups(JsonQueryParameters queryParameters, long id,
-            Function<String, Boolean> filterFunction) {
+            Function<LdapGroup, Boolean> filterFunction) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
-        List<String> groupNames = ldapUserDirectory.getGroupNames();
-        Stream<String> streamOfNames = ListPager.of(groupNames)
+        List<LdapGroup> ldapGroups = ldapUserDirectory.getLdapGroups();
+        Stream<LdapGroup> streamOfNames = ListPager.of(ldapGroups)
                 .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null)).find()
                 .stream();
         if (filterFunction != null) {
             streamOfNames = streamOfNames.filter(filterFunction::apply);
         }
-        return streamOfNames.sorted().map(LdapGroupsInfo::new).collect(toList());
+        return streamOfNames.sorted((s1, s2) -> s1.getName().toLowerCase().compareTo(s2.getName().toLowerCase()))
+                .map(LdapGroupsInfo::new).collect(toList());
     }
 
     /**
@@ -353,7 +355,7 @@ public class UserDirectoryResource {
     public PagedInfoList getExtImportedGroups(@BeanParam JsonQueryParameters queryParameters,
             @PathParam("id") long id) {
         List<LdapGroupsInfo> groups = getLDAPGroups(queryParameters, id,
-                name -> userService.findGroup(name).isPresent());
+                ldapGroup -> userService.findGroup(ldapGroup.getName()).isPresent());
         return PagedInfoList.fromCompleteList("extimportedgroups", groups, queryParameters);
     }
 
@@ -370,7 +372,11 @@ public class UserDirectoryResource {
             com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
     public Response saveGroups(LdapGroupsInfos infos, @Context SecurityContext securityContext) {
         try (TransactionContext context = transactionService.getContext()) {
-            infos.ldapGroups.stream().forEach(s -> userService.findOrCreateGroup(s.name));
+            infos.ldapGroups.stream().forEach(s -> {
+                if (!userService.findGroup(s.name).isPresent()) {
+                    userService.createGroup(s.name, s.description);
+                }
+            });
             context.commit();
         }
         return Response.status(Response.Status.OK).build();

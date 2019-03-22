@@ -41,6 +41,7 @@ import java.util.logging.Logger;
 final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     static final String TYPE_IDENTIFIER = "APD";
     private static final Logger LOGGER = Logger.getLogger(ApacheDirectoryImpl.class.getSimpleName());
+    private static final String[] CN_ARRAY = { CN };
 
     @Inject
     ApacheDirectoryImpl(DataModel dataModel, UserService userService, BundleContext context) {
@@ -81,7 +82,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         }
         SearchControls controls = new SearchControls(scope, 0, 0, CN_ARRAY, true, true);
         NamingEnumeration<SearchResult> answer = context.search(name, groupFilter, controls);
-        processCn(answer, cn -> userService.findGroup(cn).ifPresent(groupList::add));
+        processCn(answer, (String cn, Attributes attributes) -> userService.findGroup(cn).ifPresent(groupList::add));
         return groupList;
     }
 

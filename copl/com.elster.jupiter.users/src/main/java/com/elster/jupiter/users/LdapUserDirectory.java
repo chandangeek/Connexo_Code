@@ -50,8 +50,8 @@ public interface LdapUserDirectory extends UserDirectory {
     /**
      * Applicable only when baseGroup is not null
      *
-     * @return names of groups which are children of base group
+     * @return groups which are direct children of base group
      */
-    List<String> getGroupNames();
+    List<LdapGroup> getLdapGroups();
 
 }
