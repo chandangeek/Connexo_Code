@@ -84,14 +84,14 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
     }
 
     @Test
-    public void testCreateDeviceWithCpsSuccessfully() throws Exception {
+    public void testGetMeterConfigWithCpsSuccessfully() throws Exception {
 
         mockCustomPropertySetService();
         mockCustomPropertySetSpecs(true);
-        doTestCreateDeviceWithCps();
+        doTestGetMeterConfigWithCps();
     }
 
-    private void doTestCreateDeviceWithCps() throws FaultMessage {
+    private void doTestGetMeterConfigWithCps() throws FaultMessage {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();

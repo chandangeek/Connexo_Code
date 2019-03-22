@@ -36,7 +36,6 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 class MeterConfigFactory {
@@ -111,7 +110,7 @@ class MeterConfigFactory {
             for (PropertySpec propertySpec : propertySpecs) {
                 Attribute attr = new Attribute();
                 attr.setName(propertySpec.getName());
-                Object propertyValue = getPropertyValue(propertySpec, deviceProperties, deviceProperties.getLocalValue(propertySpec.getName()) != null ? deviceProperties::getLocalValue : null);
+                Object propertyValue = getPropertyValue(propertySpec, deviceProperties);
                 attr.setValue(convertPropertyValue(propertySpec, propertyValue));
                 attributeSet.getAttribute().add(attr);
             }
@@ -128,11 +127,8 @@ class MeterConfigFactory {
         return meter;
     }
 
-    private Object getPropertyValue(PropertySpec propertySpec, TypedProperties deviceProperties, Function<String, Object> propertyValueProvider) {
-        Object domainValue = null;
-        if (propertyValueProvider != null) {
-            domainValue = propertyValueProvider.apply(propertySpec.getName());
-        }
+    private Object getPropertyValue(PropertySpec propertySpec, TypedProperties deviceProperties) {
+        Object domainValue = deviceProperties.getLocalValue(propertySpec.getName());
         if (domainValue == null) {
             domainValue = deviceProperties == null ? null : deviceProperties.getInheritedValue(propertySpec.getName());
             if (domainValue == null) {
@@ -146,26 +142,25 @@ class MeterConfigFactory {
         CustomAttributeSet customAttributeSet = new CustomAttributeSet();
         CustomPropertySetValues values = null;
         CustomPropertySet propertySet = registeredCustomPropertySet.getCustomPropertySet();
+        List<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
+        customAttributeSet.setId(propertySet.getId());
         if (!propertySet.isVersioned()) {
             values = customPropertySetService.getUniqueValuesFor(propertySet, device);
         } else {
             values = customPropertySetService.getUniqueValuesFor(propertySet, device, clock.instant());
-        }
-        List<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
-        customAttributeSet.setId(propertySet.getId());
-        if (propertySet.isVersioned() && values.isEmpty()) {
-            return customAttributeSet; // for versioned CAS empty values means no version
+            if (values.isEmpty()) {
+                return customAttributeSet; // for versioned CAS empty values means no version
+            }
         }
         for (PropertySpec propertySpec : propertySpecs) {
             Attribute attr = new Attribute();
             attr.setName(propertySpec.getName());
-            Object value = (values == null) ? null : values.getProperty(propertySpec.getName());
-            if (value == null) {
+            if (values == null) {
                 Object propertyValue = getDefaultPropertyValue(propertySpec);
                 attr.setValue(convertPropertyValue(propertySpec, propertyValue));
                 customAttributeSet.getAttribute().add(attr);
             } else {
-                attr.setValue(convertPropertyValue(propertySpec, value));
+                attr.setValue(convertPropertyValue(propertySpec, values.getProperty(propertySpec.getName())));
                 customAttributeSet.getAttribute().add(attr);
             }
             if (propertySet.isVersioned() && values != null) {

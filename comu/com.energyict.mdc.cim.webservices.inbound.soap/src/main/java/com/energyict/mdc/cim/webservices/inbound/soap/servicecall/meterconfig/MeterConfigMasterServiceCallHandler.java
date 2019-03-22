@@ -124,23 +124,25 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         if (OperationEnum.GET.equals(operation)) {
             try {
                 getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
-            } catch (Exception faultMessage) {
-                if (faultMessage instanceof FaultMessage) {
-                    Optional<ErrorType> errorType = ((FaultMessage) faultMessage).getFaultInfo().getReply().getError().stream().findFirst();
-                    if (errorType.isPresent()) {
-                        extensionFor.setErrorMessage(errorType.get().getDetails());
-                        extensionFor.setErrorCode(errorType.get().getCode());
-                    } else {
-                        extensionFor.setErrorMessage(faultMessage.getLocalizedMessage());
-                    }
-                } else if (faultMessage instanceof ConstraintViolationException) {
-                    extensionFor.setErrorMessage(((ConstraintViolationException) faultMessage).getConstraintViolations().stream()
-                            .findFirst()
-                            .map(ConstraintViolation::getMessage)
-                            .orElseGet(faultMessage::getMessage));
+            } catch (FaultMessage faultMessage) {
+                Optional<ErrorType> errorType = faultMessage.getFaultInfo().getReply().getError().stream().findFirst();
+                if (errorType.isPresent()) {
+                    extensionFor.setErrorMessage(errorType.get().getDetails());
+                    extensionFor.setErrorCode(errorType.get().getCode());
                 } else {
                     extensionFor.setErrorMessage(faultMessage.getLocalizedMessage());
                 }
+                child.update(extensionFor);
+                child.requestTransition(DefaultState.FAILED);
+            }  catch (ConstraintViolationException constraintViolationException) {
+                extensionFor.setErrorMessage(constraintViolationException.getConstraintViolations().stream()
+                        .findFirst()
+                        .map(ConstraintViolation::getMessage)
+                        .orElseGet(constraintViolationException::getMessage));
+                child.update(extensionFor);
+                child.requestTransition(DefaultState.FAILED);
+            } catch (Exception ex) {
+                extensionFor.setErrorMessage(ex.getLocalizedMessage());
                 child.update(extensionFor);
                 child.requestTransition(DefaultState.FAILED);
             }

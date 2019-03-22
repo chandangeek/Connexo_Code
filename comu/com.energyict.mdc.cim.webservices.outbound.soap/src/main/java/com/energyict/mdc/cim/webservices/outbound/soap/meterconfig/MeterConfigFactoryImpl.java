@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component(name="com.energyict.mdc.cim.webservices.outbound.soap.meterconfig.MeterConfigFactory", service=MeterConfigFactory.class)
@@ -75,7 +74,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
             meterConfig.getMeter().add(meter);
 
             DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-            String deviceConfigRef = "" + deviceConfiguration.getId();
+            String deviceConfigRef = Long.toString(deviceConfiguration.getId());
             if (!deviceConfigRefs.contains(deviceConfigRef)) {
                 meterConfig.getSimpleEndDeviceFunction().add(createSimpleEndDeviceFunction(deviceConfigRef, deviceConfiguration.getName()));
                 deviceConfigRefs.add(deviceConfigRef);
@@ -171,13 +170,14 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         meterMultiplier.setValue(multiplier.floatValue());
         return meterMultiplier;
     }
+
     private Meter getMeter(Device device) {
         Meter meter = new Meter();
         meter.setMRID(device.getmRID());
         meter.setSerialNumber(device.getSerialNumber());
         meter.getNames().add(createName(device.getName()));
         device.getBatch().map(Batch::getName).ifPresent(meter::setLotNumber);
-        meter.setEndDeviceInfo(getEndDeviceInfo(device));
+        meter.setEndDeviceInfo(createEndDeviceInfo(device));
         meter.setType(device.getDeviceConfiguration().getDeviceType().getName());
         meter.getMeterMultipliers().add(createMultiplier(device.getMultiplier()));
         String stateKey = device.getState().getName();
@@ -195,7 +195,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
             for (PropertySpec propertySpec : propertySpecs) {
                 Attribute attr = new Attribute();
                 attr.setName(propertySpec.getName());
-                Object propertyValue = getPropertyValue(propertySpec, deviceProperties, deviceProperties.getLocalValue(propertySpec.getName()) != null ? deviceProperties::getLocalValue : null);
+                Object propertyValue = getPropertyValue(propertySpec, deviceProperties);
                 attr.setValue(convertPropertyValue(propertySpec, propertyValue));
                 attributeSet.getAttribute().add(attr);
             }
@@ -212,11 +212,8 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         return meter;
     }
 
-    private Object getPropertyValue(PropertySpec propertySpec, TypedProperties deviceProperties, Function<String, Object> propertyValueProvider) {
-        Object domainValue = null;
-        if (propertyValueProvider != null) {
-            domainValue = propertyValueProvider.apply(propertySpec.getName());
-        }
+    private Object getPropertyValue(PropertySpec propertySpec, TypedProperties deviceProperties) {
+        Object domainValue = deviceProperties.getLocalValue(propertySpec.getName());
         if (domainValue == null) {
             domainValue = deviceProperties == null ? null : deviceProperties.getInheritedValue(propertySpec.getName());
             if (domainValue == null) {
@@ -230,26 +227,25 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         CustomAttributeSet customAttributeSet = new CustomAttributeSet();
         CustomPropertySetValues values = null;
         CustomPropertySet propertySet = registeredCustomPropertySet.getCustomPropertySet();
+        List<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
+        customAttributeSet.setId(propertySet.getId());
         if (!propertySet.isVersioned()) {
             values = customPropertySetService.getUniqueValuesFor(propertySet, device);
         } else {
             values = customPropertySetService.getUniqueValuesFor(propertySet, device, clock.instant());
-        }
-        List<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
-        customAttributeSet.setId(propertySet.getId());
-        if (propertySet.isVersioned() && values.isEmpty()) {
-            return customAttributeSet; // for versioned CAS empty values means no version
+            if (values.isEmpty()) {
+                return customAttributeSet; // for versioned CAS empty values means no version
+            }
         }
         for (PropertySpec propertySpec : propertySpecs) {
             Attribute attr = new Attribute();
             attr.setName(propertySpec.getName());
-            Object value = (values == null)?null:values.getProperty(propertySpec.getName());
-            if (value == null) {
+            if (values == null) {
                 Object propertyValue = getDefaultPropertyValue(propertySpec);
                 attr.setValue(convertPropertyValue(propertySpec, propertyValue));
                 customAttributeSet.getAttribute().add(attr);
             } else {
-                attr.setValue(convertPropertyValue(propertySpec, value));
+                attr.setValue(convertPropertyValue(propertySpec, values.getProperty(propertySpec.getName())));
                 customAttributeSet.getAttribute().add(attr);
             }
             if (propertySet.isVersioned() && values != null) {
@@ -275,25 +271,11 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         return spec.getValueFactory().toStringValue(value);
     }
 
-    private EndDeviceInfo getEndDeviceInfo(Device device) {
-        EndDeviceInfo endDeviceInfo = new EndDeviceInfo();
-        ProductAssetModel productAssetModel = createAssetModel(device);
-        endDeviceInfo.setAssetModel(productAssetModel);
-        return endDeviceInfo;
-    }
-
     private SimpleEndDeviceFunction getSimpleEndDeviceFunction(Device device, Meter meter) {
-        String deviceConfigRef = "" + device.getDeviceConfiguration().getId();
+        String deviceConfigRef = Long.toString(device.getDeviceConfiguration().getId());
         Meter.SimpleEndDeviceFunction endDeviceFunctionRef = createEndDeviceFunctionRef(deviceConfigRef);
         meter.getComFunctionOrConnectDisconnectFunctionOrSimpleEndDeviceFunction().add(endDeviceFunctionRef);
-        return createEndDeviceFunction(deviceConfigRef, device);
-    }
-
-    private SimpleEndDeviceFunction createEndDeviceFunction(String deviceConfigRef, Device device) {
-        SimpleEndDeviceFunction simpleEndDeviceFunction = new SimpleEndDeviceFunction();
-        simpleEndDeviceFunction.setMRID(deviceConfigRef);
-        simpleEndDeviceFunction.setConfigID(device.getDeviceConfiguration().getName());
-        return simpleEndDeviceFunction;
+        return createSimpleEndDeviceFunction(deviceConfigRef, device.getDeviceConfiguration().getName());
     }
 
     private Status createStatus(String state) {
