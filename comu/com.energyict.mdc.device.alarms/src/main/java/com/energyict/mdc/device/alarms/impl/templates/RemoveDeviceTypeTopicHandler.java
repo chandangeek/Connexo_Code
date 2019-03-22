@@ -47,7 +47,7 @@ public class RemoveDeviceTypeTopicHandler implements TopicHandler{
                 .filter(list -> !list.isEmpty())
                 .map(list -> list.get(0))
                 .map(rule -> (DeviceLifeCycleInDeviceTypeInfo) rule)
-                .anyMatch(info -> info.getDeviceType().getId() == deviceType.getId());
+                .anyMatch(info -> info.getDeviceTypeId() == deviceType.getId());
         if(deviceTypeInUse) {
             throw new VetoDeviceTypeDeleteException(deviceAlarmService.thesaurus(), deviceType);
         }

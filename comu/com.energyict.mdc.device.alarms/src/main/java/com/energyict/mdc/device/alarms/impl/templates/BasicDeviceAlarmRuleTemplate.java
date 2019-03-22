@@ -164,7 +164,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         for (CreationRule alarmCreationRule:alarmCreationRules) {
             if(((List)(alarmCreationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)))
                         .stream()
-                        .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo)propertySpec).getDeviceType().getId() == deviceTypeId)
+                        .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo)propertySpec).getDeviceTypeId() == deviceTypeId)
                         .findFirst().isPresent())
                 return Optional.of(alarmCreationRule);
         }

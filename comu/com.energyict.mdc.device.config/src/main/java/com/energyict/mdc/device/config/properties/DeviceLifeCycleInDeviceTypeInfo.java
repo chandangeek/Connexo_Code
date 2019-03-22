@@ -51,9 +51,11 @@ public class DeviceLifeCycleInDeviceTypeInfo extends HasIdAndName {
         return "";
     }
 
-    public DeviceType getDeviceType() {
+    private DeviceType getDeviceType() {
         return deviceType;
     }
+
+    public long getDeviceTypeId() { return deviceType.getId(); }
 
     private String getStateName(State state) {
         return DefaultState
