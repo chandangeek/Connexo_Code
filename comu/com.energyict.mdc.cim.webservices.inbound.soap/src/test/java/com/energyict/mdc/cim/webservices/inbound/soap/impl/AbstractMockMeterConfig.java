@@ -15,6 +15,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import ch.iec.tc57._2011.meterconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
@@ -35,6 +37,7 @@ import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -93,11 +96,19 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     protected CustomPropertySet customVersionedPropertySet;
     @Mock
     private CIMLifecycleDates lifecycleDates;
+    @Mock
+    private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    @Mock
+    private DeviceProtocol deviceProtocol;
 
     protected void mockDeviceType() {
         when(deviceType.getName()).thenReturn(DEVICE_TYPE_NAME);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceProtocol.getPropertySpecs()).thenReturn(new ArrayList());
     }
+
     protected void mockDeviceConfiguration() {
         when(deviceConfigurationService.findDeviceTypeByName(any())).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceTypeByName(DEVICE_TYPE_NAME)).thenReturn(Optional.of(deviceType));
@@ -143,6 +154,7 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         when(batch.getName()).thenReturn(BATCH);
         when(device.getMultiplier()).thenReturn(BigDecimal.valueOf(MULTIPLIER));
         when(device.getState()).thenReturn(state);
+        when(device.getDeviceType()).thenReturn(deviceType);
         mockDeviceConfiguration();
         mockLifeCycleDates();
     }

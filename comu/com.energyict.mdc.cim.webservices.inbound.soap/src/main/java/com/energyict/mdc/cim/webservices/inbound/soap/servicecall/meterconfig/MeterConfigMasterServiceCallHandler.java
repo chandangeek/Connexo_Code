@@ -17,14 +17,10 @@ import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceFinder;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
@@ -33,7 +29,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,16 +47,11 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     private volatile DeviceService deviceService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile ReplyMeterConfigWebService replyMeterConfigWebService;
-    private volatile BatchService batchService;
-    private volatile Clock clock;
-    private volatile DeviceLifeCycleService deviceLifeCycleService;
-    private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile Thesaurus thesaurus;
 
     private ReplyTypeFactory replyTypeFactory;
     private MeterConfigFaultMessageFactory messageFactory;
-    private DeviceBuilder deviceBuilder;
+    private DeviceFinder deviceFinder;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -124,34 +114,8 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     }
 
     @Reference
-    public void setBatchService(BatchService batchService) {
-        this.batchService = batchService;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
-    }
-
-    @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
-        this.deviceConfigurationService = deviceConfigurationService;
-    }
-
-    @Reference
-    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
-        this.deviceLifeCycleService = deviceLifeCycleService;
-    }
-
-    @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
-    }
-
-    @Reference
-    public void setDeviceLifeCycleConfigurationService(
-            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     private void processChild(ServiceCall child) {
@@ -159,7 +123,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         OperationEnum operation = OperationEnum.getFromString(extensionFor.getOperation());
         if (OperationEnum.GET.equals(operation)) {
             try {
-                getDeviceBuilder().findDevice(Optional.ofNullable(extensionFor.getMeterMrid()), extensionFor.getMeterName());
+                getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
             } catch (Exception faultMessage) {
                 if (faultMessage instanceof FaultMessage) {
                     Optional<ErrorType> errorType = ((FaultMessage) faultMessage).getFaultInfo().getReply().getError().stream().findFirst();
@@ -237,7 +201,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                 .filter(child -> child.getState().equals(DefaultState.SUCCESSFUL))
                 .forEach(child ->  {
                     MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-                    Optional<Device> device = findDevice(Optional.ofNullable(extensionFor.getMeterMrid()), extensionFor.getMeterName());
+                    Optional<Device> device = getDeviceFinder().findDeviceWithoutException(extensionFor.getMeterMrid(), extensionFor.getMeterName());
                     if (device.isPresent()) {
                         devices.add(device.get());
                     }
@@ -262,16 +226,11 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         return failedMeterOperations;
     }
 
-    private Optional<Device> findDevice(Optional<String> mrid, String deviceName) {
-        return mrid.isPresent() ? deviceService.findDeviceByMrid(mrid.get()) : deviceService.findDeviceByName(deviceName);
-    }
-
-    private DeviceBuilder getDeviceBuilder() {
-        if (deviceBuilder == null) {
-            deviceBuilder = new DeviceBuilder(batchService, clock, deviceLifeCycleService, deviceConfigurationService,
-                    deviceService, getMessageFactory(), deviceLifeCycleConfigurationService);
+    private DeviceFinder getDeviceFinder() {
+        if (deviceFinder == null) {
+            deviceFinder = new DeviceFinder(deviceService, getMessageFactory());
         }
-        return deviceBuilder;
+        return deviceFinder;
     }
 
     private MeterConfigFaultMessageFactory getMessageFactory() {

@@ -245,18 +245,6 @@ public class DeviceBuilder {
         return defaultState.isPresent() && defaultState.get().getDefaultFormat().equals(state);
     }
 
-    public Device findDevice(Optional<String> mrid, String deviceName) throws FaultMessage {
-        Device device = mrid.isPresent() ? findDeviceByMRID(mrid.get(), deviceName) :
-                deviceService.findDeviceByName(deviceName)
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.NO_DEVICE_WITH_NAME, deviceName));
-        return device;
-    }
-
-    private Device findDeviceByMRID(String mrid, String deviceName) throws FaultMessage {
-        return deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.NO_DEVICE_WITH_MRID, mrid));
-    }
-
     private Device updateDevice(Device device) throws FaultMessage {
         long id = device.getId();
         if (getExistingDevices(device.getName(), device.getSerialNumber()).stream().noneMatch(e -> e.getId() != id)) {

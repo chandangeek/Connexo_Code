@@ -45,7 +45,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
@@ -55,20 +54,21 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
 
-    private volatile TransactionService transactionService;
-    private volatile MeterConfigFaultMessageFactory faultMessageFactory;
-    private volatile MeterConfigFactory meterConfigFactory;
-    private volatile MeterConfigParser meterConfigParser;
-    private volatile ReplyTypeFactory replyTypeFactory;
-    private volatile EndPointHelper endPointHelper;
-    private volatile DeviceBuilder deviceBuilder;
+    private final TransactionService transactionService;
+    private final MeterConfigFaultMessageFactory faultMessageFactory;
+    private final MeterConfigFactory meterConfigFactory;
+    private final MeterConfigParser meterConfigParser;
+    private final ReplyTypeFactory replyTypeFactory;
+    private final EndPointHelper endPointHelper;
+    private final DeviceBuilder deviceBuilder;
+    private final DeviceFinder deviceFinder;
 
-    private volatile ServiceCallCommands serviceCallCommands;
-    private volatile EndPointConfigurationService endPointConfigurationService;
-    private volatile WebServicesService webServicesService;
-    private volatile InboundCIMWebServiceExtensionFactory webServiceExtensionFactory;
-    private volatile CasHandler casHandler;
-    private volatile SecurityHelper securityHelper;
+    private final ServiceCallCommands serviceCallCommands;
+    private final EndPointConfigurationService endPointConfigurationService;
+    private final WebServicesService webServicesService;
+    private final InboundCIMWebServiceExtensionFactory webServiceExtensionFactory;
+    private final CasHandler casHandler;
+    private final SecurityHelper securityHelper;
 
     @Inject
     public ExecuteMeterConfigEndpoint(TransactionService transactionService, MeterConfigFactory meterConfigFactory,
@@ -76,7 +76,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
                                       EndPointHelper endPointHelper, DeviceBuilder deviceBuilder, ServiceCallCommands serviceCallCommands,
                                       EndPointConfigurationService endPointConfigurationService, MeterConfigParser meterConfigParser,
                                       WebServicesService webServicesService, InboundCIMWebServiceExtensionFactory webServiceExtensionFactory,
-                                      CasHandler casHandler, SecurityHelper securityHelper) {
+                                      CasHandler casHandler, SecurityHelper securityHelper, DeviceFinder deviceFinder) {
         this.transactionService = transactionService;
         this.meterConfigFactory = meterConfigFactory;
         this.meterConfigParser = meterConfigParser;
@@ -90,6 +90,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         this.webServiceExtensionFactory = webServiceExtensionFactory;
         this.casHandler = casHandler;
         this.securityHelper = securityHelper;
+        this.deviceFinder = deviceFinder;
     }
 
     @Override
@@ -311,8 +312,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
                 Meter meter = meterConfig.getMeter().stream().findFirst()
                         .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
                 MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
-                Optional<String> mrid = Optional.ofNullable(meterInfo.getmRID());
-                Device device = deviceBuilder.findDevice(mrid, meterInfo.getDeviceName());
+                Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
                 return createResponseMessage(device, HeaderType.Verb.GET);
             }
         } catch (VerboseConstraintViolationException e) {
