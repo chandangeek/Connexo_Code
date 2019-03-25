@@ -175,6 +175,15 @@ Ext.define('Tou.view.AddForm', {
                 margin: '30 0 10 0',
                 hidden: true
             }, {
+                itemId: 'unique-calendar-name-field',
+                xtype: 'checkbox',
+                fieldLabel: Uni.I18n.translate(
+                    'general.uniqueCalendarName',
+                    'TOU',
+                    'Upload with unique calendar name'
+                ),
+                name: 'withUniqueCalendarName',
+            }, {
                 xtype: 'fieldcontainer',
                 itemId: 'form-buttons',
                 fieldLabel: '&nbsp;',
