@@ -11,6 +11,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.PassiveCalendar;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
@@ -41,7 +42,7 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
         setDevice(device);
     }
 
-    private void setDevice(Device device){
+    private void setDevice(Device device) {
         this.device = (DeviceImpl) device;
     }
 
@@ -80,6 +81,15 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
         if (is(collectedData.getActiveCalendar()).presentAndEqualTo(collectedData.getPassiveCalendar())) {
             this.setActiveCalendar(collectedData.getActiveCalendar().get(), now);
             this.device.clearPassiveCalendar();
+            this.device.calendars().getPlannedPassive()
+                    .ifPresent(passiveCalendar -> passiveCalendar.getDeviceMessage()
+                            .ifPresent(deviceMessage -> {
+                                if ((deviceMessage.getStatus().equals(DeviceMessageStatus.CANCELED)
+                                        || (deviceMessage.getStatus().equals(DeviceMessageStatus.CONFIRMED))
+                                        || (deviceMessage.getStatus().equals(DeviceMessageStatus.FAILED)))) {
+                                    this.device.clearPlannedPassiveCalendar();
+                                }
+                            }));
         } else {
             collectedData.getActiveCalendar().ifPresent(activeCalendarName -> this.setActiveCalendar(activeCalendarName, now));
             collectedData.getPassiveCalendar().ifPresent(passiveCalendarName -> this.setPassiveCalendar(passiveCalendarName, now));
