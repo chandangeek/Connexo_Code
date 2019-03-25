@@ -445,7 +445,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     @Override
     public Optional<TimeOfUseCampaign> getCampaignOn(ComTaskExecution comTaskExecution) {
         Optional<TimeOfUseItem> timeOfUseItem = findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice());
-        return timeOfUseItem.map(timeOfUseItem1 -> getCampaign(timeOfUseItem1.getParentServiceCallId())).orElse(null);
+        return timeOfUseItem.flatMap(timeOfUseItem1 -> getCampaign(timeOfUseItem1.getParentServiceCallId()));
     }
 
     @Override
