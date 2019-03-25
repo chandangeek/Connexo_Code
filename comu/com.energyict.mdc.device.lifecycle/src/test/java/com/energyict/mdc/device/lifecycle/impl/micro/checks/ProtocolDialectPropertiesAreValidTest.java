@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -53,6 +54,8 @@ public class ProtocolDialectPropertiesAreValidTest {
     private DeviceConfiguration deviceConfiguration;
     @Mock
     private Device device;
+    @Mock
+    private State state;
 
     @Before
     public void initializeMocks() {
@@ -76,7 +79,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -94,7 +97,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -118,7 +121,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -139,7 +142,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();

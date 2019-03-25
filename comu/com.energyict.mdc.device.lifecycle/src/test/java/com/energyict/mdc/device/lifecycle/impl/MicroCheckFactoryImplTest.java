@@ -6,6 +6,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
@@ -30,6 +31,8 @@ public class MicroCheckFactoryImplTest {
     private Thesaurus thesaurus;
     @Mock
     private NlsService nlsService;
+    @Mock
+    private DataModel dataModel;
 
     @Before
     public void initializeMocks() {
@@ -60,6 +63,6 @@ public class MicroCheckFactoryImplTest {
     }
 
     private DeviceMicroCheckFactoryImpl getTestInstance() {
-        return new DeviceMicroCheckFactoryImpl();
+        return new DeviceMicroCheckFactoryImpl(dataModel);
     }
 }

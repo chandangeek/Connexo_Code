@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -32,6 +33,8 @@ public class SharedScheduledCommunicationTaskAvailableTest {
     private Thesaurus thesaurus;
     @Mock
     private Device device;
+    @Mock
+    private State state;
 
     @Test
     public void deviceWithoutCommunicationTasks() {
@@ -39,7 +42,7 @@ public class SharedScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Collections.emptyList());
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -60,7 +63,7 @@ public class SharedScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -77,7 +80,7 @@ public class SharedScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -101,7 +104,7 @@ public class SharedScheduledCommunicationTaskAvailableTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2, cte3));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();

@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
@@ -30,6 +31,8 @@ public class DeviceIsLinkedWithUsagePointTest {
     private Thesaurus thesaurus;
     @Mock
     private Device device;
+    @Mock
+    private State state;
 
     @Test
     public void deviceIsNotLinkedToUsagePoint() {
@@ -37,7 +40,7 @@ public class DeviceIsLinkedWithUsagePointTest {
         DeviceIsLinkedWithUsagePoint microCheck = this.getTestInstance();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -50,7 +53,7 @@ public class DeviceIsLinkedWithUsagePointTest {
         DeviceIsLinkedWithUsagePoint microCheck = this.getTestInstance();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();

@@ -21,7 +21,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -129,7 +128,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                                       MeteringService meteringService,
                                       EventService eventService,
                                       TransactionService transactionService,
-                                      MeteringService meteringService,
                                       UpgradeService upgradeService,
                                       TopologyService topologyService,
                                       MultiElementDeviceService multiElementDeviceService,
@@ -146,13 +144,14 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         setClock(clock);
         setLicenseService(licenseService);
         setMeteringService(meteringService);
+        setEventService(eventService);
+        setTransactionService(transactionService);
         setUpgradeService(upgradeService);
         setTopologyService(topologyService);
         setMultiElementDeviceService(multiElementDeviceService);
         setValidationService(validationService);
         setMeteringZoneService(meteringZoneService);
         setServiceCallService(serviceCallService);
-        setTransactionService(transactionService);
         activate();
     }
 

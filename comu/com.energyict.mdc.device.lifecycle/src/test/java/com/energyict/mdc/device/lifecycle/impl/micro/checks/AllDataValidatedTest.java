@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -43,6 +44,8 @@ public class AllDataValidatedTest {
     private Meter meter;
     @Mock
     private ChannelsContainer channelsContainer;
+    @Mock
+    private State state;
 
     @Test
     public void deviceWithoutMeterActivation() {
@@ -50,7 +53,7 @@ public class AllDataValidatedTest {
         doReturn(Optional.empty()).when(this.device).getCurrentMeterActivation();
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -65,7 +68,7 @@ public class AllDataValidatedTest {
         when(validationService.validationEnabled(meter)).thenReturn(false);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -82,7 +85,7 @@ public class AllDataValidatedTest {
         when(validationEvaluator.isAllDataValidated(channelsContainer)).thenReturn(true);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -99,7 +102,7 @@ public class AllDataValidatedTest {
         when(validationEvaluator.isAllDataValidated(channelsContainer)).thenReturn(false);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         assertThat(violation).isPresent();
         assertThat(violation.get().getCheck()).isEqualTo(microCheck);

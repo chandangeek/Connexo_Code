@@ -3,12 +3,15 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
-
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 
@@ -20,10 +23,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -48,22 +47,17 @@ public class MetrologyConfigInCorrectStateTest {
     private MeterActivation meterActivation;
     @Mock
     private UsagePoint usagePoint;
-
+    @Mock
+    private LicenseService licenseService;
 
     @Before
     public void setUp() {
-        checkObject = new MetrologyConfigurationInCorrectStateIfAny();
+        checkObject = new MetrologyConfigurationInCorrectStateIfAny(licenseService);
         checkObject.setThesaurus(thesaurus);
 
         device = mockDevice();
         usagePoint = mockUsagePoint();
         meterActivation = mockMeterActivation();
-    }
-
-
-    @Test(expected = IllegalArgumentException.class)
-    public void callEvaluateWithoutStateArgument() {
-        checkObject.execute(device, Instant.EPOCH);
     }
 
     @Test

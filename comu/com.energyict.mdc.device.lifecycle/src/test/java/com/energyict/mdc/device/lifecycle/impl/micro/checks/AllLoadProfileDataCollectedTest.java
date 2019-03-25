@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
@@ -14,11 +15,6 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -26,6 +22,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
@@ -63,6 +65,8 @@ public class AllLoadProfileDataCollectedTest {
     private ReadingType channelReadingType1;
     @Mock
     private ReadingType channelReadingType2;
+    @Mock
+    private State state;
 
     @Before
     public void setup() {
@@ -82,7 +86,7 @@ public class AllLoadProfileDataCollectedTest {
         when(this.device.getLoadProfiles()).thenReturn(Collections.emptyList());
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -98,7 +102,7 @@ public class AllLoadProfileDataCollectedTest {
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(lp1, lp2));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -118,7 +122,7 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(nextTimeStamp);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp, state);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -161,7 +165,7 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(okNextTimeStamp, nokNextTimeStamp);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp, state);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -181,7 +185,7 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(okNextTimeStamp);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp, state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -199,7 +203,7 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(effectiveTimestamp);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp, state);
 
         // Asserts
         assertThat(violation).isEmpty();

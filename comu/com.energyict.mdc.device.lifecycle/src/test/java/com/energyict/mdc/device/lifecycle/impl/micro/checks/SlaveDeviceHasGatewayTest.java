@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
@@ -35,6 +36,8 @@ public class SlaveDeviceHasGatewayTest {
     private DeviceConfiguration deviceConfiguration;
     @Mock
     private Device device;
+    @Mock
+    private State state;
 
     @Test
     public void gatewayDevice() {
@@ -44,7 +47,7 @@ public class SlaveDeviceHasGatewayTest {
         when(deviceConfiguration.isDirectlyAddressable()).thenReturn(true);
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -58,7 +61,7 @@ public class SlaveDeviceHasGatewayTest {
         when(this.topologyService.getPhysicalGateway(this.device)).thenReturn(Optional.of(gateway));
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -71,7 +74,7 @@ public class SlaveDeviceHasGatewayTest {
         when(this.topologyService.getPhysicalGateway(this.device)).thenReturn(Optional.empty());
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -87,7 +90,7 @@ public class SlaveDeviceHasGatewayTest {
         when(this.topologyService.getPhysicalGateway(this.device)).thenReturn(Optional.empty());
 
         // Business method
-        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
