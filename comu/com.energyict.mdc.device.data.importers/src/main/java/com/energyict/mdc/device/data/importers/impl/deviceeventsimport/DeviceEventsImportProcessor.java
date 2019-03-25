@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.importers.impl.deviceeventsimport;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
@@ -34,11 +33,12 @@ public class DeviceEventsImportProcessor extends AbstractDeviceDataFileImportPro
         Instant eventTime = data.getDateTime().toInstant();
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(data.getEventCode(), eventTime);
-        endDeviceEvent.setMrid(device.getmRID());
         endDeviceEvent.setDescription(data.getDescription());
         endDeviceEvent.setType(String.valueOf(device.getDeviceType().getId()));
         endDeviceEvent.setLogBookId(logBook.getId());
         endDeviceEvent.setLogBookPosition(device.getLogBooks().indexOf(logBook));
+        endDeviceEvent.setIssuerId(String.valueOf(0));
+        endDeviceEvent.setIssuerTrackingId(String.valueOf(0));
         meterReading.addEndDeviceEvent(endDeviceEvent);
         device.store(meterReading);
     }
