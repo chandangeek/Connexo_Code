@@ -308,6 +308,8 @@ public interface CustomPropertySetService {
      */
     <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueHistoryValuesForVersion(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
 
+    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListOfHistoryValuesForVersion(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant from, Instant to, Object... additionalPrimaryKeyValues);
+
 
     /**
      * Checks if the unique set of values for the {@link CustomPropertySet} that were saved for
@@ -546,6 +548,8 @@ public interface CustomPropertySetService {
      * @see CustomPropertySet#isVersioned()
      */
     <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+
+    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant from, Instant to, Object... additionalPrimaryKeyValues);
 
     /**
      * Gets the values for the {@link CustomPropertySet} that match the condition

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.audit.connectionMethods;
 
+import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditLogChange;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -11,10 +12,13 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.audit.AbstractCPSAuditDecoder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -27,10 +31,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AuditTrailconnectionMethodDecoder extends AbstractCPSAuditDecoder {
 
-    private Optional<ConnectionTask<?, ?>> connectionTask;
+    private Optional<ConnectionTask<?, ?>> connectionTask = Optional.empty();
 
     AuditTrailconnectionMethodDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService, ServerDeviceService serverDeviceService, CustomPropertySetService customPropertySetService) {
         super(ormService, thesaurus, meteringService, serverDeviceService, customPropertySetService);
@@ -40,12 +45,20 @@ public class AuditTrailconnectionMethodDecoder extends AbstractCPSAuditDecoder {
     protected void decodeReference() {
         try {
             super.decodeReference();
-            connectionTask = device
-                    .map(dv -> findConnectionTaskOnDevice(dv))
-                    .orElseGet(Optional::empty);
+            device.ifPresent(dv -> {
+                connectionTask = findConnectionTask(dv);
+                if (!connectionTask.isPresent()) {
+                    connectionTask = findHistoryConnectionTask();
+                }
+            });
         }
         catch (Exception ignored){
         }
+    }
+
+    @Override
+    public UnexpectedNumberOfUpdatesException.Operation getOperation(UnexpectedNumberOfUpdatesException.Operation operation, AuditDomainContextType context) {
+        return UnexpectedNumberOfUpdatesException.Operation.UPDATE;
     }
 
     @Override
@@ -62,16 +75,17 @@ public class AuditTrailconnectionMethodDecoder extends AbstractCPSAuditDecoder {
     protected List<AuditLogChange> getAuditLogChangesFromDevice() {
         try {
             List<AuditLogChange> auditLogChanges = new ArrayList<>();
-            auditLogChanges.addAll(getAuditLogFromCPS());
+            auditLogChanges.addAll(getAuditLogFromCps());
             return auditLogChanges;
         } catch (Exception ignored) {
         }
         return Collections.emptyList();
     }
 
-    private List<AuditLogChange> getAuditLogFromCPS(){
+    private List<AuditLogChange> getAuditLogFromCps(){
         List<AuditLogChange> auditLogChanges = new ArrayList<>();
         Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = getCustomPropertySet();
+        PartialConnectionTask partialConnectionTask = connectionTask.get().getPartialConnectionTask();
 
         if (!registeredCustomPropertySet.isPresent() || !device.isPresent() || !connectionTask.isPresent()) {
             return auditLogChanges;
@@ -89,29 +103,68 @@ public class AuditTrailconnectionMethodDecoder extends AbstractCPSAuditDecoder {
                     .skip(1)
                     .findFirst();
 
+            List<CustomPropertySetValues> listHistoryCustomPropertyValues = customPropertySetService.getListValuesHistoryEntityFor(registeredCustomPropertySet.get()
+                    .getCustomPropertySet(), connectionTask.get(), getAuditTrailReference().getModTimeStart(), getAuditTrailReference().getModTimeEnd());
+            listHistoryCustomPropertyValues = listHistoryCustomPropertyValues.stream().distinct().collect(Collectors.toList());
+
+            if (!fromCustomPropertySetValues.isPresent() && !toCustomPropertySetValues.isPresent()) {
+                fromCustomPropertySetValues = listHistoryCustomPropertyValues.stream()
+                        .sorted(Comparator.comparing(cpv -> cpv.getEffectiveRange().lowerEndpoint()))
+                        .findFirst();
+                toCustomPropertySetValues = listHistoryCustomPropertyValues.stream()
+                        .sorted(Comparator.comparing(cpv -> cpv.getEffectiveRange().lowerEndpoint()))
+                        .skip(1)
+                        .findFirst();
+            }
+
             if (fromCustomPropertySetValues.isPresent() && toCustomPropertySetValues.isPresent()){
+                Optional<CustomPropertySetValues> finalToCustomPropertySetValues = toCustomPropertySetValues;
+                Optional<CustomPropertySetValues> finalFromCustomPropertySetValues = fromCustomPropertySetValues;
                 getPropertySpecs()
-                        .forEach(propertySpec ->
-                                getAuditLogChangeForUpdate(toCustomPropertySetValues.get(), fromCustomPropertySetValues.get(), propertySpec).ifPresent(auditLogChanges::add)
+                        .forEach(propertySpec -> {
+                                    if (finalFromCustomPropertySetValues.get().getProperty(propertySpec.getName()) != null) {
+                                        getAuditLogChangeForUpdate(finalToCustomPropertySetValues.get(), finalFromCustomPropertySetValues.get(), propertySpec).ifPresent(auditLogChanges::add);
+                                    }
+                                    else {
+                                        getAuditLogChangeFromValues(convertCustomPropertySetValue(finalToCustomPropertySetValues.get(), propertySpec),
+                                                partialConnectionTask.getProperty(propertySpec.getName()).getValue().toString(),
+                                                propertySpec).ifPresent(auditLogChanges::add);
+                                    }
+                                }
+
                         );
             }
-           /* CustomPropertySetValues toCustomPropertySetValues1 = getCustomPropertySetValues(registeredCustomPropertySet.get(), getAuditTrailReference().getModTimeEnd());
-            CustomPropertySetValues fromCustomPropertySetValues2 = getCustomPropertySetValues(registeredCustomPropertySet.get(), getAuditTrailReference().getModTimeStart().minusMillis(1));*/
-
         }
 
         if (getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT) {
-            CustomPropertySetValues customPropertySetValues = getCustomPropertySetValues(registeredCustomPropertySet.get(), getAuditTrailReference().getModTimeEnd());
+            CustomPropertySetValues toCustomPropertySetValues = getCustomPropertySetValues(registeredCustomPropertySet.get(), getAuditTrailReference().getModTimeEnd());
+
             getPropertySpecs()
-                    .forEach(propertySpec ->
-                            getAuditLogChangeForInsert(registeredCustomPropertySet.get(), customPropertySetValues, propertySpec).ifPresent(auditLogChanges::add)
-                    );
+                    .forEach(propertySpec -> {
+                        if (toCustomPropertySetValues.getProperty(propertySpec.getName()) != null) {
+                            getAuditLogChangeFromValues(convertCustomPropertySetValue(toCustomPropertySetValues, propertySpec),
+                                    partialConnectionTask.getProperty(propertySpec.getName()).getValue().toString(),
+                                    propertySpec).ifPresent(auditLogChanges::add);
+                        }
+                    });
         }
         return auditLogChanges;
     }
 
-    private Optional<ConnectionTask<?, ?>> findConnectionTaskOnDevice(Device device) {
+    private Optional<ConnectionTask<?, ?>> findConnectionTask(Device device) {
         return device.getConnectionTasks().stream().filter(c -> c.getId() == getAuditTrailReference().getPkContext1())
+                .findFirst();
+    }
+
+    private Optional<ConnectionTask<?, ?>> findHistoryConnectionTask() {
+        DataMapper<ConnectionTask> dataMapper = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME).get().mapper(ConnectionTask.class);
+
+        List<ConnectionTask> historyEntries = getHistoryEntries(dataMapper, getHistoryByJournalClauses(getAuditTrailReference().getPkContext1()));
+        List<ConnectionTask<?,?>> historyEntriesExtended = new ArrayList<>();
+        if (historyEntries.size()>0){
+            historyEntriesExtended.add(historyEntries.get(0));
+        }
+        return historyEntriesExtended.stream()
                 .findFirst();
     }
 

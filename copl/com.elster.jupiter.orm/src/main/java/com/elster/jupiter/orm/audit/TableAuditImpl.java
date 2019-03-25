@@ -133,7 +133,7 @@ public class TableAuditImpl implements TableAudit {
 
     private List<Object> getPkColumnReference(List<? extends Column> columns, Object object) {
         return columns.stream()
-                .sorted((o1, o2) -> ((Column) o1).getName().compareToIgnoreCase(o2.getName()))
+                .sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()))
                 .map(column -> ((ColumnImpl) column).domainValue(object))
                 .collect(Collectors.toList());
     }

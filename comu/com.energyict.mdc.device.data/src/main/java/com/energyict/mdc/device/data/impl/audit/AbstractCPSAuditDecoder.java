@@ -85,7 +85,7 @@ public abstract class AbstractCPSAuditDecoder extends AbstractDeviceAuditDecoder
                     propertySpec);
     }
 
-    private Optional<AuditLogChange> getAuditLogChangeFromValues(Object toValue, Object fromValue, PropertySpec propertySpec){
+    protected Optional<AuditLogChange> getAuditLogChangeFromValues(Object toValue, Object fromValue, PropertySpec propertySpec){
         if (!toValue.equals(fromValue)) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(propertySpec.getDisplayName());
@@ -105,7 +105,7 @@ public abstract class AbstractCPSAuditDecoder extends AbstractDeviceAuditDecoder
         return Optional.of(auditLogChange);
     }
 
-    private Object convertCustomPropertySetValue(CustomPropertySetValues value, PropertySpec propertySpec) {
+    protected Object convertCustomPropertySetValue(CustomPropertySetValues value, PropertySpec propertySpec) {
         String propertyName = propertySpec.getName();
         if (propertySpec.getValueFactory() instanceof InstantFactory) {
             return Optional.ofNullable(value.getProperty(propertyName)).orElseGet(() -> Instant.EPOCH);

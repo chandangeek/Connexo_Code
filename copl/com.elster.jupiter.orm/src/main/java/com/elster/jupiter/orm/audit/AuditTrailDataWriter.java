@@ -62,8 +62,8 @@ public class AuditTrailDataWriter<T> {
                         return false;
                     }
                     Object newValue = column.domainValue(object);
-                    Object oldValue = column.domainValue(object);
-                    return !(newValue == null ? oldValue == null : column.domainValue(object).equals(column.domainValue(oldObject)));
+                    Object oldValue = column.domainValue(oldObject);
+                    return !(newValue == null ? oldValue == null : newValue.equals(oldValue));
                 })
                 .count() > 0;
     }
@@ -111,7 +111,7 @@ public class AuditTrailDataWriter<T> {
             resolveIncompleteContextIdentifier(object);
             contextAuditIdentifiers.stream()
                     .filter(contextIdentifierEntry -> (contextIdentifierEntry.getDomainContext() == tableAudit.getDomainContext()) &&
-                          //  (contextIdentifierEntry.getOperation() == operation.ordinal()) &&
+
                             (contextIdentifierEntry.getPkDomainColumn() == getPkColumnByIndex(pkDomainColumns, 0)) &&
                             (contextIdentifierEntry.getPkContextColumn() == getPkColumnByIndex(pkContextColumns, 0)))
                     .findFirst()

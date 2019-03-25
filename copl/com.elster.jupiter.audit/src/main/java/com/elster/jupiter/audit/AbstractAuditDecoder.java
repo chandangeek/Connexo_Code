@@ -87,7 +87,6 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     @SuppressWarnings("unchecked")
     public <T> List<T> getActualEntries(DataMapper<T> dataMapper, Map<String, Object> valueMap) {
-
         Condition inputCondition = Condition.TRUE;
         valueMap.entrySet().stream()
                 .forEach(entry -> inputCondition.and(where(entry.getKey()).isEqualTo(entry.getValue())));
@@ -100,7 +99,6 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     @SuppressWarnings("unchecked")
     public <T> List<T> getHistoryEntries(DataMapper<T> dataMapper, Map<Operator, Pair<String, Object>> pair) {
-
         List<Comparison> conditionFromJournal = pair.entrySet().stream()
                 .map(entry -> entry.getKey().compare(entry.getValue().getFirst(), entry.getValue().getLast()))
                 .collect(Collectors.toList());

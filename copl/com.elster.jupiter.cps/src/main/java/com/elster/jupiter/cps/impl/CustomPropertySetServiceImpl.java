@@ -569,11 +569,14 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         return customPropertySetValues;
     }
 
-
-
     @Override
     public <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueHistoryValuesForVersion(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
         return this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesHistoryEntityFor(customPropertySet, businesObject, at, effectiveTimestamp, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListOfHistoryValuesForVersion(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues) {
+        return this.toListCustomPropertySetValues(customPropertySet, this.getListValuesHistoryEntityFor(customPropertySet, businesObject, false, start, end, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
     }
 
     @Override
@@ -686,6 +689,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         return this.getUniqueValuesHistoryEntityFor(customPropertySet, businesObject, false, at, effectiveTimestamp, additionalPrimaryKeyValues);
     }
 
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues) {
+        return this.toListCustomPropertySetValues(customPropertySet,
+                this.getListValuesHistoryEntityFor(customPropertySet, businesObject, false, start, end, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
+    }
+
     private <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, boolean ignorePrivileges, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
@@ -708,6 +717,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
         return activeCustomPropertySet.getVersionedValuesHistoryEntityFor(businesObject, ignorePrivileges, at, effectiveTimestamp, additionalPrimaryKeyValues);
+    }
+
+    private <D, T extends PersistentDomainExtension<D>> List<T> getListValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, boolean ignorePrivileges, Instant from, Instant to, Object... additionalPrimaryKeyValues) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
+        return activeCustomPropertySet.getListVersionedValuesHistoryEntityFor(businesObject, ignorePrivileges, from, to, additionalPrimaryKeyValues);
     }
 
     private <D, T extends PersistentDomainExtension<D>> void validateCustomPropertySetIsVersioned(CustomPropertySet<D, T> customPropertySet, ActiveCustomPropertySet activeCustomPropertySet) {

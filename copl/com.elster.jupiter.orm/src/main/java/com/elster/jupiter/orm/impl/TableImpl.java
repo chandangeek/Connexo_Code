@@ -337,7 +337,7 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public Column addVersionCountColumn(String name, String dbType, String fieldName) {
-        return column(name).type(dbType).notNull().version().conversion(NUMBER2LONG).map(fieldName).installValue("1").add();
+        return column(name).type(dbType).notNull().version().conversion(NUMBER2LONG).map(fieldName).installValue("1").notAudited().add();
     }
 
     @Override
@@ -347,7 +347,7 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public Column addCreateTimeColumn(String name, String fieldName) {
-        return column(name).number().notNull().conversion(NUMBER2NOW).skipOnUpdate().map(fieldName).installValue("0").add();
+        return column(name).number().notNull().conversion(NUMBER2NOW).skipOnUpdate().map(fieldName).installValue("0").notAudited().add();
     }
 
     @Override

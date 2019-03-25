@@ -275,6 +275,44 @@ class ActiveCustomPropertySet {
     }
 
     @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> List<T> getListVersionedValuesHistoryEntityFor(D businessObject, boolean ignorePrivileges, Instant from, Instant to, Object... additionalPrimaryKeyColumnValues) {
+        if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            List<Comparison> comparisons = new ArrayList<>();
+
+            comparisons.add(Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject));
+            comparisons.add(Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet));
+            comparisons.addAll(getAdditionalPrimaryKeyColumnComparisonsTo(additionalPrimaryKeyColumnValues));
+            comparisons.add(Operator.GREATERTHANOREQUAL.compare(HardCodedFieldNames.MODIFICATION_TIME.databaseName(), from));
+            comparisons.add(Operator.LESSTHANOREQUAL.compare(HardCodedFieldNames.MODIFICATION_TIME.databaseName(), to));
+            List<JournalEntry<T>> journalEntriesByModTime = this.getMapper()
+                    .at(Instant.EPOCH)
+                    .find(comparisons);
+
+            comparisons.clear();
+            comparisons.add(Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject));
+            comparisons.add(Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet));
+            comparisons.addAll(getAdditionalPrimaryKeyColumnComparisonsTo(additionalPrimaryKeyColumnValues));
+            comparisons.add(Operator.GREATERTHANOREQUAL.compare(HardCodedFieldNames.CREATION_TIME.databaseName(), from));
+            comparisons.add(Operator.LESSTHANOREQUAL.compare(HardCodedFieldNames.CREATION_TIME.databaseName(), to));
+            List<JournalEntry<T>> journalEntriesByCreateTime = this.getMapper()
+                    .at(Instant.EPOCH)
+                    .find(comparisons);
+
+            journalEntriesByModTime.addAll(journalEntriesByCreateTime);
+            return journalEntriesByModTime
+                    .stream()
+                    .map(o -> ((JournalEntry<T>) o).get())
+                    .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+
+
+
+    @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(Condition condition, Supplier<String> errorMessageSupplier) {
         List<T> extensions = this.getMapper().select(condition);
 
