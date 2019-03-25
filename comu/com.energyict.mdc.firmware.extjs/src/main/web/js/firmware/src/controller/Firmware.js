@@ -545,8 +545,6 @@ Ext.define('Fwc.controller.Firmware', {
                                 viewport.setLoading(false);
                             }
                         }
-                        if (router && router.queryParams && router.queryParams.editOrder && !!router.queryParams.editOrder) options.limit = options.pageSize = 500;
-                        else options.limit = options.pageSize = 10;
                         firmwareStore.load(options);
                     };
 

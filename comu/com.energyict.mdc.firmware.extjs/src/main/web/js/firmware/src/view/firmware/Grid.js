@@ -173,36 +173,16 @@ Ext.define('Fwc.view.firmware.Grid', {
             }
         });
         }
-        if (!me.editOrder){
-            this.dockedItems = [
-                {
-                    xtype: 'pagingtoolbartop',
-                    store: this.store,
-                    dock: 'top',
-                    displayMsg: Uni.I18n.translate('firmware.pagingtoolbartop.displayMsg', 'FWC', '{0} - {1} of {2} firmware versions'),
-                    displayMoreMsg: Uni.I18n.translate('firmware.pagingtoolbartop.displayMoreMsg', 'FWC', '{0} - {1} of more than {2} firmware versions'),
-                    emptyMsg: Uni.I18n.translate('firmware.pagingtoolbartop.emptyMsg', 'FWC', 'There are no firmware versions to display'),
-                    items: buttons
-                },
-                {
-                    xtype: 'pagingtoolbarbottom',
-                    store: this.store,
-                    deferLoading: true,
-                    dock: 'bottom',
-                    itemsPerPageMsg: Uni.I18n.translate('firmware.pagingtoolbarbottom.itemsPerPage', 'FWC', 'Firmware versions per page')
-                }
-            ];
-        }else{
-            this.dockedItems = [
-                {
-                    xtype: 'pagingtoolbartop',
-                    store: this.store,
-                    dock: 'top',
-                    items: buttons
-                },
-            ];
-        }
-
+        this.dockedItems = [{
+                xtype: 'pagingtoolbartop',
+                store: this.store,
+                dock: 'top',
+                displayMsg: Uni.I18n.translate('firmware.pagingtoolbartop.displayMsg', 'FWC', '{0} - {1} of {2} firmware versions'),
+                displayMoreMsg: Uni.I18n.translate('firmware.pagingtoolbartop.displayMoreMsg', 'FWC', '{0} - {1} of more than {2} firmware versions'),
+                emptyMsg: Uni.I18n.translate('firmware.pagingtoolbartop.emptyMsg', 'FWC', 'There are no firmware versions to display'),
+                items: buttons
+            }
+        ];
         this.callParent(arguments);
     }
 });
