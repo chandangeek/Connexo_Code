@@ -154,6 +154,20 @@ Ext.define('Tou.view.DetailForm', {
                             }
                             return res;
                         }
+                    }, {
+                        itemId: 'unique-calendar-name-field',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.uniqueCalendarName',
+                            'TOU',
+                            'Upload with unique calendar name'
+                        ),
+                        renderer: function (item) {
+                            return item
+                                ? Uni.I18n.translate('general.yes', 'TOU', 'Yes')
+                                : Uni.I18n.translate('general.no', 'TOU', 'No');
+                        },
+                        name: 'withUniqueCalendarName',
                     }
                 ]
             }, {
