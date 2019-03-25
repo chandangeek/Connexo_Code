@@ -182,7 +182,7 @@ Ext.define('Tou.view.AddForm', {
                     'TOU',
                     'Upload with unique calendar name'
                 ),
-                name: 'withUniqueCalendarName',
+                name: 'withUniqueCalendarName'
             }, {
                 xtype: 'fieldcontainer',
                 itemId: 'form-buttons',
