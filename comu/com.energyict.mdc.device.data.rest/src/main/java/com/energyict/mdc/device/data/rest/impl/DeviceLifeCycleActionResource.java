@@ -112,7 +112,9 @@ public class DeviceLifeCycleActionResource {
             @PathParam("actionId") long actionId,
             @BeanParam JsonQueryParameters queryParameters,
             DeviceLifeCycleActionInfo info) {
-        try (TransactionContext transaction = transactionService.getContext()) {
+        TransactionContext transaction = null;
+        try {
+            transaction = transactionService.getContext();
             Device device = resourceHelper.lockDeviceOrThrowException(info.device);
             ExecutableAction requestedAction = getExecuteActionByIdOrThrowException(actionId, device);
             DeviceLifeCycleActionResultInfo wizardResult = new DeviceLifeCycleActionResultInfo();
@@ -141,6 +143,10 @@ public class DeviceLifeCycleActionResource {
                 }
             }
             return Response.ok(wizardResult).build();
+        } finally {
+            if (transaction != null && transactionService.isInTransaction()) {
+                transaction.close();
+            }
         }
     }
 

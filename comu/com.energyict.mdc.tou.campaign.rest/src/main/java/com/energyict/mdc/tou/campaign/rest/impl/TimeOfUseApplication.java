@@ -13,8 +13,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
@@ -25,6 +29,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,15 +37,20 @@ import java.util.List;
 import java.util.Set;
 
 
-@Component(name = "com.energyict.mdc.tou.campaign.rest", service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/tou", "app=MDC", "name=" + TimeOfUseApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mdc.tou.campaign.rest",
+        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        immediate = true, property = {"alias=/tou", "app=MDC", "name=" + TimeOfUseApplication.COMPONENT_NAME})
 public class TimeOfUseApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
     public static final String COMPONENT_NAME = "TUR";
 
+    private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ServiceCallService serviceCallService;
     private volatile NlsService nlsService;
     private volatile TimeOfUseCampaignService timeOfUseCampaignService;
     private volatile Thesaurus thesaurus;
+    private volatile DeviceService deviceService;
+    private volatile Clock clock;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -74,7 +84,7 @@ public class TimeOfUseApplication extends Application implements TranslationKeyP
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Collections.emptyList();
+        return Arrays.asList(TranslationKeys.values());
     }
 
     @Reference
@@ -86,16 +96,27 @@ public class TimeOfUseApplication extends Application implements TranslationKeyP
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
-                .join(nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus(TopologyService.COMPONENT_NAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus(SecurityManagementService.COMPONENTNAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(ServiceCallService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     class HK2Binder extends AbstractBinder {
@@ -108,6 +129,13 @@ public class TimeOfUseApplication extends Application implements TranslationKeyP
             bind(nlsService).to(NlsService.class);
             bind(timeOfUseCampaignService).to(TimeOfUseCampaignService.class);
             bind(TimeOfUseCampaignInfoFactory.class).to(TimeOfUseCampaignInfoFactory.class);
+            bind(deviceService).to(DeviceService.class);
+            bind(clock).to(Clock.class);
+            bind(DeviceInCampaignInfoFactory.class).to(DeviceInCampaignInfoFactory.class);
+            bind(DeviceTypeAndOptionsInfoFactory.class).to(DeviceTypeAndOptionsInfoFactory.class);
+            bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
         }
     }
 }

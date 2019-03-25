@@ -8,39 +8,29 @@ import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
+import com.energyict.mdc.tou.campaign.impl.EventType;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Map;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, TimeOfUseCampaign {
-
-    private Thesaurus thesaurus;
-
-    @Inject
-    public TimeOfUseCampaignDomainExtension(Thesaurus thesaurus) {
-        super();
-        this.thesaurus = thesaurus;
-    }
-
-    public TimeOfUseCampaignDomainExtension() {
-        super();
-    }
-
-    @Override
-    public long getVersion() {
-        return super.getVersion();
-    }
 
     public enum FieldNames {
         DOMAIN("serviceCall", "service_call"),
@@ -72,6 +62,11 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         }
     }
 
+    private final DataModel dataModel;
+    private final Thesaurus thesaurus;
+    private final ServiceCallService serviceCallService;
+    private final EventService eventService;
+
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
@@ -96,6 +91,15 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     private String activationOption;
     private Instant activationDate;
     private long validationTimeout;
+
+    @Inject
+    public TimeOfUseCampaignDomainExtension(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
+        super();
+        this.dataModel = timeOfUseCampaignService.getDataModel();
+        thesaurus = dataModel.getInstance(Thesaurus.class);
+        serviceCallService = dataModel.getInstance(ServiceCallService.class);
+        eventService = dataModel.getInstance(EventService.class);
+    }
 
     @Override
     public String getName() {
@@ -186,6 +190,38 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     @Override
     public ServiceCall getServiceCall() {
         return serviceCall.get();
+    }
+
+    @Override
+    public Map<DefaultState, Long> getNumbersOfChildrenWithStatuses() {
+        return dataModel.getInstance(ServiceCallService.class).getChildrenStatus(getServiceCall().getId());
+    }
+
+    @Override
+    public void edit(String name, Instant start, Instant end) {
+        ServiceCall serviceCall = getServiceCall();
+        TimeOfUseCampaignDomainExtension extension = serviceCall.getExtension(TimeOfUseCampaignDomainExtension.class).get();
+        extension.setName(name);
+        extension.setActivationStart(start);
+        extension.setActivationEnd(end);
+        serviceCall.update(extension);
+        eventService.postEvent(EventType.TOU_CAMPAIGN_EDITED.topic(), extension);
+    }
+
+    @Override
+    public void cancel() {
+        ServiceCall serviceCall = getServiceCall();
+        if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
+            serviceCallService.lockServiceCall(serviceCall.getId());
+            serviceCall.requestTransition(DefaultState.CANCELLED);
+            serviceCall.update(this);
+            serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.CANCELED_BY_USER.getKey(), MessageSeeds.CANCELED_BY_USER.getDefaultFormat()));
+        }
+    }
+
+    @Override
+    public void delete() {
+        getServiceCall().delete();
     }
 
     @Override

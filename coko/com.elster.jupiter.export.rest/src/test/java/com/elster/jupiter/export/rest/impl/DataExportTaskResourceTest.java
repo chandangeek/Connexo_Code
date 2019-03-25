@@ -63,6 +63,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -298,6 +299,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
         // Business method
+        when(clock.instant()).thenReturn(info.nextRun);
         Response response = target("/dataexporttask").request().header(X_CONNEXO_APPLICATION_NAME, "MDC").post(json);
 
         // Asserts
@@ -353,6 +355,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
+        when(clock.instant()).thenReturn(info.nextRun);
         // Business method
         Response response = target("/dataexporttask").request().header(X_CONNEXO_APPLICATION_NAME, "MDC").post(json);
 
@@ -588,6 +591,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.name = "newName";
+        info.nextRun = Clock.systemDefaultZone().instant();
         // data selector
         info.dataSelector = new SelectorInfo();
         info.dataSelector.selectorType = SelectorType.DEFAULT_READINGS;
@@ -617,6 +621,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.destinations.add(fileDestinationInfo);
 
         // Business method
+        when(clock.instant()).thenReturn(info.nextRun);
         Response response = target("/dataexporttask").request().header(X_CONNEXO_APPLICATION_NAME, "MDC").post(Entity.json(info));
 
         // Asserts
@@ -640,6 +645,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(timeService.findRelativePeriod(exportPeriodId)).thenReturn(Optional.of(exportPeriod));
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.name = "newName";
+        info.nextRun = Clock.systemDefaultZone().instant();
         // data selector
         info.dataSelector = new SelectorInfo();
         info.dataSelector.selectorType = SelectorType.DEFAULT_USAGE_POINT_READINGS;
@@ -664,6 +670,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         fileDestinationInfo.fileExtension = "txt";
         info.destinations.add(fileDestinationInfo);
 
+        when(clock.instant()).thenReturn(info.nextRun);
         // Business method
         Response response = target("/dataexporttask").request().header(X_CONNEXO_APPLICATION_NAME, "MDC").post(Entity.json(info));
 
@@ -687,6 +694,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.name = "newName";
+        info.nextRun = Clock.systemDefaultZone().instant();
         // data selector
         info.dataSelector = new SelectorInfo();
         info.dataSelector.selectorType = SelectorType.DEFAULT_EVENTS;
@@ -695,6 +703,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.standardDataSelector.deviceGroup.id = 5;
         info.standardDataSelector.exportPeriod = new RelativePeriodInfo();
         info.standardDataSelector.exportPeriod.id = exportPeriodId;
+
         // data processor
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
@@ -706,6 +715,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         fileDestinationInfo.fileExtension = "txt";
         info.destinations.add(fileDestinationInfo);
 
+        when(clock.instant()).thenReturn(info.nextRun);
         // Business method
         Response response = target("/dataexporttask").request().header(X_CONNEXO_APPLICATION_NAME, "MDC").post(Entity.json(info));
 

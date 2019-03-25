@@ -112,6 +112,15 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
             properties.put("SyntheticLoadProfileImporterFactory.numberFormat", defaultNumberFormat());
             return properties;
         }
+
+    },
+    DEVICE_LOADPROFILE_NEXT_BLOCK_READINGS_IMPORTER("Update next block readings", "DeviceLoadProfileNextReadingImporterFactory", "readings") { // lori ??? ce sunt aceste valori ??
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = super.getImporterProperties();
+            properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
+            properties.put("DeviceDataFileImporterFactory.timeZone", defaultTimeZoneNotation());
+            return properties;
+        }
     };
 
     public static final String DATE_AND_TIME_PATTERN = "yyyy-MM-dd HH:mm";

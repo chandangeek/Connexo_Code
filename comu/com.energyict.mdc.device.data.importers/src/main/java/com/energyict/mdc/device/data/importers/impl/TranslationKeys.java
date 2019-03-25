@@ -24,6 +24,7 @@ import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.Secu
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureHSMDeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureHSMDeviceShipmentImporterMessageHandler;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.loadprofilenextreading.DeviceLoadProfileNextReadingImporterFactory;
 
 public enum TranslationKeys implements TranslationKey {
 
@@ -106,6 +107,7 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_CERTIFICATES_IMPORTER(DeviceCertificatesImporterFactory.NAME, "Certifcate importer [STD]"),
     DEVICE_PROTOCOL_ATTRIBUTES_IMPORTER(ProtocolAttributesImportFactory.NAME, "Device protocol attributes importer [STD]"),
     DEVICE_PROTOCOL_DIALECT_ATTRIBUTES_IMPORTER(ProtocolDialectAttributesImportFactory.NAME, "Device protocol dialect attributes importer [STD]"),
+    DEVICE_LOADPROFILE_NEXT_BLOCK_READINGS_IMPORTER(DeviceLoadProfileNextReadingImporterFactory.NAME, "Load profile next reading block importer [STD]"),  //lori
 
     STRING_FORMAT("StringFormat", "string"),
     NUMBER_FORMAT("NumberFormat", "number"),

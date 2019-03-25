@@ -29,7 +29,6 @@ import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.DUEDATE;
@@ -73,17 +72,25 @@ public class TopIssuesResource extends BaseResource {
                     .select(where(ISSUE_TYPE).in(new ArrayList<IssueType>() {{
                         add(getIssueService().findIssueType(IssueTypes.DATA_COLLECTION.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.DATA_VALIDATION.getName()).get());
+                        add(getIssueService().findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).get());
                     }})));
             issueTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
-                    entry.getKey().equals(IssueTypes.DATA_COLLECTION) || entry.getKey().equals(IssueTypes.DATA_VALIDATION))
+                    isIssue(entry.getKey()))
                     .mapToLong(Map.Entry::getValue).sum();
             issueTotalWorkGroupAssignedCount = getIssueService().getWorkGroupWithoutUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
-                    entry.getKey().equals(IssueTypes.DATA_COLLECTION) || entry.getKey().equals(IssueTypes.DATA_VALIDATION))
+                    isIssue(entry.getKey()))
                     .mapToLong(Map.Entry::getValue).sum();
         }
-
         List<IssueStatus> statuses = new ArrayList<>();
-        Stream.of(IssueStatus.IN_PROGRESS, IssueStatus.OPEN).forEach(status -> getIssueService().findStatus(status).ifPresent(statuses::add));
+        Stream.of(IssueStatus.IN_PROGRESS, IssueStatus.OPEN).
+
+                forEach(status ->
+
+                        getIssueService().
+
+                                findStatus(status).
+
+                                ifPresent(statuses::add));
         Query<OpenIssue> issueQuery =
                 getIssueService().query(OpenIssue.class, IssueReason.class, IssueType.class);
         Condition conditionReason = where(REASON).in(issueReasons);
@@ -99,7 +106,15 @@ public class TopIssuesResource extends BaseResource {
                                         and(conditionWG))), 1, 5, Order.ascending(PRIORITYTOTAL)
                         .ascending(DUEDATE)
                         .ascending(REASON));
-        return new TopIssuesInfo(issues, issueTotalUserAssignedCount, issueTotalWorkGroupAssignedCount);
+        return new
+
+                TopIssuesInfo(issues, issueTotalUserAssignedCount, issueTotalWorkGroupAssignedCount);
+    }
+
+    private boolean isIssue(IssueTypes issueType) {
+        return issueType.equals(IssueTypes.DATA_COLLECTION) ||
+                issueType.equals(IssueTypes.DATA_VALIDATION) ||
+                issueType.equals(IssueTypes.DEVICE_LIFECYCLE);
     }
 
 }
