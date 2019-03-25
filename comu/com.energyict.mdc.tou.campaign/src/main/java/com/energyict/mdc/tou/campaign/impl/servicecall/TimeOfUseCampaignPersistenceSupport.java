@@ -121,6 +121,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
         table.column(TimeOfUseCampaignDomainExtension.FieldNames.WITH_UNIQUE_CALENDAR_NAME.databaseName())
                 .bool()
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName())
+                .notNull()
                 .add();
         table.foreignKey(FK_NAME + "_CAL")
                 .on(calendar)

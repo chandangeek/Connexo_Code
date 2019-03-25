@@ -39,7 +39,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         ACTIVATION_DATE("activationDate", "activation_date"),
         UPDATE_TYPE("updateType", "update_type"),
         VALIDATION_TIMEOUT("validationTimeout", "validation_timeout"),
-        WITH_UNIQUE_CALENDAR_NAME("withUniqueNameValidation", "with_unique_calendar_name");
+        WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "with_unique_calendar_name");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -190,8 +190,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         return withUniqueCalendarName;
     }
 
-    public void setWithUniqueCalendarName(boolean withCalendarNameValidation) {
-        this.withUniqueCalendarName = withCalendarNameValidation;
+    public void setWithUniqueCalendarName(boolean withUniqueCalendarName) {
+        this.withUniqueCalendarName = withUniqueCalendarName;
     }
 
     @Override
