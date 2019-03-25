@@ -46,11 +46,11 @@ public class ReadMeterChangeHandler implements MessageHandler {
         }
     }
 
-    private List<ServiceCall> findAllChilds(ServiceCall serviceCall) {
+    private List<ServiceCall> findAllChildren(ServiceCall serviceCall) {
         return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
-    private boolean hasAllChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+    private boolean hasAllChildrenStates(List<ServiceCall> serviceCalls, DefaultState defaultState) {
         return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 
@@ -60,28 +60,29 @@ public class ReadMeterChangeHandler implements MessageHandler {
 
     private boolean isLastChild(List<ServiceCall> serviceCalls) {
         return serviceCalls.stream()
-                .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED) ||
-                        sc.getState().equals(DefaultState.FAILED) ||
-                        sc.getState().equals(DefaultState.SUCCESSFUL));
+                .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED)
+                        || sc.getState().equals(DefaultState.FAILED)
+                        || sc.getState().equals(DefaultState.REJECTED)
+                        || sc.getState().equals(DefaultState.SUCCESSFUL));
     }
 
     private void resultTransition(ServiceCall parent) {
-        List<ServiceCall> childs = findAllChilds(parent);
+        List<ServiceCall> childs = findAllChildren(parent);
         if (isLastChild(childs)) {
-            if (hasAllChildState(childs, DefaultState.SUCCESSFUL)) {
-                sendResponseMessage(parent, DefaultState.PAUSED);
-                sendResponseMessage(parent, DefaultState.ONGOING);
-            } else if (hasAllChildState(childs, DefaultState.CANCELLED)) {
-                sendResponseMessage(parent, DefaultState.CANCELLED);
+            if (hasAllChildrenStates(childs, DefaultState.SUCCESSFUL)) {
+                transitParentToResultState(parent, DefaultState.PAUSED);
+                transitParentToResultState(parent, DefaultState.ONGOING);
+            } else if (hasAllChildrenStates(childs, DefaultState.CANCELLED)) {
+                transitParentToResultState(parent, DefaultState.CANCELLED);
             } else if (hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {
-                sendResponseMessage(parent, DefaultState.PARTIAL_SUCCESS);
+                transitParentToResultState(parent, DefaultState.PARTIAL_SUCCESS);
             } else {
-                sendResponseMessage(parent, DefaultState.FAILED);
+                transitParentToResultState(parent, DefaultState.FAILED);
             }
         }
     }
 
-    private void sendResponseMessage(ServiceCall parent, DefaultState finalState) {
+    private void transitParentToResultState(ServiceCall parent, DefaultState finalState) {
         parent.requestTransition(DefaultState.ONGOING);
         if (finalState != DefaultState.ONGOING) {
             parent.requestTransition(finalState);

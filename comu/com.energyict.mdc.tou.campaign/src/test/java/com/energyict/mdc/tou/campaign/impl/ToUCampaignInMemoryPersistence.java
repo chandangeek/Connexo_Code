@@ -24,6 +24,7 @@ import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
@@ -69,8 +70,8 @@ import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorServ
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignModule;
+import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceImpl;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemPropertySet;
 
 import com.google.inject.AbstractModule;
@@ -94,7 +95,7 @@ public class ToUCampaignInMemoryPersistence {
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
-    private static class MockModule extends AbstractModule {
+    private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
@@ -102,7 +103,6 @@ public class ToUCampaignInMemoryPersistence {
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
-        //    bind(MeteringGroupsService.class).toInstance(mock(MeteringGroupsService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
@@ -156,7 +156,6 @@ public class ToUCampaignInMemoryPersistence {
                 new MasterDataModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new PluggableModule(),
-//                new ProtocolPluggableModule(),
                 new PkiModule(),
                 new WebServicesModule(),
                 new ValidationModule(),
@@ -171,16 +170,16 @@ public class ToUCampaignInMemoryPersistence {
                 new MeteringZoneModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-//            injector.getInstance(MeteringGroupsService.class);
+            injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(CommandCustomPropertySet.class);
             injector.getInstance(CompletionOptionsCustomPropertySet.class);
             injector.getInstance(OnDemandReadServiceCallCustomPropertySet.class);
             injector.getInstance(CommunicationTestServiceCallCustomPropertySet.class);
             injector.getInstance(TimeOfUseItemPropertySet.class);
-            injector.getInstance(TimeOfUseCampaignService.class);
             injector.getInstance(MeteringZoneService.class);
             injector.getInstance(AuditService.class);
+            injector.getInstance(TimeOfUseCampaignServiceImpl.class);
             ctx.commit();
         }
     }

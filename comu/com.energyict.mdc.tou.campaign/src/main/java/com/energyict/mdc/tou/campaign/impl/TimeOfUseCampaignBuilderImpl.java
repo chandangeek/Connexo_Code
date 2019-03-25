@@ -5,10 +5,14 @@
 package com.energyict.mdc.tou.campaign.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignDomainExtension;
+import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceImpl;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -24,26 +28,73 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     public String activationOption;
     public Instant activationDate;
     public String updateType;
-    public long validationTimeout;
+    public Long validationTimeout;
+    private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
+    private final DataModel dataModel;
 
-    public TimeOfUseCampaignBuilderImpl(String name, DeviceType deviceType, String deviceGroup,
-                                        Instant activationStart, Instant activationEnd, Calendar calendar,
-                                        String activationOption, Instant activationDate, String updateType, long validationTimeout) {
-        this.name = name;
-        this.deviceType = deviceType;
-        this.deviceGroup = deviceGroup;
+    public TimeOfUseCampaignBuilderImpl(TimeOfUseCampaignService timeOfUseCampaignService, DataModel dataModel) {
+        this.timeOfUseCampaignService = (TimeOfUseCampaignServiceImpl) timeOfUseCampaignService;
+        this.dataModel = dataModel;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilder addActivationTimeBoundaries(Instant activationStart, Instant activationEnd) {
         this.activationStart = activationStart;
         this.activationEnd = activationEnd;
-        this.calendar = calendar;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilder addActivationDate(Instant activationDate) {
         this.activationDate = activationDate;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilder addActivationOption(String activationOption) {
         this.activationOption = activationOption;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilder addDeviceGroup(String deviceGroup) {
+        this.deviceGroup = deviceGroup;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilder addUpdateType(String updateType) {
         this.updateType = updateType;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilder addValidationTimeout(long validationTimeout) {
         this.validationTimeout = validationTimeout;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilderImpl addType(DeviceType deviceType) {
+        this.deviceType = deviceType;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilderImpl addCalendar(Calendar calendar) {
+        this.calendar = calendar;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilderImpl addName(String name) {
+        this.name = name;
+        return this;
     }
 
     @Override
     public TimeOfUseCampaign create() {
-        TimeOfUseCampaignDomainExtension timeOfUseCampaign = new TimeOfUseCampaignDomainExtension();
+        TimeOfUseCampaignDomainExtension timeOfUseCampaign = dataModel.getInstance(TimeOfUseCampaignDomainExtension.class);
         timeOfUseCampaign.setName(name);
         timeOfUseCampaign.setDeviceType(deviceType);
         timeOfUseCampaign.setDeviceGroup(deviceGroup);
@@ -54,8 +105,7 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         timeOfUseCampaign.setActivationOption(activationOption);
         Optional.ofNullable(activationDate).ifPresent(timeOfUseCampaign::setActivationDate);
         Optional.ofNullable(validationTimeout).ifPresent(timeOfUseCampaign::setValidationTimeout);
-        return timeOfUseCampaign;
+        ServiceCall serviceCall = timeOfUseCampaignService.createServiceCallAndTransition(timeOfUseCampaign);
+        return timeOfUseCampaignService.getCampaign(serviceCall.getId()).orElseThrow(() -> new IllegalStateException("Just created campaign not found."));
     }
-
-
 }
