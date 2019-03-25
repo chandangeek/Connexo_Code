@@ -45,7 +45,7 @@ Ext.define('Tou.view.DetailForm', {
                             var result = '';
                             if (me.isPreview) {
                                 result = value ? '<a href="' + me.router.getRoute('workspace/toucampaigns/toucampaign').buildUrl({
-                                        touCampaignName: value
+                                        touCampaignId: field.up('form').getRecord().getId()
                                     }) + '">' + Ext.String.htmlEncode(value) + '</a>' : '-';
                             } else {
                                 result = Ext.String.htmlEncode(value) || '';
@@ -65,12 +65,13 @@ Ext.define('Tou.view.DetailForm', {
                     }, {
                         itemId: 'activation-field',
                         xtype: 'displayfield',
-                        name: 'timeBoundary',
+                        name: 'activationStart',
                         fieldLabel: Uni.I18n.translate('general.timeBoundary', 'TOU', 'Time boundary'),
                         renderer: function (value) {
                             var res = '-';
                             if (value) {
-                                res = value;
+                                var dateEndValue = this.up('tou-campaigns-detail-form').getRecord().data.activationEnd;
+                                res = 'Between ' + Uni.DateTime.formatDateTimeShort(value) + ' and ' + (dateEndValue ? Uni.DateTime.formatDateTimeShort(dateEndValue) : '-');
                             }
                             return res;
                         }
@@ -131,7 +132,7 @@ Ext.define('Tou.view.DetailForm', {
                     }, {
                         itemId: 'time-validation-field',
                         fieldLabel: Uni.I18n.translate('general.touTimeout', 'TOU', 'Timeout before validation'),
-                        name: 'timeValidation',
+                        name: 'validationTimeout',
                         renderer: function (validationTimeout) {
                             var res = "-";
                             if (validationTimeout) {

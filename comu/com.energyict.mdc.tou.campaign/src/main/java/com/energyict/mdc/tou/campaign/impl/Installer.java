@@ -3,7 +3,6 @@
  */
 package com.energyict.mdc.tou.campaign.impl;
 
-import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -17,19 +16,14 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
-
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -143,7 +137,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
 
     @Override
     public String getModuleName() {
-        return CalendarService.COMPONENTNAME;
+        return CalendarService.COMPONENTNAME; // to find a resource with privileges from that module and modify it
     }
 
     @Override
