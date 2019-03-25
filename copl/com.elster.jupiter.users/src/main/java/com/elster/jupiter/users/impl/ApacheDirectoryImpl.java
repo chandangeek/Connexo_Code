@@ -64,7 +64,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         // https://issues.apache.org/jira/browse/DIRSERVER-1844 ApacheDS does not support memberOf virtual attribute
         // so we cannot find user and check their groups. Instead we find groups which have the user as member
         User user = (User) args[0];
-        SearchResult userSearchResult = findLDAPUser(context, user);
+        SearchResult userSearchResult = findLDAPUser(context, user.getName());
         if (userSearchResult == null) {
             throw new NamingException(); // no need to provide message, the exception is caught in getSomethingXXX and next URL is used
         }
@@ -95,7 +95,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         return "";
     }
 
-    private SearchResult findLDAPUser(DirContext context, User user) throws NamingException {
+    private SearchResult findLDAPUser(DirContext context, String userName) throws NamingException {
         SearchControls controls = new SearchControls();
         String name;
         if (getGroupName() == null) {
@@ -105,8 +105,8 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             name = "";
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         }
-        NamingEnumeration<SearchResult> answer = context.search(name,
-                "(&(objectClass=person)(uid=" + user.getName() + "))", controls);
+        NamingEnumeration<SearchResult> answer = context.search(name, "(&(objectClass=person)(uid=" + userName + "))",
+                controls);
         if (answer.hasMore()) {
             return answer.next();
         }
@@ -118,47 +118,75 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         List<String> urls = getUrls();
         LOGGER.info("AUTH: Autheticating LDAP user\n");
         if (getSecurity() == null || getSecurity().toUpperCase().contains(NONE)) {
-            return authenticateSimple(name, password, urls);
+            return authenticateSimple(name, password, urls, false, name);
         } else if (getSecurity().toUpperCase().contains(SSL)) {
-            return authenticateSSL(name, password, urls, getSslSecurityProperties());
+            return authenticateSSL(name, password, urls, getSslSecurityProperties(), false, name);
         } else if (getSecurity().toUpperCase().contains(TLS)) {
-            return authenticateTLS(name, password, urls, getSslSecurityProperties());
+            return authenticateTLS(name, password, urls, getSslSecurityProperties(), false, name);
         } else {
             return Optional.empty();
         }
     }
 
-    private Optional<User> authenticateSimple(String name, String password, List<String> urls) {
+    private boolean shouldUseDirectoryUserToFindUserDN() {
+        return getGroupName() != null;
+    }
+
+    private Optional<User> authenticateSimple(String name, String password, List<String> urls, boolean isDn,
+            String userName) {
         LOGGER.info("AUTH: No security applied\n");
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
-        putSecurityPrincipal(name, env);
-        env.put(Context.SECURITY_CREDENTIALS, password);
+        putSecurityPrincipal(name, password, isDn, env);
         try {
-            new InitialDirContext(env);
-            return findUser(name);
+            DirContext context = new InitialDirContext(env);
+            if (!isDn && shouldUseDirectoryUserToFindUserDN()) {
+                String userDn = findLDAPUserDn(name, context);
+                if (userDn == null) {
+                    return Optional.empty();
+                }
+                return authenticateSimple(userDn, password, urls, true, userName);
+            }
+            return findUser(userName);
         } catch (NumberFormatException | NamingException e) {
             LOGGER.severe("AUTH: Simple authetication failed\n");
             LOGGER.severe(e.getMessage());
             e.printStackTrace();
-            e.printStackTrace();
             if (urls.size() > 1) {
                 urls.remove(0);
-                return authenticateSimple(name, password, urls);
+                return authenticateSimple(name, password, urls, false, userName);
             } else {
                 return Optional.empty();
             }
         }
     }
 
+    private void putSecurityPrincipal(String name, String password, boolean isDn, Hashtable<String, Object> env) {
+        if (isDn || !shouldUseDirectoryUserToFindUserDN()) {
+            putSecurityPrincipal(name, env, isDn);
+            env.put(Context.SECURITY_CREDENTIALS, password);
+        } else {
+            putSecurityPrincipal(getDirectoryUser(), env, false);
+            env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
+        }
+    }
+
+    private String findLDAPUserDn(String name, DirContext context) throws NamingException {
+        SearchResult ldapUser = findLDAPUser(context, name);
+        if (ldapUser != null) {
+            return ldapUser.getNameInNamespace();
+        }
+        return null;
+    }
+
     private Optional<User> authenticateSSL(String name, String password, List<String> urls,
-            SslSecurityProperties sslSecurityProperties) {
+            SslSecurityProperties sslSecurityProperties, boolean isDn, String userName) {
         LOGGER.info("AUTH: SSL applied\n");
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
-        putSecurityPrincipal(name, env);
+        putSecurityPrincipal(name, password, isDn, env);
         env.put(Context.SECURITY_CREDENTIALS, password);
         env.put(Context.SECURITY_PROTOCOL, LOWERCASE_SSL);
         env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
@@ -166,15 +194,22 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
                 .setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, SSL)));
         Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
         try {
-            new InitialDirContext(env);
-            return findUser(name);
+            DirContext context = new InitialDirContext(env);
+            if (!isDn && shouldUseDirectoryUserToFindUserDN()) {
+                String userDn = findLDAPUserDn(name, context);
+                if (userDn == null) {
+                    return Optional.empty();
+                }
+                return authenticateSSL(userDn, password, urls, sslSecurityProperties, true, userName);
+            }
+            return findUser(userName);
         } catch (NumberFormatException | NamingException e) {
             LOGGER.severe("AUTH: SSL authetication failed\n");
             LOGGER.severe(e.getMessage());
             e.printStackTrace();
             if (urls.size() > 1) {
                 urls.remove(0);
-                return authenticateSSL(name, password, urls, sslSecurityProperties);
+                return authenticateSSL(name, password, urls, sslSecurityProperties, false, userName);
             } else {
                 return Optional.empty();
             }
@@ -182,7 +217,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateTLS(String name, String password, List<String> urls,
-            SslSecurityProperties sslSecurityProperties) {
+            SslSecurityProperties sslSecurityProperties, boolean isDn, String userName) {
         LOGGER.info("AUTH: TLS applied\n");
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
@@ -194,16 +229,23 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
             tls.negotiate(getSocketFactory(sslSecurityProperties, TLS));
-            putSecurityPrincipal(name, env);
+            putSecurityPrincipal(name, password, isDn, env);
             env.put(Context.SECURITY_CREDENTIALS, password);
-            return findUser(name);
+            if (!isDn && shouldUseDirectoryUserToFindUserDN()) {
+                String userDn = findLDAPUserDn(name, ctx);
+                if (userDn == null) {
+                    return Optional.empty();
+                }
+                return authenticateTLS(userDn, password, urls, sslSecurityProperties, true, userName);
+            }
+            return findUser(userName);
         } catch (NumberFormatException | IOException | NamingException e) {
             LOGGER.severe("AUTH: TLS authetication failed\n");
             LOGGER.severe(e.getMessage());
             e.printStackTrace();
             if (urls.size() > 1) {
                 urls.remove(0);
-                return authenticateTLS(name, password, urls, sslSecurityProperties);
+                return authenticateTLS(name, password, urls, sslSecurityProperties, false, userName);
             } else {
                 return Optional.empty();
             }
@@ -340,9 +382,13 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         }
     }
 
-    private void putSecurityPrincipal(String name, Hashtable<String, Object> env) {
+    private void putSecurityPrincipal(Hashtable<String, Object> env) {
+        putSecurityPrincipal(getDirectoryUser(), env, false);
+    }
+
+    private void putSecurityPrincipal(String name, Hashtable<String, Object> env, boolean useNameAsIs) {
         String principal;
-        if (getGroupName() == null) {
+        if (!useNameAsIs && getGroupName() == null) {
             principal = "uid=" + name + "," + getBaseUser();
         } else {
             principal = name;
@@ -358,10 +404,6 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         putSecurityPrincipal(env);
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         return new InitialDirContext(env);
-    }
-
-    private void putSecurityPrincipal(Hashtable<String, Object> env) {
-        putSecurityPrincipal(getDirectoryUser(), env);
     }
 
     @Override
