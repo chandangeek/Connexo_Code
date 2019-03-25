@@ -27,7 +27,7 @@ public class DeviceLoadProfileNextReadingImportProcessor extends AbstractDeviceD
     @Override
     public void process(DeviceLoadProfileNextReadingRecord data, FileImportLogger logger) throws ProcessorException{
         setDevice(data,logger);
-        validateDeviceState(data, device);
+        //validateDeviceState(data, device);
         Optional<LoadProfile> validLoadProfile = getLoadProfileByOBIS(device, data.getLoadProfilesOBIS());
         if ( validLoadProfile.isPresent())
             addNextBlockDateToLoadProfile(device, validLoadProfile.get(), Optional.ofNullable(data.getLoadProfileNextReadingBlockDateTime()));
@@ -51,15 +51,16 @@ public class DeviceLoadProfileNextReadingImportProcessor extends AbstractDeviceD
         //validateDeviceState(data, device);
     }
 
-    private void validateDeviceState(DeviceLoadProfileNextReadingRecord data, Device device) {
-        if (device.getState().getName().equals(DefaultState.IN_STOCK.getKey())) {
-            throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE, data.getLineNumber(), device.getName());
-        }
-        if (device.getState().getName().equals(DefaultState.DECOMMISSIONED.getKey())
-                && !((User) getContext().getThreadPrincipalService().getPrincipal()).hasPrivilege("MDC", Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
-            throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE, data.getLineNumber(), device.getName());
-        }
-    }
+//    private void validateDeviceState(DeviceLoadProfileNextReadingRecord data, Device device) {
+//        if (device.getState().getName().equals(DefaultState.IN_STOCK.getKey())) {
+//            throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE, data.getLineNumber(), device.getName());
+//        }
+//        if (device.getState().getName().equals(DefaultState.DECOMMISSIONED.getKey())
+//                && !((User) getContext().getThreadPrincipalService().getPrincipal()).hasPrivilege("MDC", Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
+//            throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE, data.getLineNumber(), device.getName());
+//        }
+//    }
+// at this part of Connexo development devices in stock has to import next reading block, even if there cannot be added any data !!!
 
     // initial were private
     public Optional<LoadProfile> getLoadProfileByOBIS(Device device, String loadProfileOBISCode){
