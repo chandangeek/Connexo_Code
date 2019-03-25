@@ -22,7 +22,7 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
         DOMAIN("serviceCall", "SERVICE_CALL"),
         CALLS_EXPECTED("expectedNumberOfCalls", "EXPECTED_CALLS"),
         CALLS_SUCCESS("actualNumberOfSuccessfulCalls", "SUCCESS_CALLS"),
-        CALLS_FAILED("actualNumberOfFailedCalls", "FAILED_CALLs"),
+        CALLS_FAILED("actualNumberOfFailedCalls", "FAILED_CALLS"),
         CALLBACK_URL("callbackURL", "CALLBACK_URL");
 
         FieldNames(String javaName, String databaseName) {

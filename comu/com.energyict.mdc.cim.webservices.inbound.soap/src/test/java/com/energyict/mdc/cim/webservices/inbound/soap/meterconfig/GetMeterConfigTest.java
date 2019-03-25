@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.OverlapCalculatorBuilder;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockMeterConfig;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
@@ -15,15 +16,19 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfig.MeterMultiplier;
+import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigFaultMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.ErrorType;
+import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.Range;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -59,7 +64,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
     }
 
     @Test
-    public void testNoMetersInMeterConfig() throws Exception {
+    public void testNoMetersInMeterConfig() {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
         MeterConfigRequestMessageType meterConfigRequest = createMeterConfigRequest(meterConfig);
@@ -84,14 +89,9 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
     }
 
     @Test
-    public void testGetMeterConfigWithCpsSuccessfully() throws Exception {
+    public void testGetMeterConfigSuccessfully() throws Exception {
+        mockGeneralAttributes();
 
-        mockCustomPropertySetService();
-        mockCustomPropertySetSpecs(true);
-        doTestGetMeterConfigWithCps();
-    }
-
-    private void doTestGetMeterConfigWithCps() throws FaultMessage {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
@@ -107,6 +107,103 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
                 .getMeterConfig(meterConfigRequest);
 
         // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterConfig");
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
+
+        MeterConfig responseMeterConfig = response.getPayload().getMeterConfig();
+        assertThat(responseMeterConfig.getMeter()).hasSize(1);
+
+        Meter responseMeter = responseMeterConfig.getMeter().get(0);
+        assertThat(responseMeter.getMRID()).isEqualTo(DEVICE_MRID);
+        assertThat(responseMeter.getNames().get(0).getName()).isEqualTo(DEVICE_NAME);
+        assertThat(responseMeter.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
+        assertThat(responseMeter.getType()).isEqualTo(DEVICE_TYPE_NAME);
+        assertThat(responseMeter.getLotNumber()).isEqualTo(BATCH);
+
+        ProductAssetModel assetModel = responseMeter.getEndDeviceInfo().getAssetModel();
+        assertThat(assetModel.getManufacturer().getNames().get(0).getName()).isEqualTo(MANUFACTURER);
+        assertThat(assetModel.getModelNumber()).isEqualTo(MODEL_NUMBER);
+        assertThat(assetModel.getModelVersion()).isEqualTo(MODEL_VERSION);
+
+        List<MeterMultiplier> meterMultipliers = responseMeter.getMeterMultipliers();
+        assertThat(meterMultipliers).hasSize(1);
+        assertThat(meterMultipliers.get(0).getValue()).isEqualTo(MULTIPLIER);
+
+        assertThat(responseMeter.getStatus()).isNotNull();
+        assertThat(responseMeter.getStatus().getValue()).isEqualTo(STATE_NAME);
+
+        List<Object> refs = responseMeter.getComFunctionOrConnectDisconnectFunctionOrSimpleEndDeviceFunction();
+        assertThat(refs).hasSize(1);
+        assertThat(refs.get(0)).isInstanceOf(Meter.SimpleEndDeviceFunction.class);
+        assertThat(((Meter.SimpleEndDeviceFunction) refs.get(0)).getRef()).isEqualTo(DEVICE_CONFIG_ID);
+
+        List<SimpleEndDeviceFunction> responseSimpleEndDeviceFunction = responseMeterConfig
+                .getSimpleEndDeviceFunction();
+        assertThat(responseSimpleEndDeviceFunction).hasSize(1);
+        assertThat(responseSimpleEndDeviceFunction.get(0).getMRID()).isEqualTo(DEVICE_CONFIG_ID);
+        assertThat(responseSimpleEndDeviceFunction.get(0).getConfigID()).isEqualTo(DEVICE_CONFIGURATION_NAME);
+
+        assertThat(responseMeter.getMeterCustomAttributeSet()).hasSize(1);
+        assertThat(responseMeter.getMeterCustomAttributeSet().get(0).getAttribute().get(0).getName()).isEqualTo(GA_NAME_1);
+        assertThat(responseMeter.getMeterCustomAttributeSet().get(0).getAttribute().get(0).getValue()).isEqualTo(GA_VALUE_1);
+        assertThat(responseMeter.getMeterCustomAttributeSet().get(0).getAttribute().get(1).getName()).isEqualTo(GA_NAME_2);
+        assertThat(responseMeter.getMeterCustomAttributeSet().get(0).getAttribute().get(1).getValue()).isEqualTo(GA_VALUE_2);
+    }
+
+    @Test
+    public void testNoReplyAddress() {
+        MeterConfig meterConfig = new MeterConfig();
+        meterConfig.getMeter().add(createDefaultMeter());
+        MeterConfigRequestMessageType meterConfigRequest = createMeterConfigRequest(meterConfig);
+        meterConfigRequest.getHeader().setAsyncReplyFlag(true);
+
+        try {
+            // Business method
+            getInstance(ExecuteMeterConfigEndpoint.class).getMeterConfig(meterConfigRequest);
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            // Asserts
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_GET_DEVICE.translate(thesaurus));
+            MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
+            assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+            assertThat(faultInfo.getReply().getError()).hasSize(1);
+            ErrorType error = faultInfo.getReply().getError().get(0);
+            assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
+            assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_REPLY_ADDRESS.getErrorCode());
+        } catch (Exception e) {
+            fail("FaultMessage must be thrown");
+        }
+    }
+
+    @Test
+    public void testOutboundNotConfigured() {
+        MeterConfig meterConfig = new MeterConfig();
+        meterConfig.getMeter().add(createDefaultMeter());
+        MeterConfigRequestMessageType meterConfigRequest = createMeterConfigRequest(meterConfig);
+        meterConfigRequest.getHeader().setAsyncReplyFlag(true);
+        meterConfigRequest.getHeader().setReplyAddress(REPLY_ADDRESS);
+
+        EndPointConfiguration endPointConfiguration = mockEndPointConfiguration("epc1");
+        when(endPointConfiguration.getUrl()).thenReturn(REPLY_ADDRESS + "_1");
+        Finder<EndPointConfiguration> finder = mockFinder(Collections.singletonList(endPointConfiguration));
+        when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
+
+        try {
+            // Business method
+            getInstance(ExecuteMeterConfigEndpoint.class).getMeterConfig(meterConfigRequest);
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
+            // Asserts
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.NO_END_POINT_WITH_URL.translate(thesaurus));
+            MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
+            assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+            assertThat(faultInfo.getReply().getError()).hasSize(1);
+            ErrorType error = faultInfo.getReply().getError().get(0);
+            assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
+            assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_END_POINT_WITH_URL.getErrorCode());
+        } catch (Exception e) {
+            fail("FaultMessage must be thrown");
+        }
     }
 }

@@ -103,7 +103,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
             if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                 // call asynchronously
                 EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(
-                        getReplyAddress(requestMessage));
+                        getReplyAddress(requestMessage, MessageSeeds.UNABLE_TO_CREATE_DEVICE));
                 createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                         OperationEnum.CREATE);
                 context.commit();
@@ -162,7 +162,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
             if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                 // call asynchronously
                 EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(
-                        getReplyAddress(requestMessage));
+                        getReplyAddress(requestMessage, MessageSeeds.UNABLE_TO_CHANGE_DEVICE));
                 createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                         OperationEnum.UPDATE);
                 context.commit();
@@ -190,10 +190,10 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         }
     }
 
-    private String getReplyAddress(MeterConfigRequestMessageType requestMessage) throws FaultMessage {
+    private String getReplyAddress(MeterConfigRequestMessageType requestMessage, MessageSeeds errorMessage) throws FaultMessage {
         String replyAddress = requestMessage.getHeader().getReplyAddress();
         if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
-            throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_CREATE_DEVICE,
+            throw faultMessageFactory.meterConfigFaultMessage(null, errorMessage,
                     MessageSeeds.NO_REPLY_ADDRESS);
         }
         return replyAddress;
@@ -239,7 +239,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
         // set payload
         MeterConfigPayloadType meterConfigPayload = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
-        meterConfigPayload.setMeterConfig(Verb.GET.equals(verb) ? meterConfigFactory.asGetMeterConfig(device) : meterConfigFactory.asMeterConfig(device));
+        meterConfigPayload.setMeterConfig(Verb.REPLY.equals(verb) ? meterConfigFactory.asGetMeterConfig(device) : meterConfigFactory.asMeterConfig(device));
         responseMessage.setPayload(meterConfigPayload);
 
         return responseMessage;
@@ -303,7 +303,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
             //get mrid or name of device
             if (Boolean.TRUE.equals(getMeterConfigRequestMessage.getHeader().isAsyncReplyFlag())) {
                 // call asynchronously
-                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(getMeterConfigRequestMessage));
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(getMeterConfigRequestMessage, MessageSeeds.UNABLE_TO_GET_DEVICE));
                 createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET);
                 context.commit();
                 return createQuickResponseMessage(HeaderType.Verb.REPLY);
@@ -313,7 +313,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
                         .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
                 MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
                 Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
-                return createResponseMessage(device, HeaderType.Verb.GET);
+                return createResponseMessage(device, HeaderType.Verb.REPLY);
             }
         } catch (VerboseConstraintViolationException e) {
             throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG_EVENTS, e.getLocalizedMessage());

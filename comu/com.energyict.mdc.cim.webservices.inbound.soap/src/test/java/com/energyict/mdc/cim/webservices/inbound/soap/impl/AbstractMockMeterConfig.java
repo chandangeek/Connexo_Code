@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -17,6 +18,7 @@ import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.upl.TypedProperties;
 
 import ch.iec.tc57._2011.meterconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
@@ -37,7 +39,6 @@ import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -71,6 +72,10 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     protected static final String CPS_VALUE_1 = "value 1";
     protected static final String CPS_NAME_2 = "name 2";
     protected static final String CPS_VALUE_2 = "value 2";
+    protected static final String GA_NAME_1 = "GA name 1";
+    protected static final String GA_VALUE_1 = "GA value 1";
+    protected static final String GA_NAME_2 = "GA name 2";
+    protected static final String GA_VALUE_2 = "GA value 2";
 
     protected final ObjectFactory meterConfigMessageObjectFactory = new ObjectFactory();
     protected final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
@@ -97,16 +102,31 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     @Mock
     private CIMLifecycleDates lifecycleDates;
     @Mock
-    private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    protected DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
-    private DeviceProtocol deviceProtocol;
+    protected DeviceProtocol deviceProtocol;
+    @Mock
+    protected TypedProperties deviceProtocolProperties;
 
     protected void mockDeviceType() {
         when(deviceType.getName()).thenReturn(DEVICE_TYPE_NAME);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
+    }
+
+    protected void mockGeneralAttributes() {
+        when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceProtocol.getPropertySpecs()).thenReturn(new ArrayList());
+        PropertySpec prop1 = mock(PropertySpec.class);
+        when(prop1.getName()).thenReturn(GA_NAME_1);
+        when(prop1.getValueFactory()).thenReturn(new StringFactory());
+        PropertySpec prop2 = mock(PropertySpec.class);
+        when(prop2.getName()).thenReturn(GA_NAME_2);
+        when(prop2.getValueFactory()).thenReturn(new StringFactory());
+        when(deviceProtocol.getPropertySpecs()).thenReturn(Arrays.asList(prop1, prop2));
+        when(device.getDeviceProtocolProperties()).thenReturn(deviceProtocolProperties);
+        when(deviceProtocolProperties.getLocalValue(GA_NAME_1)).thenReturn(GA_VALUE_1);
+        when(deviceProtocolProperties.getLocalValue(GA_NAME_2)).thenReturn(GA_VALUE_2);
     }
 
     protected void mockDeviceConfiguration() {
@@ -154,7 +174,6 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         when(batch.getName()).thenReturn(BATCH);
         when(device.getMultiplier()).thenReturn(BigDecimal.valueOf(MULTIPLIER));
         when(device.getState()).thenReturn(state);
-        when(device.getDeviceType()).thenReturn(deviceType);
         mockDeviceConfiguration();
         mockLifeCycleDates();
     }
