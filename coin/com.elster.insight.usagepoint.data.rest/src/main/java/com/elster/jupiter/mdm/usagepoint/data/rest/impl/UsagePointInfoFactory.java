@@ -202,6 +202,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.location = usagePoint.getLocation().map(Location::toString).orElse(
                 usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null));
         info.state = thesaurus.getString(usagePoint.getState().getName(), usagePoint.getState().getName());
+        info.timeOfUse = usagePoint.getUsedCalendars().getCalendars(clock.instant()).stream()
+                .map(calendar -> calendar.getName()).collect(Collectors.joining(","));
         return info;
     }
 
@@ -215,6 +217,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.STATE, String.class));
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.CONNECTION_STATE_MODEL, String.class));
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.LOCATION_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.TIME_OF_USE_MODEL, String.class));
         return propertyDescriptionInfoList;
     }
 

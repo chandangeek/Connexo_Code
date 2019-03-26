@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
@@ -15,6 +16,7 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePoint.UsedCalendars;
 import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
@@ -48,6 +50,7 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +59,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
@@ -101,6 +105,11 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
     private Query<UsagePointGroup> usagePointGroupQuery;
     @Captor
     private ArgumentCaptor<List<SearchablePropertyCondition>> searchablePropertyConditionsCaptor;
+
+    @Before
+    public void before() {
+        when(clock.instant()).thenReturn(Instant.now());
+    }
 
     @Test
     public void testGetQueryUsagePointGroup() throws Exception {
@@ -673,6 +682,13 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.of(usagePointConnectionState));
         Optional<Location> locationOptional = Optional.ofNullable(location).map(UsagePointGroupResourceTest::mockLocation);
         when(usagePoint.getLocation()).thenReturn(locationOptional);
+        UsedCalendars usedCalendars = mock(UsedCalendars.class);
+        List<Calendar> calendars = new ArrayList<Calendar>();
+        Calendar calendar = mock(Calendar.class);
+        when(calendar.getName()).thenReturn("Time of use");
+        calendars.add(calendar);
+        when(usedCalendars.getCalendars(any(Instant.class))).thenReturn(calendars);
+        when(usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
         State usagePointState = mock(State.class);
         when(usagePoint.getState()).thenReturn(usagePointState);
