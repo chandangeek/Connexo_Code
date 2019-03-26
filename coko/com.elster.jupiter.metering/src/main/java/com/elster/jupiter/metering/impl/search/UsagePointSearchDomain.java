@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -12,6 +13,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
@@ -59,6 +62,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     private volatile Clock clock;
     private volatile LicenseService licenseService;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    private volatile CalendarService calendarService;
 
     // For OSGi purposes
     public UsagePointSearchDomain() {
@@ -73,7 +77,8 @@ public class UsagePointSearchDomain implements SearchDomain {
                                   ServerMetrologyConfigurationService metrologyConfigurationService,
                                   Clock clock,
                                   LicenseService licenseService,
-                                  UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+            UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
+            CalendarService calendarService) {
         this();
         this.setPropertySpecService(propertySpecService);
         this.setMeteringService(meteringService);
@@ -82,6 +87,12 @@ public class UsagePointSearchDomain implements SearchDomain {
         this.setClock(clock);
         this.setLicenseService(licenseService);
         this.setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
+        this.setCalendarService(calendarService);
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Reference
@@ -345,7 +356,9 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new TypeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ReadRouteSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServicePrioritySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new MeterSearchableProperty(this, this.propertySpecService, this.meteringService)));
+                new MeterSearchableProperty(this, this.propertySpecService, this.meteringService),
+                new CalendarSearchableProperty(this, this.propertySpecService, calendarService,
+                        meteringService.getThesaurus(), this.meteringService.getDataModel())));
     }
 
     protected boolean isMultisensePropertiesOnly() {

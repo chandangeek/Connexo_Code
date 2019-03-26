@@ -71,7 +71,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_PRESSURE("usagepoint.pressure", "Pressure"),
     USAGEPOINT_BYPASS_STATUS("usagepoint.bypassStatus", "Bypass status"),
     USAGEPOINT_PURPOSE("usagepoint.purpose", "Purpose"),
-    USAGEPOINT_STATE("usagepoint.state", "State")
+    USAGEPOINT_STATE("usagepoint.state", "State"),
+    USAGEPOINT_CALENDAR("usagepoint.categorytou", "Time of use")
     ;
 
     private String key;
