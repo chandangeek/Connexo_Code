@@ -155,7 +155,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             e.printStackTrace();
             if (urls.size() > 1) {
                 urls.remove(0);
-                return authenticateSimple(name, password, urls, false, userName);
+                return authenticateSimple(userName, password, urls, false, userName);
             } else {
                 return Optional.empty();
             }
@@ -209,7 +209,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             e.printStackTrace();
             if (urls.size() > 1) {
                 urls.remove(0);
-                return authenticateSSL(name, password, urls, sslSecurityProperties, false, userName);
+                return authenticateSSL(userName, password, urls, sslSecurityProperties, false, userName);
             } else {
                 return Optional.empty();
             }
@@ -245,7 +245,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             e.printStackTrace();
             if (urls.size() > 1) {
                 urls.remove(0);
-                return authenticateTLS(name, password, urls, sslSecurityProperties, false, userName);
+                return authenticateTLS(userName, password, urls, sslSecurityProperties, false, userName);
             } else {
                 return Optional.empty();
             }
