@@ -26,6 +26,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceFinder;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -74,6 +75,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private ReplyTypeFactory replyTypeFactory;
     private MeterConfigFaultMessageFactory messageFactory;
     private DeviceBuilder deviceBuilder;
+    private DeviceFinder deviceFinder;
     private Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
     private CasHandler casHandler;
     private SecurityHelper securityHelper;
@@ -147,6 +149,9 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
             case UPDATE:
                 device = getDeviceBuilder().prepareChangeFrom(meterInfo).build();
                 processDevice(serviceCall, meterInfo, device);
+                break;
+            case GET:
+                getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
                 break;
             default:
                 break;
@@ -280,6 +285,13 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private void postProcessDevice(Device device, MeterInfo meterInfo) {
         webServiceExtension.ifPresent(
                 inboundCIMWebServiceExtension -> inboundCIMWebServiceExtension.extendMeterInfo(device, meterInfo));
+    }
+
+    private DeviceFinder getDeviceFinder() {
+        if (deviceFinder == null) {
+            deviceFinder = new DeviceFinder(deviceService, getMessageFactory());
+        }
+        return deviceFinder;
     }
 
     private DeviceBuilder getDeviceBuilder() {

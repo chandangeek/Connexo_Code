@@ -110,7 +110,7 @@ public class ServiceCallCommands {
         ServiceCall parentServiceCall = serviceCallBuilder.create();
 
         for (Meter meter : meterConfig.getMeter()) {
-            createMeterConfigChildCall(parentServiceCall, operation, meter, meterConfig.getSimpleEndDeviceFunction()).requestTransition(DefaultState.PENDING);
+            createMeterConfigChildCall(parentServiceCall, operation, meter, meterConfig.getSimpleEndDeviceFunction());
         }
 
         return parentServiceCall;

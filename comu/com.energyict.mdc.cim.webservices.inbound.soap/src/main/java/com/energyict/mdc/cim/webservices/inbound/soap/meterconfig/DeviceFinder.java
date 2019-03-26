@@ -11,7 +11,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 
 import javax.inject.Inject;
-import java.util.Optional;
 
 public class DeviceFinder {
 
@@ -23,10 +22,6 @@ public class DeviceFinder {
                          MeterConfigFaultMessageFactory faultMessageFactory) {
         this.deviceService = deviceService;
         this.faultMessageFactory = faultMessageFactory;
-    }
-
-    public Optional<Device> findDeviceWithoutException(String mrid, String deviceName) {
-        return (mrid != null && !mrid.isEmpty()) ? deviceService.findDeviceByMrid(mrid) : deviceService.findDeviceByName(deviceName);
     }
 
     public Device findDevice(String mrid, String deviceName) throws FaultMessage {

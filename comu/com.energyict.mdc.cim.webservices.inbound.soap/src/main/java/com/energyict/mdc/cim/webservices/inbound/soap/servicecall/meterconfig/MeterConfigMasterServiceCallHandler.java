@@ -4,9 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
@@ -15,20 +12,12 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.cim.webservices.inbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceFinder;
-import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import ch.iec.tc57._2011.schema.message.ErrorType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,17 +36,12 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     private volatile DeviceService deviceService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile ReplyMeterConfigWebService replyMeterConfigWebService;
-    private volatile Thesaurus thesaurus;
-
-    private ReplyTypeFactory replyTypeFactory;
-    private MeterConfigFaultMessageFactory messageFactory;
-    private DeviceFinder deviceFinder;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         switch (newState) {
             case ONGOING:
-                serviceCall.findChildren().stream().forEach(child -> processChild(child));
+                serviceCall.findChildren().stream().forEach(child -> child.requestTransition(DefaultState.PENDING));
                 break;
             case SUCCESSFUL:
                 sendResponseToOutboundEndPoint(serviceCall);
@@ -111,42 +95,6 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     @Reference
     public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
         this.endPointConfigurationService = endPointConfigurationService;
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
-    }
-
-    private void processChild(ServiceCall child) {
-        MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-        OperationEnum operation = OperationEnum.getFromString(extensionFor.getOperation());
-        if (OperationEnum.GET.equals(operation)) {
-            try {
-                getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
-            } catch (FaultMessage faultMessage) {
-                Optional<ErrorType> errorType = faultMessage.getFaultInfo().getReply().getError().stream().findFirst();
-                if (errorType.isPresent()) {
-                    extensionFor.setErrorMessage(errorType.get().getDetails());
-                    extensionFor.setErrorCode(errorType.get().getCode());
-                } else {
-                    extensionFor.setErrorMessage(faultMessage.getLocalizedMessage());
-                }
-                child.update(extensionFor);
-                child.requestTransition(DefaultState.FAILED);
-            }  catch (ConstraintViolationException constraintViolationException) {
-                extensionFor.setErrorMessage(constraintViolationException.getConstraintViolations().stream()
-                        .findFirst()
-                        .map(ConstraintViolation::getMessage)
-                        .orElseGet(constraintViolationException::getMessage));
-                child.update(extensionFor);
-                child.requestTransition(DefaultState.FAILED);
-            } catch (Exception ex) {
-                extensionFor.setErrorMessage(ex.getLocalizedMessage());
-                child.update(extensionFor);
-                child.requestTransition(DefaultState.FAILED);
-            }
-        }
     }
 
     private void updateCounter(ServiceCall serviceCall, DefaultState state) {
@@ -203,7 +151,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                 .filter(child -> child.getState().equals(DefaultState.SUCCESSFUL))
                 .forEach(child ->  {
                     MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-                    Optional<Device> device = getDeviceFinder().findDeviceWithoutException(extensionFor.getMeterMrid(), extensionFor.getMeterName());
+                    Optional<Device> device = findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
                     if (device.isPresent()) {
                         devices.add(device.get());
                     }
@@ -228,25 +176,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         return failedMeterOperations;
     }
 
-    private DeviceFinder getDeviceFinder() {
-        if (deviceFinder == null) {
-            deviceFinder = new DeviceFinder(deviceService, getMessageFactory());
-        }
-        return deviceFinder;
+    private Optional<Device> findDevice(String mrid, String deviceName) {
+        return (mrid != null && !mrid.isEmpty()) ? deviceService.findDeviceByMrid(mrid) : deviceService.findDeviceByName(deviceName);
     }
-
-    private MeterConfigFaultMessageFactory getMessageFactory() {
-        if (messageFactory == null) {
-            messageFactory = new MeterConfigFaultMessageFactory(thesaurus, getReplyTypeFactory());
-        }
-        return messageFactory;
-    }
-
-    private ReplyTypeFactory getReplyTypeFactory() {
-        if (replyTypeFactory == null) {
-            replyTypeFactory = new ReplyTypeFactory(thesaurus);
-        }
-        return replyTypeFactory;
-    }
-
 }
