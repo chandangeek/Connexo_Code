@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterTransitionWrapper;
 import com.elster.jupiter.metering.MeteringService;
 
 import org.osgi.service.component.annotations.Component;
@@ -89,6 +90,12 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
                 return this.currentStateFor((EndDevice) event.getSource(), finiteStateMachine);
             }
         },
+        METER_LINK_UNLINK(EnumSet.of(EventType.METER_LINKED, EventType.METER_UNLINKED)) {
+            @Override
+            public Optional<CurrentState> extractFrom(LocalEvent event, FiniteStateMachine finiteStateMachine, MeteringService meteringService) {
+                return this.currentStateFor((MeterTransitionWrapper) event.getSource(), finiteStateMachine);
+            }
+        },
         METER_READING(EnumSet.of(EventType.METERREADING_CREATED)) {
             @Override
             public Optional<CurrentState> extractFrom(LocalEvent event, FiniteStateMachine finiteStateMachine, MeteringService meteringService) {
@@ -118,6 +125,21 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
                 currentState.sourceId = endDevice.getAmrId();
                 currentState.sourceType = EndDevice.class.getName();
                 currentState.name = actualState.map(State::getName).get();
+                return Optional.of(currentState);
+            }
+            else {
+                // Device's state is not managed by a life cycle or not managed by the specified state machine
+                return Optional.empty();
+            }
+        }
+        protected Optional<CurrentState> currentStateFor(MeterTransitionWrapper endDeviceWrapper, FiniteStateMachine finiteStateMachine) {
+            Optional<State> actualState = endDeviceWrapper.getEndDevice().getState();
+            if (actualState.isPresent() && actualState.get().getFiniteStateMachine().getId() == finiteStateMachine.getId()) {
+                CurrentState currentState = new CurrentState();
+                currentState.sourceId = endDeviceWrapper.getEndDevice().getAmrId();
+                currentState.sourceType = EndDevice.class.getName();
+                currentState.name = actualState.map(State::getName).get();
+                currentState.timeEventToHappen = endDeviceWrapper.getInstant();
                 return Optional.of(currentState);
             }
             else {

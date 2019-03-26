@@ -16,6 +16,8 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterHasUnsatisfiedRequirements;
+import com.elster.jupiter.metering.MeterTransitionWrapper;
+import com.elster.jupiter.metering.MeterTransitionWrapperImpl;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointHasMeterOnThisRole;
@@ -207,12 +209,29 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     @Override
     public void completeRemoveOrAdd() {
+        System.out.println("completeRemoveOrAdd!!!!!!!!!!!!!!!!");
         if (this.activationChanges.isEmpty() && this.deactivationChanges.isEmpty()) {
             return;
         }
         startValidation();
+
         this.deactivationChanges.forEach(activation -> {
             if(activation.getUsagePoint() != null){
+                String keyToFind = activation.getMeterRole().getKey();
+                MeterActivation act = activation.getUsagePoint().getMeterActivations()
+                        .stream()
+                        .filter(actvtn -> keyToFind.equals(actvtn.getMeterRole().get().getKey()))
+                        .findFirst().orElse(null);
+                System.out.println("UNLINK METER!!!!!"+keyToFind);
+                if (act != null){
+                    Meter meter = act.getMeter().get();
+                    if (meter != null && meter.getState().isPresent()){
+                        System.out.println("UNLINK REAL METER!!!!!"+meter.toString());
+
+                        eventService.postEvent(EventType.METER_UNLINKED.topic(), new MeterTransitionWrapperImpl(meter, null) );
+                    }
+                }
+
                 this.metrologyConfigurationService.getDataModel()
                         .mapper(MeterActivationImpl.class)
                         .find("usagePoint", activation.getUsagePoint()).stream().forEach(MeterActivationImpl::detachUsagePoint);
@@ -250,6 +269,8 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                         .forEach(m -> getMeterTimeLine(m, this.meterTimeLines));
                 getMeterTimeLine(meter, this.meterTimeLines).adjust(activation, activateVisitor);
 
+                System.out.println("LINK METER!!!!!!!!!!");
+                eventService.postEvent(EventType.METER_LINKED.topic(), new MeterTransitionWrapperImpl(meter, activationStart) );
                 notifyInterestedComponents();
                 refreshMeterActivations();
             }
@@ -276,13 +297,21 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         ElementVisitor<Activation> clearVisitor = new MeterActivationClearVisitor();
         this.deactivationChanges.forEach(activation ->
                 convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations(activation.getMeterRole()))
-                        .forEach(meter -> getMeterTimeLine(meter, this.meterTimeLines).adjust(activation, clearVisitor)));
+                        .forEach(meter -> {
+                            getMeterTimeLine(meter, this.meterTimeLines).adjust(activation, clearVisitor);
+                            if (meter != null && meter.getState().isPresent()){
+                                System.out.println("UNLINK METER!!!!!"+meter.toString());
+                                eventService.postEvent(EventType.METER_UNLINKED.topic(), new MeterTransitionWrapperImpl(meter, null));
+                            }
+                          }));
         // Validate changes
         startValidation();
         // Apply activation changes
         ElementVisitor<Activation> activateVisitor = new MeterActivationModificationVisitor(this.metrologyConfigurationService.getDataModel());
-        this.activationChanges.forEach(activation ->
-                getMeterTimeLine(activation.getMeter(), this.meterTimeLines).adjust(activation, activateVisitor));
+        this.activationChanges.forEach(activation -> {
+                getMeterTimeLine(activation.getMeter(), this.meterTimeLines).adjust(activation, activateVisitor);
+                eventService.postEvent(EventType.METER_LINKED.topic(), new MeterTransitionWrapperImpl(activation.getMeter(), null)/*, activationStart.getLong()*/);
+            });
         this.usagePoint.touch();
         refreshMeterActivations();
 

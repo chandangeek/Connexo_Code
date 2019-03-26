@@ -88,6 +88,9 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
         LifecycleDates lifecycleDates = device.getLifecycleDates();
         Instant effectiveTimestamp = this.effectiveTimestampFrom(event);
         System.out.println("STATE WAS CHANGED!!!!!!!!!!!!!!!!");
+        System.out.println("EVENT = "+event.toString());
+        System.out.println("NEW STATE = "+newState.toString());
+
         switch (newState) {
             case IN_STOCK: {
                 // Initial getUpdater is not posted as an event

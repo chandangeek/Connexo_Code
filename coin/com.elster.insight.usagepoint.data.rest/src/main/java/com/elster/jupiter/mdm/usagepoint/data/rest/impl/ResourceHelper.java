@@ -85,7 +85,7 @@ public class ResourceHelper {
     private final UserService userService;
     private final ThreadPrincipalService threadPrincipalService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
-    private volatile EventService eventService;
+    private final EventService eventService;
 
     @Inject
     public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory,
@@ -334,6 +334,7 @@ public class ResourceHelper {
     public void performMeterActivations(UsagePointInfo info, UsagePoint usagePoint) {
         UsagePointMeterActivator linker = usagePoint.linkMeters();
         if (info.meterActivations != null && !info.meterActivations.isEmpty()) {
+            System.out.println("ACTIVATIONS NOT EMPTY!!!!!!!!!");
             info.meterActivations
                     .stream()
                     .filter(meterActivation -> meterActivation.meterRole != null && !Checks.is(meterActivation.meterRole.id)
@@ -343,13 +344,16 @@ public class ResourceHelper {
                         MeterRole meterRole = findMeterRoleOrThrowException(meterActivation.meterRole.id);
                         if (meterActivation.meter == null && !usagePoint.getMeterActivations().isEmpty()) {
                             validateUnlinkMeters(usagePoint, meterRole);
+                            System.out.println("CLEAR!!!!!!!!!");
                             linker.clear(meterRole);
                         } else if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name)
                                 .emptyOrOnlyWhiteSpace()) {
+                            System.out.println("REPLACE!!!!!!!!!");
                             replaceOrActivateMeter(linker, activationTime, meterActivation.meter.name, meterRole);
                         }
                     });
         } else {
+            System.out.println("ACTIVATIONS IS EMPTY!!!!!!!!!");
             usagePoint.getMeterActivations().forEach(meterActivation -> meterActivation.getMeterRole()
                     .ifPresent(meterRole -> {
                         validateUnlinkMeters(usagePoint, meterRole);
@@ -360,12 +364,9 @@ public class ResourceHelper {
     }
 
     private void replaceOrActivateMeter(UsagePointMeterActivator linker, Instant activationTime, String meterName, MeterRole meterRole) {
-        /* METER!!!!!!*/
         Meter meter = findMeterByNameOrThrowException(meterName);
         linker.clear(meterRole);
         linker.activate(activationTime, meter, meterRole);
-        System.out.println("POST EVENT LINK!!!!!!!!!!!!!!!!!!!!!!");
-        eventService.postEvent(EventType.METER_LINKED.topic(), meter);
     }
 
     private void validateUnlinkMeters(UsagePoint usagePoint, MeterRole meterRole) {

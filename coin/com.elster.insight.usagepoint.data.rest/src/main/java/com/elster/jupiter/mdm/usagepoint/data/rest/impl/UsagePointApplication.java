@@ -13,6 +13,7 @@ import com.elster.jupiter.cbo.I18N;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -126,6 +127,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile PropertySpecService propertySpecService;
     private volatile UsagePointService usagePointService;
     private volatile UserService userService;
+    private volatile EventService eventService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -205,6 +207,11 @@ public class UsagePointApplication extends Application implements TranslationKey
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference
@@ -459,6 +466,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(userService).to(UserService.class);
             bind(PurposeOutputsDataInfoFactory.class).to(PurposeOutputsDataInfoFactory.class);
             bind(UsagePointOutputReferenceCopier.class).to(UsagePointOutputReferenceCopier.class);
+            bind(eventService).to(EventService.class);
         }
     }
 }

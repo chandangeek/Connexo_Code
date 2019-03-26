@@ -8,6 +8,7 @@ import com.elster.jupiter.events.LocalEvent;
 
 import aQute.bnd.annotation.ConsumerType;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -34,6 +35,11 @@ public interface CurrentStateExtractor {
          * The name of the current state.
          */
         public String name;
+
+        /**
+         * The name of the current state.
+         */
+        public Instant timeEventToHappen;
     }
 
     /**
