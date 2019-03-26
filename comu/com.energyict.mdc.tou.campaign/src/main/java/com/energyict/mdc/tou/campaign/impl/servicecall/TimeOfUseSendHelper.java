@@ -71,9 +71,7 @@ public class TimeOfUseSendHelper {
                         .orElse(null);
         if (timeOfUseCampaign.getActivationOption().equals(TranslationKeys.IMMEDIATELY.getKey())) {
             if (!timeOfUseCampaignService.getActiveVerificationTask(device).isPresent()) {
-                serviceCall.log(LogLevel.SEVERE,
-                        thesaurus.getString(MessageSeeds.DEVICE_DOESNT_CONTAIN_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getKey(),
-                                MessageSeeds.DEVICE_DOESNT_CONTAIN_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getDefaultFormat()));
+                serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_DOESNT_CONTAIN_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG).format());
                 if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                     serviceCall.requestTransition(DefaultState.REJECTED);
                 }
@@ -119,8 +117,7 @@ public class TimeOfUseSendHelper {
                 }
             }
         } else {
-            serviceCall.log(LogLevel.SEVERE, thesaurus.getString(MessageSeeds.DEVICE_DOESNT_CONTAIN_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getKey(),
-                    MessageSeeds.DEVICE_DOESNT_CONTAIN_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getDefaultFormat()));
+            serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_DOESNT_CONTAIN_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG).format());
             if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                 serviceCall.requestTransition(DefaultState.REJECTED);
             }

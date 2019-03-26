@@ -16,7 +16,7 @@ public enum MessageSeeds implements MessageSeed {
     TOU_ITEM_WITH_DEVICE_ISNT_FOUND(4, "TimeOfUseItemWithDeviceIsntFound", "Time of use item with device {0} isn''t found."),
     CAMPAIGN_WITH_ID_ISNT_FOUND(5, "CampaignWithIdIsntFound", "Campaign with id {0} isn''t found."),
     NO_TOU_OPTIONS_ON_DEVICE_TYPE(6, "NoTouOptionsOnDeviceType", "Time of use options aren''t found on device type ''{0}''."),
-
+    CALENDAR_WITH_ID_ISNT_FOUND(7, "CalendarWithIdIsntFound", "Calendar with id {0} isn''t found."),
     ;
 
     private final int number;

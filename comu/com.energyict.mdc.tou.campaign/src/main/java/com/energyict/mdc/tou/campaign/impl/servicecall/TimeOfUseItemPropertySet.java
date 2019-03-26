@@ -9,12 +9,10 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 
 import javax.inject.Inject;
@@ -33,7 +31,7 @@ public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, 
 
     @Inject
     public TimeOfUseItemPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService,
-                                    CustomPropertySetService customPropertySetService, DeviceService deviceService,
+                                    CustomPropertySetService customPropertySetService,
                                     TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
@@ -48,7 +46,7 @@ public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, 
 
     @Override
     public String getName() {
-        return thesaurus.getFormat(TranslationKeys.TIME_OF_USE_CAMPAIGN_CPS).format();
+        return thesaurus.getFormat(TranslationKeys.TIME_OF_USE_ITEM_CPS).format();
     }
 
     @Override

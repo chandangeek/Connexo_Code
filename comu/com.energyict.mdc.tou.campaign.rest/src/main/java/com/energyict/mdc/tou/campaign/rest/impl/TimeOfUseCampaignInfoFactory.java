@@ -4,10 +4,15 @@
 
 package com.energyict.mdc.tou.campaign.rest.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
@@ -23,14 +28,22 @@ import static com.energyict.mdc.tou.campaign.rest.impl.RestUtil.getDeviceStatus;
 public class TimeOfUseCampaignInfoFactory {
 
     private final TimeOfUseCampaignService timeOfUseCampaignService;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final CalendarService calendarService;
+    private final ExceptionFactory exceptionFactory;
     private final Clock clock;
     private final Thesaurus thesaurus;
 
     @Inject
-    public TimeOfUseCampaignInfoFactory(TimeOfUseCampaignService timeOfUseCampaignService, Clock clock, Thesaurus thesaurus) {
+    public TimeOfUseCampaignInfoFactory(TimeOfUseCampaignService timeOfUseCampaignService, Clock clock, Thesaurus thesaurus,
+                                        DeviceConfigurationService deviceConfigurationService, CalendarService calendarService,
+                                        ExceptionFactory exceptionFactory) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.clock = clock;
         this.thesaurus = thesaurus;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.calendarService = calendarService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     public TimeOfUseCampaign build(TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
@@ -52,14 +65,18 @@ public class TimeOfUseCampaignInfoFactory {
             }
             activationStart = getToday(clock).plusSeconds(getSecondsInDays(1)).plusSeconds(activationStart.getEpochSecond());
         }
-        TimeOfUseCampaignBuilder timeOfUseCampaignBuilder = timeOfUseCampaignService.newTouCampaignBuilder(timeOfUseCampaignInfo.name,
-                ((Number) timeOfUseCampaignInfo.deviceType.id).longValue(), ((Number) timeOfUseCampaignInfo.calendar.id).longValue())
-                .addDeviceGroup(timeOfUseCampaignInfo.deviceGroup)
-                .addActivationOption(timeOfUseCampaignInfo.activationOption)
-                .addActivationDate(timeOfUseCampaignInfo.activationDate)
-                .addUpdateType(timeOfUseCampaignInfo.updateType)
-                .addValidationTimeout(timeOfUseCampaignInfo.validationTimeout)
-                .addActivationTimeBoundaries(activationStart, activationEnd);
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(((Number) timeOfUseCampaignInfo.deviceType.id).longValue())
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, timeOfUseCampaignInfo.deviceType.id));
+        Calendar calendar = calendarService.findCalendar(((Number) timeOfUseCampaignInfo.calendar.id).longValue())
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.CALENDAR_WITH_ID_ISNT_FOUND, timeOfUseCampaignInfo.calendar.id));
+        TimeOfUseCampaignBuilder timeOfUseCampaignBuilder = timeOfUseCampaignService
+                .newTouCampaignBuilder(timeOfUseCampaignInfo.name, deviceType, calendar)
+                .withDeviceGroup(timeOfUseCampaignInfo.deviceGroup)
+                .withActivationOption(timeOfUseCampaignInfo.activationOption)
+                .withActivationDate(timeOfUseCampaignInfo.activationDate)
+                .withUpdateType(timeOfUseCampaignInfo.updateType)
+                .withValidationTimeout(timeOfUseCampaignInfo.validationTimeout)
+                .withActivationTimeBoundaries(activationStart, activationEnd);
         return timeOfUseCampaignBuilder.create();
     }
 

@@ -12,7 +12,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
@@ -22,8 +21,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
-import com.energyict.mdc.tou.campaign.TimeOfUseItem;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -123,7 +121,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                             .isPresent()) {
                         serviceCallService.lockServiceCall(serviceCall.getId());
                         serviceCall.requestTransition(DefaultState.FAILED);
-                        timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.VERIFICATION_FAILED, LogLevel.INFO);
+                        timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.VERIFICATION_FAILED, LogLevel.WARNING);
                     }
                 }
             }
@@ -188,7 +186,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                             } else {
                                 serviceCallService.lockServiceCall(serviceCall.getId());
                                 serviceCall.requestTransition(DefaultState.FAILED);
-                                timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.VERIFICATION_FAILED_WRONG_CALENDAR, LogLevel.INFO);
+                                timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.VERIFICATION_FAILED_WRONG_CALENDAR, LogLevel.WARNING);
                             }
                         }
                     }
@@ -204,7 +202,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                 boolean planning = true;
                 TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignOptional.get();
                 Device device = comTaskExecution.getDevice();
-                TimeOfUseItem timeOfUseItem = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device).get();
+                TimeOfUseCampaignItem timeOfUseItem = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device).get();
                 ServiceCall serviceCall = timeOfUseItem.getServiceCall();
                 if (shouldCalendarBeInstalled(device)) {
                     if (plannedCalendarIsOnCampaign(device, timeOfUseCampaign)) {
@@ -296,7 +294,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
         } else {
             ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device).get().getServiceCall();
             serviceCallService.lockServiceCall(serviceCall.getId());
-            timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.ACTIVE_VERIFICATION_TASK_ISNT_FOUND, LogLevel.SEVERE);
+            timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.ACTIVE_VERIFICATION_TASK_ISNT_FOUND, LogLevel.WARNING);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
     }

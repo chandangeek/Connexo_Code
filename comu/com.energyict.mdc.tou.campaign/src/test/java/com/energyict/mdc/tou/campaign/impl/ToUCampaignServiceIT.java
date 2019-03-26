@@ -185,21 +185,19 @@ public class ToUCampaignServiceIT {
         Calendar calendar1 = makeCalendar("Cal01", "1");
         DeviceType deviceType1 = deviceConfigurationService.newDeviceType("Elster AS1440", deviceProtocolPluggableClass);
         String name = "toucamp-01";
-        long deviceType = deviceType1.getId();
         String deviceGroup = "Electro";
         Instant activationStart = Instant.ofEpochSecond(70000);
         Instant activationEnd = Instant.ofEpochSecond(75000);
-        long calendar = calendar1.getId();
         String activationOption = "immediately";
         String updateType = "fullCalendar";
         long timeValidation = 120;
-        TimeOfUseCampaign timeOfUseCampaign1 = timeOfUseCampaignService.newTouCampaignBuilder(name, deviceType, calendar)
-                .addActivationTimeBoundaries(activationStart, activationEnd)
-                .addDeviceGroup(deviceGroup)
-                .addActivationOption(activationOption)
-                .addActivationOption(activationOption)
-                .addUpdateType(updateType)
-                .addValidationTimeout(timeValidation)
+        TimeOfUseCampaign timeOfUseCampaign1 = timeOfUseCampaignService.newTouCampaignBuilder(name, deviceType1, calendar1)
+                .withActivationTimeBoundaries(activationStart, activationEnd)
+                .withDeviceGroup(deviceGroup)
+                .withActivationOption(activationOption)
+                .withActivationOption(activationOption)
+                .withUpdateType(updateType)
+                .withValidationTimeout(timeValidation)
                 .create();
         assertThat(timeOfUseCampaign1.getName()).isEqualTo(name);
         assertThat(timeOfUseCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);

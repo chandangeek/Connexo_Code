@@ -4,23 +4,19 @@
 
 package com.energyict.mdc.tou.campaign.rest.impl;
 
-import com.elster.jupiter.cbo.I18N;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import com.google.common.collect.ImmutableSet;
@@ -51,6 +47,7 @@ public class TimeOfUseApplication extends Application implements TranslationKeyP
     private volatile Thesaurus thesaurus;
     private volatile DeviceService deviceService;
     private volatile Clock clock;
+    private volatile CalendarService calendarService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -119,6 +116,11 @@ public class TimeOfUseApplication extends Application implements TranslationKeyP
         this.deviceService = deviceService;
     }
 
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -136,6 +138,7 @@ public class TimeOfUseApplication extends Application implements TranslationKeyP
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
+            bind(calendarService).to(CalendarService.class);
         }
     }
 }

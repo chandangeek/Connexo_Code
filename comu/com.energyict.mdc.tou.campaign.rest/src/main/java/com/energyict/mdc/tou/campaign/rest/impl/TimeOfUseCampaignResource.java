@@ -25,8 +25,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
-import com.energyict.mdc.tou.campaign.TimeOfUseItem;
 import com.energyict.mdc.tou.campaign.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -110,7 +110,7 @@ public class TimeOfUseCampaignResource {
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getToUCampaignDevices(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         List<String> states = filter.getStringList("status").stream().map(DefaultState::valueOf).map(DefaultState::getKey).collect(Collectors.toList());
-        QueryStream<? extends TimeOfUseItem> devices = timeOfUseCampaignService.streamDevicesInCampaigns().join(ServiceCall.class).join(ServiceCall.class).join(State.class)
+        QueryStream<? extends TimeOfUseCampaignItem> devices = timeOfUseCampaignService.streamDevicesInCampaigns().join(ServiceCall.class).join(ServiceCall.class).join(State.class)
                 .sorted(Order.ascending("device")).filter(Where.where("serviceCall.parent.id").isEqualTo(id));
         if (states.size() > 0) {
             devices.filter(Where.where("serviceCall.state.name").in(states));
@@ -139,7 +139,7 @@ public class TimeOfUseCampaignResource {
     public Response retryDevice(IdWithNameInfo id) {
         Device device = deviceService.findDeviceById(((Number) id.id).longValue())
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_WITH_ID_ISNT_FOUND, id));
-        TimeOfUseItem timeOfUseItem = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device)
+        TimeOfUseCampaignItem timeOfUseItem = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.TOU_ITEM_WITH_DEVICE_ISNT_FOUND, device));
         ServiceCall serviceCall = timeOfUseItem.getServiceCall();
         serviceCallService.lockServiceCall(serviceCall.getId());
@@ -155,7 +155,7 @@ public class TimeOfUseCampaignResource {
     public Response cancelDevice(IdWithNameInfo id) {
         Device device = deviceService.findDeviceById(((Number) id.id).longValue())
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, id));
-        TimeOfUseItem timeOfUseItem = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device)
+        TimeOfUseCampaignItem timeOfUseItem = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.TOU_ITEM_WITH_DEVICE_ISNT_FOUND, device));
         ServiceCall serviceCall = timeOfUseItem.getServiceCall();
         serviceCallService.lockServiceCall(serviceCall.getId());

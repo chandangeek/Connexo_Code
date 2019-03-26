@@ -28,7 +28,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
-import com.energyict.mdc.tou.campaign.TimeOfUseItem;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import java.time.Clock;
@@ -66,7 +66,7 @@ public class ToUCampaignHandlerTest {
     private LocalEvent event = mock(LocalEvent.class);
     private EventType eventType = mock(EventType.class);
     private ServiceCall serviceCall = mock(ServiceCall.class);
-    private TimeOfUseItem timeOfUseItem = mock(TimeOfUseItem.class);
+    private TimeOfUseCampaignItem timeOfUseItem = mock(TimeOfUseCampaignItem.class);
     private TimeOfUseCampaign timeOfUseCampaign = createMockCampaign("withoutActivation");
     private TimeOfUseCampaign timeOfUseCampaign2 = createMockCampaign("immediately");
     private TimeOfUseItemDomainExtension timeOfUseItemDomainExtension = mock(TimeOfUseItemDomainExtension.class);

@@ -131,6 +131,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                         .addTransition(DefaultState.REJECTED, DefaultState.FAILED)
                         .addTransition(DefaultState.FAILED, DefaultState.PENDING)
                         .addTransition(DefaultState.CANCELLED, DefaultState.PENDING)
+                        .addTransition(DefaultState.PENDING, DefaultState.REJECTED)
                         .create();
         }
     }

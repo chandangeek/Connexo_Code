@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.tou.campaign;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceType;
@@ -21,7 +22,7 @@ public interface TimeOfUseCampaignService {
 
     QueryStream<? extends TimeOfUseCampaign> streamAllCampaigns();
 
-    TimeOfUseCampaignBuilder newTouCampaignBuilder(String name, long typeId, long calendarId);
+    TimeOfUseCampaignBuilder newTouCampaignBuilder(String name, DeviceType deviceType, Calendar calendar);
 
     Optional<TimeOfUseCampaign> getCampaign(long id);
 
@@ -29,11 +30,11 @@ public interface TimeOfUseCampaignService {
 
     Optional<TimeOfUseCampaign> getCampaignOn(ComTaskExecution comTaskExecution);
 
-    QueryStream<? extends TimeOfUseItem> streamDevicesInCampaigns();
+    QueryStream<? extends TimeOfUseCampaignItem> streamDevicesInCampaigns();
 
     List<DeviceType> getDeviceTypesWithCalendars();
 
-    Optional<TimeOfUseItem> findActiveTimeOfUseItemByDevice(Device device);
+    Optional<TimeOfUseCampaignItem> findActiveTimeOfUseItemByDevice(Device device);
 
     Optional<TimeOfUseCampaign> findAndLockToUCampaignByIdAndVersion(long id, long version);
 

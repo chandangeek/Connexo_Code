@@ -5,10 +5,13 @@
 package com.energyict.mdc.tou.campaign.rest.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
@@ -31,12 +34,17 @@ public class TimeOfUseCampaignInfoFactoryTest {
 
     private static TimeOfUseCampaignService timeOfUseCampaignService = mock(TimeOfUseCampaignService.class);
     private static Clock clock = mock(Clock.class);
+    private static DeviceConfigurationService deviceConfigurationService = mock(DeviceConfigurationService.class);
+    private static CalendarService calendarService = mock(CalendarService.class);
     private static TimeOfUseCampaignInfoFactory timeOfUseCampaignInfoFactory;
     private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
 
+    private static ExceptionFactory exceptionFactory = mock(ExceptionFactory.class);
+
     @BeforeClass
     public static void setUp() {
-        timeOfUseCampaignInfoFactory = new TimeOfUseCampaignInfoFactory(timeOfUseCampaignService, clock, thesaurus);
+        timeOfUseCampaignInfoFactory = new TimeOfUseCampaignInfoFactory(timeOfUseCampaignService, clock, thesaurus,
+                deviceConfigurationService, calendarService, exceptionFactory);
     }
 
     @Test

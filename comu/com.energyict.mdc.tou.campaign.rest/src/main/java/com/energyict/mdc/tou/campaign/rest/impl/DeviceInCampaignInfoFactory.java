@@ -9,7 +9,6 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.tou.campaign.TimeOfUseItem;
 
 import javax.inject.Inject;
 

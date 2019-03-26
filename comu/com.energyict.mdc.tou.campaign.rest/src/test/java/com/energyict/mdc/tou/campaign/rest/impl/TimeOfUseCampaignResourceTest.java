@@ -17,7 +17,7 @@ import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
-import com.energyict.mdc.tou.campaign.TimeOfUseItem;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import com.jayway.jsonpath.JsonModel;
@@ -53,51 +53,51 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         when(timeOfUseCampaignService.streamAllCampaigns()).thenReturn(queryStream);
         String json = target("toucampaigns").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.touCampaigns[0].id")).isEqualTo(((Number)timeOfUseCampaign.id).intValue());
-        assertThat(jsonModel.<Number>get("$.touCampaigns[0].version")).isEqualTo(((Number)timeOfUseCampaign.version).intValue());
-        assertThat(jsonModel.<Number>get("$.touCampaigns[0].validationTimeout")).isEqualTo(((Number)timeOfUseCampaign.validationTimeout).intValue());
+        assertThat(jsonModel.<Number>get("$.touCampaigns[0].id")).isEqualTo(((Number) timeOfUseCampaign.id).intValue());
+        assertThat(jsonModel.<Number>get("$.touCampaigns[0].version")).isEqualTo(((Number) timeOfUseCampaign.version).intValue());
+        assertThat(jsonModel.<Number>get("$.touCampaigns[0].validationTimeout")).isEqualTo(((Number) timeOfUseCampaign.validationTimeout).intValue());
         assertThat(jsonModel.<String>get("$.touCampaigns[0].name")).isEqualTo(timeOfUseCampaign.name);
         assertThat(jsonModel.<String>get("$.touCampaigns[0].activationOption")).isEqualTo(timeOfUseCampaign.activationOption);
         assertThat(jsonModel.<String>get("$.touCampaigns[0].deviceGroup")).isEqualTo(timeOfUseCampaign.deviceGroup);
         assertThat(jsonModel.<String>get("$.touCampaigns[0].updateType")).isEqualTo(timeOfUseCampaign.updateType);
-        assertThat(jsonModel.<Number>get("$.touCampaigns[0].activationStart")).isEqualTo(((Number)timeOfUseCampaign.activationStart.toEpochMilli()).intValue());
-        assertThat(jsonModel.<Number>get("$.touCampaigns[0].activationEnd")).isEqualTo(((Number)timeOfUseCampaign.activationEnd.toEpochMilli()).intValue());
-        assertThat(jsonModel.<Number>get("$.touCampaigns[0].calendar.id")).isEqualTo(((Number)timeOfUseCampaign.calendar.id).intValue());
+        assertThat(jsonModel.<Number>get("$.touCampaigns[0].activationStart")).isEqualTo(((Number) timeOfUseCampaign.activationStart.toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.touCampaigns[0].activationEnd")).isEqualTo(((Number) timeOfUseCampaign.activationEnd.toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.touCampaigns[0].calendar.id")).isEqualTo(((Number) timeOfUseCampaign.calendar.id).intValue());
         assertThat(jsonModel.<String>get("$.touCampaigns[0].calendar.name")).isEqualTo(timeOfUseCampaign.calendar.name);
-        assertThat(jsonModel.<Number>get("$.touCampaigns[0].deviceType.id")).isEqualTo(((Number)timeOfUseCampaign.deviceType.id).intValue());
+        assertThat(jsonModel.<Number>get("$.touCampaigns[0].deviceType.id")).isEqualTo(((Number) timeOfUseCampaign.deviceType.id).intValue());
         assertThat(jsonModel.<String>get("$.touCampaigns[0].deviceType.name")).isEqualTo(timeOfUseCampaign.deviceType.name);
-        assertThat(jsonModel.<Number>get("$.touCampaigns[0].startedOn")).isEqualTo(((Number)timeOfUseCampaign.startedOn.toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.touCampaigns[0].startedOn")).isEqualTo(((Number) timeOfUseCampaign.startedOn.toEpochMilli()).intValue());
         assertNull(jsonModel.<Number>get("$.touCampaigns[0].finishedOn"));
         assertThat(jsonModel.<String>get("$.touCampaigns[0].status")).isEqualTo(timeOfUseCampaign.status);
     }
 
     @Test
     public void testGetToUCampaign() {
-        TimeOfUseCampaign timeOfUseCampaign = createMockCampaign();
+        TimeOfUseCampaign timeOfUseCampaign = createCampaignMock();
         when(timeOfUseCampaignService.getCampaign(timeOfUseCampaign.getId())).thenReturn(Optional.of(timeOfUseCampaign));
         String json = target("toucampaigns/3").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(((Number)timeOfUseCampaign.getId()).intValue());
-        assertThat(jsonModel.<Number>get("$.version")).isEqualTo(((Number)timeOfUseCampaign.getVersion()).intValue());
-        assertThat(jsonModel.<Number>get("$.validationTimeout")).isEqualTo(((Number)timeOfUseCampaign.getValidationTimeout()).intValue());
+        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(((Number) timeOfUseCampaign.getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.version")).isEqualTo(((Number) timeOfUseCampaign.getVersion()).intValue());
+        assertThat(jsonModel.<Number>get("$.validationTimeout")).isEqualTo(((Number) timeOfUseCampaign.getValidationTimeout()).intValue());
         assertThat(jsonModel.<String>get("$.name")).isEqualTo(timeOfUseCampaign.getName());
         assertThat(jsonModel.<String>get("$.activationOption")).isEqualTo(timeOfUseCampaign.getActivationOption());
         assertThat(jsonModel.<String>get("$.deviceGroup")).isEqualTo(timeOfUseCampaign.getDeviceGroup());
         assertThat(jsonModel.<String>get("$.updateType")).isEqualTo(timeOfUseCampaign.getUpdateType());
-        assertThat(jsonModel.<Number>get("$.activationStart")).isEqualTo(((Number)timeOfUseCampaign.getUploadPeriodStart().toEpochMilli()).intValue());
-        assertThat(jsonModel.<Number>get("$.activationEnd")).isEqualTo(((Number)timeOfUseCampaign.getUploadPeriodEnd().toEpochMilli()).intValue());
-        assertThat(jsonModel.<Number>get("$.calendar.id")).isEqualTo(((Number)timeOfUseCampaign.getCalendar().getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.activationStart")).isEqualTo(((Number) timeOfUseCampaign.getUploadPeriodStart().toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.activationEnd")).isEqualTo(((Number) timeOfUseCampaign.getUploadPeriodEnd().toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.calendar.id")).isEqualTo(((Number) timeOfUseCampaign.getCalendar().getId()).intValue());
         assertThat(jsonModel.<String>get("$.calendar.name")).isEqualTo(timeOfUseCampaign.getCalendar().getName());
-        assertThat(jsonModel.<Number>get("$.deviceType.id")).isEqualTo(((Number)timeOfUseCampaign.getDeviceType().getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.deviceType.id")).isEqualTo(((Number) timeOfUseCampaign.getDeviceType().getId()).intValue());
         assertThat(jsonModel.<String>get("$.deviceType.name")).isEqualTo(timeOfUseCampaign.getDeviceType().getName());
-        assertThat(jsonModel.<Number>get("$.startedOn")).isEqualTo(((Number)timeOfUseCampaign.getServiceCall().getCreationTime().toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.startedOn")).isEqualTo(((Number) timeOfUseCampaign.getServiceCall().getCreationTime().toEpochMilli()).intValue());
         assertNull(jsonModel.<Number>get("$.finishedOn"));
         assertThat(jsonModel.<String>get("$.status")).isEqualTo(timeOfUseCampaign.getServiceCall().getState().getDefaultFormat());
     }
 
     @Test
     public void testGetToUCampaignDevices() {
-        TimeOfUseCampaign timeOfUseCampaign = createMockCampaign();
+        TimeOfUseCampaign timeOfUseCampaign = createCampaignMock();
         when(timeOfUseCampaignService.getCampaign(timeOfUseCampaign.getId())).thenReturn(Optional.of(timeOfUseCampaign));
         DeviceInCampaignInfo deviceInCampaignInfo1 = new DeviceInCampaignInfo(new IdWithNameInfo(1L, "TestDevice1"),
                 "Pending", Instant.ofEpochSecond(3600), null);
@@ -108,45 +108,53 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         String json = target("toucampaigns/3/devices").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<DeviceInCampaignInfo>>get("$.devicesInCampaign").size() == 2);
-        assertThat(jsonModel.<Number>get("$.devicesInCampaign[0].device.id")).isEqualTo(((Number)deviceInCampaignInfo1.device.id).intValue());
+        assertThat(jsonModel.<Number>get("$.devicesInCampaign[0].device.id")).isEqualTo(((Number) deviceInCampaignInfo1.device.id).intValue());
         assertThat(jsonModel.<String>get("$.devicesInCampaign[0].device.name")).isEqualTo(deviceInCampaignInfo1.device.name);
-        assertThat(jsonModel.<Number>get("$.devicesInCampaign[0].startedOn")).isEqualTo(((Number)deviceInCampaignInfo1.startedOn.toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.devicesInCampaign[0].startedOn")).isEqualTo(((Number) deviceInCampaignInfo1.startedOn.toEpochMilli()).intValue());
         assertThat(jsonModel.<String>get("$.devicesInCampaign[0].status")).isEqualTo(deviceInCampaignInfo1.status);
         assertNull(jsonModel.<Number>get("$.devicesInCampaign[0].finishedOn"));
-        assertThat(jsonModel.<Number>get("$.devicesInCampaign[1].device.id")).isEqualTo(((Number)deviceInCampaignInfo2.device.id).intValue());
+        assertThat(jsonModel.<Number>get("$.devicesInCampaign[1].device.id")).isEqualTo(((Number) deviceInCampaignInfo2.device.id).intValue());
         assertThat(jsonModel.<String>get("$.devicesInCampaign[1].device.name")).isEqualTo(deviceInCampaignInfo2.device.name);
-        assertThat(jsonModel.<Number>get("$.devicesInCampaign[1].startedOn")).isEqualTo(((Number)deviceInCampaignInfo2.startedOn.toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.devicesInCampaign[1].startedOn")).isEqualTo(((Number) deviceInCampaignInfo2.startedOn.toEpochMilli()).intValue());
         assertThat(jsonModel.<String>get("$.devicesInCampaign[1].status")).isEqualTo(deviceInCampaignInfo2.status);
         assertNull(jsonModel.<Number>get("$.devicesInCampaign[1].finishedOn"));
     }
 
     @Test
     public void testCreateToUCampaign() throws Exception {
-        TimeOfUseCampaign timeOfUseCampaign = createMockCampaign();
+        TimeOfUseCampaign timeOfUseCampaign = createCampaignMock();
         TimeOfUseCampaignBuilder fakeBuilder = FakeBuilder.initBuilderStub(timeOfUseCampaign, TimeOfUseCampaignBuilder.class);
-        when(timeOfUseCampaignService.newTouCampaignBuilder("TestCampaign", 1L, 2L)).thenReturn(fakeBuilder);
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(50));
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(1L);
+        when(deviceType.getName()).thenReturn("TestDeviceType");
+        Calendar calendar = mock(Calendar.class);
+        when(calendar.getId()).thenReturn(2L);
+        when(calendar.getName()).thenReturn("TestCalendar");
+        when(deviceConfigurationService.findDeviceType(1L)).thenReturn(Optional.ofNullable(deviceType));
+        when(calendarService.findCalendar(2L)).thenReturn(Optional.ofNullable(calendar));
+        when(timeOfUseCampaignService.newTouCampaignBuilder("TestCampaign", deviceType, calendar)).thenReturn(fakeBuilder);
         Response response = target("toucampaigns/create").request().post(Entity.json(createCampaignInfo()));
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(((Number)timeOfUseCampaign.getId()).intValue());
-        assertThat(jsonModel.<Number>get("$.version")).isEqualTo(((Number)timeOfUseCampaign.getVersion()).intValue());
-        assertThat(jsonModel.<Number>get("$.validationTimeout")).isEqualTo(((Number)timeOfUseCampaign.getValidationTimeout()).intValue());
+        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(((Number) timeOfUseCampaign.getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.version")).isEqualTo(((Number) timeOfUseCampaign.getVersion()).intValue());
+        assertThat(jsonModel.<Number>get("$.validationTimeout")).isEqualTo(((Number) timeOfUseCampaign.getValidationTimeout()).intValue());
         assertThat(jsonModel.<String>get("$.name")).isEqualTo(timeOfUseCampaign.getName());
         assertThat(jsonModel.<String>get("$.activationOption")).isEqualTo(timeOfUseCampaign.getActivationOption());
         assertThat(jsonModel.<String>get("$.deviceGroup")).isEqualTo(timeOfUseCampaign.getDeviceGroup());
         assertThat(jsonModel.<String>get("$.updateType")).isEqualTo(timeOfUseCampaign.getUpdateType());
-        assertThat(jsonModel.<Number>get("$.activationStart")).isEqualTo(((Number)timeOfUseCampaign.getUploadPeriodStart().toEpochMilli()).intValue());
-        assertThat(jsonModel.<Number>get("$.activationEnd")).isEqualTo(((Number)timeOfUseCampaign.getUploadPeriodEnd().toEpochMilli()).intValue());
-        assertThat(jsonModel.<Number>get("$.calendar.id")).isEqualTo(((Number)timeOfUseCampaign.getCalendar().getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.activationStart")).isEqualTo(((Number) timeOfUseCampaign.getUploadPeriodStart().toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.activationEnd")).isEqualTo(((Number) timeOfUseCampaign.getUploadPeriodEnd().toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.calendar.id")).isEqualTo(((Number) timeOfUseCampaign.getCalendar().getId()).intValue());
         assertThat(jsonModel.<String>get("$.calendar.name")).isEqualTo(timeOfUseCampaign.getCalendar().getName());
-        assertThat(jsonModel.<Number>get("$.deviceType.id")).isEqualTo(((Number)timeOfUseCampaign.getDeviceType().getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.deviceType.id")).isEqualTo(((Number) timeOfUseCampaign.getDeviceType().getId()).intValue());
         assertThat(jsonModel.<String>get("$.deviceType.name")).isEqualTo(timeOfUseCampaign.getDeviceType().getName());
     }
 
     @Test
     public void testRetryDevice() throws Exception {
         Device device = mock(Device.class);
-        TimeOfUseItem timeOfUseItem = mock(TimeOfUseItem.class);
+        TimeOfUseCampaignItem timeOfUseItem = mock(TimeOfUseCampaignItem.class);
         when(timeOfUseItem.getDevice()).thenReturn(device);
         when(device.getId()).thenReturn(1L);
         when(device.getName()).thenReturn("TestDevice");
@@ -169,17 +177,17 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         idWithNameInfo.id = 1L;
         Response response = target("toucampaigns/retryDevice").request().put(Entity.json(idWithNameInfo));
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<Number>get("$.device.id")).isEqualTo(((Number)device.getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.device.id")).isEqualTo(((Number) device.getId()).intValue());
         assertThat(jsonModel.<String>get("$.device.name")).isEqualTo(device.getName());
         assertThat(jsonModel.<String>get("$.status")).isEqualTo(serviceCall.getState().getDefaultFormat());
-        assertThat(jsonModel.<Number>get("$.startedOn")).isEqualTo(((Number)serviceCall.getCreationTime().toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.startedOn")).isEqualTo(((Number) serviceCall.getCreationTime().toEpochMilli()).intValue());
         assertNull(jsonModel.<Number>get("$.finishedOn"));
     }
 
     @Test
     public void testCancelDevice() throws Exception {
         Device device = mock(Device.class);
-        TimeOfUseItem timeOfUseItem = mock(TimeOfUseItem.class);
+        TimeOfUseCampaignItem timeOfUseItem = mock(TimeOfUseCampaignItem.class);
         when(timeOfUseItem.getDevice()).thenReturn(device);
         when(device.getId()).thenReturn(1L);
         when(device.getName()).thenReturn("TestDevice");
@@ -202,17 +210,17 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         idWithNameInfo.id = 1L;
         Response response = target("toucampaigns/cancelDevice").request().put(Entity.json(idWithNameInfo));
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<Number>get("$.device.id")).isEqualTo(((Number)device.getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.device.id")).isEqualTo(((Number) device.getId()).intValue());
         assertThat(jsonModel.<String>get("$.device.name")).isEqualTo(device.getName());
         assertThat(jsonModel.<String>get("$.status")).isEqualTo(serviceCall.getState().getDefaultFormat());
-        assertThat(jsonModel.<Number>get("$.startedOn")).isEqualTo(((Number)serviceCall.getCreationTime().toEpochMilli()).intValue());
-        assertThat(jsonModel.<Number>get("$.finishedOn")).isEqualTo(((Number)serviceCall.getLastModificationTime().toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.startedOn")).isEqualTo(((Number) serviceCall.getCreationTime().toEpochMilli()).intValue());
+        assertThat(jsonModel.<Number>get("$.finishedOn")).isEqualTo(((Number) serviceCall.getLastModificationTime().toEpochMilli()).intValue());
     }
 
     @Test
     public void testEditCampaign() {
         TimeOfUseCampaignInfo timeOfUseCampaignInfo = createCampaignInfo();
-        TimeOfUseCampaign timeOfUseCampaign = createMockCampaign();
+        TimeOfUseCampaign timeOfUseCampaign = createCampaignMock();
         when(timeOfUseCampaignService.findAndLockToUCampaignByIdAndVersion(timeOfUseCampaignInfo.id, timeOfUseCampaignInfo.version))
                 .thenReturn(Optional.of(timeOfUseCampaign));
         when(timeOfUseCampaignService.getCampaign(3)).thenReturn(Optional.of(timeOfUseCampaign));
@@ -223,7 +231,7 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
     @Test
     public void testCancelCampaign() {
         TimeOfUseCampaignInfo timeOfUseCampaignInfo = createCampaignInfo();
-        TimeOfUseCampaign timeOfUseCampaign = createMockCampaign();
+        TimeOfUseCampaign timeOfUseCampaign = createCampaignMock();
         when(timeOfUseCampaignService.findAndLockToUCampaignByIdAndVersion(timeOfUseCampaignInfo.id, timeOfUseCampaignInfo.version))
                 .thenReturn(Optional.of(timeOfUseCampaign));
         when(timeOfUseCampaignService.getCampaign(3)).thenReturn(Optional.of(timeOfUseCampaign));
@@ -245,9 +253,9 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         when(timeOfUseCampaignService.getDeviceTypesWithCalendars()).thenReturn(deviceTypes);
         String json = target("toucampaigns/devicetypes").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.[0].id")).isEqualTo(((Number)deviceType1.getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.[0].id")).isEqualTo(((Number) deviceType1.getId()).intValue());
         assertThat(jsonModel.<String>get("$.[0].name")).isEqualTo(deviceType1.getName());
-        assertThat(jsonModel.<Number>get("$.[1].id")).isEqualTo(((Number)deviceType2.getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.[1].id")).isEqualTo(((Number) deviceType2.getId()).intValue());
         assertThat(jsonModel.<String>get("$.[1].name")).isEqualTo(deviceType2.getName());
     }
 
@@ -276,9 +284,9 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         when(deviceConfigurationService.findTimeOfUseOptions(deviceType1)).thenReturn(Optional.of(timeOfUseOptions));
         String json = target("toucampaigns/getoptions").queryParam("type", 1).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.deviceType.id")).isEqualTo(((Number)deviceType1.getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.deviceType.id")).isEqualTo(((Number) deviceType1.getId()).intValue());
         assertThat(jsonModel.<String>get("$.deviceType.name")).isEqualTo(deviceType1.getName());
-        assertThat(jsonModel.<Number>get("$.calendars[0].id")).isEqualTo(((Number)calendar.getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.calendars[0].id")).isEqualTo(((Number) calendar.getId()).intValue());
         assertThat(jsonModel.<String>get("$.calendars[0].name")).isEqualTo(allowedCalendar.getName());
         assertTrue(jsonModel.<Boolean>get("$.withActivationDate"));
         assertTrue(jsonModel.<Boolean>get("$.fullCalendar"));
@@ -305,7 +313,7 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         return timeOfUseCampaignInfo;
     }
 
-    private TimeOfUseCampaign createMockCampaign() {
+    private TimeOfUseCampaign createCampaignMock() {
         TimeOfUseCampaign timeOfUseCampaign = mock(TimeOfUseCampaign.class);
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(timeOfUseCampaign.getServiceCall()).thenReturn(serviceCall);

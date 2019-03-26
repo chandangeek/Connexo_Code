@@ -10,7 +10,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import java.util.Optional;
 
-public interface TimeOfUseItem {
+public interface TimeOfUseCampaignItem {
     Device getDevice();
 
     Optional<DeviceMessage> getDeviceMessage();
