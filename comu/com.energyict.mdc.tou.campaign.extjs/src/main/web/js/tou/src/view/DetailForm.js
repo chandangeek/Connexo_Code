@@ -116,11 +116,11 @@ Ext.define('Tou.view.DetailForm', {
                                     res = 'Immediately';
                                     break;
                                 case 'withoutActivation':
-                                    res = 'Without Activation';
+                                    res = 'Send without activation';
                                     break;
                                 case 'onDate':
                                     var dateValue = this.up('tou-campaigns-detail-form').getRecord().data.activationDate;
-                                    res = (!isNaN(dateValue) && parseInt(dateValue) == dateValue) ? Uni.DateTime.formatDateTimeShort(parseInt(dateValue)) : '-';
+                                    res = (!isNaN(dateValue) && parseInt(dateValue) == dateValue) ? 'On ' + Uni.DateTime.formatDateTimeLong(parseInt(dateValue)) : '-';
                                     break;
                                 default:
                                     res = Ext.String.htmlEncode(value);
