@@ -34,6 +34,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
@@ -113,6 +114,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile HsmEnergyService hsmEnergyService;
     private volatile SecurityManagementService securityManagementService;
 	private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeterConfigFactory meterConfigFactory;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -190,6 +192,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(HsmEnergyService.class).toInstance(hsmEnergyService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
 				bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+				bind(MeterConfigFactory.class).toInstance(meterConfigFactory);
             }
         };
     }
@@ -374,6 +377,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 			DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
 		this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
 	}
+
+    @Reference
+    public void setMeterConfigFactory(MeterConfigFactory meterConfigFactory) {
+        this.meterConfigFactory = meterConfigFactory;
+    }
 
     @Override
     public Layer getLayer() {

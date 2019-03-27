@@ -6,18 +6,15 @@ package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.inbound.soap.FailedMeterOperation;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
-import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -42,7 +39,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,10 +46,10 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
-        service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class, TranslationKeyProvider.class},
+        service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + ReplyMeterConfigWebService.NAME})
-public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, TranslationKeyProvider {
+public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider {
 
     private static final String COMPONENT_NAME = "SIM";
     private static final String NOUN = "MeterConfig";
@@ -134,23 +130,6 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     @Override
     public String getWebServiceName() {
         return ReplyMeterConfigWebService.NAME;
-    }
-
-    @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.SOAP;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.addAll(Arrays.asList(TranslationKeys.values()));
-        return translationKeys;
     }
 
     @Override

@@ -90,7 +90,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
 
     @Test
     public void testGetMeterConfigSuccessfully() throws Exception {
-        mockGeneralAttributes();
+        mockMeterConfigFactoryWithCas();
 
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -144,11 +144,17 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         assertThat(responseSimpleEndDeviceFunction.get(0).getMRID()).isEqualTo(DEVICE_CONFIG_ID);
         assertThat(responseSimpleEndDeviceFunction.get(0).getConfigID()).isEqualTo(DEVICE_CONFIGURATION_NAME);
 
-        assertThat(responseMeter.getMeterCustomAttributeSet()).hasSize(1);
+        assertThat(responseMeter.getMeterCustomAttributeSet()).hasSize(3);
         assertThat(responseMeter.getMeterCustomAttributeSet().get(0).getAttribute().get(0).getName()).isEqualTo(GA_NAME_1);
         assertThat(responseMeter.getMeterCustomAttributeSet().get(0).getAttribute().get(0).getValue()).isEqualTo(GA_VALUE_1);
         assertThat(responseMeter.getMeterCustomAttributeSet().get(0).getAttribute().get(1).getName()).isEqualTo(GA_NAME_2);
         assertThat(responseMeter.getMeterCustomAttributeSet().get(0).getAttribute().get(1).getValue()).isEqualTo(GA_VALUE_2);
+        assertThat(responseMeter.getMeterCustomAttributeSet().get(1).getId()).isEqualTo(NON_VERSIONED_CPS_ID);
+        assertThat(responseMeter.getMeterCustomAttributeSet().get(1).getAttribute().get(0).getName()).isEqualTo(CPS_NAME_1);
+        assertThat(responseMeter.getMeterCustomAttributeSet().get(1).getAttribute().get(0).getValue()).isEqualTo(CPS_VALUE_1);
+        assertThat(responseMeter.getMeterCustomAttributeSet().get(1).getAttribute().get(1).getName()).isEqualTo(CPS_NAME_2);
+        assertThat(responseMeter.getMeterCustomAttributeSet().get(1).getAttribute().get(1).getValue()).isEqualTo(CPS_VALUE_2);
+        assertThat(responseMeter.getMeterCustomAttributeSet().get(2).getId()).isEqualTo(VERSIONED_CPS_ID);
     }
 
     @Test
