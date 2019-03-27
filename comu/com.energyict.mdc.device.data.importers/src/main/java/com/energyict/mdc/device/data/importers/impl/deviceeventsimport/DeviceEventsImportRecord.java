@@ -6,10 +6,10 @@ import java.time.ZonedDateTime;
 
 public class DeviceEventsImportRecord extends FileImportRecord {
     private String logbookOBIScode = "";
-    private String eventCode = "";
+    private String eventCode = "0.0.0.0";
     private String description = "";
-    private String eventLogID = "";
-    private String deviceCode;
+    private String eventLogID = "0";
+    private String deviceCode = "0";
     private ZonedDateTime dateTime;
     private ZonedDateTime readingDate;
 

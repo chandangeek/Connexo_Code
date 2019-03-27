@@ -87,7 +87,7 @@ public class DeviceEventsImportLogger extends FileImportLoggerImpl<DeviceEventsI
         super.importLineFailed(data, exception);
         String device = data.getDeviceIdentifier();
         Long currentNumberOfEvents = eventsFailedToImport.get(device);
-        eventsFailedToImport.put(device, currentNumberOfEvents++);
+        eventsFailedToImport.put(device, 1 + (currentNumberOfEvents != null ? currentNumberOfEvents : 0));
     }
 
     @Override
@@ -95,16 +95,14 @@ public class DeviceEventsImportLogger extends FileImportLoggerImpl<DeviceEventsI
         super.importLineFinished(data);
         String device = data.getDeviceIdentifier();
         Long currentNumberOfEvents = eventsAddedSuccessfully.get(device);
-        eventsAddedSuccessfully.put(device, currentNumberOfEvents++);
+        eventsAddedSuccessfully.put(device, 1 + (currentNumberOfEvents != null ? currentNumberOfEvents : 0));
     }
 
-    private int getNumberOfSuccessEvents() {
-        return eventsAddedSuccessfully.size();
-    }
-
-    private long getNumberOfSuccessDevices() {
+    private long getNumberOfSuccessEvents() {
         return eventsAddedSuccessfully.values().stream().mapToLong(i -> i).sum();
     }
+
+    private int getNumberOfSuccessDevices() { return eventsAddedSuccessfully.size(); }
 
     private long getNumberOfFailedEvents() {
         return eventsFailedToImport.values().stream().mapToLong(i -> i).sum();

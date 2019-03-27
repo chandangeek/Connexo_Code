@@ -9,6 +9,7 @@ import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImport
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+
 import java.time.Instant;
 import java.util.Optional;
 
@@ -33,12 +34,10 @@ public class DeviceEventsImportProcessor extends AbstractDeviceDataFileImportPro
         Instant eventTime = data.getDateTime().toInstant();
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(data.getEventCode(), eventTime);
-        endDeviceEvent.setDescription(data.getDescription());
-        endDeviceEvent.setType(String.valueOf(device.getDeviceType().getId()));
         endDeviceEvent.setLogBookId(logBook.getId());
-        endDeviceEvent.setLogBookPosition(device.getLogBooks().indexOf(logBook));
-        endDeviceEvent.setIssuerId(String.valueOf(0));
-        endDeviceEvent.setIssuerTrackingId(String.valueOf(0));
+        endDeviceEvent.setDescription(data.getDescription());
+        endDeviceEvent.setType(data.getDeviceCode());
+        endDeviceEvent.setLogBookPosition(Integer.parseInt(data.getEventLogID()));
         meterReading.addEndDeviceEvent(endDeviceEvent);
         device.store(meterReading);
     }
