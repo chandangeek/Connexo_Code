@@ -6,6 +6,9 @@ package com.energyict.mdc.device.data.impl.gogo;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -18,6 +21,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -29,15 +33,20 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -62,10 +71,12 @@ import java.util.stream.Collectors;
                 "osgi.command.function=sendCalendarMessage",
                 "osgi.command.function=enableOutboundCommunication",
                 "osgi.command.function=devices",
-                "osgi.command.function=comTaskExecution"
+                "osgi.command.function=comTaskExecution",
+                "osgi.command.function=readMeter"
         }, immediate = true)
 @SuppressWarnings("unused")
 public class DeviceDataGoGoCommands {
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
@@ -73,6 +84,9 @@ public class DeviceDataGoGoCommands {
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DeviceService deviceService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile Clock clock;
+    private volatile MultiSenseHeadEndInterface headEndInterface;
+    private volatile MeteringService meteringService;
 
     private enum ScheduleFrequency {
         DAILY {
@@ -153,14 +167,12 @@ public class DeviceDataGoGoCommands {
 
     @SuppressWarnings("unused")
     public void sendCalendarMessage(long deviceId, long calendarId, String releaseDateString) {
-        this.threadPrincipalService.set(() -> "DeviceDataGoGoCommands");
-        Device device = this.findDeviceOrThrowException(deviceId);
-        Calendar calendar = this.findCalendarOrThrowException(calendarId);
-        Instant releaseDate = this.instantFromString(releaseDateString);
-        DeviceMessageId deviceMessageId = DeviceMessageId.ACTIVITY_CALENDER_SEND;
-        DeviceMessageSpec deviceMessageSpec = this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).get();
-        try (TransactionContext context = this.transactionService.getContext()) {
-
+        runInTransaction(() -> {
+            Device device = this.findDeviceOrThrowException(deviceId);
+            Calendar calendar = this.findCalendarOrThrowException(calendarId);
+            Instant releaseDate = this.instantFromString(releaseDateString);
+            DeviceMessageId deviceMessageId = DeviceMessageId.ACTIVITY_CALENDER_SEND;
+            DeviceMessageSpec deviceMessageSpec = this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).get();
             //Find the message attribute of type 'String' without any possible values. This is the 'activityCalendarName' attribute.
             PropertySpec activityCalendarNamePropertySpec = deviceMessageSpec
                     .getPropertySpecs()
@@ -189,10 +201,7 @@ public class DeviceDataGoGoCommands {
                                     calendar)
                             .add();
             System.out.println("message created with id " + message.getId());
-            context.commit();
-        } finally {
-            this.threadPrincipalService.clear();
-        }
+        });
     }
 
     private Predicate<PropertySpec> isStringPropertySpecWithoutPossibleValues() {
@@ -252,6 +261,21 @@ public class DeviceDataGoGoCommands {
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
+    public void setHeadEndInterface(MultiSenseHeadEndInterface headEndInterface) {
+        this.headEndInterface = headEndInterface;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     private static class EnableDailyCommunicationTransaction {
@@ -325,5 +349,49 @@ public class DeviceDataGoGoCommands {
 
     private String description(ComTaskExecution comTaskExecution) {
         return "Status : " + comTaskExecution.getStatus();
+    }
+
+    public void readMeter() {
+        System.out.println("usage                     :    readMeter <meter_name> <reading_type_MRID_list> [<date_for_read>]");
+        System.out.println("meter_name                :    Must be string. If has numeric format, just enclose the name in quotes.");
+        System.out.println("reading_type_MRID_list    :    A comma-separated list of MRIDs, like 0.0.7.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0,0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0");
+        System.out.println("date_for_read             :    Optional date/time to schedule meter read to, formatted yyyyMMddHHmmss");
+    }
+
+    public void readMeter(String name, String readingTypes) {
+        runInTransaction(() -> readMeter(name, readingTypes, clock.instant()));
+    }
+
+    public void readMeter(String name, String readingTypes, String timestamp) {
+        Instant instant = LocalDateTime.from(DATE_TIME_FORMAT.parse(timestamp)).atZone(ZoneId.systemDefault()).toInstant();
+        runInTransaction(() -> readMeter(name, readingTypes, instant));
+    }
+
+    private void runInTransaction(Runnable runnable) {
+        threadPrincipalService.set(() -> "DeviceDataGoGoCommands");
+        try (TransactionContext context = transactionService.getContext()) {
+            runnable.run();
+            context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    private void readMeter(String name, String readingTypesString, Instant timestamp) {
+        Meter meter = meteringService.findMeterByName(name)
+                .orElseThrow(() -> new NoSuchElementException("Meter with name '" + name + "' does not exist."));
+        List<String> mrids = Arrays.stream(readingTypesString.split(",")).distinct().collect(Collectors.toList());
+        List<ReadingType> readingTypes = meteringService.findReadingTypes(mrids);
+        if (readingTypes.size() < mrids.size()) {
+            Set<String> found = readingTypes.stream()
+                    .map(ReadingType::getMRID)
+                    .collect(Collectors.toSet());
+            String unfound = mrids.stream()
+                    .filter(mrid -> !found.contains(mrid))
+                    .collect(Collectors.joining(","));
+            throw new NoSuchElementException("Following reading types are not found in system: " + unfound);
+        }
+        headEndInterface.scheduleMeterRead(meter, readingTypes, timestamp);
+        System.out.println("Meter read is scheduled.");
     }
 }

@@ -8,19 +8,14 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -30,24 +25,33 @@ import java.util.Set;
 
 public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, TimeOfUseItemDomainExtension> {
 
-    public static final String CUSTOM_PROPERTY_SET_NAME = "TimeOfUseItemPropertySet";
+    public static final String CUSTOM_PROPERTY_SET_ID = TimeOfUseItemDomainExtension.class.getName();
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
     private volatile DeviceService deviceService;
+    private volatile DataModel dataModel;
+    private volatile TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
 
     @Inject
     public TimeOfUseItemPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService,
-                                    CustomPropertySetService customPropertySetService, DeviceService deviceService) {
+                                    CustomPropertySetService customPropertySetService, DeviceService deviceService,
+                                    DataModel dataModel, TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.deviceService = deviceService;
+        this.timeOfUseCampaignService = timeOfUseCampaignService;
         customPropertySetService.addCustomPropertySet(this);
     }
 
     @Override
+    public String getId() {
+        return CUSTOM_PROPERTY_SET_ID;
+    }
+
+    @Override
     public String getName() {
-        return TimeOfUseItemPropertySet.class.getSimpleName();
+        return thesaurus.getFormat(TranslationKeys.TIME_OF_USE_CAMPAIGN_CPS).format();
     }
 
     @Override
@@ -62,7 +66,7 @@ public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, 
 
     @Override
     public PersistenceSupport<ServiceCall, TimeOfUseItemDomainExtension> getPersistenceSupport() {
-        return new TimeOfUseItemPersistenceSupport();
+        return new TimeOfUseItemPersistenceSupport(timeOfUseCampaignService);
     }
 
     @Override

@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-@ProviderType
 public class UniqueNameValidator implements ConstraintValidator<UniqueName, TimeOfUseCampaign> {
     private String message;
     private final TimeOfUseCampaignService timeOfUseCampaignService;

@@ -7,6 +7,9 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.rest.AuditInfoFactory;
+import com.elster.jupiter.audit.rest.impl.AuditInfoFactoryImpl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
@@ -270,21 +273,21 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     CrlRequestService crlRequestService;
     @Mock
     HsmEnergyService hsmEnergyService;
+    @Mock
+    private CommandRuleService cmdRuleService;
+    @Mock
+    MeteringZoneService meteringZoneService;
+    @Mock
+    AuditService auditService;
     PropertyValueInfoService propertyValueInfoService;
     MdcPropertyUtils mdcPropertyUtils;
     SecurityAccessorResourceHelper securityAccessorResourceHelper;
     SecurityAccessorInfoFactory securityAccessorInfoFactory;
     TrustStoreValuesProvider trustStoreValuesProvider;
     AliasSearchFilterFactory aliasSearchFilterFactory;
-
-    protected ChannelInfoFactory channelInfoFactory;
+    ChannelInfoFactory channelInfoFactory;
     ReadingTypeInfoFactory readingTypeInfoFactory;
-
-    @Mock
-    private CommandRuleService cmdRuleService;
-
-    @Mock
-    MeteringZoneService meteringZoneService;
+    AuditInfoFactory auditInfoFactory;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -413,6 +416,9 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setAliasSearchFilterFactory(aliasSearchFilterFactory);
         application.setCommandRuleService(cmdRuleService);
         application.setMeteringZoneService(meteringZoneService);
+        application.setAuditService(auditService);
+        auditInfoFactory = new AuditInfoFactoryImpl();
+        application.setAuditInfoFactory(auditInfoFactory);
         return application;
     }
 

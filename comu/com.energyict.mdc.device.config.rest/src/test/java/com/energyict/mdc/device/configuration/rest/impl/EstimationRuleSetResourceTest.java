@@ -143,6 +143,24 @@ public class EstimationRuleSetResourceTest extends DeviceConfigurationApplicatio
     }
 
     @Test
+    public void testChangeEstimationRuleSetStatus() {
+        EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
+        doReturn(Optional.of(estimationRuleSet)).when(estimationService).getEstimationRuleSet(13L);
+        doReturn(Optional.of(estimationRuleSet)).when(estimationService).findAndLockEstimationRuleSet(13L, 1L);
+
+        EstimationRuleSetRefInfo info = new EstimationRuleSetRefInfo();
+        info.id = 13L;
+        info.version = 1L;
+        info.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+        info.isEstimationRuleSetActive = true;
+
+        Response response = target("/devicetypes/1003/deviceconfigurations/1003/estimationrulesets/13/status").request().method("PUT", Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Status.OK.getStatusCode());
+        verify(deviceConfiguration).setEstimationRuleSetStatus(estimationRuleSet, true);
+    }
+
+    @Test
     public void testDeleteEstimationRuleSetBadVersion() {
         EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
         doReturn(Optional.of(estimationRuleSet)).when(estimationService).getEstimationRuleSet(13L);
@@ -168,8 +186,8 @@ public class EstimationRuleSetResourceTest extends DeviceConfigurationApplicatio
         
         when(deviceConfiguration.getEstimationRuleSets()).thenReturn(Arrays.asList(ruleSet1, ruleSet2));
         
-        EstimationRuleSetRefInfo ruleSetInfo1 = new EstimationRuleSetRefInfo(ruleSet1, deviceConfiguration);
-        EstimationRuleSetRefInfo ruleSetInfo2 = new EstimationRuleSetRefInfo(ruleSet2, deviceConfiguration);
+        EstimationRuleSetRefInfo ruleSetInfo1 = new EstimationRuleSetRefInfo(ruleSet1, deviceConfiguration, false);
+        EstimationRuleSetRefInfo ruleSetInfo2 = new EstimationRuleSetRefInfo(ruleSet2, deviceConfiguration, true);
         EstimationRuleSetReorderInfo info = new EstimationRuleSetReorderInfo();
         info.ruleSets = Arrays.asList(ruleSetInfo2, ruleSetInfo1);
         info.parent = new DeviceConfigurationInfo(deviceConfiguration);

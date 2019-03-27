@@ -10,6 +10,7 @@ import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.common.collect.Range;
@@ -61,6 +62,21 @@ public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetR
     @Override
     public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
         return !deviceConfigurationService.findDeviceConfigurationsForValidationRuleSet(ruleset.getId()).isEmpty();
+    }
+
+    @Override
+    public boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceId) {
+        Optional<Device> device = deviceService.findDeviceById(deviceId);
+        if (device.isPresent()) {
+            long deviceConfigId = device.get().getDeviceConfiguration().getId();
+            return deviceConfigurationService.isValidationRuleSetActiveOnDeviceConfig(validationRuleSetId, deviceConfigId);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canHandleRuleSetStatus() {
+        return true;
     }
 
     private boolean hasMdcMeter(Optional<Meter> koreMeter) {

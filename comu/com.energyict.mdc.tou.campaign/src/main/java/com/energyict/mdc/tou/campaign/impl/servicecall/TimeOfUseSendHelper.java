@@ -71,8 +71,12 @@ public class TimeOfUseSendHelper {
                         .orElse(null);
         if (timeOfUseCampaign.getActivationOption().equals(TranslationKeys.IMMEDIATELY.getKey())) {
             if (!timeOfUseCampaignService.getActiveVerificationTask(device).isPresent()) {
-                serviceCall.log(LogLevel.SEVERE, thesaurus.getString(MessageSeeds.DEVICE_NOT_CONTAINS_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getKey(), MessageSeeds.DEVICE_NOT_CONTAINS_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getDefaultFormat()));
-                timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.REJECTED);
+                serviceCall.log(LogLevel.SEVERE,
+                        thesaurus.getString(MessageSeeds.DEVICE_DOESNT_CONTAIN_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getKey(),
+                                MessageSeeds.DEVICE_DOESNT_CONTAIN_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getDefaultFormat()));
+                if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
+                    serviceCall.requestTransition(DefaultState.REJECTED);
+                }
                 return;
             }
         }
@@ -104,15 +108,22 @@ public class TimeOfUseSendHelper {
                 TimeOfUseItemDomainExtension extension = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get();
                 extension.setDeviceMessage(deviceMessage);
                 serviceCall.update(extension);
-                timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.PENDING);
+                if (serviceCall.canTransitionTo(DefaultState.PENDING)) {
+                    serviceCall.requestTransition(DefaultState.PENDING);
+                }
 
             } else {
                 serviceCall.log(LogLevel.SEVERE, thesaurus.getString(MessageSeeds.MISSING_CONNECTION_TASKS.getKey(), MessageSeeds.MISSING_CONNECTION_TASKS.getDefaultFormat()));
-                timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.REJECTED);
+                if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
+                    serviceCall.requestTransition(DefaultState.REJECTED);
+                }
             }
         } else {
-            serviceCall.log(LogLevel.SEVERE, thesaurus.getString(MessageSeeds.DEVICE_NOT_CONTAINS_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getKey(), MessageSeeds.DEVICE_NOT_CONTAINS_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getDefaultFormat()));
-            timeOfUseCampaignService.changeServiceCallStatus(device, DefaultState.REJECTED);
+            serviceCall.log(LogLevel.SEVERE, thesaurus.getString(MessageSeeds.DEVICE_DOESNT_CONTAIN_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getKey(),
+                    MessageSeeds.DEVICE_DOESNT_CONTAIN_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getDefaultFormat()));
+            if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
+                serviceCall.requestTransition(DefaultState.REJECTED);
+            }
         }
     }
 

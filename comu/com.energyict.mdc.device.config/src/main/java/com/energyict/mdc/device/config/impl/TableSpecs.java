@@ -746,6 +746,8 @@ public enum TableSpecs {
                             .conversion(NUMBER2LONG)
                             .map("deviceConfigurationId")
                             .add();
+
+            table.column("IS_RULE_SET_ACTIVE").number().installValue("0").notNull().conversion(NUMBER2BOOLEAN).map("isRuleSetActive").since(version(10, 6)).add();
             table.setJournalTableName("DTC_DEVCFGVALRULESETUSAGEJRNL");
             table.addAuditColumns();
 
@@ -783,6 +785,15 @@ public enum TableSpecs {
                     .conversion(NUMBER2INT)
                     .map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.POSITION.fieldName())
                     .add();
+            table.column("IS_RULE_SET_ACTIVE")
+                    .number().installValue("0")
+                    .notNull()
+                    .conversion(NUMBER2BOOLEAN)
+                    .map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.IS_RULE_SET_ACTIVE.fieldName())
+                    .since(version(10, 6))
+                    .add();
+
+
             table.setJournalTableName(name() + "JRNL");
             table.addAuditColumns();
 

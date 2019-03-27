@@ -31,11 +31,6 @@ public class DeviceLoadProfileNextReadingImporterFactory extends AbstractDeviceD
     public DeviceLoadProfileNextReadingImporterFactory() {
     }
 
-//    @Inject
-//    public DeviceLoadProfileNextReadingImporterFactory(DeviceDataImporterContext context) {
-//        setDeviceDataImporterContext(context);
-//    }
-
     @Inject
     public DeviceLoadProfileNextReadingImporterFactory(DeviceDataImporterContext context) {
 
