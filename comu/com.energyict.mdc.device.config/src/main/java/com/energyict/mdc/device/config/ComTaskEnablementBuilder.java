@@ -72,11 +72,14 @@ public interface ComTaskEnablementBuilder {
      */
     ComTaskEnablementBuilder setConnectionFunction(ConnectionFunction connectionFunction);
 
+    ComTaskEnablementBuilder setMaxNumberOfTries(int maxNumberOfTries);
     /**
      * Completes the building process, i.e. enables the {@link com.energyict.mdc.tasks.ComTask}
      * on the {@link com.energyict.mdc.device.config.DeviceConfiguration}.
      *
      * @return The ComTaskEnablement
+     *
+     *
      */
     ComTaskEnablement add();
 }

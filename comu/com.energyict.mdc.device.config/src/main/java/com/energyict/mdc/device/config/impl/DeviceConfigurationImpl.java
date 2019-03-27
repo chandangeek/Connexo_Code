@@ -1810,6 +1810,13 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
 
         @Override
+        public ComTaskEnablementBuilder setMaxNumberOfTries(int maxNumberOfTries) {
+            this.mode.verify();
+            this.underConstruction.setMaxNumberOfTries(maxNumberOfTries);
+            return this;
+        }
+
+        @Override
         public ComTaskEnablementBuilder setConnectionFunction(ConnectionFunction connectionFunction) {
             this.mode.verify();
             this.underConstruction.setConnectionFunction(connectionFunction);
