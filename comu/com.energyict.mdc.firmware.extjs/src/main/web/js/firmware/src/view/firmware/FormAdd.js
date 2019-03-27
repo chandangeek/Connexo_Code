@@ -191,8 +191,17 @@ Ext.define('Fwc.view.firmware.FormAdd', {
             proxy.setUrl(deviceTypeId);
             proxy.setExtraParam('filter', Ext.encode([{ value: storeType, property: 'firmwareType' }]));
             store.load(function (records) {
+                 var combobox = me.down('#' + cbxId);
                  if (!Ext.isEmpty(records)) {
-                       me.down('#' + cbxId).bindStore(store);
+                       combobox.bindStore(store);
+                 }else{
+                       combobox.hide();
+                       combobox.nextSibling('uni-default-button').hide();
+                       combobox.up('fieldcontainer').add({
+                                                      xtype: 'displayfield',
+                                                      value: 'There are no firmwares files of this type uploaded to the device type',
+                                                      fieldStyle: 'color: red'
+                                                   });
                  }
             });
         }
