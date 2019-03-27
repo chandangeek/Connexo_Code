@@ -6,6 +6,7 @@ Ext.define('Fwc.store.CommunicationFirmwareDeps', {
     extend: 'Uni.data.store.Filterable',
     model: 'Fwc.model.FirmwareCommunicationDep',
     autoLoad: false,
+    remoteFilter: false,
     proxy: {
         type: 'rest',
         urlTpl: '/api/fwc/field/devicetypes/{deviceTypeId}/firmwares',
