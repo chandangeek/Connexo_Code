@@ -10,6 +10,7 @@ import com.energyict.mdc.device.lifecycle.impl.MicroCategoryTranslationKey;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheck;
 
 import javax.inject.Inject;
+import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -29,17 +30,17 @@ public abstract class TranslatableServerMicroCheck implements ExecutableMicroChe
 
     @Override
     public String getName() {
-        return this.thesaurus.getString(MicroCheckTranslations.NAME_PREFIX + getKey(), getKey());
+        return MessageFormat.format(thesaurus.getString(MicroCheckTranslations.NAME_PREFIX + getKey(), getKey()), new Object[0]);
     }
 
     @Override
     public String getDescription() {
-        return this.thesaurus.getString(MicroCheckTranslations.DESCRIPTION_PREFIX + getKey(), getKey());
+        return MessageFormat.format(thesaurus.getString(MicroCheckTranslations.DESCRIPTION_PREFIX + getKey(), getKey()), new Object[0]);
     }
 
     @Override
     public String getCategoryName() {
-        return this.thesaurus.getString(MicroCategoryTranslationKey.Keys.NAME_PREFIX + getCategory(), getCategory());
+        return MessageFormat.format(thesaurus.getString(MicroCategoryTranslationKey.Keys.NAME_PREFIX + getCategory(), getCategory()), new Object[0]);
     }
 
     @Override
@@ -55,6 +56,6 @@ public abstract class TranslatableServerMicroCheck implements ExecutableMicroChe
     }
 
     protected Optional<ExecutableMicroCheckViolation> fail(MessageSeed failMessage, Object... args) {
-        return Optional.of(new ExecutableMicroCheckViolation(this, this.thesaurus.getFormat(failMessage).format(args)));
+        return Optional.of(new ExecutableMicroCheckViolation(this, this.thesaurus.getSimpleFormat(failMessage).format(args)));
     }
 }

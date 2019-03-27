@@ -55,6 +55,6 @@ public abstract class ConsolidatedServerMicroCheck implements ExecutableMicroChe
     }
 
     protected Optional<ExecutableMicroCheckViolation> fail(MessageSeed failMessage, Object... args) {
-        return Optional.of(new ExecutableMicroCheckViolation(this, this.thesaurus.getFormat(failMessage).format(args)));
+        return Optional.of(new ExecutableMicroCheckViolation(this, this.thesaurus.getSimpleFormat(failMessage).format(args)));
     }
 }
