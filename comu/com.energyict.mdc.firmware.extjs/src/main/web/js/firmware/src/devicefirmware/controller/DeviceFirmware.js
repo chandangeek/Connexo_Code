@@ -185,12 +185,21 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                             }
                             errorsArr.push({id: errorId, msg: error.msg});
                         });
-                        if (canFurtherUpload){
-                            confirmationWindow.addItem('Some firmware version check have been unsuccessful:', '-10 0');
-                            Ext.each(errorsArr, function (error) {
-                                confirmationWindow.addItem('<b>' + error['id'] + '</b>', '-10 0');
-                                confirmationWindow.addItem('-' + error['msg'], '-10 10');
+                        if (canFurtherUpload && errorsArr && errorsArr.length){
+                           var fieldContainer = Ext.create('Ext.form.FieldContainer');
+                           var htmlText = 'Some firmware version check have been unsuccessful:<br><br>';
+                           Ext.each(errorsArr, function (error) {
+                                htmlText += ('<b>' + error['id'] + '</b><br><br>');
+                                htmlText += (' -' + error['msg'] + '<br><br>');
+                           });
+                           fieldContainer.add({
+                                xtype: 'displayfield',
+                                htmlEncode: false,
+                                itemId: 'errorsText',
+                                value: htmlText,
+                                padding: '0 50'
                             });
+                            confirmationWindow.insert(1, fieldContainer);
                             confirmationWindow.show({
                                   title: 'Upload firmware?',
                             });
