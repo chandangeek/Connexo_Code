@@ -29,6 +29,8 @@ import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.security.Privileges;
 
+import com.google.common.collect.Range;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -41,6 +43,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -173,9 +176,10 @@ public class TimeOfUseCampaignResource {
                 .orElseThrow(conflictFactory.contextDependentConflictOn(timeOfUseCampaignInfo.name)
                         .withActualVersion(() -> getCurrentCampaignVersion(timeOfUseCampaignInfo.id))
                         .supplier());
+        Range<Instant> timeRange = timeOfUseCampaignInfoFactory.retrieveRealUploadRange(timeOfUseCampaignInfo);
         timeOfUseCampaign.setName(timeOfUseCampaignInfo.name);
-        timeOfUseCampaign.setUploadPeriodStart(timeOfUseCampaignInfo.activationStart);
-        timeOfUseCampaign.setUploadPeriodEnd(timeOfUseCampaignInfo.activationEnd);
+        timeOfUseCampaign.setUploadPeriodStart(timeRange.lowerEndpoint());
+        timeOfUseCampaign.setUploadPeriodEnd(timeRange.upperEndpoint());
         timeOfUseCampaign.update();
         return Response.ok(timeOfUseCampaignInfoFactory.from(timeOfUseCampaign)).build();
     }

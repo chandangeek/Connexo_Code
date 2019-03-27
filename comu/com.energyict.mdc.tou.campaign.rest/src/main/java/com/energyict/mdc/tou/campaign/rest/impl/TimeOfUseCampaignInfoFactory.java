@@ -17,6 +17,8 @@ import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
@@ -47,24 +49,7 @@ public class TimeOfUseCampaignInfoFactory {
     }
 
     public TimeOfUseCampaign build(TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
-        Instant activationStart = timeOfUseCampaignInfo.activationStart;
-        Instant activationEnd = timeOfUseCampaignInfo.activationEnd;
-        if (isForToday(activationStart)) {
-            if (activationStart.isAfter(activationEnd)) {
-                activationEnd = getToday(clock).plusSeconds(getSecondsInDays(1)).plusSeconds(activationEnd.getEpochSecond());
-            } else {
-                activationEnd = getToday(clock).plusSeconds(activationEnd.getEpochSecond());
-            }
-            activationStart = getToday(clock).plusSeconds(activationStart.getEpochSecond());
-
-        } else {
-            if (activationStart.isAfter(activationEnd)) {
-                activationEnd = getToday(clock).plusSeconds(getSecondsInDays(2)).plusSeconds(activationEnd.getEpochSecond());
-            } else {
-                activationEnd = getToday(clock).plusSeconds(getSecondsInDays(1)).plusSeconds(activationEnd.getEpochSecond());
-            }
-            activationStart = getToday(clock).plusSeconds(getSecondsInDays(1)).plusSeconds(activationStart.getEpochSecond());
-        }
+        Range<Instant> timeFrame = retrieveRealUploadRange(timeOfUseCampaignInfo);
         DeviceType deviceType = deviceConfigurationService.findDeviceType(((Number) timeOfUseCampaignInfo.deviceType.id).longValue())
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, timeOfUseCampaignInfo.deviceType.id));
         Calendar calendar = calendarService.findCalendar(((Number) timeOfUseCampaignInfo.calendar.id).longValue())
@@ -76,7 +61,7 @@ public class TimeOfUseCampaignInfoFactory {
                 .withActivationDate(timeOfUseCampaignInfo.activationDate)
                 .withUpdateType(timeOfUseCampaignInfo.updateType)
                 .withValidationTimeout(timeOfUseCampaignInfo.validationTimeout)
-                .withActivationTimeBoundaries(activationStart, activationEnd);
+                .withActivationTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint());
         return timeOfUseCampaignBuilder.create();
     }
 
@@ -127,5 +112,27 @@ public class TimeOfUseCampaignInfoFactory {
 
     public static long getSecondsInDays(int days) {
         return days * 86400;
+    }
+
+    public Range<Instant> retrieveRealUploadRange(TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
+        Instant activationStart = timeOfUseCampaignInfo.activationStart;
+        Instant activationEnd = timeOfUseCampaignInfo.activationEnd;
+        if (isForToday(activationStart)) {
+            if (activationStart.isAfter(activationEnd)) {
+                activationEnd = getToday(clock).plusSeconds(getSecondsInDays(1)).plusSeconds(activationEnd.getEpochSecond());
+            } else {
+                activationEnd = getToday(clock).plusSeconds(activationEnd.getEpochSecond());
+            }
+            activationStart = getToday(clock).plusSeconds(activationStart.getEpochSecond());
+
+        } else {
+            if (activationStart.isAfter(activationEnd)) {
+                activationEnd = getToday(clock).plusSeconds(getSecondsInDays(2)).plusSeconds(activationEnd.getEpochSecond());
+            } else {
+                activationEnd = getToday(clock).plusSeconds(getSecondsInDays(1)).plusSeconds(activationEnd.getEpochSecond());
+            }
+            activationStart = getToday(clock).plusSeconds(getSecondsInDays(1)).plusSeconds(activationStart.getEpochSecond());
+        }
+        return Range.closed(activationStart, activationEnd);
     }
 }
