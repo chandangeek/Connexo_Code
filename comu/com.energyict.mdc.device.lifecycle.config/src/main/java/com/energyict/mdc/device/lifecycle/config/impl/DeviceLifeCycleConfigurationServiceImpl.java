@@ -31,14 +31,12 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_6SimpleUpgrader;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
@@ -52,6 +50,7 @@ import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
 import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -470,7 +469,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Override
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.STATIC)
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addMicroCheckFactory(DeviceMicroCheckFactory microCheckFactory) {
         this.microCheckFactories.add(microCheckFactory);
     }
