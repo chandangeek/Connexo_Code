@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import com.google.common.collect.ImmutableSet;
@@ -32,6 +33,7 @@ public class MdcTestApiApplication extends Application {
     private volatile TimeOfUseCampaignService timeOfUseCampaignService;
     private volatile CalendarService calendarService;
     private volatile Thesaurus thesaurus;
+    private volatile DeviceService deviceService;
 
     public MdcTestApiApplication() {
         //for OSGI
@@ -39,10 +41,11 @@ public class MdcTestApiApplication extends Application {
 
     @Inject
     public MdcTestApiApplication(TimeOfUseCampaignService timeOfUseCampaignService, CalendarService calendarService,
-                                 Thesaurus thesaurus) {
+                                 Thesaurus thesaurus, DeviceService deviceService) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.calendarService = calendarService;
         this.thesaurus = thesaurus;
+        this.deviceService = deviceService;
     }
 
     @Reference
@@ -60,10 +63,16 @@ public class MdcTestApiApplication extends Application {
         this.calendarService = calendarService;
     }
 
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(TimeOfUseCampaignTestResource.class,
-                CalendarTestResource.class);
+                CalendarTestResource.class,
+                ServiceKeyTestResource.class);
     }
 
     @Override
@@ -80,6 +89,7 @@ public class MdcTestApiApplication extends Application {
             bind(timeOfUseCampaignService).to(TimeOfUseCampaignService.class);
             bind(calendarService).to(CalendarService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(deviceService).to(DeviceService.class);
         }
     }
 }
