@@ -84,12 +84,9 @@ public class DeviceSearchInfo {
         searchInfo.manufacturer = device.getManufacturer();
         searchInfo.modelNbr = device.getModelNumber();
         searchInfo.modelVersion = device.getModelVersion();
-        for (SecurityAccessor accessor : device.getSecurityAccessors()) {
-            if (accessor.getServiceKey()) {
-	        searchInfo.serviceKeys = true;
-		break;
-	    }
-	}
+        searchInfo.serviceKeys = device.getSecurityAccessors().stream()
+                .anyMatch(accessor -> accessor.getServiceKey());
+
         return searchInfo;
     }
 

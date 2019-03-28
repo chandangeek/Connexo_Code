@@ -51,7 +51,7 @@ public class SecurityPropertySetInfoFactory {
     public List<SecurityPropertySetInfo> asInfoHsm(Device device, UriInfo uriInfo) {
         List<SecurityPropertySet> tmpList = device.getDeviceConfiguration()
                                             .getSecurityPropertySets().stream()
-                                            .filter(s -> s.getConfigurationSecurityProperties().stream().filter(sp->sp.getSecurityAccessorType().keyTypeIsHSM()).count()!=0)
+                                            .filter(s -> s.getConfigurationSecurityProperties().stream().anyMatch(sp -> sp.getSecurityAccessorType().keyTypeIsHSM()))
                                             .collect(toList());
 
         return  tmpList.stream()

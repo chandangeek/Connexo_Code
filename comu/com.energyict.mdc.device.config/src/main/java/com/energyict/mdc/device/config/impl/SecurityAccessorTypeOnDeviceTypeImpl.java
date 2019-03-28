@@ -5,22 +5,19 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
-import javax.validation.constraints.Size;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityAccessorTypeOnDeviceType;
-import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 
+import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Objects;
-import com.elster.jupiter.orm.Table;
-import javax.inject.Inject;
-import com.elster.jupiter.orm.DataModel;
 
-import static javax.swing.text.StyleConstants.Size;
 
 public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTypeOnDeviceType {
     enum Fields {

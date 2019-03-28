@@ -9,8 +9,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.properties.Expiration;
-import com.elster.jupiter.properties.ExpirationFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -20,16 +18,10 @@ import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -86,9 +78,9 @@ public class SecurityServiceKeySearchableProperty extends AbstractSearchableDevi
             if (comparison.getValues()[0].toString().equalsIgnoreCase("true"))
             {
             	sqlBuilder.append(query);
-	    } else {
+	        } else {
                 sqlBuilder.append("SELECT ID FROM DDC_DEVICE WHERE ID NOT IN (" + query + ")");
-	    }
+	        }
             sqlBuilder.closeBracket();
             return sqlBuilder;
         }

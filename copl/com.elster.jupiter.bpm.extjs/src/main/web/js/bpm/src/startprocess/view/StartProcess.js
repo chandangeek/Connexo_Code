@@ -143,9 +143,7 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
         if(!me.doNotLoadStore){
             me.loadAvailableProcessesStore()
         }
-
         if (me.properties.context) {
-
             me.down('property-form').context = me.properties.context;
         }
     },
@@ -170,4 +168,3 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
         });
     }
 });
-

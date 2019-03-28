@@ -390,24 +390,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public String getDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType) {
-        if (securityAccessorType.keyTypeIsHSM()) {
-            Optional<SecurityAccessorTypeOnDeviceTypeImpl> accessorTypeImpl = securityAccessorTypes.stream()
-                    .filter(securityAccessorTypeOnDeviceType ->
-                            securityAccessorTypeOnDeviceType.getSecurityAccessorType().equals(securityAccessorType))
-                    .findAny();
-            if (accessorTypeImpl.isPresent()) {
-                String keyValue = accessorTypeImpl.get().getDefaultKey();
-                if (keyValue != null) {
-                    byte[] key = Base64.getDecoder().decode(keyValue);
-                    return DatatypeConverter.printHexBinary(key);
-                }
-            }
-        }
-    	return null;
-    }
-
-    @Override
     public String getDefaultKeyOfSecurityAccessorType(long id) {
         Optional<SecurityAccessorTypeOnDeviceTypeImpl> accessorTypeImpl = securityAccessorTypes.stream()
           .filter(securityAccessorTypeOnDeviceType ->

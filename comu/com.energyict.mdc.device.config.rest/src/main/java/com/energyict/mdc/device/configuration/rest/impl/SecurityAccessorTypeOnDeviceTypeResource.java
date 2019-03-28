@@ -97,7 +97,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
         SecurityAccessorTypeInfo accessorTypeInfo =  keyFunctionTypeInfoFactory.withSecurityLevels(securityAccessorType);
-	accessorTypeInfo.defaultServiceKey = deviceType.getDefaultKeyOfSecurityAccessorType(securityAccessorType);
+	accessorTypeInfo.defaultServiceKey = deviceType.getDefaultKeyOfSecurityAccessorType(securityAccessorType.getId());
 	return accessorTypeInfo;
     }
 
@@ -149,9 +149,8 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     @Path("/{securityAccessorId}/setdefaultkey")
-    public Response setDefaultKeySecurityAccessorTypeValue(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, ServiceKeyDefultValueInfo info) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<SecurityAccessorType> securityAccessorTypes = deviceType.getSecurityAccessorTypes();
+    public Response setDefaultKeySecurityAccessorTypeValue(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("securityAccessorId") long securityAccessorId, ServiceKeyDefultValueInfo info) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         SecurityAccessorType keyFunctionType = deviceType.getSecurityAccessorTypes().stream()
                 .filter(kFType -> kFType.getId() == securityAccessorId)
                 .findAny()

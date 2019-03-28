@@ -254,11 +254,9 @@ public class KeyAccessorTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{keyAccessorTypeName}/validate")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public Response  validateKeyAccessorType(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String name, @Context UriInfo uriInfo) {
+    public Response validateKeyAccessorType(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String name, @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        DeviceType devicetype = device.getDeviceType();
-        SecurityAccessorType securityAccessorType = getSecurityAccessorTypeOrThrowException(name, devicetype);
         SecurityAccessor securityAccessor = getSecurityAccessorOrThrowException(name, device);
         if (! securityAccessor.getActualValue().isPresent()) {
 	        throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE);
@@ -339,8 +337,9 @@ public class KeyAccessorTypeResource {
         if (currentTempValue.isPresent()) {
             SecurityValueWrapper tempValueWrapper = currentTempValue.get();
             tempValueWrapper.setProperties(properties);
-        } else if (! info.value.isEmpty()) {
-            SecurityValueWrapper securityValueWrapper = securityManagementService.newSymmetricKeyWrapper(securityAccessor.getKeyAccessorType());
+        } else if (!info.value.isEmpty()) {
+            SecurityValueWrapper securityValueWrapper = securityManagementService.newSymmetricKeyWrapper(securityAccessor
+                    .getKeyAccessorType());
             securityValueWrapper.setProperties(properties);
             securityAccessor.setTempValue(securityValueWrapper);
             securityAccessor.save();
