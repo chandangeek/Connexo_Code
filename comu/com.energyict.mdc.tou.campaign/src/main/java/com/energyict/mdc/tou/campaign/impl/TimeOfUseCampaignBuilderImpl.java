@@ -37,7 +37,7 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     }
 
     @Override
-    public TimeOfUseCampaignBuilder withActivationTimeBoundaries(Instant activationStart, Instant activationEnd) {
+    public TimeOfUseCampaignBuilder withUploadTimeBoundaries(Instant activationStart, Instant activationEnd) {
         this.activationStart = activationStart;
         this.activationEnd = activationEnd;
         return this;

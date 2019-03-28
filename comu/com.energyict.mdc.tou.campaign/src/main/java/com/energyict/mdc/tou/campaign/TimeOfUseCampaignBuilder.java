@@ -11,7 +11,7 @@ import java.time.Instant;
 @ProviderType
 public interface TimeOfUseCampaignBuilder {
 
-    TimeOfUseCampaignBuilder withActivationTimeBoundaries(Instant activationStart, Instant activationEnd);
+    TimeOfUseCampaignBuilder withUploadTimeBoundaries(Instant activationStart, Instant activationEnd);
 
     TimeOfUseCampaignBuilder withActivationDate(Instant activationDate);
 

@@ -41,9 +41,8 @@ public enum MessageSeeds implements MessageSeed {
     ACTIVE_SERVICE_CALL_HASNT_FOUND_BY_DEVICE_NOT(2017, "ActiveServiceCallHasntFoundByDevice", "Active service call hasn''t been found by device {0}"),
     DEVICE_BY_SERVICE_CALL_NOT_FOUND(2018, "DeviceByServiceCallNotFound", "Device by service call not found."),
     DEVICE_WAS_ADDED(2019, "DeviceWasAdded", "Device was added"),
-    TOU_ITEM_WITH_ID_ISNT_FOUND(2020, "TimeOfUseItemWithIdIsntFound", "Time of use item with id {0} isn''t found."),
-    TOU_CAMPAIGN_WITH_ID_ISNT_FOUND(2020, "TimeOfUseCampaignWithIdIsntFound", "Time of use campaign with id {0} isn''t found."),
-   // TOU_ITEM_WITH_ID_ISNT_FOUND(2020, "TimeOfUseItemWithIdIsntFound", "Time of use item with id {0} isn''t found."),
+    TOU_ITEM_WITH_ID_ISNT_FOUND(2020, "TimeOfUseCampaignItemWithIdIsntFound", "Time of use campaign item with id {0} isn''t found."),
+    TOU_CAMPAIGN_WITH_ID_ISNT_FOUND(2021, "TimeOfUseCampaignWithIdIsntFound", "Time of use campaign with id {0} isn''t found."),
 
     CANCELED_BY_USER(3001, "CancelledByUser", "Cancelled by user."),
     RETRIED_BY_USER(3002, "RetriedByUser", "Retried by user.");

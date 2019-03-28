@@ -219,6 +219,7 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
 
     @Test
     public void testEditCampaign() {
+        when(clock.instant()).thenReturn(Instant.now());
         TimeOfUseCampaignInfo timeOfUseCampaignInfo = createCampaignInfo();
         TimeOfUseCampaign timeOfUseCampaign = createCampaignMock();
         when(timeOfUseCampaignService.findAndLockToUCampaignByIdAndVersion(timeOfUseCampaignInfo.id, timeOfUseCampaignInfo.version))

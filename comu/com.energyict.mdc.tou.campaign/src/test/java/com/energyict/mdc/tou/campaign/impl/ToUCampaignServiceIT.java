@@ -192,7 +192,7 @@ public class ToUCampaignServiceIT {
         String updateType = "fullCalendar";
         long timeValidation = 120;
         TimeOfUseCampaign timeOfUseCampaign1 = timeOfUseCampaignService.newTouCampaignBuilder(name, deviceType1, calendar1)
-                .withActivationTimeBoundaries(activationStart, activationEnd)
+                .withUploadTimeBoundaries(activationStart, activationEnd)
                 .withDeviceGroup(deviceGroup)
                 .withActivationOption(activationOption)
                 .withActivationOption(activationOption)

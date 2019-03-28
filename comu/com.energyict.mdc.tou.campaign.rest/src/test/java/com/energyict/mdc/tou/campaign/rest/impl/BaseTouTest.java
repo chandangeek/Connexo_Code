@@ -40,7 +40,6 @@ public abstract class BaseTouTest extends FelixRestApplicationJerseyTest {
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setNlsService(nlsService);
         application.setCalendarService(calendarService);
-
         return application;
     }
 }
