@@ -162,17 +162,6 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                                  me.forceUpload(record, container, router);
                             }
                         });
-                        confirmationWindow.itemCnt = 0;
-
-                        confirmationWindow.addItem = function(text, padding){
-                            this.itemCnt++;
-                            confirmationWindow.insert(this.itemCnt, {
-                                            xtype: 'displayfield',
-                                            padding: padding,
-                                            value: text,
-                                            htmlEncode: false
-                            });
-                        }
 
                         Ext.each(responseText.errors, function (error) {
                             var errorId = error.id;

@@ -99,25 +99,27 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 checkbox.setValue(true);
                             });
                         }
-                        showAllCheckboxes(newValue);
-                        if (newValue){
-                           var masterFirmwareMainOption = me.down('#masterFirmwareCheck');
-                           if (masterFirmwareMainOption){
-                              masterFirmwareMainOption.setValue(true);
-                              var masterFirmwareCheckFinal = me.down('#masterFirmwareCheckFinal');
-                              var masterFirmwareCheckTest = me.down('#masterFirmwareCheckTest');
-                              if (masterFirmwareCheckFinal) masterFirmwareCheckFinal.setValue(true);
-                              if (masterFirmwareCheckTest) masterFirmwareCheckTest.setValue(false);
-                           }
-                           var currentFirmwareCheckFinal = me.down('#currentFirmwareCheckFinal');
-                           var currentFirmwareCheckTest = me.down('#currentFirmwareCheckTest');
-                           var currentFirmwareCheck = me.down('#currentFirmwareCheck');
 
-                           if (currentFirmwareCheck){
-                                currentFirmwareCheck.setValue(false);
-                                if (currentFirmwareCheckFinal) currentFirmwareCheckFinal.setValue(false);
-                                if (currentFirmwareCheckTest) currentFirmwareCheckTest.setValue(false);
-                           }
+                        showAllCheckboxes(newValue);
+
+                        if (newValue){
+                             var masterFirmwareMainOption = me.down('#masterFirmwareCheck');
+                             if (masterFirmwareMainOption){
+                                  masterFirmwareMainOption.setValue(true);
+                                  var masterFirmwareCheckFinal = me.down('#masterFirmwareCheckFinal');
+                                  var masterFirmwareCheckTest = me.down('#masterFirmwareCheckTest');
+                                  if (masterFirmwareCheckFinal) masterFirmwareCheckFinal.setValue(true);
+                                  if (masterFirmwareCheckTest) masterFirmwareCheckTest.setValue(false);
+                             }
+                             var currentFirmwareCheckFinal = me.down('#currentFirmwareCheckFinal');
+                             var currentFirmwareCheckTest = me.down('#currentFirmwareCheckTest');
+                             var currentFirmwareCheck = me.down('#currentFirmwareCheck');
+
+                             if (currentFirmwareCheck){
+                                  currentFirmwareCheck.setValue(false);
+                                  if (currentFirmwareCheckFinal) currentFirmwareCheckFinal.setValue(false);
+                                  if (currentFirmwareCheckTest) currentFirmwareCheckTest.setValue(false);
+                             }
                         }
                     }, allowedCheckBox);
 
@@ -195,10 +197,10 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     }
                     if ( masterFirmwareMainOption && !masterFirmwareMainOption.hidden){
                         checkOptions["MASTER_FIRMWARE_CHECK"] = {};
-                        var mOptions = checkOptions["MASTER_FIRMWARE_CHECK"]["activatedFor"] = [];
-                        if (masterFirmwareCheckFinal && masterFirmwareCheckFinal.getValue()) mOptions.push("FINAL");
-                        if (masterFirmwareCheckTest && masterFirmwareCheckTest.getValue()) mOptions.push("TEST");
-                        if (masterFirmwareMainOption.getValue() && !mOptions.length) return false;
+                        var masterOptions = checkOptions["MASTER_FIRMWARE_CHECK"]["activatedFor"] = [];
+                        if (masterFirmwareCheckFinal && masterFirmwareCheckFinal.getValue()) masterOptions.push("FINAL");
+                        if (masterFirmwareCheckTest && masterFirmwareCheckTest.getValue()) masterOptions.push("TEST");
+                        if (masterFirmwareMainOption.getValue() && !masterOptions.length) return false;
                     }
                     record.set("checkOptions", checkOptions);
 

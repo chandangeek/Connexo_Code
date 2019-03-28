@@ -187,7 +187,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
             }
         ];
 
-        function setCbxStore(cbxId, storeName, storeType){
+        function setMinLevelComboBoxStore(cbxId, storeName, storeType){
             var store = Ext.data.StoreManager.lookup(storeName);
             var proxy = store.getProxy();
             proxy.setUrl(deviceTypeId);
@@ -207,8 +207,8 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                  }
             });
         }
-        setCbxStore('firmware-min-meter-version', 'Fwc.store.MeterFirmwareDepependencies', 'meter');
-        setCbxStore('firmware-min-communication-version', 'Fwc.store.CommunicationFirmwareDepependencies', 'communication');
+        setMinLevelComboBoxStore('firmware-min-meter-version', 'Fwc.store.MeterFirmwareDepependencies', 'meter');
+        setMinLevelComboBoxStore('firmware-min-communication-version', 'Fwc.store.CommunicationFirmwareDepependencies', 'communication');
 
         me.callParent(arguments);
     },
