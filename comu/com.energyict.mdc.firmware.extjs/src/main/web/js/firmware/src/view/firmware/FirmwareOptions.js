@@ -117,35 +117,36 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                     if (record && (record.get('checkOptions').length === 0 || record.get('isAllowed') === false)) {
                                         field.hide();
                                     } else {
-                                        var currFirmCheck = value && value["CURRENT_FIRMWARE_CHECK"];
-                                        var masterFirmCheck = value && value["MASTER_FIRMWARE_CHECK"];
-                                        if ((!currFirmCheck || !currFirmCheck.activatedFor || !currFirmCheck.activatedFor.length) && (!masterFirmCheck || !masterFirmCheck.activatedFor || !masterFirmCheck.activatedFor.length)){
+                                        var currentFirmwareCheck = value && value["CURRENT_FIRMWARE_CHECK"];
+                                        var masterFirmwareCheck = value && value["MASTER_FIRMWARE_CHECK"];
+                                        if ((!currentFirmwareCheck || !currentFirmwareCheck.activatedFor || !currentFirmwareCheck.activatedFor.length) &&
+                                            (!masterFirmwareCheck || !masterFirmwareCheck.activatedFor || !masterFirmwareCheck.activatedFor.length)){
                                             field.hide();
                                             return;
                                         }
                                         field.show();
-                                        if (currFirmCheck){
-                                            var optTpl = [];
-                                            var optCurrFirmVals = {'FINAL' : 'Final FW status', 'TEST' : 'Test FW status'};
-                                            currFirmCheck['activatedFor'].forEach(function(item){
-                                                optTpl.push({"localizedValue" : optCurrFirmVals[item]});
+                                        if (currentFirmwareCheck){
+                                            var currentFirmwareOptionTemplate = [];
+                                            var currentFirmwareOptionsValues = {'FINAL' : 'Final FW status', 'TEST' : 'Test FW status'};
+                                            currentFirmwareCheck['activatedFor'].forEach(function(item){
+                                                currentFirmwareOptionTemplate.push({"localizedValue" : currentFirmwareOptionsValues[item]});
                                             })
-                                            if (optTpl && optTpl.length){
+                                            if (currentFirmwareOptionTemplate && currentFirmwareOptionTemplate.length){
                                                 result += '<div style="margin-bottom:10px">FW version has a higher ranking</div>';
                                                 var tpl = Ext.create('FirmwareOptionsXTemplate');
-                                                result += ('<div style="margin-bottom:10px">' + tpl.apply(optTpl) + '</div>');
+                                                result += ('<div style="margin-bottom:10px">' + tpl.apply(currentFirmwareOptionTemplate) + '</div>');
                                             }
                                         }
-                                        if (masterFirmCheck){
-                                            var optMasterTpl = [];
-                                            var optMasterVals = {'FINAL' : 'Final master FW status', 'TEST' : 'Test master FW status'};
-                                            masterFirmCheck['activatedFor'].forEach(function(item){
-                                                optMasterTpl.push({"localizedValue" : optMasterVals[item]});
+                                        if (masterFirmwareCheck){
+                                            var masterFirmwareOptionTemplate = [];
+                                            var masterFirmwareOptionsValues = {'FINAL' : 'Final master FW status', 'TEST' : 'Test master FW status'};
+                                            masterFirmwareCheck['activatedFor'].forEach(function(item){
+                                                masterFirmwareOptionTemplate.push({"localizedValue" : masterFirmwareOptionsValues[item]});
                                             })
-                                            if (optMasterTpl && optMasterTpl.length){
+                                            if (masterFirmwareOptionTemplate && masterFirmwareOptionTemplate.length){
                                                 result += '<div style="margin-bottom:10px">Master has a latest firmware</div>';
                                                 var tpl = Ext.create('FirmwareOptionsXTemplate');
-                                                result += ('<div style="margin-bottom:10px">' + tpl.apply(optMasterTpl) + '</div>');
+                                                result += ('<div style="margin-bottom:10px">' + tpl.apply(masterFirmwareOptionTemplate) + '</div>');
                                             }
                                         }
                                     }

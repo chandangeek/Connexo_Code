@@ -44,7 +44,8 @@ Ext.define('Fwc.model.Firmware', {
     ],
 
     requires: [
-        'Fwc.model.FirmwareType'
+        'Fwc.model.FirmwareType',
+        'Fwc.model.FirmwareStatus'
 
     ],
 

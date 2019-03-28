@@ -712,7 +712,8 @@ Ext.define('Fwc.controller.Firmware', {
 
         this.tab2Activate = 0;
         if (!form.updateRecord()){
-            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors.title', 'FWC', 'Couldn\'t perform your action'), Uni.I18n.translate('firmware.specs.save.validationError', 'FWC', 'You must select at least one item in the group'));
+            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors.title', 'FWC', 'Couldn\'t perform your action'),
+                 Uni.I18n.translate('firmware.specs.save.validationError', 'FWC', 'You must select at least one item in the group'));
             return;
         }
         allowedOptionsError.removeAll();
