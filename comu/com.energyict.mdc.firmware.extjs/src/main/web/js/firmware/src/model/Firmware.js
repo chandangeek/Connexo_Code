@@ -44,8 +44,7 @@ Ext.define('Fwc.model.Firmware', {
     ],
 
     requires: [
-        'Fwc.model.FirmwareType',
-        'Fwc.model.FirmwareStatus',
+        'Fwc.model.FirmwareType'
 
     ],
 
@@ -68,7 +67,7 @@ Ext.define('Fwc.model.Firmware', {
         },
         {
             type: 'hasOne',
-            model: 'Fwc.model.FirmwareMeterDep',
+            model: 'Fwc.model.FirmwareMeterDependency',
             name: 'meterFirmwareDependency',
             associationKey: 'meterFirmwareDependency',
             getterName: 'getMeterFirmwareDependency',
@@ -76,7 +75,7 @@ Ext.define('Fwc.model.Firmware', {
         },
         {
             type: 'hasOne',
-            model: 'Fwc.model.FirmwareCommunicationDep',
+            model: 'Fwc.model.FirmwareCommunicationDependency',
             name: 'communicationFirmwareDependency',
             associationKey: 'communicationFirmwareDependency',
             getterName: 'getCommunicationFirmwareDependency',

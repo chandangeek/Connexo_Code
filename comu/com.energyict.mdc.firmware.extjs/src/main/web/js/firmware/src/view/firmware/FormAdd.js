@@ -153,7 +153,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                             xtype: 'combobox',
                             itemId: 'firmware-min-communication-version',
                             allowBlank: false,
-                            store: 'Fwc.store.CommunicationFirmwareDeps',
+                            store: 'Fwc.store.CommunicationFirmwareDepependencies',
                             displayField: 'name',
                             valueField: 'id',
                             hiddenName: 'communicationFirmwareDependency',
@@ -205,8 +205,8 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                  }
             });
         }
-        setCbxStore('firmware-min-meter-version', 'Fwc.store.MeterFirmwareDeps', 'meter');
-        setCbxStore('firmware-min-communication-version', 'Fwc.store.CommunicationFirmwareDeps', 'communication');
+        setCbxStore('firmware-min-meter-version', 'Fwc.store.MeterFirmwareDepependencies', 'meter');
+        setCbxStore('firmware-min-communication-version', 'Fwc.store.CommunicationFirmwareDepependencies', 'communication');
 
         me.callParent(arguments);
     },

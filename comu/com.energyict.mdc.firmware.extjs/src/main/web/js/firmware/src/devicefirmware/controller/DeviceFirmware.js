@@ -187,7 +187,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                         });
                         if (canFurtherUpload && errorsArr && errorsArr.length){
                            var fieldContainer = Ext.create('Ext.form.FieldContainer');
-                           var htmlText = 'Some firmware version check have been unsuccessful:<br><br>';
+                           var htmlText = Uni.I18n.translate('deviceFirmware.upgrade.somefirmwarechecks', 'FWC', 'Some firmware version checks have been unsuccessful:') + '<br><br>';
                            Ext.each(errorsArr, function (error) {
                                 htmlText += ('<b>' + error['id'] + '</b><br><br>');
                                 htmlText += (' -' + error['msg'] + '<br><br>');
