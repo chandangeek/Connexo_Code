@@ -208,9 +208,13 @@ Ext.define('Fwc.controller.Firmware', {
                     me.getContainer().down('firmware-form-add #disp-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount===1);
                     me.getContainer().down('firmware-form-add #radio-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount!==1);
 
-                    var sData = supportedFirmwareTypesStore.getRange()
-                    if (Ext.Array.filter(sData, function(item){ return item.data.id === "meter"}).length) me.getContainer().down('firmware-form-add #firmware-min-meter-version-common').show();
-                    if (Ext.Array.filter(sData, function(item){ return item.data.id === "communication"}).length) me.getContainer().down('firmware-form-add #firmware-min-communication-version-common').show();
+                    var supportedFirmwareTypesData = supportedFirmwareTypesStore.getRange();
+                    if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "meter"}).length){
+                        me.getContainer().down('firmware-form-add #firmware-min-meter-version-common').show();
+                    }
+                    if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
+                        me.getContainer().down('firmware-form-add #firmware-min-communication-version-common').show();
+                    }
 
                     if (supportedFirmwareTypesStore.totalCount===1) {
                         var id = me.getContainer().down('firmware-form-add #radio-firmware-type').getStore().getAt(0).data.id;
@@ -253,7 +257,7 @@ Ext.define('Fwc.controller.Firmware', {
                     supportedFirmwareTypesStore.load({
                           scope: this,
                           callback: function () {
-                               var supportedFirmwareTypesData = supportedFirmwareTypesStore.getRange()
+                               var supportedFirmwareTypesData = supportedFirmwareTypesStore.getRange();
                                if (!Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "meter"}).length){
                                     me.getContainer().down('firmware-edit #firmware-min-meter-version-common').hide();
                                }
@@ -312,6 +316,9 @@ Ext.define('Fwc.controller.Firmware', {
         form.down('uni-form-error-message').hide();
         form.getForm().clearInvalid();
         record = form.updateRecord().getRecord();
+        var firmwareMinMeterVersionField = form.down('#firmware-min-meter-version');
+        var firmwareMinCommunicationVersionField = form.down('#firmware-min-communication-version');
+
         record.setFirmwareType(
             form.down('#radio-firmware-type')
                 .getStore()
@@ -324,18 +331,16 @@ Ext.define('Fwc.controller.Firmware', {
                 .findRecord('id', form.down('#radio-firmware-status')
                     .getValue().firmwareStatus)
         );
-        record.setMeterFirmwareDependency(
-                    form.down('#firmware-min-meter-version')
-                        .getStore()
-                        .findRecord('id', form.down('#firmware-min-meter-version')
-                            .getValue())
-        );
-        record.setCommunicationFirmwareDependency(
-                             form.down('#firmware-min-communication-version')
-                                 .getStore()
-                                 .findRecord('id', form.down('#firmware-min-communication-version')
-                                     .getValue())
-        );
+        if (firmwareMinMeterVersionField){
+            record.setMeterFirmwareDependency(
+                 firmwareMinMeterVersionField.getStore().getById(firmwareMinMeterVersionField.getValue())
+            );
+        }
+        if (firmwareMinCommunicationVersionField){
+            record.setCommunicationFirmwareDependency(
+                 firmwareMinCommunicationVersionField.getStore().getById(firmwareMinCommunicationVersionField.getValue())
+            );
+        }
 
         var input = form.down('filefield').button.fileInputEl.dom,
             file = input.files[0],
@@ -428,18 +433,19 @@ Ext.define('Fwc.controller.Firmware', {
                 }
             };
 
-        record.setMeterFirmwareDependency(
-                    form.down('#firmware-min-meter-version')
-                        .getStore()
-                        .findRecord('id', form.down('#firmware-min-meter-version')
-                            .getValue())
-        );
-        record.setCommunicationFirmwareDependency(
-                             form.down('#firmware-min-communication-version')
-                                 .getStore()
-                                 .findRecord('id', form.down('#firmware-min-communication-version')
-                                     .getValue())
-        );
+        var firmwareMinMeterVersionField = form.down('#firmware-min-meter-version');
+        var firmwareMinCommunicationVersionField = form.down('#firmware-min-communication-version');
+
+        if (firmwareMinMeterVersionField){
+            record.setMeterFirmwareDependency(
+                 firmwareMinMeterVersionField.getStore().getById(firmwareMinMeterVersionField.getValue())
+            );
+        }
+        if (firmwareMinCommunicationVersionField){
+            record.setCommunicationFirmwareDependency(
+                 firmwareMinCommunicationVersionField.getStore().getById(firmwareMinCommunicationVersionField.getValue())
+            );
+        }
 
         if (file) {
             var reader = new FileReader();
@@ -758,25 +764,18 @@ Ext.define('Fwc.controller.Firmware', {
 
     saveFirmwareVersionOrder: function () {
         var me = this,
+            dataForSend = [],
+            store = me.getFirmwareGrid().getStore(),
             router = me.getController('Uni.controller.history.Router');
 
-        var firmvareView = me.getFirmwareGrid().getView();
-        var dataForSend = [];
+        store.each(function(record) {
+            if (!record.data) return;
+            if (!record.data.meterFirmwareDependency) delete record.data.meterFirmwareDependency;
+            if (!record.data.communicationFirmwareDependency) delete record.data.communicationFirmwareDependency;
+            dataForSend.push(record.data);
+        })
 
-        if(firmvareView){
-            var rawData = firmvareView.dataSource && firmvareView.dataSource.data && firmvareView.dataSource.data.items;
-            if (rawData){
-                 for (var i = 0; i < rawData.length; i++){
-                    var reader = me.getFwcStoreFirmwaresStore().getProxy().getReader();
-                    var storeData = reader && reader.jsonData && reader.jsonData.firmwares ? reader.jsonData.firmwares : null;
-                     Ext.each(storeData, function(data) {
-                          if (rawData[i].data.id === data.id) dataForSend.push(data);
-                     });
-                 }
-            }
-        }
-
-        var url = me.getFwcStoreFirmwaresStore().getProxy().url + '/reorder';
+        var url = store.getProxy().url + '/reorder';
         if(dataForSend){
             Ext.Ajax.request({
                         url: url,

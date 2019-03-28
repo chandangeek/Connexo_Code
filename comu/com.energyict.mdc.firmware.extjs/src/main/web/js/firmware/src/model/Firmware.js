@@ -72,7 +72,7 @@ Ext.define('Fwc.model.Firmware', {
             name: 'meterFirmwareDependency',
             associationKey: 'meterFirmwareDependency',
             getterName: 'getMeterFirmwareDependency',
-            setterName: 'setMeterFirmwareDependency'
+            setterName: 'setMeterFirmwareDependency',
         },
         {
             type: 'hasOne',
@@ -80,7 +80,7 @@ Ext.define('Fwc.model.Firmware', {
             name: 'communicationFirmwareDependency',
             associationKey: 'communicationFirmwareDependency',
             getterName: 'getCommunicationFirmwareDependency',
-            setterName: 'setCommunicationFirmwareDependency'
+            setterName: 'setCommunicationFirmwareDependency',
         }
     ],
 
