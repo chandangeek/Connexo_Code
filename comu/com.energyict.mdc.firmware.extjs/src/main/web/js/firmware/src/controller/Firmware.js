@@ -208,7 +208,6 @@ Ext.define('Fwc.controller.Firmware', {
                     me.getContainer().down('firmware-form-add #disp-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount===1);
                     me.getContainer().down('firmware-form-add #radio-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount!==1);
 
-
                     var sData = supportedFirmwareTypesStore.getRange()
                     if (Ext.Array.filter(sData, function(item){ return item.data.id === "meter"}).length) me.getContainer().down('firmware-form-add #firmware-min-meter-version-common').show();
                     if (Ext.Array.filter(sData, function(item){ return item.data.id === "communication"}).length) me.getContainer().down('firmware-form-add #firmware-min-communication-version-common').show();
@@ -254,9 +253,13 @@ Ext.define('Fwc.controller.Firmware', {
                     supportedFirmwareTypesStore.load({
                           scope: this,
                           callback: function () {
-                            var sData = supportedFirmwareTypesStore.getRange()
-                            if (!Ext.Array.filter(sData, function(item){ return item.data.id === "meter"}).length) me.getContainer().down('firmware-edit #firmware-min-meter-version-common').hide();
-                            if (!Ext.Array.filter(sData, function(item){ return item.data.id === "communication"}).length) me.getContainer().down('firmware-edit #firmware-min-communication-version-common').hide();
+                               var supportedFirmwareTypesData = supportedFirmwareTypesStore.getRange()
+                               if (!Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "meter"}).length){
+                                    me.getContainer().down('firmware-edit #firmware-min-meter-version-common').hide();
+                               }
+                               if (!Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
+                                    me.getContainer().down('firmware-edit #firmware-min-communication-version-common').hide();
+                               }
                           }
                     });
 
@@ -560,9 +563,14 @@ Ext.define('Fwc.controller.Firmware', {
                                     view.down('fwc-view-firmware-versions-topfilter').showOrHideFirmwareTypeFilter(supportedFirmwareTypesStore.totalCount !== 1);
                                 }
 
-                                var sData = supportedFirmwareTypesStore.getRange()
-                                if (Ext.Array.filter(sData, function(item){ return item.data.id === "meter"}).length) me.getFirmwareGrid().down('#minMeterLevel').show();
-                                if (Ext.Array.filter(sData, function(item){ return item.data.id === "communication"}).length) me.getFirmwareGrid().down('#minCommLevel').show();
+                                var supportedFirmwareTypesData = supportedFirmwareTypesStore.getRange();
+                                var firmwareGrid = me.getFirmwareGrid();
+                                if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "meter"}).length){
+                                    firmwareGrid.down('#minMeterLevel').show();
+                                }
+                                if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
+                                    firmwareGrid.down('#minCommLevel').show();
+                                }
 
                                 var signatureCheckContainer = widget ? widget.down('#security-check-container') : null;
                                 if (signatureCheckContainer) {

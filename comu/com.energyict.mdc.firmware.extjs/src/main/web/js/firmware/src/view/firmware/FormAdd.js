@@ -105,6 +105,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                 itemId: 'firmware-min-meter-version-common',
                 hidden : true,
                 fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version meter firmware'),
+                required: false,
                 items: [
                         {
                             xtype: 'combobox',
@@ -148,6 +149,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                 itemId: 'firmware-min-communication-version-common',
                 hidden : true,
                 fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version communication firmware'),
+                required: false,
                 items: [
                         {
                             xtype: 'combobox',
