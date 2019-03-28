@@ -74,7 +74,11 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
             },
             '#statesActionMenu menuitem[action=remove]': {
                 click: this.removeEstimationRuleSet
+            },
+            '#statesActionMenu menuitem[action=changeRuleSetState]': {
+                click: this.changeRuleSetStatus
             }
+
         });
     },
 
@@ -249,6 +253,30 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
                     }
                 });
             }
+        });
+    },
+
+    changeRuleSetStatus: function () {
+        var me = this,
+            ruleSetGrid = this.getPage().down('device-configuration-estimation-rule-sets-grid'),
+            router = this.getController('Uni.controller.history.Router'),
+            record = ruleSetGrid.getSelectionModel().getLastSelected();
+            isActive = record.get('isEstimationRuleSetActive');
+
+        Ext.Ajax.request({
+
+            url: '../../api/dtc/devicetypes/' + encodeURIComponent(router.arguments.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(router.arguments.deviceConfigurationId) + '/estimationrulesets/' + record.getId() + '/status',
+            jsonData: Ext.merge(record.getRecordData(), {isEstimationRuleSetActive: !isActive}),
+            method: 'PUT',
+            success: function () {
+                me.getRuleSetsGrid().getStore().reload({
+                    callback: function () {
+                        me.getApplication().fireEvent('acknowledge', isActive ?
+                            Uni.I18n.translate('device.dataEstimation.ruleSet.deactivated', 'MDC', 'Estimation rule set deactivated') :
+                            Uni.I18n.translate('device.dataEstimation.ruleSet.activated', 'MDC', 'Estimation rule set activated'));
+                    }
+                });
+            },
         });
     }
 

@@ -7,17 +7,12 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
+import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component(name = "com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceCallHandler", service = ServiceCallHandler.class,
-        property = "name=" + TimeOfUseCampaignServiceCallHandler.NAME, immediate = true)
 public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
 
     public static final String NAME = "TimeOfUseCampaignServiceCallHandler";
@@ -25,16 +20,8 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
 
     private volatile TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
 
-    public TimeOfUseCampaignServiceCallHandler() {
-        // for osgi
-    }
-
-    public TimeOfUseCampaignServiceCallHandler(TimeOfUseCampaignService timeOfUseCampaignService) {
-        this.timeOfUseCampaignService = ((TimeOfUseCampaignServiceImpl) timeOfUseCampaignService);
-    }
-
-    @Reference
-    public void setTimeOfUseCampaignService(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
+    @Inject
+    public TimeOfUseCampaignServiceCallHandler(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
     }
 

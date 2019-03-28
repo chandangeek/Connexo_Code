@@ -9,12 +9,12 @@ Ext.define('Tou.store.TouCampaigns', {
 
     proxy: {
         type: 'rest',
-        url: '/api/tou/touCampaigns',
+        url: '/api/tou/toucampaigns',
         api: {
-             read: '/api/tou/touCampaigns',
-             load: '/api/tou/touCampaigns',
-             create: '/api/tou/touCampaigns/create',
-             update: '/api/tou/touCampaigns/edit'
+             read: '/api/tou/toucampaigns',
+             load: '/api/tou/toucampaigns',
+             create: '/api/tou/toucampaigns/create',
+             update: '/api/tou/toucampaigns/edit'
         },
         reader: {
             type: 'json',

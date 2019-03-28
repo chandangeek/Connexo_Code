@@ -63,7 +63,6 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import javax.inject.Inject;
@@ -75,7 +74,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 
 @ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
 @ManuallyScheduledNextExecSpecRequired(groups = {SaveScheduled.class})
@@ -123,7 +121,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     @SuppressWarnings("unused")
     private Instant modTime;
     private boolean calledByConnectionTask;
-    private static final Logger LOGGER = Logger.getLogger(ComTaskExecutionImpl.class.getName());
 
     /**
      * ExecutionPriority can be overruled by the Minimize ConnectionTask.
@@ -272,7 +269,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public int getMaxNumberOfTries() {
-        return this.getBehavior().getMaxNumberOfTries();
+        return this.device.get().getDeviceConfiguration().getComTaskEnablementFor(this.getComTask()).get().getMaxNumberOfTries();
     }
 
     @Override
@@ -1315,19 +1312,16 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public void comTaskStarted() {
-                LOGGER.info("Raised event " + EventType.MANUAL_COMTASKEXECUTION_STARTED.topic());
                 postEvent(EventType.MANUAL_COMTASKEXECUTION_STARTED);
         }
 
         @Override
         public void comTaskCompleted() {
-                LOGGER.info("Raised event " + EventType.MANUAL_COMTASKEXECUTION_COMPLETED.topic());
                 postEvent(EventType.MANUAL_COMTASKEXECUTION_COMPLETED);
         }
 
         @Override
         public void comTaskFailed() {
-                LOGGER.info("Raised event " + EventType.MANUAL_COMTASKEXECUTION_FAILED.topic());
                 postEvent(EventType.MANUAL_COMTASKEXECUTION_FAILED);
         }
 
@@ -1422,19 +1416,16 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public void comTaskStarted() {
-                LOGGER.info("Raised event " + EventType.SCHEDULED_COMTASKEXECUTION_STARTED.topic());
                 postEvent(EventType.SCHEDULED_COMTASKEXECUTION_STARTED);
         }
 
         @Override
         public void comTaskCompleted() {
-                LOGGER.info("Raised event " + EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED.topic());
                 postEvent(EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED);
         }
 
         @Override
         public void comTaskFailed() {
-                LOGGER.info("Raised event " + EventType.SCHEDULED_COMTASKEXECUTION_FAILED.topic());
                 postEvent(EventType.SCHEDULED_COMTASKEXECUTION_FAILED);
         }
 

@@ -5,12 +5,14 @@ package com.energyict.mdc.tou.campaign.impl.servicecall;
 
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -22,6 +24,11 @@ public class TimeOfUseItemPersistenceSupport implements PersistenceSupport<Servi
     private static final String TABLE_NAME = TimeOfUseCampaignService.COMPONENT_NAME + "_" + "TU2_ITEMS";
     private static final String FK_NAME = "FK_" + TABLE_NAME;
     public static final String COMPONENT_NAME = "TU2";
+    private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
+
+    public TimeOfUseItemPersistenceSupport(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
+        this.timeOfUseCampaignService = timeOfUseCampaignService;
+    }
 
     @Override
     public String componentName() {
@@ -50,7 +57,13 @@ public class TimeOfUseItemPersistenceSupport implements PersistenceSupport<Servi
 
     @Override
     public Optional<Module> module() {
-        return Optional.empty();
+        return Optional.of(new AbstractModule() {
+            @Override
+            public void configure() {
+                bind(TimeOfUseCampaignServiceImpl.class).toInstance(timeOfUseCampaignService);
+                bind(TimeOfUseCampaignService.class).toInstance(timeOfUseCampaignService);
+            }
+        });
     }
 
     @Override
@@ -60,6 +73,12 @@ public class TimeOfUseItemPersistenceSupport implements PersistenceSupport<Servi
 
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
+        table.column(TimeOfUseItemDomainExtension.FieldNames.PARENT_SERVICE_CALL.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(TimeOfUseItemDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName())
+                .notNull()
+                .add();
         Column device = table.column(TimeOfUseItemDomainExtension.FieldNames.DEVICE.databaseName())
                 .number()
                 .notNull()

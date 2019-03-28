@@ -27,11 +27,6 @@ import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
 import ch.iec.tc57._2011.meterconfig.Zone;
 
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.connexo._2017.schema.customattributes.Attribute;
 import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKey;
@@ -65,6 +60,13 @@ public class MeterConfigParser {
     @Inject
     public MeterConfigParser(MeterConfigFaultMessageFactory faultMessageFactory) {
         this.faultMessageFactory = faultMessageFactory;
+    }
+
+    public MeterInfo asMeterInfo(Meter meter) throws FaultMessage {
+        MeterInfo meterInfo = new MeterInfo();
+        meterInfo.setDeviceName(extractName(meter.getNames()).orElse(null));
+        meterInfo.setmRID(extractMrid(meter).orElse(null));
+        return meterInfo;
     }
 
     public MeterInfo asMeterInfo(Meter meter, List<SimpleEndDeviceFunction> endDeviceFunctions,

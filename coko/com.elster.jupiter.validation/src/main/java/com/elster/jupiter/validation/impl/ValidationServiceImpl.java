@@ -20,7 +20,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -645,7 +644,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         List<ChannelsContainerValidation> persistedChannelsContainerValidations = getPersistedChannelsContainerValidations(validationContext.getChannelsContainer());
         Map<ValidationRuleSet, ChannelsContainerValidation> returnMap = ruleSets.entrySet().stream()
                 .map(ruleSet -> Pair.of(ruleSet, getForRuleSet(persistedChannelsContainerValidations, ruleSet.getKey())))
-                .map(validationPair -> validationPair.getLast().orElseGet(() -> applyRuleSet(validationPair.getFirst().getKey(), validationContext.getChannelsContainer())))
+                .map(validationPair -> validationPair.getLast().orElseGet(() -> applyRuleSet(validationPair.getFirst().getKey(), validationContext)))
                 .collect(Collectors.toMap(ChannelsContainerValidation::getRuleSet, Function.identity(), (a, b) -> a));
         returnMap.values()
                 .forEach(channelsContainerValidation -> channelsContainerValidation.getChannelsContainer().getChannels()
@@ -692,12 +691,16 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         return dataModel.query(ChannelsContainerValidation.class, ChannelValidation.class).select(condition);
     }
 
-    private ChannelsContainerValidation applyRuleSet(ValidationRuleSet ruleSet, ChannelsContainer channelsContainer) {
+    private ChannelsContainerValidation applyRuleSet(ValidationRuleSet ruleSet, ValidationContext validationContext) {
+        ChannelsContainer channelsContainer = validationContext.getChannelsContainer();
         ChannelsContainerValidation channelsContainerValidation = dataModel.getInstance(ChannelsContainerValidationImpl.class).init(channelsContainer);
         channelsContainerValidation.setRuleSet(ruleSet);
         channelsContainer.getChannels().stream()
                 .filter(c -> !ruleSet.getRules(c.getReadingTypes()).isEmpty())
                 .forEach(channelsContainerValidation::addChannelValidation);
+        if (validationContext.getMeter().isPresent()) {
+            channelsContainerValidation.setInitialActivationStatus(isValidationRuleSetActiveOnDeviceConfig(ruleSet.getId(), Long.parseLong(validationContext.getMeter().get().getAmrId())));
+        }
         try {
             channelsContainerValidation.save();
         } catch (UnderlyingSQLFailedException ex) {
@@ -850,6 +853,15 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceId) {
+        return ruleSetResolvers
+                .stream()
+                .filter(ValidationRuleSetResolver::canHandleRuleSetStatus)
+                .findFirst()
+                .filter(resolver -> resolver.isValidationRuleSetActiveOnDeviceConfig(validationRuleSetId, deviceId)).isPresent();
     }
 
     public void removeValidationRuleSetResolver(ValidationRuleSetResolver resolver) {

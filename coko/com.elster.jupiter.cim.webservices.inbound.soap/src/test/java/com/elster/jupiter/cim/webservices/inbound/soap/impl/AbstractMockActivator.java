@@ -94,9 +94,9 @@ public abstract class AbstractMockActivator {
     @Mock
     private QueueTableSpec queueTableSpec;
     @Mock
-    DestinationSpec destinationSpec;
+    protected DestinationSpec destinationSpec;
     @Mock
-    ServiceCall serviceCall;
+    protected ServiceCall serviceCall;
 
     private CIMInboundSoapEndpointsActivator activator;
 
@@ -114,7 +114,6 @@ public abstract class AbstractMockActivator {
         ServiceCallBuilder builder = mock(ServiceCallBuilder.class);
         when(builder.origin(anyString())).thenReturn(builder);
         when(builder.extendedWith(any())).thenReturn(builder);
-//        when(builder.targetObject(any(Device.class))).thenReturn(builder);
         when(builder.create()).thenReturn(serviceCall);
         when(serviceCallType.newServiceCall()).thenReturn(builder);
         when(messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION)).thenReturn(Optional.of(destinationSpec));

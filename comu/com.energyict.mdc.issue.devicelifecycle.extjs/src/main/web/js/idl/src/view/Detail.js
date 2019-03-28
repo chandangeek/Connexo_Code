@@ -31,7 +31,7 @@ Ext.define('Idl.view.Detail', {
                     {
                         xtype: 'previous-next-navigation-toolbar',
                         margin: '10 0 0 0',
-                        itemId: 'data-validation-issue-detail-previous-next-navigation-toolbar',
+                        itemId: 'device-lifecycle-issue-detail-previous-next-navigation-toolbar',
                         store: 'Isu.store.Issues',
                         router: me.router,
                         routerIdArgument: 'issueId',
@@ -41,7 +41,7 @@ Ext.define('Idl.view.Detail', {
             },
             {
                 xtype: 'issue-detail-top',
-                itemId: 'data-validation-issue-detail-top',
+                itemId: 'device-lifecycle-issue-detail-top',
                 router: me.router
             },
             {
