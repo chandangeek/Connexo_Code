@@ -614,6 +614,7 @@ public enum TableSpecs {
             table.column("LOGBOOKID").number().map("logBookId").conversion(NUMBER2LONG).add();
             table.column("LOGBOOKPOSITION").number().map("logBookPosition").conversion(NUMBER2INT).add();
             table.column("DEVICEEVENTTYPE").varChar(80).map("deviceEventType").add();
+            table.column("READINGDATETIME").number().conversion(NUMBER2INSTANT).map("readingDateTime").since(version(10, 6)).add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_ENDDEVICEEVENTRECORD")
                     .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)

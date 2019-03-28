@@ -39,7 +39,7 @@ public class DeviceEventsImportProcessor extends AbstractDeviceDataFileImportPro
         endDeviceEvent.setType(data.getDeviceCode());
         endDeviceEvent.setLogBookPosition(Integer.parseInt(data.getEventLogID()));
         meterReading.addEndDeviceEvent(endDeviceEvent);
-        device.store(meterReading);
+        device.store(meterReading, data.getReadingDate() != null ? data.getReadingDate().toInstant() : null);
     }
 
     private Optional<LogBook> getLogBookByOBIS(Device device, String logbookOBIScode) {
