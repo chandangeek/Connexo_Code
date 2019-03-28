@@ -101,7 +101,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
                             || deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING)))
                     .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 0)
                     .forEach(DeviceMessage::revoke);
-            serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.RETRIED_BY_USER.getKey(), MessageSeeds.RETRIED_BY_USER.getDefaultFormat()));
+            serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.RETRIED_BY_USER).format());
             dataModel.getInstance(TimeOfUseSendHelper.class)
                     .setCalendarOnDevice(getDevice(), serviceCall);
             return serviceCallService.getServiceCall(serviceCall.getId()).get();

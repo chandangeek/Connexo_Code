@@ -383,8 +383,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
                     serviceCall.requestTransition(DefaultState.CANCELLED);
                 }
-                serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.CAMPAIGN_WAS_CANCELED_BECAUSE_DIDNT_RECEIVE_DEVICES.getKey(),
-                        MessageSeeds.CAMPAIGN_WAS_CANCELED_BECAUSE_DIDNT_RECEIVE_DEVICES.getDefaultFormat()));
+                serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CAMPAIGN_WAS_CANCELED_BECAUSE_DIDNT_RECEIVE_DEVICES).format());
             }
         });
     }
@@ -496,7 +495,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         Device device = findDeviceByServiceCall(serviceCall).orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.DEVICE_BY_SERVICE_CALL_NOT_FOUND));
         serviceCallService.lockServiceCall(serviceCall.getId());
         revokeCalendarsCommands(device);
-        serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.CANCELED_BY_USER.getKey(), MessageSeeds.CANCELED_BY_USER.getDefaultFormat()));
+        serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
     }
 
     @Override
@@ -549,7 +548,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     void logInServiceCall(ServiceCall serviceCall, MessageSeed message, LogLevel logLevel) {
-        serviceCall.log(logLevel, thesaurus.getString(message.getKey(), message.getDefaultFormat()));
+        serviceCall.log(logLevel, thesaurus.getSimpleFormat(message).format());
     }
 
     ComTaskExecution findComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
