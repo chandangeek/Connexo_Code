@@ -11,13 +11,17 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -35,6 +39,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.tasks.security.Privileges;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -45,17 +50,19 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class, MessageSeedProvider.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
-public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
+@Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
+public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, TranslationKeyProvider {
 
     private final Logger logger = Logger.getLogger(TaskServiceImpl.class.getName());
 
@@ -63,16 +70,18 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
     private volatile NlsService nlsService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
-    private volatile MasterDataService masterDataService;
+
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile UpgradeService upgradeService;
+    private volatile UserService userService;
 
     public TaskServiceImpl() {
         super();
     }
 
     @Inject
-    public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService, DeviceMessageSpecificationService deviceMessageSpecificationService, MasterDataService masterDataService, UpgradeService upgradeService) {
+    public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService, DeviceMessageSpecificationService deviceMessageSpecificationService, MasterDataService masterDataService, UpgradeService upgradeService,
+            UserService userService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -80,6 +89,7 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setMasterDataService(masterDataService);
         setUpgradeService(upgradeService);
+        setUserService(userService);
         activate();
     }
 
@@ -90,7 +100,7 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.newDataModel(TaskService.COMPONENT_NAME, "Communication Task Service");
+        dataModel = ormService.newDataModel(TaskService.COMPONENT_NAME, "Communication Task Service");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }
@@ -104,23 +114,27 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(TaskService.COMPONENT_NAME, Layer.DOMAIN);
+        thesaurus = nlsService.getThesaurus(TaskService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Override
     public Thesaurus getThesaurus() {
-        return this.thesaurus;
+        return thesaurus;
     }
 
     @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
         // Not actively used but required for foreign keys in TableSpecs
-        this.masterDataService = masterDataService;
-    }
+     }
 
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     Module getModule() {
@@ -145,6 +159,7 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
                 bind(TopologyTask.class).to(TopologyTaskImpl.class);
                 bind(MessagesTask.class).to(MessagesTaskImpl.class);
                 bind(FirmwareManagementTask.class).to(FirmwareManagementTaskImpl.class);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
@@ -152,7 +167,8 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
     @Activate
     public void activate() {
         dataModel.register(getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", TaskService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(Version.version(10, 3), V10_3SimpleUpgrader.class));
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", TaskService.COMPONENT_NAME), dataModel,
+                Installer.class, ImmutableMap.of(Version.version(10, 3), V10_3SimpleUpgrader.class, Version.version(10, 7), UpgraderV10_7.class));
     }
 
     @Override
@@ -205,7 +221,7 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
     @Override
     public List<LogBooksTask> findTasksUsing(LogBookType logBookType) {
         List<LogBookTypeUsageInProtocolTask> usages =
-                this.dataModel
+                dataModel
                         .mapper(LogBookTypeUsageInProtocolTask.class)
                         .find(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName(), logBookType);
         return usages.stream().map(LogBookTypeUsageInProtocolTask::getLogBooksTask).collect(Collectors.toList());
@@ -214,7 +230,7 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
     @Override
     public List<LoadProfilesTask> findTasksUsing(LoadProfileType loadProfileType) {
         List<LoadProfileTypeUsageInProtocolTask> usages =
-                this.dataModel
+                dataModel
                         .mapper(LoadProfileTypeUsageInProtocolTask.class)
                         .find(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TYPE_REFERENCE.fieldName(), loadProfileType);
         return usages.stream().map(LoadProfileTypeUsageInProtocolTask::getLoadProfilesTask).collect(Collectors.toList());
@@ -223,7 +239,7 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
     @Override
     public List<RegistersTask> findTasksUsing(RegisterGroup registerGroup) {
         List<RegisterGroupUsage> usages =
-                this.dataModel
+                dataModel
                         .mapper(RegisterGroupUsage.class)
                         .find(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName(), registerGroup);
         return usages
@@ -241,5 +257,18 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
+
+    @Override
+    public String getComponentName() {
+         return TaskService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Stream.of(Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
+    }
+
 
 }
