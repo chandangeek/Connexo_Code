@@ -131,7 +131,7 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     protected abstract void decodeReference();
 
-    protected Optional<AuditLogChange> getAuditLogChangeForString(String from, String to, TranslationKey translationKey) {
+    public Optional<AuditLogChange> getAuditLogChangeForString(String from, String to, TranslationKey translationKey) {
         if (to.compareTo(from) != 0) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
@@ -143,27 +143,25 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         return Optional.empty();
     }
 
-    protected Optional<AuditLogChange> getAuditLogChangeForInteger(Integer from, Integer to, TranslationKey translationKey) {
+    public Optional<AuditLogChange> getAuditLogChangeForBoolean(boolean from, boolean to, TranslationKey translationKey) {
+        if (to != from) {
+            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setType(SimplePropertyType.BOOLEAN.name());
+            auditLogChange.setValue(to);
+            auditLogChange.setPreviousValue(from);
+            return Optional.of(auditLogChange);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<AuditLogChange> getAuditLogChangeForInteger(Integer from, Integer to, TranslationKey translationKey) {
         if (to.compareTo(from) != 0) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
             auditLogChange.setType(SimplePropertyType.INTEGER.name());
             auditLogChange.setValue(to);
             auditLogChange.setPreviousValue(from);
-            return Optional.of(auditLogChange);
-        }
-        return Optional.empty();
-    }
-
-    protected Optional<AuditLogChange> getAuditLogChangeForOptional(Optional from, Optional to, TranslationKey translationKey) {
-        if (!compareOptionals(to, from)) {
-            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-            auditLogChange.setName(getDisplayName(translationKey));
-            auditLogChange.setType(SimplePropertyType.TEXT.name());
-            to.ifPresent(dt -> auditLogChange.setValue(dt));
-            from.ifPresent(dt -> auditLogChange.setPreviousValue(dt));
-            auditLogChange.setValue(to.get());
-            auditLogChange.setPreviousValue(from.get());
             return Optional.of(auditLogChange);
         }
         return Optional.empty();

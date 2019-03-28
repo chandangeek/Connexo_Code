@@ -342,7 +342,7 @@ public enum TableSpecs {
                     .domainContext(AuditDomainContextType.DEVICE_CONNECTION_METHODS.ordinal())
                     .domainReferences("FK_DDC_CONNECTIONTASK_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                     .contextReferenceColumn("ID")
-                    .reverseReferenceMap("amrId")
+                    .forceReverseReferenceMap(false)
                     .build();
         }
     },

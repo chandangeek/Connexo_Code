@@ -27,7 +27,7 @@ import java.util.List;
         name = "com.energyict.mdc.device.data.audit.connectionMethod",
         service = {AuditTrailDecoderHandle.class},
         immediate = true)
-public class AuditTrailconnectionMethodHandle implements AuditTrailDecoderHandle {
+public class AuditTrailConnectionMethodHandle implements AuditTrailDecoderHandle {
 
     private final AuditDomainContextType auditDomainContextType = AuditDomainContextType.DEVICE_CONNECTION_METHODS;
 
@@ -78,6 +78,6 @@ public class AuditTrailconnectionMethodHandle implements AuditTrailDecoderHandle
 
     @Override
     public AuditDecoder getAuditDecoder(AuditTrailReference reference) {
-        return new AuditTrailconnectionMethodDecoder(ormService, thesaurus, meteringService, serverDeviceService, customPropertySetService).init(reference);
+        return new AuditTrailConnectionMethodDecoder(ormService, thesaurus, meteringService, serverDeviceService, customPropertySetService).init(reference);
     }
 }

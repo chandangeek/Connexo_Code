@@ -109,15 +109,18 @@ public class AuditTrailDataWriter<T> {
             List<Object> pkContextColumns = tableAudit.getContextPkValues(object);
             List<DomainContextIdentifier> contextAuditIdentifiers = getContextAuditIdentifiers();
             resolveIncompleteContextIdentifier(object);
-            contextAuditIdentifiers.stream()
-                    .filter(contextIdentifierEntry -> (contextIdentifierEntry.getDomainContext() == tableAudit.getDomainContext()) &&
+            if (!tableAudit.getForceReverseReferenceMap() && getPkColumnByIndex(pkDomainColumns, 0) == 0){
+                return;
+            }
 
+            contextAuditIdentifiers.stream()
+                    .filter(contextIdentifierEntry -> (contextIdentifierEntry.getDomainContext().equals(tableAudit.getDomainContext())) &&
                             (contextIdentifierEntry.getPkDomainColumn() == getPkColumnByIndex(pkDomainColumns, 0)) &&
-                            (contextIdentifierEntry.getPkContextColumn() == getPkColumnByIndex(pkContextColumns, 0)))
+                            (contextIdentifierEntry.getPkContextColumn1() == getPkColumnByIndex(pkContextColumns, 0)))
                     .findFirst()
                     .map(domainContextIdentifier -> {
                         try {
-                            updateAuditDomain(now, domainContextIdentifier);
+                            updateAuditDomain(now, domainContextIdentifier, pkContextColumns);
                         } catch (SQLException e) {
                         }
                         return domainContextIdentifier;
@@ -126,11 +129,12 @@ public class AuditTrailDataWriter<T> {
                     .orElseGet(() -> {
                         try {
                             if (!isTouch) {
-                                Long nextVal = getNext(connection, "ADT_AUDIT_TRAILID");
+                                Long nextVal = getNext(connection);
                                 updateContextAuditIdentifiers(new DomainContextIdentifier().setId(nextVal)
                                         .setDomainContext(tableAudit.getDomainContext())
                                         .setPkDomainColumn(getPkColumnByIndex(pkDomainColumns, 0))
-                                        .setPkContextColumn(getPkColumnByIndex(pkContextColumns, 0))
+                                        .setPkContextColumn1(getPkColumnByIndex(pkContextColumns, 0))
+                                        .setPkContextColumn2(getPkColumnByIndex(pkContextColumns, 1))
                                         .setOperation(operation.ordinal())
                                         .setObject(object)
                                         .setTableAudit(tableAudit)
@@ -185,14 +189,20 @@ public class AuditTrailDataWriter<T> {
         }
     }
 
-    private void updateAuditDomain(Instant now, DomainContextIdentifier domainContextIdentifier) throws SQLException {
+    private void updateAuditDomain(Instant now, DomainContextIdentifier domainContextIdentifier, List<Object> pkContextColumns) throws SQLException {
         Long nextVal = domainContextIdentifier.getId();
-        String auditLog = getSqlGenerator().updateAuditTrailSql();
+        Long pkContext1 = getPkColumnByIndex(pkContextColumns, 0);
+        Long pkContext2 = getPkColumnByIndex(pkContextColumns, 1);
+        String auditLog = pkContext2 == 0 ? getSqlGenerator().updateAuditTrailSql() : getSqlGenerator().updateAuditTrailWithContextSql();
         try (Connection connection = getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(auditLog)) {
                 int index = 1;
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMEEND
                 statement.setLong(index++, getPkColumnBy(domainContextIdentifier)); // PKCONTEXT
+                statement.setLong(index++, pkContext1); // PKCONTEXT1
+                if (pkContext2 != 0){
+                    statement.setLong(index++, pkContext2); // PKCONTEXT2
+                }
                 statement.setLong(index++, nextVal); // ID
                 statement.execute();
             }
@@ -239,8 +249,8 @@ public class AuditTrailDataWriter<T> {
                 });
     }
 
-    private long getNext(Connection connection, String sequence) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("select " + sequence + ".nextval from dual")) {
+    private long getNext(Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("select ADT_AUDIT_TRAILID.nextval from dual")) {
             try (ResultSet rs = statement.executeQuery()) {
                 rs.next();
                 return rs.getLong(1);

@@ -28,6 +28,7 @@ public class TableAuditImpl implements TableAudit {
     private Optional<String> domainForeignKey = Optional.empty();
     private List<String> contextReferenceColumns = new ArrayList();
     private Optional<String> domainReferenceColumn = Optional.empty();
+    private boolean forceReverseReferenceMap = true;
 
     private final Reference<TableImpl<?>> table = ValueReference.absent();
 
@@ -190,6 +191,11 @@ public class TableAuditImpl implements TableAudit {
         return getTable();
     }
 
+    @Override
+    public boolean getForceReverseReferenceMap() {
+        return forceReverseReferenceMap;
+    }
+
     private Optional<ForeignKeyConstraint> getForeignKeyConstraintsByName(String name) {
         return foreignKeyConstraints.stream()
                 .filter(foreignKeyConstraint -> foreignKeyConstraint.getName().compareToIgnoreCase(name) == 0).findFirst();
@@ -224,6 +230,12 @@ public class TableAuditImpl implements TableAudit {
         @Override
         public Builder reverseReferenceMap(String reverseReferenceMap) {
             tableAudit.reverseReferenceMap = Optional.of(reverseReferenceMap);
+            return this;
+        }
+
+        @Override
+        public Builder forceReverseReferenceMap(boolean forceReverseReferenceMap) {
+            tableAudit.forceReverseReferenceMap = forceReverseReferenceMap;
             return this;
         }
 
