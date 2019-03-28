@@ -52,8 +52,14 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             renderer: function (value){
                 var form = this.up('firmware-form-edit');
                 if (form){
-                    if (value === 'Image') { form.down('#firmware-min-meter-version-common').hide(); form.down('#firmware-min-communication-version').hide();}
-                    else {form.down('#firmware-min-meter-version-common').show(); form.down('#firmware-min-communication-version').show(); }
+                    if (value === 'Image') {
+                        form.down('#firmware-min-meter-version-common').hide();
+                        form.down('#firmware-min-communication-version').hide();
+                    }
+                    else {
+                        form.down('#firmware-min-meter-version-common').show();
+                        form.down('#firmware-min-communication-version').show();
+                    }
                 }
                 return value;
             }

@@ -165,11 +165,11 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
                         Ext.each(responseText.errors, function (error) {
                             var errorId = error.id;
-                            if( !canFurtherUpload ){
+                            if ( !canFurtherUpload ){
                                 var errorKeyArr = errorId.split('.');
                                 errorKeyArr.shift(); // remove first item, as it is not presented in property
                                 errorId = errorKeyArr.join('.')
-                            }else{
+                            } else {
                                 errorId = error.title;
                             }
                             errorsArr.push({id: errorId, msg: error.msg});
@@ -192,7 +192,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                             confirmationWindow.show({
                                   title: 'Upload firmware?',
                             });
-                        }else{
+                        } else {
                             var errorsWithoutId = '',
                                 code = '';
                             if (responseText && responseText.errorCode) {

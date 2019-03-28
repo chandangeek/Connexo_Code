@@ -102,7 +102,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
 
                         showAllCheckboxes(newValue);
 
-                        if (newValue){
+                        if (newValue) {
                              var masterFirmwareMainOption = me.down('#masterFirmwareCheck');
                              if (masterFirmwareMainOption){
                                   masterFirmwareMainOption.setValue(true);
