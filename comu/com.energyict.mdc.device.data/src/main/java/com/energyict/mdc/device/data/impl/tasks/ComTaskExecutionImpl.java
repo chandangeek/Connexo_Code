@@ -269,7 +269,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public int getMaxNumberOfTries() {
-        return this.getBehavior().getMaxNumberOfTries();
+        return this.device.get().getDeviceConfiguration().getComTaskEnablementFor(this.getComTask()).get().getMaxNumberOfTries();
     }
 
     @Override

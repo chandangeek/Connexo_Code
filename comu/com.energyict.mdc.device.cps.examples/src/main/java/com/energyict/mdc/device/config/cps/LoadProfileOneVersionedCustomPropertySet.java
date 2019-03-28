@@ -16,7 +16,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.inject.Module;
@@ -99,11 +98,6 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
     public String getDomainClassDisplayName() {
         return this.thesaurus.getFormat(TranslationKeys.DOMAIN_NAME_CHANNEL).format();// CONM -332
         // return "Channel";
-    }
-
-    @Override
-    public Class getContextClass() {
-        return Device.class;
     }
 
     @Override
@@ -196,6 +190,14 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+            Column contextReference = (Column)(table.getColumn(LoadProfileOneVersionedDomainExtension.FieldNames.DEVICE_REF.databaseName()).get());
+            table
+                    .foreignKey(FK_CPS_DEVICE_VER)
+                    .on(contextReference)
+                    .references(getContextClass())
+                    .map(LoadProfileOneVersionedDomainExtension.FieldNames.DEVICE_REF.javaName())
+                    .add();
+
             return Collections.singletonList(
                     table
                         .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
@@ -203,21 +205,6 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
                         .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
                         .notNull()
                         .add());
-        }
-
-        @Override
-        public String contextFieldName() {
-            return LoadProfileOneVersionedDomainExtension.FieldNames.DEVICE_REF.javaName();
-        }
-
-        @Override
-        public String contextColumnName() {
-            return LoadProfileOneVersionedDomainExtension.FieldNames.DEVICE_REF.databaseName();
-        }
-
-        @Override
-        public String contextForeignKeyName() {
-            return FK_CPS_DEVICE_VER;
         }
 
         @Override
@@ -237,6 +224,11 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
                 .bool()
                 .map(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
                 .add();
+        }
+
+        @Override
+        public String contextForeignKeyName() {
+            return "FK_CPS_DEVICE_VER";
         }
     }
 }

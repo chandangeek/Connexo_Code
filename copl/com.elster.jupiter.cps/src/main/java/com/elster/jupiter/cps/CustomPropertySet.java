@@ -86,15 +86,6 @@ public interface CustomPropertySet<D, T extends PersistentDomainExtension<D>> {
     Class<D> getDomainClass();
 
     /**
-     * Gets the context for which this CustomPropertySet provides custom properties.
-     *
-     * @return The context class that is extended by this CustomPropertySet
-     */
-    default Class getContextClass(){
-        return null;
-    }
-
-    /**
      * Gets the human readable name of the domain class.
      * Preferable, this name is translated from the domain class
      * so that each language supported by Connexo has a proper display name.

@@ -111,7 +111,13 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_MASTER_SEARCH_CRITERION_NAME("device.master.searchcriterion.search", "Has master device"),
     ZONE_NAME("device.zoneName", "Zone name"),
     ZONE_TYPE("device.zoneType","Zone type"),
-    ZONE("device.zone", "Zone")
+    ZONE("device.zone", "Zone"),
+    CONNECTION_TASK_IS_DEFAULT("device.connection.isDefault", "Is default"),
+    CONNECTION_TASK_STRATEGY("device.connection.strategy", "Connection strategy"),
+    CONNECTION_TASK_STRATEGY_AS_SOON_AS_POSSIBLE("device.connection.strategy.asap", "As soon as possible"),
+    CONNECTION_TASK_STRATEGY_MINIMIZE_CONNECTIONS("device.connection.strategy.min.connections", "Minimize connections"),
+    CONNECTION_TASK_SIMULTANEOUS_CONNECTIONS_NUMBER("device.connection.simultaneous.connections.number", "Number of simultaneous connections"),
+
     ;
 
     private String key;

@@ -1,30 +1,31 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.getmeterconfig;
+package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
-import ch.iec.tc57._2011.getmeterconfig.FaultMessage;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
-import javax.inject.Inject;
-import java.util.Optional;
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 
-public class DeviceBuilder {
+import javax.inject.Inject;
+
+public class DeviceFinder {
 
     private final DeviceService deviceService;
-    private final GetMeterConfigFaultMessageFactory faultMessageFactory;
+    private final MeterConfigFaultMessageFactory faultMessageFactory;
 
     @Inject
-    public DeviceBuilder(DeviceService deviceService, GetMeterConfigFaultMessageFactory faultMessageFactory) {
+    public DeviceFinder(DeviceService deviceService,
+                         MeterConfigFaultMessageFactory faultMessageFactory) {
         this.deviceService = deviceService;
         this.faultMessageFactory = faultMessageFactory;
     }
 
-    public Device findDevice(Optional<String> mrid, String deviceName) throws FaultMessage {
-        Device device = mrid.isPresent() ? findDeviceByMRID(mrid.get(), deviceName) :
+    public Device findDevice(String mrid, String deviceName) throws FaultMessage {
+        Device device = (mrid != null && !mrid.isEmpty()) ? findDeviceByMRID(mrid, deviceName) :
                 deviceService.findDeviceByName(deviceName)
                         .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(deviceName, MessageSeeds.NO_DEVICE_WITH_NAME, deviceName));
         return device;

@@ -282,6 +282,11 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     }
 
     @Override
+    public void setInitialActivationStatus(boolean status) {
+        setActive(status);
+    }
+
+    @Override
     public void deactivate() {
         setActive(false);
     }
