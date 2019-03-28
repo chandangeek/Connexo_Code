@@ -8,76 +8,60 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImplIT;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
-import org.junit.Test;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Iterator;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScheduleQueryTest extends ConnectionTaskImplIT {
 
     private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name) {
-        this.partialScheduledConnectionTask.setName(name);
-        this.partialScheduledConnectionTask.save();
-        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
-                .setComPortPool(outboundTcpipComPortPool)
-                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                .add();
-        return scheduledConnectionTask;
+        return createAsapWithoutViolations(partialScheduledConnectionTask, outboundTcpipComPortPool, name);
     }
 
     private ScheduledConnectionTaskImpl createOtherAsapWithNoPropertiesWithoutViolations(String name) {
-        this.partialScheduledConnectionTask2.setName(name);
-        this.partialScheduledConnectionTask2.save();
-        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask2)
-                .setComPortPool(outboundTcpipComPortPool)
-                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                .add();
-        return scheduledConnectionTask;
+        return createAsapWithoutViolations(partialScheduledConnectionTask2, outboundTcpipComPortPool, name);
     }
 
     private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolationsUsingNonActiveComportPool(String name) {
-        this.partialScheduledConnectionTask.setName(name);
-        this.partialScheduledConnectionTask.save();
-        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
-                .setComPortPool(inactiveOutboundTcpipComportPool)
+        return createAsapWithoutViolations(partialScheduledConnectionTask, inactiveOutboundTcpipComportPool, name);
+    }
+
+    private ScheduledConnectionTaskImpl createAsapWithoutViolations(PartialScheduledConnectionTask partialScheduledConnectionTask, OutboundComPortPool pool, String name) {
+        partialScheduledConnectionTask.setName(name);
+        partialScheduledConnectionTask.save();
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask)
+                .setComPortPool(pool)
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .add();
         return scheduledConnectionTask;
     }
 
-
     private OutboundComPort createOutboundComPort() {
-        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerBuilder();
-        String name = "ComServer";
-        onlineComServerBuilder.name(name);
-        onlineComServerBuilder.storeTaskQueueSize(1);
-        onlineComServerBuilder.storeTaskThreadPriority(1);
-        onlineComServerBuilder.changesInterPollDelay(TimeDuration.minutes(5));
-        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.minutes(1));
-        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServerBuilder.numberOfStoreTaskThreads(2);
-        onlineComServerBuilder.serverName(name);
-        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
-        final OnlineComServer onlineComServer = onlineComServerBuilder.create();
-        OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
-        outboundComPortBuilder.comPortType(ComPortType.TCP);
-        OutboundComPort outboundComPort = outboundComPortBuilder.add();
-        outboundTcpipComPortPool.addOutboundComPort(outboundComPort);
-        return outboundComPort;
+        return createOutboundComPortInPool(outboundTcpipComPortPool);
     }
 
     private OutboundComPort createComPortInOtherComPortPool() {
+        return createOutboundComPortInPool(outboundTcpipComPortPool2);
+    }
+
+    private OutboundComPort createOutboundComPortInPool(OutboundComPortPool pool) {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerBuilder();
         String name = "ComServer";
         onlineComServerBuilder.name(name);
@@ -94,7 +78,8 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
         outboundComPortBuilder.comPortType(ComPortType.TCP);
         OutboundComPort outboundComPort = outboundComPortBuilder.add();
-        outboundTcpipComPortPool2.addOutboundComPort(outboundComPort);
+        pool.addOutboundComPort(outboundComPort);
+
         return outboundComPort;
     }
 
@@ -239,6 +224,69 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         assertThat(plannedComTaskExecutions.next().getId()).isEqualTo(comTaskExecution2.getId());
         assertThat(plannedComTaskExecutions.hasNext()).isTrue();
         assertThat(plannedComTaskExecutions.next().getId()).isEqualTo(comTaskExecution1.getId());
+    }
+
+    @Test
+    @Transactional
+    public void findFailedComTasksTest() {
+        Instant nextOne = freezeClock(2013, Calendar.MARCH, 13, 10, 12, 10, 0);
+        Instant nextTwo = freezeClock(2013, Calendar.JANUARY, 30, 9, 1, 10, 0);
+        final Instant futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
+        final Instant lastExecutionStartTimestamp = freezeClock(2013, Calendar.FEBRUARY, 3);
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("orderByNextExecutionTimeStampTest");
+        OutboundComPort outboundComPort = createOutboundComPort();
+        ServerComTaskExecution comTaskExecution1 = (ServerComTaskExecution) createComTaskExecutionWithConnectionTaskAndSetNextAndLastExecTimeStamp(connectionTask, nextOne, lastExecutionStartTimestamp);
+        ComTaskExecution comTaskExecution2 = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextTwo, comTaskEnablement2);
+
+        TaskStatus status = getReloadedComTaskExecution(device, comTaskExecution1).getStatus();
+        assertThat(comTaskExecution1.getStatus()).isEqualTo(TaskStatus.NeverCompleted);
+        checkFailedComTask(comTaskExecution1, false);
+
+        comTaskExecution1.executionStarted(outboundComPort);
+        comTaskExecution1.executionCompleted();
+        comTaskExecution1.getDevice().getComTaskExecutionUpdater(comTaskExecution1).forceNextExecutionTimeStampAndPriority(futureDate, 100).update(); // waiting task
+        status = getReloadedComTaskExecution(device, comTaskExecution1).getStatus();
+        assertThat(status).isEqualTo(TaskStatus.Waiting);
+        checkFailedComTask(comTaskExecution1, false);
+
+        comTaskExecution1.executionStarted(outboundComPort);
+        comTaskExecution1.executionFailed();
+        status = getReloadedComTaskExecution(device, comTaskExecution1).getStatus();
+
+        comTaskExecution1.getDevice().getComTaskExecutionUpdater(comTaskExecution1).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
+        ((ServerComTaskExecution) comTaskExecution1).executionCompleted();   // Resets any failures/retries
+
+        freezeClock(2013, Calendar.AUGUST, 6);
+
+        comTaskExecution1.executionStarted(outboundComPort);
+        comTaskExecution1.executionFailed();
+        comTaskExecution1.executionFailed();
+        comTaskExecution1.executionFailed();
+        comTaskExecution1.executionFailed();
+        comTaskExecution1.executionFailed();
+
+        status = getReloadedComTaskExecution(device, comTaskExecution1).getStatus();
+        checkFailedComTask(comTaskExecution1, true);
+    }
+
+    protected ComTaskExecution getReloadedComTaskExecution(Device device, ComTaskExecution toReload) {
+        Device reloadedDevice = getReloadedDevice(device);
+        return reloadedDevice.getComTaskExecutions().stream().filter(x -> x.getId() == toReload.getId()).findAny().get();
+    }
+
+    private void checkFailedComTask(ComTaskExecution comTaskExecution, boolean hasFailed) {
+        Fetcher<ComTaskExecution> fetcher = inMemoryPersistence.getCommunicationTaskService().findComTaskExecutionsForDevicesByComTask(Arrays.asList(device.getId()),
+                Arrays.asList(comTaskExecution.getComTask().getId()));
+
+        assertThat(fetcher).isNotNull();
+        Iterator<ComTaskExecution> plannedComTaskExecutions = fetcher.iterator();
+        if (hasFailed) {
+            assertThat(plannedComTaskExecutions.hasNext()).isTrue();
+            assertThat(plannedComTaskExecutions.next().getId()).isEqualTo(comTaskExecution.getId());
+            assertThat(plannedComTaskExecutions.hasNext()).isFalse();
+        } else {
+            assertThat(plannedComTaskExecutions.hasNext()).isFalse();
+        }
     }
 
     @Test

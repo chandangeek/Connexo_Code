@@ -107,6 +107,10 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     DeviceConfValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet);
 
+    void setValidationRuleSetStatus(ValidationRuleSet validationRuleSet, boolean status);
+
+    boolean getValidationRuleSetStatus(ValidationRuleSet validationRuleSet);
+
     void removeValidationRuleSet(ValidationRuleSet validationRuleSet);
 
     List<ValidationRuleSet> getValidationRuleSets();
@@ -114,6 +118,12 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
     List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages();
 
     DeviceConfigurationEstimationRuleSetUsage addEstimationRuleSet(EstimationRuleSet estimationRuleSet);
+
+    boolean isEstimationRuleSetActiveOnDeviceConfig(long estimationRuleSetId);
+
+    void setEstimationRuleSetStatus(EstimationRuleSet estimationRuleSet, boolean status);
+
+    boolean getEstimationRuleSetStatus(EstimationRuleSet estimationRuleSet);
 
     void removeEstimationRuleSet(EstimationRuleSet estimationRuleSet);
 

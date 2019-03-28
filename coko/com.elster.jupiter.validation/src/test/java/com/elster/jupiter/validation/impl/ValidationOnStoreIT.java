@@ -256,6 +256,16 @@ public class ValidationOnStoreIT {
                     public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
                         return false;
                     }
+
+                    @Override
+                    public boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceConfigId) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean canHandleRuleSetStatus() {
+                        return true;
+                    }
                 });
 
                 validationService.activateValidation(meter);

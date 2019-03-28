@@ -199,7 +199,13 @@ Ext.define('Mdc.audit.controller.Audit', {
                 rendererLink = isRemoved == true ? me.formatDeviceDataSourceContext(record, value) : me.formatDeviceDataSourceHRef(record) + me.formatDeviceDataSourceContext(record, value) + '</a>';
                 break;
             case 'DEVICE_PROTOCOL_DIALECTS_PROPS':
-                rendererLink = isRemoved == true ? me.formatProtocolDialectsContext(record, value) : me.formatProtocolDialectsHRef(record, value) + '</a>';
+                rendererLink = isRemoved == true ? me.formatOnlyEntityContext(record, value) : me.formatProtocolDialectsHRef(record, value) + '</a>';
+                break;
+            case 'DEVICE_CONNECTION_METHODS':
+                rendererLink = isRemoved == true ? me.formatEntityWithNameContext(record, value) : me.formatConnectionMethodsHRef(record, value) + '</a>';
+                break;
+            case 'DEVICE_COMTASKS':
+                rendererLink = me.formatComTasksHRef(record, value) + '</a>';;
                 break;
             default:
                 rendererLink = value;
@@ -267,8 +273,14 @@ Ext.define('Mdc.audit.controller.Audit', {
         return '';
     },
 
-    formatProtocolDialectsContext: function (record, value) {
+    formatOnlyEntityContext: function (record, value) {
         return Ext.String.format("{0}", value);
+    },
+
+    formatEntityWithNameContext: function (record, value) {
+        if(this.isEmptyOrNull(record.get('auditReference').contextReference.name))
+            return Ext.String.format("{0}", value);
+        return Ext.String.format("{0} -> {1}", value, record.get('auditReference').contextReference.name);
     },
 
     formatDeviceDataSourceHRef: function (record) {
@@ -307,6 +319,19 @@ Ext.define('Mdc.audit.controller.Audit', {
             periodStr = this.extractPeriod(contextReference);
 
         return '<a href="#/devices/' + record.get('auditReference').name + '/protocols">' +  Ext.String.format("{0} -> {1} ({2})", value, contextReference.name, periodStr);
+    },
+
+    formatConnectionMethodsHRef: function (record, value) {
+        var me = this,
+            contextReference = record.get('auditReference').contextReference;
+
+        return '<a href="#/devices/' + record.get('auditReference').name + '/connectionmethods">' + me.formatEntityWithNameContext(record, value);
+    },
+
+    formatComTasksHRef: function (record, value) {
+        var me = this;
+
+        return '<a href="#/devices/' + record.get('auditReference').name + '/communicationtasks">' +  me.formatEntityWithNameContext(record, value);
     },
 
     extractPeriod: function(contextReference){

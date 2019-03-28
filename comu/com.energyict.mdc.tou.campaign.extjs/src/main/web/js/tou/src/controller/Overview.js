@@ -73,7 +73,7 @@ Ext.define('Tou.controller.Overview', {
         case 'editCampaign':
         case 'editCampaignAndReturnToOverview':
             this.returnToOverview = item.action === 'editCampaignAndReturnToOverview';
-            location.href = '#/workspace/toucampaigns/' + encodeURIComponent(menu.record.get('name')) + '/edit';
+            location.href = '#/workspace/toucampaigns/' + encodeURIComponent(menu.record.get('id')) + '/edit';
             break;
         }
     },
@@ -98,9 +98,12 @@ Ext.define('Tou.controller.Overview', {
         var me = this,
         store = this.getStore('Tou.store.TouCampaigns');
         Ext.Ajax.request({
-            url: '/api/tou/touCampaigns/' + record.data.name + '/cancel',
+            url: '/api/tou/toucampaigns/' + record.data.id + '/cancel',
             method: 'PUT',
-            params: {},
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            jsonData: record.data,
             success: function (transport) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.campaigns.cancelled', 'TOU', 'Cancelling of the campaign has started and will continue in the background'));
             },
@@ -110,7 +113,7 @@ Ext.define('Tou.controller.Overview', {
         });
     },
 
-    editCampaign: function (campaignName) {
+    editCampaign: function (campaignId) {
         var me = this,
         router = me.getController('Uni.controller.history.Router'),
         widget = Ext.widget('tou-campaigns-add', {
@@ -118,7 +121,7 @@ Ext.define('Tou.controller.Overview', {
                 action: 'saveTouCampaign',
                 returnLink: me.returnToOverview
                  ? router.getRoute('workspace/toucampaigns/toucampaign').buildUrl({
-                    touCampaignName: campaignName
+                    touCampaignId: campaignId
                 })
                  : router.getRoute('workspace/toucampaigns').buildUrl()
             }),
@@ -127,7 +130,7 @@ Ext.define('Tou.controller.Overview', {
         onDependenciesLoaded = function () {
             dependenciesCounter--;
             if (!dependenciesCounter) {
-                me.loadModelToEditForm(campaignName, widget);
+                me.loadModelToEditForm(campaignId, widget);
             }
         };
 
@@ -148,7 +151,7 @@ Ext.define('Tou.controller.Overview', {
         model.load(campaignName, {
             success: function (campaignRecord) {
                 editView.down('tou-campaigns-add-form').setTitle(
-                    Uni.I18n.translate('tou.campaigns.editTouCampaign', 'TOU', 'Edit time of use campaign'));
+                    Uni.I18n.translate('tou.campaigns.editTouCampaign', 'TOU', 'Edit time of use calendar campaign'));
                 me.getApplication().fireEvent('loadTouCampaign', campaignRecord);
                 editForm.loadRecordForEdit(campaignRecord);
             }

@@ -70,8 +70,6 @@ public class DataMapperWriter<T> {
         Instant now = getTable().getDataModel().getClock().instant();
         prepare(object, false, now);
 
-
-
         try (Connection connection = getConnection(true)) {
             List<IOResource> resources = new ArrayList<>();
             try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().insertSql(false))) {

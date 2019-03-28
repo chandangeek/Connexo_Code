@@ -257,7 +257,7 @@
 				<plugin>
 					<groupId>com.elster.plugin</groupId>
 					<artifactId>bundle-version-maven-plugin</artifactId>
-					<version>1.2</version>
+					<version>1.4</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>

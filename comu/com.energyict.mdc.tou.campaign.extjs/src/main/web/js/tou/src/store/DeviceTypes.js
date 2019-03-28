@@ -8,7 +8,7 @@ Ext.define('Tou.store.DeviceTypes', {
 
     proxy: {
         type: 'rest',
-        url: '/api/tou/touCampaigns/devicetypes',
+        url: '/api/tou/toucampaigns/devicetypes',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
