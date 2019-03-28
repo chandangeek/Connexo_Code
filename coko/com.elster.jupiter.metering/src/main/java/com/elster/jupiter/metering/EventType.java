@@ -25,8 +25,8 @@ public enum EventType {
     METER_UPDATED("meter/UPDATED", true),
     METER_DELETED("meter/DELETED", true),
     METER_ACTIVATED("meter/ACTIVATED", true),
-    METER_LINKED("meter/LINKED",true),
-    METER_UNLINKED("meter/UNLINKED",true),
+    METER_LINKED("meter/LINKED"),
+    METER_UNLINKED("meter/UNLINKED"),
     READINGS_CREATED("reading/CREATED") {
         @Override
         public void install(EventService eventService) {
@@ -191,9 +191,7 @@ public enum EventType {
     READING_TYPE_DELIVERABLE_DELETED("readingtypedeliverable/DELETED"),
     METROLOGY_CONTRACT_DELETED("metrologycontract/DELETED"),
     ;
-    /* XROMVYU EVENTS !!!!!!!!! */
-    ;
-    /* XROMVYU EVENTS !!!!! */
+
     private static final String NAMESPACE = "com/elster/jupiter/metering/";
     private final String topic;
     private boolean hasMRID;
@@ -220,11 +218,10 @@ public enum EventType {
                 .scope("System")
                 .withProperty("id", ValueType.LONG, "id")
                 .withProperty("version", ValueType.LONG, "version");
+
         if (hasMRID) {
             builder.withProperty("MRID", ValueType.STRING, "MRID");
         }
-        System.out.println("Create EVENTTYPE="+this.topic);
-
         addCustomProperties(builder).create();
     }
 
