@@ -84,12 +84,8 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     }
 
     private void handle(StateTransitionChangeEvent event, EndDevice device, DefaultState newState) {
-        /* HERE WE HANDLE EVENT AND UPDATE DEVICE!!!!! */
         LifecycleDates lifecycleDates = device.getLifecycleDates();
         Instant effectiveTimestamp = this.effectiveTimestampFrom(event);
-        System.out.println("STATE WAS CHANGED!!!!!!!!!!!!!!!!");
-        System.out.println("EVENT = "+event.toString());
-        System.out.println("NEW STATE = "+newState.toString());
 
         switch (newState) {
             case IN_STOCK: {

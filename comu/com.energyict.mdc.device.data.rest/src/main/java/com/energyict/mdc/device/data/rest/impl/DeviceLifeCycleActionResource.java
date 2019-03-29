@@ -103,7 +103,7 @@ public class DeviceLifeCycleActionResource {
         DeviceLifeCycleActionInfo info = deviceLifeCycleActionInfoFactory.from(requestedAction);
         return Response.ok(info).build();
     }
-    /* XROMVYU PREFORM ACTION */
+
     @PUT
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON)
