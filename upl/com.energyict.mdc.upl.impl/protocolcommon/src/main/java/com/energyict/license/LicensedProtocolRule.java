@@ -332,7 +332,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     MK6_V2(287, "com.energyict.protocolimplv2.edmi.mk6.MK6"),
 
 /*
-    CRYPTO_T210D(288, "com.sagemcom.protocolimplv2.dlms.idis.T210D.CryptoT210D"),
+    CRYPTO_T210D(288, "com.sagemcom.protocolimplv2.dlms.idis.tD.CryptoT210D"),
 */
 
 //    CRYPTO_T210D(288, "com.sagemcom.protocolimplv2.dlms.idis.T210D.CryptoT210D"),
@@ -343,15 +343,43 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     CRYPTO_HS3300(294, "com.energyict.protocolimplv2.dlms.idis.hs3300.CryptoHS3300"),
     HONEYWELL_HS3300(295, "com.energyict.protocolimplv2.dlms.idis.hs3300.HS3300"),
     SAGEMCOM_T210(296, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.T210", FamilyRule.DSMR_NTA),
-    //not unique id:
-    //SAGEMCOM_XS210(296, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.XS210", FamilyRule.DSMR_NTA),
-    //TODO: is any family needed?
-    LANDYSGYR_E350(297, "com.energyict.protocolimplv2.nta.dsmr40.landisgyr.E350"),
-    IBM_KAIFA(298, "com.energyict.protocolimplv2.nta.dsmr40.ibm.Kaifa"),
-    ISKRA_MX382(299, "com.energyict.protocolimplv2.nta.dsmr23.Iskra.Mx382"),
-
-
+    SAGEMCOM_XS210(297, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.XS210", FamilyRule.DSMR_NTA),
+    LANDYSGYR_E350(298, "com.energyict.protocolimplv2.nta.dsmr40.landisgyr.E350"),
+    IBM_KAIFA(299, "com.energyict.protocolimplv2.nta.dsmr40.ibm.Kaifa"),
     AM122 (300, "com.energyict.protocolimplv2.dlms.idis.am122.AM122"),
+    ISKRA_MX382(301, "com.energyict.protocolimplv2.nta.dsmr23.Iskra.Mx382"),
+    DSMR40_MBUS_PROTOCOL_V2(302, "com.energyict.protocolimplv2.nta.dsmr40.common.Dsmr40MbusProtocol"),
+
+
+    CRYPTO_ISKRA_MX382(303, "com.energyict.protocolimplv2.nta.dsmr23.iskra.CryptoMx382", FamilyRule.DSMR_NTA),
+    CRYPTO_WEB_RTU_KP(304, "com.energyict.protocolimplv2.nta.dsmr23.eict.CryptoWebRTUKP", FamilyRule.EICT_NTA),
+
+    CRYPTO_E350_DSMR40(305, "com.energyict.protocolimplv2.nta.dsmr40.landysgir.CryptoE350", FamilyRule.DSMR_NTA),
+    CRYPTO_KAIFA_DSMR40(306, "com.energyict.protocolimplv2.nta.dsmr40.ibm.CryptoKaifa", FamilyRule.DSMR_NTA),
+
+    CRYPTO_E350_DSMR42(307, "com.energyict.protocolimplv2.nta.dsmr42.landysgir.CryptoE350", FamilyRule.DSMR_NTA),
+    CRYPTO_KAIFA_DSMR42(308, "com.energyict.protocolimplv2.nta.dsmr42.ibm.CryptoKaifa", FamilyRule.DSMR_NTA),
+
+    CRYPTO_T210(309, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.CryptoT210", FamilyRule.DSMR_NTA),
+
+
+    CRYPTO_ISKRA_MX382_MBUS(310, "com.energyict.protocolimplv2.nta.dsmr23.iskra.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+    CRYPTO_WEB_RTU_KP_MBUS(311, "com.energyict.protocolimplv2.nta.dsmr23.eict.CryptoMbusDevice", FamilyRule.EICT_NTA),
+
+    CRYPTO_LG_DSMR40_MBUS(312, "com.energyict.protocolimplv2.nta.dsmr40.landysgir.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+    CRYPTO_ITRON_DMSR40_MBUS(313, "com.energyict.protocolimplv2.nta.dsmr40.itron.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+    CRYPTO_GENERIC_DSMR40_MBUS(314, "com.energyict.protocolimplv2.nta.dsmr40.elster.CryptoMbusDevice", FamilyRule.EICT_NTA),
+
+    CRYPTO_LG_DSMR42_MBUS(315, "com.energyict.protocolimplv2.nta.dsmr42.landysgir.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+    CRYPTO_ITRON_DMSR42_MBUS(316, "com.energyict.protocolimplv2.nta.dsmr42.itron.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+    CRYPTO_ELSTER_DSR42_MBUS(317, "com.energyict.protocolimplv2.nta.dsmr42.elster.CryptoMbusDevice", FamilyRule.EICT_NTA),
+    CRYPTO_GENERIC_DSMR42_MBUS(318, "com.energyict.protocolimplv2.nta.dsmr42.elster.CryptoMbusDevice", FamilyRule.EICT_NTA),
+
+    CRYPTO_ITRON_EMSR50_MBUS(319, "com.energyict.protocolimplv2.nta.esmr50.itron.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+    CRYPTO_ELSTER_EMSR50_MBUS(320, "com.energyict.protocolimplv2.nta.esmr50.elster.CryptoMbusDevice", FamilyRule.EICT_NTA),
+    CRYPTO_GENERIC_ESMR50_MBUS(321, "com.energyict.protocolimplv2.nta.esmr50.elster.CryptoMbusDevice", FamilyRule.EICT_NTA),
+
+
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
@@ -386,6 +414,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     WEBRTUZ3_SLAVEMETER(20012, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter", FamilyRule.EICT_Z3),
     KAIFA_SMETS(20013, "com.energyict.smartmeterprotocolimpl.kaifa.Kaifa"),
     US_SEL(20014, "com.elster.us.protocolimplv2.sel.SEL");
+
 
     private int code;
     private String className;

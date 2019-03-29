@@ -21,6 +21,9 @@ import com.elster.jupiter.hsm.model.request.RenewKeyRequest;
 import com.elster.jupiter.hsm.model.response.protocols.*;
 import com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponse;
 import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalAgree2EGenerateResponse;
+import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalMBusResponse;
+import com.elster.jupiter.hsm.model.response.protocols.MacResponse;
+
 import org.apache.commons.lang3.SerializationUtils;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -470,6 +473,82 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     private ProtectedSessionKey toProtectedSessionKey(HsmIrreversibleKey hsmKey) {
         return new ProtectedSessionKey(new KeyLabel(hsmKey.getLabel()), hsmKey.getKey());
     }
+
+    public final KeyRenewalMBusResponse renewMBusUserKey(byte[] method7apdu, byte[] initializationVector, HsmIrreversibleKey authKey, HsmIrreversibleKey encrKey, HsmIrreversibleKey defaultKey, int securitySuite) throws
+            HsmBaseException {
+
+        try {
+            com.atos.worldline.jss.api.custom.energy.KeyRenewalMBusResponse response = Energy.renewMBusUserKey(toProtectedSessionKey(encrKey), method7apdu, initializationVector, toProtectedSessionKey(authKey), toProtectedSessionKey(defaultKey), getAtosSecuritySuite(securitySuite));
+            ProtectedSessionKey protectedSessionKey = response.getMdmSmWK();
+            HsmIrreversibleKey mdmSmWK = new HsmIrreversibleKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
+            return new KeyRenewalMBusResponseImpl(response.getSmartMeterKey(), response.getAuthenticationTag(), response.getMbusDeviceKey(), mdmSmWK, response.getMBusAuthTag());
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException("Failed to send MBus encryption keys using the cryptoserver: " + e.getMessage());
+        }
+
+    }
+
+    public final KeyRenewalMBusResponse renewMBusFuakWithGCM(String workingKeyLabel, HsmIrreversibleKey defaultKey, byte[] mBusInitialVector) throws HsmBaseException {
+        try {
+            KeyLabel mdmDbStorageKey = new KeyLabel(workingKeyLabel);
+            com.atos.worldline.jss.api.custom.energy.KeyRenewalMBusResponse response = Energy.renewMBusFuakWithGCM(mdmDbStorageKey, toProtectedSessionKey(defaultKey), mBusInitialVector);
+            ProtectedSessionKey protectedSessionKey = response.getMdmSmWK();
+            HsmIrreversibleKey mdmSmWK = new HsmIrreversibleKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
+            return new KeyRenewalMBusResponseImpl(response.getSmartMeterKey(), response.getAuthenticationTag(), response.getMbusDeviceKey(), mdmSmWK, response.getMBusAuthTag());
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException("Failed to send Mbus FUAK using the cryptoserver: " + e.getMessage());
+        }
+    }
+
+    public KeyRenewalMBusResponse renewMBusUserKeyWithGCM(HsmIrreversibleKey encrKey, byte[] apduTemplate, byte[] eMeterIV, HsmIrreversibleKey authKey, HsmIrreversibleKey defaultKey, byte[] mbusIV, int securitySuite) throws
+            HsmBaseException {
+        try {
+            com.atos.worldline.jss.api.custom.energy.KeyRenewalMBusResponse response = Energy.renewMBusUserKeyWithGCM(toProtectedSessionKey(encrKey), apduTemplate, eMeterIV, toProtectedSessionKey(authKey), toProtectedSessionKey(defaultKey), mbusIV, getAtosSecuritySuite(securitySuite));
+            ProtectedSessionKey protectedSessionKey = response.getMdmSmWK();
+            HsmIrreversibleKey mdmSmWK = new HsmIrreversibleKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
+            return new KeyRenewalMBusResponseImpl(response.getSmartMeterKey(), response.getAuthenticationTag(), response.getMbusDeviceKey(), mdmSmWK, response.getMBusAuthTag());
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException("Failed to send Mbus P2 key using the cryptoserver: " + e.getMessage());
+        }
+    }
+
+    public MacResponse generateMacFirstBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] data) throws HsmBaseException {
+        try {
+            com.atos.worldline.jss.api.custom.energy.MacResponse macResponse = Energy.generateMacFirstBlock(toProtectedSessionKey(firmwareUpdateAuthKey), data);
+            return new MacResponseImpl(macResponse.getData(),macResponse.getInitVector());
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException("Failed to generate first block using the cryptoserver: " + e.getMessage());
+        }
+    }
+
+    public MacResponse generateMacMiddleBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] state) throws HsmBaseException {
+        try {
+            com.atos.worldline.jss.api.custom.energy.MacResponse macResponse = Energy.generateMacMiddleBlock(toProtectedSessionKey(firmwareUpdateAuthKey),clearData, state);
+            return new MacResponseImpl(macResponse.getData(),macResponse.getInitVector());
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException("Failed to generate first block using the cryptoserver: " + e.getMessage());
+        }
+    }
+
+    public MacResponse generateMacLastBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv, byte[] state) throws HsmBaseException {
+        try {
+            com.atos.worldline.jss.api.custom.energy.MacResponse macResponse = Energy.generateMacLastBlock(toProtectedSessionKey(firmwareUpdateAuthKey),clearData, new ChainingValue(icv), state);
+            return new MacResponseImpl(macResponse.getData(),macResponse.getInitVector());
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException("Failed to generate first block using the cryptoserver: " + e.getMessage());
+        }
+    }
+
+    public MacResponse generateMacSingleBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv) throws HsmBaseException {
+        try {
+            com.atos.worldline.jss.api.custom.energy.MacResponse macResponse = Energy.generateMacSingleBlock(toProtectedSessionKey(firmwareUpdateAuthKey),clearData, new ChainingValue(icv));
+            return new MacResponseImpl(macResponse.getData(),macResponse.getInitVector());
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException("Failed to generate first block using the cryptoserver: " + e.getMessage());
+        }
+    }
+
+
 
     private SecuritySuite getAtosSecuritySuite(int securitySuite) throws HsmBaseException {
         SecuritySuite atosSecuritySuite = SECURITY_SUITE_MAP.get(securitySuite);

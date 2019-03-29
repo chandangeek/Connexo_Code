@@ -5,6 +5,8 @@ import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmIrreversibleKey;
 import com.elster.jupiter.hsm.model.response.protocols.DataAndAuthenticationTag;
 import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalAgree2EGenerateResponse;
+import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalMBusResponse;
+import com.elster.jupiter.hsm.model.response.protocols.MacResponse;
 
 import javax.net.ssl.X509KeyManager;
 import java.security.KeyStore;
@@ -94,4 +96,12 @@ public interface HsmProtocolService {
     HsmIrreversibleKey keyRenewalAgree2EFinalise(int securitySuite, int keyIDForAgree, byte[] serializedPrivateEccKey, byte[] ephemeralEccPubKeyForSmAgreementData, byte[] signature, String caCertificateLabel, Certificate[] certificateChain, byte[] otherInfo, String storageKeyLabel) throws HsmBaseException;
 
     X509KeyManager getKeyManager(KeyStore keyStore, char[] password, String clientTlsPrivateKeyAlias, X509Certificate[] certificateChain) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException;
+
+    KeyRenewalMBusResponse renewMBusUserKey(byte[] method7apdu, byte[] initializationVector, HsmIrreversibleKey authKey, HsmIrreversibleKey encrKey, HsmIrreversibleKey defaultKey, int securitySuite) throws HsmBaseException;
+    KeyRenewalMBusResponse renewMBusFuakWithGCM(String workingKeyLabel, HsmIrreversibleKey defaultKey, byte[] mBusInitialVector) throws HsmBaseException;
+    KeyRenewalMBusResponse renewMBusUserKeyWithGCM(HsmIrreversibleKey encrKey, byte[] apduTemplate, byte[] eMeterIV, HsmIrreversibleKey authKey, HsmIrreversibleKey defaultKey, byte[] mbusIV, int securitySuite)throws HsmBaseException;
+    MacResponse generateMacFirstBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData) throws HsmBaseException;
+    MacResponse generateMacMiddleBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] state) throws HsmBaseException;
+    MacResponse generateMacLastBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv, byte[] state) throws HsmBaseException;
+    MacResponse generateMacSingleBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv) throws HsmBaseException;
 }

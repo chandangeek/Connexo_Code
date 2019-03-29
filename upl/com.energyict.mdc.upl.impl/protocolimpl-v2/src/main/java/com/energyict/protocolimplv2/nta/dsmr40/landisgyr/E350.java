@@ -33,7 +33,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.LogBookReader;
@@ -41,18 +40,15 @@ import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.Dsmr40Properties;
 import com.energyict.protocolimplv2.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
-import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.Dsmr40LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40Messaging;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 
 public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumberSupport {
     private Dsmr40Messaging dsmr40Messaging;
@@ -78,6 +74,17 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
         this.loadProfileExtractor = loadProfileExtractor;
     }
 
+    protected NlsService getNlsService() {return this.nlsService;}
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {return keyAccessorTypeExtractor;}
+    protected Converter getConverter () {return converter;}
+    protected DeviceMessageFileExtractor getDeviceMessageFileExtractor () {return messageFileExtractor;}
+    protected TariffCalendarExtractor getTariffCalendarExtractor () {return calendarExtractor;}
+    protected NumberLookupExtractor getNumberLookupExtractor () {return numberLookupExtractor;}
+    protected LoadProfileExtractor getLoadProfileExtractor () {return loadProfileExtractor;}
+//    protected  get () {return ;}
+//    protected  get () {return ;}
+
+
     @Override
     public String getVersion() {
         return "E350 protocol integration version 16.01.2019";
@@ -100,7 +107,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
     }
 
-    private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
+    protected HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
         HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsSessionProperties());
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
@@ -148,7 +155,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
         return this.dsmr40MessageExecutor;
     }
 
-    protected Dsmr40Messaging getDSMR40Messaging() {
+    protected Dsmr40Messaging getMessaging() {
         if (this.dsmr40Messaging == null) {
             this.dsmr40Messaging = new Dsmr40Messaging(getMessageExecutor(), this.getPropertySpecService(), this.nlsService, this.converter, this.messageFileExtractor, this.calendarExtractor, this.numberLookupExtractor, this.loadProfileExtractor, this.keyAccessorTypeExtractor);
         }
@@ -180,22 +187,22 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
 
-        return getDSMR40Messaging().getSupportedMessages();
+        return getMessaging().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return getMessageExecutor().executePendingMessages(pendingMessages);
+        return getMessaging().executePendingMessages(pendingMessages);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return getDSMR40Messaging().updateSentMessages(sentMessages);
+        return getMessaging().updateSentMessages(sentMessages);
     }
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        return getDSMR40Messaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+        return getMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override

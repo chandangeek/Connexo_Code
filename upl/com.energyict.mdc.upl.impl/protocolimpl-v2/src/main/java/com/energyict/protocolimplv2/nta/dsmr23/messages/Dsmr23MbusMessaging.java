@@ -57,9 +57,11 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
-    private DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
+    protected DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
         return supplier.get(this.propertySpecService, this.nlsService, this.converter);
     }
+
+
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {

@@ -92,6 +92,14 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
+    protected NlsService getNlsService() {return this.nlsService;}
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {return keyAccessorTypeExtractor;}
+    protected Converter getConverter () {return converter;}
+    protected DeviceMessageFileExtractor getDeviceMessageFileExtractor () {return messageFileExtractor;}
+    protected TariffCalendarExtractor getTariffCalendarExtractor () {return calendarExtractor;}
+    protected NumberLookupExtractor getNumberLookupExtractor () {return numberLookupExtractor;}
+    protected LoadProfileExtractor getLoadProfileExtractor () {return loadProfileExtractor;}
+
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.comChannel = comChannel;
@@ -108,7 +116,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, getProperDeviceId()));
     }
 
-    private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
+    protected HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
         HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsSessionProperties());
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
