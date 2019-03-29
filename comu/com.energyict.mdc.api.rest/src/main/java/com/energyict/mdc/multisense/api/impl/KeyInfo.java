@@ -7,13 +7,11 @@ package com.energyict.mdc.multisense.api.impl;
 public class KeyInfo {
 
     public String value;
-    public String label;
 
     public KeyInfo() {
     }
 
-    public KeyInfo(String value, String label) {
+    public KeyInfo(String value) {
         this.value = value;
-        this.label = label;
     }
 }
