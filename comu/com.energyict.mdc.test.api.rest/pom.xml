@@ -61,5 +61,13 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.firmware</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.protocols.api</artifactId>
+        </dependency>
     </dependencies>
 </project>
