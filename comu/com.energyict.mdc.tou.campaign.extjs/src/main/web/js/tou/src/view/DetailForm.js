@@ -192,10 +192,10 @@ Ext.define('Tou.view.DetailForm', {
                                 case 'Pending':
                                     iconCls = 'icon-forward2';
                                     break;
-                                case 'Configuration Error':
+                                case 'Configuration error':
                                     iconCls = 'icon-notification';
                                     break;
-                                case 'Canceled':
+                                case 'Cancelled':
                                     iconCls = 'icon-blocked';
                                     break;
                                 }
