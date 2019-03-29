@@ -294,6 +294,7 @@ Ext.define('Tou.view.AddForm', {
             me.down("#tou-campaign-allowed-calendar").setDisabled(true);
             me.down("#tou-update-type").setValue(campaignRecord.get('updateType'));
             me.down("#tou-update-type").setDisabled(true);
+            me.down('#unique-calendar-name-field').setDisabled(true);
 
         };
         me.setLoading(false);
