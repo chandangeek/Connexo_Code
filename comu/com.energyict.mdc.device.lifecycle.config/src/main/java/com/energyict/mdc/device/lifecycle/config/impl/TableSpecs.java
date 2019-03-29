@@ -75,7 +75,6 @@ public enum TableSpecs {
             Column deviceLifeCycle = table.column("DEVICELIFECYCLE").number().notNull().add();
             table.column("LEVELBITS").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(AuthorizedActionImpl.Fields.LEVELS.fieldName()).add();
             // AuthorizedTransitionAction
-            // TODO: write an upgrader to re-assign checks to transitions and assign MetrologyConfigurationInCorrectStateIfAny everywhere!
             table.column("CHECKBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.CHECKS.fieldName()).upTo(version(10, 6)).add();
             table.column("ACTIONBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.ACTIONS.fieldName()).add();
             // AuthorizedStandardTransitionAction

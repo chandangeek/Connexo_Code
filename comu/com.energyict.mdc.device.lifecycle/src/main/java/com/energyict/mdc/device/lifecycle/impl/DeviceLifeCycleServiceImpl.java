@@ -21,12 +21,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
@@ -240,12 +242,19 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.serviceCallService = serviceCallService;
     }
 
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        dataModel = ormService.newDataModel(DeviceLifeCycleService.COMPONENT_NAME, "Device Life Cycle checks & actions");
+    }
+
     @Activate
     public void activate() {
-        dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(getModule());
         deviceMicroCheckFactory = dataModel.getInstance(DeviceMicroCheckFactoryImpl.class);
         deviceLifeCycleConfigurationService.addMicroCheckFactory(deviceMicroCheckFactory);
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceLifeCycleService.COMPONENT_NAME),
+                dataModel, Installer.class,
+                Collections.emptyMap());
     }
 
     @Deactivate
