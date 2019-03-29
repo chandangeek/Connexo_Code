@@ -37,7 +37,6 @@ import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -87,8 +86,7 @@ public class ToUCampaignHandlerTest {
         timeOfUseCampaignHandler = new TimeOfUseCampaignHandler(timeOfUseCampaignService, clock, serviceCallService, thesaurus);
     }
 
-    // TODO: fix this test
-    @Ignore
+
     @Test
     public void testCalendarTaskStarted() {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(6000));

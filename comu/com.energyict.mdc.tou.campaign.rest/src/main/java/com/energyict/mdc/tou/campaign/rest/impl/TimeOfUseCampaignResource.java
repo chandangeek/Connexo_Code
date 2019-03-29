@@ -143,7 +143,7 @@ public class TimeOfUseCampaignResource {
         Device device = deviceService.findDeviceById(((Number) id.id).longValue())
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_WITH_ID_ISNT_FOUND, id));
         TimeOfUseCampaignItem timeOfUseItem = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.TOU_ITEM_WITH_DEVICE_ISNT_FOUND, device));
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.TOU_ITEM_WITH_DEVICE_ISNT_FOUND, device.getName()));
         ServiceCall serviceCall = timeOfUseItem.getServiceCall();
         serviceCallService.lockServiceCall(serviceCall.getId());
         DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.create(device, timeOfUseItem.retry());
@@ -159,7 +159,7 @@ public class TimeOfUseCampaignResource {
         Device device = deviceService.findDeviceById(((Number) id.id).longValue())
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, id));
         TimeOfUseCampaignItem timeOfUseItem = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.TOU_ITEM_WITH_DEVICE_ISNT_FOUND, device));
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.TOU_ITEM_WITH_DEVICE_ISNT_FOUND, device.getName()));
         ServiceCall serviceCall = timeOfUseItem.getServiceCall();
         serviceCallService.lockServiceCall(serviceCall.getId());
         DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.create(device, timeOfUseItem.cancel());
