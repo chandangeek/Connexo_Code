@@ -23,7 +23,9 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class AuditTrailConnectionMethodDecoder extends AbstractCPSAuditDecoder {
@@ -51,7 +53,12 @@ public class AuditTrailConnectionMethodDecoder extends AbstractCPSAuditDecoder {
 
     @Override
     public UnexpectedNumberOfUpdatesException.Operation getOperation(UnexpectedNumberOfUpdatesException.Operation operation, AuditDomainContextType context) {
-        return UnexpectedNumberOfUpdatesException.Operation.UPDATE;
+        return isConnectionTaskObsolete() ? UnexpectedNumberOfUpdatesException.Operation.DELETE : operation;
+    }
+
+    private boolean isConnectionTaskObsolete() {
+        return connectionTask.map(ConnectionTask::isObsolete)
+                .orElse(false);
     }
 
     @Override
@@ -83,15 +90,25 @@ public class AuditTrailConnectionMethodDecoder extends AbstractCPSAuditDecoder {
     }
 
     private Optional<ConnectionTask<?, ?>> findHistoryConnectionTask() {
+        long connectionTaskId = getAuditTrailReference().getPkContext1();
         DataMapper<ConnectionTask> dataMapper = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME).get().mapper(ConnectionTask.class);
-
-        List<ConnectionTask> historyEntries = getHistoryEntries(dataMapper, getHistoryByJournalClauses(getAuditTrailReference().getPkContext1()));
         List<ConnectionTask<?,?>> historyEntriesExtended = new ArrayList<>();
-        if (historyEntries.size()>0){
-            historyEntriesExtended.add(historyEntries.get(0));
+
+        List<ConnectionTask> actualEntries = getActualEntries(dataMapper, getActualClauses(connectionTaskId));
+        List<ConnectionTask> historyByModTimeEntries = getHistoryEntries(dataMapper, getHistoryByModTimeClauses(connectionTaskId));
+        List<ConnectionTask> historyByJournalTimeEntries = getHistoryEntries(dataMapper, getHistoryByJournalClauses(connectionTaskId));
+        actualEntries.addAll(historyByModTimeEntries);
+        actualEntries.addAll(historyByJournalTimeEntries);
+
+        if (actualEntries.size()>0){
+            historyEntriesExtended.add(actualEntries.stream().sorted(Comparator.comparing(ConnectionTask::getVersion)).reduce((first, second) -> second).get());
         }
         return historyEntriesExtended.stream()
                 .findFirst();
+    }
+
+    private Map<String, Object> getActualClauses(long connectionTaskId) {
+        return ImmutableMap.of("ID", connectionTaskId);
     }
 
     protected Optional<RegisteredCustomPropertySet> getCustomPropertySet() {
