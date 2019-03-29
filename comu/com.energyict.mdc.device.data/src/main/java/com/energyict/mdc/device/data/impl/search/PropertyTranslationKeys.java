@@ -71,6 +71,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     COMTASK_SCHEDULE_NAME("device.comtask.schedule.name", "Schedule name"),
     COMTASK_PLANNED_DATE("device.comtask.planned.date", "Planned date"),
     COMTASK_URGENCY("device.comtask.urgency", "Urgency"),
+    COMTASK_USE_DEFAULT_CONNECTION_TASK("device.comtask.defaultConnectionTask", "Use default connection task"),
     PROTOCOL_DIALECT_DYNAMIC_PROP("protocol.dialect.dynamic", "Protocol dialect dynamic properties"),
     CONNECTION("device.connection", "Connection"),
     CONNECTION_NAME("device.connection.name", "Name"),
