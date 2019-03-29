@@ -30,7 +30,7 @@ public class CryptoESMR50ConfigurationSupport extends ESMR50ConfigurationSupport
     }
 
     private PropertySpec cryptoServerUsageProperty(){
-        return UPLPropertySpecFactory.specBuilder(CryptoDSMR23SecurityProvider.CRYPTOSERVER_USAGE, false, PropertyTranslationKeys.V2_NTA_CRYPTO_SERVER_USAGE, getPropertySpecService()::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(CryptoDSMR23SecurityProvider.CRYPTOSERVER_USAGE, false, PropertyTranslationKeys.V2_NTA_CRYPTO_SERVER_USAGE, getPropertySpecService()::booleanSpec).finish();
     }
 
     private PropertySpec cryptoServerHLSSecretProperty(){
