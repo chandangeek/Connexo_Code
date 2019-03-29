@@ -120,6 +120,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     protected ComTaskEnablement enableComTask(boolean useDefault, ConnectionFunction connectionFunction, String comTaskName) {
         ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck(comTaskName);
         ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet);
+        builder.setMaxNumberOfTries(maxNrOfTries);
         builder.useDefaultConnectionTask(useDefault);
         if (!useDefault && connectionFunction != null) {
             builder.setConnectionFunction(connectionFunction);

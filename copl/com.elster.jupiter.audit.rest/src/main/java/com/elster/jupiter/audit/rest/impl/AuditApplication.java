@@ -5,6 +5,8 @@
 package com.elster.jupiter.audit.rest.impl;
 
 import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.rest.AuditInfoFactory;
+import com.elster.jupiter.audit.rest.AuditI18N;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -34,12 +36,13 @@ import java.util.Set;
         property = {"alias=/aud", "app=SYS", "name=" + AuditApplication.COMPONENT_NAME})
 public class AuditApplication extends Application implements TranslationKeyProvider {
 
-    public static final String COMPONENT_NAME = "AUD";
+    public static final String COMPONENT_NAME = AuditI18N.COMPONENT_NAME;
 
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
     private volatile AuditService auditService;
     private volatile UserService userService;
+    private volatile AuditInfoFactory auditInfoFactory;
     private volatile Clock clock;
 
     @Override
@@ -78,6 +81,11 @@ public class AuditApplication extends Application implements TranslationKeyProvi
     }
 
     @Reference
+    public void setAuditInfoFactory(AuditInfoFactory auditInfoFactory) {
+        this.auditInfoFactory = auditInfoFactory;
+    }
+
+    @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
     }
@@ -110,8 +118,9 @@ public class AuditApplication extends Application implements TranslationKeyProvi
             bind(transactionService).to(TransactionService.class);
             bind(auditService).to(AuditService.class);
             bind(clock).to(Clock.class);
-            bind(AuditInfoFactory.class).to(AuditInfoFactory.class);
+            bind(AuditInfoFactoryImpl.class).to(AuditInfoFactoryImpl.class);
             bind(AuditLogInfoFactory.class).to(AuditLogInfoFactory.class);
+            bind(auditInfoFactory).to(AuditInfoFactory.class);
         }
     }
 }

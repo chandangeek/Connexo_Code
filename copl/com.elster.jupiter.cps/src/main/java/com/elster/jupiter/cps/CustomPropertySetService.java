@@ -133,6 +133,19 @@ public interface CustomPropertySetService {
      */
     List<RegisteredCustomPropertySet> findActiveCustomPropertySets();
 
+
+    /**
+     * Finds all {@link RegisteredCustomPropertySet}s.
+     * For remembrence's sake:
+     * <ul>
+     * <li>a CustomPropertySet that has registered before but is currently not deployed in the OSGi container will NOT be returned</li>
+     * <li>a CustomPropertySet that was registered by the system will be returned</li>
+     * </ul>
+     *
+     * @return The List of RegisteredCustomPropertySet
+     */
+    List<RegisteredCustomPropertySet> findAllCustomPropertySets();
+
     /**
      * Finds all {@link RegisteredCustomPropertySet}s that are currently active
      * and that provide custom properties for the specified domain class.
@@ -270,6 +283,9 @@ public interface CustomPropertySetService {
     <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues);
 
 
+    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListOfValuesModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues);
+
+
     /**
      * Gets the unique set of history values for the {@link CustomPropertySet} that were saved for
      * the specified businesObject object at the specified point in time.
@@ -291,6 +307,8 @@ public interface CustomPropertySetService {
      * @see CustomPropertySet#isVersioned()
      */
     <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueHistoryValuesForVersion(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+
+    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListOfHistoryValuesForVersion(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant from, Instant to, Object... additionalPrimaryKeyValues);
 
 
     /**
@@ -507,6 +525,8 @@ public interface CustomPropertySetService {
      * @see CustomPropertySet#isVersioned()
      */
     <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues);
+
+    <D, T extends PersistentDomainExtension<D>> List<T> getListValuesEntityModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues);
     /**
      * Gets the history values for the {@link CustomPropertySet} that were saved for
      * the specified businesObject object at the specified point in time.
@@ -528,6 +548,8 @@ public interface CustomPropertySetService {
      * @see CustomPropertySet#isVersioned()
      */
     <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+
+    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant from, Instant to, Object... additionalPrimaryKeyValues);
 
     /**
      * Gets the values for the {@link CustomPropertySet} that match the condition

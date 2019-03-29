@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.ChannelEstimationRuleOverriddenProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
@@ -78,12 +79,13 @@ class DeviceEstimationImpl implements DeviceEstimation {
 
     @Override
     public List<DeviceEstimationRuleSetActivation> getEstimationRuleSetActivations() {
-        List<EstimationRuleSet> ruleSetsOnDeviceConfig = device.getDeviceConfiguration().getEstimationRuleSets();
+        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
+        List<EstimationRuleSet> ruleSetsOnDeviceConfig = deviceConfiguration.getEstimationRuleSets();
 
         List<DeviceEstimationRuleSetActivation> returnList = ruleSetsOnDeviceConfig.stream()
                 .map(r -> Pair.of(r, findEstimationRuleSetActivation(r)))
                 .map(p -> p.getLast().orElseGet(
-                        () -> dataModel.getInstance(DeviceEstimationRuleSetActivationImpl.class).init(this.device, p.getFirst(), true))) //not saved intentionally
+                        () -> dataModel.getInstance(DeviceEstimationRuleSetActivationImpl.class).init(this.device, p.getFirst(), deviceConfiguration.isEstimationRuleSetActiveOnDeviceConfig(p.getFirst().getId())))) //not saved intentionally
                 .collect(toList());
 
         List<DeviceEstimationRuleSetActivation> removedFromDeviceConfiguration = estimationRuleSetActivations.stream()

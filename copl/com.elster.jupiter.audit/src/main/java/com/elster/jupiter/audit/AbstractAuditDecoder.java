@@ -87,7 +87,6 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     @SuppressWarnings("unchecked")
     public <T> List<T> getActualEntries(DataMapper<T> dataMapper, Map<String, Object> valueMap) {
-
         Condition inputCondition = Condition.TRUE;
         valueMap.entrySet().stream()
                 .forEach(entry -> inputCondition.and(where(entry.getKey()).isEqualTo(entry.getValue())));
@@ -100,7 +99,6 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     @SuppressWarnings("unchecked")
     public <T> List<T> getHistoryEntries(DataMapper<T> dataMapper, Map<Operator, Pair<String, Object>> pair) {
-
         List<Comparison> conditionFromJournal = pair.entrySet().stream()
                 .map(entry -> entry.getKey().compare(entry.getValue().getFirst(), entry.getValue().getLast()))
                 .collect(Collectors.toList());
@@ -133,7 +131,7 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     protected abstract void decodeReference();
 
-    protected Optional<AuditLogChange> getAuditLogChangeForString(String from, String to, TranslationKey translationKey) {
+    public Optional<AuditLogChange> getAuditLogChangeForString(String from, String to, TranslationKey translationKey) {
         if (to.compareTo(from) != 0) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
@@ -145,27 +143,25 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         return Optional.empty();
     }
 
-    protected Optional<AuditLogChange> getAuditLogChangeForInteger(Integer from, Integer to, TranslationKey translationKey) {
+    public Optional<AuditLogChange> getAuditLogChangeForBoolean(boolean from, boolean to, TranslationKey translationKey) {
+        if (to != from) {
+            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setType(SimplePropertyType.BOOLEAN.name());
+            auditLogChange.setValue(to);
+            auditLogChange.setPreviousValue(from);
+            return Optional.of(auditLogChange);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<AuditLogChange> getAuditLogChangeForInteger(Integer from, Integer to, TranslationKey translationKey) {
         if (to.compareTo(from) != 0) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
             auditLogChange.setType(SimplePropertyType.INTEGER.name());
             auditLogChange.setValue(to);
             auditLogChange.setPreviousValue(from);
-            return Optional.of(auditLogChange);
-        }
-        return Optional.empty();
-    }
-
-    protected Optional<AuditLogChange> getAuditLogChangeForOptional(Optional from, Optional to, TranslationKey translationKey) {
-        if (!compareOptionals(to, from)) {
-            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-            auditLogChange.setName(getDisplayName(translationKey));
-            auditLogChange.setType(SimplePropertyType.TEXT.name());
-            to.ifPresent(dt -> auditLogChange.setValue(dt));
-            from.ifPresent(dt -> auditLogChange.setPreviousValue(dt));
-            auditLogChange.setValue(to.get());
-            auditLogChange.setPreviousValue(from.get());
             return Optional.of(auditLogChange);
         }
         return Optional.empty();

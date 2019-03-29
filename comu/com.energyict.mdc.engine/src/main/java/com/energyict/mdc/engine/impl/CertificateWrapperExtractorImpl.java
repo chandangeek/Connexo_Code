@@ -29,6 +29,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.LinkedList;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -118,8 +119,9 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
                 keyStore.load(null); // This initializes the empty key store
                 LinkedList<com.elster.jupiter.pki.CertificateWrapper> certificateChain = CertificateChainBuilder.getCertificateChain(requestableCertificateWrapper);
                 if (connexoCertificateWrapper instanceof ClientCertificateWrapper) {
+                    LinkedList<com.elster.jupiter.pki.CertificateWrapper> clientCertificateWrappers = certificateChain.stream().filter(com.elster.jupiter.pki.CertificateWrapper::hasPrivateKey).collect(Collectors.toCollection(LinkedList::new));
                     //well this cast is horrible but this is the model we have ...
-                    CertificateChainBuilder.populateKeyStore((LinkedList<ClientCertificateWrapper>) (LinkedList<?>) certificateChain, keyStore, PARAMETERS);
+                    CertificateChainBuilder.populateKeyStore((LinkedList<ClientCertificateWrapper>) (LinkedList<?>) clientCertificateWrappers, keyStore, PARAMETERS);
                 } else {
 
                     //TODO: log something? in this case we have a certificate based on a CSR for which we don't have the private key (csr for HSM private key, or for a beacon device private key....)

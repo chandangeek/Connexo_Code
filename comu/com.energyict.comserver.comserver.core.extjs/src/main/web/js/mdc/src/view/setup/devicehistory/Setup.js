@@ -14,7 +14,8 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
         'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.devicehistory.IssueAlarmFilter',
         'Mdc.view.setup.devicehistory.IssueAlarmGrid',
-        'Mdc.view.setup.devicehistory.IssueAlarmPreview'
+        'Mdc.view.setup.devicehistory.IssueAlarmPreview',
+        'Mdc.audit.view.AuditSetup'
     ],
 
     router: null,
@@ -122,6 +123,11 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                                     itemId: 'issues-alarm-filter'
                                 }
                             ]
+                        },
+                        {
+                            title: Uni.I18n.translate('general.auditTrail', 'MDC', 'Audit trail'),
+                            padding: '8 16 16 0',
+                            itemId: 'device-history-audit-trail-tab'
                         }
                     ]
                 }

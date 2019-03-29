@@ -54,4 +54,6 @@ public class DeviceComTaskInfo {
     public boolean isOnHold;
     @JsonProperty("ignoreNextExecutionSpecsForInbound")
     public boolean ignoreNextExecutionSpecsForInbound;
+    @JsonProperty("maxNumberOfTries")
+    public int maxNumberOfTries;
 }

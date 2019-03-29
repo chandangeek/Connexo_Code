@@ -540,6 +540,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 
         record.set("priority", values.priority);
         record.set("ignoreNextExecutionSpecsForInbound", values.ignoreNextExecutionSpecsForInbound);
+        record.set("maxNumberOfTries", values.maxNumberOfTries);
     },
 
     setPreLoader: function (target, message) {

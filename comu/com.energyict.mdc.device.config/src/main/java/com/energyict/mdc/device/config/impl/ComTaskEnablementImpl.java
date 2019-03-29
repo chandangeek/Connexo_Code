@@ -54,7 +54,9 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         USE_DEFAULT_CONNECTION_TASK("usesDefaultConnectionTask"),
         PARTIAL_CONNECTION_TASK("partialConnectionTask"),
         SUSPENDED("suspended"),
-        PRIORITY("priority");
+        PRIORITY("priority"),
+        MAX_NR_OF_TRIES("maxNumberOfTries");
+
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -90,6 +92,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+    private int maxNumberOfTries;
 
     @Inject
     protected ComTaskEnablementImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -240,6 +243,17 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     public void useDefaultConnectionTask(boolean flagValue) {
         this.saveStrategy = this.saveStrategy.useDefaultConnectionTask(flagValue);
     }
+
+    @Override
+    public int getMaxNumberOfTries() {
+        return this.maxNumberOfTries;
+    }
+
+    @Override
+    public void setMaxNumberOfTries(int maxNumberOfTries) {
+        this.maxNumberOfTries = maxNumberOfTries;
+    }
+
 
     private void setUsesDefaultConnectionTask(boolean flagValue) {
         this.usesDefaultConnectionTask = flagValue;
