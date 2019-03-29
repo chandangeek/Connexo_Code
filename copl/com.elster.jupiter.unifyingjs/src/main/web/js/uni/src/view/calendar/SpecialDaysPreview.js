@@ -45,7 +45,7 @@ Ext.define('Uni.view.calendar.SpecialDaysPreview', {
       recurringField.removeAll();
       if (calendarRecord.recurrentSpecialDays().getCount()) {
           calendarRecord.recurrentSpecialDays().group('dayTypeName');
-          const groups = calendarRecord.recurrentSpecialDays().getGroups();
+          var groups = calendarRecord.recurrentSpecialDays().getGroups();
 
           Ext.each(groups, function(group) {
               recurringField.add(
@@ -80,7 +80,7 @@ Ext.define('Uni.view.calendar.SpecialDaysPreview', {
       fixedField.removeAll();
       if (calendarRecord.fixedSpecialDays().getCount()) {
           calendarRecord.fixedSpecialDays().group('dayTypeName');
-          const groups = calendarRecord.fixedSpecialDays().getGroups();
+          var groups = calendarRecord.fixedSpecialDays().getGroups();
           Ext.each(groups, function(group) {
               fixedField.add(
                   {
