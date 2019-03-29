@@ -173,19 +173,18 @@ public class MeterActivationResource {
         if (!meter.getState(start).filter(state -> state.getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent()).isPresent()) {
             start = getMeterActivationStartTime(start, meter, meterActivationInfo);
         }
-
         validateStartTime(usagePoint, start, meterRole, replace);
 
         UsagePointMeterActivator linker = usagePoint.linkMeters();
         if (replace && usagePoint.getMeterActivations(start).stream().anyMatch(meterActivation -> meterActivation.getMeterRole().filter(meterRole::equals).isPresent())) {
             linker.clear(start, meterRole);
         }
-
         linker.activate(start, meter, meterRole);
         linker.complete();
 
         MeterActivation activation = resourceHelper.findMeterActivation(usagePoint, meterRole, start)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE, meterActivationInfo.meterRole));
+
         return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());
     }
 
@@ -238,7 +237,6 @@ public class MeterActivationResource {
     }
 
     private Instant getMeterActivationStartTime(Instant start, Meter meter, MeterActivationInfo meterActivationInfo) {
-
         StateTimeSlice state = meter.getStateTimeline().flatMap(stateTimeline -> stateTimeline.getSlices().stream()
                 .filter(stateTimeSlice -> stateTimeSlice.getPeriod()
                         .lowerEndpoint()

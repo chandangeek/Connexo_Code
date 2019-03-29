@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.TransactionRequired;
 
 public enum EventType {
 
-
     CUSTOM_PROPERTY_SET_REGISTERED("CustomPropertySet/REGISTERED");
 
     private static final String NAMESPACE = "com/elster/jupiter/cps/";

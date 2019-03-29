@@ -213,7 +213,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             return;
         }
         startValidation();
-
         this.deactivationChanges.forEach(activation -> {
             if(activation.getUsagePoint() != null){
                 String keyToFind = activation.getMeterRole().getKey();
@@ -286,13 +285,11 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         if (this.activationChanges.isEmpty() && this.deactivationChanges.isEmpty()) {
             return;
         }
-
         // Apply 'clear' modifications, i.e. detach usage point for specific roles
         this.meterTimeLines = new HashMap<>();
         convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations())
                 .forEach(meter -> getMeterTimeLine(meter, this.meterTimeLines));
         ElementVisitor<Activation> clearVisitor = new MeterActivationClearVisitor();
-
         this.deactivationChanges.forEach(activation ->
                 convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations(activation.getMeterRole()))
                         .forEach(meter -> {
@@ -312,6 +309,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             });
         this.usagePoint.touch();
         refreshMeterActivations();
+
         notifyInterestedComponents();
     }
 

@@ -37,9 +37,9 @@ public interface CurrentStateExtractor {
         public String name;
 
         /**
-         * The name of the current state.
+         * The moment when transition happens.
          */
-        public Instant timeEventToHappen;
+        public Instant timeTransitionToHappen;
     }
 
     /**

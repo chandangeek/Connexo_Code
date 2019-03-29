@@ -135,7 +135,7 @@ public class StandardEventHandler implements Subscriber {
                         stateMachine,
                         cs.sourceId,
                         cs.sourceType,
-                        cs.timeEventToHappen != null ? cs.timeEventToHappen :  Instant.now(clock),
+                        cs.timeTransitionToHappen != null ? cs.timeTransitionToHappen :  Instant.now(clock),
                         propertiesOf(event),
                         cs.name);
     }

@@ -157,7 +157,6 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     }
 
     private void publishChange(ActualState currentState, ActualState newState, StateTransitionTriggerEvent triggerEvent) {
-        /* !!!!!!!!!!!!!!!!! */
         StateTransitionChangeEventImpl changeEvent = new StateTransitionChangeEventImpl(this.eventService, currentState.state, newState.state, triggerEvent.getSourceId(), triggerEvent.getSourceType(), triggerEvent.getEffectiveTimestamp(), triggerEvent.getProperties());
         changeEvent.publish();
     }
