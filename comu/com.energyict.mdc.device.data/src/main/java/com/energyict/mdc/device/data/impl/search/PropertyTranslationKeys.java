@@ -118,6 +118,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CONNECTION_TASK_STRATEGY_AS_SOON_AS_POSSIBLE("device.connection.strategy.asap", "As soon as possible"),
     CONNECTION_TASK_STRATEGY_MINIMIZE_CONNECTIONS("device.connection.strategy.min.connections", "Minimize connections"),
     CONNECTION_TASK_SIMULTANEOUS_CONNECTIONS_NUMBER("device.connection.simultaneous.connections.number", "Number of simultaneous connections"),
+    CONNECTION_TASK_CONNECTION_WINDOW("device.connection.window", "Connection window"),
+    CONNECTION_TASK_CONNECTION_WINDOW_NO_RESTRICTION("device.connection.window.no.restriction", "no restrictions"),
 
     ;
 

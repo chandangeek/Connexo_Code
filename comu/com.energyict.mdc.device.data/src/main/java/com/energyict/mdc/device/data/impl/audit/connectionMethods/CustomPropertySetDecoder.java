@@ -87,9 +87,12 @@ public class CustomPropertySetDecoder {
                                     decoder.getAuditLogChangeForUpdate(finalToCustomPropertySetValues.get(), finalFromCustomPropertySetValues.get(), propertySpec).ifPresent(auditLogChanges::add);
                                 }
                                 else {
-                                    decoder.getAuditLogChangeFromValues(decoder.convertCustomPropertySetValue(finalToCustomPropertySetValues.get(), propertySpec),
-                                            partialConnectionTask.getProperty(propertySpec.getName()).getValue().toString(),
-                                            propertySpec).ifPresent(auditLogChanges::add);
+                                    Object toValue = decoder.convertCustomPropertySetValue(finalToCustomPropertySetValues.get(), propertySpec);
+                                    if (toValue!= null) {
+                                        decoder.getAuditLogChangeFromValues(toValue,
+                                                partialConnectionTask.getProperty(propertySpec.getName()).getValue().toString(),
+                                                propertySpec).ifPresent(auditLogChanges::add);
+                                    }
                                 }
                             }
                     );
