@@ -269,7 +269,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public int getMaxNumberOfTries() {
-        return this.getBehavior().getMaxNumberOfTries();
+        return this.device.get().getDeviceConfiguration().getComTaskEnablementFor(this.getComTask()).get().getMaxNumberOfTries();
     }
 
     @Override
@@ -1398,11 +1398,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public int getMaxNumberOfTries() {
-            int minimalNrOfRetries = getComSchedule().get().getComTasks().stream().
-                    map(ComTask::getMaxNrOfTries).
+            return getComSchedule().get().getComTasks().stream().
+                    map(ComTask::getMaxNumberOfTries).
                     min(Integer::compare).
                     orElse(OutboundConnectionTaskImpl.DEFAULT_MAX_NUMBER_OF_TRIES);
-            return minimalNrOfRetries;
         }
 
         @Override

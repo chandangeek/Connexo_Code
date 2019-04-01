@@ -89,7 +89,8 @@ public class TransactionServiceImpl implements TransactionService {
     	return terminate(true);
     }
 
-    TransactionEvent rollback() {
+    @Override
+    public TransactionEvent rollback() {
     	return terminate(false);
     }
 

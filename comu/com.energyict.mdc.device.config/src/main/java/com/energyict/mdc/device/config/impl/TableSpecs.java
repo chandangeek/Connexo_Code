@@ -691,6 +691,7 @@ public enum TableSpecs {
             Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add().upTo(Version.version(10, 2));
             table.column("IGNORENEXTEXECSPECS").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND.fieldName()).add();
             table.column("CONNECTIONFUNCTION").number().conversion(NUMBER2LONG).map("connectionFunctionDbValue").since(Version.version(10, 4)).add();
+            table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskEnablementImpl.Fields.MAX_NR_OF_TRIES.fieldName()).since(Version.version(10, 6)).installValue("3").add();
             table.foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT")
                     .on(partialConnectionTask)
                     .references(DTC_PARTIALCONNECTIONTASK.name())
@@ -746,6 +747,8 @@ public enum TableSpecs {
                             .conversion(NUMBER2LONG)
                             .map("deviceConfigurationId")
                             .add();
+
+            table.column("IS_RULE_SET_ACTIVE").number().installValue("0").notNull().conversion(NUMBER2BOOLEAN).map("isRuleSetActive").since(version(10, 6)).add();
             table.setJournalTableName("DTC_DEVCFGVALRULESETUSAGEJRNL");
             table.addAuditColumns();
 
@@ -783,6 +786,15 @@ public enum TableSpecs {
                     .conversion(NUMBER2INT)
                     .map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.POSITION.fieldName())
                     .add();
+            table.column("IS_RULE_SET_ACTIVE")
+                    .number().installValue("0")
+                    .notNull()
+                    .conversion(NUMBER2BOOLEAN)
+                    .map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.IS_RULE_SET_ACTIVE.fieldName())
+                    .since(version(10, 6))
+                    .add();
+
+
             table.setJournalTableName(name() + "JRNL");
             table.addAuditColumns();
 

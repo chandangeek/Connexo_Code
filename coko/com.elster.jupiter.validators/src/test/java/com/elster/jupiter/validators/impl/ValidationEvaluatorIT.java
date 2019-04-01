@@ -240,6 +240,16 @@ public class ValidationEvaluatorIT {
                 public boolean isValidationRuleSetInUse(ValidationRuleSet ruleSet) {
                     return false;
                 }
+
+                @Override
+                public boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceConfigId) {
+                    return true;
+                }
+
+                @Override
+                public boolean canHandleRuleSetStatus() {
+                    return true;
+                }
             });
             return null;
         });

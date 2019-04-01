@@ -54,7 +54,7 @@ public class TimeZoneFactory extends AbstractValueFactory<TimeZone> {
 
     @Override
     public String toStringValue (TimeZone timeZone) {
-        return timeZone.getID();
+        return  timeZone == null ? null : timeZone.getID();
     }
 
     /**

@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +26,10 @@ public class TableAuditImpl implements TableAudit {
     private Integer domainContext;
     private Optional<String> reverseReferenceMap = Optional.empty();
     private Optional<String> domainForeignKey = Optional.empty();
-    private Optional<String> contextReferenceColumn = Optional.empty();
+    private List<String> contextReferenceColumns = new ArrayList();
+    private Optional<String> domainReferenceColumn = Optional.empty();
+    private boolean forceReverseReferenceMap = true;
+
     private final Reference<TableImpl<?>> table = ValueReference.absent();
 
     TableAuditImpl init(TableImpl<?> table, String name) {
@@ -50,15 +54,24 @@ public class TableAuditImpl implements TableAudit {
     @Override
     public List<Object> getDomainPkValues(Object object) {
         Optional<String> foreignKeyName = domainForeignKey;
-        if ((foreignKeyConstraints.size() == 0) || (!foreignKeyName.isPresent()) || (foreignKeyName.isPresent() && foreignKeyName.get().isEmpty())) {
+
+        if (domainReferenceColumn.isPresent()){
+            Object finalObject = object;
+            return getTable().getColumn(domainReferenceColumn.get())
+                            .map(columnImpl -> getPkColumnReference(Collections.singletonList(columnImpl), finalObject))
+                            .orElseGet(Collections::emptyList);
+        }
+
+        if (foreignKeyConstraints.size() == 0 || !foreignKeyName.isPresent() || foreignKeyName.get().isEmpty()) {
             return getPkColumnReference(getTable().getPrimaryKeyColumns(), object);
         }
+
         try {
             for (ForeignKeyConstraint foreignKeyConstraint : foreignKeyConstraints) {
                 String fieldName = foreignKeyConstraint.getFieldName();
                 Optional<?> reference = ((Reference<?>) (((TableImpl) foreignKeyConstraint.getReferencedTable()).getDomainMapper().getField(object.getClass(), fieldName)
                         .get(object))).getOptional();
-                if (reference.isPresent() == false) {
+                if (!reference.isPresent()) {
                     return Collections.emptyList();
                 }
                 object = reference.get();
@@ -74,13 +87,13 @@ public class TableAuditImpl implements TableAudit {
 
     @Override
     public List<Object> getContextPkValues(Object object) {
-        return Optional.ofNullable(contextReferenceColumn)
-                .filter(column -> column.isPresent() && column.get().length() > 0)
-                .map(Optional::get)
-                .map(column -> getTable().getColumn(column)
-                        .map(columnImpl -> getPkColumnReference(Collections.singletonList(columnImpl), object))
-                        .orElseGet(Collections::emptyList))
-                .orElseGet(Collections::emptyList);
+       return contextReferenceColumns.stream()
+                    .filter(column -> column.length() > 0)
+                    .map(column -> getTable().getColumn(column)
+                            .map(columnImpl -> getPkColumnReference(Collections.singletonList(columnImpl), object))
+                            .orElseGet(Collections::emptyList))
+               .flatMap(List::stream)
+               .collect(Collectors.toList());
     }
 
     @Override
@@ -121,7 +134,7 @@ public class TableAuditImpl implements TableAudit {
 
     private List<Object> getPkColumnReference(List<? extends Column> columns, Object object) {
         return columns.stream()
-                .sorted((o1, o2) -> ((Column) o1).getName().compareToIgnoreCase(o2.getName()))
+                .sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()))
                 .map(column -> ((ColumnImpl) column).domainValue(object))
                 .collect(Collectors.toList());
     }
@@ -178,6 +191,11 @@ public class TableAuditImpl implements TableAudit {
         return getTable();
     }
 
+    @Override
+    public boolean getForceReverseReferenceMap() {
+        return forceReverseReferenceMap;
+    }
+
     private Optional<ForeignKeyConstraint> getForeignKeyConstraintsByName(String name) {
         return foreignKeyConstraints.stream()
                 .filter(foreignKeyConstraint -> foreignKeyConstraint.getName().compareToIgnoreCase(name) == 0).findFirst();
@@ -216,10 +234,25 @@ public class TableAuditImpl implements TableAudit {
         }
 
         @Override
-        public Builder contextReferenceColumn(String contextReferenceColumn) {
-            tableAudit.contextReferenceColumn = Optional.of(contextReferenceColumn);
+        public Builder forceReverseReferenceMap(boolean forceReverseReferenceMap) {
+            tableAudit.forceReverseReferenceMap = forceReverseReferenceMap;
             return this;
         }
+
+        @Override
+        public Builder contextReferenceColumn(String... contextReferenceColumn) {
+            tableAudit.contextReferenceColumns.addAll(Arrays.stream(contextReferenceColumn).collect(Collectors.toList()));
+            return this;
+        }
+
+
+
+        @Override
+        public Builder domainReferenceColumn(String domainReferenceColumn) {
+            tableAudit.domainReferenceColumn = Optional.of(domainReferenceColumn);
+            return this;
+        }
+
         @Override
         public TableAudit build() {
             return add();

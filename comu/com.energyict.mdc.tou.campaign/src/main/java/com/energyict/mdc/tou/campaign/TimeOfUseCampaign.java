@@ -5,10 +5,12 @@
 package com.energyict.mdc.tou.campaign;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceType;
 
 import java.time.Instant;
+import java.util.Map;
 
 public interface TimeOfUseCampaign {
 
@@ -18,9 +20,9 @@ public interface TimeOfUseCampaign {
 
     String getDeviceGroup();
 
-    Instant getActivationStart();
+    Instant getUploadPeriodStart();
 
-    Instant getActivationEnd();
+    Instant getUploadPeriodEnd();
 
     Calendar getCalendar();
 
@@ -32,10 +34,25 @@ public interface TimeOfUseCampaign {
 
     ServiceCall getServiceCall();
 
+    Map<DefaultState, Long> getNumbersOfChildrenWithStatuses();
+
+    void update();
+
+    void cancel();
+
+    void delete();
+
+    void setName(String name);
+
+    void setUploadPeriodStart(Instant start);
+
+    void setUploadPeriodEnd(Instant end);
+
     long getValidationTimeout();
 
     long getVersion();
 
     long getId();
 
+    boolean isWithUniqueCalendarName();
 }

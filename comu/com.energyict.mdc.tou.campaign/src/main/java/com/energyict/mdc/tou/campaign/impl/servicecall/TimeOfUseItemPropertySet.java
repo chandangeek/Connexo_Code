@@ -13,7 +13,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 
 import javax.inject.Inject;
@@ -28,14 +27,15 @@ public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, 
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
-    private volatile DeviceService deviceService;
+    private volatile TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
 
     @Inject
     public TimeOfUseItemPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService,
-                                    CustomPropertySetService customPropertySetService, DeviceService deviceService) {
+                                    CustomPropertySetService customPropertySetService,
+                                    TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
-        this.deviceService = deviceService;
+        this.timeOfUseCampaignService = timeOfUseCampaignService;
         customPropertySetService.addCustomPropertySet(this);
     }
 
@@ -46,7 +46,7 @@ public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, 
 
     @Override
     public String getName() {
-        return thesaurus.getFormat(TranslationKeys.TIME_OF_USE_CAMPAIGN_CPS).format();
+        return thesaurus.getFormat(TranslationKeys.TIME_OF_USE_ITEM_CPS).format();
     }
 
     @Override
@@ -61,7 +61,7 @@ public class TimeOfUseItemPropertySet implements CustomPropertySet<ServiceCall, 
 
     @Override
     public PersistenceSupport<ServiceCall, TimeOfUseItemDomainExtension> getPersistenceSupport() {
-        return new TimeOfUseItemPersistenceSupport();
+        return new TimeOfUseItemPersistenceSupport(timeOfUseCampaignService);
     }
 
     @Override

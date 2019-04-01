@@ -90,6 +90,8 @@
                 type="tns:MeterConfigEventMessageType"/>
     <xs:element name="DeletedMeterConfig"
                 type="tns:MeterConfigEventMessageType"/>
+    <xs:element name="ReplyMeterConfig"
+                type="tns:MeterConfigEventMessageType"/>
     <xs:element name="MeterConfigResponseMessage"
                 type="tns:MeterConfigResponseMessageType"/>
     <xs:element name="MeterConfigFaultMessage"

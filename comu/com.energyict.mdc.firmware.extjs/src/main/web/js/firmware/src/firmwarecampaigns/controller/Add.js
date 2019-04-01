@@ -99,7 +99,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         page.setLoading();
         var record = form.getRecord();
 
-        if(record.get('managementOption') && record.get('managementOption').id === 'activate'){
+        if(record.get('managementOption')){
             record.set('validationTimeout', {
                 count: periodCount.getValue(),
                 timeUnit: periodCombo.findRecordByDisplay(periodCombo.getRawValue()).get('name')

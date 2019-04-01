@@ -148,7 +148,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>hsm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.app</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -273,6 +280,7 @@
                     <wsdlDirectory>src/main/resources</wsdlDirectory>
                     <wsdlFiles>
                         <wsdlFile>meterconfig/ExecuteMeterConfig.wsdl</wsdlFile>
+                        <wsdlFile>meterconfig/ReplyMeterConfig.wsdl</wsdlFile>
                         <wsdlFile>getenddeviceevents/GetEndDeviceEvents.wsdl</wsdlFile>
                         <wsdlFile>enddeviceevents/ReceiveEndDeviceEvents.wsdl</wsdlFile>
                     </wsdlFiles>

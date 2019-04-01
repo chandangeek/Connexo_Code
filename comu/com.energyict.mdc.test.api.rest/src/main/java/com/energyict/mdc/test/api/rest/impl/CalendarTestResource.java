@@ -30,14 +30,14 @@ public class CalendarTestResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response deleteCalendar(@PathParam("id") long id) {
-        Calendar calendar = calendarService.findCalendar(id).orElseThrow(() -> new IllegalStateException("CALENDAR NOT FOUND"));
+        Calendar calendar = calendarService.findCalendar(id).orElseThrow(() -> new IllegalStateException("Calendar not found"));
         if (!calendar.mayBeDeleted()) {
             throw new IllegalArgumentException("ACTIVE_CALENDAR_CANT_BE_REMOVED");
         } else if (calendarService.isCalendarInUse(calendar)) {
             throw new IllegalArgumentException("TIME_OF_USE_CALENDAR_IN_USE");
         } else {
             calendar.delete();
-            return Response.ok().build();
+            return Response.noContent().build();
         }
     }
 }

@@ -102,7 +102,7 @@ public class UsagePointGeneralDomainExtension extends AbstractVersionedPersisten
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.setPrepay(new Boolean(propertyValues.getProperty(Fields.PREPAY.javaName()).toString()));
+        this.setPrepay((Boolean) propertyValues.getProperty(Fields.PREPAY.javaName()));
         this.setMarketCodeSector((String) propertyValues.getProperty(Fields.MARKET_CODE_SECTOR.javaName()));
         this.setMeteringPointType((String) propertyValues.getProperty(Fields.METERING_POINT_TYPE.javaName()));
     }

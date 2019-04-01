@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.XsdQuantityConverter;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -20,7 +19,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
-import com.elster.jupiter.util.units.Quantity;
 
 import ch.iec.tc57._2011.usagepointconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.usagepointconfig.Name;
@@ -151,10 +149,10 @@ class UsagePointConfigFactory {
             Object value = (values == null)?null:values.getProperty(propertySpec.getName());
             if (value == null) {
                 Object propertyValue = getDefaultPropertyValue(propertySpec);
-                attr.setValue(convertPropertyValue(propertyValue));
+                attr.setValue(convertPropertyValue(propertySpec, propertyValue));
                 customAttributeSet.getAttribute().add(attr);
             } else {
-                attr.setValue(convertPropertyValue(value));
+                attr.setValue(convertPropertyValue(propertySpec, value));
                 customAttributeSet.getAttribute().add(attr);
             }
             if (propertySet.isVersioned() && values != null) {
@@ -174,16 +172,8 @@ class UsagePointConfigFactory {
         return propertySpec.getPossibleValues() == null ? null : propertySpec.getPossibleValues().getDefault();
     }
 
-    private String convertPropertyValue(Object value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof ZoneInfo) {
-            return ((ZoneInfo)value).getID();
-        } else if (value instanceof Quantity) {
-            return XsdQuantityConverter.marshal((Quantity)value);
-        } else {
-            return String.valueOf(value);
-        }
+    private String convertPropertyValue(PropertySpec spec, Object value) {
+        return spec.getValueFactory().toStringValue(value);
     }
 
     private void addMetrologyRequirements(UsagePoint usagePoint,

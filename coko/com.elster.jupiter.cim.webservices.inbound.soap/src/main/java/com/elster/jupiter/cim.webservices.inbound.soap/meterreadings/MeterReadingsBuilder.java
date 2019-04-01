@@ -11,6 +11,11 @@ import com.elster.jupiter.cbo.TranslationKeys;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -48,6 +53,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -58,28 +64,34 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class MeterReadingsBuilder {
+public class MeterReadingsBuilder {
 
     private final MeteringService meteringService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeterReadingFaultMessageFactory faultMessageFactory;
 
     private UsagePoint usagePoint;
+    private List<EndDevice> endDevices;
     private Set<MetrologyPurpose> purposes;
-    private Set<String> readingTypeMRIDs;
-    private Set<String> readingTypeFullAliasNames;
+    private Set<String> readingTypeMRIDs = Collections.emptySet();
+    private Set<String> readingTypeFullAliasNames = Collections.emptySet();
     private RangeSet<Instant> timePeriods;
 
     private Set<ReadingType> referencedReadingTypes;
     private Set<ReadingQualityType> referencedReadingQualityTypes;
 
     @Inject
-    MeterReadingsBuilder(MeteringService meteringService,
+    public MeterReadingsBuilder(MeteringService meteringService,
                          MetrologyConfigurationService metrologyConfigurationService,
                          MeterReadingFaultMessageFactory faultMessageFactory) {
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.faultMessageFactory = faultMessageFactory;
+    }
+
+    public MeterReadingsBuilder withEndDevices(List<EndDevice> endDevices) {
+        this.endDevices = endDevices;
+        return this;
     }
 
     MeterReadingsBuilder fromUsagePointWithMRID(String mRID) throws FaultMessage {
@@ -107,22 +119,22 @@ class MeterReadingsBuilder {
         return this;
     }
 
-    MeterReadingsBuilder ofReadingTypesWithMRIDs(Set<String> mRIDs) throws FaultMessage {
+    public MeterReadingsBuilder ofReadingTypesWithMRIDs(Set<String> mRIDs) {
         this.readingTypeMRIDs = mRIDs;
         return this;
     }
 
-    MeterReadingsBuilder ofReadingTypesWithFullAliasNames(Set<String> names) throws FaultMessage {
+    public MeterReadingsBuilder ofReadingTypesWithFullAliasNames(Set<String> names) {
         this.readingTypeFullAliasNames = names;
         return this;
     }
 
-    MeterReadingsBuilder inTimeIntervals(RangeSet<Instant> timePeriods) {
+    public MeterReadingsBuilder inTimeIntervals(RangeSet<Instant> timePeriods) {
         this.timePeriods = timePeriods;
         return this;
     }
 
-    MeterReadings build() throws FaultMessage {
+    public MeterReadings build() throws FaultMessage {
         MeterReadings meterReadings = new MeterReadings();
         List<MeterReading> meterReadingsList = meterReadings.getMeterReading();
         List<ch.iec.tc57._2011.meterreadings.ReadingType> readingTypeList = meterReadings.getReadingType();
@@ -130,12 +142,25 @@ class MeterReadingsBuilder {
         referencedReadingTypes = new HashSet<>();
         referencedReadingQualityTypes = new HashSet<>();
 
-        usagePoint.getEffectiveMetrologyConfigurations().stream()
-                .filter(emc -> !timePeriods.subRangeSet(emc.getInterval().toOpenClosedRange()).isEmpty())
-                .flatMap(this::fetchReadingsFromEffectiveConfiguration)
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getLast, MeterReadingsBuilder::mergeMaps))
-                .forEach((purposeName, readingsByReadingTypes) -> wrapInMeterReading(purposeName, readingsByReadingTypes)
-                        .ifPresent(meterReadingsList::add));
+        if (endDevices == null || endDevices.isEmpty()) {
+            usagePoint.getEffectiveMetrologyConfigurations().stream()
+                    .filter(emc -> !timePeriods.subRangeSet(emc.getInterval().toOpenClosedRange()).isEmpty())
+                    .flatMap(this::fetchReadingsFromEffectiveConfiguration)
+                    .collect(Collectors.toMap(Pair::getFirst, Pair::getLast, MeterReadingsBuilder::mergeMaps))
+                    .forEach((purposeName, readingsByReadingTypes) -> wrapInMeterReading(purposeName, null, readingsByReadingTypes)
+                            .ifPresent(meterReadingsList::add));
+        } else if (endDevices.stream().anyMatch(ed -> ed instanceof Meter)) {
+                endDevices.stream()
+                        .filter(ed -> ed instanceof Meter)
+                        .forEach(ed -> {
+                                Meter meter = (Meter) ed;
+                                meter.getChannelsContainers().stream()
+                                .filter(cc -> !timePeriods.subRangeSet(cc.getInterval().toOpenClosedRange()).isEmpty())
+                                .map(this::fetchReadingsFromContainer)
+                                .forEach(readingsByReadingTypes -> wrapInMeterReading(null, ed, readingsByReadingTypes)
+                                        .ifPresent(meterReadingsList::add));
+                });
+        }
 
         // filled in in scope of wrapInMeterReading
         referencedReadingTypes.stream()
@@ -185,6 +210,25 @@ class MeterReadingsBuilder {
                 .orElseGet(Collections::emptyMap);
     }
 
+    private Map<ReadingType, List<ReadingWithQualities>> fetchReadingsFromContainer(ChannelsContainer channelsContainer) {
+        RangeSet<Instant> currentTimePeriods = timePeriods.subRangeSet(channelsContainer.getInterval().toOpenClosedRange());
+        if (currentTimePeriods.isEmpty()) {
+            return Collections.<ReadingType, List<ReadingWithQualities>>emptyMap();
+        }
+        Map<ReadingType, List<ReadingWithQualities>>  result = new HashMap<>();
+        for (Channel channel: channelsContainer.getChannels()) {
+            for (ReadingType readingType: channel.getReadingTypes()) {
+                if (readingTypeFullAliasNames.contains(readingType.getFullAliasName())
+                        || readingTypeMRIDs.contains(readingType.getMRID())) {
+                    channel.getCimChannel(readingType).ifPresent(cimChannel -> {
+                        result.put(readingType, getReadingsWithQualities(cimChannel, currentTimePeriods));
+                    });
+                }
+            }
+        }
+        return result;
+    }
+
     private static List<ReadingWithQualities> getReadingsWithQualities(AggregatedChannel channel, RangeSet<Instant> timePeriods) {
         Map<Instant, ReadingWithQualities> readingsWithQualities = getReadingRecords(channel, timePeriods)
                 .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, ReadingWithQualities::from, (a, b) -> a, TreeMap::new));
@@ -200,11 +244,37 @@ class MeterReadingsBuilder {
         return new ArrayList<>(readingsWithQualities.values());
     }
 
-    private static Stream<BaseReadingRecord> getReadingRecords(AggregatedChannel channel, RangeSet<Instant> timePeriods) {
-        return (channel.isRegular() ?
-                        channel.getAggregatedIntervalReadings(timePeriods.span()) :
-                        getAggregatedRegisterReadings(channel, timePeriods.span()))
+    private static List<ReadingWithQualities> getReadingsWithQualities(CimChannel channel, RangeSet<Instant> timePeriods) {
+        Map<Instant, ReadingWithQualities> readingsWithQualities = getReadingRecords(channel, timePeriods)
+                .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, ReadingWithQualities::from, (a, b) -> a, TreeMap::new));
+        Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamps = channel.findReadingQualities()
+                .actual()
+                .inTimeInterval(timePeriods.span())
                 .stream()
+                .filter(quality -> timePeriods.contains(quality.getReadingTimestamp()))
+                .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
+        readingQualitiesByTimestamps.forEach((timestamp, qualitiesList) ->
+                readingsWithQualities.computeIfAbsent(timestamp, ReadingWithQualities::missing)
+                        .setReadingQualities(qualitiesList));
+        return new ArrayList<>(readingsWithQualities.values());
+    }
+
+    private static Stream<BaseReadingRecord> getReadingRecords(AggregatedChannel channel, RangeSet<Instant> timePeriods) {
+        Collection<? extends BaseReadingRecord> records = (channel.isRegular() ?
+                channel.getAggregatedIntervalReadings(timePeriods.span()) :
+                getAggregatedRegisterReadings(channel, timePeriods.span()));
+        return getReadingRecords(records, timePeriods);
+    }
+
+    private static Stream<BaseReadingRecord> getReadingRecords(CimChannel channel, RangeSet<Instant> timePeriods) {
+        Collection<? extends BaseReadingRecord> records = (channel.isRegular() ?
+                channel.getIntervalReadings(timePeriods.span()) :
+                channel.getRegisterReadings(timePeriods.span()));
+        return getReadingRecords(records, timePeriods);
+    }
+
+    private static Stream<BaseReadingRecord> getReadingRecords(Collection<? extends BaseReadingRecord> baseReadingRecords, RangeSet<Instant> timePeriods) {
+        return baseReadingRecords.stream()
                 .map(BaseReadingRecord.class::cast)
                 .filter(reading -> timePeriods.contains(reading.getTimeStamp()))
                 .filter(reading -> !isMissingWithOnlyDerivedQualities(reading));
@@ -232,8 +302,14 @@ class MeterReadingsBuilder {
         return readingsMap.values();
     }
 
-    private Optional<MeterReading> wrapInMeterReading(String purpose, Map<ReadingType, List<ReadingWithQualities>> readingsByReadingTypes) {
+    private Optional<MeterReading> wrapInMeterReading(String purpose, EndDevice endDevice, Map<ReadingType, List<ReadingWithQualities>> readingsByReadingTypes) {
         MeterReading meterReading = new MeterReading();
+        if(purpose != null) {
+            meterReading.setUsagePoint(createUsagePointPurpose(purpose));
+        }
+        if (endDevice != null) {
+            meterReading.setMeter(createMeter(endDevice));
+        }
         List<IntervalBlock> intervalBlocks = meterReading.getIntervalBlocks();
         List<Reading> registerReadings = meterReading.getReadings();
         readingsByReadingTypes.forEach((readingType, readingsWithQualities) -> {
@@ -250,8 +326,14 @@ class MeterReadingsBuilder {
         if (intervalBlocks.isEmpty() && registerReadings.isEmpty()) {
             return Optional.empty();
         }
-        meterReading.setUsagePoint(createUsagePointPurpose(purpose));
         return Optional.of(meterReading);
+    }
+
+    private ch.iec.tc57._2011.meterreadings.Meter createMeter(EndDevice endDevice) {
+        ch.iec.tc57._2011.meterreadings.Meter meter = new ch.iec.tc57._2011.meterreadings.Meter();
+        meter.setMRID(endDevice.getMRID());
+        meter.getNames().add(createName(endDevice.getName()));
+        return meter;
     }
 
     private ch.iec.tc57._2011.meterreadings.UsagePoint createUsagePointPurpose(String purpose) {
@@ -263,7 +345,7 @@ class MeterReadingsBuilder {
     }
 
     private IntervalBlock createIntervalBlock(ReadingType readingType, List<ReadingWithQualities> records) {
-        ch.iec.tc57._2011.meterreadings.IntervalBlock.ReadingType intervalBlockReadingType = new IntervalBlock.ReadingType();
+        IntervalBlock.ReadingType intervalBlockReadingType = new IntervalBlock.ReadingType();
         reference(readingType, intervalBlockReadingType::setRef);
 
         IntervalBlock intervalBlock = new IntervalBlock();
@@ -328,8 +410,8 @@ class MeterReadingsBuilder {
         return info;
     }
 
-    private ch.iec.tc57._2011.meterreadings.ReadingQuality createReadingQuality(ReadingQualityRecord qualityRecord) {
-        ch.iec.tc57._2011.meterreadings.ReadingQuality info = new ch.iec.tc57._2011.meterreadings.ReadingQuality();
+    private ReadingQuality createReadingQuality(ReadingQualityRecord qualityRecord) {
+        ReadingQuality info = new ReadingQuality();
         info.setTimeStamp(qualityRecord.getTimestamp());
         info.setReadingQualityType(reference(qualityRecord.getType()));
         info.setComment(qualityRecord.getComment());
@@ -341,9 +423,8 @@ class MeterReadingsBuilder {
         referencedReadingTypes.add(readingType);
     }
 
-    private ch.iec.tc57._2011.meterreadings.ReadingQuality.ReadingQualityType reference(ReadingQualityType readingQualityType) {
-        ch.iec.tc57._2011.meterreadings.ReadingQuality.ReadingQualityType reference
-                = new ch.iec.tc57._2011.meterreadings.ReadingQuality.ReadingQualityType();
+    private ReadingQuality.ReadingQualityType reference(ReadingQualityType readingQualityType) {
+        ReadingQuality.ReadingQualityType reference = new ReadingQuality.ReadingQualityType();
         reference.setRef(readingQualityType.getCode());
         referencedReadingQualityTypes.add(readingQualityType);
         return reference;

@@ -4,37 +4,34 @@
 
 Ext.define('Mdc.zones.controller.Zones',{
     extend: 'Cfg.zones.controller.Zones',
-    requires:['Mdc.view.setup.devicezones.Details'],
 
     views: [
         'Mdc.view.setup.devicezones.DevicesOfZoneGrid',
         'Mdc.view.setup.devicezones.Details',
-        'Mdc.view.setup.devicezones.PreviewForm'
+        'Mdc.view.setup.devicezones.PreviewForm',
+        'Mdc.view.setup.devicezones.DeviceZonePreview'
     ],
 
     stores: [
         'Mdc.store.Zones',
+        'Mdc.store.DevicesOfZone'
     ],
 
-    mixins: [],
-
-
     refs: [
-
-        {ref: 'devicesOfZoneGrid', selector: '#allDevicesOfZoneGrid'},
+        {ref: 'devicesOfZoneGrid', selector: '#zone-details-devices-grid'},
         {ref: 'deviceZonePreview', selector: '#device-zone-preview'},
         {ref: 'deviceZonePreviewForm', selector: '#device-zone-preview-form'},
         {ref: 'editDeviceZoneMenuItem', selector: '#edit-device-zone'},
-        {ref: 'deviceZoneDetails', selector: '#deviceZoneDetailsForm'},
+        {ref: 'deviceZoneDetailsForm', selector: '#deviceZoneDetailsForm'}
     ],
 
     init: function () {
         this.control({
-            '#allDevicesOfZoneGrid': {
+            'zone-details #zone-details-devices-grid': {
                 select: this.showDeviceZonePreview
             },
-            'zone-details devicesOfZoneGrid': {
-                zoneDeviceRemoveEvent: this.onRemoveDeviceZone,
+            '#zone-details-devices-grid': {
+                zoneDeviceRemoveEvent: this.onRemoveDeviceZone
             },
             'device-zones-action-menu-from-zone': {
                 click: this.chooseActionZone
@@ -42,60 +39,36 @@ Ext.define('Mdc.zones.controller.Zones',{
             'device-of-zone-action-menu': {
                 click: this.chooseActionGrid
             },
+            '#deviceZoneDetails button[action=viewDevicesInSearch]': {
+                click: this.viewDevicesInSearch
+            }
         });
     },
 
     viewZone: function (currentZoneId) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
             model = me.getModel('Cfg.zones.model.Zone'),
+            deviceZonesStore = Ext.getStore('Mdc.store.DevicesOfZone'),
             widget;
 
-        var service = Ext.create('Mdc.service.Search', {
-            router: router
-        });
-
-
-        widget = Ext.widget('device-zone-details', {
-            router: router,
-            deviceZoneId: currentZoneId,
-            service: service,
-            searchLink: "#search"
-        });
-        me.getApplication().fireEvent('changecontentevent', widget);
         model.load(currentZoneId, {
             success: function (record) {
-                var domainsStore = service.getSearchDomainsStore();
-                domainsStore.load(function () {
-                    service.applyState({
-                        domain: 'com.energyict.mdc.device.data.Device',
-                        filters: [
-                            {
-                                property: 'device.zoneType',
-                                value: [{
-                                    criteria: record.get("zoneTypeId"),
-                                    operator: '=='
-                                }]
-                            },
-                            {
-                                property: 'device.zoneName',
-                                value: [{
-                                    criteria: currentZoneId,
-                                    operator: '=='
-                                }]
+                deviceZonesStore.getProxy().extraParams = {
+                    zoneTypeId: record.get("zoneTypeId"),
+                    zoneId: currentZoneId,
+                    filter: Ext.JSON.encode([{"property": "device.zoneType", "value": [{"operator": "==", "criteria": record.get("zoneTypeId"), "filter": ""}]},
+                                            {"property": "device.zoneName", "value": [{"operator": "==", "criteria": record.get("id"), "filter": ""}]}])
+                };
 
-                            }
-                        ]
-                    });
+                widget = Ext.widget('device-zone-details', {
+                    itemId: 'deviceZoneDetails',
+                    deviceZoneId: currentZoneId,
+                    zoneTypeId: record.get("zoneTypeId")
                 });
-
-                widget.searchLink = service.getRouter().getRoute('search').buildUrl();
-                Ext.suspendLayouts();
+                widget.down('#deviceZoneDetailsForm').loadRecord(record);
                 widget.down('#device-zone-title').setTitle(record.get('name'));
-                widget.down('form').loadRecord(record);
-
+                me.getApplication().fireEvent('changecontentevent', widget);
                 me.getApplication().fireEvent('loadDeviceZone', record);
-                Ext.resumeLayouts(true);
             }
         });
     },
@@ -108,7 +81,7 @@ Ext.define('Mdc.zones.controller.Zones',{
 
     onRemoveDeviceZone: function(deviceRecord)
     {
-        var zoneRecord = this.getDeviceZoneDetails().getRecord();
+        var zoneRecord = this.getDeviceZoneDetailsForm().getRecord();
         this.removeDeviceZone(zoneRecord, deviceRecord);
     },
 
@@ -144,7 +117,7 @@ Ext.define('Mdc.zones.controller.Zones',{
 
     chooseActionGrid: function (menu, item) {
         var me = this,
-            zoneRecord = this.getDeviceZoneDetails().getRecord(),
+            zoneRecord = this.getDeviceZoneDetailsForm().getRecord(),
             deviceRecord = menu.record || this.getDevicesOfZoneGrid().getSelectionModel().getLastSelected();
 
         switch (item.action) {
@@ -158,7 +131,7 @@ Ext.define('Mdc.zones.controller.Zones',{
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        var zoneRecord =  this.getDeviceZoneDetails().getRecord();
+        var zoneRecord =  this.getDeviceZoneDetailsForm().getRecord();
         router.arguments.id = zoneRecord.get('id');
 
         switch (item.action) {
@@ -197,5 +170,45 @@ Ext.define('Mdc.zones.controller.Zones',{
         });
     },
 
+    viewDevicesInSearch: function () {
+        var me = this,
+            deviceZoneDetailsForm = me.getDeviceZoneDetailsForm(),
+            zoneTypeId = deviceZoneDetailsForm.getRecord().get("zoneTypeId"),
+            zoneId = deviceZoneDetailsForm.deviceZoneId,
+            search = me.getController('Mdc.controller.Search'),
+            router = me.getController('Uni.controller.history.Router'),
+            service = search.service, filters = [];
 
+
+        filters.push(new Ext.util.Filter({
+            property: 'device.zoneType',
+            value: [
+                {
+                    operator: "==",
+                    criteria: zoneTypeId
+                }],
+            id: 'device.zoneType'
+        }));
+
+        filters.push(new Ext.util.Filter({
+            property: 'device.zoneName',
+            value: [
+                {
+                    operator: "==",
+                    criteria: zoneId
+                }],
+            id: 'device.zoneName'
+        }));
+
+        var domainsStore = service.getSearchDomainsStore();
+        domainsStore.load(function () {
+            service.applyState({
+                domain: 'com.energyict.mdc.device.data.Device',
+                filters: filters
+            }, function () {
+                service.setFilters(filters);
+                router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
+            });
+        });
+    }
 });

@@ -39,6 +39,8 @@ public interface MeteringZoneService {
 
     Optional<Zone> getZone(long id);
 
+    Optional<Zone> getZoneByName(String zoneName, long zoneType);
+
     Optional<Zone> getAndLockZone(long id, long version);
 
     ZoneBuilder newZoneBuilder();

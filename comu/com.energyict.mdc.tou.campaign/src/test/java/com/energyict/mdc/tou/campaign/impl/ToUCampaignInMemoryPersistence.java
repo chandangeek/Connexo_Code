@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.tou.campaign.impl;
 
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -15,6 +17,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
@@ -24,6 +27,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -64,11 +68,10 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignModule;
+import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceImpl;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemPropertySet;
 
 import com.google.inject.AbstractModule;
@@ -102,6 +105,7 @@ public class ToUCampaignInMemoryPersistence {
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(KieResources.class).to(ResourceFactoryServiceImpl.class);
@@ -162,6 +166,7 @@ public class ToUCampaignInMemoryPersistence {
                 new TasksModule(),
                 new SchedulingModule(),
                 new FileImportModule(),
+                new AuditServiceModule(),
                 new MeteringZoneModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -171,9 +176,9 @@ public class ToUCampaignInMemoryPersistence {
             injector.getInstance(CompletionOptionsCustomPropertySet.class);
             injector.getInstance(OnDemandReadServiceCallCustomPropertySet.class);
             injector.getInstance(CommunicationTestServiceCallCustomPropertySet.class);
-            injector.getInstance(TimeOfUseItemPropertySet.class);
-            injector.getInstance(TimeOfUseCampaignService.class);
-
+            injector.getInstance(MeteringZoneService.class);
+            injector.getInstance(AuditService.class);
+            injector.getInstance(TimeOfUseCampaignServiceImpl.class);
             ctx.commit();
         }
     }

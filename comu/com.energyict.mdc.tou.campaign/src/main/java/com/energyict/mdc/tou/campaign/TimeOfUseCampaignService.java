@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.tou.campaign;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.orm.QueryStream;
-import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -13,9 +13,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
@@ -24,9 +22,7 @@ public interface TimeOfUseCampaignService {
 
     QueryStream<? extends TimeOfUseCampaign> streamAllCampaigns();
 
-    Map<DefaultState, Long> getChildrenStatusFromCampaign(long id);
-
-    TimeOfUseCampaignBuilder newTouCampaignBuilder(String name, long typeId, long calendarId);
+    TimeOfUseCampaignBuilder newTouCampaignBuilder(String name, DeviceType deviceType, Calendar calendar);
 
     Optional<TimeOfUseCampaign> getCampaign(long id);
 
@@ -34,21 +30,11 @@ public interface TimeOfUseCampaignService {
 
     Optional<TimeOfUseCampaign> getCampaignOn(ComTaskExecution comTaskExecution);
 
-    QueryStream<? extends TimeOfUseItem> streamDevicesInCampaigns();
+    QueryStream<? extends TimeOfUseCampaignItem> streamDevicesInCampaigns();
 
     List<DeviceType> getDeviceTypesWithCalendars();
 
-    ServiceCall retryDevice(Device device);
-
-    ServiceCall cancelDevice(Device device);
-
-    void cancelCampaign(long id);
-
-    void deleteCampaign(long id);
-
-    Optional<ServiceCall> findActiveServiceCallByDevice(Device device);
-
-    void edit(long id, String name, Instant start, Instant end);
+    Optional<TimeOfUseCampaignItem> findActiveTimeOfUseItemByDevice(Device device);
 
     Optional<TimeOfUseCampaign> findAndLockToUCampaignByIdAndVersion(long id, long version);
 

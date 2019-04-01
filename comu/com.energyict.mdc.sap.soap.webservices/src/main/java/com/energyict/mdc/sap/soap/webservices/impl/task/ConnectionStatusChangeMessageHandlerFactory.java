@@ -7,6 +7,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import org.osgi.service.component.annotations.Component;
@@ -29,6 +30,7 @@ public class ConnectionStatusChangeMessageHandlerFactory implements MessageHandl
     private volatile JsonService jsonService;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile ServiceCallService serviceCallService;
+    private volatile TransactionService transactionService;
 
     public ConnectionStatusChangeMessageHandlerFactory() {
         // for OSGI purposes
@@ -37,10 +39,12 @@ public class ConnectionStatusChangeMessageHandlerFactory implements MessageHandl
     @Inject
     public ConnectionStatusChangeMessageHandlerFactory(JsonService jsonService,
                                                        SAPCustomPropertySets sapCustomPropertySets,
-                                                       ServiceCallService serviceCallService) {
+                                                       ServiceCallService serviceCallService,
+                                                       TransactionService transactionService) {
         setJsonService(jsonService);
         setSAPCustomPropertySets(sapCustomPropertySets);
         setServiceCallService(serviceCallService);
+        setTransactionService(transactionService);
     }
 
     @Reference
@@ -58,8 +62,13 @@ public class ConnectionStatusChangeMessageHandlerFactory implements MessageHandl
         this.serviceCallService = serviceCallService;
     }
 
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
     @Override
     public MessageHandler newMessageHandler() {
-        return new ConnectionStatusChangeHandler(jsonService, sapCustomPropertySets, serviceCallService);
+        return new ConnectionStatusChangeHandler(jsonService, sapCustomPropertySets, serviceCallService, transactionService);
     }
 }

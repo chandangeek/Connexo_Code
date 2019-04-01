@@ -278,8 +278,7 @@ public class ImageTransfer extends AbstractCosemObject {
                     imageActivation();
                 } catch (DataAccessResultException e) {
                     if (isTemporaryFailure(e)) {
-                        getLogger().log(Level.INFO, "aaa Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");  //lori
-                        //pollForImageActivationStatus(); //Lori
+                        getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
                     } else {
                         throw e;
                     }
