@@ -53,7 +53,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     static final String NAME = "BasicTaskIssueRuleTemplate";
 
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
-    public static final String RADIOGROUP = NAME + ".increaseurgency";
+    public static final String URGENCYPROPS = NAME + ".increaseurgency";
     public static final String LOG_ON_SAME_ISSUE = NAME + ".logOnSameIssue";
     public static final String TASK_PROPS = NAME + ".taskProps";
     private static final String DEFAULT_VALUE = "Do nothing";
@@ -162,7 +162,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 .getProperties()
                 .entrySet()
                 .stream()
-                .filter(entry -> entry.getKey().equals(RADIOGROUP))
+                .filter(entry -> entry.getKey().equals(URGENCYPROPS))
                 .findFirst()
                 .map(found -> (RecurrenceSelectionInfo) found.getValue());
         if (newEventProps.isPresent() &&
@@ -210,7 +210,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 .finish());
         builder.add(propertySpecService
                 .specForValuesOf(new RecurrenceSelectionInfoValueFactory())
-                .named(RADIOGROUP, TranslationKeys.PARAMETER_RADIO_GROUP)
+                .named(URGENCYPROPS, TranslationKeys.PARAMETER_RADIO_GROUP)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .setDefaultValue(new RecurrenceSelectionInfo(DEFAULT_KEY, DEFAULT_VALUE))

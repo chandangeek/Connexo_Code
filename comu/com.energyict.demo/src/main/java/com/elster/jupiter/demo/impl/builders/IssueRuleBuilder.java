@@ -17,6 +17,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.issue.task.impl.templates.BasicTaskIssueRuleTemplate;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -272,6 +273,12 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             }
         } else if (template.getName().equals(TASK_ISSUE_RULE_TEMPLATE)){
             List<HasIdAndName> recurrentTasks = new ArrayList<>();
+            properties.put(
+                    BasicTaskIssueRuleTemplate.URGENCYPROPS,
+                    getIssueUrgencyIncreaseProps());
+            properties.put(
+                    BasicTaskIssueRuleTemplate.LOG_ON_SAME_ISSUE,
+                    getLogOnSameIssueProps());
             taskService.getRecurrentTasks().stream()
                     .forEach(task -> recurrentTasks.add(new HasIdAndName() {
                         @Override
@@ -407,6 +414,20 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         };
     }
 
+
+    private HasIdAndName getLogOnSameIssueProps() {
+        return new HasIdAndName() {
+            @Override
+            public Long getId() {
+                return 1L;
+            }
+
+            @Override
+            public String getName() {
+                return "Log on same issue";
+            }
+        };
+    }
     private List<HasIdAndName> getDeviceLifecycleTransitionProps() {
         List<HasIdAndName> list = new ArrayList<>();
         deviceConfigurationService.findAllDeviceTypes()

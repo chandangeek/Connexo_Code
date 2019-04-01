@@ -15,7 +15,7 @@ public enum TranslationKeys implements TranslationKey {
     BASIC_TEMPLATE_TASK_DESCRIPTION("TemplateBasicTaskIssueDescription", "Create issue when specific event occurs"),
     TASK_FAILED_EVENT(ModuleConstants.TASK_FAILED_EVENT, "TaskFailedEvent"),
     PARAMETER_AUTO_RESOLUTION(BasicTaskIssueRuleTemplate.AUTORESOLUTION, "Auto resolution"),
-    PARAMETER_RADIO_GROUP(BasicTaskIssueRuleTemplate.RADIOGROUP, "When recurring"),
+    PARAMETER_RADIO_GROUP(BasicTaskIssueRuleTemplate.URGENCYPROPS, "When recurring"),
     PARAMETER_DO_NOTHING("WhenRecurringDoNothing", "Do nothing"),
     PARAMETER_INCREASE_URGENCY("WhenRecurringIncreaseUrgency", "Increase urgency (+1)"),
     ISSUE_TYPE_TASK("IssueTypeTask", "Task"),
@@ -28,8 +28,8 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_ISSUE_ALREADY_CLOSED("action.issue.already.closed", "Issue already closed"),
     CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
     ISSUE_CREATION_SELECTION_ON_RECURRENCE("issue.creation.selection.on.recurrence", "On recurrence"),
-    CREATE_NEW_TASK_ISSUE("create.new.task.issue", "Create new task issue"),
-    LOG_ON_SAME_TASK_ISSUE("log.on.same.task.issue", "Log on existing open task issue"),
+    CREATE_NEW_TASK_ISSUE("create.new.task.issue", "Create new issue"),
+    LOG_ON_SAME_TASK_ISSUE("log.on.same.task.issue", "Log on existing open issue"),
     TASK_PROPS("task.issue.props", "Task issue properties")
     ;
 
