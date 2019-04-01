@@ -13,6 +13,7 @@ import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationTask;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
@@ -107,6 +108,8 @@ public class EstimationTaskExecutorTest {
     private RelativePeriod relativePeriod;
     @Mock
     private EstimationResolver estimationResolver;
+    @Mock
+    private EventService eventService;
 
     private MyHandler myHandler = new MyHandler();
 
@@ -122,7 +125,7 @@ public class EstimationTaskExecutorTest {
         when(estimationService.getEstimationResolvers()).thenReturn(Collections.singletonList(estimationResolver));
 
         executor = new EstimationTaskExecutor(estimationService, validationService, meteringService,
-                timeService, transactionService, threadPrincipleService, estimationUser);
+                timeService, transactionService, eventService, threadPrincipleService, estimationUser);
     }
 
     private void mockTransaction() {

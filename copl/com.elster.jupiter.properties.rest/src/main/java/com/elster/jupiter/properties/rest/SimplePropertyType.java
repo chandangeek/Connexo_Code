@@ -53,7 +53,8 @@ public enum SimplePropertyType implements PropertyType {
     NONE_OR_BIGDECIMAL(NoneOrBigDecimalValueFactory.class),
     NONE_OR_TIMEDURATION(NoneOrTimeDurationValueFactory.class),
     INTEGER(Integer.class),
-    LIFECYCLETRANSITION(ListValueFactory.class);
+    LIFECYCLETRANSITION(ListValueFactory.class),
+    TASK(ListValueFactory.class);
 
 
     private Class typeClass;

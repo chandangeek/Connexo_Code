@@ -153,6 +153,12 @@
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
+				<artifactId>issue.task</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
 				<artifactId>kore.api.rest</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
