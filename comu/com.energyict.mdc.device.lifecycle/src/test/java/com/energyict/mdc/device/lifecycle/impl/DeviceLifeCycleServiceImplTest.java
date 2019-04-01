@@ -26,6 +26,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -180,6 +181,8 @@ public class DeviceLifeCycleServiceImplTest {
     private MeteringZoneService meteringZoneService;
     @Mock
     private ServiceCallService serviceCallService;
+    @Mock
+    private OrmService ormService;
 
     @Before
     public void initializeMocks() {
@@ -891,7 +894,7 @@ public class DeviceLifeCycleServiceImplTest {
         return new DeviceLifeCycleServiceImpl(nlsService, threadPrincipleService, propertySpecService,
                 microActionFactory, deviceLifeCycleConfigurationService, userService, Clock.systemDefaultZone(),
                 licenseService, meteringService, eventService, transactionService, upgradeService,
-                topologyService, multiElementDeviceService, validationService, meteringZoneService, serviceCallService);
+                topologyService, multiElementDeviceService, validationService, meteringZoneService, serviceCallService, ormService);
     }
 
     public static class NoTranslation implements NlsMessageFormat {

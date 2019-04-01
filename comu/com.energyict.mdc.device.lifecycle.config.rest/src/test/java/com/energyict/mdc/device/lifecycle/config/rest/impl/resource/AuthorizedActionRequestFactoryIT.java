@@ -110,7 +110,7 @@ public class AuthorizedActionRequestFactoryIT {
     private static CustomStateTransitionEventType createEventTypes() {
         FiniteStateMachineService service = inMemoryPersistence.getService(FiniteStateMachineService.class);
         CustomStateTransitionEventType eventType1 = service.newCustomStateTransitionEventType(EVENT_TYPE_1, "context");
-        CustomStateTransitionEventType eventType2 = service.newCustomStateTransitionEventType(EVENT_TYPE_2, "context");
+        service.newCustomStateTransitionEventType(EVENT_TYPE_2, "context");
         return eventType1;
     }
 

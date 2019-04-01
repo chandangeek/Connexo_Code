@@ -31,14 +31,17 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllDataValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ConnectionPropertiesAreValid;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.ConsolidatedServerMicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DefaultConnectionTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.GeneralProtocolPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ProtocolDialectPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.SecurityPropertiesAreValid;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.TranslatableServerMicroCheck;
 import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 
 import com.google.common.collect.ImmutableSet;
@@ -49,6 +52,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.mockito.Mock;
@@ -59,7 +63,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+public abstract class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     public static final long OK_VERSION = 6L;
 
@@ -119,6 +123,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
                 .getArguments()[0]).name());
         when(deviceLifeCycleService.getCategoryName(any(MicroAction.class))).thenAnswer(invocationOnMock -> ((MicroAction) invocationOnMock
                 .getArguments()[0]).getCategory().name());
+        when(deviceLifeCycleConfigurationService.getMicroChecks()).thenReturn(allMicroChecks());
 
         Stream.of(DefaultState.values()).forEach(this::mockTranslationFor);
     }
@@ -272,14 +277,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     protected AuthorizedTransitionAction mockSimpleAction(long id, String name, State from, State to) {
         AuthorizedTransitionAction action = mockBasicAction(id, name, from, to);
         when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE, MicroAction.ENABLE_VALIDATION));
-        when(action.getChecks()).thenReturn(ImmutableSet.of(
-                new AllDataValid(),
-                new ConnectionPropertiesAreValid(),
-                new GeneralProtocolPropertiesAreValid(),
-                new ProtocolDialectPropertiesAreValid(),
-                new SecurityPropertiesAreValid(),
-                new DefaultConnectionTaskAvailable()
-        ));
+        when(action.getChecks()).thenReturn(allMicroChecks());
         return action;
     }
 
@@ -287,7 +285,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         AuthorizedTransitionAction action = mockBasicAction(id, name, from, to);
         when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ENABLE_VALIDATION));
         when(action.getChecks()).thenReturn(Collections.singleton(
-                new AllDataValid()
+                construct(AllDataValid.class)
         ));
         return action;
     }
@@ -296,7 +294,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         AuthorizedTransitionAction action = mockBasicAction(id, name, from, to);
         when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE, MicroAction.ENABLE_VALIDATION));
         when(action.getChecks()).thenReturn(Collections.singleton(
-                new AllDataValid()
+                construct(AllDataValid.class)
         ));
         return action;
     }
@@ -304,14 +302,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     private AuthorizedTransitionAction mockSimpleActionCommunicationRelatedMicroChecks(long id, String name, State from, State to) {
         AuthorizedTransitionAction action = mockBasicAction(id, name, from, to);
         when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ENABLE_VALIDATION));
-        when(action.getChecks()).thenReturn(ImmutableSet.of(
-                new AllDataValid(),
-                new ConnectionPropertiesAreValid(),
-                new GeneralProtocolPropertiesAreValid(),
-                new ProtocolDialectPropertiesAreValid(),
-                new SecurityPropertiesAreValid(),
-                new DefaultConnectionTaskAvailable()
-        ));
+        when(action.getChecks()).thenReturn(allMicroChecks());
         return action;
     }
 
@@ -361,5 +352,30 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         when(process.getProcessName()).thenReturn(processName);
         when(process.getVersion()).thenReturn(version);
         return process;
+    }
+
+    private <T> T construct(Class<T> checkClass) {
+        try {
+            T check = checkClass.newInstance();
+            if (ConsolidatedServerMicroCheck.class.isAssignableFrom(checkClass)) {
+                ((ConsolidatedServerMicroCheck) check).setThesaurus(thesaurus);
+            } else if (TranslatableServerMicroCheck.class.isAssignableFrom(checkClass)) {
+                ((TranslatableServerMicroCheck) check).setThesaurus(thesaurus);
+            }
+            return check;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Set<MicroCheck> allMicroChecks() {
+        return ImmutableSet.of(
+                construct(AllDataValid.class),
+                construct(ConnectionPropertiesAreValid.class),
+                construct(GeneralProtocolPropertiesAreValid.class),
+                construct(ProtocolDialectPropertiesAreValid.class),
+                construct(SecurityPropertiesAreValid.class),
+                construct(DefaultConnectionTaskAvailable.class)
+        );
     }
 }

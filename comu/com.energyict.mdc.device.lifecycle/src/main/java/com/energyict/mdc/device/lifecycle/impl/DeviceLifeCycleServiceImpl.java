@@ -135,7 +135,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                                       MultiElementDeviceService multiElementDeviceService,
                                       ValidationService validationService,
                                       MeteringZoneService meteringZoneService,
-                                      ServiceCallService serviceCallService) {
+                                      ServiceCallService serviceCallService,
+                                      OrmService ormService) {
         this();
         setNlsService(nlsService);
         setThreadPrincipalService(threadPrincipalService);
@@ -154,6 +155,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         setValidationService(validationService);
         setMeteringZoneService(meteringZoneService);
         setServiceCallService(serviceCallService);
+        setOrmService(ormService);
         activate();
     }
 
