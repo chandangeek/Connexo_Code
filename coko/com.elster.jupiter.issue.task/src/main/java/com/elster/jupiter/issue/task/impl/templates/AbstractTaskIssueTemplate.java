@@ -70,4 +70,8 @@ public abstract class AbstractTaskIssueTemplate implements CreationRuleTemplate 
     protected void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
+
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
 }

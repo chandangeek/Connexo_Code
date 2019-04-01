@@ -92,8 +92,8 @@ public enum TableSpecs {
 
         static void buildIssueTable(Table<?> table, Column idColumn, String issueTable, String pkKey, String... fkKeys) {
             Column issueColRef = table.column(ITK_BASE_ISSUE).number().conversion(NUMBER2LONG).notNull().add();
-            Column taskOccurence = table.column(ITK_TASKOCCURRENCE).number().conversion(NUMBER2LONG).add();
-            table.column(ITK_ERROR_MESSAGE).varChar(DESCRIPTION_LENGTH).map("errorMsg").add();
+            Column taskOccurence = table.column(ITK_TASKOCCURRENCE).number().conversion(NUMBER2LONG).notNull().add();
+            table.column(ITK_ERROR_MESSAGE).varChar(DESCRIPTION_LENGTH).map("errorMessage").add();
             table.column(ITK_FAILURE_TIME).number().conversion(NUMBER2INSTANT).map("failureTime").add();
 
 
@@ -103,7 +103,7 @@ public enum TableSpecs {
             }
             ListIterator<String> fkKeysIter = Arrays.asList(fkKeys).listIterator();
             table.foreignKey(fkKeysIter.next()).map("baseIssue").on(issueColRef).references(IssueService.COMPONENT_NAME, issueTable).add();
-            table.foreignKey(fkKeysIter.next()).map("connectionTask").on(taskOccurence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE").add();
+            table.foreignKey(fkKeysIter.next()).map("taskOccurrence").on(taskOccurence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE").add();
         }
     }
 }

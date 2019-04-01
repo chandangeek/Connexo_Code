@@ -120,7 +120,7 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
                 bind(EventService.class).toInstance(eventService);
             }
         });
-        upgradeService.register(identifier("MultiSense", TaskIssueService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", TaskIssueService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Reference

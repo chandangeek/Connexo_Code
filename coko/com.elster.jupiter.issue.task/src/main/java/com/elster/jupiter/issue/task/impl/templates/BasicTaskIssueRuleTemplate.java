@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.issue.task.impl.templates;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
@@ -26,6 +25,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.RaiseEventUrgencyFactory;
 import com.elster.jupiter.properties.rest.TaskPropertyFacory;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
@@ -43,9 +43,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-
-import static com.elster.jupiter.time.RelativeOperation.SEPARATOR;
 
 
 @Component(name = "com.elster.jupiter.issue.task.BasicTaskIssueRuleTemplate",
@@ -76,6 +73,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
 
+
         activate();
     }
 
@@ -101,6 +99,11 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         super.setPropertySpecService(propertySpecService);
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        super.setTaskService(taskService);
     }
 
     @Override
@@ -183,10 +186,12 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        TaskPropsInfo[] taskPossibleValues = taskService.getRecurrentTasks().stream().map(TaskPropsInfo::new).toArray(TaskPropsInfo[]::new);;
-        HashMap<Long, String> possibleActionValues = getPossibleValues();
-
-        RecurrenceSelectionInfo[] possibleValues = possibleActionValues.entrySet().stream()
+        TaskPropsInfo[] taskPossibleValues = taskService.getRecurrentTasks().stream().map(TaskPropsInfo::new).toArray(TaskPropsInfo[]::new);
+        HashMap<Long, String> possibleActionValues = getPossiblePrioValues();
+        RecurrenceSelectionInfo[] priorityValues = possibleActionValues.entrySet().stream()
+                .map(entry -> new RecurrenceSelectionInfo(entry.getKey(), entry.getValue()))
+                .toArray(RecurrenceSelectionInfo[]::new);
+        RecurrenceSelectionInfo[] logValues = getPossibleLogValues().entrySet().stream()
                 .map(entry -> new RecurrenceSelectionInfo(entry.getKey(), entry.getValue()))
                 .toArray(RecurrenceSelectionInfo[]::new);
         builder.add(propertySpecService
@@ -194,8 +199,8 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 .named(LOG_ON_SAME_ISSUE, TranslationKeys.ISSUE_CREATION_SELECTION_ON_RECURRENCE)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
-                .setDefaultValue(new RecurrenceSelectionInfo(1L, thesaurus.getFormat(TranslationKeys.CREATE_NEW_TASK_ISSUE).format()))
-                .addValues(possibleValues)
+                .setDefaultValue(new RecurrenceSelectionInfo(DEFAULT_KEY, thesaurus.getFormat(TranslationKeys.CREATE_NEW_TASK_ISSUE).format()))
+                .addValues(logValues)
                 .finish());
         builder.add(propertySpecService
                 .booleanSpec()
@@ -209,7 +214,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .setDefaultValue(new RecurrenceSelectionInfo(DEFAULT_KEY, DEFAULT_VALUE))
-                .addValues(possibleValues)
+                .addValues(priorityValues)
                 .finish());
         builder.add(propertySpecService
                 .specForValuesOf(new TaskPropsInfoValueFactory())
@@ -234,10 +239,16 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
         return propertySpecService;
     }
 
-    private HashMap<Long, String> getPossibleValues() {
+    private HashMap<Long, String> getPossiblePrioValues() {
         return new HashMap<Long, String>() {{
             put(0L, getThesaurus().getFormat(TranslationKeys.PARAMETER_DO_NOTHING).format());
             put(1L, getThesaurus().getFormat(TranslationKeys.PARAMETER_INCREASE_URGENCY).format());
+        }};
+    }
+    private HashMap<Long, String> getPossibleLogValues() {
+        return new HashMap<Long, String>() {{
+            put(0L, getThesaurus().getFormat(TranslationKeys.CREATE_NEW_TASK_ISSUE).format());
+            put(1L, getThesaurus().getFormat(TranslationKeys.LOG_ON_SAME_TASK_ISSUE).format());
         }};
     }
 
@@ -302,7 +313,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     private class RecurrenceSelectionInfoValueFactory implements ValueFactory<HasIdAndName>, RaiseEventUrgencyFactory {
         @Override
         public RecurrenceSelectionInfo fromStringValue(String stringValue) {
-            return new RecurrenceSelectionInfo(Long.parseLong(stringValue), getPossibleValues().get(Long.parseLong(stringValue)));
+            return new RecurrenceSelectionInfo(Long.parseLong(stringValue), getPossiblePrioValues().get(Long.parseLong(stringValue)));
         }
 
         @Override
@@ -418,7 +429,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
 
         @Override
         public String getName() {
-            return recurrentTask.getApplication() + COLON_SEPARATOR + recurrentTask.getName() + COLON_SEPARATOR + recurrentTask.getDestination();
+            return recurrentTask.getApplication() + COLON_SEPARATOR + recurrentTask.getName() + COLON_SEPARATOR + recurrentTask.getDestination().getName();
         }
 
         @Override

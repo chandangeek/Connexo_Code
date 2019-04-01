@@ -29,6 +29,7 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
     ISSUE_CREATION_SELECTION_ON_RECURRENCE("issue.creation.selection.on.recurrence", "On recurrence"),
     CREATE_NEW_TASK_ISSUE("create.new.task.issue", "Create new task issue"),
+    LOG_ON_SAME_TASK_ISSUE("log.on.same.task.issue", "Log on existing open task issue"),
     TASK_PROPS("task.issue.props", "Task issue properties")
     ;
 
