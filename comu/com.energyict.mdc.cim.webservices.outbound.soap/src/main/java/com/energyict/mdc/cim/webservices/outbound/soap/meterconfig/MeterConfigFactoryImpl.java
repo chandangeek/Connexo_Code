@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
+package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -12,8 +12,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
+import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
+import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component(name="com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFactory", service= com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigFactory.class)
+@Component(name="com.energyict.mdc.cim.webservices.outbound.soap.meterconfig.MeterConfigFactory", service=MeterConfigFactory.class)
 public class MeterConfigFactoryImpl implements MeterConfigFactory {
 
     private static final String COMPONENT_NAME = "SIM";
