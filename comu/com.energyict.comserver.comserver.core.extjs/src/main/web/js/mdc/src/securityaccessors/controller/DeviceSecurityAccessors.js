@@ -279,7 +279,7 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
 
     onMenuAction: function(menu, menuItem) {
         var me = this;
-        console.log("CHOOOSE ACTION!!!",menuItem.action);
+
         switch (menuItem.action) {
             case 'editDeviceKey':
                 me.navigateToEditKeyAttributes(menu.record);

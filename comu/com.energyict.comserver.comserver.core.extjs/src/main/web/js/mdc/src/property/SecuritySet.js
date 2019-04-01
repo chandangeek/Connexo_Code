@@ -27,75 +27,21 @@ Ext.define('Mdc.property.SecuritySet', {
 
     renderedKeys: [],
 
-    listeners: {
-        afterrender: {
-            fn: function () {
-                var me = this;
-                var deviceNameToSet = me.up('property-form').context.deviceName;
-                me.securitySetsStore.getProxy().setUrl(deviceNameToSet);// = '/api/ddr/devices/' + deviceNameToSet + '/securityproperties/hsm';
-
-                me.securitySetsStore.load(function () {
-                    if (me.securitySetsStore.getCount() == 0){
-                        me.down('#sets-container').hide();
-                        me.down('#accessors-container').hide();
-                        me.down('#no-security-sets').show();
-                    }else{
-                        me.down('#sets-container').show();
-                        me.down('#accessors-container').show();
-                        me.down('#no-security-sets').hide();
-
-                        me.securityAccessorsStore.getProxy().setUrl(deviceNameToSet);//= '/api/ddr/devices/' + deviceNameToSet + '/securityaccessors/keys';
-                        me.securityAccessorsStore.load(function () {
-                            me.getGrid().getSelectionModel().selectAll();
-                        })
-
-                    }
-
-
-                });
-            }
-        }
-    },
-
-    /*proxy: {
-        type: 'rest',
-        urlTpl: '../../api/tou/touCampaigns/{touCampaignName}/devices',
-        reader: {
-            type: 'json',
-            root: 'devicesInCampaign'
-        },
-        setUrl: function (touCampaignName) {
-            this.url = this.urlTpl.replace('{touCampaignName}', touCampaignName);
-        }
-    }*/
-
-    getEditCmp: function () {
+    initComponent: function () {
         var me = this;
+
+        //var deviceNameToSet = me.up('property-form').context.deviceName;
+        console.log("INIT COMPONENT!!!!!");
 
         me.securitySetsStore = Ext.create('Ext.data.Store', {
 
-            model: 'Mdc.model.DeviceSecuritySetting',
-            proxy: {
-                type: 'rest',
-                urlTpl: '/api/ddr/devices/{deviceNameToSet}/securityproperties/hsm',
-                reader: {
-                    type: 'json',
-                    root: 'securityPropertySets'
-                },
-                setUrl: function (deviceNameToSet) {
-                    this.url = this.urlTpl.replace('{deviceNameToSet}', deviceNameToSet);
-                }
-            }
-        });
-
-        me.securityAccessorsStore = Ext.create('Ext.data.Store', {
-                    model: 'Mdc.securityaccessors.model.DeviceSecurityKey',
+                    model: 'Mdc.model.DeviceSecuritySetting',
                     proxy: {
                         type: 'rest',
-                        urlTpl: '/api/ddr/devices/{deviceNameToSet}/securityaccessors/keys',
+                        urlTpl: '/api/ddr/devices/{deviceNameToSet}/securityproperties/hsm',
                         reader: {
                             type: 'json',
-                            root: 'keys'
+                            root: 'securityPropertySets'
                         },
                         setUrl: function (deviceNameToSet) {
                             this.url = this.urlTpl.replace('{deviceNameToSet}', deviceNameToSet);
@@ -103,12 +49,57 @@ Ext.define('Mdc.property.SecuritySet', {
                     }
                 });
 
+                me.securityAccessorsStore = Ext.create('Ext.data.Store', {
+                            model: 'Mdc.securityaccessors.model.DeviceSecurityKey',
+                            proxy: {
+                                type: 'rest',
+                                urlTpl: '/api/ddr/devices/{deviceNameToSet}/securityaccessors/keys',
+                                reader: {
+                                    type: 'json',
+                                    root: 'keys'
+                                },
+                                setUrl: function (deviceNameToSet) {
+                                    this.url = this.urlTpl.replace('{deviceNameToSet}', deviceNameToSet);
+                                }
+                            }
+                        });
 
-
+        me.resetButtonHidden = true;
         me.name =  me.getName();
 
+
+        /* initComponent method in base class will call getEditCmp method so we should define
+        needed stores before callParent call */
+        me.callParent();
+
+        var deviceNameToSet = me.parentForm.context.deviceName;
+
+        me.securitySetsStore.getProxy().setUrl(deviceNameToSet);// = '/api/ddr/devices/' + deviceNameToSet + '/securityproperties/hsm';
+
+        me.securitySetsStore.load(function () {
+            if (me.securitySetsStore.getCount() == 0){
+                me.down('#sets-container').hide();
+                me.down('#accessors-container').hide();
+                me.down('#no-security-sets').show();
+            }else{
+                me.down('#sets-container').show();
+                me.down('#accessors-container').show();
+                me.down('#no-security-sets').hide();
+
+                me.securityAccessorsStore.getProxy().setUrl(deviceNameToSet);//= '/api/ddr/devices/' + deviceNameToSet + '/securityaccessors/keys';
+                me.securityAccessorsStore.load(function () {
+                        me.getGrid().getSelectionModel().selectAll();
+                    })
+
+            }
+        });
+
+    },
+
+    getEditCmp: function () {
+        var me = this;
+
         me.layout = 'vbox';
-        me.resetButtonHidden = true;
 
         return [
 
