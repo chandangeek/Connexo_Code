@@ -6,6 +6,8 @@ package com.energyict.mdc.device.configuration.rest;
 
 import com.elster.jupiter.properties.rest.PropertyInfo;
 
+import com.energyict.mdc.device.configuration.rest.impl.KeyTypeInfo;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
@@ -32,5 +34,7 @@ public class SecurityAccessorInfo {
     public List<ExecutionLevelInfo> viewLevels = new ArrayList<>();
     public boolean editable = true;
     public boolean serviceKey = false;
+
     public String defaultServiceKey;
+    public KeyTypeInfo keyType;
 }

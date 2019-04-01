@@ -24,6 +24,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
+import com.energyict.mdc.device.configuration.rest.impl.KeyTypeInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.SecurityAccessor;
@@ -122,6 +123,7 @@ public class SecurityAccessorResource {
         List<SecurityAccessorInfo> collect = getSecurityAccessorKeyInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()));
         for (SecurityAccessorInfo info : collect) {
             info.defaultServiceKey = device.getDeviceType().getDefaultKeyOfSecurityAccessorType(info.id);
+            info.keyType = new KeyTypeInfo(findKeyAccessorTypeOrThrowException(info.id, device).getKeyType());
         }
         return PagedInfoList.fromCompleteList("keys", collect, queryParameters);
     }
