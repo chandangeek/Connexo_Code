@@ -587,7 +587,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .findAny();
     }
 
-    boolean withVerification(TimeOfUseCampaign timeOfUseCampaign) {
+    boolean isWithVerification(TimeOfUseCampaign timeOfUseCampaign) {
         String activationOption = timeOfUseCampaign.getActivationOption();
         return (activationOption.equals(TranslationKeys.IMMEDIATELY.getKey()) || activationOption.equals(TranslationKeys.ON_DATE.getKey()));
     }
