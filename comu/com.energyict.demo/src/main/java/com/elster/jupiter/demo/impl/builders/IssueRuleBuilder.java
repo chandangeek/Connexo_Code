@@ -33,6 +33,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate;
+import com.elster.jupiter.tasks.TaskService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,6 +58,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     public static final String USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE = "UsagePointDataValidationIssueCreationRuleTemplate";
     public static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
     public static final String DEVICELIFECYCLE_ISSUE_RULE_TEMPLATE = "DeviceLifecycleIssueCreationRuleTemplate";
+    public static final String TASK_ISSUE_RULE_TEMPLATE = "BasicTaskIssueRuleTemplate";
 
     private static final String SEPARATOR = ":";
     private static final String DASH_SEPARATOR = "-";
@@ -65,6 +67,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private final IssueService issueService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final TaskService taskService;
     private final TimeService timeService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final Thesaurus thesaurus;
@@ -78,12 +81,13 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private boolean active;
 
     @Inject
-    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus) {
+    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TaskService taskService, TimeService timeService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus) {
         super(IssueRuleBuilder.class);
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.taskService = taskService;
         this.timeService = timeService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.thesaurus = thesaurus;
@@ -265,6 +269,23 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
 
             if (!metrologyConfigurations.isEmpty()) {
                 properties.put(USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE + ".metrologyConfigurations", metrologyConfigurations);
+            }
+        } else if (template.getName().equals(TASK_ISSUE_RULE_TEMPLATE)){
+            List<HasIdAndName> recurrentTasks = new ArrayList<>();
+            taskService.getRecurrentTasks().stream()
+                    .forEach(task -> recurrentTasks.add(new HasIdAndName() {
+                        @Override
+                        public Object getId() {
+                            return task.getId();
+                        }
+
+                        @Override
+                        public String getName() {
+                            return task.getApplication() + SEPARATOR + task.getName() + task.getDestination();
+                        }
+                    }));
+            if (!recurrentTasks.isEmpty()) {
+                properties.put(TASK_ISSUE_RULE_TEMPLATE + ".taskProps", recurrentTasks);
             }
         }
         return properties;
