@@ -13,7 +13,6 @@ import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.ResourceHelp
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfo;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public class AuthorizedActionRequestFactory {
     private final ResourceHelper resourceHelper;
@@ -30,8 +29,8 @@ public class AuthorizedActionRequestFactory {
     }
 
     private boolean isComplexChanges(AuthorizedTransitionAction transitionAction, AuthorizedActionInfo info){
-        Optional<String> specialTransitionName = transitionAction.getStateTransition().getName();
-        return (!specialTransitionName.isPresent() || !specialTransitionName.get().equals(info.name))
+        String specialTransitionName = transitionAction.getStateTransition().getName(resourceHelper.getThesaurus());
+        return (specialTransitionName == null || !specialTransitionName.equals(info.name))
                 || fromStateChanged(transitionAction, info)
                 || toStateChanged(transitionAction, info)
                 || triggerByChanged(transitionAction, info);

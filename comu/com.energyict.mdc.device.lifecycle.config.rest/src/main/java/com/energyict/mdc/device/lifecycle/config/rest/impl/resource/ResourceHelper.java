@@ -9,6 +9,9 @@ import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -24,6 +27,9 @@ import javax.inject.Inject;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService.COMPONENT_NAME;
+import static com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT;
+
 public class ResourceHelper {
 
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
@@ -32,6 +38,8 @@ public class ResourceHelper {
     private final ExceptionFactory exceptionFactory;
     private final EventService eventService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private Thesaurus thesaurus;
+    private NlsService nlsService;
 
     @Inject
     public ResourceHelper(
@@ -40,13 +48,15 @@ public class ResourceHelper {
             FiniteStateMachineService finiteStateMachineService,
             ExceptionFactory exceptionFactory,
             EventService eventService,
-            ConcurrentModificationExceptionFactory conflictFactory) {
+            ConcurrentModificationExceptionFactory conflictFactory,
+            NlsService nlsService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.finiteStateMachineService = finiteStateMachineService;
         this.exceptionFactory = exceptionFactory;
         this.eventService = eventService;
         this.conflictFactory = conflictFactory;
+        setNlsService(nlsService);
     }
 
     DeviceLifeCycle findDeviceLifeCycleByIdOrThrowException(long id) {
@@ -151,4 +161,13 @@ public class ResourceHelper {
         }
     }
 
+    private void setNlsService(NlsService nlsService){
+        this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus(DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST)
+                .join(nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    public Thesaurus getThesaurus() {
+        return thesaurus;
+    }
 }
