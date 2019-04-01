@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl.pki.tasks.certrenewal;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -58,6 +59,8 @@ public class CertificateRenewalHandlerFactoryTest {
     private CertificateRenewalTaskExecutor certificateRenewalTaskExecutor;
     @Mock
     private TaskOccurrence taskOccurrence;
+    @Mock
+    private EventService eventService;
     @Mock
     private Clock clock;
 

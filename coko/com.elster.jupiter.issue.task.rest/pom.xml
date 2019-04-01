@@ -13,7 +13,7 @@
 
     <artifactId>issue.task.rest</artifactId>
     <packaging>bundle</packaging>
-    <name>issue.task.rest [init]</name>
+    <name>[Jupiter] com.elster.jupiter.issue.task.rest</name>
 
     <properties>
         <baseline>(,${project.version})</baseline>
