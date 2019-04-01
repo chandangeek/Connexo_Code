@@ -34,6 +34,8 @@ Ext.define('Mdc.property.SecurityAccessors', {
             fn: function () {
                 var me = this;
 
+                console.log("LISTENER!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
                 var propertyTypeInfo1 = Ext.create('Uni.property.model.PropertyType',{
                 raw: []
                 });

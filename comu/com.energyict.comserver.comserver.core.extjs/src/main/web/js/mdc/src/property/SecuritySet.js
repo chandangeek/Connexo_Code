@@ -32,7 +32,7 @@ Ext.define('Mdc.property.SecuritySet', {
             fn: function () {
                 var me = this;
                 var deviceNameToSet = me.up('property-form').context.deviceName;
-                me.securitySetsStore.getProxy().url = '/api/ddr/devices/' + deviceNameToSet + '/securityproperties/hsm';
+                me.securitySetsStore.getProxy().setUrl(deviceNameToSet);// = '/api/ddr/devices/' + deviceNameToSet + '/securityproperties/hsm';
 
                 me.securitySetsStore.load(function () {
                     if (me.securitySetsStore.getCount() == 0){
@@ -44,7 +44,7 @@ Ext.define('Mdc.property.SecuritySet', {
                         me.down('#accessors-container').show();
                         me.down('#no-security-sets').hide();
 
-                        me.securityAccessorsStore.getProxy().url = '/api/ddr/devices/' + deviceNameToSet + '/securityaccessors/keys';
+                        me.securityAccessorsStore.getProxy().setUrl(deviceNameToSet);//= '/api/ddr/devices/' + deviceNameToSet + '/securityaccessors/keys';
                         me.securityAccessorsStore.load(function () {
                             me.getGrid().getSelectionModel().selectAll();
                         })
@@ -57,6 +57,18 @@ Ext.define('Mdc.property.SecuritySet', {
         }
     },
 
+    /*proxy: {
+        type: 'rest',
+        urlTpl: '../../api/tou/touCampaigns/{touCampaignName}/devices',
+        reader: {
+            type: 'json',
+            root: 'devicesInCampaign'
+        },
+        setUrl: function (touCampaignName) {
+            this.url = this.urlTpl.replace('{touCampaignName}', touCampaignName);
+        }
+    }*/
+
     getEditCmp: function () {
         var me = this;
 
@@ -65,9 +77,13 @@ Ext.define('Mdc.property.SecuritySet', {
             model: 'Mdc.model.DeviceSecuritySetting',
             proxy: {
                 type: 'rest',
+                urlTpl: '/api/ddr/devices/{deviceNameToSet}/securityproperties/hsm',
                 reader: {
                     type: 'json',
                     root: 'securityPropertySets'
+                },
+                setUrl: function (deviceNameToSet) {
+                    this.url = this.urlTpl.replace('{deviceNameToSet}', deviceNameToSet);
                 }
             }
         });
@@ -76,9 +92,13 @@ Ext.define('Mdc.property.SecuritySet', {
                     model: 'Mdc.securityaccessors.model.DeviceSecurityKey',
                     proxy: {
                         type: 'rest',
+                        urlTpl: '/api/ddr/devices/{deviceNameToSet}/securityaccessors/keys',
                         reader: {
                             type: 'json',
                             root: 'keys'
+                        },
+                        setUrl: function (deviceNameToSet) {
+                            this.url = this.urlTpl.replace('{deviceNameToSet}', deviceNameToSet);
                         }
                     }
                 });
@@ -181,7 +201,7 @@ Ext.define('Mdc.property.SecuritySet', {
         ];
     },
 
-    renderAccessors: function(array){
+    renderAccessors: function(selectedAccessors){
 
         var me = this;
         var registry = Uni.property.controller.Registry;
@@ -191,7 +211,7 @@ Ext.define('Mdc.property.SecuritySet', {
         var arrayToRender = [];
         renderedKeys = [];
 
-        arrayToRender = array;
+        arrayToRender = selectedAccessors;
 
         var propertiesToRender = [];
         me.getPropForm().removeAll();
