@@ -61,7 +61,8 @@ public class TimeOfUseCampaignInfoFactory {
                 .withActivationDate(timeOfUseCampaignInfo.activationDate)
                 .withUpdateType(timeOfUseCampaignInfo.updateType)
                 .withValidationTimeout(timeOfUseCampaignInfo.validationTimeout)
-                .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint());
+                .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint())
+                .withUniqueCalendarName(timeOfUseCampaignInfo.withUniqueCalendarName);
         return timeOfUseCampaignBuilder.create();
     }
 

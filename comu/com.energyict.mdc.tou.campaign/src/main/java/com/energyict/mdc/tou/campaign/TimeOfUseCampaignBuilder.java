@@ -23,7 +23,7 @@ public interface TimeOfUseCampaignBuilder {
 
     TimeOfUseCampaignBuilder withValidationTimeout(long validationTimeout);
 
-    TimeOfUseCampaignBuilder addWithUniqueCalendarName(boolean withCalendarNameValidation);
+    TimeOfUseCampaignBuilder withUniqueCalendarName(boolean withCalendarNameValidation);
 
     TimeOfUseCampaign create();
 }
