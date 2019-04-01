@@ -6,9 +6,11 @@ package com.energyict.mdc.tasks;
 
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Models a set of {@link com.energyict.mdc.tasks.ProtocolTask}s which can be scheduled for a Device.
@@ -126,4 +128,18 @@ public interface ComTask extends HasId, HasName {
     boolean isSystemComTask();
 
     long getVersion();
+
+    /**
+     * Gets privileges that user must have to be able to execute this communication task.
+     *
+     * @return
+     */
+    Set<ComTaskUserAction> getUserActions();
+
+    /**
+     * Sets privileges that user must have to be able to execute this communication task
+     *
+     * @param userActions
+     */
+    void setUserActions(Set<ComTaskUserAction> userActions);
 }

@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UniqueConstraint;
 import com.elster.jupiter.orm.Version;
+
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
@@ -21,6 +22,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.Version.version;
 import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.MAXIMUM_CLOCK_DIFFERENCE;
 import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.VERIFY_CLOCK_DIFFERENCE;
 import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.VERIFY_SERIAL_NUMBER;
@@ -199,6 +201,26 @@ public enum TableSpecs {
                 .add();
         }
     },
+
+    CTS_COMTASKUSERACTION {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ComTaskDefinedByUserImpl.ComTaskUserActionRecord> table = dataModel.addTable(name(), ComTaskDefinedByUserImpl.ComTaskUserActionRecord.class);
+            table.map(ComTaskDefinedByUserImpl.ComTaskUserActionRecord.class);
+            Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
+            Column comTask = table.column("COMTASK").number().notNull().add();
+            table.setJournalTableName("CTS_COMTASKUSERACTIONJRNL").since(version(10, 7));
+            table.addAuditColumns();
+            table.foreignKey("FK_CTS_COMTASKUSERACTION")
+                    .on(comTask)
+                    .references(CTS_COMTASK.name())
+                    .reverseMap("comTaskUserActionRecords")
+                    .composition()
+                    .map("comTask")
+                    .add();
+            table.primaryKey("PK_CTS_COMTASKUSERACTION").on(useraction, comTask).add();
+        }
+    }
     ;
 
     abstract void addTo(DataModel component);

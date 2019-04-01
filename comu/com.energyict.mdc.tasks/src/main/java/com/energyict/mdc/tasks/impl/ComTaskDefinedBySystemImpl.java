@@ -8,11 +8,16 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+
+import com.energyict.mdc.tasks.ComTaskUserAction;
 import com.energyict.mdc.tasks.FirmwareManagementTask;
 
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
+
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * An implementation of a System defined ComTask
@@ -38,7 +43,7 @@ class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemComTask {
 
     @Override
     public FirmwareManagementTask createFirmwareUpgradeTask() {
-        FirmwareManagementTaskImpl firmwareUpgradeTask = this.getFirmwareManagementTaskProvider().get();
+        FirmwareManagementTaskImpl firmwareUpgradeTask = getFirmwareManagementTaskProvider().get();
         firmwareUpgradeTask.ownedBy(this);
         addProtocolTask(firmwareUpgradeTask);
         return firmwareUpgradeTask;
@@ -52,6 +57,17 @@ class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemComTask {
     @Override
     public boolean isSystemComTask() {
         return true;
+    }
+
+    @Override
+    public Set<ComTaskUserAction> getUserActions() {
+        // cannot be executed on demand from UI
+        return Collections.emptySet();
+    }
+
+    @Override
+    public void setUserActions(Set<ComTaskUserAction> userActions) {
+        // do nothing
     }
 
 }
