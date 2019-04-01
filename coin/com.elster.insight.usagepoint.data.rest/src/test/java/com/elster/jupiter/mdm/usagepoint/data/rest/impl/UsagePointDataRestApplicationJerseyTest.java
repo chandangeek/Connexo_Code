@@ -23,6 +23,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
@@ -176,6 +177,9 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     ReadingType irregularReadingType = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
     @Mock
     UserService userService;
+    @Mock
+    EventService eventService;
+
 
     @Override
     protected Application getApplication() {
@@ -225,6 +229,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setPropertySpecService(propertySpecService);
         application.setUsagePointService(usagePointService);
         application.setUserService(userService);
+        application.setEventService(eventService);
         return application;
     }
 
