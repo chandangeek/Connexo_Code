@@ -79,7 +79,6 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
         List<ComTaskExecution> historyByModTimeEntries = getHistoryEntries(dataMapper, getHistoryByModTimeClauses(comTaskId));
         List<ComTaskExecution> historyByJournalTimeEntries = getHistoryEntries(dataMapper, getHistoryByJournalClauses(comTaskId));
 
-
         Optional<ComTaskExecution> to = actualEntries.stream()
                 .findFirst()
                 .map(Optional::of)
@@ -87,11 +86,13 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
 
         Optional<ComTaskExecution> from = historyByJournalTimeEntries.stream().findFirst();
 
-       if (to.isPresent() && from.isPresent() || getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT){
-            auditStatus(from.get(), to.get()).ifPresent(auditLogChanges::add);
-            auditUrgency(from.get(), to.get()).ifPresent(auditLogChanges::add);
-            auditConnectionMethod(from.get(), to.get()).ifPresent(auditLogChanges::add);
-            auditUseDefaultConnectionMethod(from.get(), to.get()).ifPresent(auditLogChanges::add);
+        boolean insert = getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT;
+
+        if (to.isPresent() && from.isPresent() || insert){
+            auditStatus(from.get(), to.get(), insert).ifPresent(auditLogChanges::add);
+            auditUrgency(from.get(), to.get(), insert).ifPresent(auditLogChanges::add);
+            auditConnectionMethod(from.get(), to.get(), insert).ifPresent(auditLogChanges::add);
+            auditUseDefaultConnectionMethod(from.get(), to.get(), insert).ifPresent(auditLogChanges::add);
         }
 
         return auditLogChanges;
@@ -129,45 +130,48 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
     }
 
 
-    public Optional<AuditLogChange> auditStatus(ComTaskExecution from, ComTaskExecution to) {
-        if (to.getStatus().compareTo(from.getStatus()) != 0 || getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT) {
+    public Optional<AuditLogChange> auditStatus(ComTaskExecution from, ComTaskExecution to, boolean insert) {
+        if (to.getStatus().compareTo(from.getStatus()) != 0 || insert) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(COMTASK_STATUS));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
             auditLogChange.setValue(to.getStatusDisplayName());
             auditLogChange.setPreviousValue(from.getStatusDisplayName());
+
             return Optional.of(auditLogChange);
         }
         return Optional.empty();
     }
 
-    public Optional<AuditLogChange> auditUrgency(ComTaskExecution from, ComTaskExecution to) {
-        if (to.getPlannedPriority() != from.getPlannedPriority() || getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT) {
+    public Optional<AuditLogChange> auditUrgency(ComTaskExecution from, ComTaskExecution to, boolean insert) {
+        if (to.getPlannedPriority() != from.getPlannedPriority() || insert) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(COMTASK_URGENCY));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
             auditLogChange.setValue(to.getPlannedPriority());
             auditLogChange.setPreviousValue(from.getPlannedPriority());
+
             return Optional.of(auditLogChange);
         }
         return Optional.empty();
     }
 
-    public Optional<AuditLogChange> auditUseDefaultConnectionMethod(ComTaskExecution from, ComTaskExecution to) {
+    public Optional<AuditLogChange> auditUseDefaultConnectionMethod(ComTaskExecution from, ComTaskExecution to, boolean insert) {
 
-        if (to.usesDefaultConnectionTask() != from.usesDefaultConnectionTask() || getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT) {
+        if (to.usesDefaultConnectionTask() != from.usesDefaultConnectionTask() || insert) {
             com.elster.jupiter.audit.AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(COMTASK_USE_DEFAULT_CONNECTION_TASK));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
             auditLogChange.setValue(to.usesDefaultConnectionTask());
             auditLogChange.setPreviousValue(from.usesDefaultConnectionTask());
+
             return Optional.of(auditLogChange);
         }
         return Optional.empty();
     }
 
-    public Optional<AuditLogChange> auditConnectionMethod(ComTaskExecution from, ComTaskExecution to) {
-       if (to.getConnectionTaskId() != from.getConnectionTaskId() || getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT) {
+    public Optional<AuditLogChange> auditConnectionMethod(ComTaskExecution from, ComTaskExecution to, boolean insert) {
+       if (to.getConnectionTaskId() != from.getConnectionTaskId() || insert) {
             com.elster.jupiter.audit.AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(CONNECTION_METHOD));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
