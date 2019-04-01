@@ -355,10 +355,17 @@
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.json</groupId>
+				<artifactId>json</artifactId>
+				<version>${json.version}</version>
+				<scope>provided</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
 	<properties>
+		<json.version>20090211</json.version>
 		<javadoc.excluded.package.names>
 			ch.iec.tc57.*:org.w3.*:*.security.*:com.elster.jupiter.metering.cim
 		</javadoc.excluded.package.names>
