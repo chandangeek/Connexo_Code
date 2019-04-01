@@ -130,11 +130,11 @@ public class TaskIssueActionsFactory implements IssueActionFactory {
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
     }
 
-    @Reference
     private void addDefaultActions() {
         try {
             actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));

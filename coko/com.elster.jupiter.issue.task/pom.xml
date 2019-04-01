@@ -17,6 +17,10 @@
         Contains task issue templates
     </description>
 
+    <properties>
+        <baseline>(,${project.version})</baseline>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
