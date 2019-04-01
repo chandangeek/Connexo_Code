@@ -13,7 +13,8 @@ public class DomainContextIdentifier {
     private Long reverseReferenceMapValue;
 
     private long pkDomainColumn;
-    private long pkContextColumn;
+    private long pkContextColumn1;
+    private long pkContextColumn2;
 
     public DomainContextIdentifier setId(Long id) {
         this.id = id;
@@ -87,11 +88,21 @@ public class DomainContextIdentifier {
         return reverseReferenceMapValue;
     }
 
-    public long getPkContextColumn() {
-        return pkContextColumn;
+    public long getPkContextColumn1() {
+        return pkContextColumn1;
     }
 
-    public void setPkContextColumn(long pkContextColumn) {
-        this.pkContextColumn = pkContextColumn;
+    public long getPkContextColumn2() {
+        return pkContextColumn2;
+    }
+
+    public DomainContextIdentifier setPkContextColumn1(long pkContextColumn) {
+        this.pkContextColumn1 = pkContextColumn;
+        return this;
+    }
+
+    public DomainContextIdentifier setPkContextColumn2(long pkContextColumn) {
+        this.pkContextColumn2 = pkContextColumn;
+        return this;
     }
 }

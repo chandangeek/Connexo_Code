@@ -10,6 +10,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
@@ -30,6 +31,7 @@ public class FirmwareModule extends AbstractModule {
         requireBinding(QueryService.class);
         requireBinding(DeviceConfigurationService.class);
         requireBinding(DeviceMessageSpecificationService.class);
+        requireBinding(DeviceMessageService.class);
         requireBinding(MessageService.class);
         requireBinding(TaskService.class);
         requireBinding(com.elster.jupiter.tasks.TaskService.class);

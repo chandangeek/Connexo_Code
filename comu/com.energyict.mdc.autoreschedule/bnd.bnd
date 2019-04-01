@@ -1,0 +1,6 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:  \
+	com.energyict.mdc.autoreschedule.impl
+Export-Package:  \
+    com.energyict.mdc.autoreschedule, com.energyict.mdc.autoreschedule.security

@@ -4,27 +4,18 @@ import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;
+import org.junit.Test;
 
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.Key;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.PrivateKey;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Optional;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +45,7 @@ public class CertificateWrapperExtractorImplTest {
         X509Certificate x509Certificate = mock(X509Certificate.class);
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(x509Certificate));
         when(certificateWrapper.getAlias()).thenReturn(alias);
+        when(certificateWrapper.hasPrivateKey()).thenReturn(true);
         PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
 
         PrivateKey originalPrivateKey = generateECCKeyPair().getPrivate();

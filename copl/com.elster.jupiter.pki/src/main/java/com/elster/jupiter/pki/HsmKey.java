@@ -15,7 +15,7 @@ public interface HsmKey extends SymmetricKeyWrapper{
     void setKey(byte[] key, String label);
 
     /**
-     * Decodes the Base64 encoded key from the database
+     * Decodes the Base64 encoded key from the database if key is not reversible (resulting in the key encrypted by HSM). if key is reversible then we will return decrypted value
      * @return HSM encrypted key
      */
     byte[] getKey();

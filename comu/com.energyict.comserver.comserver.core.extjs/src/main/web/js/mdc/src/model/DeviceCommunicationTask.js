@@ -22,7 +22,8 @@ Ext.define('Mdc.model.DeviceCommunicationTask', {
         {name: 'plannedDate', dateFormat: 'time', type: 'date'},
         {name: 'status', type: 'string'},
         {name: 'isOnHold', type: 'boolean'},
-        {name: 'ignoreNextExecutionSpecsForInbound', type: 'boolean'}
+        {name: 'ignoreNextExecutionSpecsForInbound', type: 'boolean'},
+        {name: 'maxNumberOfTries', type: 'int'},
     ],
     proxy: {
         type: 'rest',

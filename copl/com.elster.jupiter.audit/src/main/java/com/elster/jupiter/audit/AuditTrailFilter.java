@@ -19,4 +19,8 @@ public interface AuditTrailFilter {
     void setCategories(List<String> categories);
 
     void setChangedBy(List<String> users);
+
+    void setDomainContexts(List<AuditDomainContextType> auditDomainContext);
+
+    void setDomain(long domain);
 }

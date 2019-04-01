@@ -8,12 +8,16 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.EditPrivilege;
-import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.Column;
@@ -60,7 +64,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -69,7 +72,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -82,13 +84,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockingDetails;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -105,6 +102,7 @@ public class CustomPropertySetServiceImplIT {
     private Clock clock;
     @Mock
     private TimeService timeService;
+    private MessageService messageService;
     private UserService userService;
     private DataVaultService dataVaultService;
     private User principal;
@@ -112,6 +110,7 @@ public class CustomPropertySetServiceImplIT {
     private TransactionService transactionService;
     private ThreadPrincipalService threadPrincipalService;
     private InMemoryBootstrapModule bootstrapModule;
+    private EventService eventService;
 
     private Injector injector;
     private CustomPropertySetServiceImpl testInstance;
@@ -126,6 +125,7 @@ public class CustomPropertySetServiceImplIT {
         this.injector = Guice.createInjector(
                 new MockModule(),
                 this.bootstrapModule,
+                new InMemoryMessagingModule(),
                 new ThreadSecurityModule(principal),
                 new NlsModule(),
                 new PubSubModule(),
@@ -134,8 +134,16 @@ public class CustomPropertySetServiceImplIT {
                 new BasicPropertiesModule(),
                 new CustomPropertySetsModule(),
                 new UtilModule(this.clock),
+                new EventsModule(),
+                new DomainUtilModule(),
                 new SearchModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(NlsService.class);
+            ctx.commit();
+        }
+        this.messageService = injector.getInstance(MessageService.class);
+        this.eventService = injector.getInstance(EventService.class);
         this.createTestInstance();
     }
 
@@ -390,6 +398,7 @@ public class CustomPropertySetServiceImplIT {
         service.setTransactionService(this.transactionService);
         service.setSearchService(mock(SearchService.class));
         service.setUserService(userService);
+        service.setEventService(eventService);
         service.setUpgradeService(UpgradeModule.FakeUpgradeService.getInstance());
 
         /* Create 3 threads that will wait on CountdownLatch to start simultaneously
@@ -1293,6 +1302,7 @@ public class CustomPropertySetServiceImplIT {
         when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
         privileges.add(viewPrivilege);
         when(this.principal.getPrivileges()).thenReturn(privileges);
+        when(this.principal.getPrivileges(anyString())).thenReturn(privileges);
     }
 
     private abstract class LatchDrivenRunnable implements Runnable {

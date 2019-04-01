@@ -39,7 +39,7 @@ Ext.define('Mdc.controller.setup.IssueAlarmDetail', {
             }
         }
 
-        if ((issueType === 'datacollection') || (issueType === 'datavalidation')) {
+        if ((issueType === 'datacollection') || (issueType === 'datavalidation') || (issueType === 'devicelifecycle')) {
             this.getController('Isu.controller.IssueDetail').showOverview(issueId);
         }
         else if (issueType === 'devicealarm') {

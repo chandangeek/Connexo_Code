@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.DataMapperReader;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.orm.impl.TableSqlGenerator;
 
@@ -36,9 +37,43 @@ public class AuditTrailDataWriter<T> {
     }
 
     public void audit() throws SQLException {
-        if (getTable().hasAudit() && doJournal(getColumns())) {
-            getAuditDomain(object, instant, operation);
+        if (isAuditEnabled() && getTable().hasAudit() && doJournal(getColumns())) {
+            DataMapperReader<? super T> reader = getTable().getDataMapper().getReader();
+            if (operation == UnexpectedNumberOfUpdatesException.Operation.UPDATE){
+                if (!isSomethingChanged(object, reader.findByPrimaryKey(getTable().getPrimaryKey(object)).get(), getColumns())){
+                    isTouch = true;
+                }
+                getAuditDomain(object, instant, operation);
+            }
+            else  if (operation == UnexpectedNumberOfUpdatesException.Operation.INSERT){
+                getAuditDomain(reader.findByPrimaryKey(getTable().getPrimaryKey(object)).get(), instant, operation);
+            }
+            else  if (operation == UnexpectedNumberOfUpdatesException.Operation.DELETE){
+                getAuditDomain(object, instant, operation);
+            }
         }
+    }
+
+    public boolean isSomethingChanged(Object object, Object oldObject, List<ColumnImpl> columns) throws SQLException {
+        return columns.stream()
+                .filter(ColumnImpl::alwaysJournal)
+                .filter(column -> {
+                    if (column.isMAC()) {
+                        return false;
+                    }
+                    Object newValue = column.domainValue(object);
+                    Object oldValue = column.domainValue(oldObject);
+                    return !(newValue == null ? oldValue == null : newValue.equals(oldValue));
+                })
+                .count() > 0;
+    }
+
+    private boolean isAuditEnabled() {
+        return getAuditEnabledProperty().toLowerCase().equals("true");
+    }
+
+    private String getAuditEnabledProperty() {
+        return Optional.ofNullable(getTable().getDataModel().getOrmService().getEnableAuditing()).orElse("false");
     }
 
     private List<ColumnImpl> getColumns() {
@@ -74,14 +109,18 @@ public class AuditTrailDataWriter<T> {
             List<Object> pkContextColumns = tableAudit.getContextPkValues(object);
             List<DomainContextIdentifier> contextAuditIdentifiers = getContextAuditIdentifiers();
             resolveIncompleteContextIdentifier(object);
+            if (!tableAudit.getForceReverseReferenceMap() && getPkColumnByIndex(pkDomainColumns, 0) == 0){
+                return;
+            }
+
             contextAuditIdentifiers.stream()
-                    .filter(contextIdentifierEntry -> (contextIdentifierEntry.getDomainContext() == tableAudit.getDomainContext()) &&
+                    .filter(contextIdentifierEntry -> (contextIdentifierEntry.getDomainContext().equals(tableAudit.getDomainContext())) &&
                             (contextIdentifierEntry.getPkDomainColumn() == getPkColumnByIndex(pkDomainColumns, 0)) &&
-                            (contextIdentifierEntry.getPkContextColumn() == getPkColumnByIndex(pkContextColumns, 0)))
+                            (contextIdentifierEntry.getPkContextColumn1() == getPkColumnByIndex(pkContextColumns, 0)))
                     .findFirst()
                     .map(domainContextIdentifier -> {
                         try {
-                            updateAuditDomain(now, domainContextIdentifier);
+                            updateAuditDomain(now, domainContextIdentifier, pkContextColumns);
                         } catch (SQLException e) {
                         }
                         return domainContextIdentifier;
@@ -90,10 +129,12 @@ public class AuditTrailDataWriter<T> {
                     .orElseGet(() -> {
                         try {
                             if (!isTouch) {
-                                Long nextVal = getNext(connection, "ADT_AUDIT_TRAILID");
+                                Long nextVal = getNext(connection);
                                 updateContextAuditIdentifiers(new DomainContextIdentifier().setId(nextVal)
                                         .setDomainContext(tableAudit.getDomainContext())
                                         .setPkDomainColumn(getPkColumnByIndex(pkDomainColumns, 0))
+                                        .setPkContextColumn1(getPkColumnByIndex(pkContextColumns, 0))
+                                        .setPkContextColumn2(getPkColumnByIndex(pkContextColumns, 1))
                                         .setOperation(operation.ordinal())
                                         .setObject(object)
                                         .setTableAudit(tableAudit)
@@ -139,6 +180,7 @@ public class AuditTrailDataWriter<T> {
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMEEND
                 statement.setLong(index++, getPkColumnByIndex(pkDomainColumns, 0));
                 statement.setLong(index++, getPkColumnByIndex(pkContextColumns, 0));
+                statement.setLong(index++, getPkColumnByIndex(pkContextColumns, 1));
                 statement.setLong(index++, operation.ordinal()); // operation
                 statement.setLong(index++, now.toEpochMilli()); // create time
                 statement.setString(index++, getCurrentUserName()); //user name
@@ -147,14 +189,20 @@ public class AuditTrailDataWriter<T> {
         }
     }
 
-    private void updateAuditDomain(Instant now, DomainContextIdentifier domainContextIdentifier) throws SQLException {
+    private void updateAuditDomain(Instant now, DomainContextIdentifier domainContextIdentifier, List<Object> pkContextColumns) throws SQLException {
         Long nextVal = domainContextIdentifier.getId();
-        String auditLog = getSqlGenerator().updateAuditTrailSql();
+        Long pkContext1 = getPkColumnByIndex(pkContextColumns, 0);
+        Long pkContext2 = getPkColumnByIndex(pkContextColumns, 1);
+        String auditLog = pkContext2 == 0 ? getSqlGenerator().updateAuditTrailSql() : getSqlGenerator().updateAuditTrailWithContextSql();
         try (Connection connection = getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(auditLog)) {
                 int index = 1;
                 statement.setLong(index++, now.toEpochMilli()); // MODTIMEEND
                 statement.setLong(index++, getPkColumnBy(domainContextIdentifier)); // PKCONTEXT
+                statement.setLong(index++, pkContext1); // PKCONTEXT1
+                if (pkContext2 != 0){
+                    statement.setLong(index++, pkContext2); // PKCONTEXT2
+                }
                 statement.setLong(index++, nextVal); // ID
                 statement.execute();
             }
@@ -201,8 +249,8 @@ public class AuditTrailDataWriter<T> {
                 });
     }
 
-    private long getNext(Connection connection, String sequence) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("select " + sequence + ".nextval from dual")) {
+    private long getNext(Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("select ADT_AUDIT_TRAILID.nextval from dual")) {
             try (ResultSet rs = statement.executeQuery()) {
                 rs.next();
                 return rs.getLong(1);

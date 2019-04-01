@@ -6,8 +6,12 @@ package com.energyict.mdc.tou.campaign.impl.servicecall;
 
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -24,6 +28,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import java.time.Clock;
@@ -54,12 +59,14 @@ public class ToUCampaignHandlerTest {
     private TimeOfUseCampaignServiceImpl timeOfUseCampaignService = mock(TimeOfUseCampaignServiceImpl.class);
     private Clock clock = mock(Clock.class);
     private ServiceCallService serviceCallService = mock(ServiceCallService.class);
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private TimeOfUseCampaignHandler timeOfUseCampaignHandler;
     private ComTaskExecution calendarComTaskExecution = createCalendarTaskMock();
     private ComTaskExecution verificationComTaskExecution = createVerificationTaskMock();
     private LocalEvent event = mock(LocalEvent.class);
     private EventType eventType = mock(EventType.class);
     private ServiceCall serviceCall = mock(ServiceCall.class);
+    private TimeOfUseCampaignItem timeOfUseItem = mock(TimeOfUseCampaignItem.class);
     private TimeOfUseCampaign timeOfUseCampaign = createMockCampaign("withoutActivation");
     private TimeOfUseCampaign timeOfUseCampaign2 = createMockCampaign("immediately");
     private TimeOfUseItemDomainExtension timeOfUseItemDomainExtension = mock(TimeOfUseItemDomainExtension.class);
@@ -69,11 +76,16 @@ public class ToUCampaignHandlerTest {
         when(timeOfUseCampaignService.getCampaignOn(calendarComTaskExecution)).thenReturn(Optional.of(timeOfUseCampaign));
         when(timeOfUseCampaignService.getCampaignOn(verificationComTaskExecution)).thenReturn(Optional.of(timeOfUseCampaign2));
         when(serviceCall.getExtension(TimeOfUseItemDomainExtension.class)).thenReturn(Optional.of(timeOfUseItemDomainExtension));
-        when(timeOfUseCampaignService.findActiveServiceCallByDevice(any())).thenReturn(Optional.of(serviceCall));
+        when(timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(any())).thenReturn(Optional.of(timeOfUseItem));
         when(serviceCallService.lockServiceCall(anyLong())).thenReturn(Optional.of(serviceCall));
         when(event.getType()).thenReturn(eventType);
-        timeOfUseCampaignHandler = new TimeOfUseCampaignHandler(timeOfUseCampaignService, clock, serviceCallService);
+        when(timeOfUseItem.cancel()).thenReturn(serviceCall);
+        when(timeOfUseItem.getServiceCall()).thenReturn(serviceCall);
+        QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(timeOfUseItem), QueryStream.class);
+        when(timeOfUseCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
+        timeOfUseCampaignHandler = new TimeOfUseCampaignHandler(timeOfUseCampaignService, clock, serviceCallService, thesaurus);
     }
+
 
     @Test
     public void testCalendarTaskStarted() {
@@ -176,8 +188,8 @@ public class ToUCampaignHandlerTest {
         when(timeOfUseCampaign.getName()).thenReturn("TestCampaign");
         when(timeOfUseCampaign.getDeviceType()).thenReturn(deviceType);
         when(timeOfUseCampaign.getDeviceGroup()).thenReturn("TestGroup");
-        when(timeOfUseCampaign.getActivationStart()).thenReturn(Instant.ofEpochSecond(100));
-        when(timeOfUseCampaign.getActivationEnd()).thenReturn(Instant.ofEpochSecond(200));
+        when(timeOfUseCampaign.getUploadPeriodStart()).thenReturn(Instant.ofEpochSecond(100));
+        when(timeOfUseCampaign.getUploadPeriodEnd()).thenReturn(Instant.ofEpochSecond(200));
         when(timeOfUseCampaign.getCalendar()).thenReturn(calendar);
         when(timeOfUseCampaign.getUpdateType()).thenReturn("fullCalendar");
         when(timeOfUseCampaign.getActivationOption()).thenReturn(activation);

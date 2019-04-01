@@ -4,16 +4,11 @@
 
 package com.elster.jupiter.customtask;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
-import java.nio.file.Path;
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
@@ -38,5 +33,11 @@ public interface CustomTaskService {
     Optional<? extends CustomTask> findAndLockCustomTask(long id, long version);
 
     Optional<CustomTaskOccurrence> findCustomTaskOccurrence(long occurrenceId);
+
+    boolean usedByAutorescheduleTask(Long comTaskId);
+
+    List<CustomTaskProperty> findPropertyByComTaskId(Long comTaskId, int skip, int limit);
+
+    List<CustomTaskProperty> findPropertyByDeviceGroupName(String endDeviceGroupName, int skip, int limit);
 
 }

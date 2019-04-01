@@ -4,13 +4,18 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap;
 
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import ch.iec.tc57._2011.meterconfig.ElectronicAddress;
+import ch.iec.tc57._2011.meterconfig.Zone;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MeterInfo {
     private String deviceName;
@@ -30,6 +35,9 @@ public class MeterInfo {
     private Instant multiplierEffectiveDate;
     private String configurationEventReason;
     private ElectronicAddressInfo electronicAddressInfo;
+    private List<Zone> zones = new ArrayList<>();
+    private List<CasInfo> customAttributeSets;
+    private SecurityInfo securityInfo;
 
     public MeterInfo(){}
 
@@ -201,4 +209,24 @@ public class MeterInfo {
     public void setElectronicAddress(ElectronicAddress electronicAddress){
         electronicAddressInfo = new ElectronicAddressInfo(electronicAddress);
     }
+
+    public List<Zone> getZones(){return zones;}
+
+    public void setZones(List<Zone> zones){ this.zones = zones; }
+
+	public List<CasInfo> getCustomAttributeSets() {
+		return customAttributeSets;
+	}
+
+	public void setCustomAttributeSets(List<CasInfo> customAttributeSets) {
+		this.customAttributeSets = customAttributeSets;
+	}
+
+	public SecurityInfo getSecurityInfo() {
+		return securityInfo;
+	}
+
+	public void setSecurityInfo(SecurityInfo securityInfo) {
+		this.securityInfo = securityInfo;
+	}
 }

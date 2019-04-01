@@ -147,8 +147,18 @@ public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
         return propertySpec.getName();
     }
 
-    String application();
-
-    default void addAudit(Table table) {
+    /**
+     * Gets the context for which this CustomPropertySet provides custom properties.
+     *
+     * @return The context class that is extended by this CustomPropertySet
+     */
+    default Class getContextClass(){
+        return null;
     }
+
+    default String contextForeignKeyName(){
+        return "";
+    }
+
+    String application();
 }

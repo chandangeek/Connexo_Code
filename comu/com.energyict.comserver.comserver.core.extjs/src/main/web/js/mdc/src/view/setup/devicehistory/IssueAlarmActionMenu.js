@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
 
                 me.removeAll();
 
-                if ((me.record.get('issueType').uid === "datacollection") || (me.record.get('issueType').uid === "datavalidation")) {
+                if ((me.record.get('issueType').uid === "datacollection") || (me.record.get('issueType').uid === "datavalidation") || (me.record.get('issueType').uid === "devicelifecycle")) {
                     me.setLoading(true);
                     me.store.getProxy().url = Ext.String.format(me.urlIssueStoreProxy, me.record.getId());
                     me.store.load(function () {
@@ -475,7 +475,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
 
     isIssueType: function () {
         var issueType = this.record.get('issueType').uid;
-        return (issueType === "datacollection") || (issueType === "datavalidation");
+        return (issueType === "datacollection") || (issueType === "datavalidation") || (issueType === "devicelifecycle");
     },
 
     isAlarmType: function () {
@@ -487,7 +487,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
         var me = this,
             issueType = me.record.get('issueType').uid;
 
-        if ((issueType === "datacollection") || (issueType === "datavalidation")) {
+        if ((issueType === "datacollection") || (issueType === "datavalidation") || (issueType === "devicelifecycle")) {
             return me.getPredefinedItemsForIssues();
         }
         else if (issueType == 'devicealarm') {

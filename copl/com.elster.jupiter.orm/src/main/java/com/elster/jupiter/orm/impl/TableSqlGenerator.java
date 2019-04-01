@@ -219,17 +219,24 @@ public class TableSqlGenerator {
 
     public String auditTrailSql() {
         StringBuilder sb = new StringBuilder("insert into ADT_AUDIT_TRAIL");
-        sb.append(" (ID, DOMAINCONTEXT, MODTIMESTART, MODTIMEEND, PKDOMAIN, PKCONTEXT, OPERATION, CREATETIME, USERNAME)");
-        sb.append(" values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        sb.append(" (ID, DOMAINCONTEXT, MODTIMESTART, MODTIMEEND, PKDOMAIN, PKCONTEXT1, PKCONTEXT2, OPERATION, CREATETIME, USERNAME)");
+        sb.append(" values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         return sb.toString();
     }
 
     public String updateAuditTrailSql() {
         StringBuilder sb = new StringBuilder("update ADT_AUDIT_TRAIL set");
-		sb.append(" MODTIMEEND = ?, PKDOMAIN = ?");
+		sb.append(" MODTIMEEND = ?, PKDOMAIN = ?, PKCONTEXT1 = ?");
         sb.append(" WHERE ID = ?");
         return sb.toString();
     }
+
+	public String updateAuditTrailWithContextSql() {
+		StringBuilder sb = new StringBuilder("update ADT_AUDIT_TRAIL set");
+		sb.append(" MODTIMEEND = ?, PKDOMAIN = ?, PKCONTEXT1 = ?, PKCONTEXT2 = ?");
+		sb.append(" WHERE ID = ?");
+		return sb.toString();
+	}
 
 
 }

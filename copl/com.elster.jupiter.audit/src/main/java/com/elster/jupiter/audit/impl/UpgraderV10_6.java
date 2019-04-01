@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.elster.jupiter.orm.Version.version;
-
 public class UpgraderV10_6 implements Upgrader {
 
     private DataModel dataModel;
@@ -32,7 +30,6 @@ public class UpgraderV10_6 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, version(10, 6));
         upgradeAuditTable();
 
     }

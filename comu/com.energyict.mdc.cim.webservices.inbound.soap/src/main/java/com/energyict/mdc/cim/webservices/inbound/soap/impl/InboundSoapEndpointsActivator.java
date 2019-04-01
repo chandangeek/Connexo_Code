@@ -6,6 +6,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
@@ -16,6 +17,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -30,7 +32,9 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
@@ -44,7 +48,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -60,6 +64,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
+
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,6 +111,10 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile CustomPropertySetService customPropertySetService;
     private volatile WebServicesService webServicesService;
     private volatile InboundCIMWebServiceExtensionFactory webServiceExtensionFactory = new InboundCIMWebServiceExtensionFactory();
+    private volatile HsmEnergyService hsmEnergyService;
+    private volatile SecurityManagementService securityManagementService;
+	private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeterConfigFactory meterConfigFactory;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -123,7 +132,9 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          PropertySpecService propertySpecService, PropertyValueInfoService propertyValueInfoService, LogBookService logBookService,
                                          EndPointConfigurationService endPointConfigurationService, ServiceCallService serviceCallService,
                                          JsonService jsonService, CustomPropertySetService customPropertySetService,
-                                         WebServicesService webServicesService, InboundCIMWebServiceExtension webServiceExtensionFactory) {
+                                         WebServicesService webServicesService, InboundCIMWebServiceExtension webServiceExtensionFactory,
+                                         HsmEnergyService hsmEnergyService, SecurityManagementService securityManagementService,
+                                         DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -146,6 +157,9 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setWebServicesService(webServicesService);
         setWebServiceExtensionFactory(webServiceExtensionFactory);
         activate(bundleContext);
+        setHsmEnergyService(hsmEnergyService);
+        setSecurityManagementService(securityManagementService);
+		setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
     }
 
     private Module getModule() {
@@ -175,6 +189,10 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(WebServicesService.class).toInstance(webServicesService);
                 bind(InboundCIMWebServiceExtensionFactory.class).toInstance(webServiceExtensionFactory);
+                bind(HsmEnergyService.class).toInstance(hsmEnergyService);
+                bind(SecurityManagementService.class).toInstance(securityManagementService);
+				bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+				bind(MeterConfigFactory.class).toInstance(meterConfigFactory);
             }
         };
     }
@@ -193,12 +211,12 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     @Deactivate
     public void stop() {
         serviceRegistrations.forEach(ServiceRegistration::unregister);
-        this.converters.forEach(this.propertyValueInfoService::removePropertyValueInfoConverter);
+        converters.forEach(propertyValueInfoService::removePropertyValueInfoConverter);
     }
 
     private void addConverter(PropertyValueConverter converter) {
-        this.converters.add(converter);
-        this.propertyValueInfoService.addPropertyValueInfoConverter(converter);
+        converters.add(converter);
+        propertyValueInfoService.addPropertyValueInfoConverter(converter);
     }
 
     private void registerServices(BundleContext bundleContext) {
@@ -220,7 +238,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer())
+        thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer())
                 .join(nlsService.getThesaurus(MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
@@ -321,11 +339,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setWebServiceExtensionFactory(InboundCIMWebServiceExtension webServiceExtension) {
-        this.webServiceExtensionFactory.setWebServiceExtension(webServiceExtension);
+        webServiceExtensionFactory.setWebServiceExtension(webServiceExtension);
     }
 
     public void unsetWebServiceExtensionFactory(InboundCIMWebServiceExtension webServiceExtension) {
-        this.webServiceExtensionFactory.unsetWebServiceExtension(webServiceExtension);
+        webServiceExtensionFactory.unsetWebServiceExtension(webServiceExtension);
     }
 
 
@@ -344,6 +362,26 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         // PATCH; required for proper startup; do not delete
     }
 
+    @Reference
+    public void setHsmEnergyService(HsmEnergyService hsmEnergyService) {
+        this.hsmEnergyService = hsmEnergyService;
+    }
+
+    @Reference
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
+    }
+
+	@Reference
+	public void setDeviceLifeCycleConfigurationService(
+			DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+		this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+	}
+
+    @Reference
+    public void setMeterConfigFactory(MeterConfigFactory meterConfigFactory) {
+        this.meterConfigFactory = meterConfigFactory;
+    }
 
     @Override
     public Layer getLayer() {

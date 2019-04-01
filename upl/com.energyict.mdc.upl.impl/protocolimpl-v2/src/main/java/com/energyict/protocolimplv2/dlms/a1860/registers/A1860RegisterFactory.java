@@ -33,7 +33,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class A1860RegisterFactory implements DeviceRegisterSupport {
-
+    private static final ObisCode CTratio = ObisCode.fromString("1.1.0.4.2.255");
+    private static final ObisCode VTratio = ObisCode.fromString("1.1.0.4.3.255");
+    private static final ObisCode InstrumentationMultiplier = ObisCode.fromString("1.1.96.131.1.255");
+    private static final ObisCode InstrumentationScaleFactor = ObisCode.fromString("1.1.96.131.2.255");
     private final A1860 protocol;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
@@ -126,6 +129,13 @@ public class A1860RegisterFactory implements DeviceRegisterSupport {
                     registerValue = new RegisterValue(obisCode, new Quantity(attribute.getBitString().toBigDecimal().longValue(), Unit
                             .get("")));
                 } else if (attribute.isInteger64() && attribute.getInteger64() != null) {
+                    //workaround for missing scaler factor
+                    if (obisCode.equals(CTratio) ||obisCode.equals(VTratio)) {
+                        Data sclr = protocol.getDlmsSession().getCosemObjectFactory().getData(InstrumentationScaleFactor);
+                        Data mltpr = protocol.getDlmsSession().getCosemObjectFactory().getData(InstrumentationMultiplier);
+                        registerValue = new RegisterValue(obisCode, new Quantity(
+                                attribute.getInteger64().toBigDecimal().scaleByPowerOfTen(sclr.getValueAttr().intValue()).multiply(mltpr.getValueAttr().toBigDecimal()), Unit.get("")));
+                    }else
                     registerValue = new RegisterValue(obisCode, new Quantity(attribute.getInteger64().longValue(), Unit.get("")));
                 } else {
                     Unsigned32 value = register.getValueAttr().getUnsigned32();

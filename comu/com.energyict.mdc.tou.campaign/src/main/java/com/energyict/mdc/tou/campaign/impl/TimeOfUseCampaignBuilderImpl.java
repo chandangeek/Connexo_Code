@@ -5,11 +5,11 @@
 package com.energyict.mdc.tou.campaign.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignDomainExtension;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceImpl;
 
@@ -31,80 +31,79 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     public Boolean withUniqueCalendarName;
 
     private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
+    private final DataModel dataModel;
 
-    public TimeOfUseCampaignBuilderImpl(TimeOfUseCampaignService timeOfUseCampaignService) {
-        this.timeOfUseCampaignService = (TimeOfUseCampaignServiceImpl) timeOfUseCampaignService;
+    public TimeOfUseCampaignBuilderImpl(TimeOfUseCampaignServiceImpl timeOfUseCampaignService, DataModel dataModel) {
+        this.timeOfUseCampaignService = timeOfUseCampaignService;
+        this.dataModel = dataModel;
     }
 
     @Override
-    public TimeOfUseCampaignBuilder addActivationTimeBoundaries(Instant activationStart, Instant activationEnd) {
+    public TimeOfUseCampaignBuilder withUploadTimeBoundaries(Instant activationStart, Instant activationEnd) {
         this.activationStart = activationStart;
         this.activationEnd = activationEnd;
         return this;
     }
 
     @Override
-    public TimeOfUseCampaignBuilder addActivationDate(Instant activationDate) {
+    public TimeOfUseCampaignBuilder withActivationDate(Instant activationDate) {
         this.activationDate = activationDate;
         return this;
     }
 
     @Override
-    public TimeOfUseCampaignBuilder addActivationOption(String activationOption) {
+    public TimeOfUseCampaignBuilder withActivationOption(String activationOption) {
         this.activationOption = activationOption;
         return this;
     }
 
     @Override
-    public TimeOfUseCampaignBuilder addDeviceGroup(String deviceGroup) {
+    public TimeOfUseCampaignBuilder withDeviceGroup(String deviceGroup) {
         this.deviceGroup = deviceGroup;
         return this;
     }
 
     @Override
-    public TimeOfUseCampaignBuilder addUpdateType(String updateType) {
+    public TimeOfUseCampaignBuilder withUpdateType(String updateType) {
         this.updateType = updateType;
         return this;
     }
 
     @Override
-    public TimeOfUseCampaignBuilder addValidationTimeout(long validationTimeout) {
+    public TimeOfUseCampaignBuilder withValidationTimeout(long validationTimeout) {
         this.validationTimeout = validationTimeout;
         return this;
     }
 
     @Override
-    public TimeOfUseCampaignBuilder addWithUniqueCalendarName(boolean withCalendarNameValidation) {
+    public TimeOfUseCampaignBuilder withUniqueCalendarName(boolean withCalendarNameValidation) {
         this.withUniqueCalendarName = withCalendarNameValidation;
         return this;
     }
 
-    @Override
-    public TimeOfUseCampaignBuilderImpl addType(DeviceType deviceType) {
+    public TimeOfUseCampaignBuilderImpl withType(DeviceType deviceType) {
         this.deviceType = deviceType;
         return this;
     }
 
-    @Override
-    public TimeOfUseCampaignBuilderImpl addCalendar(Calendar calendar) {
+    public TimeOfUseCampaignBuilderImpl withCalendar(Calendar calendar) {
         this.calendar = calendar;
         return this;
     }
 
-    @Override
-    public TimeOfUseCampaignBuilderImpl addName(String name) {
+    public TimeOfUseCampaignBuilderImpl withName(String name) {
         this.name = name;
         return this;
     }
 
     @Override
     public TimeOfUseCampaign create() {
-        TimeOfUseCampaignDomainExtension timeOfUseCampaign = new TimeOfUseCampaignDomainExtension();
+        TimeOfUseCampaignDomainExtension timeOfUseCampaign = dataModel.getInstance(TimeOfUseCampaignDomainExtension.class);
         timeOfUseCampaign.setName(name);
         timeOfUseCampaign.setDeviceType(deviceType);
         timeOfUseCampaign.setDeviceGroup(deviceGroup);
-        timeOfUseCampaign.setActivationStart(activationStart);
-        timeOfUseCampaign.setActivationEnd(activationEnd);
+        timeOfUseCampaign.setUploadPeriodStart(activationStart);
+        timeOfUseCampaign.setUploadPeriodEnd(activationEnd);
         timeOfUseCampaign.setCalendar(calendar);
         timeOfUseCampaign.setUpdateType(updateType);
         timeOfUseCampaign.setActivationOption(activationOption);
