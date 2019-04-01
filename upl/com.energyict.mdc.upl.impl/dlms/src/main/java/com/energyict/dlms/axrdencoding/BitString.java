@@ -10,6 +10,7 @@ package com.energyict.dlms.axrdencoding;
 import com.energyict.mdc.upl.ProtocolException;
 
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -234,7 +235,8 @@ public class BitString extends AbstractDataType implements Iterable<Boolean> {
         for (int i = 0; i < getLevel(); i++) {
             sb.append("  ");
         }
-        return sb.toString() + "BitString=0x" + Long.toHexString(longValue()) + "\n";
+        final String hexString = ProtocolTools.getHexStringFromBytes( this.getData() ).replaceAll("\\$", "");
+        return sb.toString() + "BitString=0x" + hexString + "\n";
     }
 
     /**

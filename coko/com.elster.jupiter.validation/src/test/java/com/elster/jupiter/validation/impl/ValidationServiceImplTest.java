@@ -381,6 +381,7 @@ public class ValidationServiceImplTest {
         when(channelsContainer.getId()).thenReturn(ID);
         when(channelsContainer.getMeter()).thenReturn(Optional.of(meter));
         when(meter.getId()).thenReturn(ID);
+        when(meter.getAmrId()).thenReturn(String.valueOf(ID));
         when(channelsContainer.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(1001L);
         ReadingType readingType = mock(ReadingType.class);
@@ -461,6 +462,7 @@ public class ValidationServiceImplTest {
         when(channelsContainer.getId()).thenReturn(ID);
         when(channelsContainer.getMeter()).thenReturn(Optional.of(meter));
         when(meter.getId()).thenReturn(ID);
+        when(meter.getAmrId()).thenReturn(String.valueOf(ID));
         when(channelsContainer.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(1001L);
         when(channel2.getId()).thenReturn(1002L);
@@ -1038,6 +1040,7 @@ public class ValidationServiceImplTest {
 
     private void setValidationStatusOnMeter(boolean status){
         when(meter.getId()).thenReturn(ID);
+        when(meter.getAmrId()).thenReturn(String.valueOf(ID));
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(status);
     }

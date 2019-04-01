@@ -59,7 +59,10 @@ public class EstimationRuleSetResource {
             @BeanParam JsonQueryParameters queryParameters) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<EstimationRuleSet> ruleSets = includeOnlyLinkableEstimationRuleSets ? getLinkableEstimationRuleSets(deviceConfiguration) : deviceConfiguration.getEstimationRuleSets();
-        List<EstimationRuleSetRefInfo> infos = ruleSets.stream().map(ruleSet -> new EstimationRuleSetRefInfo(ruleSet, deviceConfiguration)).collect(Collectors.toList());
+        List<EstimationRuleSetRefInfo> infos = ruleSets
+                .stream()
+                .map(ruleSet -> new EstimationRuleSetRefInfo(ruleSet, deviceConfiguration, !includeOnlyLinkableEstimationRuleSets && deviceConfiguration.getEstimationRuleSetStatus(ruleSet)))
+                .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("estimationRuleSets", infos, queryParameters);
     }
     
@@ -121,6 +124,22 @@ public class EstimationRuleSetResource {
             deviceConfiguration.reorderEstimationRuleSets(kPermutation);
             deviceConfiguration.save();
         }
+        return Response.status(Status.OK).build();
+    }
+
+    @PUT @Transactional
+    @Path("/{estimationRuleSetId}/status")
+    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    public Response setEstimationRuleSetStatusOnDeviceConfiguration (
+            @PathParam("deviceConfigurationId") long deviceConfigurationId,
+            @PathParam("estimationRuleSetId") long estimationRuleSetId,
+            EstimationRuleSetRefInfo info) {
+        info.id = estimationRuleSetId;
+        EstimationRuleSet estimationRuleSet = resourceHelper.lockEstimationRuleSetOrThrowException(info);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
+        deviceConfiguration.setEstimationRuleSetStatus(estimationRuleSet, info.isEstimationRuleSetActive);
         return Response.status(Status.OK).build();
     }
     

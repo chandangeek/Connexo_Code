@@ -13,17 +13,19 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_GROUP("deviceGroup", "Device group"),
     ACTIVATION_START("activationStart", "Time boundary start"),
     ACTIVATION_END("activationEnd", "Time boundary end"),
-    CALENDAR("calendar", "ToU calendar"),
-    ACTIVATION_OPTION("activationOption", "Activation Option"),
-    ACTIVATION_DATE("activationDate", "Activation Date"),
+    CALENDAR("calendar", "Time of use calendar"),
+    ACTIVATION_OPTION("activationOption", "Activation option"),
+    ACTIVATION_DATE("activationDate", "Activation date"),
     UPDATE_TYPE("updateType", "Update"),
     VALIDATION_TIMEOUT("validationTimeout", "Timeout before validation(sec)"),
     DEVICE("device", "Device"),
-    FULL_CALENDAR("fullCalendar", "Full Calendar"),
-    SPECIAL_DAYS("specialDays", "Special Days"),
+    FULL_CALENDAR("fullCalendar", "Full calendar"),
+    SPECIAL_DAYS("specialDays", "Special days"),
     IMMEDIATELY("immediately", "Immediately"),
-    WITHOUT_ACTIVATION("withoutActivation", "Without Activation"),
-    DEVICE_MESSAGE_ID("deviceMessageId", "Device Message Id")
+    WITHOUT_ACTIVATION("withoutActivation", "Without activation"),
+    DEVICE_MESSAGE_ID("deviceMessageId", "Device message id"),
+    TIME_OF_USE_CAMPAIGN_CPS("TimeOfUseCampaignCustomPropertySet", "Time of use campaign custom property set"),
+    TIME_OF_USE_ITEM_CPS("TimeOfUseCampaignItemCustomPropertySet", "Time of use campaign item custom property set"),
     ;
 
 

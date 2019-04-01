@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
@@ -49,6 +48,8 @@ public interface ValidationService {
     Optional<ValidationRuleSet> getValidationRuleSet(String name);
 
     boolean isValidationRuleSetInUse(ValidationRuleSet validationRuleSet);
+
+    boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceConfigId);
 
     Query<ValidationRuleSet> getRuleSetQuery();
 

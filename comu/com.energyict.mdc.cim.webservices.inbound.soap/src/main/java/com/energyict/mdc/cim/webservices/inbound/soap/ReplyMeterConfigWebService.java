@@ -27,5 +27,5 @@ public interface ReplyMeterConfigWebService {
      * @param expectedNumberOfCalls - the expected number of child calls
      */
     void call(EndPointConfiguration endPointConfiguration, OperationEnum operation, List<Device> successfulDevices,
-              List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls);
+              List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls);
 }

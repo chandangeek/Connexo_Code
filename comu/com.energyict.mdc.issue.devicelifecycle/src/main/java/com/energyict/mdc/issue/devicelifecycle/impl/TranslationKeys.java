@@ -14,7 +14,7 @@ public enum TranslationKeys implements TranslationKey {
 
     DEVICE_LIFECYCLE_ISSUE_TYPE("DeviceLifecycleIssueType", "Device lifecycle"),
     DEVICE_LIFECYCLE_ISSUE_REASON("DeviceLifecycleIssueReason", "Device lifecycle transition failure"),
-    DEVICE_LIFECYCLE_ISSUE_REASON_DESCRIPTION("DeviceLifecycleIssueReasonDescription", "Device lifecycle transition failure on transition {0} from {1} to {2}"),
+    DEVICE_LIFECYCLE_ISSUE_REASON_DESCRIPTION("DeviceLifecycleIssueReasonDescription", "Device lifecycle transition failure - {0}"),
     DEVICE_LIFECYCLE_ISSUE_RULE_TEMPLATE_NAME("DeviceLifecycleIssueRuleTemplateName", "Create issue lifecycle transitions fail"),
     DEVICE_LIFECYCLE_ISSUE_RULE_TEMPLATE_DESCRIPTION("DeviceLifecycleIssueRuleTemplateDescription", "Create issue lifecycle transitions fail"),
     //DEVICE_CONFIGURATIONS_PROPERTY(DeviceLifecycleIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, "Device configurations"),
