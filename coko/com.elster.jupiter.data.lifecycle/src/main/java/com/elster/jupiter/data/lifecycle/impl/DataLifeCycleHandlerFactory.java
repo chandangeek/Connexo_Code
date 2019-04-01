@@ -47,12 +47,10 @@ public class DataLifeCycleHandlerFactory implements MessageHandlerFactory {
         this.lifeCycleService = (LifeCycleServiceImpl) lifeCycleService;
     }
 
+    @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
-
-    @Reference
-
 
     @Override
     public MessageHandler newMessageHandler() {
