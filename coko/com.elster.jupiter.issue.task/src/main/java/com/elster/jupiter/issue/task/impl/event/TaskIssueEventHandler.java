@@ -53,8 +53,6 @@ public class TaskIssueEventHandler implements MessageHandler {
     }
 
     private List<IssueEvent> createEvents(Map<?, ?> map) {
-        // make sure you only load the device once!
-
         List<IssueEvent> events = new ArrayList<>();
         Stream.concat(Arrays.stream(TaskEventDescription.values()),
                 Arrays.stream(TaskEventDescription.values()))

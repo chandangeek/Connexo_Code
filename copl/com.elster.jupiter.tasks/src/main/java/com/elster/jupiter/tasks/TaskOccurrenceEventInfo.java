@@ -4,8 +4,8 @@ import java.time.Clock;
 public class TaskOccurrenceEventInfo {
 
         private long taskOccurrenceId;
-        private String errorMsg;
-        private long timeStamp;
+        private String errorMessage;
+        private long failureTime;
 
     public long getTaskOccurrenceId() {
         return taskOccurrenceId;
@@ -15,27 +15,27 @@ public class TaskOccurrenceEventInfo {
         this.taskOccurrenceId = taskOccurrenceId;
     }
 
-    public String getErrorMsg() {
-        return errorMsg;
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
-    public void setErrorMsg(String errorMsg) {
-        this.errorMsg = errorMsg;
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
-    public long getTimeStamp() {
-        return timeStamp;
+    public long getFailureTime() {
+        return failureTime;
     }
 
-    public void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setFailureTime(long failureTime) {
+        this.failureTime = failureTime;
     }
 
     public static TaskOccurrenceEventInfo forFailure(TaskOccurrence taskOccurrence, String cause) {
         TaskOccurrenceEventInfo eventInfo = new TaskOccurrenceEventInfo();
             eventInfo.setTaskOccurrenceId(taskOccurrence.getId());
-            eventInfo.setErrorMsg(cause);
-            eventInfo.setTimeStamp(Clock.systemDefaultZone().instant().toEpochMilli());
+            eventInfo.setErrorMessage(cause);
+            eventInfo.setFailureTime(Clock.systemDefaultZone().instant().toEpochMilli());
             return eventInfo;
         }
     }

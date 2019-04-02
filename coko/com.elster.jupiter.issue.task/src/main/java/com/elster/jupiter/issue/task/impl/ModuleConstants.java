@@ -16,7 +16,7 @@ public final class ModuleConstants {
     public static final String AQ_TASK_EVENT_DISPLAYNAME = "Create task issues";
 
     public static final String TASKOCCURRENCE_ID = "taskOccurrenceId";
-    public static final String ERROR_MESSAGE = "errorMsg";
+    public static final String ERROR_MESSAGE = "errorMessage";
     public static final String FAILURE_TIME = "failureTime";
 
 

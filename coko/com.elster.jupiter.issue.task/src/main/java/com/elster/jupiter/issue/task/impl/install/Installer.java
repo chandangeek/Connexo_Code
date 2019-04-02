@@ -86,8 +86,6 @@ public class Installer implements FullInstaller {
                     TranslationKeys.AQ_TASK_EVENT_SUBSC,
                     TaskIssueService.COMPONENT_NAME, Layer.DOMAIN,
                     whereCorrelationId()
-                            // .like("com/elster/jupiter/tasks/%")
-                            //.or(whereCorrelationId().isEqualTo("com/elster/")
                             .isEqualTo("com/elster/jupiter/tasks/taskoccurrence/FAILED"));
         } catch (DuplicateSubscriberNameException e) {
             // subscriber already exists, ignoring

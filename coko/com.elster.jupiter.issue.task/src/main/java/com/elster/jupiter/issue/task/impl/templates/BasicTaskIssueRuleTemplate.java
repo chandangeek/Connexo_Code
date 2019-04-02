@@ -39,7 +39,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +57,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     public static final String TASK_PROPS = NAME + ".taskProps";
     private static final String DEFAULT_VALUE = "Do nothing";
     private static final Long DEFAULT_KEY = 0L;
-    private static final String SEMICOLON_SEPARATOR = ";";
+    private static final String COMMA_SEPARATOR = ",";
     private static final String COLON_SEPARATOR = ":";
 
     //for OSGI
@@ -119,31 +118,29 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     @Override
     public String getContent() {
         return "package com.elster.jupiter.issue.task\n" +
-                "import com.elster.jupiter.issue.task.event.TaskEvent;\n" +
+                "import com.elster.jupiter.issue.task.event.TaskFailureEvent;\n" +
                 "global java.util.logging.Logger LOGGER;\n" +
                 "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Basic task rule @{ruleId} with log on same issue\"\n" +
                 "when\n" +
-                "\tevent : TaskEvent( resolveEvent == false )\n" +
+                "\tevent : TaskFailureEvent( resolveEvent == false, recurrentTaskId in (@{" + TASK_PROPS + "}))\n" +
                 "\teval( event.logOnSameIssue(\"@{" + LOG_ON_SAME_ISSUE + "}\") == true )\n" +
-                "\teval( event.checkConditions(@{ruleId}, \"@{" + TASK_PROPS + "}\") == true )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by basic task rule=@{ruleId}\");\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
                 "end\n" +
                 "rule \"Basic task rule @{ruleId} without log on same issue\"\n" +
                 "when\n" +
-                "\tevent : TaskEvent( resolveEvent == false)\n" +
+                "\tevent : TaskFailureEvent( resolveEvent == false, recurrentTaskId in (@{" + TASK_PROPS + "}))\n" +
                 "\teval( event.logOnSameIssue(\"@{" + LOG_ON_SAME_ISSUE + "}\") == false )\n" +
-                "\teval( event.checkConditions(@{ruleId}, \"@{" + TASK_PROPS + "}\") == true )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by basic task rule=@{ruleId}\");\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
                 "end\n" +
                 "rule \"Auto-resolution section @{ruleId}\"\n" +
                 "when\n" +
-                "\tevent : TaskEvent( resolveEvent == true, @{" + AUTORESOLUTION + "} == 1 )\n" +
+                "\tevent : TaskFailureEvent(resolveEvent == true, @{" + AUTORESOLUTION + "} == 1 )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to resolve issue by basic task rule=@{ruleId}\");\n" +
                 "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
@@ -221,7 +218,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 .named(TASK_PROPS, TranslationKeys.TASK_PROPS)
                 .fromThesaurus(thesaurus)
                 .markRequired()
-                .markMultiValued(SEMICOLON_SEPARATOR)
+                .markMultiValued(COMMA_SEPARATOR)
                 .addValues(taskPossibleValues)
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
@@ -245,6 +242,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
             put(1L, getThesaurus().getFormat(TranslationKeys.PARAMETER_INCREASE_URGENCY).format());
         }};
     }
+
     private HashMap<Long, String> getPossibleLogValues() {
         return new HashMap<Long, String>() {{
             put(0L, getThesaurus().getFormat(TranslationKeys.CREATE_NEW_TASK_ISSUE).format());
@@ -358,18 +356,9 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     private class TaskPropsInfoValueFactory implements ValueFactory<HasIdAndName>, TaskPropertyFacory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
-            List<String> values = Arrays.asList(stringValue.split(COLON_SEPARATOR));
-            if (values.size() != 1) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
-                        "properties." + TASK_PROPS,
-                        String.valueOf(1),
-                        String.valueOf(values.size()));
-            }
-            long taskId = Long.parseLong(values.get(0));
-
-            RecurrentTask recurrentTask = taskService.getRecurrentTask(taskId).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_ARGUMENT,
+            RecurrentTask recurrentTask = taskService.getRecurrentTask(Long.parseLong(stringValue)).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_ARGUMENT,
                     "properties." + TASK_PROPS,
-                    values.get(0)));
+                    stringValue));
 
             return new TaskPropsInfo(recurrentTask);
         }

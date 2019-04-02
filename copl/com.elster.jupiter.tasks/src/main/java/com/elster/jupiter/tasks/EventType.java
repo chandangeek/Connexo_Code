@@ -30,7 +30,7 @@ public enum EventType {
                     .category("Crud")
                     .scope("System")
                     .withProperty("taskOccurrenceId", ValueType.LONG, "taskOccurrenceId")
-                    .withProperty("errorMsg", ValueType.STRING, "errorMsg")
+                    .withProperty("errorMessage", ValueType.STRING, "errorMessage")
                     .withProperty("failureTime", ValueType.LONG, "failureTime")
                     .create();
         };
