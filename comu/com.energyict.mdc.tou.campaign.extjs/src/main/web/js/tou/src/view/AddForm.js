@@ -129,7 +129,7 @@ Ext.define('Tou.view.AddForm', {
                 itemId: 'tou-period-values',
                 id: 'tou-period-values',
                 xtype: 'fieldcontainer',
-                name: 'timeValidation',
+                name: 'validationTimeout',
                 fieldLabel: Uni.I18n.translate('general.touTimeout', 'TOU', 'Timeout before validation'),
                 margin: '30 0 10 0',
                 required: true,
@@ -165,7 +165,7 @@ Ext.define('Tou.view.AddForm', {
                 xtype: 'combobox',
                 itemId: 'tou-campaign-allowed-calendar',
                 name: 'сalendar',
-                fieldLabel: Uni.I18n.translate('general.touCalendar', 'TOU', 'Tou calendar'),
+                fieldLabel: Uni.I18n.translate('general.touCalendar', 'TOU', 'Time of use calendar'),
                 required: true,
                 allowBlank: false,
                 forceSelection: true,
@@ -174,6 +174,15 @@ Ext.define('Tou.view.AddForm', {
                 valueField: 'id',
                 margin: '30 0 10 0',
                 hidden: true
+            }, {
+                itemId: 'unique-calendar-name-field',
+                xtype: 'checkbox',
+                fieldLabel: Uni.I18n.translate(
+                    'general.uniqueCalendarName',
+                    'TOU',
+                    'Upload with unique calendar name'
+                ),
+                name: 'withUniqueCalendarName'
             }, {
                 xtype: 'fieldcontainer',
                 itemId: 'form-buttons',
@@ -275,7 +284,7 @@ Ext.define('Tou.view.AddForm', {
         },
         setOptions = function () {
             periodValues.setDisabled(true);
-            setTimeoutFld(campaignRecord.get('timeValidation'));
+            setTimeoutFld(campaignRecord.get('validationTimeout'));
             var timeStartInSec = new Date(campaignRecord.get('activationStart') / 1000);
             var timeEndInSec = new Date(campaignRecord.get('activationEnd') / 1000);
             me.down("#activationStart").setValue(timeStartInSec.getHours() * 3600 + timeStartInSec.getMinutes() * 60);
@@ -285,6 +294,7 @@ Ext.define('Tou.view.AddForm', {
             me.down("#tou-campaign-allowed-calendar").setDisabled(true);
             me.down("#tou-update-type").setValue(campaignRecord.get('updateType'));
             me.down("#tou-update-type").setDisabled(true);
+            me.down('#unique-calendar-name-field').setDisabled(true);
 
         };
         me.setLoading(false);

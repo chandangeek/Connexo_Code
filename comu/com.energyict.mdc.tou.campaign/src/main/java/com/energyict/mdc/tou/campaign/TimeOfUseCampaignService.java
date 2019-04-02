@@ -1,22 +1,19 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.tou.campaign;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.orm.QueryStream;
-import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
@@ -25,15 +22,7 @@ public interface TimeOfUseCampaignService {
 
     QueryStream<? extends TimeOfUseCampaign> streamAllCampaigns();
 
-    DeviceConfigurationService getDeviceConfigurationService();
-
-    void createToUCampaign(TimeOfUseCampaign timeOfUseCampaign);
-
-    Map<DefaultState, Long> getChildrenStatusFromCampaign(long id);
-
-    TimeOfUseCampaignBuilder newToUbuilder(String name, long deviceType, String deviceGroup,
-                                           Instant activationStart, Instant activationEnd, long calendar,
-                                           String activationOption, Instant activationDate, String updateType, long validationTimeout);
+    TimeOfUseCampaignBuilder newTouCampaignBuilder(String name, DeviceType deviceType, Calendar calendar);
 
     Optional<TimeOfUseCampaign> getCampaign(long id);
 
@@ -41,23 +30,13 @@ public interface TimeOfUseCampaignService {
 
     Optional<TimeOfUseCampaign> getCampaignOn(ComTaskExecution comTaskExecution);
 
-    QueryStream<? extends TimeOfUseItem> streamDevicesInCampaigns();
+    QueryStream<? extends TimeOfUseCampaignItem> streamDevicesInCampaigns();
 
     List<DeviceType> getDeviceTypesWithCalendars();
 
-    Pair<Device, ServiceCall> retryDevice(long id);
-
-    Pair<Device, ServiceCall> cancelDevice(Device device);
-
-    Pair<Device, ServiceCall> cancelDevice(long id);
-
-    void cancelCampaign(String campaign);
-
-    Device findDeviceByServiceCall(ServiceCall serviceCall);
-
-    void edit(String name, TimeOfUseCampaign timeOfUseCampaign);
-
-    Optional<ServiceCall> findCampaignServiceCall(String campaignName);
+    Optional<TimeOfUseCampaignItem> findActiveTimeOfUseItemByDevice(Device device);
 
     Optional<TimeOfUseCampaign> findAndLockToUCampaignByIdAndVersion(long id, long version);
+
+    Optional<ServiceCall> findAndLockToUItemByIdAndVersion(long id, long version);
 }

@@ -126,12 +126,15 @@ Ext.define('Tou.controller.Add', {
                     break;
                 default:
                     break;
-
                 }
-                if (activateCalendarItem && activateCalendarItem.getOptionValue() == "immediately") {
-                    record.set('timeValidation', timeInSec);
+
+                if (activateCalendarItem && (
+                    activateCalendarItem.getOptionValue() === "immediately"
+                 || activateCalendarItem.getOptionValue() === "onDate"
+                )) {
+                    record.set('validationTimeout', timeInSec);
                 } else {
-                    record.set('timeValidation', null);
+                    record.set('validationTimeout', null);
                 }
             }
         }
@@ -211,7 +214,7 @@ Ext.define('Tou.controller.Add', {
         errorMessage.hide();
         Ext.resumeLayouts(true);
 
-        var touCampaignOldName = form.campaignRecordBeingEdited.get('name');
+        var touCampaignId = form.campaignRecordBeingEdited.get('id');
         var touCampaignNewName = nameField.getValue();
 
         if (form.campaignRecordBeingEdited.get('name') != nameField.getValue()) {
@@ -227,8 +230,8 @@ Ext.define('Tou.controller.Add', {
             nameOrTimeBoundaryChanged = true;
         }
         me.processRecord(form, form.campaignRecordBeingEdited, true);
-        var url = form.campaignRecordBeingEdited.getProxy().setUpdateUrl(touCampaignOldName);
-        page.returnLink = page.returnLink.replace(touCampaignOldName, touCampaignNewName);
+        var url = form.campaignRecordBeingEdited.getProxy().setUpdateUrl(touCampaignId);
+        //page.returnLink = page.returnLink.replace(touCampaignOldName, touCampaignNewName);
         Ext.Ajax.request({
             url: url,
             method: 'PUT',

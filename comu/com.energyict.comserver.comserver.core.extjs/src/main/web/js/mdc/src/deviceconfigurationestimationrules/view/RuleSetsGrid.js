@@ -40,14 +40,28 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetsGrid', {
                 }
             },
             {
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                dataIndex: 'isEstimationRuleSetActive',
+                flex: 1,
+                renderer: function (value) {
+                    return value
+                        ? Uni.I18n.translate('general.active', 'MDC', 'Active')
+                        : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
+                },
+                sortable: false,
+                fixed: true
+            },
+            {
                 header: Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.activeRules', 'MDC', 'Active rules'),
                 dataIndex: 'numberOfActiveRules',
-                flex: 2
+                align: 'right',
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.inactiveRules', 'MDC', 'Inactive rules'),
                 dataIndex: 'numberOfInactiveRules',
-                flex: 2
+                align: 'right',
+                flex: 1
             }
         ];
 

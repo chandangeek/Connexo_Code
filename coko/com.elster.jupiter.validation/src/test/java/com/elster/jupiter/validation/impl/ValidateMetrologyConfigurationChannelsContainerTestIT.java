@@ -31,8 +31,6 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
@@ -67,7 +65,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -189,6 +186,11 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
             @Override
             public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
                 return ruleset == validationRuleSet;
+            }
+
+            @Override
+            public boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceConfigId) {
+                return false;
             }
         });
     }

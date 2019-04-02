@@ -33,15 +33,15 @@ Ext.define('Tou.controller.Devices', {
 
     currentRecord: null,
 
-    showDevices: function (touCampaignName) {
+    showDevices: function (touCampaignId) {
         var me = this,
         router = me.getController('Uni.controller.history.Router'),
         pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
         devicesStore = me.getStore('Tou.store.Devices');
 
-        devicesStore.getProxy().setUrl(touCampaignName);
+        devicesStore.getProxy().setUrl(touCampaignId);
         pageView.setLoading();
-        me.getModel('Tou.model.TouCampaign').load(touCampaignName, {
+        me.getModel('Tou.model.TouCampaign').load(touCampaignId, {
             success: function (record) {
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('tou-campaign-devices', {
                         itemId: 'tou-campaign-devices',

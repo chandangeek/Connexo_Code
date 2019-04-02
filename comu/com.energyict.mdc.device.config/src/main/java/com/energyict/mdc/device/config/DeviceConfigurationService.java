@@ -344,6 +344,8 @@ public interface DeviceConfigurationService {
 
     List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
 
+    boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceConfigId);
+
     List<DeviceType> findDeviceTypesForCalendar(Calendar calendar);
 
     List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration);

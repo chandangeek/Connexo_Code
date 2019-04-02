@@ -29,7 +29,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ServiceCallCommands {
@@ -122,7 +122,7 @@ public class ServiceCallCommands {
     }
 
     private boolean isChannelContainerReadOutRequired(ChannelsContainer channelsContainer, List<ReadingType> readingTypes, Instant endTime) {
-        List<String> readingTypeMRIDs = readingTypes.stream().map(ert -> ert.getMRID()).collect(Collectors.toList());
+        Set<String> readingTypeMRIDs = readingTypes.stream().map(ert -> ert.getMRID()).collect(Collectors.toSet());
         Range<Instant> range = channelsContainer.getInterval().toOpenClosedRange();
         if (!range.lowerEndpoint().isBefore(endTime)) {
             return false;

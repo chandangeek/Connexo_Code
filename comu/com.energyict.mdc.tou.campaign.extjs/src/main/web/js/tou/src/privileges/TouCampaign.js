@@ -12,7 +12,7 @@ Ext.define('Tou.privileges.TouCampaign', {
         'Uni.Auth'
     ],
     singleton: true,
-    view: ['privilege.view.touCampaigns'],
+    view: ['privilege.view.touCampaigns', 'privilege.administer.touCampaigns'],
     administrate: ['privilege.administer.touCampaigns'],
     all: function () {
         return Ext.Array.merge(

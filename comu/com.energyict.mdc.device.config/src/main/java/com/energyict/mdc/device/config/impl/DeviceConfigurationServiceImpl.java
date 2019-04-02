@@ -37,7 +37,9 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_6SimpleUpgrader;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
@@ -688,16 +690,19 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Activate
     public void activate() {
         dataModel.register(this.getModule());
+
         upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceConfigurationService.COMPONENTNAME),
                 dataModel,
                 Installer.class,
-                ImmutableMap.of(
-                        Version.version(10, 2), UpgraderV10_2.class,
-                        Version.version(10, 3), UpgraderV10_3.class,
-                        Version.version(10, 4), UpgraderV10_4.class,
-                        Version.version(10, 4, 1), UpgraderV10_4_1.class,
-                        Version.version(10, 4, 2), V10_4_2SimpleUpgrader.class));
-                initPrivileges();
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(version(10, 2), UpgraderV10_2.class)
+                        .put(version(10, 3), UpgraderV10_3.class)
+                        .put(version(10, 4), UpgraderV10_4.class)
+                        .put(version(10, 4, 1), UpgraderV10_4_1.class)
+                        .put(version(10, 4, 2), V10_4_2SimpleUpgrader.class)
+                        .put(version(10, 6), V10_6SimpleUpgrader.class)
+                        .build());
+        initPrivileges();
     }
 
     @Override
@@ -869,6 +874,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return this.getDataModel().
                 query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class, DeviceType.class).
                 select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), Order.ascending("deviceType"), Order.ascending("name"));
+    }
+
+    @Override
+    public boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceConfigId) {
+        return this.getDataModel().
+                query(DeviceConfValidationRuleSetUsage.class).
+                select(where("validationRuleSetId").isEqualTo(validationRuleSetId)
+                        .and(where("deviceConfigurationId").isEqualTo(deviceConfigId)))
+                .stream()
+                .findAny()
+                .map(DeviceConfValidationRuleSetUsage::isRuleSetActive)
+                .orElse(false);
     }
 
 
