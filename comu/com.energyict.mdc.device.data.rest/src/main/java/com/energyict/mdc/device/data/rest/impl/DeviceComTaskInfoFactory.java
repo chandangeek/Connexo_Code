@@ -63,22 +63,21 @@ public class DeviceComTaskInfoFactory {
     }
 
     private DeviceComTaskInfo fromCompatibleComTaskExecutions(ComTaskEnablement comTaskEnablement, List<ComTaskExecution> compatibleComTaskExecutions) {
-        DeviceComTaskInfo deviceComTasksInfo = new DeviceComTaskInfo();
-        deviceComTasksInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
-        deviceComTasksInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
+        DeviceComTaskInfo deviceComTaskInfo = new DeviceComTaskInfo();
+        deviceComTaskInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
+        deviceComTaskInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
         for (ComTaskExecution comTaskExecution : compatibleComTaskExecutions) {
             if (comTaskExecution.usesSharedSchedule()) {
-                setFieldsForSharedScheduleExecution(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
+                setFieldsForSharedScheduleExecution(deviceComTaskInfo, comTaskExecution, comTaskEnablement);
             } else if (comTaskExecution.isScheduledManually() && !comTaskExecution.isAdHoc()) {
-                setFieldsForIndividualScheduleExecution(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
+                setFieldsForIndividualScheduleExecution(deviceComTaskInfo, comTaskExecution, comTaskEnablement);
             } else if (comTaskExecution.isAdHoc()) {
-                setFieldsForIndividualScheduleExecution(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
-                deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.ON_REQUEST).format();
+                setFieldsForIndividualScheduleExecution(deviceComTaskInfo, comTaskExecution, comTaskEnablement);
+                deviceComTaskInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.ON_REQUEST).format();
             }
         }
 
-
-        return deviceComTasksInfo;
+        return deviceComTaskInfo;
     }
 
     private void setFieldsForIndividualScheduleExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution, ComTaskEnablement comTaskEnablement) {
