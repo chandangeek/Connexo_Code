@@ -135,7 +135,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
 
@@ -271,6 +270,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Optional<DeviceType> findAndLockDeviceType(long id, long version) {
         return this.getDataModel().mapper(DeviceType.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<DeviceType> findAndLockDeviceType(long id) {
+        return Optional.ofNullable(dataModel.mapper(DeviceType.class).lock(id));
     }
 
     @Override
@@ -691,12 +695,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 dataModel,
                 Installer.class,
                 ImmutableMap.<Version, Class<? extends Upgrader>>builder()
-                        .put(version(10, 2), UpgraderV10_2.class)
-                        .put(version(10, 3), UpgraderV10_3.class)
-                        .put(version(10, 4), UpgraderV10_4.class)
-                        .put(version(10, 4, 1), UpgraderV10_4_1.class)
-                        .put(version(10, 4, 2), V10_4_2SimpleUpgrader.class)
-                        .put(version(10, 6), V10_6SimpleUpgrader.class)
+                        .put(Version.version(10, 2), UpgraderV10_2.class)
+                        .put(Version.version(10, 3), UpgraderV10_3.class)
+                        .put(Version.version(10, 4), UpgraderV10_4.class)
+                        .put(Version.version(10, 4, 1), UpgraderV10_4_1.class)
+                        .put(Version.version(10, 4, 2), V10_4_2SimpleUpgrader.class)
+                        .put(Version.version(10, 6), V10_6SimpleUpgrader.class)
                         .build());
         initPrivileges();
     }

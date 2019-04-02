@@ -150,16 +150,14 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     public boolean needsImageIdentifierAtFirmwareUpload(DeviceMessageId deviceMessageId) {
         return Stream.of(com.energyict.protocolimplv2.messages.FirmwareDeviceMessage.values())
                 .filter(fdm -> fdm.id() == deviceMessageId.dbValue())
-                .filter(fdm -> fdm.getFirmwareIdentifierPropertySpec(uplPropertySpecService).isPresent())
-                .findFirst().isPresent();
+                .anyMatch(fdm -> fdm.getFirmwareIdentifierPropertySpec(uplPropertySpecService).isPresent());
     }
 
     @Override
     public boolean canResumeFirmwareUpload(DeviceMessageId deviceMessageId) {
         return Stream.of(com.energyict.protocolimplv2.messages.FirmwareDeviceMessage.values())
                 .filter(fdm -> fdm.id() == deviceMessageId.dbValue())
-                .filter(fdm -> fdm.getResumeFirmwareUploadPropertySpec(uplPropertySpecService).isPresent())
-                .findFirst().isPresent();
+                .anyMatch(fdm -> fdm.getResumeFirmwareUploadPropertySpec(uplPropertySpecService).isPresent());
     }
 
     @Override
