@@ -145,11 +145,14 @@ Ext.define('Tou.view.ActivateCalendar', {
            if (optionsArr.length === 1) {
               radiogroup.hide();
               updateLabel.setValue(me.getOptionText(optionsArr[0]));
-              var value = {}; value[me.groupName] = optionsArr[0]; radiogroup.setValue(value);
+              var value = {};
+              value[me.groupName] = optionsArr[0];
+              radiogroup.setValue(value);
               updateLabel.show();
            }else{
               radiogroup.show();
               updateLabel.hide();
+              radiogroup.setValue({});
               var allOptions = ['withoutActivation', 'immediately', 'onDate'];
               Ext.Array.forEach(allOptions, function(option){
                   var cmp = Ext.getCmp(option + 'Rg');

@@ -102,6 +102,11 @@ Ext.define('Tou.view.AddForm', {
                 allowBlank: false,
                 hidden: true,
             }, {
+                xtype: 'displayfield',
+                itemId: 'tou-update-type-disp',
+                fieldLabel: Uni.I18n.translate('general.updateOption', 'TOU', 'Update'),
+                hidden: true
+            }, {
                 xtype: 'radiogroup',
                 itemId: 'tou-update-type',
                 name: 'updateOption',
@@ -115,7 +120,6 @@ Ext.define('Tou.view.AddForm', {
                         id: 'fullCalendar',
                         boxLabel: Uni.I18n.translate('general.fullCalendar', 'TOU', 'Full calendar'),
                         inputValue: 'fullCalendar',
-                        checked: true,
                         name: 'updateType'
                     }, {
                         id: 'specialDays',
@@ -200,13 +204,43 @@ Ext.define('Tou.view.AddForm', {
 
         me.callParent(arguments);
     },
+    setUpdateTypeLabel: function (option){
+         switch (option){
+             case 'fullCalendar':
+                return Uni.I18n.translate('general.fullCalendar', 'TOU', 'Full calendar');
+             case 'fullCalendar':
+                return Uni.I18n.translate('general.specialDays', 'TOU', 'Only special days');
+             default:
+                return null;
+         }
+    },
     enableUpdateOptions: function (allEnabledOptionsArr){
-	    var allOptions = ['fullCalendar', 'specialDays'];
-        for ( var optCnt = 0; optCnt < allOptions.length; optCnt++ ){
-            var option = allOptions[optCnt];
-            var cmp = Ext.getCmp(option);
-            if (cmp){
-               (Ext.Array.indexOf(allEnabledOptionsArr, option) !== -1) ? cmp.show() : cmp.hide()
+	    var allOptions = ['fullCalendar', 'specialDays'],
+	        me = this,
+	        radiogroup = me.down('#tou-update-type'),
+	        displayField = me.down('#tou-update-type-disp');
+
+	    if (!allEnabledOptionsArr || !allEnabledOptionsArr.length){
+	        radiogroup.hide();
+	        return;
+	    }
+	    if (allEnabledOptionsArr.length == 1){
+            radiogroup.hide();
+            displayField.show();
+            displayField.setValue(me.setUpdateTypeLabel(allEnabledOptionsArr[0]));
+            var value = {};
+            value['updateOption'] = allEnabledOptionsArr[0];
+            radiogroup.setValue(value);
+	    }else{
+	        displayField.hide();
+	        radiogroup.show();
+	        radiogroup.setValue({});
+            for ( var optCnt = 0; optCnt < allOptions.length; optCnt++ ){
+                var option = allOptions[optCnt];
+                var cmp = Ext.getCmp(option);
+                if (cmp){
+                   (Ext.Array.indexOf(allEnabledOptionsArr, option) !== -1) ? cmp.show() : cmp.hide()
+                }
             }
         }
     },
@@ -266,6 +300,7 @@ Ext.define('Tou.view.AddForm', {
                  });
 
             }
+
             setAllowedDeviceTypeOptions(calParams);
 
             activateCalendarItem.setOptions(allEnabledActivateCalendarOptionsArr);

@@ -71,7 +71,7 @@ Ext.define('Tou.view.DetailForm', {
                             var res = '-';
                             if (value) {
                                 var dateEndValue = this.up('tou-campaigns-detail-form').getRecord().data.activationEnd;
-                                res = 'Between ' + Uni.DateTime.formatDateTimeShort(value) + ' and ' + (dateEndValue ? Uni.DateTime.formatDateTimeShort(dateEndValue) : '-');
+                                res = 'Between ' + Uni.DateTime.formatDateTimeShort(value/1000) + ' and ' + (dateEndValue ? Uni.DateTime.formatDateTimeShort(dateEndValue/1000) : '-');
                             }
                             return res;
                         }
