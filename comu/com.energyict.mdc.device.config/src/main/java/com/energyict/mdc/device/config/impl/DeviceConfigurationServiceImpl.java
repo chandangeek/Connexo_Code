@@ -695,12 +695,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 dataModel,
                 Installer.class,
                 ImmutableMap.<Version, Class<? extends Upgrader>>builder()
-                        .put(version(10, 2), UpgraderV10_2.class)
-                        .put(version(10, 3), UpgraderV10_3.class)
-                        .put(version(10, 4), UpgraderV10_4.class)
-                        .put(version(10, 4, 1), UpgraderV10_4_1.class)
-                        .put(version(10, 4, 2), V10_4_2SimpleUpgrader.class)
-                        .put(version(10, 6), V10_6SimpleUpgrader.class)
+                        .put(Version.version(10, 2), UpgraderV10_2.class)
+                        .put(Version.version(10, 3), UpgraderV10_3.class)
+                        .put(Version.version(10, 4), UpgraderV10_4.class)
+                        .put(Version.version(10, 4, 1), UpgraderV10_4_1.class)
+                        .put(Version.version(10, 4, 2), V10_4_2SimpleUpgrader.class)
+                        .put(Version.version(10, 6), V10_6SimpleUpgrader.class)
                         .build());
         initPrivileges();
     }
