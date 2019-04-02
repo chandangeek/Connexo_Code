@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.issue.devicelifecycle.rest.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,9 +16,10 @@ import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.devicelifecycle.FailedTransition;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycle;
-import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycleService;
 import com.energyict.mdc.issue.devicelifecycle.rest.impl.DeviceLifecycleIssueInfo.FailedTransitionInfo;
 
 import org.osgi.service.component.annotations.Component;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService.COMPONENT_NAME;
 import static com.energyict.mdc.issue.devicelifecycle.rest.impl.DeviceLifecycleIssueInfo.FailedTransitionDataInfo;
 import static com.energyict.mdc.issue.devicelifecycle.rest.impl.IssueDeviceLifecycleApplication.ISSUEDEVICELIFECYCLE_REST_COMPONENT;
 
@@ -41,14 +43,16 @@ public class DeviceLifecycleIssueInfoFactory implements InfoFactory<IssueDeviceL
     private DeviceService deviceService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     public DeviceLifecycleIssueInfoFactory() {
     }
 
     @Inject
-    public DeviceLifecycleIssueInfoFactory(DeviceService deviceService, Thesaurus thesaurus) {
+    public DeviceLifecycleIssueInfoFactory(DeviceService deviceService, NlsService nlsService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceService = deviceService;
-        this.thesaurus = thesaurus;
+        setNlsService(nlsService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
     }
 
     @Reference
@@ -59,9 +63,14 @@ public class DeviceLifecycleIssueInfoFactory implements InfoFactory<IssueDeviceL
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        Thesaurus domainThesaurus = nlsService.getThesaurus(IssueDeviceLifecycleService.COMPONENT_NAME, Layer.DOMAIN);
+        Thesaurus domainThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus restThesaurus = nlsService.getThesaurus(ISSUEDEVICELIFECYCLE_REST_COMPONENT, Layer.REST);
         this.thesaurus = domainThesaurus.join(restThesaurus);
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     public DeviceLifecycleIssueInfo asInfo(IssueDeviceLifecycle issue, Class<? extends DeviceInfo> deviceInfoClass) {
@@ -87,8 +96,8 @@ public class DeviceLifecycleIssueInfoFactory implements InfoFactory<IssueDeviceL
             FailedTransitionInfo transitionInfo = new FailedTransitionInfo();
             transitionInfo.lifecycle = new IdWithNameInfo(failedTransition.getLifecycle().getId(), failedTransition.getLifecycle().getName());
             transitionInfo.transition = new IdWithNameInfo(failedTransition.getTransition().getId(), failedTransition.getTransition().getName(thesaurus));
-            transitionInfo.from = new IdWithNameInfo(failedTransition.getFrom().getId(), failedTransition.getFrom().getName());
-            transitionInfo.to = new IdWithNameInfo(failedTransition.getTo().getId(), failedTransition.getTo().getName());
+            transitionInfo.from = new IdWithNameInfo(failedTransition.getFrom().getId(), getTransitionStateDisplayName(failedTransition.getFrom()));
+            transitionInfo.to = new IdWithNameInfo(failedTransition.getTo().getId(), getTransitionStateDisplayName(failedTransition.getTo()));
             transitionInfo.cause = failedTransition.getCause();
             transitionInfo.modTime = failedTransition.getOccurrenceTime();
             return transitionInfo;
@@ -104,6 +113,9 @@ public class DeviceLifecycleIssueInfoFactory implements InfoFactory<IssueDeviceL
         return new DeviceLifecycleIssueInfo<>(issue, deviceInfoClass);
     }
 
+    private String getTransitionStateDisplayName(State state) {
+        return DefaultState.from(state).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(state::getName);
+    }
 
     @Override
     public Object from(IssueDeviceLifecycle issueDeviceLifecycle) {
