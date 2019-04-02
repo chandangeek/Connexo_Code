@@ -205,8 +205,8 @@ public enum TableSpecs {
     CTS_COMTASKUSERACTION {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<ComTaskDefinedByUserImpl.ComTaskUserActionRecord> table = dataModel.addTable(name(), ComTaskDefinedByUserImpl.ComTaskUserActionRecord.class);
-            table.map(ComTaskDefinedByUserImpl.ComTaskUserActionRecord.class);
+            Table<ComTaskImpl.ComTaskUserActionRecord> table = dataModel.addTable(name(), ComTaskImpl.ComTaskUserActionRecord.class);
+            table.map(ComTaskImpl.ComTaskUserActionRecord.class);
             Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
             Column comTask = table.column("COMTASK").number().notNull().add();
             table.setJournalTableName("CTS_COMTASKUSERACTIONJRNL").since(version(10, 7));
