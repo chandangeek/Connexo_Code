@@ -9,6 +9,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.DeviceService;
+import com.elster.jupiter.orm.OrmService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import com.google.common.collect.ImmutableSet;
@@ -34,6 +36,8 @@ public class MdcTestApiApplication extends Application {
     private volatile CalendarService calendarService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceService deviceService;
+    private volatile FirmwareService firmwareService;
+    private volatile OrmService ormService;
 
     public MdcTestApiApplication() {
         //for OSGI
@@ -41,10 +45,13 @@ public class MdcTestApiApplication extends Application {
 
     @Inject
     public MdcTestApiApplication(TimeOfUseCampaignService timeOfUseCampaignService, CalendarService calendarService,
-                                 Thesaurus thesaurus, DeviceService deviceService) {
+                                 Thesaurus thesaurus, FirmwareService firmwareService, OrmService ormService,
+                                 DeviceService deviceService) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.calendarService = calendarService;
         this.thesaurus = thesaurus;
+        this.firmwareService = firmwareService;
+        this.ormService = ormService;
         this.deviceService = deviceService;
     }
 
@@ -66,6 +73,14 @@ public class MdcTestApiApplication extends Application {
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+
+    public void setFirmwareService(FirmwareService firmwareService) {
+        this.firmwareService = firmwareService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
     }
 
     @Override
@@ -73,6 +88,7 @@ public class MdcTestApiApplication extends Application {
         return ImmutableSet.of(TimeOfUseCampaignTestResource.class,
                 CalendarTestResource.class,
                 ServiceKeyTestResource.class);
+                FirmwareTestResource.class);
     }
 
     @Override
@@ -90,6 +106,8 @@ public class MdcTestApiApplication extends Application {
             bind(calendarService).to(CalendarService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceService).to(DeviceService.class);
+            bind(firmwareService).to(FirmwareService.class);
+            bind(ormService).to(OrmService.class);
         }
     }
 }

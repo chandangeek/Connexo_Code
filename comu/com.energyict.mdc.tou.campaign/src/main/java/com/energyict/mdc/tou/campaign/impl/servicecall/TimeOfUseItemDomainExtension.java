@@ -16,14 +16,14 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.tou.campaign.TimeOfUseItem;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, TimeOfUseItem {
+public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, TimeOfUseCampaignItem {
 
     public enum FieldNames {
         DOMAIN("serviceCall", "service_call"),
@@ -101,7 +101,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
                             || deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING)))
                     .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 0)
                     .forEach(DeviceMessage::revoke);
-            serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.RETRIED_BY_USER.getKey(), MessageSeeds.RETRIED_BY_USER.getDefaultFormat()));
+            serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.RETRIED_BY_USER).format());
             dataModel.getInstance(TimeOfUseSendHelper.class)
                     .setCalendarOnDevice(getDevice(), serviceCall);
             return serviceCallService.getServiceCall(serviceCall.getId()).get();

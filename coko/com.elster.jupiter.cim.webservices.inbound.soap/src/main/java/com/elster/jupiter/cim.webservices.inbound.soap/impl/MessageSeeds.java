@@ -65,6 +65,7 @@ public enum MessageSeeds implements MessageSeed {
     WRONG_QUANTITY_FORMAT(2026, "WrongQuantitiyFormat", "Wrong unit format for attribute {0}. Supported multipliers: {1}, supported units: {2}."),
     WRONG_ENUM_FORMAT(2027, "WrongEnumFormat", "Wrong enumeration value for attribute {0}. Possible values: {1}."),
     MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE(2028, "MissingRequiredCustomAttributeValue", "Attribute {0} is required on custom attribute set {1}."),
+    CUSTOMPROPERTYSET_VALUES_ON_REQUIRED_RANGE(2029, "CustomPropertySetValuesOnRequiredRange", "Custom property set {0} must have values on the required range {1}."),
 
     // meter readings
     UNABLE_TO_GET_READINGS(3001, "UnableToGetReadings", "Unable to get readings."),

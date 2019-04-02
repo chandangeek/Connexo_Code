@@ -40,6 +40,10 @@
         <wsdl:part name="DeleteMeterConfigRequestMessage"
                    element="infoMessage:DeleteMeterConfig"/>
     </wsdl:message>
+    <wsdl:message name="GetMeterConfigRequestMessage">
+        <wsdl:part name="GetMeterConfigRequestMessage"
+                   element="infoMessage:GetMeterConfig"/>
+    </wsdl:message>
     <wsdl:message name="ResponseMessage">
         <wsdl:part name="ResponseMessage"
                    element="infoMessage:MeterConfigResponseMessage"/>
@@ -88,6 +92,14 @@
             <wsdl:output name="DeleteMeterConfigResponse"
                          message="tns:ResponseMessage"/>
             <wsdl:fault name="DeleteMeterConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetMeterConfig">
+            <wsdl:input name="GetMeterConfigRequest"
+                        message="tns:GetMeterConfigRequestMessage"/>
+            <wsdl:output name="GetMeterConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="GetMeterConfigFault"
                         message="tns:FaultMessage"/>
         </wsdl:operation>
     </wsdl:portType>
@@ -158,6 +170,19 @@
             </wsdl:output>
             <wsdl:fault name="DeleteMeterConfigFault">
                 <soap:fault name="DeleteMeterConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetMeterConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/MeterConfig/GetMeterConfig" style="document"/>
+            <wsdl:input name="GetMeterConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="GetMeterConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GetMeterConfigFault">
+                <soap:fault name="GetMeterConfigFault" use="literal"/>
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>

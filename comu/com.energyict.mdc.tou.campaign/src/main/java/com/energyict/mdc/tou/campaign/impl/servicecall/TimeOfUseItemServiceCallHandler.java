@@ -33,6 +33,7 @@ public class TimeOfUseItemServiceCallHandler implements ServiceCallHandler {
 
         switch (newState) {
             case PENDING:
+                timeOfUseCampaignService.setCalendarOnDevice(serviceCall);
                 break;
             case ONGOING:
                 break;

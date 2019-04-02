@@ -691,6 +691,7 @@ public enum TableSpecs {
             Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add().upTo(Version.version(10, 2));
             table.column("IGNORENEXTEXECSPECS").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND.fieldName()).add();
             table.column("CONNECTIONFUNCTION").number().conversion(NUMBER2LONG).map("connectionFunctionDbValue").since(Version.version(10, 4)).add();
+            table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskEnablementImpl.Fields.MAX_NR_OF_TRIES.fieldName()).since(Version.version(10, 6)).installValue("3").add();
             table.foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT")
                     .on(partialConnectionTask)
                     .references(DTC_PARTIALCONNECTIONTASK.name())

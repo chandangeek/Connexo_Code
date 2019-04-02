@@ -70,115 +70,59 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
         createSimpleDeviceWithName("!EXCEPTION");
     }
 
+    /**
+     * Moved all the tests in one class to avoid creating the devices for each test.
+     * Thus, execution time was reduced to ~4% of the initial duration.
+     */
     @Test
     @Transactional
     public void testSearchAll() {
         List<String> matches = findByRegex("*");
         assertThat(matches).hasSize(30);
-    }
 
-    @Test
-    @Transactional
-    public void testSearchUnderscore() {
-        List<String> matches = findByRegex("*_*");
+        matches = findByRegex("*_*");
         assertThat(matches).hasSize(3).contains("ZAFB_010001", "ZAFB_010011", "ZAFB?0100_1");
-    }
 
-    @Test
-    @Transactional
-    public void testSearchQuestion() {
-        List<String> matches = findByRegex("ZAF?0010001");
+        matches = findByRegex("ZAF?0010001");
         assertThat(matches).hasSize(2).contains("ZAFC0010001", "ZAFB0010001");
-    }
 
-    @Test
-    @Transactional
-    public void testSearchDoubleQuestion() {
-        List<String> matches = findByRegex("ZAF?00?0001");
+        matches = findByRegex("ZAF?00?0001");
         assertThat(matches).hasSize(4).containsExactly("ZAFB0010001", "ZAFB0020001", "ZAFC0010001", "ZAFD0020001");
-    }
 
-    @Test
-    @Transactional
-    public void testSearchAstrixQuestion() {
-        List<String> matches = findByRegex("ZAF?001*1");
+        matches = findByRegex("ZAF?001*1");
         assertThat(matches).hasSize(4).containsExactly("ZAFB0010001", "ZAFC0010001", "ZAFB00100?1", "ZAFB00100*1");
-    }
 
-    @Test
-    @Transactional
-    public void testSearchDoubleAstrix() {
-        List<String> matches = findByRegex("Z*D00*");
+        matches = findByRegex("Z*D00*");
         assertThat(matches).hasSize(5);
-    }
 
-    @Test
-    @Transactional
-    public void testSearchTrailingAstrix() {
-        List<String> matches = findByRegex("ZAF*");
+        matches = findByRegex("ZAF*");
         assertThat(matches).hasSize(29);
-    }
 
-    @Test
-    @Transactional
-    public void testSearchExclamation() {
-        List<String> matches = findByRegex("*!*");
+        matches = findByRegex("*!*");
         assertThat(matches).hasSize(2).contains("ZAFB!110001", "!EXCEPTION");
-    }
 
-    @Test
-    @Transactional
-    public void testStartExclamation() {
-        List<String> matches = findByRegex("!*");
+        matches = findByRegex("!*");
         assertThat(matches).hasSize(1).contains("!EXCEPTION");
-    }
 
-    @Test
-    @Transactional
-    public void testSearchAstrixLiteralCombination() {
-        List<String> matches = findByRegex("*\\**");
+        matches = findByRegex("*\\**");
         assertThat(matches).hasSize(2).contains("ZAFB*010001", "ZAFB00100*1");
-    }
 
-    @Test
-    @Transactional
-    public void testSearchBracketsCombination() {
-        List<String> matches = findByRegex("*[?]*");
+        matches = findByRegex("*[?]*");
         assertThat(matches).hasSize(1).contains("ZAFB[1]0001");
-    }
 
-    @Test
-    @Transactional
-    public void testSearchBracketsLiteral() {
-        List<String> matches = findByRegex("ZAFB[1]0001");
+        matches = findByRegex("ZAFB[1]0001");
         assertThat(matches).hasSize(1).contains("ZAFB[1]0001");
-    }
 
-    @Test
-    @Transactional
-    public void testSearchBracketsGroupDoesNotWork() {
-        List<String> matches = findByRegex("ZAFB[12]0001");
+        matches = findByRegex("ZAFB[12]0001");
         assertThat(matches).isEmpty();
-    }
 
-    @Test
-    @Transactional
-    public void testSearchSqlPercentDoesNotWork() {
-        List<String> matches = findByRegex("ZAF%");
+        matches = findByRegex("ZAF%");
         assertThat(matches).isEmpty();
-    }
 
-    @Test
-    @Transactional
-    public void testSearchSqlUnderscoreDoesNotWork() {
-        List<String> matches = findByRegex("ZAF_0010001");
+        matches = findByRegex("ZAF_0010001");
         assertThat(matches).isEmpty();
-    }
 
-    @Test
-    @Transactional
-    public void testSearchAstrixLiteral() {
-        List<String> matches = findByRegex("*\\*1");
+        matches = findByRegex("*\\*1");
         assertThat(matches).hasSize(1).contains("ZAFB00100*1");
     }
 
@@ -186,6 +130,4 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
         Condition condition = Where.where("name").likeIgnoreCase(regex);
         return DefaultFinder.of(Device.class, condition, inMemoryPersistence.getDataModel(), DeviceConfiguration.class, DeviceType.class).stream().map(Device::getName).collect(toList());
     }
-
-
 }

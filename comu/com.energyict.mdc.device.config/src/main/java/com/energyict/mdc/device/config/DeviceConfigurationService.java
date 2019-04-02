@@ -137,6 +137,14 @@ public interface DeviceConfigurationService {
     Optional<DeviceType> findAndLockDeviceType(long id, long version);
 
     /**
+     * Finds and locks a {@link DeviceType} which is uniquely identified by the given ID, no matter which VERSION it has.
+     *
+     * @param id the id of the DeviceType
+     * @return the DeviceType or empty if the DeviceType does not exist
+     */
+    Optional<DeviceType> findAndLockDeviceType(long id);
+
+    /**
      * Find the {@link DeviceType} with the specified name.
      *
      * @param name The name

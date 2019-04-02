@@ -175,6 +175,15 @@ Ext.define('Tou.view.AddForm', {
                 margin: '30 0 10 0',
                 hidden: true
             }, {
+                itemId: 'unique-calendar-name-field',
+                xtype: 'checkbox',
+                fieldLabel: Uni.I18n.translate(
+                    'general.uniqueCalendarName',
+                    'TOU',
+                    'Upload with unique calendar name'
+                ),
+                name: 'withUniqueCalendarName'
+            }, {
                 xtype: 'fieldcontainer',
                 itemId: 'form-buttons',
                 fieldLabel: '&nbsp;',
@@ -285,6 +294,7 @@ Ext.define('Tou.view.AddForm', {
             me.down("#tou-campaign-allowed-calendar").setDisabled(true);
             me.down("#tou-update-type").setValue(campaignRecord.get('updateType'));
             me.down("#tou-update-type").setDisabled(true);
+            me.down('#unique-calendar-name-field').setDisabled(true);
 
         };
         me.setLoading(false);

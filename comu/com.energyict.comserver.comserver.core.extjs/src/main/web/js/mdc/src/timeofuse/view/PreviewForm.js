@@ -3,59 +3,13 @@
  */
 
 Ext.define('Mdc.timeofuse.view.PreviewForm', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.calendar.TimeOfUsePreview',
     frame: false,
     alias: 'widget.devicetype-tou-preview-form',
-    layout: {
-        type: 'column'
-    },
-    requires: [
-        'Uni.util.FormEmptyMessage'
-    ],
-
-    initComponent: function () {
-        var me = this;
-
-        me.items = {
-            xtype: 'form',
-            defaults: {
-                labelWidth: 250
-            },
-            items: [
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('timeofuse.period', 'MDC', 'Period'),
-                    itemId: 'periodField'
-                },
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('timeofuse.dayTypes', 'MDC', 'Day types'),
-                    itemId: 'dayTypesField'
-                },
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('timeofuse.tariffs', 'MDC', 'Tariffs'),
-                    itemId: 'tariffsField'
-                },
-                {
-                    xtype: 'uni-form-empty-message',
-                    text: Uni.I18n.translate('timeofuse.calendarIsGhostMessage', 'MDC', "No information available due to status as 'ghost'."),
-                    itemId: 'ghostStatusMessage',
-                    hidden: true
-
-                }
-            ]
-        };
-        me.callParent(arguments);
-    },
 
     fillFieldContainers: function (calendarRecord) {
         var me = this;
         Ext.suspendLayouts();
-        me.down('#periodField').show();
-        me.down('#dayTypesField').show();
-        me.down('#tariffsField').show();
-        me.down('#ghostStatusMessage').hide();
 
         me.down('#periodField').removeAll();
         calendarRecord.periods().each(function (record) {
@@ -91,18 +45,12 @@ Ext.define('Mdc.timeofuse.view.PreviewForm', {
                 }
             );
         });
+
+        me.renderSpecialDays(calendarRecord);
         me.doComponentLayout();
         Ext.resumeLayouts(true);
         me.updateLayout();
         me.doLayout();
-    },
-
-    calculateDate: function (month, day) {
-        var date = new Date();
-        date.setMonth(month - 1);
-        date.setDate(day);
-
-        return Ext.util.Format.date(date, 'j F')
     },
 
     getDays: function (record, id) {
@@ -120,14 +68,4 @@ Ext.define('Mdc.timeofuse.view.PreviewForm', {
             return response;
         }
     },
-
-    showEmptyMessage: function () {
-        var me = this;
-
-        me.down('#periodField').hide();
-        me.down('#dayTypesField').hide();
-        me.down('#tariffsField').hide();
-        me.down('#ghostStatusMessage').show();
-    }
-
 });

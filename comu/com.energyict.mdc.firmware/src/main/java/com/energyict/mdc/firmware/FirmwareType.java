@@ -4,11 +4,16 @@
 
 package com.energyict.mdc.firmware;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public enum FirmwareType implements TranslationKey {
-    COMMUNICATION("communication", "Communication firmware"),
+    // The order defines how firmware types are displayed in UI
     METER("meter", "Meter firmware"),
+    COMMUNICATION("communication", "Communication firmware"),
     CA_CONFIG_IMAGE("caConfigImage", "Image");
 
     private String type;
@@ -35,5 +40,9 @@ public enum FirmwareType implements TranslationKey {
     @Override
     public String getDefaultFormat() {
         return description;
+    }
+
+    public String getTranslation(Thesaurus thesaurus) {
+        return thesaurus.getFormat(this).format();
     }
 }

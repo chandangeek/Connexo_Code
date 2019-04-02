@@ -116,11 +116,11 @@ Ext.define('Tou.view.DetailForm', {
                                     res = 'Immediately';
                                     break;
                                 case 'withoutActivation':
-                                    res = 'Without Activation';
+                                    res = 'Send without activation';
                                     break;
                                 case 'onDate':
                                     var dateValue = this.up('tou-campaigns-detail-form').getRecord().data.activationDate;
-                                    res = (!isNaN(dateValue) && parseInt(dateValue) == dateValue) ? Uni.DateTime.formatDateTimeShort(parseInt(dateValue)) : '-';
+                                    res = (!isNaN(dateValue) && parseInt(dateValue) == dateValue) ? 'On ' + Uni.DateTime.formatDateTimeLong(parseInt(dateValue)) : '-';
                                     break;
                                 default:
                                     res = Ext.String.htmlEncode(value);
@@ -154,6 +154,20 @@ Ext.define('Tou.view.DetailForm', {
                             }
                             return res;
                         }
+                    }, {
+                        itemId: 'unique-calendar-name-field',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.uniqueCalendarName',
+                            'TOU',
+                            'Upload with unique calendar name'
+                        ),
+                        renderer: function (item) {
+                            return item
+                                ? Uni.I18n.translate('general.yes', 'TOU', 'Yes')
+                                : Uni.I18n.translate('general.no', 'TOU', 'No');
+                        },
+                        name: 'withUniqueCalendarName',
                     }
                 ]
             }, {
@@ -213,7 +227,7 @@ Ext.define('Tou.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.startedOn', 'TOU', 'Started on'),
                         name: 'startedOn',
                         renderer: function (value) {
-                            return value ? '<span>' + Uni.DateTime.formatDateTimeShort(value) + '</span>' : '-'
+                            return value ? '<span>' + Uni.DateTime.formatDateTimeLong(value) + '</span>' : '-'
                         }
                     }, {
                         itemId: 'finished-on-field',

@@ -71,6 +71,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     COMTASK_SCHEDULE_NAME("device.comtask.schedule.name", "Schedule name"),
     COMTASK_PLANNED_DATE("device.comtask.planned.date", "Planned date"),
     COMTASK_URGENCY("device.comtask.urgency", "Urgency"),
+    COMTASK_USE_DEFAULT_CONNECTION_TASK("device.comtask.defaultConnectionTask", "Use default connection task"),
     PROTOCOL_DIALECT_DYNAMIC_PROP("protocol.dialect.dynamic", "Protocol dialect dynamic properties"),
     CONNECTION("device.connection", "Connection"),
     CONNECTION_NAME("device.connection.name", "Name"),
@@ -112,7 +113,15 @@ public enum PropertyTranslationKeys implements TranslationKey {
     SERVICE_KEYS("device.security.servicekeys", "Has service keys"),
     ZONE_NAME("device.zoneName", "Zone name"),
     ZONE_TYPE("device.zoneType","Zone type"),
-    ZONE("device.zone", "Zone")
+    ZONE("device.zone", "Zone"),
+    CONNECTION_TASK_IS_DEFAULT("device.connection.isDefault", "Is default"),
+    CONNECTION_TASK_STRATEGY("device.connection.strategy", "Connection strategy"),
+    CONNECTION_TASK_STRATEGY_AS_SOON_AS_POSSIBLE("device.connection.strategy.asap", "As soon as possible"),
+    CONNECTION_TASK_STRATEGY_MINIMIZE_CONNECTIONS("device.connection.strategy.min.connections", "Minimize connections"),
+    CONNECTION_TASK_SIMULTANEOUS_CONNECTIONS_NUMBER("device.connection.simultaneous.connections.number", "Number of simultaneous connections"),
+    CONNECTION_TASK_CONNECTION_WINDOW("device.connection.window", "Connection window"),
+    CONNECTION_TASK_CONNECTION_WINDOW_NO_RESTRICTION("device.connection.window.no.restriction", "no restrictions"),
+
     ;
 
     private String key;

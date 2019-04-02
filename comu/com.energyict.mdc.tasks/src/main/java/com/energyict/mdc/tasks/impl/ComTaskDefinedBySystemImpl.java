@@ -17,7 +17,9 @@ import javax.inject.Inject;
 /**
  * An implementation of a System defined ComTask
  */
-@UniqueComTaskForFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
+// TODO: uncomment Save.Update.class.
+// TODO: Was commented out only due to the bug blocking all firmware upgrades (not possible to add Firmware management com task to device configuration)
+@UniqueComTaskForFirmwareUpgrade(groups = {Save.Create.class/*, Save.Update.class*/}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
 @OnlyOneProtocolTaskIfFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
 class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemComTask {
 

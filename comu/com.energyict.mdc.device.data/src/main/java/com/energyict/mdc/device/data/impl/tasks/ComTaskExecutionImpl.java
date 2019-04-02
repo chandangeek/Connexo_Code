@@ -16,6 +16,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
@@ -269,7 +270,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public int getMaxNumberOfTries() {
-        return this.getBehavior().getMaxNumberOfTries();
+        return this.device.get().getDeviceConfiguration().getComTaskEnablementFor(this.getComTask()).get().getMaxNumberOfTries();
     }
 
     @Override
@@ -1156,7 +1157,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
          *
          * @return the maximum number of consecutive failures
          */
-        int getMaxNumberOfTries();
+//        int getMaxNumberOfTries();
 
         /**
          * Gets the specifications for the calculation of the next
@@ -1202,10 +1203,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             return true;
         }
 
-        @Override
-        public int getMaxNumberOfTries() {
-            return getComTask().getMaxNumberOfTries();
-        }
+//        @Override
+//        public int getMaxNumberOfTries() {
+//            return device.get().getDeviceConfiguration().getComTaskEnablementFor(getComTask()).get().getMaxNumberOfTries();
+//        }
 
         @Override
         public Optional<NextExecutionSpecs> getNextExecutionSpecs() {
@@ -1294,10 +1295,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             return !getNextExecutionSpecs().isPresent();
         }
 
-        @Override
-        public int getMaxNumberOfTries() {
-            return getComTask().getMaxNumberOfTries();
-        }
+//        @Override
+//        public int getMaxNumberOfTries() {
+//            return device.get().getDeviceConfiguration().getComTaskEnablementFor(getComTask()).get().getMaxNumberOfTries();
+//        }
 
         @Override
         public Optional<NextExecutionSpecs> getNextExecutionSpecs() {
@@ -1312,17 +1313,17 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public void comTaskStarted() {
-                postEvent(EventType.MANUAL_COMTASKEXECUTION_STARTED);
+            postEvent(EventType.MANUAL_COMTASKEXECUTION_STARTED);
         }
 
         @Override
         public void comTaskCompleted() {
-                postEvent(EventType.MANUAL_COMTASKEXECUTION_COMPLETED);
+            postEvent(EventType.MANUAL_COMTASKEXECUTION_COMPLETED);
         }
 
         @Override
         public void comTaskFailed() {
-                postEvent(EventType.MANUAL_COMTASKEXECUTION_FAILED);
+            postEvent(EventType.MANUAL_COMTASKEXECUTION_FAILED);
         }
 
         @Override
@@ -1396,13 +1397,15 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             return false;
         }
 
-        @Override
-        public int getMaxNumberOfTries() {
-            return getComSchedule().get().getComTasks().stream().
-                    map(ComTask::getMaxNumberOfTries).
-                    min(Integer::compare).
-                    orElse(OutboundConnectionTaskImpl.DEFAULT_MAX_NUMBER_OF_TRIES);
-        }
+//        @Override
+//        public int getMaxNumberOfTries() {
+//            DeviceConfiguration deviceConfiguration = device.get().getDeviceConfiguration();
+//            return getComSchedule().get().getComTasks().stream()
+//                    .filter(ct -> deviceConfiguration.getComTaskEnablementFor(ct).isPresent())
+//                    .map(ct -> deviceConfiguration.getComTaskEnablementFor(ct).get().getMaxNumberOfTries())
+//                    .min(Integer::compare)
+//                    .orElse(OutboundConnectionTaskImpl.DEFAULT_MAX_NUMBER_OF_TRIES);
+//        }
 
         @Override
         public Optional<NextExecutionSpecs> getNextExecutionSpecs() {
@@ -1416,17 +1419,17 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public void comTaskStarted() {
-                postEvent(EventType.SCHEDULED_COMTASKEXECUTION_STARTED);
+            postEvent(EventType.SCHEDULED_COMTASKEXECUTION_STARTED);
         }
 
         @Override
         public void comTaskCompleted() {
-                postEvent(EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED);
+            postEvent(EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED);
         }
 
         @Override
         public void comTaskFailed() {
-                postEvent(EventType.SCHEDULED_COMTASKEXECUTION_FAILED);
+            postEvent(EventType.SCHEDULED_COMTASKEXECUTION_FAILED);
         }
 
         public Optional<ComSchedule> getComSchedule() {
