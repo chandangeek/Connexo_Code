@@ -1023,9 +1023,10 @@ public enum TableSpecs {
                     .map(SecurityAccessorTypeOnDeviceTypeImpl.class);
             Column deviceTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.name()).number().notNull().add();
             Column secAccTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.name()).number().notNull().add();
-            Column defaultKeyColumn = table.column("DEFAULTKEY")
+            Column defaultKeyColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEFAULTKEY.name())
                    .varChar(Table.MAX_STRING_LENGTH)
-                   .map("defaultkey")
+                   .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEFAULTKEY.fieldName())
+                   .since(Version.version(10, 6))
                    .add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_ON_DEVICETYPE_JOURNAL_TABLE).since(version(10, 4));
             table.addAuditColumns();

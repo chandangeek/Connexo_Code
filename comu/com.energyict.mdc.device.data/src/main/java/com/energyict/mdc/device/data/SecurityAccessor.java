@@ -48,10 +48,10 @@ public interface SecurityAccessor<T extends SecurityValueWrapper> extends com.el
     /**
      * Sets/unsets service key flag for the key.
      */
-    public void setServiceKey(Boolean serviceKey);
+    public void setServiceKey(boolean serviceKey);
 
     /**
-     * Gets service key flag for the key.
+     * @return {@code true} if security accessor has service key, {@code false} otherwise.
      */
-    public boolean getServiceKey();
+    public boolean isServiceKey();
 }

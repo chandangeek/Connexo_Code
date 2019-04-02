@@ -131,12 +131,12 @@ public abstract class CentrallyManagedDeviceSecurityAccessor<T extends SecurityV
     }
 
     @Override
-    public void setServiceKey(Boolean serviceKey) {
+    public void setServiceKey(boolean serviceKey) {
         throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorType());
     }
 
     @Override
-    public boolean getServiceKey() {
+    public boolean isServiceKey() {
         return false;
     }
 

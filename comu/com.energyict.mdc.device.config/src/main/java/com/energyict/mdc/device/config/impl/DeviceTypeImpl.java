@@ -390,18 +390,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public String getDefaultKeyOfSecurityAccessorType(long id) {
+    public Optional<String> getDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType) {
         Optional<SecurityAccessorTypeOnDeviceTypeImpl> accessorTypeImpl = securityAccessorTypes.stream()
           .filter(securityAccessorTypeOnDeviceType ->
-              securityAccessorTypeOnDeviceType.getSecurityAccessorType().getId() == id).findAny();
+              securityAccessorTypeOnDeviceType.getSecurityAccessorType().getId() == securityAccessorType.getId()).findAny();
         if (accessorTypeImpl.isPresent()) {
-            String keyValue = accessorTypeImpl.get().getDefaultKey();
-            if (keyValue != null) {
-                byte[] key = Base64.getDecoder().decode(keyValue);
-                return DatatypeConverter.printHexBinary(key);
+            Optional<String> keyValue = accessorTypeImpl.get().getDefaultKey();
+            if (keyValue.isPresent()) {
+                byte[] key = Base64.getDecoder().decode(keyValue.get());
+                return Optional.of(DatatypeConverter.printHexBinary(key));
             }
         }
-        return null;
+        return Optional.ofNullable(null);
     }
 
     @Override
@@ -412,9 +412,13 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                             securityAccessorTypeOnDeviceType.getSecurityAccessorType().equals(securityAccessorType))
                     .findAny();
                 byte[] key = DatatypeConverter.parseHexBinary(value);
-                accessorTypeImpl.ifPresent(accessorType -> {
-                    accessorType.setDefaultKey(Base64.getEncoder().encodeToString(key));
-                });
+                if (accessorTypeImpl.isPresent()) {
+                    accessorTypeImpl.get().setDefaultKey(Base64.getEncoder().encodeToString(key));
+                } else {
+                    throw new SecurityAccessorTypeIsNotFoundException(securityAccessorType, this.getThesaurus());
+                }
+         } else {
+             throw new SecurityAccessorTypeIsNotHSMException(securityAccessorType, this.getThesaurus());
          }
     }
 

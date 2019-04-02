@@ -75,8 +75,7 @@ public class SecurityServiceKeySearchableProperty extends AbstractSearchableDevi
             sqlBuilder.openBracket();
             //Devices having a service key
             String query = "SELECT DISTINCT DEVICE FROM DDC_KEYACCESSOR WHERE DDC_KEYACCESSOR.SERVICEKEY = 'Y'";
-            if (comparison.getValues()[0].toString().equalsIgnoreCase("true"))
-            {
+            if (comparison.getValues()[0].toString().equalsIgnoreCase("true")) {
             	sqlBuilder.append(query);
 	        } else {
                 sqlBuilder.append("SELECT ID FROM DDC_DEVICE WHERE ID NOT IN (" + query + ")");
@@ -133,6 +132,6 @@ public class SecurityServiceKeySearchableProperty extends AbstractSearchableDevi
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-	// no refresh
+	    // no refresh
     }
 }

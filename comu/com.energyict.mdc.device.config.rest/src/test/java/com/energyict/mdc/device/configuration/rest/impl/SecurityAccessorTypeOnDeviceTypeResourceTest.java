@@ -220,7 +220,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         ServiceKeyDefultValueInfo info = new ServiceKeyDefultValueInfo();
         info.value = "ABCDABCD";
 
-        Response response = target("/devicetypes/66/securityaccessors/1/setdefaultkey").request().put(Entity.json(info));
+        Response response = target("/devicetypes/66/securityaccessors/1/defaultkey").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(deviceType).updateDefaultKeyOfSecurityAccessorType(securityAccessorType1, info.value);
     }

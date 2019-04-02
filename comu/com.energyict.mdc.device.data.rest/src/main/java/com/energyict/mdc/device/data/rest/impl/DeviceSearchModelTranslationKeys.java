@@ -32,7 +32,7 @@ public enum DeviceSearchModelTranslationKeys implements TranslationKey {
     MANUFACTURER("manufacturer", "Manufacturer"),
     MODEL_NUMBER("modelNbr", "Model number"),
     MODEL_VERSION("modelVersion", "Model version"),
-    SERVICE_KEYS("serviceKeys", "Service keys")
+    HAS_SERVICE_KEYS("hasServiceKeys", "Service keys")
     ;
 
     private String key;

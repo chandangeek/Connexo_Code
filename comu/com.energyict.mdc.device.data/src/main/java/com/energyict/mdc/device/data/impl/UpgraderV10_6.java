@@ -9,20 +9,14 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
-
 import com.energyict.mdc.device.data.DeviceDataServices;
 
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -57,7 +51,6 @@ public class UpgraderV10_6 implements Upgrader {
         EventType.SCHEDULED_COMTASKEXECUTION_STARTED.createIfNotExists(eventService);
         EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED.createIfNotExists(eventService);
         EventType.SCHEDULED_COMTASKEXECUTION_FAILED.createIfNotExists(eventService);
-        dataModel.useConnectionRequiringTransaction(this::upgradeKeyAccessorTable);
     }
 
     private void createMessageHandler() {
@@ -80,18 +73,6 @@ public class UpgraderV10_6 implements Upgrader {
     private void subscribe(DestinationSpec queue) {
         queue.activate();
         queue.subscribe(SubscriberTranslationKeys.ZONE_SUBSCRIBER, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    private void upgradeKeyAccessorTable(Connection connection) {
-        String sqlStatement = "ALTER TABLE DDC_KEYACCESSOR ADD SERVICEKEY char DEFAULT ('N')";
-
-        try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
-            logger.info("Executing: " + sqlStatement);
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            logger.warning("Couldn't perform upgrade for \n" + sqlStatement);
-            throw new UnderlyingSQLFailedException(e);
-        }
     }
 
 }

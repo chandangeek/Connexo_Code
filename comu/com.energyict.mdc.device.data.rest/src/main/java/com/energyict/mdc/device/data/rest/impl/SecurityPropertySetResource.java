@@ -61,17 +61,7 @@ public class SecurityPropertySetResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getSecurityPropertySets(@PathParam("name") String name, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<SecurityPropertySetInfo> securityPropertySetInfos = securityPropertySetInfoFactory.asInfo(device, uriInfo);
-        for (SecurityPropertySetInfo info : securityPropertySetInfos) {
-            SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(info.id, device);
-            List<SecurityAccessor> listOfSecurityAccessors = device.getSecurityAccessors().stream()
-                    .filter(keyAccessor ->
-                            securityPropertySet.getConfigurationSecurityProperties().stream().anyMatch(configurationSecurityProperty ->
-                                    configurationSecurityProperty.getSecurityAccessorType().getId() == keyAccessor.getKeyAccessorType().getId()
-                            )
-                    ).collect(Collectors.toList());
-	        info.hasServiceKeys = listOfSecurityAccessors.stream().anyMatch(t -> t.getServiceKey());
-        }
+        List<SecurityPropertySetInfo> securityPropertySetInfos = securityPropertySetInfoFactory.asSecuritySetsInfo(device, uriInfo);
         List<SecurityPropertySetInfo> pagedInfos = ListPager.of(securityPropertySetInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList("securityPropertySets", pagedInfos, queryParameters);
     }
@@ -83,7 +73,7 @@ public class SecurityPropertySetResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getHsmSecurityPropertySets(@PathParam("name") String name, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<SecurityPropertySetInfo> securityPropertySetInfos = securityPropertySetInfoFactory.asInfoHsm(device, uriInfo);
+        List<SecurityPropertySetInfo> securityPropertySetInfos = securityPropertySetInfoFactory.asHsmRelatedSecuritySetsInfo(device, uriInfo);
         List<SecurityPropertySetInfo> pagedInfos = ListPager.of(securityPropertySetInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList("securityPropertySets", pagedInfos, queryParameters);
     }
@@ -97,14 +87,7 @@ public class SecurityPropertySetResource {
     public Response getSecurityPropertySet(@PathParam("name") String name, @Context UriInfo uriInfo, @PathParam("securityPropertySetId") long securityPropertySetId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
-        SecurityPropertySetInfo info = securityPropertySetInfoFactory.asInfo(device, uriInfo, securityPropertySet);
-        List<SecurityAccessor> listOfSecurityAccessors = device.getSecurityAccessors().stream()
-                .filter(keyAccessor ->
-                        securityPropertySet.getConfigurationSecurityProperties().stream().anyMatch(configurationSecurityProperty ->
-                                configurationSecurityProperty.getSecurityAccessorType().getId() == keyAccessor.getKeyAccessorType().getId()
-                        )
-                ).collect(Collectors.toList());
-        info.hasServiceKeys = listOfSecurityAccessors.stream().anyMatch(t -> t.getServiceKey());
+        SecurityPropertySetInfo info = securityPropertySetInfoFactory.asSecuritySetsInfo(device, uriInfo, securityPropertySet);
         return Response.ok(info).build();
     }
 

@@ -17,13 +17,14 @@ import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 
 
 public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTypeOnDeviceType {
     enum Fields {
         DEVICETYPE("deviceType"),
         SECACCTYPE("securityAccessorType"),
-        DEFAULTKEY("defaultkey");
+        DEFAULTKEY("defaultKey");
 
         private final String javaFieldName;
 
@@ -41,7 +42,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<SecurityAccessorType> securityAccessorType = Reference.empty();
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String defaultkey;
+    private String defaultKey;
 
     @SuppressWarnings("unused")
     private String userName;
@@ -52,7 +53,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    private DataModel dataModel;
+    private final DataModel dataModel;
 
     @Inject
     SecurityAccessorTypeOnDeviceTypeImpl(DataModel dataModel) {
@@ -88,12 +89,12 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
         return Objects.hash(getDeviceType(), getSecurityAccessorType());
     }
 
-    public String getDefaultKey() {
-        return defaultkey;
+    public Optional<String> getDefaultKey() {
+        return Optional.ofNullable(defaultKey);
     }
 
-    public void setDefaultKey(String defaultkey) {
-        this.defaultkey = defaultkey;
+    public void setDefaultKey(String defaultKey) {
+        this.defaultKey = defaultKey;
         dataModel.update(this);
     }
 }

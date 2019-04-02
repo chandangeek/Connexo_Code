@@ -1126,9 +1126,10 @@ public enum TableSpecs {
                     .bool()
                     .map(AbstractDeviceSecurityAccessorImpl.Fields.SWAPPED.fieldName())
                     .add();
-            table.column("SERVICEKEY")
+            table.column(AbstractDeviceSecurityAccessorImpl.Fields.SERVICEKEY.name())
                     .bool()
                     .map(AbstractDeviceSecurityAccessorImpl.Fields.SERVICEKEY.fieldName())
+                    .since(Version.version(10, 6))
                     .add();
             table.addAuditColumns();
 

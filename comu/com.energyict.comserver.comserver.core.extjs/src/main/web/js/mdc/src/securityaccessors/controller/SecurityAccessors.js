@@ -789,7 +789,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             viewport.setLoading();
 
             Ext.Ajax.request({
-                url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors/{1}/setdefaultkey', me.deviceTypeId, securityAccessorRecord.get('id')),
+                url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors/{1}/defaultkey', me.deviceTypeId, securityAccessorRecord.get('id')),
                 method: 'PUT',
                 jsonData: {
                    "value": keyValue
