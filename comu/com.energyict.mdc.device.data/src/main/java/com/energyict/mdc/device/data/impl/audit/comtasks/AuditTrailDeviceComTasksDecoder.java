@@ -26,10 +26,15 @@ import com.google.common.collect.ImmutableMap;
 
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys.COMTASK_STATUS;
@@ -48,7 +53,7 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
 
     @Override
     public UnexpectedNumberOfUpdatesException.Operation getOperation(UnexpectedNumberOfUpdatesException.Operation operation, AuditDomainContextType context) {
-        return operation;
+        return UnexpectedNumberOfUpdatesException.Operation.UPDATE;
     }
 
     @Override
@@ -80,19 +85,21 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
         List<ComTaskExecution> historyByJournalTimeEntries = getHistoryEntries(dataMapper, getHistoryByJournalClauses(comTaskId));
 
 
-        Optional<ComTaskExecution> to = actualEntries.stream()
-                .findFirst()
-                .map(Optional::of)
-                .orElseGet(() -> historyByModTimeEntries.stream().findFirst());
+        List<ComTaskExecution> allEntries = new ArrayList<>();
+        allEntries.addAll(actualEntries);
+        allEntries.addAll(historyByModTimeEntries);
+        allEntries.addAll(historyByJournalTimeEntries);
+        allEntries = allEntries.stream()
+                .filter(distinctByKey(p -> p.getVersion()))
+                .sorted(Comparator.comparing(ComTaskExecution::getVersion))
+                .collect(Collectors.toList());
 
-        Optional<ComTaskExecution> from = historyByJournalTimeEntries.stream().findFirst();
-
-       if (to.isPresent() && from.isPresent() || getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT){
-            auditStatus(from.get(), to.get()).ifPresent(auditLogChanges::add);
-            auditUrgency(from.get(), to.get()).ifPresent(auditLogChanges::add);
-            auditConnectionMethod(from.get(), to.get()).ifPresent(auditLogChanges::add);
-            auditUseDefaultConnectionMethod(from.get(), to.get()).ifPresent(auditLogChanges::add);
-        }
+        ComTaskExecution from = allEntries.get(0);
+        ComTaskExecution to = allEntries.get(allEntries.size() - 1);
+            auditStatus(from, to).ifPresent(auditLogChanges::add);
+            auditUrgency(from, to).ifPresent(auditLogChanges::add);
+            auditConnectionMethod(from, to).ifPresent(auditLogChanges::add);
+            auditUseDefaultConnectionMethod(from, to).ifPresent(auditLogChanges::add);
 
         return auditLogChanges;
     }
@@ -130,24 +137,26 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
 
 
     public Optional<AuditLogChange> auditStatus(ComTaskExecution from, ComTaskExecution to) {
-        if (to.getStatus().compareTo(from.getStatus()) != 0 || getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT) {
+        if (to.getStatus().compareTo(from.getStatus()) != 0) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(COMTASK_STATUS));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
             auditLogChange.setValue(to.getStatusDisplayName());
             auditLogChange.setPreviousValue(from.getStatusDisplayName());
+
             return Optional.of(auditLogChange);
         }
         return Optional.empty();
     }
 
     public Optional<AuditLogChange> auditUrgency(ComTaskExecution from, ComTaskExecution to) {
-        if (to.getPlannedPriority() != from.getPlannedPriority() || getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT) {
+        if (to.getPlannedPriority() != from.getPlannedPriority()) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(COMTASK_URGENCY));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
             auditLogChange.setValue(to.getPlannedPriority());
             auditLogChange.setPreviousValue(from.getPlannedPriority());
+
             return Optional.of(auditLogChange);
         }
         return Optional.empty();
@@ -155,19 +164,20 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
 
     public Optional<AuditLogChange> auditUseDefaultConnectionMethod(ComTaskExecution from, ComTaskExecution to) {
 
-        if (to.usesDefaultConnectionTask() != from.usesDefaultConnectionTask() || getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT) {
+        if (to.usesDefaultConnectionTask() != from.usesDefaultConnectionTask()) {
             com.elster.jupiter.audit.AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(COMTASK_USE_DEFAULT_CONNECTION_TASK));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
             auditLogChange.setValue(to.usesDefaultConnectionTask());
             auditLogChange.setPreviousValue(from.usesDefaultConnectionTask());
+
             return Optional.of(auditLogChange);
         }
         return Optional.empty();
     }
 
     public Optional<AuditLogChange> auditConnectionMethod(ComTaskExecution from, ComTaskExecution to) {
-       if (to.getConnectionTaskId() != from.getConnectionTaskId() || getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.INSERT) {
+       if (to.getConnectionTaskId() != from.getConnectionTaskId()) {
             com.elster.jupiter.audit.AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(CONNECTION_METHOD));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
@@ -178,5 +188,10 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
             return Optional.of(auditLogChange);
         }
         return Optional.empty();
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
+        Map<Object, Boolean> map = new ConcurrentHashMap<>();
+        return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 }
