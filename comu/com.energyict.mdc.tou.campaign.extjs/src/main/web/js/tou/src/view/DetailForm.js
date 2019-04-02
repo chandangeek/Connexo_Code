@@ -60,7 +60,7 @@ Ext.define('Tou.view.DetailForm', {
                         renderer: function (value) {
                             return value && value.id ? '<a href="' + me.router.getRoute('administration/devicetypes/view').buildUrl({
                                 deviceTypeId: value.id
-                            }) + '">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
+                            }) + '/timeofuse">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
                         }
                     }, {
                         itemId: 'activation-field',

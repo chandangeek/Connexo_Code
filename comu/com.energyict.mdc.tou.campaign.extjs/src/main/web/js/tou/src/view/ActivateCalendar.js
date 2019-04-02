@@ -11,7 +11,7 @@ Ext.define('Tou.view.ActivateCalendar', {
     labelWidth: 150,
     layout: {
         type: 'hbox',
-        align: 'right'
+        align: 'left'
     },
 
     requires: [
@@ -21,36 +21,56 @@ Ext.define('Tou.view.ActivateCalendar', {
     initComponent: function () {
         var me = this;
 
+        me.getOptionText = function(optionKey){
+            switch (optionKey){
+                case 'withoutActivation':
+                   return Uni.I18n.translate('tou.campaigns.activate.calendar.wActivationLbl', 'TOU', 'Send without activation');
+                case 'immediately':
+                   return Uni.I18n.translate('tou.campaigns.activate.calendar.immediatelyLbl', 'TOU', 'Immediately');
+                case 'onDate':
+                   return Uni.I18n.translate('tou.campaigns.activate.calendar.byDateLbl', 'TOU', 'On');
+                default:
+                   break;
+            }
+        }
+
         me.items = [
+            {
+                xtype: 'displayfield',
+                itemId: 'uploadLabel',
+                fieldLabel: '',
+                hidden: true
+            },
             {
                 itemId: 'uploadRadioGroup',
                 xtype: 'radiogroup',
                 columns: 1,
                 required: true,
                 vertical: true,
+                allowBlank : true,
                 defaults: {
                     name: me.groupName,
                     submitValue: false
                 },
                 items: [{
                         itemId: 'wActivation',
-                        id: 'TouWActivation',
-                        boxLabel: Uni.I18n.translate('tou.campaigns.activate.calendar.wActivationLbl', 'TOU', 'Send without activation'),
+                        id: 'withoutActivationRg',
+                        boxLabel: me.getOptionText('withoutActivation'),
                         name: me.groupName,
                         inputValue: 'withoutActivation',
-                        checked: true
+                        checked: false
                     }, {
                         itemId: 'Immediately',
-                        id: 'TouImmediately',
-                        boxLabel: Uni.I18n.translate('tou.campaigns.activate.calendar.immediatelyLbl', 'TOU', 'Immediately'),
+                        id: 'immediatelyRg',
+                        boxLabel: me.getOptionText('immediately'),
                         name: me.groupName,
                         inputValue: 'immediately',
                         checked: false
                     }, {
                         itemId: 'ByDate',
-                        id: 'TouByDate',
+                        id: 'onDateRg',
                         name: me.groupName,
-                        boxLabel: Uni.I18n.translate('tou.campaigns.activate.calendar.byDateLbl', 'TOU', 'On'),
+                        boxLabel: me.getOptionText('onDate'),
                         inputValue: 'onDate',
                         margin: '7 0 0 0'
                     }
@@ -75,20 +95,27 @@ Ext.define('Tou.view.ActivateCalendar', {
                     }
                 }
             }, {
-                xtype: 'date-time',
-                itemId: 'uploadFileDateContainer',
-                layout: 'hbox',
-                disabled: true,
-                margin: '50 0 0 0',
-                dateConfig: {
-                    width: 155
+                xtype: 'container',
+                height: '100%',
+                layout: {
+                    type: 'vbox',
+                    pack: 'end'
                 },
-                hoursConfig: {
-                    width: 60
-                },
-                minutesConfig: {
-                    width: 60
-                }
+                items : [{
+                    xtype: 'date-time',
+                    itemId: 'uploadFileDateContainer',
+                    disabled: true,
+                    layout: 'hbox',
+                    dateConfig: {
+                        width: 155
+                    },
+                    hoursConfig: {
+                        width: 60
+                    },
+                    minutesConfig: {
+                        width: 60
+                    }
+                }]
             }
         ];
 
@@ -96,14 +123,46 @@ Ext.define('Tou.view.ActivateCalendar', {
             var radiogroup = me.down('#uploadRadioGroup'),
             dateField = me.down('#uploadFileDateContainer');
 
-            if (radiogroup)
-                return radiogroup.getValue()[me.groupName];
+            if (radiogroup) return radiogroup.getValue()[me.groupName];
+
         };
 
         me.getDateValue = function () {
             var dateField = me.down('#uploadFileDateContainer');
             return dateField.getValue().getTime().toString();
         };
+
+        me.setOptions = function(optionsArr){
+           if (!optionsArr || !optionsArr.length) {
+               this.hide();
+               return;
+           }
+
+           var radiogroup = me.down('#uploadRadioGroup'),
+               dateField = me.down('#uploadFileDateContainer'),
+               updateLabel = me.down('#uploadLabel');
+
+           if (optionsArr.length === 1) {
+              radiogroup.hide();
+              updateLabel.setValue(me.getOptionText(optionsArr[0]));
+              var value = {}; value[me.groupName] = optionsArr[0]; radiogroup.setValue(value);
+              updateLabel.show();
+           }else{
+              radiogroup.show();
+              updateLabel.hide();
+              var allOptions = ['withoutActivation', 'immediately', 'onDate'];
+              Ext.Array.forEach(allOptions, function(option){
+                  var cmp = Ext.getCmp(option + 'Rg');
+                  if (cmp){
+                      (Ext.Array.indexOf(optionsArr, option) !== -1) ? cmp.show() : cmp.hide()
+                  }
+              })
+           }
+
+           if (optionsArr.indexOf("onDate") === -1){
+              dateField.hide();
+           }
+        }
 
         me.callParent(arguments);
     }
