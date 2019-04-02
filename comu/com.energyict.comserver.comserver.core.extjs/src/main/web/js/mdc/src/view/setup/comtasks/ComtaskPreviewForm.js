@@ -56,7 +56,24 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreviewForm', {
                 }
                 return str;
             }
-        }
+        },
+        {
+            itemId: 'comtaskPrivileges',
+            fieldLabel: Uni.I18n.translate('comtask.privileges', 'MDC', 'Privileges'),
+            name: 'privileges',
+            renderer: function (value) {
+                var str = value ? '' : '-';
+                if (value) {
+                    Ext.Array.sort(value, function(privilege1, privilege2) {
+                        return privilege1.name.localeCompare(privilege2.name);
+                    }); // Sort
+                    Ext.Array.each(value, function (privilege) {
+                        str += Ext.String.htmlEncode(privilege.name) + '<br />';
+                    });
+                }
+                return str;
+            }
+        }        
     ]
 
 });

@@ -10,7 +10,8 @@ Ext.define('Mdc.model.CommunicationTask',{
         {name:'maxNrOfTries', type: 'int', useNull: true},
         {name:'inUse', type: 'boolean', useNull: true},
         {name:'commands', type: 'auto', useNull: true, defaultValue: null},
-        {name:'messages', type: 'auto', useNull: true, defaultValue: null}
+        {name:'messages', type: 'auto', useNull: true, defaultValue: null},
+        {name:'privileges', type: 'auto', useNull: true, defaultValue: null}
     ],
     proxy: {
         type: 'rest',
