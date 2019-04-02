@@ -83,8 +83,7 @@ public class SecurityAccessorInfoFactory {
             info.editLevels = executionLevelInfoFactory.getEditPrivileges(userActions, groups);
             info.viewLevels = executionLevelInfoFactory.getViewPrivileges(userActions, groups);
             device.getDeviceType().getDefaultKeyOfSecurityAccessorType(securityAccessor.getKeyAccessorType())
-                    .ifPresent(v -> info.defaultServiceKey
-                            hs= v);
+                    .ifPresent(v -> info.defaultServiceKey = v);
             securityAccessorInfos.add(info);
         }
 
