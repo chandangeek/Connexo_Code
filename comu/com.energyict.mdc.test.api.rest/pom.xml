@@ -72,6 +72,9 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.firmware</artifactId>
         </dependency>
         <dependency>

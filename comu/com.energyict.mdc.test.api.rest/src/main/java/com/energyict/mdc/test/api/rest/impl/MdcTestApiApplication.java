@@ -73,7 +73,7 @@ public class MdcTestApiApplication extends Application {
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
-
+    }
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
     }
@@ -87,7 +87,7 @@ public class MdcTestApiApplication extends Application {
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(TimeOfUseCampaignTestResource.class,
                 CalendarTestResource.class,
-                ServiceKeyTestResource.class);
+                ServiceKeyTestResource.class,
                 FirmwareTestResource.class);
     }
 
