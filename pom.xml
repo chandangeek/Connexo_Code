@@ -40,6 +40,7 @@
 		<include.source>true</include.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<baseline>0.0.1-Nessus</baseline>
+		<commercial.version>10.6.0</commercial.version>
 	</properties>
 
 	<!-- Repositories specification. -->
@@ -173,7 +174,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
@@ -227,7 +227,6 @@
 		</resources>
 		<pluginManagement>
 			<plugins>
-
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
@@ -257,7 +256,7 @@
 				<plugin>
 					<groupId>com.elster.plugin</groupId>
 					<artifactId>bundle-version-maven-plugin</artifactId>
-					<version>1.2</version>
+					<version>1.4</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -402,6 +401,10 @@
 				<groupId>com.elster.plugin</groupId>
 				<artifactId>bundle-version-maven-plugin</artifactId>
 				<configuration>
+				  <acceptedPackages>
+					  <param>com.elster</param>
+					  <param>com.energyict</param>
+				  </acceptedPackages>
 				  <releasedVersion>${baseline}</releasedVersion>
 				</configuration>
 				<executions>
@@ -530,56 +533,34 @@
 			</build>
 		</profile>
 		<profile>
-			<id>sencha-deploy</id>
-            <activation>
-                <property>
-                    <name>sencha.ext.dir</name>
-                </property>
-            </activation>
+			<id>sencha-compile</id>
+			<activation>
+				<property>
+					<name>sencha.ext.dir</name>
+				</property>
+			</activation>
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<version>1.7</version>
+						<groupId>com.elster.plugin</groupId>
+						<artifactId>npm-version-maven-plugin</artifactId>
+						<version>1.0</version>
 						<executions>
 							<execution>
-								<id>sencha-deploy</id>
-								<phase>package</phase>
+								<id>check-version</id>
 								<goals>
-									<goal>run</goal>
+									<goal>verify</goal>
 								</goals>
 								<configuration>
-									<target unless="skipSencha" if="package.name">
-										<property name="cmd.dir" value="${sencha.cmd.dir}"/>
-										<property name="package.file"
-												  value="${project.basedir}/src/main/web/${js.dir}/build/${package.name}/${package.name}.pkg"/>
-										<available file="${package.file}" property="package.present"/>
-										<taskdef resource="com/sencha/ant/antlib.xml" classpath="${cmd.dir}/sencha.jar"
-												 loaderref="senchaloader"/>
-										<x-sencha-command>
-											package
-											add
-											${package.file}
-										</x-sencha-command>
-									</target>
+									<scanFolders>${project.basedir}/src/main/web</scanFolders>
+									<applicationFiles>app.json</applicationFiles>
+									<packageFiles>package.json</packageFiles>
+									<packages>com.elster.*,com.energyict.*,uni-theme-skyline</packages>
+									<version>${commercial.version}</version>
 								</configuration>
 							</execution>
 						</executions>
 					</plugin>
-				</plugins>
-			</build>
-
-		</profile>
-		<profile>
-			<id>sencha-build</id>
-            <activation>
-                <property>
-                    <name>sencha.ext.dir</name>
-                </property>
-            </activation>
-			<build>
-				<plugins>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-antrun-plugin</artifactId>
@@ -601,6 +582,28 @@
 										<property name="cmd.dir" value="${sencha.cmd.dir}"/>
 										<property name="ext.dir" value="${sencha.ext.dir}"/>
 										<ant antfile="build.xml" target="build" dir="./src/main/web/${js.dir}"/>
+									</target>
+								</configuration>
+							</execution>
+							<execution>
+								<id>sencha-deploy</id>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target unless="skipSencha" if="package.name">
+										<property name="cmd.dir" value="${sencha.cmd.dir}"/>
+										<property name="package.file"
+												  value="${project.basedir}/src/main/web/${js.dir}/build/${package.name}/${package.name}.pkg"/>
+										<available file="${package.file}" property="package.present"/>
+										<taskdef resource="com/sencha/ant/antlib.xml" classpath="${cmd.dir}/sencha.jar"
+												 loaderref="senchaloader"/>
+										<x-sencha-command>
+											package
+											add
+											${package.file}
+										</x-sencha-command>
 									</target>
 								</configuration>
 							</execution>

@@ -24,9 +24,9 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
     private static final String TABLE_NAME = TimeOfUseCampaignService.COMPONENT_NAME + "_" + "TU1_CAMPAIGN";
     private static final String FK_NAME = "FK_" + TABLE_NAME;
     static final String COMPONENT_NAME = "TU1";
-    private final TimeOfUseCampaignService timeOfUseCampaignService;
+    private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
 
-    public TimeOfUseCampaignPersistenceSupport(TimeOfUseCampaignService timeOfUseCampaignService) {
+    public TimeOfUseCampaignPersistenceSupport(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
     }
 
@@ -60,6 +60,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
         return Optional.of(new AbstractModule() {
             @Override
             public void configure() {
+                bind(TimeOfUseCampaignServiceImpl.class).toInstance(timeOfUseCampaignService);
                 bind(TimeOfUseCampaignService.class).toInstance(timeOfUseCampaignService);
             }
         });
@@ -82,15 +83,15 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_GROUP.javaName())
                 .notNull()
                 .add();
-        table.column(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_START.databaseName())
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.UPLOAD_PERIOD_START.databaseName())
                 .number()
                 .conversion(ColumnConversion.NUMBER2INSTANT)
-                .map(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_START.javaName())
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.UPLOAD_PERIOD_START.javaName())
                 .add();
-        table.column(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_END.databaseName())
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.UPLOAD_PERIOD_END.databaseName())
                 .number()
                 .conversion(ColumnConversion.NUMBER2INSTANT)
-                .map(TimeOfUseCampaignDomainExtension.FieldNames.ACTIVATION_END.javaName())
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.UPLOAD_PERIOD_END.javaName())
                 .add();
         Column calendar = table.column(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR.databaseName())
                 .number()
@@ -118,6 +119,11 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .conversion(ColumnConversion.NUMBER2LONG)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName())
                 .add();
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.WITH_UNIQUE_CALENDAR_NAME.databaseName())
+                .bool()
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName())
+                .notNull()
+                .add();
         table.foreignKey(FK_NAME + "_CAL")
                 .on(calendar)
                 .references(Calendar.class)
@@ -128,7 +134,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .references(DeviceType.class)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_TYPE.javaName())
                 .add();
-        table.unique("UK_"+TABLE_NAME+"_NAME").on(name).add();
+        table.unique("UK_" + TABLE_NAME + "_NAME").on(name).add();
     }
 
     @Override

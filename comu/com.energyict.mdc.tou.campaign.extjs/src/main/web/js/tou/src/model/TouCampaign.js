@@ -51,7 +51,7 @@ Ext.define('Tou.model.TouCampaign', {
             name: 'updateType',
             defaultValue: null
         }, {
-            name: 'timeValidation',
+            name: 'validationTimeout',
             type: 'int',
             defaultValue: null
         }, {
@@ -68,6 +68,10 @@ Ext.define('Tou.model.TouCampaign', {
             name: 'finishedOn',
             type: 'int',
             timeFormat: 'date'
+        }, {
+            name: 'withUniqueCalendarName',
+            type: 'boolean',
+            defaultValue: false
         }
 
     ],
@@ -82,19 +86,19 @@ Ext.define('Tou.model.TouCampaign', {
     proxy: {
         type: 'rest',
         api: {
-            read: '/api/tou/touCampaigns',
-            create: '/api/tou/touCampaigns/create',
-            update: '/api/tou/touCampaigns/{touCampaignName}/edit'
+            read: '/api/tou/toucampaigns',
+            create: '/api/tou/toucampaigns/create',
+            update: '/api/tou/toucampaigns/{touCampaignId}/edit'
         },
         reader: {
             type: 'json'
         },
         setUpdateUrl: function (value) {
-            this.api.update = this.api.update.replace('{touCampaignName}', value);
+            this.api.update = this.api.update.replace('{touCampaignId}', value);
             return this.api.update;
         },
         resetUpdateUrl: function () {
-            this.api.update = '/api/tou/touCampaigns/{touCampaignName}/edit';
+            this.api.update = '/api/tou/toucampaigns/{touCampaignId}/edit';
         }
     },
     convertObjectField: function (value) {

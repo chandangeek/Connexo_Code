@@ -10,6 +10,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -19,6 +20,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.EnumSet;
 
 @Path("/devicetypes/{deviceTypeId}/supportedfirmwaretypes")
 public class FirmwareTypesResource {
@@ -41,7 +43,8 @@ public class FirmwareTypesResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response getSupportedFirmwareTypes(@PathParam("deviceTypeId") long deviceTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
+        EnumSet<FirmwareType> supportedTypes = firmwareService.getSupportedFirmwareTypes(deviceType);
 
-        return Response.ok().entity(new FirmwareTypeInfos(deviceType, thesaurus)).build();
+        return Response.ok().entity(new FirmwareTypeInfos(supportedTypes, thesaurus)).build();
     }
 }

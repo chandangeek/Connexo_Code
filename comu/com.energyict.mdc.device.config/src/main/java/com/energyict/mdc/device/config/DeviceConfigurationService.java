@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -25,6 +24,8 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -135,6 +136,14 @@ public interface DeviceConfigurationService {
      * or the version of the DeviceType is not equal to the specified version
      */
     Optional<DeviceType> findAndLockDeviceType(long id, long version);
+
+    /**
+     * Finds and locks a {@link DeviceType} which is uniquely identified by the given ID, no matter which VERSION it has.
+     *
+     * @param id the id of the DeviceType
+     * @return the DeviceType or empty if the DeviceType does not exist
+     */
+    Optional<DeviceType> findAndLockDeviceType(long id);
 
     /**
      * Find the {@link DeviceType} with the specified name.
@@ -335,6 +344,8 @@ public interface DeviceConfigurationService {
     Finder<DeviceConfiguration> findActiveDeviceConfigurationsForDeviceType(DeviceType deviceType);
 
     List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
+
+    boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceConfigId);
 
     List<DeviceType> findDeviceTypesForCalendar(Calendar calendar);
 

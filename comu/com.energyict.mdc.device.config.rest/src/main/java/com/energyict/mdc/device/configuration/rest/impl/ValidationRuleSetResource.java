@@ -26,6 +26,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -68,7 +69,7 @@ public class ValidationRuleSetResource {
         List<ValidationRuleSet> ruleSets = deviceConfiguration.getValidationRuleSets();
         List<ValidationRuleSetInfo> result = new ArrayList<>();
         for (ValidationRuleSet ruleSet : ruleSets) {
-            result.add(new ValidationRuleSetInfo(ruleSet, deviceConfiguration));
+            result.add(new ValidationRuleSetInfo(ruleSet, deviceConfiguration, deviceConfiguration.getValidationRuleSetStatus(ruleSet)));
         }
         result = ListPager.of(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR).from(queryParameters).find();
         return Response.ok(PagedInfoList.fromPagedList("validationRuleSets", result, queryParameters)).build();
@@ -113,9 +114,27 @@ public class ValidationRuleSetResource {
         }
         List<ValidationRuleSetInfo> infos = addedValidationRuleSets
                 .stream()
-                .map(vrs -> new ValidationRuleSetInfo(vrs, deviceConfiguration))
+                .map(vrs -> new ValidationRuleSetInfo(vrs, deviceConfiguration, true))
                 .collect(Collectors.toList());
         return Response.ok(infos).build();
+    }
+
+    @Path("/{validationRuleSetId}/status")
+    @PUT
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response setValidationRuleSetStatusOnDeviceConfiguration(
+            @PathParam("deviceConfigurationId") long deviceConfigurationId,
+            @PathParam("validationRuleSetId") long validationRuleSetId,
+            ValidationRuleSetInfo info) {
+
+        info.id = validationRuleSetId;
+        ValidationRuleSet validationRuleSet = resourceHelper.lockValidationRuleSetOrThrowException(info);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
+        deviceConfiguration.setValidationRuleSetStatus(validationRuleSet, info.isValidationRuleSetActive);
+        return Response.status(Response.Status.OK).build();
     }
 
     private boolean getBoolean(UriInfo uriInfo, String key) {

@@ -109,6 +109,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             issueModel = me.getModel('Idc.model.Issue');
         } else if (issueType == 'datavalidation') {
             issueModel = me.getModel('Idv.model.Issue');
+        } else if (issueType == 'devicelifecycle') {
+            issueModel = me.getModel('Idl.model.Issue');
         } else {
             issueModel = me.getModel(me.issueModel);
         }
@@ -239,6 +241,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                             issueModel = me.getModel('Idc.model.Issue');
                         } else if (issueType == 'datavalidation') {
                             issueModel = me.getModel('Idv.model.Issue');
+                        } else if (issueType == 'devicelifecycle') {
+                                issueModel = me.getModel('Idl.model.Issue');
                         } else if (issueType == 'usagepointdatavalidation') {
                             issueModel = me.getModel('Imt.datavalidation.model.Issue');
                         }
@@ -251,7 +255,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                                 if (issueType == 'datacollection') {
                                     Ext.ComponentQuery.query('#data-collection-issue-detail-container')[0].down('form').loadRecord(issue);
                                     Ext.ComponentQuery.query('#issue-detail-action-menu')[0].record = issue;
-                                } else if (issueType == 'datavalidation') {
+                                } else if (issueType == 'datavalidation' || issueType == 'devicelifecycle') {
                                     Ext.ComponentQuery.query('#issue-detail-form')[0].loadRecord(issue);
                                     Ext.ComponentQuery.query('#issue-detail-action-menu')[0].record = issue;
                                 } else if (issueType == 'usagepointdatavalidation') {

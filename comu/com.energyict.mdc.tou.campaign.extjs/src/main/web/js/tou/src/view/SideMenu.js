@@ -7,7 +7,7 @@ Ext.define('Tou.view.SideMenu', {
     alias: 'widget.tou-campaign-side-menu',
     router: null,
     title: 'ToU campaign',
-    objectType: 'Tou campaign',
+    objectType: 'ToU campaign',
 
     initComponent: function () {
         var me = this;

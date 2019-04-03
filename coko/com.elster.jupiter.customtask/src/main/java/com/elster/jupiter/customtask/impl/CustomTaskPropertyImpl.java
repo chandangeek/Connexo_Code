@@ -74,6 +74,11 @@ final class CustomTaskPropertyImpl implements CustomTaskProperty, PersistenceAwa
         return getPropertySpec().getValueFactory().fromStringValue(stringValue);
     }
 
+    @Override
+    public String getStringValue() {
+        return stringValue;
+    }
+
     private PropertySpec getPropertySpec() {
         if (propertySpec == null) {
             postLoad();

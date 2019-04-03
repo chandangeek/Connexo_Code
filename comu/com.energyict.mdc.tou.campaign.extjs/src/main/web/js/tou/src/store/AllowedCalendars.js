@@ -12,7 +12,7 @@ Ext.define('Tou.store.AllowedCalendars', {
     storeId: 'allowedCalendarStore',
     proxy: {
         type: 'rest',
-        urlTpl: '../../api/tou/touCampaigns/getoptions?type={deviceTypeId}',
+        urlTpl: '../../api/tou/toucampaigns/getoptions?type={deviceTypeId}',
         reader: {
             type: 'json'
         },

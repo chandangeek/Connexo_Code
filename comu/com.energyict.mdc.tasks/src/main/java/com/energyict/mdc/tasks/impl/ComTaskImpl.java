@@ -264,18 +264,12 @@ abstract class ComTaskImpl implements ComTask {
 
     @Override
     public void removeTask(ProtocolTask protocolTaskToDelete) {
-        Iterator<ProtocolTaskImpl> iterator = this.protocolTasks.iterator();
-        while (iterator.hasNext()) {
-            ProtocolTaskImpl protocolTask = iterator.next();
-            if (protocolTask.getId() == protocolTaskToDelete.getId()) {
-                iterator.remove();
-            }
-        }
+        protocolTasks.removeIf(task -> task.getId() == protocolTaskToDelete.getId());
     }
 
     @Override
     public int getMaxNumberOfTries() {
-        return this.maxNrOfTries;
+        return maxNrOfTries;
     }
 
     private void verifyUniqueProtocolTaskType(Class<? extends ProtocolTask> taskClass) {

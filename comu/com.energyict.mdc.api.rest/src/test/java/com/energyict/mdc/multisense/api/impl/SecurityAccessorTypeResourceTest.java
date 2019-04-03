@@ -4,7 +4,10 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -18,16 +21,21 @@ import com.energyict.mdc.protocol.api.security.SecuritySuite;
 
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,13 +46,14 @@ import static org.mockito.Mockito.when;
 public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyTest {
 
     private Device device;
+    private DeviceType deviceType;
     private SecurityPropertySet sps1, sps2;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        DeviceType deviceType = mockDeviceType(1L, "device type", 1001L);
+        deviceType = mockDeviceType(1L, "device type", 1001L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(2L, "device config", deviceType, 1002L);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationAccessLevel(3);
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mockEncryptionAccessLevel(4);
@@ -54,6 +63,7 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
 
         sps1 = mockSecurityPropertySet(5L, deviceConfiguration, "sps1", 1, securitySuite, encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, requestSecurityDeviceAccessLevel, responseSecurityDeviceAccessLevel, "Password", 123L, 1003L);
         sps2 = mockSecurityPropertySet(6L, deviceConfiguration, "sps2", 2, encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, "AK", 321L, 1004L);
+
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         device = mockDevice("XAS", "10101010101011", deviceConfiguration, 1005L);
 
@@ -68,7 +78,11 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
 
         sps1.getConfigurationSecurityProperties().stream().forEach(property -> securityAccessorTypes.add(property.getSecurityAccessorType()));
         sps2.getConfigurationSecurityProperties().stream().forEach(property -> securityAccessorTypes.add(property.getSecurityAccessorType()));
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
         when(device.getDeviceType().getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
+        when(device.getSecurityAccessor(Mockito.any(SecurityAccessorType.class))).thenReturn(Optional.of(securityAccessor2));
+        when(securityAccessor2.getActualValue()).thenReturn(Optional.of("ABCD"));
     }
 
     @Test
@@ -105,6 +119,43 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
         assertThat(model.<String>get("$.link")).isNull();
         assertThat(model.<Integer>get("$.id")).isEqualTo(321);
         assertThat(model.<String>get("$.name")).isEqualTo("AK");
+    }
+
+    @Test
+    public void testValidateKeyAccessorType() throws Exception {
+        Response response = target("/devices/XAS/keyAccessors/AK/validate").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testMarkServiceKey() throws Exception {
+        HashMap<String, Object> info = new HashMap<>();
+        info.put("serviceKey", true);
+        Response response = target("/devices/XAS/keyAccessors/AK/servicekey").request("application/json").put(Entity
+                .json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testStoreTempValue() throws Exception {
+        PropertySpec propertySpec1 = mockStringPropertySpec("key", "123");
+        PropertySpec propertySpec2 = mockStringPropertySpec("label", "asd");
+        SecurityAccessor securityAccessor = mockSecurityAccessor("HSM", propertySpec1, propertySpec2);
+        SecurityAccessorType securityAccessorType = mockSecuritySecurityAccessorType("HSM");
+        HsmKeyType hsmKeyType = mock(HsmKeyType.class);
+        when(securityAccessorType.getHsmKeyType()).thenReturn(hsmKeyType);
+        when(hsmKeyType.getLabel()).thenReturn("label");
+        when(securityAccessor.getKeyAccessorType()).thenReturn(securityAccessorType);
+        when(securityAccessor.getKeyAccessorType().keyTypeIsHSM()).thenReturn(true);
+        SecurityValueWrapper mockSecurityValueWrapper = mock(SecurityValueWrapper.class);
+        when(securityAccessor.getTempValue()).thenReturn(Optional.of(mockSecurityValueWrapper));
+        when(device.getSecurityAccessor(any(SecurityAccessorType.class))).thenReturn(Optional.of(securityAccessor));
+        String val = "ABCDABCDABCDABCDABCDABCDABCDABCE";
+        HashMap<String, Object> info = new HashMap<>();
+        info.put("value", val);
+        when(device.getSecurityAccessors()).thenReturn(Arrays.asList(securityAccessor));
+        Response response = target("/devices/XAS/keyAccessors/HSM/tempvalue").request("application/json").put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test

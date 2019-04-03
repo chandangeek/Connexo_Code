@@ -39,7 +39,19 @@ Ext.define('Mdc.view.setup.validation.RuleSetsGrid', {
                 align: 'left',
                 sortable: false,
                 fixed: true
-            },	            
+            },
+            {
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                dataIndex: 'isValidationRuleSetActive',
+                flex: 5,
+                renderer: function (value) {
+                    if (value) {
+                        return Uni.I18n.translate('general.active', 'MDC', 'Active')
+                    } else {
+                        return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
+                    }
+                }
+            },
             {
                 xtype: 'uni-actioncolumn',
                 width: 120,

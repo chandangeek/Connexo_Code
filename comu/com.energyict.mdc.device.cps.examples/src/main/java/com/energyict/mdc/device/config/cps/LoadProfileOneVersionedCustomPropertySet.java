@@ -38,7 +38,8 @@ import java.util.Set;
 public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertySet<ChannelSpec, LoadProfileOneVersionedDomainExtension> {
 
     public static final String TABLE_NAME = "RVK_CPS_CHANNEL_VER";
-    public static final String FK_CPS_DEVICE_VER = "FK_CPS_CHANNEL_VER";
+    public static final String FK_CPS_CHENNEL_VER = "FK_CPS_CHANNEL_VER";
+    public static final String FK_CPS_DEVICE_VER = "FK_CHANNEL_DEVICE_VER";
 
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceService deviceService;
@@ -174,7 +175,7 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
 
         @Override
         public String domainForeignKeyName() {
-            return FK_CPS_DEVICE_VER;
+            return FK_CPS_CHENNEL_VER;
         }
 
         @Override
@@ -189,6 +190,14 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+            Column contextReference = (Column)(table.getColumn(LoadProfileOneVersionedDomainExtension.FieldNames.DEVICE_REF.databaseName()).get());
+            table
+                    .foreignKey(FK_CPS_DEVICE_VER)
+                    .on(contextReference)
+                    .references(getContextClass())
+                    .map(LoadProfileOneVersionedDomainExtension.FieldNames.DEVICE_REF.javaName())
+                    .add();
+
             return Collections.singletonList(
                     table
                         .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
@@ -215,6 +224,11 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
                 .bool()
                 .map(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
                 .add();
+        }
+
+        @Override
+        public String contextForeignKeyName() {
+            return "FK_CPS_DEVICE_VER";
         }
     }
 }

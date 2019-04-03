@@ -36,6 +36,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UniqueConstraint;
 import com.elster.jupiter.orm.Version;
@@ -156,7 +157,9 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
 
@@ -271,7 +274,8 @@ public enum TableSpecs {
 
             Column nameColumn = table.column(CREATION_RULE_PROPS_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
             Column ruleColumn = table.column(CREATION_RULE_PROPS_RULE).number().conversion(NUMBER2LONG).notNull().add();
-            table.column(CREATION_RULE_PROPS_VALUE).map("value").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
+            Column oldValue = table.column(CREATION_RULE_PROPS_VALUE).map("value").varChar(SHORT_DESCRIPTION_LENGTH).notNull().upTo(Version.version(10, 5)).add();
+            table.column(CREATION_RULE_PROPS_VALUE).map("value").varChar(DESCRIPTION_LENGTH).notNull().since(Version.version(10, 6)).previously(oldValue).add();
             table.addAuditColumns();
 
             table.primaryKey(CREATION_RULE_PROPS_PK_NAME).on(nameColumn, ruleColumn).add();

@@ -122,6 +122,7 @@ public class DeviceTypeResource {
     private final IssueService issueService;
 
     private static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
+    private static final String DEVICE_LIFECYCLE_ISSUE_RULE_TEMPLATE = "DeviceLifecycleIssueCreationRuleTemplate";
 
     @Inject
     public DeviceTypeResource(
@@ -338,6 +339,21 @@ public class DeviceTypeResource {
             if (deviceAlarmCreationRule.isPresent()) {
                 info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.DEVICE_TYPE_IN_USE_BY_CREATION_RULE)
                                 .format(deviceType.getName(), deviceType.getDeviceLifeCycle().getName(), deviceAlarmCreationRule.get().getName())
+                        , Collections.emptyList(), oldDeviceLifeCycle, targetDeviceLifeCycle);
+                return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
+            }
+        }
+
+        Optional<CreationRuleTemplate> issueRuleTemplate = issueService.getCreationRuleTemplates().values()
+                .stream()
+                .filter(issueTemplate -> issueTemplate.getName().equals(DEVICE_LIFECYCLE_ISSUE_RULE_TEMPLATE))
+                .findFirst();
+
+        if(issueRuleTemplate.isPresent()){
+            Optional<CreationRule> dlcIssueCreationRule =issueRuleTemplate.get().getCreationRuleWhichUsesDeviceType(id);
+            if(dlcIssueCreationRule.isPresent()){
+                info =getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE)
+                                .format(deviceType.getName(), deviceType.getDeviceLifeCycle().getName(), dlcIssueCreationRule.get().getName())
                         , Collections.emptyList(), oldDeviceLifeCycle, targetDeviceLifeCycle);
                 return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
             }
