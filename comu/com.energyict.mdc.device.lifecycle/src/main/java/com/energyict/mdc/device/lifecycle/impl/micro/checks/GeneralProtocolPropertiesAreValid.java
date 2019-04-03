@@ -38,18 +38,6 @@ public class GeneralProtocolPropertiesAreValid extends ConsolidatedServerMicroCh
                 Optional.empty();
     }
 
-    @Override
-    public Set<DefaultTransition> getRequiredDefaultTransitions() {
-        return EnumSet.of(
-                DefaultTransition.COMMISSION,
-                DefaultTransition.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING,
-                DefaultTransition.INSTALL_INACTIVE_WITHOUT_COMMISSIONING,
-                DefaultTransition.INSTALL_AND_ACTIVATE,
-                DefaultTransition.INSTALL_INACTIVE,
-                DefaultTransition.ACTIVATE,
-                DefaultTransition.DEACTIVATE);
-    }
-
     private boolean anyMissingProperty(Device device) {
         Set<String> requiredPropertyNames = requiredGeneralProtocolPropertyNames(device);
         TypedProperties deviceProtocolProperties = device.getDeviceProtocolProperties();

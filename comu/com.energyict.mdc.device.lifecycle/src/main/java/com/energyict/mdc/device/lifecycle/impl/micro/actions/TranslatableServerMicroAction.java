@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
-import com.energyict.mdc.device.lifecycle.impl.MicroCategoryTranslationKey;
+import com.energyict.mdc.device.lifecycle.MicroCategoryTranslationKey;
 
 public abstract class TranslatableServerMicroAction implements ServerMicroAction {
     protected final Thesaurus thesaurus;

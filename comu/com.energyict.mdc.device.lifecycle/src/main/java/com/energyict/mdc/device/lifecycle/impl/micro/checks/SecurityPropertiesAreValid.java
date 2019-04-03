@@ -14,16 +14,13 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -55,18 +52,6 @@ public class SecurityPropertiesAreValid extends ConsolidatedServerMicroCheck {
         }
         propertySpecKeyAccessorTypeMapping.forEach((propertySpec, keyAccessorTypeOptional) -> checkIfValid(propertySpec, keyAccessorTypeOptional, device));
         return this.valid ? Optional.empty() : fail(MicroCheckTranslations.Message.SECURITY_PROPERTIES_ARE_ALL_VALID);
-    }
-
-    @Override
-    public Set<DefaultTransition> getRequiredDefaultTransitions() {
-        return EnumSet.of(
-                DefaultTransition.COMMISSION,
-                DefaultTransition.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING,
-                DefaultTransition.INSTALL_INACTIVE_WITHOUT_COMMISSIONING,
-                DefaultTransition.INSTALL_AND_ACTIVATE,
-                DefaultTransition.INSTALL_INACTIVE,
-                DefaultTransition.ACTIVATE,
-                DefaultTransition.DEACTIVATE);
     }
 
     private Optional<SecurityAccessorType> findCorrespondingKeyAccessorType(SecurityPropertySet securityPropertySet, PropertySpec propertySpec) {

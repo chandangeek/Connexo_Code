@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.device.lifecycle.impl;
+package com.energyict.mdc.device.lifecycle;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;

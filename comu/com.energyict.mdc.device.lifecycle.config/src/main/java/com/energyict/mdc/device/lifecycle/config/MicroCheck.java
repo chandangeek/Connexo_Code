@@ -14,65 +14,73 @@ import java.util.Set;
 @ConsumerType
 public interface MicroCheck extends HasName {
 
+    /**
+     * @return Unique key of the check. {@link #equals(Object)} & {@link #hashCode()} must be implemented on the base of this key.
+     */
     String getKey();
 
+    /**
+     * @return Translatable name of the check.
+     */
+    @Override
+    String getName();
+
+    /**
+     * @return Translatable description of the check.
+     */
     String getDescription();
 
+    /**
+     * @return Key of the check category. Can be taken as {@link MicroCategory#name()} or can be custom.
+     */
     String getCategory();
 
+    /**
+     * @return Translatable name of the category. Can be taken as {@code thesaurus.getFormat(MicroCategoryTranslationKey.XXX).format()} or can be custom.
+     */
     String getCategoryName();
 
     /**
-     * Contains set of default transition's which use micro check as optional
-     *
-     * @return set of default transition's
+     * @return A set of {@link DefaultTransition} where this check should be available. Default is none of default ones.
      */
     default Set<DefaultTransition> getOptionalDefaultTransitions() {
         return Collections.emptySet();
     }
 
     /**
-     * Contains set of default transition's which use micro check as required
-     *
-     * @return set of default transition's
+     * @return A set of {@link DefaultTransition} where this check is mandatory (can't be unselected by user). Default is none of default ones.
      */
     default Set<DefaultTransition> getRequiredDefaultTransitions() {
         return Collections.emptySet();
     }
 
     /**
-     * Marks micro check as applicable for specific transition between two states
-     *
-     * @return true if micro check is applicable
+     * Service method; should not be overridden.
      */
     default boolean isApplicableForTransition(State fromState, State toState) {
         return isOptionalForTransition(fromState, toState) || isRequiredForTransition(fromState, toState);
     }
 
     /**
-     * Marks micro check as optional for specific transition between two states
-     *
-     * @return true if micro check is optional
+     * @return {@code true} if this check should be available for the transition represented by {code fromState} and {code toState}.
+     * Default is: available for all default transitions returned from {@link #getOptionalDefaultTransitions()} plus for all custom transitions.
      */
     default boolean isOptionalForTransition(State fromState, State toState) {
-        return isForTransition(fromState, toState, getOptionalDefaultTransitions());
+        return isForTransition(fromState, toState, getOptionalDefaultTransitions()) || !DefaultTransition.getDefaultTransition(fromState, toState).isPresent();
     }
 
     /**
-     * Marks micro check as required for specific transition between two states
-     *
-     * @return true if micro check is required
+     * @return {@code true} if this check should be mandatory (can't be unselected by user) for the transition represented by {code fromState} and {code toState}.
+     * Default is: mandatory for all default transitions returned from {@link #getRequiredDefaultTransitions()}, and only.
      */
     default boolean isRequiredForTransition(State fromState, State toState) {
         return isForTransition(fromState, toState, getRequiredDefaultTransitions());
     }
 
     /**
-     * Marks micro check as exist for specific transition between two states
-     *
-     * @return true if micro check is exist
+     * @return true if transition represented by {code fromState} and {code toState} is present among {code defaultTransitions}.
      */
-    default boolean isForTransition(State fromState, State toState, Set<DefaultTransition> defaultTransitions) {
+    static boolean isForTransition(State fromState, State toState, Set<DefaultTransition> defaultTransitions) {
         return DefaultTransition.getDefaultTransition(fromState, toState)
                 .filter(defaultTransitions::contains)
                 .isPresent();

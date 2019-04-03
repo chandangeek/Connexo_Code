@@ -30,7 +30,7 @@ public class SlaveDeviceHasGateway extends TranslatableServerMicroCheck {
 
     @Override
     public String getCategory() {
-        return MicroCategory.COMMUNICATION.name();
+        return MicroCategory.TOPOLOGY.name();
     }
 
     @Override

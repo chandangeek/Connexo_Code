@@ -6,7 +6,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.impl.MicroCategoryTranslationKey;
+import com.energyict.mdc.device.lifecycle.MicroCategoryTranslationKey;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheck;
 
 import javax.inject.Inject;

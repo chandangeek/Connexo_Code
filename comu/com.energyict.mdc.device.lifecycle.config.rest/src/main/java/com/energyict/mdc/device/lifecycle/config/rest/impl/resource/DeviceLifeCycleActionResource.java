@@ -193,24 +193,16 @@ public class DeviceLifeCycleActionResource {
         Set<MicroCheck> allMicroChecks = resourceHelper.findAllAvailableMicroChecks();
         State fromState = getFromState(deviceLifeCycle, fromStateId);
         State toState = getToState(deviceLifeCycle, toStateId);
-        if (getDefaultTransition(fromState, toState).isPresent()) {
-            allMicroChecks
-                    .stream()
-                    .filter(microCheck -> microCheck.isOptionalForTransition(fromState, toState))
-                    .map(microActionAndCheckInfoFactory::optional)
-                    .forEach(microChecks::add);
-            allMicroChecks
-                    .stream()
-                    .filter(microCheck -> microCheck.isRequiredForTransition(fromState, toState))
-                    .map(microActionAndCheckInfoFactory::required)
-                    .forEach(microChecks::add);
-        } else {
-            allMicroChecks
-                    .stream()
-                    .filter(microCheck -> microCheck.isApplicableForTransition(fromState, toState))
-                    .map(microActionAndCheckInfoFactory::optional)
-                    .forEach(microChecks::add);
-        }
+        allMicroChecks
+                .stream()
+                .filter(microCheck -> microCheck.isRequiredForTransition(fromState, toState))
+                .map(microActionAndCheckInfoFactory::required)
+                .forEach(microChecks::add);
+        allMicroChecks
+                .stream()
+                .filter(microCheck -> microCheck.isOptionalForTransition(fromState, toState))
+                .map(microActionAndCheckInfoFactory::optional)
+                .forEach(microChecks::add);
         return Response.ok(PagedInfoList.fromCompleteList("microChecks", new ArrayList<>(microChecks), queryParams)).build();
     }
 

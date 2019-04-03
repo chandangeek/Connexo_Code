@@ -12,11 +12,14 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
 import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Check if at least one connection is available on the device with the status: 'Active'
@@ -67,12 +70,12 @@ public class MetrologyConfigurationInCorrectStateIfAny extends TranslatableServe
     }
 
     @Override
-    public boolean isOptionalForTransition(State fromState, State toState) {
-        return false;
+    public Set<DefaultTransition> getRequiredDefaultTransitions() {
+        return licenseService.getLicensedApplicationKeys().contains(INSIGHT_LICENSE) ? EnumSet.allOf(DefaultTransition.class) : EnumSet.noneOf(DefaultTransition.class);
     }
 
     @Override
-    public boolean isRequiredForTransition(State fromState, State toState) {
+    public boolean isOptionalForTransition(State fromState, State toState) {
         return licenseService.getLicensedApplicationKeys().contains(INSIGHT_LICENSE);
     }
 }

@@ -7,11 +7,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheck;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.impl.MicroCategoryTranslationKey;
+import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
+import com.energyict.mdc.device.lifecycle.MicroCategoryTranslationKey;
 
 import javax.inject.Inject;
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 public abstract class ConsolidatedServerMicroCheck implements ExecutableMicroCheck {
 
@@ -52,6 +55,18 @@ public abstract class ConsolidatedServerMicroCheck implements ExecutableMicroChe
     @Override
     public int hashCode() {
         return Objects.hash(getKey());
+    }
+
+    @Override
+    public Set<DefaultTransition> getRequiredDefaultTransitions() {
+        return EnumSet.of(
+                DefaultTransition.COMMISSION,
+                DefaultTransition.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING,
+                DefaultTransition.INSTALL_INACTIVE_WITHOUT_COMMISSIONING,
+                DefaultTransition.INSTALL_AND_ACTIVATE,
+                DefaultTransition.INSTALL_INACTIVE,
+                DefaultTransition.ACTIVATE,
+                DefaultTransition.DEACTIVATE);
     }
 
     protected Optional<ExecutableMicroCheckViolation> fail(MessageSeed failMessage, Object... args) {
