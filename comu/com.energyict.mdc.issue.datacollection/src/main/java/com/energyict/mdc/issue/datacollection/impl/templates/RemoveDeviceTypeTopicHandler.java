@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.issue.datavalidation.impl;
+package com.energyict.mdc.issue.datacollection.impl.templates;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.LocalEvent;
@@ -10,68 +10,59 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
+
 import com.energyict.mdc.device.config.DeviceType;
+
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionServiceImpl;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
-import static com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate.*;
 
-@Component(name = "com.energyict.mdc.issue.datavalidation.RemoveDeviceTypeTopicHandler", service = TopicHandler.class, immediate = true)
-public class RemoveDeviceTypeTopicHandler implements TopicHandler {
+@Component(name = " com.energyict.mdc.issue.datacollection.RemoveDeviceTypeTopicHandler", service = TopicHandler.class, immediate = true)
+public class RemoveDeviceTypeTopicHandler implements TopicHandler{
     private IssueService issueService;
-    private IssueDataValidationServiceImpl issueDataValidationService;
+    private IssueDataCollectionServiceImpl issueDataCollectionService;
 
     public RemoveDeviceTypeTopicHandler() {
-
     }
 
     @Inject
-    public RemoveDeviceTypeTopicHandler(IssueService issueService, IssueDataValidationServiceImpl issueDataValidationService) {
-        this.issueService = issueService;
-        this.issueDataValidationService = issueDataValidationService;
+    public RemoveDeviceTypeTopicHandler(IssueService issueService, IssueDataCollectionServiceImpl issueDataCollectionService) {
+        setIssueService(issueService);
+        this.issueDataCollectionService = issueDataCollectionService;
     }
 
     @Override
     public void handle(LocalEvent localEvent) {
         DeviceType deviceType = (DeviceType) localEvent.getSource();
-        List<Long> configIds = deviceType.getConfigurations().stream()
-                .map(HasId::getId)
-                .collect(Collectors.toList());
-        List<CreationRule> validationCreationRules = getValidationCreationRules();
-        boolean configOfDeviceTypeInUse = validationCreationRules.stream()
-                .map(rule -> (List<DeviceConfigurationInfo>) rule.getProperties().get(DEVICE_CONFIGURATIONS))
-                .flatMap(Collection::stream)
-                .anyMatch(info -> configIds.contains(info.getId()));
+        List<CreationRule> validationCreationRules = getDataCollectionCreationRules();
 
         boolean deviceTypeInUse = validationCreationRules.stream()
                 .map(rule -> (List)rule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES))
-                .filter(list -> !list.isEmpty())
+                .filter(list -> list != null && !list.isEmpty())
                 .map(list -> list.get(0))
                 .map(rule -> (DeviceLifeCycleInDeviceTypeInfo) rule)
                 .anyMatch(info ->  info.getDeviceTypeId() == deviceType.getId());
 
-        if(configOfDeviceTypeInUse)
-            throw new VetoDeviceTypeDeleteException(issueDataValidationService.thesaurus(), deviceType, MessageSeeds.DEVICE_TYPE_DEVICE_CONFIG_IN_USE);
-
         if(deviceTypeInUse) {
-            throw new VetoDeviceTypeDeleteException(issueDataValidationService.thesaurus(), deviceType, MessageSeeds.DEVICE_TYPE_IN_USE);
+            throw new VetoDeviceTypeDeleteException(issueDataCollectionService.thesaurus(), deviceType);
         }
     }
+
 
     @Reference
     public void setIssueService(IssueService issueService) {
@@ -79,8 +70,8 @@ public class RemoveDeviceTypeTopicHandler implements TopicHandler {
     }
 
     @Reference
-    public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
-        this.issueDataValidationService = (IssueDataValidationServiceImpl) issueDataValidationService;
+    public void setIssueDataValidationService(IssueDataCollectionService issueDataCollectionService) {
+        this.issueDataCollectionService = (IssueDataCollectionServiceImpl) issueDataCollectionService;
     }
 
     @Override
@@ -88,8 +79,9 @@ public class RemoveDeviceTypeTopicHandler implements TopicHandler {
         return "com/energyict/mdc/device/config/devicetype/VALIDATEDELETE";
     }
 
-    public List<CreationRule> getValidationCreationRules() {
-        IssueType validationType = issueService.findIssueType("datavalidation").orElse(null);
+
+    public List<CreationRule> getDataCollectionCreationRules() {
+        IssueType validationType = issueService.findIssueType(IssueTypes.DATA_COLLECTION.getName()).orElse(null);
         List<IssueReason> alarmReasons = issueService.query(IssueReason.class)
                 .select(where("issueType").isEqualTo(validationType))
                 .stream()

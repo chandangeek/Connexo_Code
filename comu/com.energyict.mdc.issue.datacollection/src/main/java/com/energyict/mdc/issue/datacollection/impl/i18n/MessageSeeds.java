@@ -17,7 +17,7 @@ public enum MessageSeeds implements MessageSeed {
 
     INVALID_NUMBER_OF_ARGUMENTS(9, "invalid.number.of.arguments", "Invalid number of arguments {0}, expected {1} ", Level.SEVERE),
     INVALID_ARGUMENT(10, "invalid.argument", "Invalid argument {0}", Level.SEVERE),
-
+    DEVICE_TYPE_IN_USE(11, "deviceTypeInUseByIssueCreationRule", "Device type ''{0}'' is in use by an issue creation rule", Level.SEVERE),
     ;
 
     private final int number;
