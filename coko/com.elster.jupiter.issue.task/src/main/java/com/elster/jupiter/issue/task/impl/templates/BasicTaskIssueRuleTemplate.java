@@ -30,6 +30,8 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -43,12 +45,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 
 @Component(name = "com.elster.jupiter.issue.task.BasicTaskIssueRuleTemplate",
-        property = {"name=" + BasicTaskIssueRuleTemplate.NAME},
+        property = {"name=" + BasicTaskIssueRuleTemplate.NAME, "app=MDC"},
         service = CreationRuleTemplate.class,
         immediate = true)
 public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
@@ -62,6 +65,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     public static final String COLON_SEPARATOR = ":";
     private static final List<String> LOG_ON_SAME_ISSUE_POSSIBLE_VALUES = Arrays.asList("0:0", "1:0", "1:1");
     private static final Logger LOG = Logger.getLogger(BasicTaskIssueRuleTemplate.class.getName());
+    private static final String SUPPORTED_APPLICATION = "MultiSense";
 
     //for OSGI
     public BasicTaskIssueRuleTemplate() {
@@ -186,7 +190,8 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        TaskPropsInfo[] taskPossibleValues = taskService.getRecurrentTasks().stream().map(TaskPropsInfo::new).toArray(TaskPropsInfo[]::new);
+        //As per product management request - this type of tasks will be supported for Multisense only
+        TaskPropsInfo[] taskPossibleValues = taskService.getRecurrentTasks().stream().filter(task -> task.getApplication().equals(SUPPORTED_APPLICATION)).map(TaskPropsInfo::new).toArray(TaskPropsInfo[]::new);
         RecurrenceSelectionInfo[] logAndPriorityValues = LOG_ON_SAME_ISSUE_POSSIBLE_VALUES.stream()
                 .map(RecurrenceSelectionInfo::new)
                 .toArray(RecurrenceSelectionInfo[]::new);
@@ -249,9 +254,19 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
 
         private String getFormatedName() {
             List<Integer> values = parsed();
-            return values.get(0) == 0 ? format(LogOnSameIssueSelection.CREATE_NEW_ISSUE) :
+            String name = values.get(0) == 0 ? format(LogOnSameIssueSelection.CREATE_NEW_ISSUE) :
                     values.get(1) == 0 ? format(LogOnSameIssueSelection.LOG_ON_SAME_ISSUE_WITHOUT_PRIORITY_INCREASE) :
                             format(LogOnSameIssueSelection.LOG_ON_SAME_ISSUE_WITH_PRIORITY_INCREASE);
+            List<String> nameValues = Arrays.asList(name.split(COLON_SEPARATOR));
+            try {
+                JSONObject jsonObj = new JSONObject();
+                jsonObj.put("logOnSameIssueName", nameValues.get(0));
+                jsonObj.put("increaseUrgencyName", nameValues.get(1));
+                return jsonObj.toString();
+            } catch (JSONException e) {
+                LOG.log(Level.SEVERE, e.getMessage(), e);
+            }
+            return "";
         }
 
         private String format(LogOnSameIssueSelection selection) {
@@ -418,7 +433,16 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
 
         @Override
         public String getName() {
-            return recurrentTask.getApplication() + COLON_SEPARATOR + recurrentTask.getName() + COLON_SEPARATOR + recurrentTask.getDestination().getName();
+
+            try {
+                JSONObject jsonObj = new JSONObject();
+                jsonObj.put("destinationName", recurrentTask.getDestination().getName());
+                jsonObj.put("recurrentTaskName", recurrentTask.getName());
+                return jsonObj.toString();
+            } catch (JSONException e) {
+                LOG.log(Level.SEVERE, e.getMessage(), e);
+            }
+            return "";
         }
 
         @Override

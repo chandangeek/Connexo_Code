@@ -14,7 +14,6 @@ Ext.define('Itk.view.IssueFilter', {
         'Itk.store.IssueReasons',
         'Itk.store.IssueStatuses',
         'Itk.store.IssueWorkgroupAssignees',
-        'Itk.store.ClearStatus',
         'Itk.store.DueDate',
         'Itk.store.Devices'
     ],
@@ -73,17 +72,6 @@ Ext.define('Itk.view.IssueFilter', {
                 displayField: 'name',
                 valueField: 'id',
                 store: 'Itk.store.IssueStatuses'
-            },
-            {
-                type: 'combobox',
-                itemId: 'issue-cleared-filter',
-                dataIndex: 'cleared',
-                emptyText: Uni.I18n.translate('general.clear', 'ITK', 'Cleared'),
-                multiSelect: true,
-                displayField: 'name',
-                loadStore: false,
-                valueField: 'id',
-                store: 'Itk.store.ClearStatus'
             },
             {
                 type: 'combobox',

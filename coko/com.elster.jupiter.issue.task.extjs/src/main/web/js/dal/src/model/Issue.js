@@ -20,15 +20,6 @@ Ext.define('Itk.model.Issue', {
         {name: 'creationDate', type: 'date', dateFormat: 'time'},
         {name: 'status', type: 'auto'},
         {name: 'statusName', type: 'auto', mapping: 'status.name'},
-        {name: 'clearedStatus', type: 'auto'},
-        {
-            name: 'statusDetailCleared',
-            convert: function (value, rec) {
-                if (rec.get('clearedStatus').statusValue)
-                    return Ext.String.format(Uni.I18n.translate('device.issues.statusDetailCleared', 'ITK', 'has been cleared on {0}', Uni.DateTime.formatDateTimeShort(new Date(rec.get('clearedStatus').statusChangeDateTime))));
-                return '';
-            }
-        },
         {name: 'snoozedDateTime', type: 'auto'},
         {
             name: 'statusDetailSnoozed',
@@ -36,12 +27,6 @@ Ext.define('Itk.model.Issue', {
                 if (rec.get('status').id == 'status.snoozed')
                     return Ext.String.format(Uni.I18n.translate('device.issues.snoozeReasonDetail', 'ITK', 'has been snoozed until {0}', Uni.DateTime.formatDateTimeShort(new Date(rec.getData().snoozedDateTime))));
                 return '';
-            }
-        },
-        {
-            name: 'cleared',
-            convert: function (value, rec) {
-                return rec.get('clearedStatus').statusValue ? Uni.I18n.translate('device.issues.cleared.yes', 'ITK', 'Yes') : Uni.I18n.translate('device.issues.cleared.no', 'ITK', 'No');
             }
         },
         {name: 'userAssignee', type: 'auto'},

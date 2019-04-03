@@ -11,8 +11,8 @@ import com.elster.jupiter.issue.task.impl.templates.BasicTaskIssueRuleTemplate;
 
 public enum TranslationKeys implements TranslationKey {
     AQ_TASK_EVENT_SUBSC(ModuleConstants.AQ_TASK_EVENT_SUBSC, ModuleConstants.AQ_TASK_EVENT_DISPLAYNAME),
-    BASIC_TEMPLATE_TASK_NAME("TemplateBasicTaskIssueName", "Create issue when specific event occurs"),
-    BASIC_TEMPLATE_TASK_DESCRIPTION("TemplateBasicTaskIssueDescription", "Create issue when specific event occurs"),
+    BASIC_TEMPLATE_TASK_NAME("TemplateBasicTaskIssueName", "Create issue when specific task event occurs"),
+    BASIC_TEMPLATE_TASK_DESCRIPTION("TemplateBasicTaskIssueDescription", "Create issue when specific task event occurs"),
     TASK_FAILED_EVENT(ModuleConstants.TASK_FAILED_EVENT, "TaskFailedEvent"),
     PARAMETER_AUTO_RESOLUTION(BasicTaskIssueRuleTemplate.AUTORESOLUTION, "Auto resolution"),
     LOG_ON_SAME_ISSUE(BasicTaskIssueRuleTemplate.LOG_ON_SAME_ISSUE, "When recurring"),

@@ -114,6 +114,7 @@ Ext.define('Uni.property.controller.Registry', {
         RELATIVEPERIOD: 'Uni.property.view.property.RelativePeriod',
         RELATIVEPERIODWITHCOUNT: 'Uni.property.view.property.EventTime',
         SELECTIONGRID: 'Uni.property.view.property.SelectionGrid',
+        TASK: 'Uni.property.view.property.Task',
         TEXT: 'Uni.property.view.property.Text',
         TEXTAREA: 'Uni.property.view.property.Textarea',
         TEMPORALAMOUNT: 'Uni.property.view.property.Period',

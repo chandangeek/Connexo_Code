@@ -19,14 +19,12 @@ Ext.define('Itk.controller.Issues', {
         'Itk.store.IssueReasons',
         'Itk.store.IssueStatuses',
         'Itk.store.IssueWorkgroupAssignees',
-        'Itk.store.ClearStatus',
         'Itk.store.DueDate',
         'Itk.store.Devices',
         'Itk.store.IssueAssignees'
     ],
 
     models: [
-        'Itk.model.ClearStatus',
         'Itk.model.Device',
         'Itk.model.DueDate',
         'Itk.model.IssueAssignee',
