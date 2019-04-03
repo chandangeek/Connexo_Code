@@ -28,24 +28,23 @@ Ext.define('Mdc.property.SecuritySet', {
     renderedKeys: [],
 
     initComponent: function () {
-        var me = this;
 
         me.securitySetsStore = Ext.create('Ext.data.Store', {
-            model: 'Mdc.model.DeviceSecuritySetting',
-            proxy: {
-                type: 'rest',
-                urlTpl: '/api/ddr/devices/{deviceNameToSet}/securityproperties/hsm',
-                reader: {
-                    type: 'json',
-                    root: 'securityPropertySets'
-                },
+                    model: 'Mdc.model.DeviceSecuritySetting',
+                    proxy: {
+                        type: 'rest',
+                        urlTpl: '/api/ddr/devices/{deviceNameToSet}/securityproperties/hsm',
+                        reader: {
+                            type: 'json',
+                            root: 'securityPropertySets'
+                        },
             setUrl: function (deviceNameToSet) {
                 this.url = this.urlTpl.replace('{deviceNameToSet}', deviceNameToSet);
-                }
-            }
-        });
+                        }
+                    }
+                });
 
-        me.securityAccessorsStore = Ext.create('Ext.data.Store', {
+                me.securityAccessorsStore = Ext.create('Ext.data.Store', {
             model: 'Mdc.securityaccessors.model.DeviceSecurityKey',
             proxy: {
                 type: 'rest',
@@ -92,6 +91,7 @@ Ext.define('Mdc.property.SecuritySet', {
     },
 
     getEditCmp: function () {
+        var me = this;
         var me = this;
 
         me.layout = 'vbox';
