@@ -13,7 +13,7 @@ import java.time.Instant;
 
 public class TaskIssueInfo<T extends DeviceInfo> extends IssueInfo<T, TaskIssue> {
 
-    public IdWithNameInfo taskOccurrence;
+    public TaskOccurrenceInfo taskOccurrence;
 
     public TaskIssueInfo(TaskIssue issue, Class<T> deviceInfoClass){
         super(issue, deviceInfoClass);

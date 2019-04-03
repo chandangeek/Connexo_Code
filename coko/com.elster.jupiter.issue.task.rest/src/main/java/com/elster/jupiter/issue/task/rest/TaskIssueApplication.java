@@ -45,7 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.issue.task.rest", service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/itk", "app=SYS", "name=" + TaskIssueApplication.TASK_ISSUE_REST_COMPONENT})
+@Component(name = "com.elster.jupiter.issue.task.rest", service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/itk", "app=" + TaskIssueApplication.APP_KEY, "name=" + TaskIssueApplication.TASK_ISSUE_REST_COMPONENT})
 public class TaskIssueApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
     public static final String APP_KEY = "SYS";
     public static final String TASK_ISSUE_REST_COMPONENT = "ITR";
@@ -138,10 +138,6 @@ public class TaskIssueApplication extends Application implements MessageSeedProv
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
-    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
-    public void setLicense(License license) {
-    }
-
     @Override
     public Layer getLayer() {
         return Layer.REST;
@@ -182,9 +178,9 @@ public class TaskIssueApplication extends Application implements MessageSeedProv
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-            bind(thesaurus).to(Thesaurus.class);
             bind(messageService).to(MessageService.class);
             bind(appService).to(AppService.class);
             bind(jsonService).to(JsonService.class);
