@@ -66,6 +66,7 @@ public class DeviceAuthorizedActionMicroCheckUsageImpl {
                     .orElseGet(() -> {
                         LOG.warning("Unknown micro check with key = " + getKey());
                         return null;
+                        // TODO: CXO-9912 return dummy micro check that returns key instead of name & description, and always fails with the error "Couldn't find check with key {0}."
                     });
         }
         return this.microCheck;
