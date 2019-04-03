@@ -257,7 +257,7 @@ public class ComTaskResource {
         for (ComTaskUserAction action : ComTaskUserAction.values()) {
             infos.add(ComTaskPrivilegeInfo.from(action, privilegesMap.get(action), thesaurus));
         }
-        return PagedInfoList.fromPagedList("privileges", infos, queryParameters);
+        return PagedInfoList.fromPagedList("data", infos, queryParameters);
     }
 
 }

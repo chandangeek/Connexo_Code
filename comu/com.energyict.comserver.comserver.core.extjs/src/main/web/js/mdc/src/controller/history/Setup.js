@@ -2543,6 +2543,22 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 action: 'showCommunicationTaskCommandCategoriesAdd'
                                             }
                                         }
+                                    },
+                                    privileges: {
+                                        title: Uni.I18n.translate('comtask.message.privileges', 'MDC', 'Privileges'),
+                                        route: 'privileges',
+                                        privileges: Mdc.privileges.Communication.view,
+                                        controller: 'Mdc.controller.setup.Comtasks',
+                                        action: 'showCommunicationTaskPrivileges',
+                                        items: {
+                                            add: {
+                                                title: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                                route: 'add',
+                                                privileges: Mdc.privileges.Communication.admin,
+                                                controller: 'Mdc.controller.setup.Comtasks',
+                                                action: 'showCommunicationTaskPrivilegesAdd'
+                                            }
+                                        }
                                     }
                                 }
                             }

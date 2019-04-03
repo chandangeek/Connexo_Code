@@ -11,6 +11,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         'Mdc.store.CommunicationTasks',
         'Mdc.store.CommunicationTasksCategories',
         'Mdc.store.CommunicationTasksActions',
+        'Mdc.store.CommunicationTasksPrivileges',
         'Mdc.store.TimeUnits',
         'Mdc.store.LogbookTypes',
         'Mdc.store.LoadProfileTypes',
@@ -38,7 +39,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         'Mdc.view.setup.comtasks.ComtaskAddActionContainer',
         'Mdc.view.setup.comtasks.ComtaskAddCommandCategories',
         'Mdc.view.setup.comtasks.ComtaskCommandCategoryCombo',
-        'Mdc.view.setup.comtasks.ComtaskCommandCategoryActionCombo'
+        'Mdc.view.setup.comtasks.ComtaskCommandCategoryActionCombo',
+        'Mdc.view.setup.comtasks.ComtaskPrivileges',
+        'Mdc.view.setup.comtasks.ComtaskAddPrivileges'
     ],
     refs: [
         {ref: 'tasksView', selector: 'comtaskSetup'},
@@ -47,7 +50,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         {ref: 'comTaskActionsView', selector: '#mdc-comtask-actions-view'},
         {ref: 'comTaskAddActionsView', selector: '#mdc-comtask-addActions-view'},
         {ref: 'comTaskCommandCategoriesView', selector: '#mdc-comtask-commandCategories-view'},
+        {ref: 'comTaskPrivilegesView', selector: '#mdc-comtask-privileges-view'},
         {ref: 'comTaskAddCommandCategoriesView', selector: 'comtaskAddCommandCategories'},
+        {ref: 'comTaskAddPrivilegesView', selector: 'comtaskAddPrivileges'},
         {ref: 'tasksGrid', selector: 'comtaskGrid'},
         {ref: 'comtaskActionsGrid', selector: 'comtaskActionsGrid'},
         {ref: 'taskEdit', selector: 'comtaskCreateEdit'}
@@ -56,8 +61,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
     timeUnitsStore: null,
     categoriesStore: null,
     commandCategoriesStore: null,
+    privilegesStore: null,
     ACTIONS: 'commands',            // Don't ask me why
     COMMAND_CATEGORIES: 'messages', // idem
+    PRIVILEGES: 'privileges',
     ERROR_MESSAGE_FIELD_REQUIRED: Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
     goToTaskOverview: false,
     comTaskBeingEdited: null,
@@ -94,6 +101,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             '#mdc-comtask-commandCategories-grid actioncolumn': {
                 removeCommandCategory: this.onRemoveCommandCategory
             },
+            '#mdc-comtask-privileges-grid actioncolumn': {
+                removePrivilege: this.onRemovePrivilege
+            },
             'comtaskActionActionMenu': {
                 click: this.onActionActionMenuClick
             },
@@ -102,6 +112,12 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             },
             '#mdc-comtask-addCommandCategories-add': {
                 click: this.addCommandCategories
+            },
+            '#mdc-comtask-addPrivileges-cancel': {
+                click: this.forwardToPreviousPage
+            },
+            '#mdc-comtask-addPrivileges-add': {
+                click: this.addPrivileges
             }
         });
     },
@@ -415,6 +431,69 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         });
     },
 
+    showCommunicationTaskPrivileges: function () {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            comTaskId = router.arguments['id'],
+            taskModel = me.getModel('Mdc.model.CommunicationTask');
+
+        taskModel.load(comTaskId, {
+            success: function (communicationTask) {
+                var privilegesStore = new Ext.data.ArrayStore({
+                        fields: [
+                            {name: 'privilege'},
+                            {name: 'name'}
+                        ],
+                        sorters: [
+                            {
+                                property: 'name',
+                                direction: 'ASC'
+                            }
+                        ]
+                    }),
+                    taskName = communicationTask.get('name'),
+                    widget = Ext.widget('comTaskPrivileges', {
+                        router: router,
+                        communicationTask: communicationTask,
+                        privilegesStore: privilegesStore
+                    }),
+                    executeWhenStoreLoaded = function () {
+                        me.getApplication().fireEvent('loadCommunicationTask', communicationTask);
+                        widget.down('#mdc-comtask-privileges-sidemenu').setHeader(taskName);
+                        widget.down('#mdc-comtask-privileges-grid').maxHeight = undefined;
+                        me.getApplication().fireEvent('changecontentevent', widget);
+
+                        var onPrivilegesLoaded = function () {
+                            if (widget.down('#add-privilege-action') &&
+                            		privilegesStore.getCount() < me.privilegesStore.totalCount) {
+                                widget.down('#add-privilege-action').setDisabled(false);
+                            }
+                        };
+
+                        if (Ext.isEmpty(me.privilegesStore)) {
+                            me.privilegesStore = me.getStore('Mdc.store.CommunicationTaskPrivileges');
+                            me.privilegesStore.load({
+                                scope: me,
+                                callback: onPrivilegesLoaded
+                            });
+                        } else {
+                        	onPrivilegesLoaded();
+                        }
+
+                        // Show empty grid message or select 1st action:
+                        widget.down('#mdc-comtask-privileges-previewContainer').updateOnChange(privilegesStore.getCount() === 0);
+                    };
+
+                if (Ext.isEmpty(communicationTask.get(me.PRIVILEGES))) {
+                    executeWhenStoreLoaded();
+                } else {
+                	privilegesStore.on('datachanged', executeWhenStoreLoaded, me, {single: true});
+                	privilegesStore.add(communicationTask.get(me.PRIVILEGES));
+                }
+            }
+        });
+    },
+
     showComTaskActionDetails: function (grid, actionRecord) {
         var me = this,
             afterStoreLoad = function () {
@@ -662,6 +741,37 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         }
     },
 
+    addPrivileges: function () {
+        var me = this,
+            view = this.getComTaskAddPrivilegesView(),
+            currentComTaskRecord = view.communicationTask,
+            grid = view.down('#mdc-comtask-addPrivileges-grid'),
+            selection = grid.getView().getSelectionModel().getSelection();
+
+        if (selection.length > 0) {
+            view.setLoading(true);
+            for (i = 0; i < selection.length; i++) {
+                currentComTaskRecord.get(me.PRIVILEGES).push({
+                    privilege: selection[i].get('privilege'),
+                    name: selection[i].get('name')
+                });
+            }
+            currentComTaskRecord.save({
+                success: function () {
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translate('privilege.added.success.msg', 'MDC', 'Privilege added')
+                    );
+                    view.setLoading(false);
+                    me.forwardToPreviousPage();
+                },
+                callback: function () {
+                    view.setLoading(false);
+                    me.forwardToPreviousPage();
+                }
+            });
+        }
+    },
+
     onRemoveCommandCategory: function (grid, rowIndex, commandCategoryRecord) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -706,6 +816,52 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             }
         });
     },
+    
+    onRemovePrivilege: function (grid, rowIndex, privilegeRecord) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            view = me.getComTaskPrivilegesView(),
+            comTaskRecord = view.communicationTask,
+            backUrl = router.getRoute('administration/communicationtasks/view/privileges').buildUrl();
+        
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('privilege.remove.msg', 'MDC', 'Users with this privilege will no longer be able to execute the communication task'),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", privilegeRecord.get('name')),
+            scope: me,
+            fn: function (state) {
+                if (state === 'confirm') {
+                    var item2Remove = null;
+                    view.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
+                    Ext.Array.each(comTaskRecord.get(me.PRIVILEGES), function (message) {
+                        if (message.privilege === privilegeRecord.get('privilege')) {
+                            item2Remove = message;
+                            return false;
+                        }
+                    });
+                    if (item2Remove) {
+                        Ext.Array.remove(comTaskRecord.get(me.PRIVILEGES), item2Remove);
+                    }
+                    comTaskRecord.save({
+                        backUrl: backUrl,
+                        success: function () {
+                            window.location.href = backUrl;
+                            me.getApplication().fireEvent('acknowledge',
+                                Uni.I18n.translate('privilege.remove.success.msg', 'MDC', 'Privilege removed')
+                            );
+                            view.setLoading(false);
+                            grid.getStore().removeAt(rowIndex);
+                            view.down('pagingtoolbartop').updateInfo();
+                            view.down('#add-privilege-action').setDisabled(false);
+                        },
+                        callback: function () {
+                            view.setLoading(false);
+                        }
+                    });
+                }
+            }
+        });
+     },
+
 
     editAction: function (grid, rowIndex, actionRecord) {
         var me = this,
@@ -887,6 +1043,51 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             }
         });
     },
+    
+    showCommunicationTaskPrivilegesAdd: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            widget,
+            taskModel = me.getModel('Mdc.model.CommunicationTask'),
+            comTaskId = router.arguments['id'],
+            currentCommunicationTask = null,
+            filter = function (privilegeRecord) {
+                var match = false;
+                Ext.Array.each(currentCommunicationTask.get(me.PRIVILEGES), function (privilege) {
+                    match = match || (privilege.privilege === privilegeRecord.get('privilege'));
+                    if (match) return false;
+                });
+                return !match;
+            },
+            onPrivilegesLoaded = function () {
+                me.privilegesStore.removeFilter(); // remove all previous filters
+                me.privilegesStore.filterBy(filter, me); // apply the one desired
+                widget = Ext.widget('comtaskAddPrivileges', {
+                    router: router,
+                    cancelRoute: 'administration/communicationtasks/view/privileges',
+                    communicationTask: currentCommunicationTask,
+                    store: me.privilegesStore
+                });
+                me.getApplication().fireEvent('loadCommunicationTask', currentCommunicationTask);
+                me.getApplication().fireEvent('changecontentevent', widget);
+            };
+
+        taskModel.load(comTaskId, {
+            success: function (communicationTask) {
+                currentCommunicationTask = communicationTask;
+                if (Ext.isEmpty(me.privilegesStore)) {
+                    me.privilegesStore = me.getStore('Mdc.store.CommunicationTaskPrivileges');
+                    me.privilegesStore.load({
+                        scope: me,
+                        callback: onPrivilegesLoaded
+                    });
+                } else {
+                	onPrivilegesLoaded();
+                }
+            }
+        });
+    },
+
 
     createEdit: function (btn) {
         var me = this,

@@ -25,6 +25,11 @@ Ext.define('Mdc.view.setup.comtasks.SideMenu', {
                 text: Uni.I18n.translate('comtask.message.categories', 'MDC', 'Command categories'),
                 itemId: 'mdc-comtask-sidemenu-commandCategoriesLink',
                 href: me.router.getRoute('administration/communicationtasks/view/commandcategories').buildUrl()
+            },
+            {
+                text: Uni.I18n.translate('comtask.privileges', 'MDC', 'Privileges'),
+                itemId: 'mdc-comtask-sidemenu-privilegesLink',
+                href: me.router.getRoute('administration/communicationtasks/view/privileges').buildUrl()
             }
         ];
         me.callParent(this);
