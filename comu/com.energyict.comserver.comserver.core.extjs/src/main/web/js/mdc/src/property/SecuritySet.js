@@ -29,6 +29,8 @@ Ext.define('Mdc.property.SecuritySet', {
 
     initComponent: function () {
 
+        var me = this;
+
         me.securitySetsStore = Ext.create('Ext.data.Store', {
                     model: 'Mdc.model.DeviceSecuritySetting',
                     proxy: {
@@ -92,7 +94,6 @@ Ext.define('Mdc.property.SecuritySet', {
 
     getEditCmp: function () {
         var me = this;
-        var me = this;
 
         me.layout = 'vbox';
 
@@ -131,11 +132,10 @@ Ext.define('Mdc.property.SecuritySet', {
                                     }
                                 },
                                 columns: [
-                                {
-
-                                    dataIndex: 'name',
-                                    flex: 1
-                                }
+                                    {
+                                        dataIndex: 'name',
+                                        flex: 1
+                                    }
                                 ],
 
                                 dockedItems: [
@@ -198,11 +198,12 @@ Ext.define('Mdc.property.SecuritySet', {
         arrayToRender = selectedAccessors;
 
         var propertiesToRender = [];
+
+        /* Save filed values for acesssors before we redraw them */
+        var fieldValues = formForAccessors.getFieldValues();
         formForAccessors.removeAll();
 
         me.securityAccessorsStore.each(function (accessor) {
-            console.log("ACCESSSOR=",accessor);
-            console.log("TYPE = ",accessor.get('keyType').name);
             var nameOfAccessor = accessor.get('name');
             var properties = accessor.currentProperties();
             var accessorId = accessor.get('id');
@@ -215,9 +216,24 @@ Ext.define('Mdc.property.SecuritySet', {
 
                 if (propertyKey !== "label"){
                     var keyToset = nameOfAccessor;
+                    var savedValue = fieldValues.properties[nameOfAccessor]
                     property.set('key', keyToset);
-                    property.data.value = defaultServiceKeyValue;
+
+                    /* If it firs load of this form fill all accessors fields with predefined default values.
+                    It is done according to design requirement. If we changed selected sets fields will be filled with
+                    saved values */
+
+                    if (savedValue == undefined)
+                    {
+                        property.data.value = defaultServiceKeyValue;
+                    } else {
+                        property.data.value = savedValue;
+                    }
+                    /*Set value to which key will be set when restore to default button is pressed */
                     property.data['default'] = defaultServiceKeyValue;
+
+
+
 
                     var type = property.getType();
                     fieldType = registry.getProperty(type);
