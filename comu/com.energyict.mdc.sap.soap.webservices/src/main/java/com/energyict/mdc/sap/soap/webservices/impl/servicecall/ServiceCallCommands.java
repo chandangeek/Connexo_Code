@@ -16,6 +16,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -210,9 +211,10 @@ public class ServiceCallCommands {
         childDomainExtension.setReadingReasonCode(message.getReadingReasonCode());
         childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
 
-        parent.newChildCall(serviceCallType)
-                .extendedWith(childDomainExtension)
-                .create();
+        ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
+                .extendedWith(childDomainExtension);
+        sapCustomPropertySets.getDevice(new BigDecimal(message.getDeviceId())).ifPresent(serviceCallBuilder::targetObject);
+        serviceCallBuilder.create();
     }
 
     private void createServiceCall(ServiceCallType serviceCallType, StatusChangeRequestCreateMessage message) {
