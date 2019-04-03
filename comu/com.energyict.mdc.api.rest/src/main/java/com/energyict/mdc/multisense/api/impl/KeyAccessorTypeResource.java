@@ -3,6 +3,8 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -43,7 +45,8 @@ public class KeyAccessorTypeResource {
     private final DeviceService deviceService;
 
     @Inject
-    public KeyAccessorTypeResource(DeviceService deviceService, ExceptionFactory exceptionFactory, KeyAccessorTypeInfoFactory keyAccessorTypeInfoFactory) {
+    public KeyAccessorTypeResource(DeviceService deviceService, ExceptionFactory exceptionFactory,
+                                   KeyAccessorTypeInfoFactory keyAccessorTypeInfoFactory) {
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
         this.keyAccessorTypeInfoFactory = keyAccessorTypeInfoFactory;
@@ -233,6 +236,11 @@ public class KeyAccessorTypeResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSORTYPE_FOR_DEVICE));
     }
 
+    private SecurityAccessor<?> getSecurityAccessorOrThrowException(String name, Device device) {
+        return device.getSecurityAccessor(getSecurityAccessorTypeOrThrowException(name, device.getDeviceType()))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE));
+    }
+
     private SecurityAccessor<?> getSecurityAccessorOrThrowException(long id, Device device) {
         return device.getSecurityAccessor(getSecurityAccessorTypeOrThrowException(id, device.getDeviceType()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE));
@@ -260,6 +268,13 @@ public class KeyAccessorTypeResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return keyAccessorTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList());
+    }
+
+    private PropertyInfo createPropertyInfo(String key, String value) {
+        PropertyInfo propertyInfo = new PropertyInfo();
+        propertyInfo.key = key;
+        propertyInfo.propertyValueInfo = new PropertyValueInfo<>(value, null);
+        return propertyInfo;
     }
 }
 

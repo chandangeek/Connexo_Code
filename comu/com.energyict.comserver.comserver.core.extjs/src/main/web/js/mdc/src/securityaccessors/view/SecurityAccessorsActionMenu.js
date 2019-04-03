@@ -47,7 +47,17 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 action: 'activatePassiveCertificate',
                 itemId: 'menu-sa-activate-passive-certificate',
                 section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.setDefaultServiceKey', 'MDC', 'Set default service key'),
+                privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
+                hidden: true,
+                action: 'setDefaultKeyValue',
+                itemId: 'menu-sa-set-default-value',
+                section: this.SECTION_EDIT
             }
+
+
         ];
         this.callParent(arguments);
     },
@@ -61,5 +71,8 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
         this.down('#menu-sa-change-privileges')
         &&  this.down('#menu-sa-change-privileges')
                 .setVisible(!this.deviceTypeId && record.get('isKey'));
+        this.down('#menu-sa-set-default-value')
+                &&  this.down('#menu-sa-set-default-value')
+                        .setVisible(this.deviceTypeId && record.get('keyType').name == 'HSM Key');
     }
 });

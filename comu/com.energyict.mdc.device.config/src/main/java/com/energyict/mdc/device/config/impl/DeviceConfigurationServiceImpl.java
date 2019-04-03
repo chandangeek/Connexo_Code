@@ -7,6 +7,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
@@ -173,6 +174,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile CalendarService calendarService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile DataVaultService dataVaultService;
     private volatile SecurityManagementService securityManagementService;
 
     private final Set<Privilege> privileges = new HashSet<>();
@@ -201,6 +203,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                                           DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                           CalendarService calendarService,
                                           CustomPropertySetService customPropertySetService,
+                                          DataVaultService dataVaultService,
                                           UpgradeService upgradeService,
                                           DeviceMessageSpecificationService deviceMessageSpecificationService,
                                           SecurityManagementService securityManagementService) {
@@ -226,6 +229,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setCalendarService(calendarService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.setCustomPropertySetService(customPropertySetService);
+        this.setDataVaultService(dataVaultService);
         this.setSecurityManagementService(securityManagementService);
         setUpgradeService(upgradeService);
         this.activate();
@@ -682,6 +686,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(EstimationService.class).toInstance(estimationService);
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
             }
         };
@@ -781,6 +786,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setDataVaultService(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
     }
 
     @Reference

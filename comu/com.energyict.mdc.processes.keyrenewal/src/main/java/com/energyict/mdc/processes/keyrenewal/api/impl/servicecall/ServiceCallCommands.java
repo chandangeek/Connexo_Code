@@ -13,6 +13,7 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.processes.keyrenewal.api.impl.Command;
 import com.energyict.mdc.processes.keyrenewal.api.impl.DeviceCommandInfo;
 import com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds;
 
@@ -103,7 +104,7 @@ public class ServiceCallCommands {
     }
 
     private ServiceCallTypes getServiceCallTypesFor(DeviceCommandInfo deviceCommandInfo) {
-        if (deviceCommandInfo.command.equals("RENEW_KEY")) {
+        if (deviceCommandInfo.command == Command.RENEW_KEY) {
             return ServiceCallTypes.RENEW_KEY;
         }
         return ServiceCallTypes.TEST_COMMUNICATION;

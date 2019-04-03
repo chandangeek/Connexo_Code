@@ -4,7 +4,9 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.hsm.model.Message;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -17,6 +19,7 @@ import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.core.Response;
@@ -26,9 +29,10 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -57,8 +61,10 @@ public class SecurityAccessorResourceTest extends MultisensePublicApiJerseyTest 
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         device = mockDevice("XAS", "10101010101011", deviceConfiguration, 1005L);
 
-        SecurityAccessor securityAccessor1 = mock(SecurityAccessor.class);
-        SecurityAccessor securityAccessor2 = mock(SecurityAccessor.class);
+        PropertySpec propertySpec1 = mockStringPropertySpec("key", "123");
+        PropertySpec propertySpec2 = mockStringPropertySpec("label", "asd");
+        SecurityAccessor securityAccessor1 = mockSecurityAccessor("sa1", propertySpec1, propertySpec2);
+        SecurityAccessor securityAccessor2 = mockSecurityAccessor("sa2", propertySpec1);
         when(device.getSecurityAccessors()).thenReturn(Arrays.asList(securityAccessor1, securityAccessor2));
         SecurityAccessorType securityAccessorType1 = sps1.getConfigurationSecurityProperties().get(0).getSecurityAccessorType();
         SecurityAccessorType securityAccessorType2 = sps2.getConfigurationSecurityProperties().get(0).getSecurityAccessorType();
@@ -66,6 +72,13 @@ public class SecurityAccessorResourceTest extends MultisensePublicApiJerseyTest 
         when(securityAccessor2.getDevice()).thenReturn(device);
         when(securityAccessor1.getKeyAccessorType()).thenReturn(securityAccessorType1);
         when(securityAccessor2.getKeyAccessorType()).thenReturn(securityAccessorType2);
+
+        Message message = new Message("test");
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty("key", "123");
+        typedProperties.setProperty("label", "asd");
+        when(securityAccessorInfoFactory.getPropertiesActualValue(Mockito.any(SecurityAccessor.class))).thenReturn(typedProperties);
+        when(hsmEnergyService.prepareServiceKey(anyString(), anyString(), anyString())).thenReturn(message);
     }
 
 
@@ -87,6 +100,18 @@ public class SecurityAccessorResourceTest extends MultisensePublicApiJerseyTest 
         assertThat(model.<Integer>get("data[1].keyAccessorType.id")).isEqualTo(123);
         assertThat(model.<String>get("data[1].keyAccessorType.link.params.rel")).isEqualTo(Relation.REF_RELATION.rel());
         assertThat(model.<String>get("data[1].keyAccessorType.link.href")).isEqualTo("http://localhost:9998/devicetypes/1/keyAccessorTypes/Password");
+    }
+
+    @Test
+    public void testPrepareDataForServiceKeyInjection() throws Exception {
+        Response response = target("/devices/XAS/keyAccessors/Password/prepareServiceKeyInjection/AK").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testWrapServiceKeyValue() throws Exception {
+        Response response = target("/devices/XAS/keyAccessors/Password/wrapServiceKeyValue/ABCDABCDABCDABCDABCDABCDABCDABCD").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test

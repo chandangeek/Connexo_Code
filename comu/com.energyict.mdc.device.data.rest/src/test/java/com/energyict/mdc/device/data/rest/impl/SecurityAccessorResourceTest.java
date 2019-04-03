@@ -99,6 +99,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         deviceType = mock(DeviceType.class);
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(symmetricKeyAccessorType, certificateKeyAccessorType));
+        when(deviceType.getDefaultKeyOfSecurityAccessorType(any(SecurityAccessorType.class))).thenReturn(Optional.of("ABCDABCD"));
         device = mock(Device.class);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getSecurityAccessors()).thenReturn(Arrays.asList(clientCertificateAccessor, symmetrickeyAccessor));

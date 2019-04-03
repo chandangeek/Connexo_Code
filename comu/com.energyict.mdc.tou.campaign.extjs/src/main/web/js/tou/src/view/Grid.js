@@ -95,10 +95,10 @@ Ext.define('Tou.view.Grid', {
                         case 'Pending':
                             iconCls = 'icon-forward2';
                             break;
-                        case 'Configuration Error':
+                        case 'Configuration error':
                             iconCls = 'icon-notification';
                             break;
-                        case 'Canceled':
+                        case 'Cancelled':
                             iconCls = 'icon-blocked';
                             break;
                         }
