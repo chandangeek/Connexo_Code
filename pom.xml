@@ -40,7 +40,7 @@
 		<include.source>true</include.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<baseline>0.0.1-Nessus</baseline>
-		<commercial.version>10.4.6</commercial.version>
+		<commercial.version>10.6.0</commercial.version>
 	</properties>
 
 	<!-- Repositories specification. -->

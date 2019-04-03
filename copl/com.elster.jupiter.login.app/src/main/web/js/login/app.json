@@ -1,8 +1,8 @@
 {
   "id" : "ebff8bda-3bef-45bc-a959-5840bdd788a9",
+  "local" : false,
   "name" : "com.elster.jupiter.login.app",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.4.6"
-  ],
-  "local" : false
+    "com.elster.jupiter.unifyingjs@10.6.0"
+  ]
 }

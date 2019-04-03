@@ -1,14 +1,14 @@
 {
-  "name" : "com.elster.jupiter.cps.extjs",
-  "type" : "code",
+  "compatVersion" : "10.6.0",
   "creator" : "Elster Jupiter Project",
-  "summary" : "Short summary",
   "detailedDescription" : "Long description of package",
-  "requires" : [
-    "com.elster.jupiter.unifyingjs@10.4.6"
-  ],
-  "version" : "10.4.6",
-  "compatVersion" : "10.4.6",
   "format" : "1",
-  "local" : true
+  "local" : true,
+  "name" : "com.elster.jupiter.cps.extjs",
+  "requires" : [
+    "com.elster.jupiter.unifyingjs@10.6.0"
+  ],
+  "summary" : "Short summary",
+  "type" : "code",
+  "version" : "10.6.0"
 }

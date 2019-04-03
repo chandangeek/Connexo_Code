@@ -1,12 +1,12 @@
 {
-  "name" : "com.elster.jupiter.loaderjs",
-  "type" : "code",
+  "compatVersion" : "10.6.0",
   "creator" : "Elster Jupiter Project",
-  "summary" : "Short summary",
   "detailedDescription" : "Long description of package",
-  "requires" : [ ],
-  "version" : "10.4.6",
-  "compatVersion" : "10.4.6",
   "format" : "1",
-  "local" : true
+  "local" : true,
+  "name" : "com.elster.jupiter.loaderjs",
+  "requires" : [ ],
+  "summary" : "Short summary",
+  "type" : "code",
+  "version" : "10.6.0"
 }

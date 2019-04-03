@@ -1,13 +1,13 @@
 {
-  "name" : "uni-theme-skyline",
-  "type" : "theme",
+  "compatVersion" : "10.6.0",
   "creator" : "Elster Jupiter Project",
-  "summary" : "Theme for the Jupiter project called Skyline",
   "detailedDescription" : "Long description of package",
-  "requires" : [ ],
-  "version" : "10.4.6",
-  "compatVersion" : "10.4.6",
-  "format" : "1",
   "extend" : "ext-theme-neptune",
-  "local" : true
+  "format" : "1",
+  "local" : true,
+  "name" : "uni-theme-skyline",
+  "requires" : [ ],
+  "summary" : "Theme for the Jupiter project called Skyline",
+  "type" : "theme",
+  "version" : "10.6.0"
 }

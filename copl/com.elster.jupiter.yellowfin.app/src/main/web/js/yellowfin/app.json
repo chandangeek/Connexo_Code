@@ -1,9 +1,9 @@
 {
   "id" : "29c462c9-436e-4d93-8f74-038373138820",
+  "local" : false,
   "name" : "com.elster.jupiter.yellowfin.app",
   "requires" : [
-    "com.elster.jupiter.loaderjs@10.4.6",
-    "com.elster.jupiter.unifyingjs@10.4.6"
-  ],
-  "local" : false
+    "com.elster.jupiter.loaderjs@10.6.0",
+    "com.elster.jupiter.unifyingjs@10.6.0"
+  ]
 }
