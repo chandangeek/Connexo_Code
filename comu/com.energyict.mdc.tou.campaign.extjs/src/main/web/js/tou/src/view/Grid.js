@@ -153,7 +153,7 @@ Ext.define('Tou.view.Grid', {
                 itemId: 'tou-campaigns-grid-paging-toolbar-bottom',
                 dock: 'bottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbarbottom.itemsPerPage', 'TOU', 'ToU campaigns per page')
+                itemsPerPageMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbarbottom.itemsPerPage', 'TOU', 'ToU calendar campaigns per page')
             }
         ];
 

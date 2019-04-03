@@ -13,11 +13,11 @@ Ext.define('Tou.view.SideMenu', {
         var me = this;
 
         me.menuItems = [{
-                text: Uni.I18n.translate('tou.campaigns.details', 'TOU', 'Details'),
+                text: Uni.I18n.translate('general.details', 'TOU', 'Details'),
                 itemId: 'tou-campaign-link',
                 href: me.router.getRoute('workspace/toucampaigns/toucampaign').buildUrl()
             }, {
-                text: Uni.I18n.translate('tou.campaigns.devices', 'TOU', 'Devices'),
+                text: Uni.I18n.translate('general.devices', 'TOU', 'Devices'),
                 itemId: 'tou-campaign-devices-link',
                 href: me.router.getRoute('workspace/toucampaigns/toucampaign/devices').buildUrl()
             }
