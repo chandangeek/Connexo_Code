@@ -1,15 +1,15 @@
 {
-    "name": "com.elster.jupiter.estimation.extjs",
-    "type": "code",
-    "creator": "Elster Jupiter Project",
-    "summary": "Short summary",
-    "detailedDescription": "Long description of package",
-    "version": "1.5.1",
-    "compatVersion": "1.5.1",
-    "format": "1",
-    "local": true,
-    "requires": [
-        "com.elster.jupiter.unifyingjs",
-        "com.elster.jupiter.appserver.extjs"
-    ]
+  "name" : "com.elster.jupiter.estimation.extjs",
+  "type" : "code",
+  "creator" : "Elster Jupiter Project",
+  "summary" : "Short summary",
+  "detailedDescription" : "Long description of package",
+  "requires" : [
+    "com.elster.jupiter.unifyingjs@10.4.6",
+    "com.elster.jupiter.appserver.extjs@10.4.6"
+  ],
+  "version" : "10.4.6",
+  "compatVersion" : "10.4.6",
+  "format" : "1",
+  "local" : true
 }

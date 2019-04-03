@@ -1,17 +1,17 @@
 {
-    "name": "com.energyict.mdc.issue.datavalidation.extjs",
-    "type": "code",
-    "creator": "Elster Jupiter Project",
-    "summary": "Short summary",
-    "detailedDescription": "Long description of package",
-    "version": "1.5.1",
-    "compatVersion": "1.5.1",
-      "format": "1",
-      "local": true,
-      "requires": [
-          "com.elster.jupiter.unifyingjs",
-          "com.elster.jupiter.issue.extjs",
-          "com.energyict.mdc.device.data.validation.extjs",
-          "com.energyict.comserver.comserver.core.extjs"
-      ]
+  "name" : "com.energyict.mdc.issue.datavalidation.extjs",
+  "type" : "code",
+  "creator" : "Elster Jupiter Project",
+  "summary" : "Short summary",
+  "detailedDescription" : "Long description of package",
+  "requires" : [
+    "com.elster.jupiter.unifyingjs@10.4.6",
+    "com.elster.jupiter.issue.extjs@10.4.6",
+    "com.energyict.mdc.device.data.validation.extjs@10.4.6",
+    "com.energyict.comserver.comserver.core.extjs@10.4.6"
+  ],
+  "version" : "10.4.6",
+  "compatVersion" : "10.4.6",
+  "format" : "1",
+  "local" : true
 }

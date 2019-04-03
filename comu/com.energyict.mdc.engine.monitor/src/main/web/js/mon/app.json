@@ -1,7 +1,6 @@
 {
-    "name": "com.energyict.mdc.engine.monitor.app",
-
-    "requires": [],
-
-    "id": "28ac7d9e-893c-40c8-b5d4-3b093bd29c3f"
+  "id" : "28ac7d9e-893c-40c8-b5d4-3b093bd29c3f",
+  "name" : "com.energyict.mdc.engine.monitor.app",
+  "requires" : [ ],
+  "local" : false
 }
