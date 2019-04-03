@@ -26,6 +26,7 @@ import com.elster.jupiter.util.json.JsonService;
 import javax.inject.Inject;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -64,52 +65,51 @@ public class MasterDataLinkageConfigMasterServiceCallHandler extends
 
     private List<FailedLinkageOperation> getFailedLinkages(ServiceCall serviceCall) {
         return serviceCall.findChildren().stream().filter(child -> child.getState().equals(DefaultState.FAILED))
-                .map(child -> {
-                    MasterDataLinkageConfigDomainExtension extension = child
-                            .getExtension(MasterDataLinkageConfigDomainExtension.class).get();
-                    Meter meter = findMeter(extension);
-                    UsagePoint usagePoint = findUsagePoint(extension);
-                    FailedLinkageOperation failedLinkageOperation = new FailedLinkageOperation();
-                    failedLinkageOperation.setErrorCode(extension.getErrorCode());
-                    failedLinkageOperation.setErrorMessage(extension.getErrorMessage());
-                    failedLinkageOperation.setMeterMrid(meter.getMRID());
-                    failedLinkageOperation.setMeterName(meter.getName());
-                    failedLinkageOperation.setUsagePointMrid(usagePoint.getMRID());
-                    failedLinkageOperation.setUsagePointName(usagePoint.getName());
-                    return failedLinkageOperation;
-                }).collect(Collectors.toList());
+                .map(child -> createLinkageOperation(child, DefaultState.FAILED)).collect(Collectors.toList());
     }
 
     private List<LinkageOperation> getSuccessfulLinkages(ServiceCall serviceCall) {
         return serviceCall.findChildren().stream().filter(child -> child.getState().equals(DefaultState.SUCCESSFUL))
-                .map(child -> {
-                    MasterDataLinkageConfigDomainExtension extension = child
-                            .getExtension(MasterDataLinkageConfigDomainExtension.class).get();
-                    Meter meter = findMeter(extension);
-                    UsagePoint usagePoint = findUsagePoint(extension);
-                    LinkageOperation linkageOperation = new FailedLinkageOperation();
-                    linkageOperation.setMeterMrid(meter.getMRID());
-                    linkageOperation.setMeterName(meter.getName());
-                    linkageOperation.setUsagePointMrid(usagePoint.getMRID());
-                    linkageOperation.setUsagePointName(usagePoint.getName());
-                    return linkageOperation;
-                }).collect(Collectors.toList());
+                .map(child -> createLinkageOperation(child, DefaultState.SUCCESSFUL)).collect(Collectors.toList());
     }
 
-    private Meter findMeter(MasterDataLinkageConfigDomainExtension extension) {
+    private Optional<Meter> findMeter(MasterDataLinkageConfigDomainExtension extension) {
         MeterInfo meterInfo = jsonService.deserialize(extension.getMeter(), MeterInfo.class);
         if (meterInfo.getMrid() != null) {
-            return meteringService.findMeterByMRID(meterInfo.getMrid()).get();
+            return meteringService.findMeterByMRID(meterInfo.getMrid());
         }
-        return meteringService.findMeterByName(meterInfo.getName()).get();
+        return meteringService.findMeterByName(meterInfo.getName());
     }
 
-    private UsagePoint findUsagePoint(MasterDataLinkageConfigDomainExtension extension) {
+    private Optional<UsagePoint> findUsagePoint(MasterDataLinkageConfigDomainExtension extension) {
         UsagePointInfo usagePointInfo = jsonService.deserialize(extension.getUsagePoint(), UsagePointInfo.class);
         if (usagePointInfo.getMrid() != null) {
-            return meteringService.findUsagePointByMRID(usagePointInfo.getMrid()).get();
+            return meteringService.findUsagePointByMRID(usagePointInfo.getMrid());
         }
-        return meteringService.findUsagePointByName(usagePointInfo.getName()).get();
+        return meteringService.findUsagePointByName(usagePointInfo.getName());
+    }
+
+    private FailedLinkageOperation createLinkageOperation(ServiceCall child, DefaultState state){
+
+        MasterDataLinkageConfigDomainExtension extension = child.getExtension(MasterDataLinkageConfigDomainExtension.class).get();
+        Optional<Meter> meter = findMeter(extension);
+        Optional<UsagePoint> usagePoint = findUsagePoint(extension);
+        FailedLinkageOperation linkageOperation = new FailedLinkageOperation();
+
+        if(state.equals(DefaultState.FAILED)){
+            linkageOperation.setErrorMessage(extension.getErrorMessage());
+            linkageOperation.setErrorCode(extension.getErrorCode());
+        }
+        if(meter.isPresent()){
+            linkageOperation.setMeterMrid(meter.get().getMRID());
+            linkageOperation.setMeterName(meter.get().getName());
+        }
+        if(usagePoint.isPresent()){
+            linkageOperation.setUsagePointMrid(usagePoint.get().getMRID());
+            linkageOperation.setUsagePointName(usagePoint.get().getName());
+        }
+
+        return linkageOperation;
     }
 
 }

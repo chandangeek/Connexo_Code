@@ -58,10 +58,10 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
     private static final BigDecimal NUMBER_OF_SUCCESSFUL_CALLS = BigDecimal.valueOf(2);
     private static final BigDecimal NUMBER_OF_FAILED_CALLS = BigDecimal.valueOf(4);
 
-    private static final String METER_MRID = "my meter mrid";
-    private static final String METER_NAME = "my meter name";
-    private static final String USAGE_POINT_MRID = "my usage point mrid";
-    private static final String USAGE_POINT_NAME = "my usage point name";
+    private static String METER_MRID = "my meter mrid";
+    private static String METER_NAME = "my meter name";
+    private static String USAGE_POINT_MRID = "my usage point mrid";
+    private static String USAGE_POINT_NAME = "my usage point name";
 
     private static final String ERROR_CODE = "my error code";
 
@@ -134,13 +134,8 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
         when(jsonService.deserialize(anyString(), eq(MeterInfo.class))).thenReturn(meterInfo);
 
         when(serviceCall.findChildren()).thenReturn(finder);
-        doAnswer(// we cannot use thenReturn because the call happens more than once and the stream is closed after first call
-                new Answer<Stream<ServiceCall>>() {
-                    @Override
-                    public Stream<ServiceCall> answer(InvocationOnMock invocation) throws Throwable {
-                        return Stream.of(childServiceCallSuccess, childServiceCallFailure);
-                    }
-                }).when(finder).stream();
+        // we cannot use thenReturn because the call happens more than once and the stream is closed after first call
+        doAnswer((Answer<Stream<ServiceCall>>) invocation -> Stream.of(childServiceCallSuccess, childServiceCallFailure)).when(finder).stream();
 
         when(childServiceCallSuccess.getExtension(MasterDataLinkageConfigDomainExtension.class))
                 .thenReturn(Optional.of(masterDataLinkageConfigDomainExtension));
@@ -249,6 +244,41 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
 
     @Test
     public void testTransitionToFailedShouldSendResponse() {
+        doTestTransitionToEndStateShouldSendResponse(DefaultState.FAILED);
+    }
+
+    @Test
+    public void testTransitionToFailedShouldSendResponseNoMeterFound() {
+        when(meterService.findMeterByName(anyString())).thenReturn(Optional.empty());
+        when(meter.getMRID()).thenReturn(null);
+        when(meter.getName()).thenReturn(null);
+        METER_MRID = null;
+        METER_NAME = null;
+        doTestTransitionToEndStateShouldSendResponse(DefaultState.FAILED);
+    }
+
+    @Test
+    public void testTransitionToFailedShouldSendResponseNoUsagePointFound(){
+        when(meterService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
+        when(usagePoint.getMRID()).thenReturn(null);
+        when(usagePoint.getName()).thenReturn(null);
+        USAGE_POINT_MRID = null;
+        USAGE_POINT_NAME = null;
+        doTestTransitionToEndStateShouldSendResponse(DefaultState.FAILED);
+    }
+
+    @Test
+    public void testTransitionToFailedShouldSendResponseNoUsagePointAndMeterFound(){
+        when(meterService.findMeterByName(anyString())).thenReturn(Optional.empty());
+        when(meterService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
+        when(meter.getMRID()).thenReturn(null);
+        when(meter.getName()).thenReturn(null);
+        when(usagePoint.getMRID()).thenReturn(null);
+        when(usagePoint.getName()).thenReturn(null);
+        METER_MRID = null;
+        METER_NAME = null;
+        USAGE_POINT_MRID = null;
+        USAGE_POINT_NAME = null;
         doTestTransitionToEndStateShouldSendResponse(DefaultState.FAILED);
     }
 
