@@ -15,7 +15,7 @@ public enum TranslationKeys implements TranslationKey {
     BASIC_TEMPLATE_TASK_DESCRIPTION("TemplateBasicTaskIssueDescription", "Create issue when specific event occurs"),
     TASK_FAILED_EVENT(ModuleConstants.TASK_FAILED_EVENT, "TaskFailedEvent"),
     PARAMETER_AUTO_RESOLUTION(BasicTaskIssueRuleTemplate.AUTORESOLUTION, "Auto resolution"),
-    PARAMETER_RADIO_GROUP(BasicTaskIssueRuleTemplate.URGENCYPROPS, "When recurring"),
+    LOG_ON_SAME_ISSUE(BasicTaskIssueRuleTemplate.LOG_ON_SAME_ISSUE, "When recurring"),
     PARAMETER_DO_NOTHING("WhenRecurringDoNothing", "Do nothing"),
     PARAMETER_INCREASE_URGENCY("WhenRecurringIncreaseUrgency", "Increase urgency (+1)"),
     ISSUE_TYPE_TASK("IssueTypeTask", "Task"),

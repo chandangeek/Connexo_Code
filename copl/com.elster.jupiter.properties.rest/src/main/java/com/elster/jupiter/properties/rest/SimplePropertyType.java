@@ -54,7 +54,8 @@ public enum SimplePropertyType implements PropertyType {
     NONE_OR_TIMEDURATION(NoneOrTimeDurationValueFactory.class),
     INTEGER(Integer.class),
     LIFECYCLETRANSITION(ListValueFactory.class),
-    TASK(ListValueFactory.class);
+    TASK(ListValueFactory.class),
+    RECURRENCE(HasIdAndName.class);
 
 
     private Class typeClass;

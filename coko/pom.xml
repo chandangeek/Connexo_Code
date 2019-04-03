@@ -165,6 +165,12 @@
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
+				<artifactId>issue.task.extjs</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
 				<artifactId>kore.api.rest</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
@@ -403,6 +409,7 @@
 				<module>com.elster.jupiter.issue.rest</module>
 				<module>com.elster.jupiter.issue.task</module>
 				<module>com.elster.jupiter.issue.task.rest</module>
+				<module>com.elster.jupiter.issue.task.extjs</module>
 				<module>com.elster.jupiter.kore.api.rest</module>
 				<module>com.elster.jupiter.kpi</module>
 				<module>com.elster.jupiter.metering</module>

@@ -274,9 +274,6 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         } else if (template.getName().equals(TASK_ISSUE_RULE_TEMPLATE)){
             List<HasIdAndName> recurrentTasks = new ArrayList<>();
             properties.put(
-                    BasicTaskIssueRuleTemplate.URGENCYPROPS,
-                    getIssueUrgencyIncreaseProps());
-            properties.put(
                     BasicTaskIssueRuleTemplate.LOG_ON_SAME_ISSUE,
                     getLogOnSameIssueProps());
             taskService.getRecurrentTasks().stream()
@@ -415,7 +412,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     }
 
 
-    private HasIdAndName getLogOnSameIssueProps() {
+    private HasIdAndName getLogOnSameIssuePropsToDeprecate() {
         return new HasIdAndName() {
             @Override
             public Long getId() {
@@ -425,6 +422,21 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             @Override
             public String getName() {
                 return "Log on same issue";
+            }
+        };
+    }
+
+
+    private HasIdAndName getLogOnSameIssueProps() {
+        return new HasIdAndName() {
+            @Override
+            public String getId() {
+                return "1:1";
+            }
+
+            @Override
+            public String getName() {
+                return "Log on existing open issue : Icrease urgency (+1)";
             }
         };
     }

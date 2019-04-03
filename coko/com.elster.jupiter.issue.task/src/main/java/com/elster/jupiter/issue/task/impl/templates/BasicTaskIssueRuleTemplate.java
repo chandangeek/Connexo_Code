@@ -22,7 +22,7 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.rest.RaiseEventUrgencyFactory;
+import com.elster.jupiter.properties.rest.RecurrenceSelectionPropertyFactory;
 import com.elster.jupiter.properties.rest.TaskPropertyFacory;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
@@ -39,9 +39,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 
 @Component(name = "com.elster.jupiter.issue.task.BasicTaskIssueRuleTemplate",
@@ -52,13 +55,13 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     static final String NAME = "BasicTaskIssueRuleTemplate";
 
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
-    public static final String URGENCYPROPS = NAME + ".increaseurgency";
     public static final String LOG_ON_SAME_ISSUE = NAME + ".logOnSameIssue";
     public static final String TASK_PROPS = NAME + ".taskProps";
-    private static final String DEFAULT_VALUE = "Do nothing";
-    private static final Long DEFAULT_KEY = 0L;
+    private static final String DEFAULT_KEY = "1:1";
     private static final String COMMA_SEPARATOR = ",";
-    private static final String COLON_SEPARATOR = ":";
+    public static final String COLON_SEPARATOR = ":";
+    private static final List<String> LOG_ON_SAME_ISSUE_POSSIBLE_VALUES = Arrays.asList("0:0", "1:0", "1:1");
+    private static final Logger LOG = Logger.getLogger(BasicTaskIssueRuleTemplate.class.getName());
 
     //for OSGI
     public BasicTaskIssueRuleTemplate() {
@@ -128,7 +131,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 "\teval( event.logOnSameIssue(\"@{" + LOG_ON_SAME_ISSUE + "}\") == true )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by basic task rule=@{ruleId}\");\n" +
-                "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
+                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
                 "end\n" +
                 "rule \"Basic task rule @{ruleId} without log on same issue\"\n" +
                 "when\n" +
@@ -136,7 +139,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 "\teval( event.logOnSameIssue(\"@{" + LOG_ON_SAME_ISSUE + "}\") == false )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by basic task rule=@{ruleId}\");\n" +
-                "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
+                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, false);\n" +
                 "end\n" +
                 "rule \"Auto-resolution section @{ruleId}\"\n" +
                 "when\n" +
@@ -159,7 +162,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 .getProperties()
                 .entrySet()
                 .stream()
-                .filter(entry -> entry.getKey().equals(URGENCYPROPS))
+                .filter(entry -> entry.getKey().equals(LOG_ON_SAME_ISSUE))
                 .findFirst()
                 .map(found -> (RecurrenceSelectionInfo) found.getValue());
         if (newEventProps.isPresent() &&
@@ -184,34 +187,22 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
         TaskPropsInfo[] taskPossibleValues = taskService.getRecurrentTasks().stream().map(TaskPropsInfo::new).toArray(TaskPropsInfo[]::new);
-        HashMap<Long, String> possibleActionValues = getPossiblePrioValues();
-        RecurrenceSelectionInfo[] priorityValues = possibleActionValues.entrySet().stream()
-                .map(entry -> new RecurrenceSelectionInfo(entry.getKey(), entry.getValue()))
-                .toArray(RecurrenceSelectionInfo[]::new);
-        RecurrenceSelectionInfo[] logValues = getPossibleLogValues().entrySet().stream()
-                .map(entry -> new RecurrenceSelectionInfo(entry.getKey(), entry.getValue()))
+        RecurrenceSelectionInfo[] logAndPriorityValues = LOG_ON_SAME_ISSUE_POSSIBLE_VALUES.stream()
+                .map(RecurrenceSelectionInfo::new)
                 .toArray(RecurrenceSelectionInfo[]::new);
         builder.add(propertySpecService
                 .specForValuesOf(new RecurrenceSelectionInfoValueFactory())
                 .named(LOG_ON_SAME_ISSUE, TranslationKeys.ISSUE_CREATION_SELECTION_ON_RECURRENCE)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
-                .setDefaultValue(new RecurrenceSelectionInfo(DEFAULT_KEY, thesaurus.getFormat(TranslationKeys.CREATE_NEW_TASK_ISSUE).format()))
-                .addValues(logValues)
+                .setDefaultValue(new RecurrenceSelectionInfo(DEFAULT_KEY))
+                .addValues(logAndPriorityValues)
                 .finish());
         builder.add(propertySpecService
                 .booleanSpec()
                 .named(AUTORESOLUTION, TranslationKeys.PARAMETER_AUTO_RESOLUTION)
                 .fromThesaurus(this.getThesaurus())
                 .setDefaultValue(true)
-                .finish());
-        builder.add(propertySpecService
-                .specForValuesOf(new RecurrenceSelectionInfoValueFactory())
-                .named(URGENCYPROPS, TranslationKeys.PARAMETER_RADIO_GROUP)
-                .fromThesaurus(this.getThesaurus())
-                .markRequired()
-                .setDefaultValue(new RecurrenceSelectionInfo(DEFAULT_KEY, DEFAULT_VALUE))
-                .addValues(priorityValues)
                 .finish());
         builder.add(propertySpecService
                 .specForValuesOf(new TaskPropsInfoValueFactory())
@@ -236,82 +227,68 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
         return propertySpecService;
     }
 
-    private HashMap<Long, String> getPossiblePrioValues() {
-        return new HashMap<Long, String>() {{
-            put(0L, getThesaurus().getFormat(TranslationKeys.PARAMETER_DO_NOTHING).format());
-            put(1L, getThesaurus().getFormat(TranslationKeys.PARAMETER_INCREASE_URGENCY).format());
-        }};
-    }
-
-    private HashMap<Long, String> getPossibleLogValues() {
-        return new HashMap<Long, String>() {{
-            put(0L, getThesaurus().getFormat(TranslationKeys.CREATE_NEW_TASK_ISSUE).format());
-            put(1L, getThesaurus().getFormat(TranslationKeys.LOG_ON_SAME_TASK_ISSUE).format());
-        }};
-    }
-
-
     @XmlRootElement
     private class RecurrenceSelectionInfo extends HasIdAndName {
 
-        private Long id;
-        private String name;
+        private transient String value;
 
-
-        public RecurrenceSelectionInfo(Long id, String name) {
-            this.id = id;
-            this.name = name;
+        RecurrenceSelectionInfo(String value) {
+            this.value = value;
         }
-
 
         @Override
-        public Long getId() {
-            return id;
+        public Object getId() {
+            return value;
         }
+
 
         @Override
         public String getName() {
-            return name;
+            return getFormatedName();
+        }
+
+        private String getFormatedName() {
+            List<Integer> values = parsed();
+            return values.get(0) == 0 ? format(LogOnSameIssueSelection.CREATE_NEW_ISSUE) :
+                    values.get(1) == 0 ? format(LogOnSameIssueSelection.LOG_ON_SAME_ISSUE_WITHOUT_PRIORITY_INCREASE) :
+                            format(LogOnSameIssueSelection.LOG_ON_SAME_ISSUE_WITH_PRIORITY_INCREASE);
+        }
+
+        private String format(LogOnSameIssueSelection selection) {
+
+            return getThesaurus().getFormat(selection.getLogOnsameIssueDisplay()).format() + COLON_SEPARATOR + getThesaurus().getFormat(selection.getIncreasePriorityDisplay()).format();
+        }
+
+        private List<Integer> parsed() {
+            List<String> values = Arrays.asList(value.split(COLON_SEPARATOR));
+            if (values.size() != 2) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
+                        "properties." + LOG_ON_SAME_ISSUE,
+                        String.valueOf(2),
+                        String.valueOf(values.size()));
+            }
+            if (!LOG_ON_SAME_ISSUE_POSSIBLE_VALUES.containsAll(values)) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ARGUMENT,
+                        "properties." + LOG_ON_SAME_ISSUE,
+                        values.stream()
+                                .filter(LOG_ON_SAME_ISSUE_POSSIBLE_VALUES::contains)
+                                .filter(values::remove).findFirst());
+
+            }
+            return Arrays.stream(value.split(COLON_SEPARATOR)).map(Integer::parseInt).collect(Collectors.toList());
+
         }
 
         private boolean hasIncreaseUrgency() {
-            return id == 1L;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            if (!super.equals(o)) {
-                return false;
-            }
-
-            RecurrenceSelectionInfo that = (RecurrenceSelectionInfo) o;
-
-            if (!id.equals(that.id)) {
-                return false;
-            }
-            return name.equals(that.name);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + id.hashCode();
-            result = 31 * result + name.hashCode();
-            return result;
+            return parsed().get(1) == 1;
         }
 
     }
 
-    private class RecurrenceSelectionInfoValueFactory implements ValueFactory<HasIdAndName>, RaiseEventUrgencyFactory {
+    private class RecurrenceSelectionInfoValueFactory implements ValueFactory<HasIdAndName>, RecurrenceSelectionPropertyFactory {
         @Override
         public RecurrenceSelectionInfo fromStringValue(String stringValue) {
-            return new RecurrenceSelectionInfo(Long.parseLong(stringValue), getPossiblePrioValues().get(Long.parseLong(stringValue)));
+            return new RecurrenceSelectionInfo(stringValue);
         }
 
         @Override
@@ -352,6 +329,29 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
             }
         }
     }
+
+    private enum LogOnSameIssueSelection {
+        CREATE_NEW_ISSUE(TranslationKeys.CREATE_NEW_TASK_ISSUE, TranslationKeys.PARAMETER_DO_NOTHING),
+        LOG_ON_SAME_ISSUE_WITH_PRIORITY_INCREASE(TranslationKeys.LOG_ON_SAME_TASK_ISSUE, TranslationKeys.PARAMETER_INCREASE_URGENCY),
+        LOG_ON_SAME_ISSUE_WITHOUT_PRIORITY_INCREASE(TranslationKeys.LOG_ON_SAME_TASK_ISSUE, TranslationKeys.PARAMETER_DO_NOTHING);
+
+        TranslationKeys logOnsameIssueDisplay;
+        TranslationKeys increasePriorityDisplay;
+
+        LogOnSameIssueSelection(TranslationKeys logOnsameIssueDisplay, TranslationKeys increasePriorityDisplay) {
+            this.logOnsameIssueDisplay = logOnsameIssueDisplay;
+            this.increasePriorityDisplay = increasePriorityDisplay;
+        }
+
+        public TranslationKeys getLogOnsameIssueDisplay() {
+            return logOnsameIssueDisplay;
+        }
+
+        public TranslationKeys getIncreasePriorityDisplay() {
+            return increasePriorityDisplay;
+        }
+    }
+
 
     private class TaskPropsInfoValueFactory implements ValueFactory<HasIdAndName>, TaskPropertyFacory {
         @Override

@@ -108,6 +108,7 @@ Ext.define('Uni.property.controller.Registry', {
         RAISEEVENTPROPS: 'Uni.property.view.property.RaisedEventProps',
         RADIO_GROUP: 'Uni.property.view.property.RadioGroup',
         READINGTYPE: 'Uni.property.view.property.Reference',
+        RECURRENCE: 'Uni.property.view.property.Recurrence',
         REFERENCE: 'Uni.property.view.property.Reference',
         REGISTER: 'Uni.property.view.property.Reference',
         RELATIVEPERIOD: 'Uni.property.view.property.RelativePeriod',

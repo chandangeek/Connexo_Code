@@ -22,9 +22,13 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.elster.jupiter.issue.task.impl.templates.BasicTaskIssueRuleTemplate.COLON_SEPARATOR;
+import static com.elster.jupiter.issue.task.impl.templates.BasicTaskIssueRuleTemplate.LOG_ON_SAME_ISSUE;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class TaskFailureEvent extends TaskEvent {
@@ -74,8 +78,15 @@ public class TaskFailureEvent extends TaskEvent {
     }
 
 
-    public boolean logOnSameIssue(String check) {
-        return Integer.parseInt(check) == 1;
+    public boolean logOnSameIssue(String value) {
+        List<String> values = Arrays.asList(value.split(COLON_SEPARATOR));
+        if (values.size() != 2) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
+                    "properties." + LOG_ON_SAME_ISSUE,
+                    String.valueOf(2),
+                    String.valueOf(values.size()));
+        }
+        return Integer.parseInt(values.get(0)) == 1;
     }
 
     public long getRecurrentTaskId() {
