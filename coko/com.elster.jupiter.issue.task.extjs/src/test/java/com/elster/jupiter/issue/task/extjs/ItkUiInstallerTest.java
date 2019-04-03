@@ -21,7 +21,7 @@ public class ItkUiInstallerTest {
     @Test
     public void testPropertyValuesDoNotExceed256Chars() throws Exception {
         Properties properties = new Properties();
-        properties.load(com.elster.jupiter.issue.task.extjs.ItkUiInstaller.class.getClassLoader().getResourceAsStream("i18n.properties"));
+        properties.load(ItkUiInstaller.class.getClassLoader().getResourceAsStream("i18n.properties"));
         List<String> list = properties.stringPropertyNames()
                 .stream()
                 .filter(p -> properties.getProperty(p).length() > Table.SHORT_DESCRIPTION_LENGTH)
@@ -32,7 +32,7 @@ public class ItkUiInstallerTest {
     @Test
     public void testPropertyKeysDoNotExceed256Chars() throws Exception {
         Properties properties = new Properties();
-        properties.load(com.elster.jupiter.issue.task.extjs.ItkUiInstaller.class.getClassLoader().getResourceAsStream("i18n.properties"));
+        properties.load(ItkUiInstaller.class.getClassLoader().getResourceAsStream("i18n.properties"));
         List<String> list = properties.stringPropertyNames()
                 .stream()
                 .filter(p -> p.length() > Table.SHORT_DESCRIPTION_LENGTH)
