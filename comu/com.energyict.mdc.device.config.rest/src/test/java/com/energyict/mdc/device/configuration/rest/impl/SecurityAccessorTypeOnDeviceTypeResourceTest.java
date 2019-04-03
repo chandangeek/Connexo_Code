@@ -52,6 +52,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         SecurityAccessorType securityAccessorType2 = mockCertificateAccessorType(2, 1, "Namew", "Epic description2");
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.of(deviceType));
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(securityAccessorType1, securityAccessorType2));
+        when(deviceType.getDefaultKeyOfSecurityAccessorType(any(SecurityAccessorType.class))).thenReturn(Optional.of("ABCD"));
 
         Response response = target("/devicetypes/66/securityaccessors").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -130,6 +131,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         mockUserActions(securityAccessorType);
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.of(deviceType));
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.singletonList(securityAccessorType));
+        when(deviceType.getDefaultKeyOfSecurityAccessorType(any(SecurityAccessorType.class))).thenReturn(Optional.of("ABCD"));
 
         Response response = target("/devicetypes/66/securityaccessors/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -220,7 +222,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         ServiceKeyDefultValueInfo info = new ServiceKeyDefultValueInfo();
         info.value = "ABCDABCD";
 
-        Response response = target("/devicetypes/66/securityaccessors/1/setdefaultkey").request().put(Entity.json(info));
+        Response response = target("/devicetypes/66/securityaccessors/1/defaultkey").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(deviceType).updateDefaultKeyOfSecurityAccessorType(securityAccessorType1, info.value);
     }

@@ -5,7 +5,7 @@
 Ext.define('Mdc.store.ValidationRuleSetsForDeviceConfig', {
     extend: 'Ext.data.Store',
     autoLoad: false,
-    model: 'Cfg.model.ValidationRuleSet',
+    model: 'Mdc.model.DeviceConfigValidationRuleSet',
     buffered: true,
     pageSize: 10,
     proxy: {

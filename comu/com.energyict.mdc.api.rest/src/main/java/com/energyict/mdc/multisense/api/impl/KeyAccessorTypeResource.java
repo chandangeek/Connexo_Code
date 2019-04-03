@@ -3,12 +3,8 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
-import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -36,35 +32,24 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
 @Path("/devices/{mrid}/keyAccessorTypes")
 public class KeyAccessorTypeResource {
-    private final String KEY_PROPERTY = "key";
-    private static final String LABEL_PROPERTY = "label";
 
     private final KeyAccessorTypeInfoFactory keyAccessorTypeInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final DeviceService deviceService;
-    private final SecurityManagementService securityManagementService;
-    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
     public KeyAccessorTypeResource(DeviceService deviceService, ExceptionFactory exceptionFactory,
-                                   KeyAccessorTypeInfoFactory keyAccessorTypeInfoFactory,
-                                   SecurityManagementService securityManagementService,
-                                   PropertyValueInfoService propertyValueInfoService) {
+                                   KeyAccessorTypeInfoFactory keyAccessorTypeInfoFactory) {
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
         this.keyAccessorTypeInfoFactory = keyAccessorTypeInfoFactory;
-        this.securityManagementService = securityManagementService;
-        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     /**
@@ -241,31 +226,6 @@ public class KeyAccessorTypeResource {
         return keyAccessorTypeInfoFactory.from(securityAccessorType, uriInfo, fieldSelection.getFields());
     }
 
-   /**
-     * Validates if key type exists and has value for a device.
-     *
-     * @param name The name of the key type
-     * @param uriInfo uriInfo
-     * @return Device information and links to related resources
-     * @summary Validates key type identified by name for a device
-     */
-    @GET
-    @Transactional
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{keyAccessorTypeName}/validate")
-    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public Response  validateKeyAccessorType(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String name, @Context UriInfo uriInfo) {
-        Device device = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        DeviceType devicetype = device.getDeviceType();
-        SecurityAccessorType securityAccessorType = getSecurityAccessorTypeOrThrowException(name, devicetype);
-        SecurityAccessor securityAccessor = getSecurityAccessorOrThrowException(name, device);
-        if (! securityAccessor.getActualValue().isPresent()) {
-	        throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE);
-        }
-        return Response.ok().build();
-    }
-
     private SecurityAccessorType getSecurityAccessorTypeOrThrowException(String name, DeviceType devicetype) {
         return devicetype.getSecurityAccessorTypes().stream().filter(keyAccessorType1 -> keyAccessorType1.getName().equals(name)).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSORTYPE_FOR_DEVICE));
@@ -308,92 +268,6 @@ public class KeyAccessorTypeResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return keyAccessorTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList());
-    }
-
-    /**
-     * Set the passive/temp key for the device for the given security accessor type.
-     *
-     * @param mrid mRID of device for which the key will be updated
-     * @param keyAccessorTypeName Name of the security accessor type
-     * @param uriInfo uriInfo
-     * @summary sets the passive/temp key for the device / keyAccessorType
-     */
-    @PUT
-    @Transactional
-    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    @Path("/{keyAccessorTypeName}/storetempvalue")
-    public Response storeTempValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName, KeyInfo info,
-                                   @Context UriInfo uriInfo) {
-        Device device = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
-        List<PropertyInfo> tempProperties = new ArrayList<>();
-        tempProperties.add(createPropertyInfo(KEY_PROPERTY, info.value));
-       	tempProperties.add(createPropertyInfo(LABEL_PROPERTY, securityAccessor.getKeyAccessorType().getHsmKeyType().getLabel()));
-        List<PropertySpec> propertySpecs = securityAccessor.getPropertySpecs();
-        Map<String, Object> properties = propertyValueInfoService.findPropertyValues(propertySpecs, tempProperties);
-
-        Optional<SecurityValueWrapper> currentTempValue = securityAccessor.getTempValue();
-        if (currentTempValue.isPresent()) {
-            SecurityValueWrapper tempValueWrapper = currentTempValue.get();
-            tempValueWrapper.setProperties(properties);
-        } else if (! info.value.isEmpty()) {
-            SecurityValueWrapper securityValueWrapper = securityManagementService.newSymmetricKeyWrapper(securityAccessor.getKeyAccessorType());
-            securityValueWrapper.setProperties(properties);
-            securityAccessor.setTempValue(securityValueWrapper);
-            securityAccessor.save();
-        }
-        return Response.ok().build();
-    }
-
-    /**
-     * Mark key as service key for the device for the given security accessor type.
-     *
-     * @param mrid mRID of device for which the key will be marked
-     * @param keyAccessorTypeName name of the security accessor type
-     * @param uriInfo uriInfo
-     * @summary Mark key as service key for the device / keyAccessorType
-     */
-    @PUT
-    @Transactional
-    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    @Path("/{keyAccessorTypeName}/markservicekey")
-    public Response markServiceKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
-                                   @Context UriInfo uriInfo) {
-        Device device = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
-        securityAccessor.setServiceKey(true);
-        securityAccessor.save();
-        return Response.ok().build();
-    }
-
-    /**
-     * Unmark key as service key for the device for the given security accessor type.
-     *
-     * @param mrid mRID of device for which the key will be unmarked
-     * @param keyAccessorTypeName name of the security accessor type
-     * @param uriInfo uriInfo
-     * @summary Unmark key as service key for the device / keyAccessorType
-     */
-    @PUT
-    @Transactional
-    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    @Path("/{keyAccessorTypeName}/unmarkservicekey")
-    public Response unmarkServiceKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String keyAccessorTypeName,
-                                     @Context UriInfo uriInfo) {
-        Device device = deviceService.findDeviceByMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        SecurityAccessor<SecurityValueWrapper> securityAccessor = (SecurityAccessor<SecurityValueWrapper>)getSecurityAccessorOrThrowException(keyAccessorTypeName, device);
-        securityAccessor.setServiceKey(false);
-        securityAccessor.save();
-        return Response.ok().build();
     }
 
     private PropertyInfo createPropertyInfo(String key, String value) {

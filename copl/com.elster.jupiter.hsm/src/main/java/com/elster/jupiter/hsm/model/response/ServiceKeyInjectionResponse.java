@@ -1,20 +1,12 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
+
 package com.elster.jupiter.hsm.model.response;
 
-import com.elster.jupiter.hsm.model.Message;
+import aQute.bnd.annotation.ProviderType;
 
-public class ServiceKeyInjectionResponse extends Message {
-
-    private String warning;
-
-    public ServiceKeyInjectionResponse(byte[] data, String warning) {
-        super(data);
-        this.warning = warning;
-    }
-
-    public String getWarning() {
-        return warning;
-    }
+@ProviderType
+public interface ServiceKeyInjectionResponse {
+    String getWarning();
 }

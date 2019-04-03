@@ -178,7 +178,8 @@ public class HeadEndController {
     }
 
     protected SecurityPropertySet getSecurityPropertySet(String securityPropertySetName, Device device) {
-        return device.getDeviceConfiguration().getSecurityPropertySets().stream().filter(set -> set.getName().equals(securityPropertySetName)).findFirst()
+        return device.getDeviceConfiguration().getSecurityPropertySets().stream()
+                .filter(set -> set.getName().equals(securityPropertySetName)).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.UNKNOWN_SECURITYPROPERTYSET));
     }
 
@@ -188,7 +189,9 @@ public class HeadEndController {
     }
 
     protected List<ComTaskExecution> getComTaskExecutions(Device device, SecurityPropertySet securityPropertySet) {
-        return device.getComTaskExecutions().stream().filter(comTaskExecution -> getComTaskEnablement(comTaskExecution).map(comTaskEnablement1 -> comTaskEnablement1.getSecurityPropertySet().equals(securityPropertySet)).orElse(false)).collect(Collectors.toList());
+        return device.getComTaskExecutions().stream().filter(comTaskExecution -> getComTaskEnablement(comTaskExecution)
+                .map(comTaskEnablement -> comTaskEnablement.getSecurityPropertySet().equals(securityPropertySet)).orElse(false))
+                .collect(Collectors.toList());
     }
 
     private Optional<ComTaskEnablement> getComTaskEnablement(ComTaskExecution comTaskExecution) {

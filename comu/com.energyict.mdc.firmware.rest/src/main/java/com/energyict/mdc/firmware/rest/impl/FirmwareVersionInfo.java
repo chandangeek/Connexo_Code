@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -16,4 +18,7 @@ public class FirmwareVersionInfo {
     public Boolean isInUse;
     public long version;
     public String imageIdentifier;
+    public int rank;
+    public IdWithNameInfo meterFirmwareDependency;
+    public IdWithNameInfo communicationFirmwareDependency;
 }

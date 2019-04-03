@@ -39,28 +39,25 @@ public class SecurityPropertySetInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public List<SecurityPropertySetInfo> asInfo(Device device, UriInfo uriInfo) {
+    public List<SecurityPropertySetInfo> asSecuritySetsInfo(Device device, UriInfo uriInfo) {
         return device.getDeviceConfiguration()
                 .getSecurityPropertySets()
                 .stream()
-                .map(s -> asInfo(device, uriInfo, s))
+                .map(s -> asSecuritySetsInfo(device, uriInfo, s))
                 .sorted((p1, p2) -> p1.name.compareToIgnoreCase(p2.name))
                 .collect(toList());
     }
 
-    public List<SecurityPropertySetInfo> asInfoHsm(Device device, UriInfo uriInfo) {
-        List<SecurityPropertySet> tmpList = device.getDeviceConfiguration()
-                                            .getSecurityPropertySets().stream()
-                                            .filter(s -> s.getConfigurationSecurityProperties().stream().filter(sp->sp.getSecurityAccessorType().keyTypeIsHSM()).count()!=0)
-                                            .collect(toList());
-
-        return  tmpList.stream()
-                .map(s -> asInfo(device, uriInfo, s))
+    public List<SecurityPropertySetInfo> asHsmRelatedSecuritySetsInfo(Device device, UriInfo uriInfo) {
+        return device.getDeviceConfiguration()
+                .getSecurityPropertySets().stream()
+                .filter(s -> s.getConfigurationSecurityProperties().stream().anyMatch(sp ->sp.getSecurityAccessorType().keyTypeIsHSM()))
+                .map(s -> asSecuritySetsInfo(device, uriInfo, s))
                 .sorted((p1, p2) -> p1.name.compareToIgnoreCase(p2.name))
                 .collect(toList());
     }
 
-    public SecurityPropertySetInfo asInfo(Device device, UriInfo uriInfo, SecurityPropertySet securityPropertySet) {
+    public SecurityPropertySetInfo asSecuritySetsInfo(Device device, UriInfo uriInfo, SecurityPropertySet securityPropertySet) {
         SecurityPropertySetInfo info = new SecurityPropertySetInfo();
         info.id = securityPropertySet.getId();
         info.name = securityPropertySet.getName();
@@ -80,6 +77,7 @@ public class SecurityPropertySetInfoFactory {
 
         info.version = securityPropertySet.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+        info.hasServiceKeys = isSetHasServiceKeys(device, securityPropertySet);
         return info;
     }
 
@@ -97,5 +95,13 @@ public class SecurityPropertySetInfoFactory {
             typedProperties.setProperty(securityProperty.getName(), securityProperty.getSecurityAccessorType());
         }
         return typedProperties;
+    }
+
+    public boolean isSetHasServiceKeys(Device device, SecurityPropertySet securityPropertySet) {
+        return device.getSecurityAccessors().stream()
+                .filter(keyAccessor ->
+                        securityPropertySet.getConfigurationSecurityProperties().stream().anyMatch(configurationSecurityProperty ->
+                                configurationSecurityProperty.getSecurityAccessorType().getId() == keyAccessor.getKeyAccessorType().getId()))
+                .anyMatch(s -> s.isServiceKey());
     }
 }

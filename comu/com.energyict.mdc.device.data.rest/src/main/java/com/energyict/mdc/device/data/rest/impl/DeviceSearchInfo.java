@@ -44,7 +44,7 @@ public class DeviceSearchInfo {
     public String manufacturer;
     public String modelNbr;
     public String modelVersion;
-    public Boolean serviceKeys;
+    public Boolean hasServiceKeys;
 
     public static DeviceSearchInfo from(Device device, GatewayRetriever gatewayRetriever,
                                         IssueRetriever issueService, Thesaurus thesaurus,
@@ -84,12 +84,9 @@ public class DeviceSearchInfo {
         searchInfo.manufacturer = device.getManufacturer();
         searchInfo.modelNbr = device.getModelNumber();
         searchInfo.modelVersion = device.getModelVersion();
-        for (SecurityAccessor accessor : device.getSecurityAccessors()) {
-            if (accessor.getServiceKey()) {
-	        searchInfo.serviceKeys = true;
-		break;
-	    }
-	}
+        searchInfo.hasServiceKeys = device.getSecurityAccessors().stream()
+                .anyMatch(accessor -> accessor.isServiceKey());
+
         return searchInfo;
     }
 

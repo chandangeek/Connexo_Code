@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -59,7 +60,12 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .sorted(Comparator.comparing(k -> k.name, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
         for (SecurityAccessorTypeInfo info : infos) {
-            info.defaultServiceKey = deviceType.getDefaultKeyOfSecurityAccessorType(info.id);
+            Optional<SecurityAccessorType> securityAccessorType = deviceType.getSecurityAccessorTypes().stream()
+                    .filter(s -> s.getId() == info.id).findFirst();
+            if (securityAccessorType.isPresent()) {
+                deviceType.getDefaultKeyOfSecurityAccessorType(securityAccessorType.get())
+                        .ifPresent(v -> info.defaultServiceKey = v);
+            }
         }
         return PagedInfoList.fromCompleteList("securityaccessors", infos, queryParameters);
     }
@@ -97,8 +103,8 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
         SecurityAccessorTypeInfo accessorTypeInfo =  keyFunctionTypeInfoFactory.withSecurityLevels(securityAccessorType);
-	accessorTypeInfo.defaultServiceKey = deviceType.getDefaultKeyOfSecurityAccessorType(securityAccessorType);
-	return accessorTypeInfo;
+        deviceType.getDefaultKeyOfSecurityAccessorType(securityAccessorType).ifPresent(v -> accessorTypeInfo.defaultServiceKey = v);
+        return accessorTypeInfo;
     }
 
     @POST
@@ -147,17 +153,16 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
-    @Path("/{securityAccessorId}/setdefaultkey")
-    public Response setDefaultKeySecurityAccessorTypeValue(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, ServiceKeyDefultValueInfo info) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<SecurityAccessorType> securityAccessorTypes = deviceType.getSecurityAccessorTypes();
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @Path("/{securityAccessorId}/defaultkey")
+    public Response setDefaultKeySecurityAccessorTypeValue(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("securityAccessorId") long securityAccessorId, ServiceKeyDefultValueInfo info) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         SecurityAccessorType keyFunctionType = deviceType.getSecurityAccessorTypes().stream()
                 .filter(kFType -> kFType.getId() == securityAccessorId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
 
-	deviceType.updateDefaultKeyOfSecurityAccessorType(keyFunctionType, info.value);
+	    deviceType.updateDefaultKeyOfSecurityAccessorType(keyFunctionType, info.value);
         return Response.ok().build();
     }
 

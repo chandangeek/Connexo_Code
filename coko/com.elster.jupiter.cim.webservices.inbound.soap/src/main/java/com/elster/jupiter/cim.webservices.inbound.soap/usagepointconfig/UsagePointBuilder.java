@@ -61,6 +61,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -256,8 +257,9 @@ class UsagePointBuilder {
             validateCustomPropertySetValues(usagePoint, cas);
             addCustomPropertySetValues(usagePoint, cas);
         }
+        validateMandatoryCustomProperties(usagePoint);
+        validateCustomPropertySetHasRequiredValues(usagePoint);
     }
-
 
     public void updateUsagePointLifeCycle(com.elster.jupiter.metering.UsagePoint usagePoint, UsagePoint usagePointConfig) throws
             FaultMessage {
@@ -836,12 +838,36 @@ class UsagePointBuilder {
         }
     }
 
-    private void validateMandatoryCustomProperties(CustomPropertySet<?, ?> customPropertySet, CustomPropertySetValues values) throws FaultMessage {
-        List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
-        for (PropertySpec spec : propertySpecs) {
-            if (spec.isRequired() && values.getProperty(spec.getName()) == null) {
+    private void validateMandatoryCustomProperties(com.elster.jupiter.metering.UsagePoint usagePoint) throws FaultMessage {
+        List<CustomPropertySet> customPropertySets = usagePoint.forCustomProperties().getAllPropertySets().stream()
+                .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                .collect(Collectors.toList());
+        for (CustomPropertySet customPropertySet: customPropertySets) {
+            List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
+            List<CustomPropertySetValues>  valuesList = new ArrayList<>();
+            if (customPropertySet.isVersioned()) {
+                valuesList.addAll(customPropertySetService.getAllVersionedValuesFor(customPropertySet, usagePoint));
+            } else {
+                valuesList.add(getValues(usagePoint, customPropertySet, null));
+            }
+            for (PropertySpec spec : propertySpecs) {
+                if (spec.isRequired() && !valuesList.stream().filter(values -> values.getProperty(spec.getName()) != null).findFirst().isPresent()) {
+                    throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                            MessageSeeds.MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE, spec.getName(), customPropertySet.getId()).get();
+                }
+            }
+        }
+    }
+
+    private void validateCustomPropertySetHasRequiredValues(com.elster.jupiter.metering.UsagePoint usagePoint) throws FaultMessage {
+        List<CustomPropertySet> customPropertySets = usagePoint.forCustomProperties().getAllPropertySets().stream()
+                .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                .filter(cps -> cps.isRequired())
+                .collect(Collectors.toList());
+        for (CustomPropertySet customPropertySet: customPropertySets) {
+            if (!customPropertySetService.validateCustomPropertySetHasValues(customPropertySet, usagePoint, Range.greaterThan(usagePoint.getInstallationTime()))) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                        MessageSeeds.MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE, spec.getName(), customPropertySet.getId()).get();
+                        MessageSeeds.CUSTOMPROPERTYSET_VALUES_ON_REQUIRED_RANGE, customPropertySet.getId(), Range.greaterThan(usagePoint.getInstallationTime())).get();
             }
         }
     }
@@ -891,14 +917,9 @@ class UsagePointBuilder {
 
     private void validateCreateOrUpdateVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalObject) throws FaultMessage {
         Optional<Instant> versionId = Optional.ofNullable(data.getVersionId());
-        CustomPropertySetValues values = null;
+        CustomPropertySetValues values;
         if (versionId.isPresent()) {
-            if (additionalObject != null) {
-                values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId.get(), additionalObject);
-            } else {
-                values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId.get());
-            }
-
+            values = getValuesVersion(businessObject, customPropertySet, versionId.get(), additionalObject);
             if (values == null) {
                 throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION, DefaultDateTimeFormatters.shortDate().withShortTime().build().format((versionId.get()).atZone(clock.getZone()))).get();
@@ -911,35 +932,30 @@ class UsagePointBuilder {
 
 
     private void validateCreateOrUpdateNonVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalObject) throws FaultMessage {
-        CustomPropertySetValues values = getValues(businessObject, customPropertySet, data, additionalObject);
+        CustomPropertySetValues values = getValues(businessObject, customPropertySet, additionalObject);
+        updateValues(customPropertySet, data, values);
         validateCreateOrUpdateCustomAttributeValues(customPropertySet, data, values);
     }
 
     private void validateCreateOrUpdateCustomAttributeValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, CustomPropertySetValues values) throws FaultMessage {
         if (values != null) {
-            for (PropertySpec spec : customPropertySet.getPropertySpecs()) {
-                Optional value = findValue(customPropertySet, spec, data);
-                if (value.isPresent()) {
-                    values.setProperty(spec.getName(), value.get());
-                }
-            }
-            validateMandatoryCustomProperties(customPropertySet, values);
+            updateValues(customPropertySet, data, values);
             validatePossibleValues(customPropertySet, values, data);
             customPropertySetService.validateCustomPropertySetValues(customPropertySet, values);
         }
     }
 
-    private CustomPropertySetValues getValues(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalPrimaryKeyObject) throws FaultMessage {
+    private CustomPropertySetValues getValues(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, Object additionalPrimaryKeyObject) throws FaultMessage {
         CustomPropertySetValues values;
         if (additionalPrimaryKeyObject != null) {
             values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, additionalPrimaryKeyObject);
         } else {
             values = customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject);
         }
-        return updateValues(customPropertySet, data, values);
+        return values;
     }
 
-    private CustomPropertySetValues getValuesVersion(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Instant versionId, Object additionalPrimaryKeyObject) {
+    private CustomPropertySetValues getValuesVersion(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, Instant versionId, Object additionalPrimaryKeyObject) {
         if (additionalPrimaryKeyObject != null) {
             return customPropertySetService.getUniqueValuesFor(customPropertySet, businessObject, versionId, additionalPrimaryKeyObject);
         } else {
@@ -995,7 +1011,7 @@ class UsagePointBuilder {
         Optional<Boolean> updateRange = Optional.ofNullable(data.isUpdateRange());
         checkInterval(startTime, endTime, customPropertySet, data);
         if (versionId.isPresent()) {
-            CustomPropertySetValues values = getValuesVersion(businessObject, customPropertySet, data, versionId.get(), additionalPrimaryKeyObject);
+            CustomPropertySetValues values = getValuesVersion(businessObject, customPropertySet, versionId.get(), additionalPrimaryKeyObject);
             if (!values.isEmpty()) {
                 values = updateValues(customPropertySet, data, values);
                 Range<Instant> range;
@@ -1061,7 +1077,8 @@ class UsagePointBuilder {
     }
 
     private void createOrUpdateNonVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributeSet data, Object additionalPrimaryKeyObject) throws FaultMessage {
-        CustomPropertySetValues values = getValues(businessObject, customPropertySet, data, additionalPrimaryKeyObject);
+        CustomPropertySetValues values = getValues(businessObject, customPropertySet, additionalPrimaryKeyObject);
+        updateValues(customPropertySet, data, values);
         if (additionalPrimaryKeyObject != null) {
             customPropertySetService.setValuesFor(customPropertySet, businessObject, values, additionalPrimaryKeyObject);
         } else {

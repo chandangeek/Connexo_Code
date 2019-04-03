@@ -8,10 +8,12 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.Optional;
+
 @ProviderType
 public interface SecurityAccessorTypeOnDeviceType {
     DeviceType getDeviceType();
     SecurityAccessorType getSecurityAccessorType();
-    String getDefaultKey();
-    void setDefaultKey(String defaultkey);
+    Optional<String> getDefaultKey();
+    void setDefaultKey(String defaultKey);
 }

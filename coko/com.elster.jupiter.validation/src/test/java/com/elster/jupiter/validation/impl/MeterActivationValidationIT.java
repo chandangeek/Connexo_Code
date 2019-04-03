@@ -55,8 +55,10 @@ import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleCo
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
@@ -79,6 +81,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -137,7 +140,6 @@ public class MeterActivationValidationIT {
     @Before
     public void setUp() throws SQLException {
         rangeSet.add(Range.atLeast(Instant.EPOCH));
-        when(ruleSetResolver.resolve(any())).thenAnswer(invocation -> Collections.singletonMap(validationRuleSet, rangeSet));
         when(validatorFactory.available()).thenReturn(Collections.singletonList("autoPass"));
         when(validatorFactory.create("autoPass", Collections.emptyMap())).thenReturn(validator);
         when(validatorFactory.createTemplate("autoPass")).thenReturn(validator);
@@ -190,6 +192,29 @@ public class MeterActivationValidationIT {
         Publisher publisher = injector.getInstance(Publisher.class);
         publisher.addSubscriber(validationEventHandler);
 
+        validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
+            @Override
+            public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
+                return Collections.singletonMap(validationRuleSet, rangeSet);
+            }
+
+            @Override
+            public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
+                return false;
+            }
+
+            @Override
+            public boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceId) {
+                return true;
+            }
+
+            @Override
+            public boolean canHandleRuleSetStatus() {
+                return true;
+            }
+
+        });
+
     }
 
     @After
@@ -213,7 +238,6 @@ public class MeterActivationValidationIT {
 
     @Test
     public void testAdvanceWithReadings() {
-        validationService.addValidationRuleSetResolver(ruleSetResolver);
         validationService.addValidatorFactory(validatorFactory);
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();

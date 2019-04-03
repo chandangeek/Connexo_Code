@@ -73,8 +73,8 @@ public class MeterReadingsBuilder {
     private UsagePoint usagePoint;
     private List<EndDevice> endDevices;
     private Set<MetrologyPurpose> purposes;
-    private Set<String> readingTypeMRIDs;
-    private Set<String> readingTypeFullAliasNames;
+    private Set<String> readingTypeMRIDs = Collections.emptySet();
+    private Set<String> readingTypeFullAliasNames = Collections.emptySet();
     private RangeSet<Instant> timePeriods;
 
     private Set<ReadingType> referencedReadingTypes;
@@ -156,7 +156,7 @@ public class MeterReadingsBuilder {
                                 Meter meter = (Meter) ed;
                                 meter.getChannelsContainers().stream()
                                 .filter(cc -> !timePeriods.subRangeSet(cc.getInterval().toOpenClosedRange()).isEmpty())
-                                .map(this::fetchReadingsContainer)
+                                .map(this::fetchReadingsFromContainer)
                                 .forEach(readingsByReadingTypes -> wrapInMeterReading(null, ed, readingsByReadingTypes)
                                         .ifPresent(meterReadingsList::add));
                 });
@@ -210,7 +210,7 @@ public class MeterReadingsBuilder {
                 .orElseGet(Collections::emptyMap);
     }
 
-    private Map<ReadingType, List<ReadingWithQualities>> fetchReadingsContainer(ChannelsContainer channelsContainer) {
+    private Map<ReadingType, List<ReadingWithQualities>> fetchReadingsFromContainer(ChannelsContainer channelsContainer) {
         RangeSet<Instant> currentTimePeriods = timePeriods.subRangeSet(channelsContainer.getInterval().toOpenClosedRange());
         if (currentTimePeriods.isEmpty()) {
             return Collections.<ReadingType, List<ReadingWithQualities>>emptyMap();
@@ -304,6 +304,12 @@ public class MeterReadingsBuilder {
 
     private Optional<MeterReading> wrapInMeterReading(String purpose, EndDevice endDevice, Map<ReadingType, List<ReadingWithQualities>> readingsByReadingTypes) {
         MeterReading meterReading = new MeterReading();
+        if(purpose != null) {
+            meterReading.setUsagePoint(createUsagePointPurpose(purpose));
+        }
+        if (endDevice != null) {
+            meterReading.setMeter(createMeter(endDevice));
+        }
         List<IntervalBlock> intervalBlocks = meterReading.getIntervalBlocks();
         List<Reading> registerReadings = meterReading.getReadings();
         readingsByReadingTypes.forEach((readingType, readingsWithQualities) -> {
@@ -319,12 +325,6 @@ public class MeterReadingsBuilder {
         });
         if (intervalBlocks.isEmpty() && registerReadings.isEmpty()) {
             return Optional.empty();
-        }
-        if(purpose != null) {
-            meterReading.setUsagePoint(createUsagePointPurpose(purpose));
-        }
-        if (endDevice != null) {
-            meterReading.setMeter(createMeter(endDevice));
         }
         return Optional.of(meterReading);
     }

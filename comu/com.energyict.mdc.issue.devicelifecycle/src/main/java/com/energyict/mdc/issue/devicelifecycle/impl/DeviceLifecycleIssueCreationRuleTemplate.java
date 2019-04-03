@@ -89,6 +89,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         setNlsService(nlsService);
         setPropertySpecService(propertySpecService);
         setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
     }
 
 

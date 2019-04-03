@@ -15,7 +15,6 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@ProviderType
 @Target({ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented

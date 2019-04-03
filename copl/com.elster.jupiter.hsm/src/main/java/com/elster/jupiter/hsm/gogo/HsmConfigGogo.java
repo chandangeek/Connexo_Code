@@ -61,6 +61,13 @@ public class HsmConfigGogo {
         System.out.println("HSM server status = " + serverStatus);
     }
 
+    public void hsmPrepareServiceKey() {
+        System.out.println("usage               :    hsmPrepareServiceKey <service_key> <service_key_label> <key_value>");
+        System.out.println("service_key         :    Service key value (hex)");
+        System.out.println("service_key_label   :    Service key label");
+        System.out.println("key_value           :    Key value (hex)");
+    }
+
     public void hsmPrepareServiceKey(String hexServiceKey, String kek, String hexKeyValue) throws HsmBaseException {
         logger.debug("PrepareServiceKey");
         System.out.println("HSM service key (hex) = " + hexServiceKey);
@@ -71,6 +78,13 @@ public class HsmConfigGogo {
         System.out.println("HSM prepared service key (hex) = " + message.toHex());
     }
 
+    public void hsmServiceKeyInjection() {
+        System.out.println("usage                    :    hsmServiceKeyInjection <preapared_service_key> <signature> <verify_key>");
+        System.out.println("preapared_service_key    :    HSM wrapped service key value (hex)");
+        System.out.println("signature                :    HSM signature for service key (hex)");
+        System.out.println("verify_key               :    Verify key label");
+    }
+
     public void hsmServiceKeyInjection(String hexPreaparedServiceKey, String hexSignature, String hexVerifyKey) throws HsmBaseException {
         logger.debug("ServiceKeyInjection");
 
@@ -79,7 +93,7 @@ public class HsmConfigGogo {
 
         System.out.println("HSM prepare service key (hex) = " + hexPreaparedServiceKey);
         System.out.println("HSM signature (hex) = " + hexSignature);
-        System.out.println("HSM service key injection service key (hex) = " + skiResponse.toHex());
+        System.out.println("HSM service key injection service key (hex) = " + ((Message)skiResponse).toHex());
         Optional.ofNullable(skiResponse.getWarning())
                 .ifPresent(warning -> System.out.println("HSM service key injection warning = " + warning));
     }

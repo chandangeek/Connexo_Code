@@ -88,6 +88,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CERTIFICATE_WRAPPER(88, "NoSuchCertificateWrapper", "Certificate wrapper does not exist"),
     NO_SUCH_CUSTOM_PROPERTY_SET(89, "NoSuchCustomPropertySet", "No such custom property set."),
     HSM_EXCEPTION(90, "HsmException", "HSM exception: {0}"),
+    SECURITY_ACCESSOR_TYPE_IS_NOT_HSM(91, "SecurityAccessorTypeIsNotHSM", "Security accessor type is not HSM"),
     ;
 
     private final int number;

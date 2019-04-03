@@ -66,7 +66,7 @@ public class ComTaskEnablementInfo {
         comTaskEnablementInfo.connectionFunctionInfo = comTaskEnablement.getConnectionFunction().isPresent() ? new ConnectionFunctionInfo(comTaskEnablement.getConnectionFunction().get()) : null;
         DeviceConfiguration deviceConfiguration = comTaskEnablement.getDeviceConfiguration();
         comTaskEnablementInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
-        comTaskEnablementInfo.maxNumberOfTries = comTaskEnablement.getComTask().getMaxNumberOfTries();
+        comTaskEnablementInfo.maxNumberOfTries = comTaskEnablement.getMaxNumberOfTries();
         return comTaskEnablementInfo;
     }
 

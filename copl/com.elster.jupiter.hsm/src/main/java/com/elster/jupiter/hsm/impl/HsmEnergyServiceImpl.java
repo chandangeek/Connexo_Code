@@ -165,7 +165,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
             Message signature = new Message(Hex.decode(hexSignature));
             ServiceKeyInjectionResponse response = Energy.serviceKeyInjection(data.getBytes(), signature.getBytes(),
                     new KeyLabel(verifyKey));
-            return new com.elster.jupiter.hsm.model.response.ServiceKeyInjectionResponse(response.getServiceKey(),
+            return new com.elster.jupiter.hsm.model.response.ServiceKeyInjectionResponseImpl(response.getServiceKey(),
                     response.getWarning());
         } catch (FunctionFailedException e) {
             throw new HsmBaseException(e);

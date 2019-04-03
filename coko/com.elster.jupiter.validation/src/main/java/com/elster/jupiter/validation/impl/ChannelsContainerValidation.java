@@ -41,6 +41,8 @@ public interface ChannelsContainerValidation extends HasId {
 
     void activate();
 
+    void setInitialActivationStatus(boolean status);
+
     void deactivate();
 
     Optional<ChannelValidation> getChannelValidation(Channel channel);

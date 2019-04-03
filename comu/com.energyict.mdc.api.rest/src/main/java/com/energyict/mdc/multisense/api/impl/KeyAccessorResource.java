@@ -5,7 +5,10 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.Message;
 import com.elster.jupiter.hsm.model.response.ServiceKeyInjectionResponse;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
@@ -30,6 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,17 +53,20 @@ public class KeyAccessorResource {
     private final KeyAccessorInfoFactory keyAccessorInfoFactory;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final SecurityAccessorInfoFactory securityAccessorInfoFactory;
+    private final SecurityManagementService securityManagementService;
 
     @Inject
     public KeyAccessorResource(DeviceService deviceService, ExceptionFactory exceptionFactory,
                                HsmEnergyService hsmEnergyService, KeyAccessorInfoFactory keyAccessorInfoFactory,
-                               SecurityAccessorInfoFactory securityAccessorInfoFactory, MdcPropertyUtils mdcPropertyUtils) {
+                               SecurityAccessorInfoFactory securityAccessorInfoFactory, MdcPropertyUtils mdcPropertyUtils,
+                               SecurityManagementService securityManagementService) {
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
         this.hsmEnergyService = hsmEnergyService;
         this.keyAccessorInfoFactory = keyAccessorInfoFactory;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.securityAccessorInfoFactory = securityAccessorInfoFactory;
+        this.securityManagementService = securityManagementService;
     }
 
     /**
@@ -198,12 +205,104 @@ public class KeyAccessorResource {
         try {
             ServiceKeyInjectionResponse response = hsmEnergyService.serviceKeyInjection(info.preparedServiceKey,
                     info.signature, info.verifyKey);
-            info.injectedServiceKey = response.toHex();
+            info.injectedServiceKey = ((Message)response).toHex();
             info.warning = response.getWarning();
             return Response.ok(info).build();
         } catch (HsmBaseException e) {
             throw exceptionFactory.newException(Response.Status.INTERNAL_SERVER_ERROR, MessageSeeds.HSM_EXCEPTION, e.getMessage());
         }
+    }
+
+    /**
+     * Mark/Unmark key as service key for the device for the given security accessor type.
+     *
+     * @param mrid mRID of device for which the key will be marked/unmarked
+     * @param keyAccessorName Identifier of the security accessor type for key
+     * @param uriInfo uriInfo
+     * @summary Mark/Unmark key as service key for the device / keyAccessor
+     */
+    @PUT
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Path("/{keyAccessorName}/servicekey")
+    public Response markServiceKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorName") String keyAccessorName,
+                                   HashMap<String, Boolean> serviceKeyParam,
+                                   @Context UriInfo uriInfo) {
+        Device device = deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        SecurityAccessor securityAccessor = getSecurityAccessor(keyAccessorName, device);
+        securityAccessor.setServiceKey(serviceKeyParam.get("serviceKey"));
+        securityAccessor.save();
+        return Response.ok().build();
+    }
+
+    /**
+     * Set the passive/temp key for the device for the given security accessor type.
+     *
+     * @param mrid mRID of device for which the key will be updated
+     * @param keyAccessorName Identifier of the security accessor type for key
+     * @param uriInfo uriInfo
+     * @summary sets the passive/temp key for the device / keyAccessor
+     *          (this request is applicable only for HSM key accessors)
+     */
+    @PUT
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Path("/{keyAccessorName}/tempvalue")
+    public Response storeTempValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorName") String keyAccessorName, HashMap<String, String> info,
+                                   @Context UriInfo uriInfo) {
+        Device device = deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        SecurityAccessor securityAccessor = getSecurityAccessor(keyAccessorName, device);
+        if (securityAccessor.getKeyAccessorType().keyTypeIsHSM()) {
+            String value = info.get("value");
+            Map<String, Object> properties = new HashMap<>();
+            properties.put(KEY_PROPERTY, value);
+            properties.put(LABEL_PROPERTY, securityAccessor.getKeyAccessorType().getHsmKeyType().getLabel());
+
+            Optional<SecurityValueWrapper> currentTempValue = securityAccessor.getTempValue();
+            if (currentTempValue.isPresent()) {
+                SecurityValueWrapper tempValueWrapper = currentTempValue.get();
+                tempValueWrapper.setProperties(properties);
+            } else if (!value.isEmpty()) {
+                SecurityValueWrapper securityValueWrapper = securityManagementService.newSymmetricKeyWrapper(securityAccessor
+                        .getKeyAccessorType());
+                securityValueWrapper.setProperties(properties);
+                securityAccessor.setTempValue(securityValueWrapper);
+                securityAccessor.save();
+            }
+            return Response.ok().build();
+        } else {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.SECURITY_ACCESSOR_TYPE_IS_NOT_HSM);
+        }
+    }
+
+    /**
+     * Validates if key accessor exists and has value for a device.
+     *
+     * @param mrid mRID of device for which the key will be validated
+     * @param keyAccessorName Name of the key accessor
+     * @param uriInfo uriInfo
+     * @return Device information and links to related resources
+     * @summary Validates key accessor identified by name for a device
+     */
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{keyAccessorName}/validate")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public Response validateKeyAccessorType(@PathParam("mrid") String mrid, @PathParam("keyAccessorName") String name, @Context UriInfo uriInfo) {
+        Device device = deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        SecurityAccessor securityAccessor = getSecurityAccessor(name, device);
+        if (!securityAccessor.getActualValue().isPresent()) {
+            return Response.noContent().build();
+        }
+        return Response.ok().build();
     }
 
     private SecurityAccessor getSecurityAccessor(String name, Device device) {

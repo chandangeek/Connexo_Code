@@ -274,9 +274,7 @@ public interface DeviceType extends HasId, HasName {
      */
     boolean removeSecurityAccessorType(SecurityAccessorType securityAccessorType);
 
-    String getDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType);
-
-    String getDefaultKeyOfSecurityAccessorType(long id);
+    Optional<String> getDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType);
 
     void updateDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType, String value);
 
