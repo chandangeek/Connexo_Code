@@ -5,8 +5,7 @@
 Ext.define('Isu.controller.StartProcess', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Bpm.startprocess.controller.StartProcess',
-        'Idl.model.Issue'
+        'Bpm.startprocess.controller.StartProcess'
     ],
     controllers: [
         'Bpm.startprocess.controller.StartProcess'
