@@ -11,6 +11,8 @@ import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 
+import com.google.common.collect.ImmutableSetMultimap;
+
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -87,19 +89,19 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     @SuppressWarnings("unchecked")
     public <T> List<T> getActualEntries(DataMapper<T> dataMapper, Map<String, Object> valueMap) {
-        Condition inputCondition = Condition.TRUE;
+        final Condition[] inputCondition = {Condition.TRUE};
         valueMap.entrySet().stream()
-                .forEach(entry -> inputCondition.and(where(entry.getKey()).isEqualTo(entry.getValue())));
+                .forEach(entry -> inputCondition[0] = inputCondition[0].and(where(entry.getKey()).isEqualTo(entry.getValue())));
 
-        Condition conditionFromCurrent = inputCondition
+        Condition conditionFromCurrent = inputCondition[0]
                 .and(where("modTime").isGreaterThanOrEqual(getAuditTrailReference().getModTimeStart()))
                 .and(where("modTime").isLessThanOrEqual(getAuditTrailReference().getModTimeEnd()));
         return dataMapper.select(conditionFromCurrent);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> getHistoryEntries(DataMapper<T> dataMapper, Map<Operator, Pair<String, Object>> pair) {
-        List<Comparison> conditionFromJournal = pair.entrySet().stream()
+    public <T> List<T> getHistoryEntries(DataMapper<T> dataMapper, ImmutableSetMultimap<Operator, Pair<String, Object>> pair) {
+        List<Comparison> conditionFromJournal = pair.entries().stream()
                 .map(entry -> entry.getKey().compare(entry.getValue().getFirst(), entry.getValue().getLast()))
                 .collect(Collectors.toList());
 
@@ -113,11 +115,11 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> getJournalEntry(DataMapper<T> dataMapper, Map<String, Object> valueMap) {
+    public <T> Optional<T> getJournalEntry(DataMapper<T> dataMapper, ImmutableSetMultimap<String, Object> valueMap) {
         if (valueMap.containsKey("VERSIONCOUNT") && (Long.parseLong(valueMap.get("VERSIONCOUNT").toString()) == 0)) {
             return Optional.empty();
         }
-        List<Comparison> conditionFromJournal = valueMap.entrySet().stream()
+        List<Comparison> conditionFromJournal = valueMap.entries().stream()
                 .map(entry -> Operator.EQUAL.compare(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
 
@@ -216,7 +218,7 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         return this.thesaurus.getFormat(key).format();
     }
 
-    protected boolean isBetweenPeriodMod(Instant instant) {
+    public boolean isBetweenPeriodMod(Instant instant) {
         return (instant.isAfter(getAuditTrailReference().getModTimeStart()) || instant.equals(getAuditTrailReference().getModTimeStart())) &&
                 (instant.isBefore(getAuditTrailReference().getModTimeEnd()) || instant.equals(getAuditTrailReference().getModTimeEnd()));
     }

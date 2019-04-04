@@ -15,10 +15,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSetMultimap;
 
 import java.util.Comparator;
-import java.util.Map;
 import java.util.Optional;
 
 public abstract class AbstractDeviceAuditDecoder extends AbstractAuditDecoder {
@@ -53,7 +52,7 @@ public abstract class AbstractDeviceAuditDecoder extends AbstractAuditDecoder {
 
     protected Optional<Device> getDeviceFromHistory(long id) {
         DataMapper<Device> dataMapper = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME).get().mapper(Device.class);
-        Map<Operator, Pair<String, Object>> historyClause = ImmutableMap.of(Operator.EQUAL, Pair.of("ID", id),
+        ImmutableSetMultimap<Operator, Pair<String, Object>> historyClause = ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("ID", id),
                 Operator.GREATERTHANOREQUAL, Pair.of("journaltime", getAuditTrailReference().getModTimeStart()));
 
         return getHistoryEntries(dataMapper, historyClause)
@@ -73,7 +72,7 @@ public abstract class AbstractDeviceAuditDecoder extends AbstractAuditDecoder {
         if (version >= device.get().getVersion()) {
             return device;
         }
-        return getJournalEntry(dataMapper, ImmutableMap.of("ID", from.getId(),
+        return getJournalEntry(dataMapper, ImmutableSetMultimap.of("ID", from.getId(),
                 "VERSIONCOUNT", version))
                 .map(Optional::of)
                 .orElseGet(() -> getToDeviceEntry(from, version + 1, dataMapper));
@@ -83,20 +82,20 @@ public abstract class AbstractDeviceAuditDecoder extends AbstractAuditDecoder {
         if (version >= endDevice.get().getVersion()) {
             return endDevice;
         }
-        return getJournalEntry(dataMapper, ImmutableMap.of("ID", from.getId(),
+        return getJournalEntry(dataMapper, ImmutableSetMultimap.of("ID", from.getId(),
                 "VERSIONCOUNT", version))
                 .map(Optional::of)
                 .orElseGet(() -> getToEndDeviceEntry(from, version + 1, dataMapper));
     }
 
-    public Map<Operator, Pair<String, Object>> getHistoryByJournalClauses(Long id) {
-        return ImmutableMap.of(Operator.EQUAL, Pair.of("ID", id),
+    public ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByJournalClauses(Long id) {
+        return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("ID", id),
                 Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
     }
 
-    public Map<Operator, Pair<String, Object>> getHistoryByModTimeClauses(Long id) {
-        return ImmutableMap.of(Operator.EQUAL, Pair.of("ID", id),
+    public ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByModTimeClauses(Long id) {
+        return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("ID", id),
                 Operator.GREATERTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));
     }

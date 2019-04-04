@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.impl.audit.AbstractDeviceAuditDecoder;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSetMultimap;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -252,14 +253,14 @@ public class AuditTrailDeviceSpecificationDecoder extends AbstractDeviceAuditDec
         return ImmutableMap.of("DEVICEID", device.get().getId());
     }
 
-    public Map<Operator, Pair<String, Object>> getHistoryByModTimeClauses(Long id) {
-        return ImmutableMap.of(Operator.EQUAL, Pair.of("deviceid", id),
+    public ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByModTimeClauses(Long id) {
+        return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("deviceid", id),
                 Operator.GREATERTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));
     }
 
-    public Map<Operator, Pair<String, Object>> getHistoryByJournalClauses(Long id) {
-        return ImmutableMap.of(Operator.EQUAL, Pair.of("deviceid", id),
+    public ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByJournalClauses(Long id) {
+        return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("deviceid", id),
                 Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
     }

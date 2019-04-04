@@ -434,8 +434,6 @@ public enum TableSpecs {
             table.unique("UK_MTR_ENDDEVICE_NAME").on(nameColumn, obsoleteTime).since(version(10, 2, 1)).add();
             table.audit(MTR_ENDDEVICE.name())
                     .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
-                    //.domain("DEVICE")
-                   // .context("DEVICE_ATTRIBUTES")
                     .build();
         }
     },
@@ -464,6 +462,10 @@ public enum TableSpecs {
                     .onDelete(RESTRICT)
                     .map("state")
                     .add();
+            table.audit("")
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainReferences("FK_MTR_STATUS_ENDDEVICE")
+                    .build();
         }
     },
     MTR_METERROLE {

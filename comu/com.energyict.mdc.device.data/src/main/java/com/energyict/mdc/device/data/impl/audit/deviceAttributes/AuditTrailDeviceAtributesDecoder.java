@@ -21,12 +21,10 @@ import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.audit.AbstractDeviceAuditDecoder;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import java.math.BigDecimal;
@@ -41,8 +39,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent.Type.LIFE_CYCLE;
-import static com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent.Type.STATE;
 import static com.energyict.mdc.device.data.impl.SyncDeviceWithKoreMeter.MULTIPLIER_ONE;
 
 public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder {
@@ -306,44 +302,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
     }
 
     private Optional<AuditLogChange> getAuditLogChangeForState() {
-        List<DeviceLifeCycleChangeEvent> lifeCycleEvents = device.get().getDeviceLifeCycleChangeEvents();
-        Optional<DeviceLifeCycleChangeEvent> toLifeCycle = lifeCycleEvents.stream()
-                .filter(lce -> lce.getTimestamp().isBefore(getAuditTrailReference().getModTimeEnd()))
-                .max(Comparator.comparing(DeviceLifeCycleChangeEvent::getTimestamp));
-
-        if (!toLifeCycle.isPresent()){
-            return Optional.empty();
-        }
-
-        Optional<DeviceLifeCycleChangeEvent> fromLifeCycle = lifeCycleEvents.stream()
-                .filter(lce -> lce.getTimestamp().isBefore(getAuditTrailReference().getModTimeEnd()))
-                .sorted(Comparator.comparing(DeviceLifeCycleChangeEvent::getTimestamp).reversed())
-                .skip(1)
-                .findFirst();
-
-        AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-        auditLogChange.setName(getDisplayName(PropertyTranslationKeys.DEVICE_STATUS));
-        auditLogChange.setType(SimplePropertyType.TEXT.name());
-        auditLogChange.setValue(getStateName(toLifeCycle.get().getState()));
-
-        if (fromLifeCycle.isPresent()) {
-            toLifeCycle.map(toLc -> {
-                if (toLc.getType().equals(STATE)){
-                    auditLogChange.setPreviousValue(getStateName(fromLifeCycle.get().getState()));
-                }
-                else if (toLc.getType().equals(LIFE_CYCLE)){
-                    auditLogChange.setPreviousValue(fromLifeCycle.get().getDeviceLifeCycle().getName());
-                }
-                return toLc;
-            });
-            return Optional.of(auditLogChange);
-        } else {
-            Optional<DeviceLifeCycle> previousLifeCycle = device.get().getDeviceType().getDeviceLifeCycle(device.get().getCreateTime());
-            previousLifeCycle.ifPresent(lc ->
-                    auditLogChange.setPreviousValue(lc.getName())
-            );
-            return Optional.of(auditLogChange);
-        }
+        return new DeviceStateDecoder(this).getAuditLog();
     }
 
     private String getStateName(State state) {
@@ -360,5 +319,21 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
         return formattedLocationMembers.stream()
                 .flatMap(List::stream).filter(Objects::nonNull)
                 .collect(Collectors.joining(", "));
+    }
+
+    public OrmService getOrmService(){
+        return ormService;
+    }
+
+    public EndDevice getEndDevice(){
+        return endDevice.get();
+    }
+
+    public Device getDevice(){
+        return device.get();
+    }
+
+    public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService(){
+        return deviceLifeCycleConfigurationService;
     }
 }

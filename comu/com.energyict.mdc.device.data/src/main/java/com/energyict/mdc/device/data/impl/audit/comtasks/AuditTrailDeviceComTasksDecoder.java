@@ -21,9 +21,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
-
 import com.google.common.collect.ImmutableMap;
-
+import com.google.common.collect.ImmutableSetMultimap;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -113,8 +112,10 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
 
 
     private Map<String, Object> getActualClauses(long comTaskId) {
-        return ImmutableMap.of("COMTASK", comTaskId);
+        return ImmutableMap.of("COMTASK", comTaskId,
+                "device", device.get());
     }
+
     public <T> List<T> getComTaskAfterID(DataMapper<T> dataMapper) {
         Condition inputCondition = Condition.TRUE;
         Condition condition = inputCondition
@@ -123,14 +124,16 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
     }
 
 
-    private Map<Operator, Pair<String, Object>> getHistoryByModTimeClauses(long comTaskId) {
-        return ImmutableMap.of(Operator.EQUAL, Pair.of("COMTASK", comTaskId),
+    private ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByModTimeClauses(long comTaskId) {
+        return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("COMTASK", comTaskId),
+                Operator.EQUAL, Pair.of("device", device.get()),
                 Operator.GREATERTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));
     }
 
-    private Map<Operator, Pair<String, Object>> getHistoryByJournalClauses(long comTaskId) {
-        return ImmutableMap.of(Operator.EQUAL, Pair.of("COMTASK", comTaskId),
+    private ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByJournalClauses(long comTaskId) {
+        return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("COMTASK", comTaskId),
+                Operator.EQUAL, Pair.of("device", device.get()),
                 Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
     }
