@@ -2,26 +2,26 @@ package com.elster.jupiter.metering;
 
 import java.time.Instant;
 
-public class MeterTransitionWrapperImpl implements MeterTransitionWrapper {
+class MeterTransitionWrapperImpl implements MeterTransitionWrapper {
 
-    EndDevice device;
-    Instant instant;
+    private Meter meter;
+    private Instant instant;
     private String mRID;
     private long id;
     private long version;
 
 
 
-    public MeterTransitionWrapperImpl(EndDevice device, Instant instant){
-        this.device = device;
+    public MeterTransitionWrapperImpl(Meter meter, Instant instant){
+        this.meter = meter;
         this.instant = instant;
-        this.mRID = device.getMRID();
-        this.id = device.getId();
-        this.version = device.getVersion();
+        this.mRID = meter.getMRID();
+        this.id = meter.getId();
+        this.version = meter.getVersion();
     }
     @Override
-    public EndDevice getEndDevice(){
-        return device;
+    public Meter getMeter(){
+        return meter;
     }
 
     @Override

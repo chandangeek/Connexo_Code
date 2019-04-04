@@ -1,11 +1,12 @@
 package com.elster.jupiter.metering;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
+@ProviderType
 public interface MeterTransitionWrapper{
-
-    public EndDevice getEndDevice();
-    public Instant getInstant();
-
+    Meter getMeter();
+    Instant getInstant();
 }
 

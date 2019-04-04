@@ -37,9 +37,10 @@ public interface CurrentStateExtractor {
         public String name;
 
         /**
-         * The moment when transition happens.
+         * The moment when transition from current state should happen.
+         * Could be null to perform transition at current moment.
          */
-        public Instant timeTransitionToHappen;
+        public Instant transitionTime;
     }
 
     /**

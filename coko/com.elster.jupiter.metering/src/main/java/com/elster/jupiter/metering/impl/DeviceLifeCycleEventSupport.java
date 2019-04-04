@@ -133,19 +133,11 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
             }
         }
         protected Optional<CurrentState> currentStateFor(MeterTransitionWrapper endDeviceWrapper, FiniteStateMachine finiteStateMachine) {
-            Optional<State> actualState = endDeviceWrapper.getEndDevice().getState();
-            if (actualState.isPresent() && actualState.get().getFiniteStateMachine().getId() == finiteStateMachine.getId()) {
-                CurrentState currentState = new CurrentState();
-                currentState.sourceId = endDeviceWrapper.getEndDevice().getAmrId();
-                currentState.sourceType = EndDevice.class.getName();
-                currentState.name = actualState.map(State::getName).get();
-                currentState.timeTransitionToHappen = endDeviceWrapper.getInstant();
-                return Optional.of(currentState);
+            Optional<CurrentState> currentState = currentStateFor( endDeviceWrapper.getMeter(), finiteStateMachine);
+            if (currentState.isPresent() ) {
+                currentState.get().transitionTime = endDeviceWrapper.getInstant();
             }
-            else {
-                // Device's state is not managed by a life cycle or not managed by the specified state machine
-                return Optional.empty();
-            }
+            return currentState;
         }
 
         protected Optional<CurrentState> currentStateFor(MeterReadingStorer.EventSource eventSource, FiniteStateMachine finiteStateMachine, MeteringService meteringService) {

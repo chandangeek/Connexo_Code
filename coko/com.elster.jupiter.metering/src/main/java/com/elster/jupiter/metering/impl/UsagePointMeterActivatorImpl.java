@@ -215,22 +215,23 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         startValidation();
         this.deactivationChanges.forEach(activation -> {
             if(activation.getUsagePoint() != null){
-                String keyToFind = activation.getMeterRole().getKey();
+                Optional<Meter> meter = Optional.empty();
                 MeterActivation act = activation.getUsagePoint().getMeterActivations()
                         .stream()
-                        .filter(actvtn -> keyToFind.equals(actvtn.getMeterRole().get().getKey()))
+                        .filter(actvtn -> activation.getMeterRole().equals(actvtn.getMeterRole()))
                         .findFirst().orElse(null);
                 if (act != null){
-                    Meter meter = act.getMeter().get();
-                    if (meter != null && meter.getState().isPresent()){
-                        /* Unlink in this case performed at current moment. So pass null as time of transition.*/
-                        eventService.postEvent(EventType.METER_UNLINKED.topic(), new MeterTransitionWrapperImpl(meter, null) );
-                    }
+                    meter = act.getMeter();
                 }
 
                 this.metrologyConfigurationService.getDataModel()
                         .mapper(MeterActivationImpl.class)
                         .find("usagePoint", activation.getUsagePoint()).stream().forEach(MeterActivationImpl::detachUsagePoint);
+
+                if (meter.isPresent() && meter.get().getState().isPresent()){
+                    /* Unlink in this case performed at current moment. So pass null as time of transition.*/
+                    eventService.postEvent(EventType.METER_UNLINKED.topic(), new MeterTransitionWrapperImpl(meter.get(), null) );
+                }
             }
         });
 
@@ -282,6 +283,9 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     @Override
     public void complete() {
+
+        List<MeterTransitionWrapper> unlinkedList = new ArrayList<>();
+        List<MeterTransitionWrapper> linkedList = new ArrayList<>();
         if (this.activationChanges.isEmpty() && this.deactivationChanges.isEmpty()) {
             return;
         }
@@ -295,7 +299,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                         .forEach(meter -> {
                             getMeterTimeLine(meter, this.meterTimeLines).adjust(activation, clearVisitor);
                             if (meter != null && meter.getState().isPresent()){
-                                eventService.postEvent(EventType.METER_UNLINKED.topic(), new MeterTransitionWrapperImpl(meter, activation.getStart()));
+                                unlinkedList.add(new MeterTransitionWrapperImpl(meter, activation.getStart()));
                             }
                           }));
         // Validate changes
@@ -305,10 +309,13 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         this.activationChanges.forEach(activation -> {
                 getMeterTimeLine(activation.getMeter(), this.meterTimeLines).adjust(activation, activateVisitor);
-                eventService.postEvent(EventType.METER_LINKED.topic(), new MeterTransitionWrapperImpl(activation.getMeter(), activation.getStart())/*, activationStart.getLong()*/);
+                linkedList.add(new MeterTransitionWrapperImpl(activation.getMeter(), activation.getStart()));
             });
         this.usagePoint.touch();
         refreshMeterActivations();
+
+        unlinkedList.forEach(eventSource -> eventService.postEvent(EventType.METER_UNLINKED.topic(), eventSource));
+        linkedList.forEach(eventSource -> eventService.postEvent(EventType.METER_LINKED.topic(), eventSource));
 
         notifyInterestedComponents();
     }

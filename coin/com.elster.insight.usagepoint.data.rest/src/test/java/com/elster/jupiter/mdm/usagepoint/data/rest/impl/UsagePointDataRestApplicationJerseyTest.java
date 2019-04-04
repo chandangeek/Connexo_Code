@@ -177,9 +177,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     ReadingType irregularReadingType = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
     @Mock
     UserService userService;
-    @Mock
-    EventService eventService;
-
 
     @Override
     protected Application getApplication() {
@@ -229,7 +226,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setPropertySpecService(propertySpecService);
         application.setUsagePointService(usagePointService);
         application.setUserService(userService);
-        application.setEventService(eventService);
         return application;
     }
 

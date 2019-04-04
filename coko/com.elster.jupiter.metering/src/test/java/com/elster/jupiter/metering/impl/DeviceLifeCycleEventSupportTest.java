@@ -476,7 +476,7 @@ public class DeviceLifeCycleEventSupportTest {
         assertThat(currentState.sourceId).isEqualTo(String.valueOf(METER_ID));
         assertThat(currentState.sourceType).isNotEmpty();
         assertThat(currentState.name).isEqualTo(STATE_NAME);
-        assertThat(currentState.timeTransitionToHappen.getLong(INSTANT_SECONDS)).isEqualTo(time.getLong(INSTANT_SECONDS));
+        assertThat(currentState.transitionTime.getLong(INSTANT_SECONDS)).isEqualTo(time.getLong(INSTANT_SECONDS));
     }
 
     @Test
@@ -500,7 +500,7 @@ public class DeviceLifeCycleEventSupportTest {
         assertThat(currentState.sourceId).isEqualTo(String.valueOf(METER_ID));
         assertThat(currentState.sourceType).isNotEmpty();
         assertThat(currentState.name).isEqualTo(STATE_NAME);
-        assertThat(currentState.timeTransitionToHappen.getLong(INSTANT_SECONDS)).isEqualTo(time.getLong(INSTANT_SECONDS));
+        assertThat(currentState.transitionTime.getLong(INSTANT_SECONDS)).isEqualTo(time.getLong(INSTANT_SECONDS));
     }
 
     private DeviceLifeCycleEventSupport getTestInstance() {

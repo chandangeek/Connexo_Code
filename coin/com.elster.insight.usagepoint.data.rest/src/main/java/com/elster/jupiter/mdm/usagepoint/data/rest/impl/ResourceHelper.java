@@ -49,8 +49,6 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.Range;
-import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.events.EventService;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -84,15 +82,13 @@ public class ResourceHelper {
     private final UserService userService;
     private final ThreadPrincipalService threadPrincipalService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
-    private final EventService eventService;
 
     @Inject
     public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory, MetrologyConfigurationService metrologyConfigurationService,
                           UsagePointLifeCycleService usagePointLifeCycleService, Clock clock, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
                           ValidationService validationService, EstimationService estimationService, Thesaurus thesaurus, UserService userService,
-                          ThreadPrincipalService threadPrincipalService, CustomPropertySetInfoFactory customPropertySetInfoFactory,
-                          EventService eventService) {
+                          ThreadPrincipalService threadPrincipalService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
         super();
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
@@ -108,7 +104,6 @@ public class ResourceHelper {
         this.userService = userService;
         this.threadPrincipalService = threadPrincipalService;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
-        this.eventService = eventService;
     }
 
     public MeterRole findMeterRoleOrThrowException(String key) {
