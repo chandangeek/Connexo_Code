@@ -656,6 +656,7 @@ public class BpmResource {
         connexoFlowHashMap.put("device", "deviceId");
         connexoFlowHashMap.put("usagepoint", "usagePointId");
         connexoFlowHashMap.put("datacollectionissue", "issueId");
+        connexoFlowHashMap.put("devicelifecycleissue", "issueLifecycleId");  // Laurentia
 
         String requiredVariable = connexoFlowHashMap.get(info.type);
 

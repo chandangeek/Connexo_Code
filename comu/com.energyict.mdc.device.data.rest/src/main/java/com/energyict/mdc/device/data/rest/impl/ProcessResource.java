@@ -60,7 +60,8 @@ public class ProcessResource {
     private enum ProcessObjectType {
         DEVICE("device", "deviceId"),
         ALARM("devicealarm", "alarmId"),
-        DATA_COLLECTION_ISSUE("datacollectionissue", "issueId");
+        DATA_COLLECTION_ISSUE("datacollectionissue", "issueId"),
+        ISSUE_TYPE_NAME("devicelifecycleissue", "issueLifecycleId");  // Lau
 
         private final String variableId;
         private final String type;
@@ -393,6 +394,21 @@ public class ProcessResource {
                     }
                     String issueReason = issueOptional.get().getReason().getKey();
                     if (!allowedIssueReasons.contains(issueReason)) {
+                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_CONSISTENT, info.getObjectName());
+                        return false;
+                    }
+                    return true;
+                };
+            case ISSUE_TYPE_NAME:
+                Set<String> allowedLifecycleIssueReasons = getSetOfValueIds(definition, DeviceResource.PROCESS_LIFECYCLE_ISSUE_STATES);  // Lau
+                return info -> {
+                    Optional<? extends Issue> issueOptional = issueService.findIssue(Long.parseLong(info.getValue())); // Lau ????
+                    if (!issueOptional.isPresent()) {
+                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, info.getObjectName());
+                        return false;
+                    }
+                    String issueReason = issueOptional.get().getReason().getKey();
+                    if (!allowedLifecycleIssueReasons.contains(issueReason)) {
                         errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_CONSISTENT, info.getObjectName());
                         return false;
                     }
