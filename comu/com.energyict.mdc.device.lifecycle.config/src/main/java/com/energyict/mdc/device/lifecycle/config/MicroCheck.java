@@ -41,7 +41,9 @@ public interface MicroCheck extends HasName {
     String getCategoryName();
 
     /**
-     * @return A set of {@link DefaultTransition} where this check should be available. Default is none of default ones.
+     * @return A set of {@link DefaultTransition} where this check should be available. Default is none of default transitions.
+     * Overriding this method without {@link #isOptionalForTransition(State, State)} would mean that the check is available on returned default transitions and on all custom ones.
+     * {@link #getRequiredDefaultTransitions()} takes precedence on this method, i.e. if some transition is returned from both methods, the check is considered mandatory for it.
      */
     default Set<DefaultTransition> getOptionalDefaultTransitions() {
         return Collections.emptySet();
@@ -49,6 +51,8 @@ public interface MicroCheck extends HasName {
 
     /**
      * @return A set of {@link DefaultTransition} where this check is mandatory (can't be unselected by user). Default is none of default ones.
+     * Overriding this method without {@link #isRequiredForTransition(State, State)} would mean that the check is mandatory on returned default transitions only.
+     * This method takes precedence on {@link #getOptionalDefaultTransitions()}, i.e. if some transition is returned from both methods, the check is considered mandatory for it.
      */
     default Set<DefaultTransition> getRequiredDefaultTransitions() {
         return Collections.emptySet();
@@ -64,6 +68,7 @@ public interface MicroCheck extends HasName {
     /**
      * @return {@code true} if this check should be available for the transition represented by {code fromState} and {code toState}.
      * Default is: available for all default transitions returned from {@link #getOptionalDefaultTransitions()} plus for all custom transitions.
+     * {@link #isRequiredForTransition(State, State)} takes precedence on this method, i.e. if for some transition both methods return true, the check is considered mandatory.
      */
     default boolean isOptionalForTransition(State fromState, State toState) {
         return isForTransition(fromState, toState, getOptionalDefaultTransitions()) || !DefaultTransition.getDefaultTransition(fromState, toState).isPresent();
@@ -72,6 +77,7 @@ public interface MicroCheck extends HasName {
     /**
      * @return {@code true} if this check should be mandatory (can't be unselected by user) for the transition represented by {code fromState} and {code toState}.
      * Default is: mandatory for all default transitions returned from {@link #getRequiredDefaultTransitions()}, and only.
+     * This method takes precedence on {@link #isOptionalForTransition(State, State)}, i.e. if for some transition both methods return true, the check is considered mandatory.
      */
     default boolean isRequiredForTransition(State fromState, State toState) {
         return isForTransition(fromState, toState, getRequiredDefaultTransitions());
