@@ -13,7 +13,6 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
@@ -30,6 +29,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 @Component(name = "MasterMeterReadingDocumentCreateRequestServiceCallHandler",
         service = ServiceCallHandler.class,
@@ -199,7 +200,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
 
         ServiceCallBuilder serviceCallBuilder = getServiceCallTypeOrThrowException(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_RESULT)
                 .newServiceCall()
-                .origin(MdcAppService.APPLICATION_NAME)
+                .origin(APPLICATION_NAME)
                 .extendedWith(masterDomainExtension);
         return serviceCallBuilder.create();
     }
