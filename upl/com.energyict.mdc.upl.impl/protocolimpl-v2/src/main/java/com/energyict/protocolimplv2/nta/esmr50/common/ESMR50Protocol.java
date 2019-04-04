@@ -98,7 +98,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         getLogger().info("Initialize communication with device identified by device ID: " + getDlmsSessionProperties().getDeviceId());
         if(!testCachedFrameCounter(comChannel)){
             readFrameCounter(comChannel);
-            DlmsSession dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
+            DlmsSession dlmsSession = newDlmsSession(comChannel);
             dlmsSession.getAso().getSecurityContext().setFrameCounter(getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter());
             setDlmsSession(dlmsSession);
         } else {
@@ -108,9 +108,12 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     }
 
-    private boolean testCachedFrameCounter(ComChannel comChannel){
+    protected DlmsSession newDlmsSession(ComChannel comChannel) {
+        return new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger()); }
+
+    protected boolean testCachedFrameCounter(ComChannel comChannel){
         boolean validCachedFrameCounter = false;
-        DlmsSession dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
+        DlmsSession dlmsSession = newDlmsSession(comChannel);
         long cachedFramecounter = getDeviceCache().getFrameCounter();
         getLogger().info("Testing cached frame counter: " + cachedFramecounter );
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFramecounter);

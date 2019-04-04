@@ -45,54 +45,19 @@ public class CryptoT210 extends T210 {
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        getLogger().info("Sagemcom T210 protocol init V2");
-        this.offlineDevice = offlineDevice;
-        getDlmsSessionProperties().setSerialNumber(getDlmsSessionProperties().getDeviceId());
-        getLogger().info("Initialize communication with device identified by device ID: " + getDlmsSessionProperties().getDeviceId());
-        if(!testCachedFrameCounter(comChannel)){
-            readFrameCounter(comChannel);
-            DlmsSession dlmsSession = newDlmsSession(comChannel);
-            dlmsSession.getAso().getSecurityContext().setFrameCounter(getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter());
-            setDlmsSession(dlmsSession);
-        } else {
-            //Framecounter was validated and DLMSSession set so go on
-        }
-        getLogger().info("Initialization phase has ended.");
-
+        getLogger().info("Sagemcom T210 crypto protocol:");
+            super.init(offlineDevice,comChannel);
     }
 
-    private boolean testCachedFrameCounter(ComChannel comChannel){
-        boolean validCachedFrameCounter = false;
-        DlmsSession dlmsSession = newDlmsSession(comChannel);
-        long cachedFramecounter = getDeviceCache().getFrameCounter();
-        getLogger().info("Testing cached frame counter: " + cachedFramecounter );
-        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFramecounter);
-        dlmsSession.getAso().getSecurityContext().setFrameCounter(cachedFramecounter);
-        try {
-            dlmsSession.getDlmsV2Connection().connectMAC();
-            dlmsSession.createAssociation();
-            if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
-//                dlmsSession.disconnect();
-                long frameCounter = dlmsSession.getAso().getSecurityContext().getFrameCounter();
-                getLogger().info("This FrameCounter was validated: " + frameCounter);
-                getDeviceCache().setFrameCounter(frameCounter);
-                validCachedFrameCounter = true;
-                setDlmsSession(dlmsSession);
-            }
-        } catch (CommunicationException ex) {
-            getLogger().info("Association using cached frame counter has failed.");
-        }
-        return validCachedFrameCounter;
-    }
-
-    private DlmsSession newDlmsSession(ComChannel comChannel) {
+    @Override
+    protected DlmsSession newDlmsSession(ComChannel comChannel) {
         //Uses the HSM to encrypt requests and decrypt responses, we don't have the plain keys
         if (getDlmsSessionProperties().useCryptoServer()) {
             //Uses the cryptoserver to encrypt requests and decrypt responses
             return  new CryptoDlmsSession(comChannel, getDlmsSessionProperties());
         } else {
             //Normal session
-            return super.getDlmsSession();
+            return super.newDlmsSession(comChannel);
         }
     }
 
