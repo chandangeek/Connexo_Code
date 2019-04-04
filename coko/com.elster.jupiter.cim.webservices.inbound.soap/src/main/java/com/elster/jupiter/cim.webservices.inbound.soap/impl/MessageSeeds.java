@@ -66,6 +66,7 @@ public enum MessageSeeds implements MessageSeed {
     WRONG_ENUM_FORMAT(2027, "WrongEnumFormat", "Wrong enumeration value for attribute {0}. Possible values: {1}."),
     MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE(2028, "MissingRequiredCustomAttributeValue", "Attribute {0} is required on custom attribute set {1}."),
     CUSTOMPROPERTYSET_VALUES_ON_REQUIRED_RANGE(2029, "CustomPropertySetValuesOnRequiredRange", "Custom property set {0} must have values on the required range {1}."),
+    NO_ACTIVE_METROLOGY_CONFIGURATION_WITH_NAME(2030, "NoActiveMetrologyConfigWithName", "No active metrology configuration with name ''{0}'' is found for usage point."),
 
     // meter readings
     UNABLE_TO_GET_READINGS(3001, "UnableToGetReadings", "Unable to get readings."),
