@@ -126,7 +126,7 @@ public class SecurityAccessorResource {
     public PagedInfoList getKeys(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<SecurityAccessorInfo> collect = getSecurityAccessorKeyInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()));
-            info.keyType = new KeyTypeInfo(findKeyAccessorTypeOrThrowException(info.id, device).getKeyType());
+            //info.keyType = new KeyTypeInfo(findKeyAccessorTypeOrThrowException(info.id, device).getKeyType());
         return PagedInfoList.fromCompleteList("keys", collect, queryParameters);
     }
 

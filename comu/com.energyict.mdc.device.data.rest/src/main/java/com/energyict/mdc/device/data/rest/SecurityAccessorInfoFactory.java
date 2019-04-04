@@ -11,6 +11,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
+import com.energyict.mdc.device.configuration.rest.impl.KeyTypeInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.SecurityAccessor;
@@ -84,6 +85,8 @@ public class SecurityAccessorInfoFactory {
             info.viewLevels = executionLevelInfoFactory.getViewPrivileges(userActions, groups);
             device.getDeviceType().getDefaultKeyOfSecurityAccessorType(securityAccessor.getKeyAccessorType())
                     .ifPresent(v -> info.defaultServiceKey = v);
+            info.keyType = new KeyTypeInfo(securityAccessor.getKeyAccessorType().getKeyType());
+
             securityAccessorInfos.add(info);
         }
 
