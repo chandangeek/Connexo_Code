@@ -59,13 +59,6 @@ public interface MicroCheck extends HasName {
     }
 
     /**
-     * Service method; should not be overridden.
-     */
-    default boolean isApplicableForTransition(State fromState, State toState) {
-        return isOptionalForTransition(fromState, toState) || isRequiredForTransition(fromState, toState);
-    }
-
-    /**
      * @return {@code true} if this check should be available for the transition represented by {code fromState} and {code toState}.
      * Default is: available for all default transitions returned from {@link #getOptionalDefaultTransitions()} plus for all custom transitions.
      * {@link #isRequiredForTransition(State, State)} takes precedence on this method, i.e. if for some transition both methods return true, the check is considered mandatory.

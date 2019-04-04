@@ -71,15 +71,15 @@ public class Installer implements FullInstaller {
                 .ifPresent(lifeCycle -> {
                     DeviceLifeCycleUpdater updater = lifeCycle.startUpdate();
                     lifeCycle.getFiniteStateMachine().getTransitions()
-                            .forEach(transition -> updater.transitionAction(transition).setChecks(applicableChecksFor(transition)).complete());
+                            .forEach(transition -> updater.transitionAction(transition).setChecks(requiredChecksFor(transition)).complete());
                     updater.complete().save();
                 });
     }
 
-    private Set<String> applicableChecksFor(StateTransition transition) {
+    private Set<String> requiredChecksFor(StateTransition transition) {
         return deviceLifeCycleConfigurationService.getMicroChecks()
                 .stream()
-                .filter(microCheck -> microCheck.isApplicableForTransition(transition.getFrom(), transition.getTo()))
+                .filter(microCheck -> microCheck.isRequiredForTransition(transition.getFrom(), transition.getTo()))
                 .map(MicroCheck::getKey)
                 .collect(Collectors.toSet());
     }

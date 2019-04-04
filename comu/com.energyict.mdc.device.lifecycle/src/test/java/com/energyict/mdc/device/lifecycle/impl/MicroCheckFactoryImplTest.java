@@ -3,13 +3,16 @@
  */
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheck;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.ActiveConnectionAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
+
+import java.util.Optional;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +21,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,33 +42,36 @@ public class MicroCheckFactoryImplTest {
 
     @Before
     public void initializeMocks() {
-        when(this.nlsService.getThesaurus(DeviceLifeCycleService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(this.thesaurus);
+        when(dataModel.getInstance(any(Class.class))).thenAnswer(invocationOnMock -> mockMicroCheck(invocationOnMock.getArgumentAt(0, Class.class)));
     }
 
     @Test
-    public void constructorExtractsThesaurus() {
-        // Business method
-        this.getTestInstance();
-
-        // Asserts
-        verify(this.nlsService).getThesaurus(DeviceLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Test
-    public void allMicroChecksAreCovered() {
+    public void testAllChecks() {
         DeviceMicroCheckFactoryImpl factory = this.getTestInstance();
+        Set<? extends MicroCheck> microChecks = factory.getAllChecks();
 
-        // Business method
-        ExecutableMicroCheck serverMicroCheck = factory.from("ActiveConnectionAvailable")
-                .map(ExecutableMicroCheck.class::cast)
-                .get();
+        verify(dataModel, times(18)).getInstance(any());
+        assertThat(microChecks).hasSize(18);
+    }
 
-        // Asserts
-        assertThat(factory.getAllChecks()).hasSize(17);
-        assertThat(serverMicroCheck).as("MicroCheckFactoryImpl returns null for " + serverMicroCheck).isNotNull();
+    @Test
+    public void testOneCheck() {
+        DeviceMicroCheckFactoryImpl factory = this.getTestInstance();
+        Optional<ExecutableMicroCheck> serverMicroCheck = factory.from(ActiveConnectionAvailable.class.getSimpleName())
+                .map(ExecutableMicroCheck.class::cast);
+
+        verify(dataModel).getInstance(ActiveConnectionAvailable.class);
+        assertThat(serverMicroCheck).isPresent();
+        assertThat(serverMicroCheck.get().getKey()).isEqualTo(ActiveConnectionAvailable.class.getSimpleName());
     }
 
     private DeviceMicroCheckFactoryImpl getTestInstance() {
         return new DeviceMicroCheckFactoryImpl(dataModel);
+    }
+
+    private ExecutableMicroCheck mockMicroCheck(Class checkClass) {
+        ExecutableMicroCheck microCheck = mock(ExecutableMicroCheck.class);
+        when(microCheck.getKey()).thenReturn(checkClass.getSimpleName());
+        return microCheck;
     }
 }

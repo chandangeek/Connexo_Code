@@ -11,11 +11,13 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -24,19 +26,17 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MetrologyConfigInCorrectStateTest {
-
+    private static final String INSIGHT_LICENSE = "INS";
     private MetrologyConfigurationInCorrectStateIfAny checkObject;
 
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private Device device;
     @Mock
@@ -52,6 +52,7 @@ public class MetrologyConfigInCorrectStateTest {
 
     @Before
     public void setUp() {
+        when(licenseService.getLicensedApplicationKeys()).thenReturn(Collections.singletonList(INSIGHT_LICENSE));
         checkObject = new MetrologyConfigurationInCorrectStateIfAny(licenseService);
         checkObject.setThesaurus(thesaurus);
 
@@ -66,7 +67,7 @@ public class MetrologyConfigInCorrectStateTest {
 
         Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertFalse(result.isPresent());
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -75,7 +76,7 @@ public class MetrologyConfigInCorrectStateTest {
 
         Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertFalse(result.isPresent());
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -84,7 +85,7 @@ public class MetrologyConfigInCorrectStateTest {
 
         Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertFalse(result.isPresent());
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -93,7 +94,7 @@ public class MetrologyConfigInCorrectStateTest {
 
         Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertFalse(result.isPresent());
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -102,7 +103,7 @@ public class MetrologyConfigInCorrectStateTest {
 
         Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertFalse(result.isPresent());
+        assertThat(result).isEmpty();
     }
 
 
@@ -116,14 +117,23 @@ public class MetrologyConfigInCorrectStateTest {
 
         Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertFalse(result.isPresent());
+        assertThat(result).isEmpty();
     }
 
     @Test
     public void actionViolationConditionsAreMet() {
         Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertTrue(result.isPresent());
+        assertThat(result).isPresent();
+    }
+
+    @Test
+    public void noInsightLicense() {
+        when(licenseService.getLicensedApplicationKeys()).thenReturn(Collections.emptyList());
+
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
+
+        assertThat(result).isEmpty();
     }
 
     private MeterActivation mockMeterActivation() {

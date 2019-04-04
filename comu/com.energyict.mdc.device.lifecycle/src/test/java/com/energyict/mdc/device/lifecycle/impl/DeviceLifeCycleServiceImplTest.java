@@ -44,6 +44,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotAfterLastStateChangeException;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
@@ -61,7 +62,6 @@ import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.MetrologyConfigurationInCorrectStateIfAny;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
@@ -224,12 +224,11 @@ public class DeviceLifeCycleServiceImplTest {
             ServerMicroAction serverMicroAction = mock(ServerMicroAction.class);
             when(this.microActionFactory.from(microAction)).thenReturn(serverMicroAction);
         }
-        when(deviceLifeCycleConfigurationService.getMicroCheckByKey(MetrologyConfigurationInCorrectStateIfAny.class.getSimpleName())
-                .map(ExecutableMicroCheck.class::cast).get().execute(any(Device.class), any(Instant.class), any(State.class))).thenReturn(Optional.empty());
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
         when(userPreferencesService.getPreferenceByKey(any(User.class), any(PreferenceType.class))).thenReturn(Optional.empty());
 
         when(this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
+        when(ormService.newDataModel(eq(DeviceLifeCycleService.COMPONENT_NAME), anyString())).thenReturn(dataModel);
     }
 
     @Test

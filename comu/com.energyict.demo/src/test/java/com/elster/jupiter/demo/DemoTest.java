@@ -73,6 +73,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.nls.impl.NlsServiceImpl;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.PassphraseFactory;
@@ -299,6 +300,7 @@ public class DemoTest {
             bind(com.elster.jupiter.hsm.HsmProtocolService.class).toInstance(mock(com.elster.jupiter.hsm.HsmProtocolService.class));
             bind(com.elster.jupiter.hsm.HsmEnergyService.class).toInstance(mock(com.elster.jupiter.hsm.HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
+            bind(DataModel.class).toInstance(mock(DataModel.class));
         }
 
         private License mockLicense(String applicationname) {
@@ -810,6 +812,8 @@ public class DemoTest {
     }
 
     protected void doPreparations() {
+        DataModel dataModel = injector.getInstance(DataModel.class);
+        when(dataModel.getInstance(any())).thenAnswer(invocationOnMock -> injector.getInstance(invocationOnMock.getArgumentAt(0, Class.class)));
         passphraseFactory = mock(PassphraseFactory.class);
         when(passphraseFactory.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
         PassphraseWrapper passphraseWrapper = mock(PassphraseWrapper.class);

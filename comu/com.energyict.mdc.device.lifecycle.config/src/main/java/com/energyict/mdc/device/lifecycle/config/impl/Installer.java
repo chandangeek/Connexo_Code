@@ -206,16 +206,16 @@ class Installer implements FullInstaller, PrivilegesProvider {
     private void addAsAction(StateTransition transition, DeviceLifeCycleBuilder builder) {
         builder
                 .newTransitionAction(transition)
-                .setChecks(this.applicableChecksFor(transition))
+                .setChecks(this.requiredChecksFor(transition))
                 .addActions(this.applicableActionsFor(transition))
                 .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO, AuthorizedAction.Level.THREE))
                 .complete();
     }
 
-    private Set<String> applicableChecksFor(StateTransition transition) {
+    private Set<String> requiredChecksFor(StateTransition transition) {
         return deviceLifeCycleConfigurationService.getMicroChecks()
                 .stream()
-                .filter(microCheck -> microCheck.isApplicableForTransition(transition.getFrom(), transition.getTo()))
+                .filter(microCheck -> microCheck.isRequiredForTransition(transition.getFrom(), transition.getTo()))
                 .map(MicroCheck::getKey)
                 .collect(Collectors.toSet());
     }

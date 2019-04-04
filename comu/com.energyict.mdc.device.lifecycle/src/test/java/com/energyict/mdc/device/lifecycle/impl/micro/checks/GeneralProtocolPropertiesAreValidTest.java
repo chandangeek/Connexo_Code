@@ -5,6 +5,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
@@ -40,8 +41,7 @@ public class GeneralProtocolPropertiesAreValidTest {
 
     public static final String OPTIONAL_PROPERTY_NAME = "optional";
     public static final String REQUIRED_PROPERTY_NAME = "required";
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private DeviceProtocol deviceProtocol;
     @Mock

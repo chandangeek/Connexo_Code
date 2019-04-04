@@ -5,6 +5,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -38,8 +39,7 @@ public class ProtocolDialectPropertiesAreValidTest {
     private static final String DIALECT1_NAME = "One";
     private static final String DIALECT2_NAME = "Two";
 
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties1;
     @Mock
