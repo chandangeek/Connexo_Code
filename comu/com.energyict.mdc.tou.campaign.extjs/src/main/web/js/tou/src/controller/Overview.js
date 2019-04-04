@@ -90,7 +90,7 @@ Ext.define('Tou.controller.Overview', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('tou.campaigns.cancel.msg', 'TOU', 'Cancel time of use calendar upload for all scheduled devices. Ongoing uploads will not be terminated and successful uploads will not be reversed.'),
-            title: Uni.I18n.translate('tou.campaigns.cancel.title', 'TOU', 'Cancel ToU campaign "{0}"?', record.get('name'))
+            title: Uni.I18n.translate('tou.campaigns.cancel.title', 'TOU', 'Cancel ToU calendar campaign "{0}"?', record.get('name'))
         });
     },
 
@@ -151,7 +151,7 @@ Ext.define('Tou.controller.Overview', {
         model.load(campaignName, {
             success: function (campaignRecord) {
                 editView.down('tou-campaigns-add-form').setTitle(
-                    Uni.I18n.translate('tou.campaigns.editTouCampaign', 'TOU', 'Edit time of use calendar campaign'));
+                    Uni.I18n.translate('tou.campaigns.editTouCampaign', 'TOU', 'Edit ToU calendar campaign'));
                 me.getApplication().fireEvent('loadTouCampaign', campaignRecord);
                 editForm.loadRecordForEdit(campaignRecord);
             }

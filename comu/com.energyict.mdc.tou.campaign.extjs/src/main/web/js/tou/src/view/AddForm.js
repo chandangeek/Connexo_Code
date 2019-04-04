@@ -217,7 +217,7 @@ Ext.define('Tou.view.AddForm', {
          switch (option){
              case 'fullCalendar':
                 return Uni.I18n.translate('general.fullCalendar', 'TOU', 'Full calendar');
-             case 'fullCalendar':
+             case 'specialDays':
                 return Uni.I18n.translate('general.specialDays', 'TOU', 'Only special days');
              default:
                 return null;
@@ -238,7 +238,7 @@ Ext.define('Tou.view.AddForm', {
             displayField.show();
             displayField.setValue(me.setUpdateTypeLabel(allEnabledOptionsArr[0]));
             var value = {};
-            value['updateOption'] = allEnabledOptionsArr[0];
+            value['updateType'] = allEnabledOptionsArr[0];
             radiogroup.setValue(value);
 	    }else{
 	        displayField.hide();
@@ -250,6 +250,12 @@ Ext.define('Tou.view.AddForm', {
                 if (cmp){
                    (Ext.Array.indexOf(allEnabledOptionsArr, option) !== -1) ? cmp.show() : cmp.hide()
                 }
+            }
+
+            if (allEnabledOptionsArr.indexOf('fullCalendar') !== -1){
+                var value = {};
+                value['updateType'] = allEnabledOptionsArr[0];
+                radiogroup.setValue(value);
             }
         }
     },
