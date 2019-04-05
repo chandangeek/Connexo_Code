@@ -36,5 +36,5 @@ public class SecurityAccessorInfo {
     public boolean serviceKey = false;
 
     public String defaultServiceKey;
-    public KeyTypeInfo keyType;
+    public String keyType;
 }

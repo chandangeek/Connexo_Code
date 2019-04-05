@@ -83,6 +83,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     deviceType: null,
     selectedRecord: undefined,
     recordToSetKey: null,
+    defaultKeyValue: "",
 
     init: function () {
         var me = this;
@@ -194,7 +195,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             } break;
             case 'setDefaultKeyValue': {
                 Ext.widget('security-accessors-set-default-key-window', {
-                    securityAccessorRecord: me.selectedRecord
+                    securityAccessorRecord: me.selectedRecord,
+                    defaultKeyValueToSet: me.defaultKeyValue
                 }).show();
             } break;
         }
@@ -230,10 +232,11 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     method: 'GET',
                     success: function (response) {
                         var data = Ext.JSON.decode(response.responseText);
+                        me.defaultKeyValue = data.defaultServiceKey;
                         model.load(recordParam.get('id'), {
                                success: function (keyRecord) {
                                    recordToSetKey = keyRecord;
-                                   processRecord(keyRecord, data.defaultServiceKey);
+                                   processRecord(keyRecord, me.defaultKeyValue);
                                }
                         });
                     }
@@ -795,6 +798,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                    "value": keyValue
                 },
                 success: function (response) {
+                    me.defaultKeyValue = keyValue;
                     me.getPreviewForm().doLoadRecord(recordToSetKey, keyValue, me.deviceTypeId);
 
                 },
