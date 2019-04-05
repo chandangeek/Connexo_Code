@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Mdc.store.CommunicationTaskPrivileges', {
@@ -16,7 +16,8 @@ Ext.define('Mdc.store.CommunicationTaskPrivileges', {
         url: '/api/cts/comtasks/privileges',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'data',
+            idProperty: 'privilege'
         },
         timeout: 300000,
         pageParam: false,

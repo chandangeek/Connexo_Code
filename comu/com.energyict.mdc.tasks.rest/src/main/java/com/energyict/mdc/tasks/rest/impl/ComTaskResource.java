@@ -159,6 +159,9 @@ public class ComTaskResource {
     }
 
     private void updateComTaskPrivileges(ComTaskInfo comTaskInfo, ComTask comTask) {
+        if (comTaskInfo.privileges == null) {
+            comTaskInfo.privileges = new ArrayList<>();
+        }
         Set<ComTaskUserAction> comTaskUserAction = comTaskInfo.privileges.stream().map(info -> info.privilege)
                 .collect(Collectors.toSet());
         comTask.setUserActions(comTaskUserAction);

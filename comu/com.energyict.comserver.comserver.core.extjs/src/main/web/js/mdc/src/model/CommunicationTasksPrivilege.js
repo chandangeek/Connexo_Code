@@ -4,6 +4,7 @@
 
 Ext.define('Mdc.model.CommunicationTasksPrivilege', {
     extend: 'Ext.data.Model',
+    idProperty: 'privilege',
     fields: [
         {
             name: 'privilege',
@@ -21,7 +22,8 @@ Ext.define('Mdc.model.CommunicationTasksPrivilege', {
         url: '/api/cts/comtasks/privileges',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'data',
+            idProperty: 'privilege'
         },
         pageParam: false,
         startParam: false,

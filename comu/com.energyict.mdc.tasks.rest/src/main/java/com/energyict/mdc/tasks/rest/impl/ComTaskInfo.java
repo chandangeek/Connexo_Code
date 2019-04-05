@@ -38,7 +38,7 @@ public class ComTaskInfo {
     public List<ProtocolTaskInfo> commands;
     public List<MessageCategoryInfo> messages;
     public long version;
-    public List<ComTaskPrivilegeInfo> privileges = new ArrayList<>();
+    public List<ComTaskPrivilegeInfo> privileges;
 
     public static ComTaskInfo from(ComTask comTask) {
         ComTaskInfo comTaskInfo = new ComTaskInfo();

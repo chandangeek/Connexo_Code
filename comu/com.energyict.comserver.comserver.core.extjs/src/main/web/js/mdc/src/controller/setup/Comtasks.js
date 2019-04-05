@@ -464,7 +464,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         me.getApplication().fireEvent('changecontentevent', widget);
 
                         var onPrivilegesLoaded = function () {
-                            if (widget.down('#add-privilege-action') &&
+                             if (widget.down('#add-privilege-action') &&
                             		privilegesStore.getCount() < me.privilegesStore.totalCount) {
                                 widget.down('#add-privilege-action').setDisabled(false);
                             }
@@ -797,20 +797,20 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         Ext.Array.remove(comTaskRecord.get(me.COMMAND_CATEGORIES), item2Remove);
                     }
                     comTaskRecord.save({
-                        backUrl: backUrl,
-                        success: function () {
-                            window.location.href = backUrl;
-                            me.getApplication().fireEvent('acknowledge',
-                                Uni.I18n.translate('commandCategory.remove.success.msg', 'MDC', 'Command category removed')
-                            );
-                            view.setLoading(false);
-                            grid.getStore().removeAt(rowIndex);
-                            view.down('pagingtoolbartop').updateInfo();
-                            view.down('#add-command-category-action').setDisabled(false);
-                        },
-                        callback: function () {
-                            view.setLoading(false);
-                        }
+                    	backUrl: backUrl,
+                    	success: function () {
+                    		window.location.href = backUrl;
+                    		me.getApplication().fireEvent('acknowledge',
+                    				Uni.I18n.translate('commandCategory.remove.success.msg', 'MDC', 'Command category removed')
+                    		);
+                    		view.setLoading(false);
+                    		grid.getStore().removeAt(rowIndex);
+                    		view.down('pagingtoolbartop').updateInfo();
+                    		view.down('#add-command-category-action').setDisabled(false);
+                    	},
+                    	callback: function () {
+                    		view.setLoading(false);
+                    	}
                     });
                 }
             }
@@ -831,7 +831,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             fn: function (state) {
                 if (state === 'confirm') {
                     var item2Remove = null;
-                    view.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
                     Ext.Array.each(comTaskRecord.get(me.PRIVILEGES), function (message) {
                         if (message.privilege === privilegeRecord.get('privilege')) {
                             item2Remove = message;
@@ -839,24 +838,25 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         }
                     });
                     if (item2Remove) {
-                        Ext.Array.remove(comTaskRecord.get(me.PRIVILEGES), item2Remove);
+                         view.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
+                         Ext.Array.remove(comTaskRecord.get(me.PRIVILEGES), item2Remove);
+                         comTaskRecord.save({
+                             backUrl: backUrl,
+                             success: function () {
+                                 window.location.href = backUrl;
+                                 me.getApplication().fireEvent('acknowledge',
+                                     Uni.I18n.translate('privilege.remove.success.msg', 'MDC', 'Privilege removed')
+                                 );
+                                 view.setLoading(false);
+                                 grid.getStore().remove(privilegeRecord);
+                                 view.down('pagingtoolbartop').updateInfo();
+                                 view.down('#add-privilege-action').setDisabled(false);
+                             },
+                             callback: function () {
+                                 view.setLoading(false);
+                             }
+                         });
                     }
-                    comTaskRecord.save({
-                        backUrl: backUrl,
-                        success: function () {
-                            window.location.href = backUrl;
-                            me.getApplication().fireEvent('acknowledge',
-                                Uni.I18n.translate('privilege.remove.success.msg', 'MDC', 'Privilege removed')
-                            );
-                            view.setLoading(false);
-                            grid.getStore().removeAt(rowIndex);
-                            view.down('pagingtoolbartop').updateInfo();
-                            view.down('#add-privilege-action').setDisabled(false);
-                        },
-                        callback: function () {
-                            view.setLoading(false);
-                        }
-                    });
                 }
             }
         });
