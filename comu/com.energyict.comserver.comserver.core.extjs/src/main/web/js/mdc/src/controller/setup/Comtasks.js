@@ -11,7 +11,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         'Mdc.store.CommunicationTasks',
         'Mdc.store.CommunicationTasksCategories',
         'Mdc.store.CommunicationTasksActions',
-        'Mdc.store.CommunicationTasksPrivileges',
         'Mdc.store.TimeUnits',
         'Mdc.store.LogbookTypes',
         'Mdc.store.LoadProfileTypes',
