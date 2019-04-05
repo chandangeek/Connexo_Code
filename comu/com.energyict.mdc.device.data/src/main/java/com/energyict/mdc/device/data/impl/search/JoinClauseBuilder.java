@@ -52,4 +52,5 @@ public interface JoinClauseBuilder {
         public static final String DEVICE_TYPE = "dev_Type";
         public static final String PROTOCOL_DIALECT_PROPS = "pdprops";
     }
+
 }

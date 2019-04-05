@@ -121,6 +121,7 @@ public class DeviceSearchDomain implements SearchDomain {
         ConnectionSearchablePropertyGroup connectionGroup = injector.getInstance(ConnectionSearchablePropertyGroup.class);
         TransitionSearchablePropertyGroup transitionGroup = injector.getInstance(TransitionSearchablePropertyGroup.class);
         ZonesSearchablePropertyGroup zonesGroup =  injector.getInstance(ZonesSearchablePropertyGroup.class);
+        CalendarSearchableGroup calendarSearchableGroup = injector.getInstance(CalendarSearchableGroup.class);
         ZoneTypeSearchableProperty zoneTypeSearchableProperty = injector.getInstance(ZoneTypeSearchableProperty.class).init(this, zonesGroup);
         return Arrays.asList(
                 injector.getInstance(NameSearchableProperty.class).init(this),
@@ -183,6 +184,9 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(TransitionInstallationDateSearchableProperty.class).init(this, transitionGroup),
                 injector.getInstance(TransitionDeactivationDateSearchableProperty.class).init(this, transitionGroup),
                 injector.getInstance(TransitionDecommissioningDateSearchableProperty.class).init(this, transitionGroup),
+                injector.getInstance(ActiveDeviceCalendarSearchableProperty.class).init(this, calendarSearchableGroup),
+                injector.getInstance(PassiveDeviceCalendarSearchableProperty.class).init(this, calendarSearchableGroup),
+                injector.getInstance(PlannedPassiveDeviceCalendarSearchableProperty.class).init(this, calendarSearchableGroup),
                 injector.getInstance(LocationSearchableProperty.class).init(this),
                 injector.getInstance(SecurityExpirationSearchableProperty.class).init(this, securityGroup)
         );
