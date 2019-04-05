@@ -32,7 +32,10 @@ public enum TranslationKeys implements TranslationKey {
     CREATE_NEW_DEVICELIFECYCLE_ISSUE("create.new.devicelifecycle.issue", "Create new device lifecycle issue"),
     LOG_ON_EXISTING_DEVICELIFECYCLE_ISSUE("log.on.existing.devicelifecycle.issue", "Log on existing open device lifecycle issue"),
     PARAMETER_AUTO_RESOLUTION(DeviceLifecycleIssueCreationRuleTemplate.AUTORESOLUTION, "Auto resolution"),
-    DEVICE_LIFECYCLE_TRANSITION_PROPS(DeviceLifecycleIssueCreationRuleTemplate.DEVICE_LIFECYCLE_TRANSITION_PROPS, "Transitions");
+    DEVICE_LIFECYCLE_TRANSITION_PROPS(DeviceLifecycleIssueCreationRuleTemplate.DEVICE_LIFECYCLE_TRANSITION_PROPS, "Transitions"),
+    NO_AVAILABLE_TRANSITION_FROM_CURRENT_STATE("no.available.transition.from.current.state", "There is no available device lifecycle transition from current state"),
+    TRANSITION_NOT_POSSIBLE_FROM_CURRENT_DEVICE_STATE("transition.not.possible.from.curent.device.state", "The failed transition action cannot be executed from current device state"),
+    UNABLE_TO_FIND_FAILED_TRANSITION_TO_RETRY("unable.find.fail.transition.retry", "Unable to find the failed transition");
 
     private final String key;
     private final String defaultFormat;
