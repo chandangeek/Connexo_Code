@@ -449,6 +449,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>issue.task</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue.task</artifactId>
             <scope>compile</scope>
         </dependency>
     </dependencies>
