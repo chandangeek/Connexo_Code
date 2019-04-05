@@ -13,9 +13,12 @@ Ext.define('Mdc.model.CommunicationTasksPrivilege', {
         {
             name: 'name',
             type: 'string'
+        },
+        {
+            name: 'roles',
+            type: 'auto'
         }
-        // need roles also
-    ],
+     ],
 
     proxy: {
         type: 'rest',

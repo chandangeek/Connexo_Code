@@ -11,6 +11,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         'Mdc.store.CommunicationTasks',
         'Mdc.store.CommunicationTasksCategories',
         'Mdc.store.CommunicationTasksActions',
+        'Mdc.store.CommunicationTaskPrivileges',
         'Mdc.store.TimeUnits',
         'Mdc.store.LogbookTypes',
         'Mdc.store.LoadProfileTypes',
@@ -117,6 +118,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             },
             '#mdc-comtask-addPrivileges-add': {
                 click: this.addPrivileges
+            },
+            'button[name=comTaskPrivilegesInfoIcon]': {
+                click: this.onComTaskPrivilegesInfoIconClick
             }
         });
     },
@@ -1728,6 +1732,12 @@ Ext.define('Mdc.controller.setup.Comtasks', {
 
         splittedPath.pop();
         router.getRoute(splittedPath.join('/')).forward();
+    },
+    
+    onComTaskPrivilegesInfoIconClick: function (button) {
+    	var store=Ext.data.StoreManager.lookup('Mdc.store.CommunicationTaskPrivileges');
+        store.load();
+        Ext.widget('comtask-privileges-info-panel');
     }
 
 })

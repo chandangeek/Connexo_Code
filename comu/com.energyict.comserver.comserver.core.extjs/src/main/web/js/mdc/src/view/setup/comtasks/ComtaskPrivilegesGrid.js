@@ -9,12 +9,14 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPrivilegesGrid', {
     requires: [
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Uni.grid.column.RemoveAction'
+        'Uni.grid.column.RemoveAction',
+        'Mdc.view.setup.comtasks.PrivilegesInfoPanel'
     ],
     router: null,
     forceFit: true,
     autoScroll: false,
     enableColumnHide: false,
+    autoHeight: true,
 
     initComponent: function () {
         var me = this;
@@ -26,7 +28,22 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPrivilegesGrid', {
                 dataIndex: 'name',
                 ascSortCls: null, // no sort indication
                 descSortCls: null, // no sort indication
-                flex: 1
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    var id = Ext.id();
+
+                    Ext.defer(function () {
+                        new Ext.button.Button({
+                            renderTo: Ext.query('#' + id)[0],
+                            name: 'comTaskPrivilegesInfoIcon',
+                            text: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
+                            ui: 'blank',
+                            record: record
+                        });
+                    }, 10);
+
+                    return value + Ext.String.format('<span style="margin-left:7px; padding:0;" id="{0}"></span>', id);
+                }
             },
             {
                 xtype: 'uni-actioncolumn-remove',
