@@ -6,8 +6,8 @@ Ext.define('Tou.view.SideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.tou-campaign-side-menu',
     router: null,
-    title: 'ToU campaign',
-    objectType: 'ToU campaign',
+    title: Uni.I18n.translate('tou.campaigns.touCampaign', 'TOU', 'ToU calendar campaign'),
+    objectType: Uni.I18n.translate('tou.campaigns.touCampaign', 'TOU', 'ToU calendar campaign'),
 
     initComponent: function () {
         var me = this;
