@@ -46,7 +46,7 @@ Ext.define('Mdc.property.SecuritySet', {
                     }
                 });
 
-                me.securityAccessorsStore = Ext.create('Ext.data.Store', {
+        me.securityAccessorsStore = Ext.create('Ext.data.Store', {
             model: 'Mdc.securityaccessors.model.DeviceSecurityKey',
             proxy: {
                 type: 'rest',
@@ -208,13 +208,13 @@ Ext.define('Mdc.property.SecuritySet', {
             var properties = accessor.currentProperties();
             var accessorId = accessor.get('id');
             var defaultServiceKeyValue = accessor.get('defaultServiceKey');
-
+            var keyType = accessor.get('keyType');
 
             properties.each(function (property) {
                 property.set('name', nameOfAccessor);
                 var propertyKey = property.get('key');
 
-                if (propertyKey !== "label"){
+                if (propertyKey !== "label" && keyType == "HSM Key"){
                     var keyToset = nameOfAccessor;
                     var savedValue = fieldValues.properties[nameOfAccessor]
                     property.set('key', keyToset);
@@ -282,9 +282,7 @@ Ext.define('Mdc.property.SecuritySet', {
         }else{
             me.down('#accessors-container').show();
             selections.forEach(function (selection) {
-                    console.log("SLECTION!!!=",selection.properties);
                     selection.properties().each(function (property) {
-                        console.log("PROPERTY=",property);
                         var idToAdd = property.raw.propertyValueInfo.value.id;
                         if(!(accessorIdArray.indexOf(idToAdd)>=0)){
                         /* Id of secutrityAccessor is not in array. Add it to array */
