@@ -9,12 +9,12 @@ import com.energyict.mdc.device.data.Device;
 import aQute.bnd.annotation.ProviderType;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 
-import java.util.List;
+import java.util.Collection;
 
 @ProviderType
 public interface MeterConfigFactory {
     MeterConfig asMeterConfig(Device device);
     MeterConfig asGetMeterConfig(Device device);
-    MeterConfig asMeterConfig(List<Device> devices);
-    MeterConfig asGetMeterConfig(List<Device> devices);
+    MeterConfig asMeterConfig(Collection<Device> devices);
+    MeterConfig asGetMeterConfig(Collection<Device> devices);
 }

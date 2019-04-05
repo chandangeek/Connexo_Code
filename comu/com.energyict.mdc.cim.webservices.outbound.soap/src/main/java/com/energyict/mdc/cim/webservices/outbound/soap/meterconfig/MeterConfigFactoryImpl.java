@@ -38,6 +38,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,7 +83,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     }
 
     @Override
-    public MeterConfig asMeterConfig(List<Device> devices) {
+    public MeterConfig asMeterConfig(Collection<Device> devices) {
         Set<String> deviceConfigRefs = new HashSet<>();
         MeterConfig meterConfig = new MeterConfig();
         devices.forEach(device -> {
@@ -102,7 +103,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     }
 
     @Override
-    public MeterConfig asGetMeterConfig(List<Device> devices) {
+    public MeterConfig asGetMeterConfig(Collection<Device> devices) {
         MeterConfig meterConfig = new MeterConfig();
         for (Device device : devices) {
             Meter meter = getMeter(device);

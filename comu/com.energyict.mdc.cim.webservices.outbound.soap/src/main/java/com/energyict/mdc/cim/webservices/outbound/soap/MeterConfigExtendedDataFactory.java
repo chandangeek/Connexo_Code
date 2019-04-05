@@ -5,14 +5,13 @@ package com.energyict.mdc.cim.webservices.outbound.soap;
 
 import com.energyict.mdc.device.data.Device;
 
-import aQute.bnd.annotation.ProviderType;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 
 import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
 
-@ProviderType
+@ConsumerType
 public interface MeterConfigExtendedDataFactory {
 
     String NAME = "MeterConfigExtendedDataFactory";
