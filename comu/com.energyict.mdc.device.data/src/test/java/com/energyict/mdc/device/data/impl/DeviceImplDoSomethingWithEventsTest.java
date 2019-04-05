@@ -8,6 +8,7 @@ import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -302,6 +303,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private LicenseService licenseService;
         private IssueService issueService;
         private com.energyict.mdc.issues.IssueService mdcIssueService;
+        private CalendarService calendarService;
 
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
@@ -378,6 +380,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.schedulingService = injector.getInstance(SchedulingService.class);
                 this.issueService = injector.getInstance(IssueService.class);
                 this.mdcIssueService = injector.getInstance(com.energyict.mdc.issues.IssueService.class);
+                this.calendarService = injector.getInstance(CalendarService.class);
                 this.deviceDataModelService =
                         new DeviceDataModelServiceImpl(
                                 this.bundleContext,
@@ -411,7 +414,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(LockService.class),
                                 injector.getInstance(DataVaultService.class),
                                 injector.getInstance(SecurityManagementService.class),
-                                injector.getInstance(MeteringZoneService.class)
+                                injector.getInstance(MeteringZoneService.class), calendarService
                         );
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
