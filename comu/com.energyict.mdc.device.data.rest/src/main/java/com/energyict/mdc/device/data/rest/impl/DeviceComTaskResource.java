@@ -10,6 +10,9 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
@@ -26,6 +29,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.ComTaskUserAction;
 import com.energyict.mdc.tasks.FirmwareManagementTask;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -39,14 +43,18 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.stream.Collectors.toList;
@@ -179,7 +187,8 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response run(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info) {
+    public Response run(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info,
+            @Context SecurityContext securityContext) {
         if (info==null || info.device==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
@@ -187,13 +196,25 @@ public class DeviceComTaskResource {
         checkForNoActionsAllowedOnSystemComTask(comTaskId);
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
+        User user = (User) securityContext.getUserPrincipal();
         if (!comTaskExecutions.isEmpty()) {
-            comTaskExecutions.forEach(ComTaskExecution::scheduleNow);
+            if (canExecute(comTaskExecutions.get(0).getComTask(), user)) {
+                comTaskExecutions.forEach(ComTaskExecution::scheduleNow);
+            }
         } else {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-            comTaskEnablements.forEach(runComTaskFromEnablement(device));
+            if (!comTaskEnablements.isEmpty() && canExecute(comTaskEnablements.get(0).getComTask(), user)) {
+                comTaskEnablements.forEach(runComTaskFromEnablement(device));
+            }
         }
         return Response.ok().build();
+    }
+    
+    private boolean canExecute(ComTask comTask, User user) {
+        List<String> userActionNames = comTask.getUserActions().stream().map(ComTaskUserAction::getPrivilege)
+                .collect(Collectors.toList());
+        return user.getPrivileges().stream().map(Privilege::getName).filter(userActionNames::contains).findAny()
+                .isPresent();
     }
 
     @PUT
@@ -202,7 +223,8 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response runnow(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info) {
+    public Response runnow(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info,
+            @Context SecurityContext securityContext) {
         if (info==null || info.device==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
@@ -210,11 +232,16 @@ public class DeviceComTaskResource {
         checkForNoActionsAllowedOnSystemComTask(comTaskId);
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
+        User user = (User) securityContext.getUserPrincipal();
         if (!comTaskExecutions.isEmpty()) {
-            comTaskExecutions.forEach(runComTaskFromExecutionNow());
+            if (canExecute(comTaskExecutions.get(0).getComTask(), user)) {
+                comTaskExecutions.forEach(runComTaskFromExecutionNow());
+            }
         } else {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-            comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
+            if (!comTaskEnablements.isEmpty() && canExecute(comTaskEnablements.get(0).getComTask(), user)) {
+                comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
+            }
         }
         return Response.ok().build();
     }
