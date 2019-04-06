@@ -205,6 +205,9 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         infos.add(createDescription("manufacturer", String.class));
         infos.add(createDescription("modelNbr", String.class));
         infos.add(createDescription("modelVersion", String.class));
+        infos.add(createDescription("activeCalendar", String.class));
+        infos.add(createDescription("passiveCalendar", String.class));
+        infos.add(createDescription("plannedPassiveCalendar", String.class));
         Collections.sort(infos, Comparator.comparing(pdi -> pdi.propertyName));
 
         // Default columns in proper order

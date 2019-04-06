@@ -31,7 +31,10 @@ public enum DeviceSearchModelTranslationKeys implements TranslationKey {
     DEVICE_DATA_STATE_INACTIVE("deviceDataStateInactive", "Inactive"),
     MANUFACTURER("manufacturer", "Manufacturer"),
     MODEL_NUMBER("modelNbr", "Model number"),
-    MODEL_VERSION("modelVersion", "Model version")
+    MODEL_VERSION("modelVersion", "Model version"),
+    ACTIVE_CALENDAR("activeCalendar", "Active time of use"),
+    PASSIVE_CALENDAR("passiveCalendar", "Passive time of use"),
+    PLANNED_PASSIVE_CALENDAR("plannedPassiveCalendar", "Planned passive time of use"),
     ;
 
     private String key;
