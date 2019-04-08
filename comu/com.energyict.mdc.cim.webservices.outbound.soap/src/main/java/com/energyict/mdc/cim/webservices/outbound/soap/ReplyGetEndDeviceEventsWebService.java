@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap;
+package com.energyict.mdc.cim.webservices.outbound.soap;
 
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
-import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 
-@ConsumerType
+@ProviderType
 public interface ReplyGetEndDeviceEventsWebService {
 
     String NAME = "CIM ReplyGetEndDeviceEvents";
