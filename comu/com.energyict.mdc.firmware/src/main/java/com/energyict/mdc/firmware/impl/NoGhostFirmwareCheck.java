@@ -5,7 +5,8 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.DeviceType;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCheck;
@@ -15,15 +16,16 @@ import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
-import java.util.EnumSet;
+import java.util.Arrays;
+import java.util.List;
 
 public class NoGhostFirmwareCheck implements FirmwareCheck {
-    private final FirmwareServiceImpl firmwareService;
+    private final DataModel dataModel;
     private final Thesaurus thesaurus;
 
     @Inject
-    NoGhostFirmwareCheck(FirmwareServiceImpl firmwareService, Thesaurus thesaurus) {
-        this.firmwareService = firmwareService;
+    NoGhostFirmwareCheck(DataModel dataModel, Thesaurus thesaurus) {
+        this.dataModel = dataModel;
         this.thesaurus = thesaurus;
     }
 
@@ -35,17 +37,13 @@ public class NoGhostFirmwareCheck implements FirmwareCheck {
     @Override
     public void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         Device device = deviceUtils.getDevice();
-        DeviceType deviceType = device.getDeviceType();
-        EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION).stream()
-                .filter(firmwareType -> firmwareService.isFirmwareTypeSupported(deviceType, firmwareType))
-                .forEach(firmwareType -> {
-                    if (firmwareService.getActiveFirmwareVersion(device, firmwareType)
-                            .map(ActivatedFirmwareVersion::getFirmwareVersion)
-                            .map(FirmwareVersion::getFirmwareStatus)
-                            .filter(FirmwareStatus.GHOST::equals)
-                            .isPresent()) {
-                        throw new FirmwareCheckException(thesaurus, MessageSeeds.CURRENT_FIRMWARE_IS_GHOST);
-                    }
-                });
+        List<FirmwareType> checkedTypes = Arrays.asList(FirmwareType.METER, FirmwareType.COMMUNICATION);
+        if (dataModel.stream(ActivatedFirmwareVersion.class)
+                .join(FirmwareVersion.class)
+                .filter(Where.where(ActivatedFirmwareVersionImpl.Fields.DEVICE.fieldName()).isEqualTo(device))
+                .filter(Where.where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName() + '.' + FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).in(checkedTypes))
+                .anyMatch(Where.where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName() + '.' + FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.GHOST))) {
+            throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_HAS_GHOST_FIRMWARE);
+        }
     }
 }
