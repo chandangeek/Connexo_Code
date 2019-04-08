@@ -33,7 +33,6 @@ public abstract class AbstractDeviceCalendarSearchableProperty extends AbstractS
         super(thesaurus);
         this.mdcPropertySpecService = mdcPropertySpecService;
         this.calendarService = calendarService;
-
     }
 
     AbstractDeviceCalendarSearchableProperty init(DeviceSearchDomain domain,
@@ -76,7 +75,7 @@ public abstract class AbstractDeviceCalendarSearchableProperty extends AbstractS
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return ((Calendar) value).getName();
+        return ((Calendar) value).getName() + " " + ((Calendar) value).getDescription();
     }
 
     @Override

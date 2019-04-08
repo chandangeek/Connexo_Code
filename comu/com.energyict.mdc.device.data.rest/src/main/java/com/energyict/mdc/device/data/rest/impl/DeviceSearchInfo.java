@@ -93,15 +93,15 @@ public class DeviceSearchInfo {
 
     private static void getCalendars(DeviceSearchInfo searchInfo, Device device) {
         CalendarSupport calendars = device.calendars();
-        searchInfo.activeCalendar = calendars.getActive().isPresent()
-                ? calendars.getActive().get().getAllowedCalendar().getName()
-                : null;
-        searchInfo.passiveCalendar = calendars.getPassive().isPresent()
-                ? calendars.getPassive().get().getAllowedCalendar().getName()
-                : null;
-        searchInfo.plannedPassiveCalendar = calendars.getPlannedPassive().isPresent()
-                ? calendars.getPlannedPassive().get().getAllowedCalendar().getName()
-                : null;
+        calendars.getActive().ifPresent(cal -> {
+            searchInfo.activeCalendar = cal.getAllowedCalendar().getName();
+        });
+        calendars.getPassive().ifPresent(cal -> {
+            searchInfo.passiveCalendar = cal.getAllowedCalendar().getName();
+        });
+        calendars.getPlannedPassive().ifPresent(cal -> {
+            searchInfo.plannedPassiveCalendar = cal.getAllowedCalendar().getName();
+        });
     }
 
     private static String getStateName(State state, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
