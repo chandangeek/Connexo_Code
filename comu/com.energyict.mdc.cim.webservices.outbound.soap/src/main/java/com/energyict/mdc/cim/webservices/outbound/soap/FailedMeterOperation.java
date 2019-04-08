@@ -1,4 +1,8 @@
-package com.energyict.mdc.cim.webservices.inbound.soap;
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.mdc.cim.webservices.outbound.soap;
 
 public class FailedMeterOperation {
     private String mRID;
