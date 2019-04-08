@@ -21,7 +21,7 @@ Ext.define('Itk.controller.Detail', {
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
-    taskStore: 'Itk.store.OccurenceStore',
+    taskStore: 'Itk.store.OccurrenceStore',
 
     constructor: function () {
         var me = this;

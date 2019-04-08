@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Ikt.store.RecurrentTaskStore', {
+Ext.define('Itk.store.RecurrentTaskStore', {
     extend: 'Ext.data.Store',
 
     fields: [
