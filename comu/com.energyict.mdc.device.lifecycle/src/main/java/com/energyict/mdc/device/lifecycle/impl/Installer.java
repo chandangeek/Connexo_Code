@@ -59,7 +59,7 @@ public class Installer implements FullInstaller {
 
     private boolean isCheckbitsColumnPresent() {
         try (Connection connection = dataModel.getConnection(false);
-             ResultSet resultSet = connection.getMetaData().getColumns(null, null, "DLD_AUTHORIZED_ACTION", "CHECKBITS")) {
+             ResultSet resultSet = connection.getMetaData().getColumns(connection.getCatalog(), connection.getSchema(), "DLD_AUTHORIZED_ACTION", "CHECKBITS")) {
             return resultSet.next();
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
