@@ -74,6 +74,8 @@ public class MdcTestApiApplication extends Application {
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
+
+    @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
     }
