@@ -101,7 +101,7 @@ public class CryptoKaifa extends Kaifa {
     @Override
     protected Dsmr40Messaging getMessaging() {
         if (this.cryptoMessaging == null) {
-            this.cryptoMessaging = new CryptoKaifaMessaging(this.cryptoMessageExecutor, this.getPropertySpecService(), this.getNlsService(), this.getConverter(),
+            this.cryptoMessaging = new CryptoKaifaMessaging(getMessageExecutor(), this.getPropertySpecService(), this.getNlsService(), this.getConverter(),
                     this.getDeviceMessageFileExtractor(), this.getTariffCalendarExtractor(), this.getNumberLookupExtractor(),
                     this.getLoadProfileExtractor(), this.getKeyAccessorTypeExtractor());
         }
