@@ -36,14 +36,17 @@ public class NoGhostFirmwareCheck implements FirmwareCheck {
 
     @Override
     public void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
-        Device device = deviceUtils.getDevice();
+        if (hasGhostMeterOrCommunicationFirmware(deviceUtils.getDevice())) {
+            throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_HAS_GHOST_FIRMWARE);
+        }
+    }
+
+    boolean hasGhostMeterOrCommunicationFirmware(Device device) {
         List<FirmwareType> checkedTypes = Arrays.asList(FirmwareType.METER, FirmwareType.COMMUNICATION);
-        if (dataModel.stream(ActivatedFirmwareVersion.class)
+        return dataModel.stream(ActivatedFirmwareVersion.class)
                 .join(FirmwareVersion.class)
                 .filter(Where.where(ActivatedFirmwareVersionImpl.Fields.DEVICE.fieldName()).isEqualTo(device))
                 .filter(Where.where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName() + '.' + FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).in(checkedTypes))
-                .anyMatch(Where.where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName() + '.' + FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.GHOST))) {
-            throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_HAS_GHOST_FIRMWARE);
-        }
+                .anyMatch(Where.where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName() + '.' + FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.GHOST));
     }
 }

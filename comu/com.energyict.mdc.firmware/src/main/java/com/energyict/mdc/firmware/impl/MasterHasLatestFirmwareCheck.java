@@ -23,12 +23,15 @@ public class MasterHasLatestFirmwareCheck implements FirmwareCheck {
     private final FirmwareServiceImpl firmwareService;
     private final TopologyService topologyService;
     private final Thesaurus thesaurus;
+    private final NoGhostFirmwareCheck noGhostFirmwareCheck;
 
     @Inject
-    MasterHasLatestFirmwareCheck(FirmwareServiceImpl firmwareService, TopologyService topologyService, Thesaurus thesaurus) {
+    MasterHasLatestFirmwareCheck(FirmwareServiceImpl firmwareService, TopologyService topologyService, Thesaurus thesaurus,
+                                 NoGhostFirmwareCheck noGhostFirmwareCheck) {
         this.firmwareService = firmwareService;
         this.topologyService = topologyService;
         this.thesaurus = thesaurus;
+        this.noGhostFirmwareCheck = noGhostFirmwareCheck;
     }
 
     @Override
@@ -43,10 +46,13 @@ public class MasterHasLatestFirmwareCheck implements FirmwareCheck {
             topologyService.getPhysicalGateway(device)
                     .map(firmwareService::getFirmwareManagementDeviceUtilsFor)
                     .ifPresent(masterDeviceUtils -> {
+                        Device master = masterDeviceUtils.getDevice();
+                        if (noGhostFirmwareCheck.hasGhostMeterOrCommunicationFirmware(master)) {
+                            throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_HAS_GHOST_FIRMWARE);
+                        }
                         if (!masterDeviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
                             throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_FIRMWARE_NOT_READOUT);
                         }
-                        Device master = masterDeviceUtils.getDevice();
                         DeviceType masterDeviceType = master.getDeviceType();
                         EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION).stream()
                                 .filter(firmwareType -> firmwareService.isFirmwareTypeSupported(masterDeviceType, firmwareType))
