@@ -310,6 +310,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue.task</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>pki</artifactId>
         </dependency>
         <dependency>
@@ -445,11 +449,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.zone</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>issue.task</artifactId>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

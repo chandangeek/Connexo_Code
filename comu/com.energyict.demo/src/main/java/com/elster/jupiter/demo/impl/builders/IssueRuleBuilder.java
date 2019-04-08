@@ -24,6 +24,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
@@ -34,7 +35,6 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate;
-import com.elster.jupiter.tasks.TaskService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -271,7 +271,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             if (!metrologyConfigurations.isEmpty()) {
                 properties.put(USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE + ".metrologyConfigurations", metrologyConfigurations);
             }
-        } else if (template.getName().equals(TASK_ISSUE_RULE_TEMPLATE)){
+        } else if (template.getName().equals(TASK_ISSUE_RULE_TEMPLATE)) {
             List<HasIdAndName> recurrentTasks = new ArrayList<>();
             properties.put(
                     BasicTaskIssueRuleTemplate.LOG_ON_SAME_ISSUE,
@@ -279,13 +279,22 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             taskService.getRecurrentTasks().stream()
                     .forEach(task -> recurrentTasks.add(new HasIdAndName() {
                         @Override
-                        public Object getId() {
-                            return task.getId();
+                        public String getId() {
+                            return String.valueOf(task.getId());
                         }
 
                         @Override
                         public String getName() {
-                            return task.getApplication() + SEPARATOR + task.getName() + task.getDestination();
+
+                            try {
+                                JSONObject jsonObj = new JSONObject();
+                                jsonObj.put("destinationName", task.getDestination().getName());
+                                jsonObj.put("recurrentTaskName", task.getName());
+                                return jsonObj.toString();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            return "";
                         }
                     }));
             if (!recurrentTasks.isEmpty()) {
@@ -440,6 +449,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             }
         };
     }
+
     private List<HasIdAndName> getDeviceLifecycleTransitionProps() {
         List<HasIdAndName> list = new ArrayList<>();
         deviceConfigurationService.findAllDeviceTypes()
