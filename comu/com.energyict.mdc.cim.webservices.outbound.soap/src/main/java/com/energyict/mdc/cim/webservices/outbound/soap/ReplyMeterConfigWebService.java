@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap;
+package com.energyict.mdc.cim.webservices.outbound.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import com.energyict.mdc.device.data.Device;
 
-import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
 
-import java.math.BigDecimal;
 import java.util.List;
 
-@ConsumerType
+@ProviderType
 public interface ReplyMeterConfigWebService {
 
     String NAME = "CIM ReplyMeterConfig";
