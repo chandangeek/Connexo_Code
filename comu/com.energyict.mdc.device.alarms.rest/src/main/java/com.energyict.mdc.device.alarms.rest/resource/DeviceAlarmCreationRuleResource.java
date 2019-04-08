@@ -123,34 +123,6 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
                 Response.ok(ruleInfoFactory.asInfo(rule)).build();
     }
 
-    @GET
-    @Path("/haswebservice")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response alarmRuleHasWebServiceAction(@BeanParam JsonQueryParameters queryParams,@QueryParam("webServiceName") String webServiceName) {
-        IssueType alarmType = getIssueService().findIssueType("devicealarm").orElse(null);
-        List<IssueReason> alarmReasons = getIssueService().query(IssueReason.class)
-                .select(where(ISSUE_TYPE).isEqualTo(alarmType))
-                .stream()
-                .collect(Collectors.toList());
-
-        Query<CreationRule> query =
-                getIssueService().getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
-        List<CreationRule> rules;
-        Condition conditionIssue = where("reason").in(alarmReasons);
-        rules = query.select(conditionIssue, Order.ascending("name"));
-        boolean webServiceIsPresent = rules
-                .stream().map(ruleInfoFactory::asInfo)
-                .flatMap(x -> x.actions.stream())
-                .anyMatch(a -> a.description.equals(webServiceName));
-
-        if (webServiceIsPresent)
-        {
-            throw CannotDeleteBecauseStillInUseException.webServiceStillInUseException(this.getThesaurus(),
-                    MessageSeeds.ALARM_RULE_STILL_HAS_ACTIVE_WEB_SERVICE);
-        }
-        return Response.ok(webServiceIsPresent).build();
-    }
-
     @DELETE
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
