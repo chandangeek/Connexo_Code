@@ -473,7 +473,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
 
     void setCalendarOnDevice(ServiceCall serviceCall) {
         Device device = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().getDevice();
-        revokeCalendarsCommands(device);
         try {
             dataModel.getInstance(TimeOfUseSendHelper.class).setCalendarOnDevice(device, serviceCall);
         } catch (DeviceMessageNotAllowedException e) {
