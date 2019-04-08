@@ -107,6 +107,9 @@ public class ComTaskResource {
             category.createProtocolTask(masterDataService, newComTask, protocolTaskInfo);
         }
         addMessageCategoriesToComTask(comTaskInfo, newComTask);
+        // new task has all privileges by default
+        comTaskInfo.privileges = Arrays.stream(ComTaskUserAction.values())
+                .map(ComTaskPrivilegeInfo::from).collect(Collectors.toList());
         updateComTaskPrivileges(comTaskInfo, newComTask);
         newComTask.save();
         return Response.ok(ComTaskInfo.from(newComTask)).build();
