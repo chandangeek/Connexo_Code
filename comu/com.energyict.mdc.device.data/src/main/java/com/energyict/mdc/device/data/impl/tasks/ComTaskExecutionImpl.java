@@ -233,7 +233,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     @Override
     public boolean isExecuting() {
         return this.comPort.isPresent()
-                || (this.connectionTask.isPresent()
+                || (this.connectionTask.isPresent() && this.connectionTask.getOptional().isPresent()
                 && (this.connectionTask.get().getExecutingComServer() != null)
                 && ((this.getNextExecutionTimestamp() != null
                 && this.getNextExecutionTimestamp().isBefore(this.clock.instant()))
@@ -1054,6 +1054,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     @Override
     public long getConnectionTaskId() {
         return connectionTaskId;
+    }
+
+    @Override
+    public long getConnectionFunctionId() {
+        return connectionFunctionDbValue;
     }
 
     @Override

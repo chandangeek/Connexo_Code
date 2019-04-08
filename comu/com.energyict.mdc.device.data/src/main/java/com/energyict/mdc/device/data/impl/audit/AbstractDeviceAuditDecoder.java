@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.impl.ServerDeviceService;
 
 import com.google.common.collect.ImmutableSetMultimap;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -72,8 +73,8 @@ public abstract class AbstractDeviceAuditDecoder extends AbstractAuditDecoder {
         if (version >= device.get().getVersion()) {
             return device;
         }
-        return getJournalEntry(dataMapper, ImmutableSetMultimap.of("ID", from.getId(),
-                "VERSIONCOUNT", version))
+        return getJournalEntry(dataMapper, Arrays.asList(Pair.of("ID", from.getId()),
+                Pair.of("VERSIONCOUNT", version)))
                 .map(Optional::of)
                 .orElseGet(() -> getToDeviceEntry(from, version + 1, dataMapper));
     }
@@ -82,8 +83,8 @@ public abstract class AbstractDeviceAuditDecoder extends AbstractAuditDecoder {
         if (version >= endDevice.get().getVersion()) {
             return endDevice;
         }
-        return getJournalEntry(dataMapper, ImmutableSetMultimap.of("ID", from.getId(),
-                "VERSIONCOUNT", version))
+        return getJournalEntry(dataMapper,
+                Arrays.asList(Pair.of("ID", from.getId()), Pair.of("VERSIONCOUNT", version)))
                 .map(Optional::of)
                 .orElseGet(() -> getToEndDeviceEntry(from, version + 1, dataMapper));
     }

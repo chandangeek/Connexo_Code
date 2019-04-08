@@ -115,12 +115,18 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> getJournalEntry(DataMapper<T> dataMapper, ImmutableSetMultimap<String, Object> valueMap) {
-        if (valueMap.containsKey("VERSIONCOUNT") && (Long.parseLong(valueMap.get("VERSIONCOUNT").toString()) == 0)) {
+    public <T> Optional<T> getJournalEntry(DataMapper<T> dataMapper, List<Pair<String, Object>> valueMap) {
+        Optional<Pair<String, Object>> versionCount =
+            valueMap.stream()
+                    .filter(ob -> ob.getFirst().equals("VERSIONCOUNT"))
+                    .findFirst();
+
+        if (versionCount.isPresent() && (Long.parseLong(versionCount.get().getLast().toString()) == 0)){
             return Optional.empty();
         }
-        List<Comparison> conditionFromJournal = valueMap.entries().stream()
-                .map(entry -> Operator.EQUAL.compare(entry.getKey(), entry.getValue()))
+
+        List<Comparison> conditionFromJournal = valueMap.stream()
+                .map(entry -> Operator.EQUAL.compare(entry.getFirst(), entry.getLast()))
                 .collect(Collectors.toList());
 
         return dataMapper
@@ -216,6 +222,10 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
 
     public String getDisplayName(TranslationKey key) {
         return this.thesaurus.getFormat(key).format();
+    }
+
+    public Thesaurus getThesaurus() {
+        return this.thesaurus;
     }
 
     public boolean isBetweenPeriodMod(Instant instant) {

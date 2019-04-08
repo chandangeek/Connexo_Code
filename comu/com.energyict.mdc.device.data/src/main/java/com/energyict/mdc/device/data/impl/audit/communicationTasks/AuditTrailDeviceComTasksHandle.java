@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.impl.audit.comtasks;
+package com.energyict.mdc.device.data.impl.audit.communicationTasks;
 
 
 import com.elster.jupiter.audit.AuditDecoder;
@@ -13,8 +13,6 @@ import com.elster.jupiter.orm.OrmService;
 
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
-import com.energyict.mdc.device.data.impl.audit.deviceAttributes.AuditTrailDeviceAtributesDecoder;
-import com.energyict.mdc.tasks.TaskService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

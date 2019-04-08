@@ -118,6 +118,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
             DataMapper<EndDevice> dataMapper = ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(EndDevice.class);
 
             List<EndDevice> historyEntries = getHistoryEntries(dataMapper, getHistoryByJournalClauses(endDevice.get().getId()));
+            historyEntries.addAll(getHistoryEntries(dataMapper, getHistoryByModTimeClauses(endDevice.get().getId())));
             historyEntries
                     .forEach(from -> {
                         historyEntries.stream()

@@ -120,6 +120,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CONNECTION_TASK_SIMULTANEOUS_CONNECTIONS_NUMBER("device.connection.simultaneous.connections.number", "Number of simultaneous connections"),
     CONNECTION_TASK_CONNECTION_WINDOW("device.connection.window", "Connection window"),
     CONNECTION_TASK_CONNECTION_WINDOW_NO_RESTRICTION("device.connection.window.no.restriction", "no restrictions"),
+    CONNECTION_FUNCTION("Connection.function", "''{0}'' function"),
 
     ;
 

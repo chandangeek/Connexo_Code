@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.impl.audit.comtasks;
+package com.energyict.mdc.device.data.impl.audit.communicationTasks;
 
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditLogChange;
@@ -18,6 +18,9 @@ import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.audit.AbstractDeviceAuditDecoder;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -25,6 +28,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSetMultimap;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +77,6 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
 
     @Override
     public List<AuditLogChange> getAuditLogChanges() {
-
         List<AuditLogChange> auditLogChanges = new ArrayList<>();
         DataModel dataModel = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME).get();
         DataMapper<ComTaskExecution> dataMapper = dataModel.mapper(ComTaskExecution.class);
@@ -82,7 +85,6 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
         List<ComTaskExecution> actualEntries = getActualEntries(dataMapper, getActualClauses(comTaskId));
         List<ComTaskExecution> historyByModTimeEntries = getHistoryEntries(dataMapper, getHistoryByModTimeClauses(comTaskId));
         List<ComTaskExecution> historyByJournalTimeEntries = getHistoryEntries(dataMapper, getHistoryByJournalClauses(comTaskId));
-
 
         List<ComTaskExecution> allEntries = new ArrayList<>();
         allEntries.addAll(actualEntries);
@@ -110,7 +112,6 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
         return getComTaskAfterID(dataMapper).stream().findFirst();
     }
 
-
     private Map<String, Object> getActualClauses(long comTaskId) {
         return ImmutableMap.of("COMTASK", comTaskId,
                 "device", device.get());
@@ -122,7 +123,6 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
                 .and(where("id").isEqualTo(getAuditTrailReference().getPkContext1()));
         return dataMapper.select(condition);
     }
-
 
     private ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByModTimeClauses(long comTaskId) {
         return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("COMTASK", comTaskId),
@@ -136,6 +136,18 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
                 Operator.EQUAL, Pair.of("device", device.get()),
                 Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
+    }
+
+    public ImmutableSetMultimap<Operator, Pair<String, Object>> getConnectionTaskHistoryByJournalClauses(Long id) {
+        return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("ID", id),
+                Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),
+                Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
+    }
+
+    public ImmutableSetMultimap<Operator, Pair<String, Object>> getConnectionTaskHistoryByModTimeClauses(Long id) {
+        return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("ID", id),
+                Operator.GREATERTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeStart()),
+                Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));
     }
 
 
@@ -180,17 +192,56 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
     }
 
     public Optional<AuditLogChange> auditConnectionMethod(ComTaskExecution from, ComTaskExecution to) {
-       if (to.getConnectionTaskId() != from.getConnectionTaskId()) {
+        String toConnectionTaskName = getConnectionTaskName(to);
+        String fromConnectionTaskName = getConnectionTaskName(from);
+
+       if (!toConnectionTaskName.equals(fromConnectionTaskName)) {
             com.elster.jupiter.audit.AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(CONNECTION_METHOD));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
-            if(to.getConnectionTask().isPresent())
-                auditLogChange.setValue(to.getConnectionTask().get().getName());
-            if(from.getConnectionTask().isPresent())
-                auditLogChange.setPreviousValue(from.getConnectionTask().get().getName());
+            auditLogChange.setValue(toConnectionTaskName);
+            auditLogChange.setPreviousValue(fromConnectionTaskName);
             return Optional.of(auditLogChange);
         }
         return Optional.empty();
+    }
+
+    String getConnectionTaskName(ComTaskExecution comTaskExecution){
+        if (comTaskExecution.getConnectionTaskId() == 0 && !comTaskExecution.getConnectionTask().isPresent() &&
+                comTaskExecution.getConnectionFunctionId() == 0) {
+            return "";
+        }
+        else if (comTaskExecution.getConnectionFunctionId() !=0){
+            return getConnectionFunction(comTaskExecution)
+                    .map(connectionFunction -> getThesaurus().getFormat(PropertyTranslationKeys.CONNECTION_FUNCTION).format(connectionFunction.getConnectionFunctionDisplayName()))
+                    .orElseGet(() -> "");
+        }
+        else if (comTaskExecution.getConnectionTaskId() !=0 && !comTaskExecution.getConnectionTask().isPresent()){
+            // connection task was removed; find it in journal entries
+            DataModel dataModel = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME).get();
+            DataMapper<ConnectionTask> dataMapper = dataModel.mapper(ConnectionTask.class);
+            long connectionTaskId = comTaskExecution.getConnectionTaskId();
+
+            List<ConnectionTask> historyByModTimeEntries = getHistoryEntries(dataMapper, getConnectionTaskHistoryByModTimeClauses(connectionTaskId));
+            List<ConnectionTask> historyByJournalTimeEntries = getHistoryEntries(dataMapper, getConnectionTaskHistoryByJournalClauses(connectionTaskId));
+
+            List<ConnectionTask> allEntries = new ArrayList<>();
+            allEntries.addAll(historyByModTimeEntries);
+            allEntries.addAll(historyByJournalTimeEntries);
+            return allEntries.stream()
+                    .findFirst()
+                    .map(connectionTask -> connectionTask.getName())
+                    .orElseGet(() -> "");
+        }
+        return comTaskExecution.getConnectionTask().get().getName();
+    }
+
+    private Optional<ConnectionFunction> getConnectionFunction(ComTaskExecution comTaskExecution){
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = device.get().getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+        List<ConnectionFunction> supportedConnectionFunctions = deviceProtocolPluggableClass.isPresent()
+                ? deviceProtocolPluggableClass.get().getConsumableConnectionFunctions()
+                : Collections.emptyList();
+        return supportedConnectionFunctions.stream().filter(cf -> cf.getId() == comTaskExecution.getConnectionFunctionId()).findFirst();
     }
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
