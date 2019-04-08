@@ -188,7 +188,8 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(PassiveDeviceCalendarSearchableProperty.class).init(this, calendarSearchableGroup),
                 injector.getInstance(PlannedPassiveDeviceCalendarSearchableProperty.class).init(this, calendarSearchableGroup),
                 injector.getInstance(LocationSearchableProperty.class).init(this),
-                injector.getInstance(SecurityExpirationSearchableProperty.class).init(this, securityGroup)
+                injector.getInstance(SecurityExpirationSearchableProperty.class).init(this, securityGroup),
+                injector.getInstance(SecurityServiceKeySearchableProperty.class).init(this, securityGroup)
         );
     }
 

@@ -68,6 +68,10 @@ Ext.define('Tou.model.TouCampaign', {
             name: 'finishedOn',
             type: 'int',
             timeFormat: 'date'
+        }, {
+            name: 'withUniqueCalendarName',
+            type: 'boolean',
+            defaultValue: false
         }
 
     ],

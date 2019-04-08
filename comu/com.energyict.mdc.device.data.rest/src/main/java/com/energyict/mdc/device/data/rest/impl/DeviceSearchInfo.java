@@ -8,7 +8,6 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
-import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
@@ -48,6 +47,7 @@ public class DeviceSearchInfo {
     public String activeCalendar;
     public String passiveCalendar;
     public String plannedPassiveCalendar;
+    public Boolean hasServiceKeys;
 
     public static DeviceSearchInfo from(Device device, GatewayRetriever gatewayRetriever,
                                         IssueRetriever issueService, Thesaurus thesaurus,
@@ -88,6 +88,8 @@ public class DeviceSearchInfo {
         searchInfo.modelNbr = device.getModelNumber();
         searchInfo.modelVersion = device.getModelVersion();
         getCalendars(searchInfo, device);
+        searchInfo.hasServiceKeys = device.getSecurityAccessors().stream()
+                .anyMatch(accessor -> accessor.isServiceKey());
         return searchInfo;
     }
 

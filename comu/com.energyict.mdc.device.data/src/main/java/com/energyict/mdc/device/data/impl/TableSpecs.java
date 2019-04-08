@@ -384,6 +384,7 @@ public enum TableSpecs {
             table.map(ComTaskExecutionImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
+            table.setJournalTableName("DDC_COMTASKEXECJRNL", true).since(version(10, 6));
             table.column("DISCRIMINATOR").number().conversion(NUMBER2ENUM).map(ComTaskExecutionFields.COMTASKEXECTYPE.fieldName()).notNull().add();
             Column device = table.column("DEVICE").number().notNull().add();
             Column comTask = table.column("COMTASK").number().add();
@@ -1142,6 +1143,11 @@ public enum TableSpecs {
             table.column("SWAPPED")
                     .bool()
                     .map(AbstractDeviceSecurityAccessorImpl.Fields.SWAPPED.fieldName())
+                    .add();
+            table.column(AbstractDeviceSecurityAccessorImpl.Fields.SERVICEKEY.name())
+                    .bool()
+                    .map(AbstractDeviceSecurityAccessorImpl.Fields.SERVICEKEY.fieldName())
+                    .since(Version.version(10, 6))
                     .add();
             table.addAuditColumns();
 

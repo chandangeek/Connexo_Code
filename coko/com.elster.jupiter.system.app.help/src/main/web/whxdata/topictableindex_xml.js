@@ -1,1 +1,0 @@
-gXMLBuffer="<?xml version=\"1.0\" encoding=\"UTF-8\"?><cki><ck fm=\"Cover Page\" to=\"Configure web service endpoints\" num=\"39\"/><ck fm=\"Manage web service endpoints on application server\" to=\"Copyright\" num=\"38\"/></cki>";

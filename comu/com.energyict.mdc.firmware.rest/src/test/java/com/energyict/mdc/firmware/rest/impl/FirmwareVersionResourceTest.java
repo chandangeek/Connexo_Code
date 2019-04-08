@@ -6,8 +6,6 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
@@ -48,20 +46,19 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
     private FirmwareVersion firmwareVersion;
     @Mock
     private FirmwareVersionBuilder firmwareVersionBuilder;
-    @Mock
-    private Condition condition;
-    @Mock
-    private JsonQueryParameters queryParameters;
 
     @Before
     public void setUpStubs() {
         when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceType(1)).thenReturn(Optional.of(deviceType));
         when(firmwareService.getFirmwareVersionById(1)).thenReturn(Optional.of(firmwareVersion));
         when(firmwareVersion.getId()).thenReturn(1L);
         when(firmwareVersion.getFirmwareVersion()).thenReturn("firmwareVersion");
         when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(firmwareVersion.getImageIdentifier()).thenReturn("10.4.0");
+        when(firmwareVersion.getMeterFirmwareDependency()).thenReturn(Optional.empty());
+        when(firmwareVersion.getCommunicationFirmwareDependency()).thenReturn(Optional.empty());
         Finder<FirmwareVersion> firmwareVersionFinder = mockFinder(Collections.singletonList(firmwareVersion));
         when(firmwareService.findAllFirmwareVersions(any(FirmwareVersionFilter.class))).thenReturn(firmwareVersionFinder);
         when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);

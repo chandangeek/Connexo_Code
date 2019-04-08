@@ -11,6 +11,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -52,6 +53,7 @@ public class SecurityAccessorInfoFactory {
         SecurityAccessorInfo info = securityAccessorInfoFactory.from(securityAccessor);
         info.status = thesaurus.getFormat(securityAccessor.getStatus()).format();
         info.canGeneratePassiveKey = KeyAccessorStatus.COMPLETE.equals(securityAccessor.getStatus());
+        info.serviceKey = securityAccessor.isServiceKey();
         return info;
     }
 
@@ -72,7 +74,7 @@ public class SecurityAccessorInfoFactory {
         return info;
     }
 
-    public List<SecurityAccessorInfo> asKeyWithLevels(List<SecurityAccessor> securityAccessors) {
+    public List<SecurityAccessorInfo> asKeyWithLevels(Device device, List<SecurityAccessor> securityAccessors) {
         List<SecurityAccessorInfo> securityAccessorInfos = new ArrayList<>();
         List<Group> groups = userService.getGroups();
         for (SecurityAccessor<?> securityAccessor: securityAccessors) {
@@ -80,7 +82,8 @@ public class SecurityAccessorInfoFactory {
             Set<SecurityAccessorUserAction> userActions = securityAccessor.getKeyAccessorType().getUserActions();
             info.editLevels = executionLevelInfoFactory.getEditPrivileges(userActions, groups);
             info.viewLevels = executionLevelInfoFactory.getViewPrivileges(userActions, groups);
-
+            device.getDeviceType().getDefaultKeyOfSecurityAccessorType(securityAccessor.getKeyAccessorType())
+                    .ifPresent(v -> info.defaultServiceKey = v);
             securityAccessorInfos.add(info);
         }
 

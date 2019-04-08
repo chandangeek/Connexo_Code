@@ -9,8 +9,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
-import com.energyict.mdc.tou.campaign.TimeOfUseItem;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 
 import java.time.Instant;
 
@@ -21,14 +20,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceInCampaignInfoFactoryTest {
 
-    private static TimeOfUseItem timeOfUseItem = mock(TimeOfUseItem.class);
+    private static TimeOfUseCampaignItem timeOfUseItem = mock(TimeOfUseCampaignItem.class);
     private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private static ServiceCall retrySC = mock(ServiceCall.class);
     private static ServiceCall cancelSC = mock(ServiceCall.class);
@@ -53,7 +51,7 @@ public class DeviceInCampaignInfoFactoryTest {
 
     @Test
     public void retryTest() {
-        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.createOnRetry(timeOfUseItem);
+        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.create(device, timeOfUseItem.retry());
         assertEquals(deviceInCampaignInfo.device.name, "TestDevice");
         assertEquals(deviceInCampaignInfo.device.id, 1L);
         assertEquals(deviceInCampaignInfo.status, "Pending");
@@ -63,7 +61,7 @@ public class DeviceInCampaignInfoFactoryTest {
 
     @Test
     public void cancelTest() {
-        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.createOnCancel(timeOfUseItem);
+        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.create(device, timeOfUseItem.cancel());
         assertEquals(deviceInCampaignInfo.device.name, "TestDevice");
         assertEquals(deviceInCampaignInfo.device.id, 1L);
         assertEquals(deviceInCampaignInfo.status, "Cancelled");

@@ -71,6 +71,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     COMTASK_SCHEDULE_NAME("device.comtask.schedule.name", "Schedule name"),
     COMTASK_PLANNED_DATE("device.comtask.planned.date", "Planned date"),
     COMTASK_URGENCY("device.comtask.urgency", "Urgency"),
+    COMTASK_USE_DEFAULT_CONNECTION_TASK("device.comtask.defaultConnectionTask", "Use default connection task"),
     PROTOCOL_DIALECT_DYNAMIC_PROP("protocol.dialect.dynamic", "Protocol dialect dynamic properties"),
     CONNECTION("device.connection", "Connection"),
     CONNECTION_NAME("device.connection.name", "Name"),
@@ -109,6 +110,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_MODEL_VERSION("device.model.version", "Model version"),
     DEVICE_ATTRIBUTES("device.attributes", "Device attributes"),
     DEVICE_MASTER_SEARCH_CRITERION_NAME("device.master.searchcriterion.search", "Has master device"),
+    SERVICE_KEYS("device.security.servicekeys", "Has service keys"),
     ZONE_NAME("device.zoneName", "Zone name"),
     ZONE_TYPE("device.zoneType","Zone type"),
     ZONE("device.zone", "Zone"),
@@ -117,10 +119,16 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CONNECTION_TASK_STRATEGY_AS_SOON_AS_POSSIBLE("device.connection.strategy.asap", "As soon as possible"),
     CONNECTION_TASK_STRATEGY_MINIMIZE_CONNECTIONS("device.connection.strategy.min.connections", "Minimize connections"),
     CONNECTION_TASK_SIMULTANEOUS_CONNECTIONS_NUMBER("device.connection.simultaneous.connections.number", "Number of simultaneous connections"),
+<<<<<<< HEAD
     DEVICE_TIME_OF_USE_GROUP("device.calendar.timeOfUse.Group", "Time of use"),
     DEVICE_ACTIVE_TIME_OF_USE("device.calendar.activeTimeOfUse", "Active time of use"),
     DEVICE_PASSIVE_TIME_OF_USE("device.calendar.passiveTimeOfUse", "Passive time of use"),
     DEVICE_PLANNED_PASSIVE_TIME_OF_USE("device.calendar.PlannedPasiveTimeOfUse", "Planned passive time of use"),
+=======
+    CONNECTION_TASK_CONNECTION_WINDOW("device.connection.window", "Connection window"),
+    CONNECTION_TASK_CONNECTION_WINDOW_NO_RESTRICTION("device.connection.window.no.restriction", "no restrictions"),
+
+>>>>>>> 8836363d5e1d2eefea82c0d25078f002b6531b9a
     ;
 
     private String key;

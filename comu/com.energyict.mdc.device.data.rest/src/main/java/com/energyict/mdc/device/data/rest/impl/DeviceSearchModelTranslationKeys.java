@@ -35,6 +35,7 @@ public enum DeviceSearchModelTranslationKeys implements TranslationKey {
     ACTIVE_CALENDAR("activeCalendar", "Active time of use"),
     PASSIVE_CALENDAR("passiveCalendar", "Passive time of use"),
     PLANNED_PASSIVE_CALENDAR("plannedPassiveCalendar", "Planned passive time of use"),
+    HAS_SERVICE_KEYS("hasServiceKeys", "Service keys")
     ;
 
     private String key;

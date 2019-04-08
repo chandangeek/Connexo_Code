@@ -1,13 +1,25 @@
-<<<<<<< HEAD
 .idea/
 *.iml
 target/
-=======
-/.project
-.idea
-fullbuild.sh
-copyZipsHere.bat
-*.iml
-**/target/
-com.elster.jupiter.buildtools
->>>>>>> origin/feature/10.5/CXO-9251
+
+# Following lines will ignore pkg files we create and import during FE component (app) build
+copl/com.elster.jupiter.extjs/src/main/web/js/ext/packages/uni-theme-skyline
+copl/com.elster.jupiter.extjs/src/main/web/js/ext/packages/com.elster.*
+copl/com.elster.jupiter.extjs/src/main/web/js/ext/packages/com.energyict.*
+
+# Following lines will ignore pkg files created under package (FE) components (extjs)
+**/*.extjs/src/main/web/js/*/build/
+copl/com.elster.jupiter.theme.skyline/src/main/web/js/skyline/build/
+copl/com.elster.jupiter.loaderjs/src/main/web/js/ldr/build/
+copl/com.elster.jupiter.unifyingjs/src/main/web/js/uni/build/
+
+# Following lines will ignore app (FE) generated files
+**/*.app/src/main/web/js/*/bootstrap.css
+**/*.app/src/main/web/js/*/bootstrap.js
+**/*.app/src/main/web/js/*/bootstrap.json
+**/mdc.engine.monitor/src/main/web/js/*/bootstrap.css
+**/mdc.engine.monitor/src/main/web/js/*/bootstrap.js
+**/mdc.engine.monitor/src/main/web/js/*/bootstrap.json
+**/*mdc.engine.monitor/src/main/web/js/*/bootstrap.css
+**/*mdc.engine.monitor/src/main/web/js/*/bootstrap.js
+**/*mdc.engine.monitor/src/main/web/js/*/bootstrap.json

@@ -1,5 +1,0 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Export\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Export/000107_UMNL_Export.htm\"><item name=\"Understand data export\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Export/Understand_data_export.htm\" /><item name=\"Monitor export tasks\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Export/Monitor_export_tasks.htm\" /><book name=\"Configure export tasks\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Export/Configure_export_tasks.htm\" src=\"toc25.js\" /><item name=\"Manage export tasks\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Export/Manage_export_tasks.htm\" /><item name=\"Run export tasks\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Export/Run_export_tasks.htm\" /></data>";
