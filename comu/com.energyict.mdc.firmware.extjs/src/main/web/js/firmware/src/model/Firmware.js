@@ -25,12 +25,28 @@ Ext.define('Fwc.model.Firmware', {
             mapping: function (data) {
                 return data.firmwareStatus ? data.firmwareStatus.localizedValue : '';
             }
+        },
+        {
+            name: 'rank',
+            type: 'number',
+            persist: false,
+        },
+        {
+            name: 'meterFirmwareDependency',
+            useNull: true,
+            persist: false
+        },
+        {
+            name: 'communicationFirmwareDependency',
+            useNull: true,
+            persist: false
         }
     ],
 
     requires: [
         'Fwc.model.FirmwareType',
         'Fwc.model.FirmwareStatus'
+
     ],
 
     associations: [
@@ -49,6 +65,22 @@ Ext.define('Fwc.model.Firmware', {
             associationKey: 'firmwareStatus',
             getterName: 'getFirmwareStatus',
             setterName: 'setFirmwareStatus'
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.model.FirmwareMeterDependency',
+            name: 'meterFirmwareDependency',
+            associationKey: 'meterFirmwareDependency',
+            getterName: 'getMeterFirmwareDependency',
+            setterName: 'setMeterFirmwareDependency',
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.model.FirmwareCommunicationDependency',
+            name: 'communicationFirmwareDependency',
+            associationKey: 'communicationFirmwareDependency',
+            getterName: 'getCommunicationFirmwareDependency',
+            setterName: 'setCommunicationFirmwareDependency',
         }
     ],
 

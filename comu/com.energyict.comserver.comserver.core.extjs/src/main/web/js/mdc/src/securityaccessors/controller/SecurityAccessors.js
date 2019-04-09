@@ -10,6 +10,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.securityaccessors.view.AddEditSecurityAccessor',
         'Uni.view.window.Confirmation',
         'Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow',
+        'Mdc.securityaccessors.view.SecurityAcessorsSetDefaultKeyValue',
         'Mdc.securityaccessors.view.AddSecurityAccessorToDeviceType'
     ],
 
@@ -62,6 +63,10 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             selector: 'security-accessors-privileges-edit-window'
         },
         {
+            ref: 'securityAccessorSetDefaultKeyWindow',
+            selector: 'security-accessors-set-default-key-window'
+        },
+        {
             ref: 'availableSecurityAccessorsGrid',
             selector: 'security-accessor-add-to-device-type-form #available-security-accessors-grd'
         },
@@ -77,6 +82,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     deviceTypeId: null,
     deviceType: null,
     selectedRecord: undefined,
+    recordToSetKey: null,
+    defaultKeyValue: "",
 
     init: function () {
         var me = this;
@@ -111,6 +118,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             },
             '#mdc-security-accessors-privileges-edit-window-save': {
                 click: me.saveSecurityAccessor
+            },
+            '#mdc-security-accessors-set-default-key-window-save': {
+                click: me.saveDefaultKeyValue
             },
             '#mdc-security-accessor-manage-centrally-checkbox': {
                 change: me.onManageCentrallyCheck
@@ -183,15 +193,21 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             case 'activatePassiveCertificate': {
                 me.activatePassiveCertificate(me.selectedRecord);
             } break;
+            case 'setDefaultKeyValue': {
+                Ext.widget('security-accessors-set-default-key-window', {
+                    securityAccessorRecord: me.selectedRecord,
+                    defaultKeyValueToSet: me.defaultKeyValue
+                }).show();
+            } break;
         }
     },
 
     recordSelected: function (grid, recordParam) {
         var me = this,
             gridMenu = me.getSecurityAccessorsGrid().down('uni-actioncolumn').menu,
-            processRecord = function (record) {
+            processRecord = function (record, defaultKeyValue) {
                 me.selectedRecord = record;
-                me.getPreviewForm().doLoadRecord(record);
+                me.getPreviewForm().doLoadRecord(record, defaultKeyValue, me.deviceTypeId);
                 me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
                 gridMenu.updateMenuItems(record);
                 gridMenu.record = record;
@@ -209,11 +225,34 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
         var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
 
-        model.load(recordParam.get('id'), {
-            success: function (keyRecord) {
-                processRecord(keyRecord);
-            }
-        });
+
+        if (recordParam.get('keyType').name == 'HSM Key' && me.deviceTypeId){
+                Ext.Ajax.request({
+                    url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors/{1}', me.deviceTypeId,recordParam.get('id')),
+                    method: 'GET',
+                    success: function (response) {
+                        var data = Ext.JSON.decode(response.responseText);
+                        me.defaultKeyValue = data.defaultServiceKey;
+                        model.load(recordParam.get('id'), {
+                               success: function (keyRecord) {
+                                   recordToSetKey = keyRecord;
+                                   processRecord(keyRecord, me.defaultKeyValue);
+                               }
+                        });
+                    }
+                });
+
+
+
+        } else {
+            model.load(recordParam.get('id'), {
+                success: function (keyRecord) {
+                    processRecord(keyRecord,'-');
+                }
+            });
+        }
+
+
     },
 
     reconfigureMenu: function (deviceType, view) {
@@ -739,6 +778,35 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 }
             }
         });
+    },
+
+    saveDefaultKeyValue: function () {
+        var me = this,
+            setDefaultKeyWindow = me.getSecurityAccessorSetDefaultKeyWindow(),
+            securityAccessorRecord = setDefaultKeyWindow.securityAccessorRecord,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+            var keyValue = setDefaultKeyWindow.down('#defaultKeyValue').getValue();
+            setDefaultKeyWindow.close();
+
+            viewport.setLoading();
+
+            Ext.Ajax.request({
+                url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors/{1}/defaultkey', me.deviceTypeId, securityAccessorRecord.get('id')),
+                method: 'PUT',
+                jsonData: {
+                   "value": keyValue
+                },
+                success: function (response) {
+                    me.defaultKeyValue = keyValue;
+                    me.getPreviewForm().doLoadRecord(recordToSetKey, keyValue, me.deviceTypeId);
+
+                },
+
+                callback: function () {
+                    viewport.setLoading(false);
+                }
+            });
     },
 
     loadProperties: function(defaultPropertiesData, currentRecord) {

@@ -11,7 +11,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.energyict.mdc.cim.webservices.inbound.soap.ReplyGetEndDeviceEventsWebService;
+import com.energyict.mdc.cim.webservices.outbound.soap.ReplyGetEndDeviceEventsWebService;
 
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;

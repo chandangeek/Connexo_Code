@@ -61,7 +61,8 @@ public class TimeOfUseCampaignInfoFactory {
                 .withActivationDate(timeOfUseCampaignInfo.activationDate)
                 .withUpdateType(timeOfUseCampaignInfo.updateType)
                 .withValidationTimeout(timeOfUseCampaignInfo.validationTimeout)
-                .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint());
+                .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint())
+                .withUniqueCalendarName(timeOfUseCampaignInfo.withUniqueCalendarName);
         return timeOfUseCampaignBuilder.create();
     }
 
@@ -79,6 +80,7 @@ public class TimeOfUseCampaignInfoFactory {
         timeOfUseCampaignInfo.validationTimeout = campaign.getValidationTimeout();
         timeOfUseCampaignInfo.id = campaign.getId();
         timeOfUseCampaignInfo.version = campaign.getVersion();
+        timeOfUseCampaignInfo.withUniqueCalendarName = campaign.isWithUniqueCalendarName();
         return timeOfUseCampaignInfo;
     }
 

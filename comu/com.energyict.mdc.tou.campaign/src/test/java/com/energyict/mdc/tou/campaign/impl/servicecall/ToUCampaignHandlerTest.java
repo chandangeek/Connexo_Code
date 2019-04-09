@@ -12,9 +12,12 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
@@ -66,6 +69,8 @@ public class ToUCampaignHandlerTest {
     private LocalEvent event = mock(LocalEvent.class);
     private EventType eventType = mock(EventType.class);
     private ServiceCall serviceCall = mock(ServiceCall.class);
+    private ThreadPrincipalService threadPrincipalService = mock(ThreadPrincipalService.class);
+    private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
     private TimeOfUseCampaignItem timeOfUseItem = mock(TimeOfUseCampaignItem.class);
     private TimeOfUseCampaign timeOfUseCampaign = createMockCampaign("withoutActivation");
     private TimeOfUseCampaign timeOfUseCampaign2 = createMockCampaign("immediately");
@@ -83,7 +88,7 @@ public class ToUCampaignHandlerTest {
         when(timeOfUseItem.getServiceCall()).thenReturn(serviceCall);
         QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(timeOfUseItem), QueryStream.class);
         when(timeOfUseCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
-        timeOfUseCampaignHandler = new TimeOfUseCampaignHandler(timeOfUseCampaignService, clock, serviceCallService, thesaurus);
+        timeOfUseCampaignHandler = new TimeOfUseCampaignHandler(timeOfUseCampaignService, clock, serviceCallService, thesaurus, threadPrincipalService, transactionService);
     }
 
 
@@ -124,6 +129,7 @@ public class ToUCampaignHandlerTest {
     public void testVerificationTaskCompleted() {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(6000));
         Device device = createMockDevice(DeviceMessageStatus.CONFIRMED);
+        when(timeOfUseCampaignService.isWithVerification(timeOfUseCampaign2)).thenReturn(true);
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
@@ -134,6 +140,7 @@ public class ToUCampaignHandlerTest {
     @Test
     public void testVerificationTaskFailed() {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(6000));
+        when(timeOfUseCampaignService.isWithVerification(timeOfUseCampaign2)).thenReturn(true);
         Device device = createMockDevice(DeviceMessageStatus.CONFIRMED);
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_FAILED);

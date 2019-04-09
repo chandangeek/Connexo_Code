@@ -12,6 +12,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public class RestValidationBuilder {
@@ -29,7 +30,7 @@ public class RestValidationBuilder {
     }
 
     public<T> RestValidationBuilder notEmpty(T object, String field, MessageSeed messageSeed) {
-        new ValidationBuilder<>(object).field(field).check(o -> o != null).message(messageSeed).test();
+        new ValidationBuilder<>(object).field(field).check(Objects::nonNull).message(messageSeed).test();
         return this;
     }
 

@@ -18,8 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.util.streams.Currying.perform;
-
 class UpgraderV10_3 implements Upgrader {
 
     private final ServerCalendarService calendarService;
@@ -36,7 +34,7 @@ class UpgraderV10_3 implements Upgrader {
                 Statement statement = connection.createStatement();
         ) {
             introduceEventSetWithExistingCalendarsSQL()
-                    .forEach(perform(this::execute).on(statement));
+                    .forEach(sql -> execute(statement, sql));
             changeOldTouCategory(statement);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);

@@ -86,7 +86,7 @@ Ext.define('Tou.controller.Devices', {
             method: 'PUT',
             success: function (response) {
                 me.doUpdateRecord(me.currentRecord, response.responseText);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInTouCampaign.cancelled', 'TOU', ' Time of use calendar upload for device cancelled'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInTouCampaign.cancelled', 'TOU', 'ToU calendar campaign upload for device cancelled'));
             }
         });
     },
@@ -106,7 +106,7 @@ Ext.define('Tou.controller.Devices', {
             method: 'PUT',
             success: function (response) {
                 me.doUpdateRecord(me.currentRecord, response.responseText);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInTouCampaign.retry', 'TOU', ' Time of use calendar upload for device rescheduled'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInTouCampaign.retry', 'TOU', 'ToU calendar campaign upload for device rescheduled'));
             }
         });
     },
