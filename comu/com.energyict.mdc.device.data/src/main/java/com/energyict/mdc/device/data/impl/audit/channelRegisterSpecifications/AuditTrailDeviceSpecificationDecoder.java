@@ -172,7 +172,7 @@ public class AuditTrailDeviceSpecificationDecoder extends AbstractDeviceAuditDec
         DataMapper<MeterConfiguration> dataMapper = dataModel.mapper(MeterConfiguration.class);
 
         List<MeterConfiguration> entries = getActualEntries(dataMapper,
-                ImmutableMap.of("meterID", endDevice.get().getId())).stream()
+                ImmutableMap.of("METERID", endDevice.get().getId())).stream()
                 .sorted(Comparator.comparing(mc -> mc.getInterval().toOpenClosedRange().lowerEndpoint()))
                 .collect(Collectors.toList());
 
