@@ -25,7 +25,6 @@ import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
-import com.energyict.mdc.device.configuration.rest.impl.KeyTypeInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.SecurityAccessor;
@@ -126,7 +125,6 @@ public class SecurityAccessorResource {
     public PagedInfoList getKeys(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<SecurityAccessorInfo> collect = getSecurityAccessorKeyInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()));
-            //info.keyType = new KeyTypeInfo(findKeyAccessorTypeOrThrowException(info.id, device).getKeyType());
         return PagedInfoList.fromCompleteList("keys", collect, queryParameters);
     }
 
