@@ -18,12 +18,10 @@ import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Check if at least one connection is available on the device with the status: 'Active'
- */
 public class MetrologyConfigurationInCorrectStateIfAny extends TranslatableServerMicroCheck {
     private static final String INSIGHT_LICENSE = "INS";
     private final LicenseService licenseService;
@@ -71,7 +69,12 @@ public class MetrologyConfigurationInCorrectStateIfAny extends TranslatableServe
 
     @Override
     public Set<DefaultTransition> getRequiredDefaultTransitions() {
-        return licenseService.getLicensedApplicationKeys().contains(INSIGHT_LICENSE) ? EnumSet.allOf(DefaultTransition.class) : EnumSet.noneOf(DefaultTransition.class);
+        List<String> licensedApplicationKeys = licenseService.getLicensedApplicationKeys();
+        return licensedApplicationKeys.isEmpty() // For the case of installation because no license info is available at that time.
+                // The check is not harmful since also verifies license in execute method, so it's better to turn it on.
+                || licensedApplicationKeys.contains(INSIGHT_LICENSE) ?
+                EnumSet.allOf(DefaultTransition.class) :
+                EnumSet.noneOf(DefaultTransition.class);
     }
 
     @Override
