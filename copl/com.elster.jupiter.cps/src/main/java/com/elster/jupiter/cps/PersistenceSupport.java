@@ -59,16 +59,6 @@ public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
     }
 
     /**
-     * Gets the name of the column that will hold the reference
-     * to the context class is being extended by the CustomPropertySet (eg: device).
-     *
-     * @return The name of the column
-     */
-    default String contextColumnName() {
-        return "";
-    }
-
-    /**
      * Gets the name of the field of the persistence class
      * that holds the reference to the domain class
      * that is being extended by the CustomPropertySet.
@@ -78,34 +68,12 @@ public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
     String domainFieldName();
 
     /**
-     * Gets the name of the field of the persistence class
-     * that holds the reference to the context class
-     * that is being extended by the CustomPropertySet.
-     *
-     * @return The name of the field of the persistence class
-     */
-    default String contextFieldName(){
-        return "";
-    };
-
-
-    /**
      * Gets the name of the foreign key that references the
      * domain class that is being extended by the CustomPropertySet.
      *
      * @return The name of the foreign key
      */
     String domainForeignKeyName();
-
-    /**
-     * Gets the name of the foreign key that references the
-     * cotext class that is being extended by the CustomPropertySet(eg: device).
-     *
-     * @return The name of the foreign key
-     */
-    default String contextForeignKeyName(){
-        return "";
-    }
 
     /**
      * Gets the class that provides persistence support for the attributes
@@ -177,6 +145,19 @@ public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
      */
     default String columnNameFor(PropertySpec propertySpec) {
         return propertySpec.getName();
+    }
+
+    /**
+     * Gets the context for which this CustomPropertySet provides custom properties.
+     *
+     * @return The context class that is extended by this CustomPropertySet
+     */
+    default Class getContextClass(){
+        return null;
+    }
+
+    default String contextForeignKeyName(){
+        return "";
     }
 
     String application();

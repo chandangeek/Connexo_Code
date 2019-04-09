@@ -95,7 +95,7 @@ public class ToUCampaignInMemoryPersistence {
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
-    private class MockModule extends AbstractModule {
+    private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
@@ -176,7 +176,6 @@ public class ToUCampaignInMemoryPersistence {
             injector.getInstance(CompletionOptionsCustomPropertySet.class);
             injector.getInstance(OnDemandReadServiceCallCustomPropertySet.class);
             injector.getInstance(CommunicationTestServiceCallCustomPropertySet.class);
-            injector.getInstance(TimeOfUseItemPropertySet.class);
             injector.getInstance(MeteringZoneService.class);
             injector.getInstance(AuditService.class);
             injector.getInstance(TimeOfUseCampaignServiceImpl.class);

@@ -6,9 +6,9 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Preview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.activeCalendarPreview',
     frame: false,
-    layout: {
-        type: 'column'
-    },
+    requires: [
+        'Uni.view.calendar.TimeOfUsePreview'
+    ],
 
     initComponent: function () {
         var me = this;
@@ -24,79 +24,33 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Preview', {
             }
         ];
 
-        me.items = {
-            xtype: 'form'
-        };
+        me.items = [
+            {
+                xtype: 'fieldset',
+                title: '<H2>' + Uni.I18n.translate('general.current', 'IMT', 'Current') + '</H2>',
+                border: false,
+                defaults: {
+                    labelWidth: 250
+                }
+            },
+            {
+                xtype: 'timeOfUsePreview',
+                header: false,
+                frame: false,
+            }
+        ];
         me.callParent(arguments);
     },
 
     fillFieldContainers: function (calendarRecord) {
         var me = this;
+        var timeOfUsePreviewForm = me.down('timeOfUsePreview');
+
         Ext.suspendLayouts();
-        me.down('form').add([{
-            xtype: 'fieldset',
-            title: '<H2>' + Uni.I18n.translate('general.current', 'IMT', 'Current') + '</H2>',
-            border: false,
-            defaults: {
-                labelWidth: 250
-            },
-            items: [
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: Uni.I18n.translate('general.startOfCalculations', 'IMT', 'Start of calculations'),
-                    name: 'startYear'
-                },
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.periods', 'IMT', 'Periods'),
-                    itemId: 'periodField'
-                },
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.dayTypes', 'IMT', 'Day types'),
-                    itemId: 'dayTypesField'
-                },
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.eventTypes', 'IMT', 'Event types'),
-                    itemId: 'tariffsField'
-                }
-            ]
-        }
-        ]);
-        me.down('form').loadRecord(calendarRecord);
+        timeOfUsePreviewForm.loadRecord(calendarRecord);
+        timeOfUsePreviewForm.fillFieldContainers(calendarRecord);
+        timeOfUsePreviewForm.setTitle(false);
 
-        calendarRecord.periods().each(function (record) {
-            me.down('#periodField').add(
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: undefined,
-                    value: record.get('name') + ' (' + Uni.I18n.translate('general.fromX', 'IMT', 'from {0}', [me.calculateDate(record.get('fromMonth'), record.get('fromDay'))]) + ')',
-                    margin: '0 0 -10 0'
-                }
-            );
-        });
-        calendarRecord.dayTypes().each(function (record) {
-            me.down('#dayTypesField').add(
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: undefined,
-                    value: record.get('name') + me.getDays(calendarRecord, record.get('id')),
-                    margin: '0 0 -10 0'
-                }
-            );
-        });
-
-        calendarRecord.events().each(function (record) {
-            me.down('#tariffsField').add(
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: undefined,
-                    value: record.get('name') + ' (' + record.get('code') + ')',
-                    margin: '0 0 -10 0'
-                }
-            );
-        });
         me.doComponentLayout();
         Ext.resumeLayouts(true);
         me.updateLayout();
@@ -130,11 +84,11 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Preview', {
     loadRecord: function (calendar) {
         Ext.suspendLayouts();
         this.setTitle(calendar.getCalendar().get('category').displayName);
-        this.down('form').removeAll();
+        // this.down('form').removeAll();
         if (calendar.get('fromTime') < new Date()) {
             this.fillFieldContainers(calendar.getCalendar());
         }
-        this.down('form').add(
+        this.add(
             {
                 xtype: 'fieldset',
                 title: '<H2>' + Uni.I18n.translate('general.planned', 'IMT', 'Planned') + '</H2>',

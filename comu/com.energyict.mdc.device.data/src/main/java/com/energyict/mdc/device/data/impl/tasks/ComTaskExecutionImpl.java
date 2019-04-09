@@ -190,7 +190,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                     break;
                 default:
                     this.behavior = new ManualBehavior();
-
             }
         }
         return behavior;
@@ -269,7 +268,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public int getMaxNumberOfTries() {
-        return this.getBehavior().getMaxNumberOfTries();
+        return this.device.get().getDeviceConfiguration().getComTaskEnablementFor(this.getComTask()).get().getMaxNumberOfTries();
     }
 
     @Override
@@ -815,7 +814,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void executionFailed() {
-        this.currentRetryCount++;    // increment the current number of retries
+        this.currentRetryCount++;
         if (this.currentRetryCount < getMaxNumberOfTries()) {
             this.doExecutionAttemptFailed();
         } else {
@@ -1152,13 +1151,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         boolean isAdHoc();
 
         /**
-         * Gets the maximum number of consecutive failures a ComTaskExecution can have before marking it as failed.
-         *
-         * @return the maximum number of consecutive failures
-         */
-        int getMaxNumberOfTries();
-
-        /**
          * Gets the specifications for the calculation of the next
          * execution timestamp of this ComTaskExecution.
          * Note that ad-hoc ComTaskExecution do not have such a specification.
@@ -1200,11 +1192,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public boolean isAdHoc() {
             return true;
-        }
-
-        @Override
-        public int getMaxNumberOfTries() {
-            return getComTask().getMaxNumberOfTries();
         }
 
         @Override
@@ -1295,11 +1282,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public int getMaxNumberOfTries() {
-            return getComTask().getMaxNumberOfTries();
-        }
-
-        @Override
         public Optional<NextExecutionSpecs> getNextExecutionSpecs() {
             return ComTaskExecutionImpl.this.nextExecutionSpecs.getOptional();
 
@@ -1312,17 +1294,17 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public void comTaskStarted() {
-                postEvent(EventType.MANUAL_COMTASKEXECUTION_STARTED);
+            postEvent(EventType.MANUAL_COMTASKEXECUTION_STARTED);
         }
 
         @Override
         public void comTaskCompleted() {
-                postEvent(EventType.MANUAL_COMTASKEXECUTION_COMPLETED);
+            postEvent(EventType.MANUAL_COMTASKEXECUTION_COMPLETED);
         }
 
         @Override
         public void comTaskFailed() {
-                postEvent(EventType.MANUAL_COMTASKEXECUTION_FAILED);
+            postEvent(EventType.MANUAL_COMTASKEXECUTION_FAILED);
         }
 
         @Override
@@ -1397,14 +1379,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public int getMaxNumberOfTries() {
-            return getComSchedule().get().getComTasks().stream().
-                    map(ComTask::getMaxNumberOfTries).
-                    min(Integer::compare).
-                    orElse(OutboundConnectionTaskImpl.DEFAULT_MAX_NUMBER_OF_TRIES);
-        }
-
-        @Override
         public Optional<NextExecutionSpecs> getNextExecutionSpecs() {
             return Optional.of(getComSchedule().get().getNextExecutionSpecs());
         }
@@ -1416,17 +1390,17 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public void comTaskStarted() {
-                postEvent(EventType.SCHEDULED_COMTASKEXECUTION_STARTED);
+            postEvent(EventType.SCHEDULED_COMTASKEXECUTION_STARTED);
         }
 
         @Override
         public void comTaskCompleted() {
-                postEvent(EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED);
+            postEvent(EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED);
         }
 
         @Override
         public void comTaskFailed() {
-                postEvent(EventType.SCHEDULED_COMTASKEXECUTION_FAILED);
+            postEvent(EventType.SCHEDULED_COMTASKEXECUTION_FAILED);
         }
 
         public Optional<ComSchedule> getComSchedule() {

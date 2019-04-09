@@ -126,9 +126,12 @@ Ext.define('Tou.controller.Add', {
                     break;
                 default:
                     break;
-
                 }
-                if (activateCalendarItem && activateCalendarItem.getOptionValue() == "immediately") {
+
+                if (activateCalendarItem && (
+                    activateCalendarItem.getOptionValue() === "immediately"
+                 || activateCalendarItem.getOptionValue() === "onDate"
+                )) {
                     record.set('validationTimeout', timeInSec);
                 } else {
                     record.set('validationTimeout', null);
@@ -170,7 +173,7 @@ Ext.define('Tou.controller.Add', {
         record.save({
             backUrl: page.returnLink,
             success: function (record, operation) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.campaigns.addSuccess', 'TOU', 'Time of use campaign added'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.campaigns.addSuccess', 'TOU', 'ToU calendar campaign added'));
                 if (page.rendered) {
                     window.location.href = page.returnLink;
                 }
@@ -237,7 +240,7 @@ Ext.define('Tou.controller.Add', {
             },
             jsonData: form.campaignRecordBeingEdited.data, // can be any object or JSON string
             success: function (response, opts) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.campaigns.saveSuccess', 'TOU', 'Time of use campaign saved'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.campaigns.saveSuccess', 'TOU', 'ToU calendar campaign saved'));
                 if (page.rendered) {
                     window.location.href = page.returnLink;
                 }

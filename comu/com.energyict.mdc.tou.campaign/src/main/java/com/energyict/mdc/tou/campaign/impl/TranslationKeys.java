@@ -22,10 +22,12 @@ public enum TranslationKeys implements TranslationKey {
     FULL_CALENDAR("fullCalendar", "Full calendar"),
     SPECIAL_DAYS("specialDays", "Special days"),
     IMMEDIATELY("immediately", "Immediately"),
+    ON_DATE("onDate", "On date"),
     WITHOUT_ACTIVATION("withoutActivation", "Without activation"),
     DEVICE_MESSAGE_ID("deviceMessageId", "Device message id"),
     TIME_OF_USE_CAMPAIGN_CPS("TimeOfUseCampaignCustomPropertySet", "Time of use campaign custom property set"),
-    TIME_OF_USE_ITEM_CPS("TimeOfUseItemCustomPropertySet", "Time of use item custom property set"),
+    TIME_OF_USE_ITEM_CPS("TimeOfUseCampaignItemCustomPropertySet", "Time of use campaign item custom property set"),
+    WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "With unique calendar name"),
     ;
 
 

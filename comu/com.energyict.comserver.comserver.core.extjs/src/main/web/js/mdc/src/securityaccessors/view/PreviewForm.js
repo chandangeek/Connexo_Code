@@ -23,7 +23,7 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
         items: []
     },
 
-    doLoadRecord: function(record) {
+    doLoadRecord: function(record, defaultKeyValue, deviceTypeId) {
         var me = this,
             leftItems = {
                 defaults: {
@@ -101,9 +101,13 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         name: 'viewLevelsInfo'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('securityaccessors.editPrivileges', 'MDC', 'Edit privileges'),
-                        xtype: 'execution-level-displayfield',
-                        name: 'editLevelsInfo'
+                        fieldLabel: Uni.I18n.translate('securityaccessors.defaultServiceKey', 'MDC', 'Default service key'),
+                        name: 'defaultServiceKey',
+                        hidden: !(record.get('keyType').name == 'HSM Key' && deviceTypeId),
+                        renderer: function () {
+                            var val = defaultKeyValue;
+                            return Ext.isEmpty(val) ? '-' : val;
+                        }
                     }
                 ]
             }

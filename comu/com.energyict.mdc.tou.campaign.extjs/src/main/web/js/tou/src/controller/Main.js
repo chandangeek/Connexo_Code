@@ -30,7 +30,7 @@ Ext.define('Tou.controller.Main', {
         historian = me.getController('Tou.controller.History'); // Forces route registration.
         if (Tou.privileges.TouCampaign.canView()) {
             var portalItemLink = {
-                text: Uni.I18n.translate('tou.campaigns.touCampaigns', 'TOU', 'ToU campaigns'),
+                text: Uni.I18n.translate('tou.campaigns.touCampaigns', 'TOU', 'ToU calendar campaigns'),
                 itemId: 'tou-campaigns-link-tou',
                 href: '#/workspace/toucampaigns',
                 route: 'workspace',
@@ -42,7 +42,7 @@ Ext.define('Tou.controller.Main', {
                 portalItemData.push(portalItemLink);
             } else {
                 Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
-                        title: Uni.I18n.translate('tou.touManagement', 'TOU', 'ToU campaigns'),
+                        title: Uni.I18n.translate('tou.campaigns.touCampaigns', 'TOU', 'ToU calendar campaigns'),
                         portal: 'workspace',
                         route: 'toucampaigns',
                         items: [portalItemLink]

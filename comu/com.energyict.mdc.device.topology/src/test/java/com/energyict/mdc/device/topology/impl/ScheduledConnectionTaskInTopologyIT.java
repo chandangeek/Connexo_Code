@@ -494,8 +494,6 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         ((ServerComTaskExecution) comTaskExecution).executionStarted(outboundComPort);
         ((ServerComTaskExecution) comTaskExecution).executionFailed();
         ((ServerComTaskExecution) comTaskExecution).executionFailed();
-        ((ServerComTaskExecution) comTaskExecution).executionFailed();
-        ((ServerComTaskExecution) comTaskExecution).executionFailed();
         ((ServerComTaskExecution) comTaskExecution).executionFailed();  // make it fail
         assertThat(getReloadedComTaskExecution(device, comTaskExecution).getStatus()).isEqualTo(TaskStatus.Failed);
         connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getConnectionTaskService().findDefaultConnectionTaskForDevice(device).get();
@@ -662,6 +660,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTask, this.securityPropertySet);
         builder.useDefaultConnectionTask(useDefault);
         builder.setPriority(this.comTaskEnablementPriority);
+        builder.setMaxNumberOfTries(3);
         return builder.add();
     }
 

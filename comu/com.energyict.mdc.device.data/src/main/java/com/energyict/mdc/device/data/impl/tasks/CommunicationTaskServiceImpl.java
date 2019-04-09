@@ -747,27 +747,17 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     public Fetcher<ComTaskExecution> findComTaskExecutionsForDevicesByComTask(List<Long> deviceIds, List<Long> comTaskIds) {
-        long nowInSeconds = this.toSeconds(this.deviceDataModelService.clock().instant());
         DataMapper<ComTaskExecution> mapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
-        SqlBuilder sqlBuilder = initComTaskExecFinderSqlBuilder(mapper);
-        sqlBuilder.append("   and ct.discriminator = 2"); // 2=outbound, 1=inbound
-        sqlBuilder.append("   and cte.obsolete_date is null");
-        sqlBuilder.append("   and cte.connectiontask = ct.id");
-        sqlBuilder.append("   and cte.comport is null");
+        SqlBuilder sqlBuilder = mapper.builder("cte");
+        sqlBuilder.append(" where cte.obsolete_date is null");
         sqlBuilder.append("   and cte.onhold = 0");
-        sqlBuilder.append("   and cte.comschedule is not null");
         sqlBuilder.append("   and cte.lastsuccessfulcompletion is not null");
         sqlBuilder.append("   and cte.lastexecutiontimestamp is not null");
         sqlBuilder.append("   and cte.lastexecutiontimestamp > cte.lastsuccessfulcompletion");
-        sqlBuilder.append("   and cte.nextexecutiontimestamp > ");
-        sqlBuilder.addLong(nowInSeconds);
-        sqlBuilder.append("   and ct.nextExecutionTimestamp > ");
-        sqlBuilder.addLong(nowInSeconds);
         sqlBuilder.append("   and cte.lastexecutionfailed = 1");
         sqlBuilder.append("   and cte.currentretrycount = 0");
         addConditionOnIdList(deviceIds, "cte.device", sqlBuilder);
         addConditionOnIdList(comTaskIds, "cte.comtask", sqlBuilder);
-        sqlBuilder.append("FOR UPDATE OF cte.nextExecutionTimestamp");
 
         return mapper.fetcher(sqlBuilder);
     }

@@ -226,10 +226,17 @@ public class TableSqlGenerator {
 
     public String updateAuditTrailSql() {
         StringBuilder sb = new StringBuilder("update ADT_AUDIT_TRAIL set");
-		sb.append(" MODTIMEEND = ?, PKDOMAIN = ?");
+		sb.append(" MODTIMEEND = ?, PKDOMAIN = ?, PKCONTEXT1 = ?");
         sb.append(" WHERE ID = ?");
         return sb.toString();
     }
+
+	public String updateAuditTrailWithContextSql() {
+		StringBuilder sb = new StringBuilder("update ADT_AUDIT_TRAIL set");
+		sb.append(" MODTIMEEND = ?, PKDOMAIN = ?, PKCONTEXT1 = ?, PKCONTEXT2 = ?");
+		sb.append(" WHERE ID = ?");
+		return sb.toString();
+	}
 
 
 }

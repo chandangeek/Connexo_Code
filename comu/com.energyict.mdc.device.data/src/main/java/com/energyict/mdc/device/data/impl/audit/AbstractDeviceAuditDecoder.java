@@ -89,14 +89,14 @@ public abstract class AbstractDeviceAuditDecoder extends AbstractAuditDecoder {
                 .orElseGet(() -> getToEndDeviceEntry(from, version + 1, dataMapper));
     }
 
-    protected Map<Operator, Pair<String, Object>> getHistoryByJournalClauses(Long deviceId) {
-        return ImmutableMap.of(Operator.EQUAL, Pair.of("id", deviceId),
+    public Map<Operator, Pair<String, Object>> getHistoryByJournalClauses(Long id) {
+        return ImmutableMap.of(Operator.EQUAL, Pair.of("ID", id),
                 Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
     }
 
-    protected Map<Operator, Pair<String, Object>> getHistoryByModTimeClauses(Long deviceId) {
-        return ImmutableMap.of(Operator.EQUAL, Pair.of("ID", deviceId),
+    public Map<Operator, Pair<String, Object>> getHistoryByModTimeClauses(Long id) {
+        return ImmutableMap.of(Operator.EQUAL, Pair.of("ID", id),
                 Operator.GREATERTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));
     }
