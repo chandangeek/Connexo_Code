@@ -90,9 +90,15 @@ public class CalendarSearchableProperty implements SearchableUsagePointProperty 
     @Override
     public String toDisplay(Object value) {
         if (value instanceof Calendar) {
-            return ((Calendar) value).getName() + " - " + ((Calendar) value).getDescription();
+            return ((Calendar) value).getName() + getDescription(value);
         }
         throw new IllegalArgumentException(VALUE_NOT_COMPATIBLE);
+    }
+
+
+    private String getDescription(Object value) {
+        String descr = ((Calendar) value).getDescription();
+        return descr == null || descr.isEmpty() ? "" : " - " + descr;
     }
 
     @Override

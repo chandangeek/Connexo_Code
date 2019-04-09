@@ -75,7 +75,12 @@ public abstract class AbstractDeviceCalendarSearchableProperty extends AbstractS
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return ((Calendar) value).getName() + " " + ((Calendar) value).getDescription();
+        return ((Calendar) value).getName() + getDescription(value);
+    }
+
+    private String getDescription(Object value) {
+        String descr = ((Calendar) value).getDescription();
+        return descr == null || descr.isEmpty() ? "" : " - " + descr;
     }
 
     @Override
