@@ -17,7 +17,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterHasUnsatisfiedRequirements;
 import com.elster.jupiter.metering.MeterTransitionWrapper;
-import com.elster.jupiter.metering.MeterTransitionWrapperImpl;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointHasMeterOnThisRole;

@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterTransitionWrapper;
-import com.elster.jupiter.metering.MeterTransitionWrapperImpl;
 import com.elster.jupiter.metering.MeteringService;
 
 import java.time.Clock;
@@ -460,7 +459,7 @@ public class DeviceLifeCycleEventSupportTest {
         Instant time = Clock.systemDefaultZone().instant();
         EventType eventType = mock(EventType.class);
 
-        MeterTransitionWrapper source = new MeterTransitionWrapperImpl(this.endDevice, time);
+        MeterTransitionWrapper source = new MeterTransitionWrapperImpl(this.meter, time);
 
         when(eventType.getTopic()).thenReturn(com.elster.jupiter.metering.EventType.METER_LINKED.topic());
         LocalEvent localEvent = mock(LocalEvent.class);
@@ -484,7 +483,7 @@ public class DeviceLifeCycleEventSupportTest {
         Instant time = Clock.systemDefaultZone().instant();
         EventType eventType = mock(EventType.class);
 
-        MeterTransitionWrapper source = new MeterTransitionWrapperImpl(this.endDevice, time);
+        MeterTransitionWrapper source = new MeterTransitionWrapperImpl(this.meter, time);
 
         when(eventType.getTopic()).thenReturn(com.elster.jupiter.metering.EventType.METER_UNLINKED.topic());
         LocalEvent localEvent = mock(LocalEvent.class);
