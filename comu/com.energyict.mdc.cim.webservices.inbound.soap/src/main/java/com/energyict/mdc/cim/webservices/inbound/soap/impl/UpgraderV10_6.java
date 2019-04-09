@@ -35,8 +35,6 @@ class UpgraderV10_6 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-//        dataModelUpgrader.upgrade(dataModel, Version.version(10, 6));
-
         serviceCallService.findServiceCallType(GET_METER_READINGS.getTypeName(), GET_METER_READINGS.getTypeVersion())
                 .ifPresent(serviceCallType -> {
                     serviceCallType.getCustomPropertySets().stream()

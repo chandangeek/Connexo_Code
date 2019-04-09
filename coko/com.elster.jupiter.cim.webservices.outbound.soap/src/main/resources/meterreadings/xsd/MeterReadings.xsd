@@ -11,6 +11,8 @@
             <xs:element name="MeterReading" type="m:MeterReading" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="ReadingQualityType" type="m:ReadingQualityType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="ReadingType" type="m:ReadingType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="LoadProfile" type="m:LoadProfile" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="RegisterGroup" type="m:RegisterGroup" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="Asset" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Asset">
@@ -225,6 +227,20 @@
             <xs:element name="interharmonic" type="m:ReadingInterharmonic" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType.interharmonic"/>
             <xs:element name="Names" type="m:Name" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
         </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="LoadProfile">
+        <xs:element name="ReadingType" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IntervalBlock.ReadingType">
+            <xs:complexType sawsdl:modelReference="">
+                <xs:attribute name="ref" type="xs:string"/>
+            </xs:complexType>
+        </xs:element>
+    </xs:complexType>
+    <xs:complexType name="RegisterGroup">
+        <xs:element name="ReadingType" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IntervalBlock.ReadingType">
+            <xs:complexType sawsdl:modelReference="">
+                <xs:attribute name="ref" type="xs:string"/>
+            </xs:complexType>
+        </xs:element>
     </xs:complexType>
     <xs:complexType name="Status" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Status">
         <xs:sequence>
