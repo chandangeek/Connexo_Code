@@ -33,7 +33,6 @@ Ext.define('Mdc.property.SecurityAccessors', {
     initComponent: function () {
 
         var me = this;
-        console.log("INIT COMPONENT!!!!!!!!!!!!!!!!!!!!!!!");
         me.securitySetsStore = Ext.create('Ext.data.Store', {
             model: 'Mdc.model.DeviceSecuritySetting',
             proxy: {

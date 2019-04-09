@@ -108,7 +108,6 @@ Ext.define('Uni.property.form.Property', {
                 type = property.getType();
                 fieldType = registry.getProperty(type);
                 dependOnIsEdited = me.isMultiEdit && !me.isEdit;
-                console.log("ADD PROPERTY!!!!!!!!!!",me.context);
                 if ((dependOnIsEdited && property.isEdited) || (!dependOnIsEdited && fieldType)) {
                     var field = Ext.create(fieldType, Ext.apply(me.defaults, {
                         parentForm: me,
