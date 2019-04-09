@@ -30,7 +30,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -94,6 +93,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
     public static final String COMPONENT_NAME = "SAP";
     public static final String URL_PROPERTY = "url";
+    public static final String APPLICATION_NAME = "MultiSense";
     public static final Map<AdditionalProperties, Integer> SAP_PROPERTIES = new HashMap<>();
     public static final List<SAPMeterReadingDocumentReason> METER_READING_REASONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestCreateConfirmation> STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
@@ -215,7 +215,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         loadProperties(bundleContext);
         getServiceCallCustomPropertySets().values().forEach(customPropertySetService::addCustomPropertySet);
 
-        upgradeService.register(InstallIdentifier.identifier(MdcAppService.APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier(APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
 
         registerServices(bundleContext);
     }

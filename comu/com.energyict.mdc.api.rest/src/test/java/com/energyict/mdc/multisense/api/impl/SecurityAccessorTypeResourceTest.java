@@ -32,11 +32,13 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -48,6 +50,8 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
     private Device device;
     private DeviceType deviceType;
     private SecurityPropertySet sps1, sps2;
+    @Mock
+    private SecurityAccessor securityAccessor;
 
     @Override
     @Before
@@ -83,6 +87,7 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
         when(device.getDeviceType().getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
         when(device.getSecurityAccessor(Mockito.any(SecurityAccessorType.class))).thenReturn(Optional.of(securityAccessor2));
         when(securityAccessor2.getActualValue()).thenReturn(Optional.of("ABCD"));
+        securityAccessor = securityAccessor2;
     }
 
     @Test
@@ -128,12 +133,20 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
     }
 
     @Test
+    public void testValidateKeyAccessorTypeFailure() throws Exception {
+        when(securityAccessor.getActualValue()).thenReturn(Optional.ofNullable(null));
+        Response response = target("/devices/XAS/keyAccessors/AK/validate").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+    }
+
+    @Test
     public void testMarkServiceKey() throws Exception {
         HashMap<String, Object> info = new HashMap<>();
         info.put("serviceKey", true);
         Response response = target("/devices/XAS/keyAccessors/AK/servicekey").request("application/json").put(Entity
                 .json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(securityAccessor).setServiceKey(true);
     }
 
     @Test
@@ -156,6 +169,23 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
         when(device.getSecurityAccessors()).thenReturn(Arrays.asList(securityAccessor));
         Response response = target("/devices/XAS/keyAccessors/HSM/tempvalue").request("application/json").put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testStoreTempValueFailure() throws Exception {
+        PropertySpec propertySpec1 = mockStringPropertySpec("key", "123");
+        PropertySpec propertySpec2 = mockStringPropertySpec("label", "asd");
+        SecurityAccessor securityAccessor = mockSecurityAccessor("HSM", propertySpec1, propertySpec2);
+        SecurityAccessorType securityAccessorType = mockSecuritySecurityAccessorType("HSM");
+        when(securityAccessor.getKeyAccessorType()).thenReturn(securityAccessorType);
+        when(securityAccessor.getKeyAccessorType().keyTypeIsHSM()).thenReturn(false);
+        when(device.getSecurityAccessor(any(SecurityAccessorType.class))).thenReturn(Optional.of(securityAccessor));
+        String val = "ABCDABCDABCDABCDABCDABCDABCDABCF";
+        HashMap<String, Object> info = new HashMap<>();
+        info.put("value", val);
+        when(device.getSecurityAccessors()).thenReturn(Arrays.asList(securityAccessor));
+        Response response = target("/devices/XAS/keyAccessors/HSM/tempvalue").request("application/json").put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test

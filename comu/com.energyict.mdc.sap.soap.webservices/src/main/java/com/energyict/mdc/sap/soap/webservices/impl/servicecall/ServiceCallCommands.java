@@ -23,7 +23,6 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
@@ -48,6 +47,8 @@ import java.security.Principal;
 import java.time.Clock;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class ServiceCallCommands {
 
@@ -227,7 +228,7 @@ public class ServiceCallCommands {
         connectionStatusChangeDomainExtension.setProcessDate(message.getPlannedProcessingDateTime());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
-                .origin(MdcAppService.APPLICATION_NAME)
+                .origin(APPLICATION_NAME)
                 .extendedWith(connectionStatusChangeDomainExtension)
                 .create();
 
@@ -249,7 +250,7 @@ public class ServiceCallCommands {
         meterReadingDocumentDomainExtension.setBulk(requestMessage.isBulk());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
-                .origin(MdcAppService.APPLICATION_NAME)
+                .origin(APPLICATION_NAME)
                 .extendedWith(meterReadingDocumentDomainExtension)
                 .create();
 
