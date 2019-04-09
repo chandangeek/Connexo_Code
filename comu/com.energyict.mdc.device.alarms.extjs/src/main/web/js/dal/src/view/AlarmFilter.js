@@ -16,7 +16,8 @@ Ext.define('Dal.view.AlarmFilter', {
         'Dal.store.AlarmWorkgroupAssignees',
         'Dal.store.ClearStatus',
         'Dal.store.DueDate',
-        'Dal.store.Devices'
+        'Dal.store.Devices',
+        'Dal.store.DeviceGroups'
     ],
 
     initComponent: function () {
@@ -138,6 +139,16 @@ Ext.define('Dal.view.AlarmFilter', {
                 minChars: 0,
                 forceSelection: false,
                 hidden: me.isOverviewFilter
+            },
+            {
+                type: 'combobox',
+                itemId: 'alarm-deviceGroup-filter',
+                dataIndex: 'deviceGroup',
+                emptyText: Uni.I18n.translate('general.deviceGroup', 'DAL', 'Device Group'),
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Dal.store.DeviceGroups',
+                multiSelect: true,
             },
             {
                 type: 'interval',
