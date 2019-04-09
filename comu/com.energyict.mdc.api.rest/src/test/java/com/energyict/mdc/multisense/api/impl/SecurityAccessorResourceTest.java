@@ -22,9 +22,11 @@ import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.upl.TypedProperties;
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Before;
@@ -103,14 +105,10 @@ public class SecurityAccessorResourceTest extends MultisensePublicApiJerseyTest 
     }
 
     @Test
-    public void testPrepareDataForServiceKeyInjection() throws Exception {
-        Response response = target("/devices/XAS/keyAccessors/Password/prepareServiceKeyInjection/AK").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
-
-    @Test
     public void testWrapServiceKeyValue() throws Exception {
-        Response response = target("/devices/XAS/keyAccessors/Password/wrapServiceKeyValue/ABCDABCDABCDABCDABCDABCDABCDABCD").request().get();
+        HashMap<String, String> info = new HashMap();
+        info.put("value", "ABCDABCDABCDABCDABCDABCDABCDABCD");
+        Response response = target("/devices/XAS/keyAccessors/Password/wrapServiceKeyValue").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 

@@ -132,7 +132,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
         deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         deviceComTasksInfo.connectionFunctionInfo = comTaskEnablement.getConnectionFunction().isPresent() ? new ConnectionFunctionInfo(comTaskEnablement.getConnectionFunction().get()) : null;
-        deviceComTasksInfo.maxNumberOfTries = comTaskEnablement.getComTask().getMaxNumberOfTries();
+        deviceComTasksInfo.maxNumberOfTries = comTaskEnablement.getMaxNumberOfTries();
         setConnectionMethodInfo(comTaskEnablement, device, deviceComTasksInfo);
         setConnectionTaskStrategy(deviceComTasksInfo, comTaskEnablement);
         return deviceComTasksInfo;

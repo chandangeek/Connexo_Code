@@ -1,10 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
 
-Private-Package: com.energyict.mdc.cim.webservices.inbound.soap.*,\
-                 com.elster.connexo.*,\
-                 org.w3.*
-Export-Package: com.energyict.mdc.cim.webservices.inbound.soap,\
-                org.w3._2000._09.xmldsig,\
-                ch.iec.tc57._2011.*,\
-                org.w3._2001._04.xmlenc
+Private-Package: com.energyict.mdc.cim.webservices.inbound.soap.*
+Export-Package: com.energyict.mdc.cim.webservices.inbound.soap

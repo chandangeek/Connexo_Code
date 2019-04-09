@@ -186,6 +186,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(metrologyConfigurationService.findMetrologyConfiguration(METROLOGY_CONFIGURATION_NAME)).thenReturn(Optional.of(metrologyConfiguration));
         when(metrologyConfiguration.getName()).thenReturn(METROLOGY_CONFIGURATION_NAME);
         when(metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(billing, information, check));
+        when(metrologyConfiguration.isActive()).thenReturn(true);
         when(effectiveMC.getChannelsContainer(billing, NOW)).thenReturn(Optional.of(billingContainer));
         when(effectiveMC.getChannelsContainer(information, NOW)).thenReturn(Optional.empty());
         when(effectiveMC.getChannelsContainer(check, NOW)).thenReturn(Optional.of(billingContainer));

@@ -9,7 +9,7 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.Functions;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;

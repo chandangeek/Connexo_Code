@@ -62,10 +62,10 @@ public class HsmConfigGogo {
     }
 
     public void hsmPrepareServiceKey() {
-        System.out.println("usage               :    hsmPrepareServiceKey <service_key> <service_key_label> <key_value>");
-        System.out.println("service_key         :    Service key value (hex)");
-        System.out.println("service_key_label   :    Service key label");
-        System.out.println("key_value           :    Key value (hex)");
+        System.out.println("usage              :    hsmPrepareServiceKey <service_key> <service_key_label> <key_value>");
+        System.out.println("service_key        :    Service key value (hex)");
+        System.out.println("service_key_kek    :    KEK (hex)");
+        System.out.println("key_value          :    Key value (hex)");
     }
 
     public void hsmPrepareServiceKey(String hexServiceKey, String kek, String hexKeyValue) throws HsmBaseException {

@@ -64,6 +64,7 @@ public class TimeOfUseSendHelper {
     }
 
     public void setCalendarOnDevice(Device device, ServiceCall serviceCall) {
+        timeOfUseCampaignService.revokeCalendarsCommands(device);
         TimeOfUseCampaign timeOfUseCampaign =
                 serviceCall.getParent()
                         .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.SERVICE_CALL_PARENT_NOT_FOUND))
