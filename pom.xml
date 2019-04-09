@@ -491,9 +491,6 @@
 		</profile>
 		<profile>
 			<id>sencha-dev</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<build>
 				<plugins>
 					<plugin>
@@ -503,7 +500,7 @@
 						<executions>
 							<execution>
 								<id>add-compiled-js</id>
-								<phase>generate-resources</phase>
+								<phase>compile</phase>
 								<goals>
 									<goal>add-resource</goal>
 								</goals>
@@ -511,6 +508,14 @@
 									<resources>
 										<resource>
 											<directory>${basedir}/src/main/web</directory>
+											<includes>
+												<include>**/*</include>
+											</includes>
+										</resource>
+										<!-- This is needed while some js files are directly pointed from html files and needs to have same path as in sencha-compile-->
+										<resource>
+											<directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+											<targetPath>${js.dir}</targetPath>
 											<includes>
 												<include>**/*</include>
 											</includes>
@@ -577,7 +582,7 @@
 										<echo>Sencha build</echo>
 										<echo>Using Sencha CMD in ${sencha.cmd.dir}</echo>
 										<echo>Using Ext lib in ${sencha.ext.dir}</echo>
-										<property name="build.dir" value="${project.build.directory}/web"/>
+										<property name="build.dir" value="${project.basedir}/src/main/web/${js.dir}/build"/>
 										<property name="build.temp.dir" value="${project.build.directory}/webtemp"/>
 										<property name="cmd.dir" value="${sencha.cmd.dir}"/>
 										<property name="ext.dir" value="${sencha.ext.dir}"/>
@@ -610,6 +615,31 @@
 						</executions>
 					</plugin>
 					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>1.8</version>
+						<executions>
+							<execution>
+								<id>add-compiled-js</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>add-resource</goal>
+								</goals>
+								<configuration>
+									<resources>
+										<resource>
+											<directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+											<targetPath>${js.dir}</targetPath>
+											<includes>
+												<include>**/*</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
 						<groupId>org.apache.felix</groupId>
 						<artifactId>maven-bundle-plugin</artifactId>
 						<configuration>
@@ -618,51 +648,7 @@
 							</instructions>
 						</configuration>
 					</plugin>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>build-helper-maven-plugin</artifactId>
-						<version>1.8</version>
-						<executions>
-							<execution>
-								<id>add-compiled-js</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>add-resource</goal>
-								</goals>
-								<configuration>
-									<resources>
-										<resource>
-											<directory>${basedir}/target/web</directory>
-											<targetPath>${js.dir}</targetPath>
-											<includes>
-												<!--  WATCH OUT : our build is case sensitive !!!! -->
-												<include>*.html</include>
-												<include>*.js</include>
-												<include>resources/**/*</include>
-											</includes>
-											<excludes>
-												<exclude>resources/packages/**/*</exclude>
-												<exclude>resources/resources/**/*</exclude>
-												<exclude>resources/sass/**/*</exclude>
-											</excludes>
-										</resource>
-										<resource>
-											<directory>src/main/web</directory>
-											<excludes>
-												<exclude>${js.dir}/*.html</exclude>
-												<exclude>${js.dir}/*.js</exclude>
-												<exclude>${js.dir}/resources/**/*</exclude>
-												<exclude>${js.dir}/build/**/*</exclude>
-											</excludes>
-
-										</resource>
-									</resources>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
 				</plugins>
-
 			</build>
 		</profile>
 		<profile>
