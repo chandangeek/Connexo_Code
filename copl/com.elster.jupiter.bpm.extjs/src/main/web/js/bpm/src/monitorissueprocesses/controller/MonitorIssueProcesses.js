@@ -98,13 +98,8 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
             router = me.getController('Uni.controller.history.Router'),
             processStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
             widget,
-            processRecord,
-            issueModel = 'Idc.model.Issue';
+            processRecord;
 
-        if (router.queryParams.issueType === "devicelifecycle")  // Lau
-        {
-            issueModel = 'Idl.model.Issue';
-        }
         viewport.setLoading();
 
 
@@ -116,8 +111,7 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         });
 
         me.getApplication().fireEvent('changecontentevent', widget);
-
-        Ext.ModelManager.getModel(issueModel).load(issueId, {
+        Ext.ModelManager.getModel('Idc.model.Issue').load(issueId, {
             success: function (issue) {
                 me.getApplication().fireEvent('issueLoad', issue);
             },
