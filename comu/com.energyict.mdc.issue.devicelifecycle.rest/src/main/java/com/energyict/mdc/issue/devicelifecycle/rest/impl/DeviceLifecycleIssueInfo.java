@@ -41,5 +41,9 @@ public class DeviceLifecycleIssueInfo<T extends DeviceInfo> extends IssueInfo<T,
 
         public Instant modTime;
 
+        public Instant getModTime(){
+            return modTime;
+        }
+
     }
 }

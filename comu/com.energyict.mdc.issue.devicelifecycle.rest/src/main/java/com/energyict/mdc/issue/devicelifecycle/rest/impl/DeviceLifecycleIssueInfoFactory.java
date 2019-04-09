@@ -101,7 +101,7 @@ public class DeviceLifecycleIssueInfoFactory implements InfoFactory<IssueDeviceL
             transitionInfo.cause = failedTransition.getCause();
             transitionInfo.modTime = failedTransition.getOccurrenceTime();
             return transitionInfo;
-        }).sorted(Comparator.comparing(transition -> transition.modTime)).collect(Collectors.toList());
+        }).sorted(Comparator.comparing(FailedTransitionInfo::getModTime).reversed()).collect(Collectors.toList());
         return info;
     }
 
