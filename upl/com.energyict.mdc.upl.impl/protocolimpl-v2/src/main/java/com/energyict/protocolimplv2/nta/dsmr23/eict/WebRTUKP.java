@@ -113,7 +113,11 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
     }
 
     protected void initDlmsSession() {
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, getProperDeviceId()));
+        setDlmsSession(newDlmsSession(comChannel));
+    }
+
+    protected DlmsSession newDlmsSession(ComChannel comChannel) {
+        return new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
     }
 
     protected HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
