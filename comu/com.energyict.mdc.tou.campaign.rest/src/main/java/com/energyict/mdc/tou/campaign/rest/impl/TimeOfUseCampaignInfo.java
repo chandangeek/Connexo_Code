@@ -30,4 +30,5 @@ public class TimeOfUseCampaignInfo {
     public String updateType;
     public long validationTimeout;
     public long version;
+    public boolean withUniqueCalendarName;
 }

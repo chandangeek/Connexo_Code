@@ -5,11 +5,13 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import com.jayway.jsonpath.JsonModel;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +40,7 @@ public class FirmwareTypesResourceTest extends BaseFirmwareTest {
 
     @Test
     public void getOnlyMeterFirmwareTest() {
-        when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(false);
+        when(firmwareService.getSupportedFirmwareTypes(deviceType)).thenReturn(EnumSet.of(FirmwareType.METER));
         String json = target("devicetypes/1/supportedfirmwaretypes").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(json);
@@ -49,7 +51,7 @@ public class FirmwareTypesResourceTest extends BaseFirmwareTest {
 
     @Test
     public void getMeterAndCommunicationFirmwareTest() {
-        when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(true);
+        when(firmwareService.getSupportedFirmwareTypes(deviceType)).thenReturn(EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION));
         String json = target("devicetypes/1/supportedfirmwaretypes").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(json);

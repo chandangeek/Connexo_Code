@@ -154,6 +154,32 @@ public class DeviceResource {
         }
     }
 
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{mRID}/testCommunicationForSecuritySet")
+    public Response testCommunicationForSecuritySet(@PathParam("mRID") String mRID, DeviceCommandInfo deviceCommandInfo, @Context UriInfo uriInfo) {
+        ServiceCall serviceCall = null;
+        Device device = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            try {
+                device = findDeviceByMridOrThrowException(mRID);
+                EndDevice endDevice = findEndDeviceByMridOrThrowException(mRID);
+                serviceCall = createRenewKeyServiceCallAndTransition(deviceCommandInfo, device);
+                validateDeviceCommandInfo(serviceCall, deviceCommandInfo);
+
+                serviceCall.log(LogLevel.INFO, "Performing test comminication for end device with MRID " + endDevice.getMRID());
+                headEndController.performTestCommunicationForSecuritySet(endDevice, serviceCall, deviceCommandInfo, device);
+                serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
+
+                context.commit();
+                return Response.accepted().build();
+            } catch (RuntimeException e) {
+                return handleException(deviceCommandInfo, serviceCall, device, context, e);
+            }
+        }
+    }
+
     private ServiceCall createRenewKeyServiceCallAndTransition(DeviceCommandInfo deviceCommandInfo, Device device) {
         ServiceCall serviceCall;
         serviceCall = serviceCallCommands.createRenewKeyServiceCall(Optional.of(device), deviceCommandInfo);
