@@ -77,6 +77,16 @@ final class EndDeviceLifeCycleStatusImpl implements EndDeviceLifeCycleStatus {
     }
 
     @Override
+    public Instant getModTime() {
+        return modTime;
+    }
+
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    @Override
     public Optional<User> getOriginator() {
         return this.userService.findUser(this.originatorName);
     }
