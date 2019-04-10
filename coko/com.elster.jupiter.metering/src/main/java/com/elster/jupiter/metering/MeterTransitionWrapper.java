@@ -8,5 +8,8 @@ import java.time.Instant;
 public interface MeterTransitionWrapper{
     Meter getMeter();
     Instant getInstant();
+    String getMRID();
+    long getId();
+    long getVersion();
 }
 

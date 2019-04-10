@@ -32,14 +32,17 @@ class MeterTransitionWrapperImpl implements MeterTransitionWrapper {
         return instant;
     }
 
+    @Override
     public String getMRID(){
         return mRID;
     }
 
+    @Override
     public long getId(){
         return id;
     }
 
+    @Override
     public long getVersion(){
         return version;
     }

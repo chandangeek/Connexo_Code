@@ -214,22 +214,26 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         startValidation();
         this.deactivationChanges.forEach(activation -> {
             if(activation.getUsagePoint() != null){
-                Optional<Meter> meter = Optional.empty();
+                String keyToFind = activation.getMeterRole().getKey();
+                Optional<MeterTransitionWrapper> eventSource = Optional.empty();
                 MeterActivation act = activation.getUsagePoint().getMeterActivations()
                         .stream()
-                        .filter(actvtn -> activation.getMeterRole().equals(actvtn.getMeterRole()))
+                        .filter(actvtn -> keyToFind.equals(actvtn.getMeterRole().get().getKey()))
                         .findFirst().orElse(null);
                 if (act != null){
-                    meter = act.getMeter();
-                }
+                    Meter meter = act.getMeter().get();
+                    if (meter != null && meter.getState().isPresent()){
+                        /* Unlink in this case performed at current moment. So pass null as time of transition.*/
+                        eventSource = Optional.of(new MeterTransitionWrapperImpl(meter, null));
+                    }
 
+                }
                 this.metrologyConfigurationService.getDataModel()
                         .mapper(MeterActivationImpl.class)
                         .find("usagePoint", activation.getUsagePoint()).stream().forEach(MeterActivationImpl::detachUsagePoint);
-
-                if (meter.isPresent() && meter.get().getState().isPresent()){
-                    /* Unlink in this case performed at current moment. So pass null as time of transition.*/
-                    eventService.postEvent(EventType.METER_UNLINKED.topic(), new MeterTransitionWrapperImpl(meter.get(), null) );
+                /* Post event after unlink actually performed */
+                if (eventSource.isPresent()){
+                    eventService.postEvent(EventType.METER_UNLINKED.topic(), eventSource.get());
                 }
             }
         });
