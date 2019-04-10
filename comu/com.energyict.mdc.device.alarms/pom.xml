@@ -68,6 +68,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>issue</artifactId>
         </dependency>
 
@@ -182,11 +186,11 @@
             <artifactId>validation</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kpi</artifactId>

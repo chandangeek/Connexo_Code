@@ -98,6 +98,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
         </dependency>
+        <dependency><!--dima-->
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>

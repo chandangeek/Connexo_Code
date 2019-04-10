@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
@@ -25,6 +26,7 @@ public class DeviceAlarmFilter {
     private List<IssueStatus> statuses = new ArrayList<>();
     private List<IssueReason> reasons = new ArrayList<>();
     private List<EndDevice> devices = new ArrayList<>();
+    private List<EndDeviceGroup> deviceGroups = new ArrayList<>();
     private List<User> userAssignee = new ArrayList<>();
     private List<WorkGroup> workGroupAssignees = new ArrayList<>();
     private List<DueDateRange> dueDates = new ArrayList<>();
@@ -156,4 +158,12 @@ public class DeviceAlarmFilter {
     public void setRule(CreationRule rule) {
         this.rule = rule;
     }
+
+    public void addDeviceGroup(EndDeviceGroup deviceGroup) {
+        this.deviceGroups.add(deviceGroup);
+    }
+
+    public void setDeviceGroups(List<EndDeviceGroup> deviceGroups) {this.deviceGroups = deviceGroups;}
+
+    public List<EndDeviceGroup> getDeviceGroups() { return this.deviceGroups; }
 }

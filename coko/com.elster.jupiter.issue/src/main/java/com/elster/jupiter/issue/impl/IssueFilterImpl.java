@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
@@ -25,6 +26,7 @@ public class IssueFilterImpl implements IssueFilter {
     private List<IssueStatus> statuses = new ArrayList<>();
     private List<IssueReason> reasons = new ArrayList<>();
     private List<EndDevice> devices = new ArrayList<>();
+    private List<EndDeviceGroup> deviceGroups = new ArrayList<>();
     private List<UsagePoint> usagePoints = new ArrayList<>();
     private List<User> assignees = new ArrayList<>();
     private List<WorkGroup> workGroupAssignees = new ArrayList<>();
@@ -63,6 +65,17 @@ public class IssueFilterImpl implements IssueFilter {
             this.devices.add(device);
         }
     }
+
+    @Override
+    public void addDeviceGroup(EndDeviceGroup deviceGroup) {
+            this.deviceGroups.add(deviceGroup);
+    }
+
+    @Override
+    public void setDeviceGroups(List<EndDeviceGroup> deviceGroups) {this.deviceGroups = deviceGroups;}
+
+    @Override
+    public List<EndDeviceGroup> getDeviceGroups() { return this.deviceGroups; }
 
     @Override
     public void addUsagePoint(UsagePoint usagePoint) {

@@ -20,6 +20,7 @@ import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
+import com.elster.jupiter.issue.rest.response.device.DeviceGroupInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.SingleSnoozeTransaction;
 import com.elster.jupiter.issue.share.IssueAction;
@@ -682,6 +683,19 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         if (jsonFilter.hasProperty(DeviceAlarmRestModuleConst.METER)) {
             getMeteringService().findEndDeviceByName(jsonFilter.getString(DeviceAlarmRestModuleConst.METER))
                     .ifPresent(filter::setDevice);
+        }
+
+        if (jsonFilter.hasProperty(DeviceAlarmRestModuleConst.DEVICE_GROUP)) {
+            jsonFilter.getStringList(DeviceAlarmRestModuleConst.DEVICE_GROUP).stream()
+                    .map(id -> getMeteringGroupService().findEndDeviceGroup(Long.valueOf(id)).orElse(null))
+                    .filter(devGroup -> devGroup != null)
+                    .forEach(filter::addDeviceGroup);
+            List<DeviceGroupInfo> deviceGroupInfos = new ArrayList<>();
+            filter.getDeviceGroups().stream().forEach(dev-> deviceGroupInfos.add(new DeviceGroupInfo(dev)));
+            deviceGroupInfos.stream().forEach(devInfo -> devInfo.devices.stream().forEach(id -> getMeteringService().findEndDeviceById(id).ifPresent(filter::setDevice)));
+            //there may be duplicate values in filter.devices
+            //for optimization need to change 'List' filter.devices to 'Set'
+            filter.setDeviceGroups(null);
         }
 
         if (jsonFilter.getLongList(DeviceAlarmRestModuleConst.USER_ASSIGNEE).stream().allMatch(s -> s == null)) {
