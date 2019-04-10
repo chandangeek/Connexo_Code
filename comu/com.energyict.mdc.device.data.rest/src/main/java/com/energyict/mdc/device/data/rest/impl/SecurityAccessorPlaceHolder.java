@@ -163,4 +163,13 @@ public class SecurityAccessorPlaceHolder implements SecurityAccessor {
     public boolean isEditable() {
         return true;
     }
+
+    @Override
+    public void setServiceKey(boolean serviceKey) {
+    }
+
+    @Override
+    public boolean isServiceKey() {
+        return false;
+    }
 }

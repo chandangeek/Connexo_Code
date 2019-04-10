@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -41,10 +42,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
 public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
 
-    private final static String PROPERTY_NAME_RESUME = "FirmwareDeviceMessage.upgrade.resume";
+    private static final String PROPERTY_NAME_RESUME = "FirmwareDeviceMessage.upgrade.resume";
+    private static final Logger LOGGER = Logger.getLogger(DeviceInFirmwareCampaignImpl.class.getName());
 
     public enum Fields {
         CAMPAIGN("campaign"),
@@ -133,8 +136,8 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         return (FirmwareCampaignImpl) this.campaign.get();
     }
 
-    public void retryFirmwareProces(){
-       startFirmwareProcess(true);
+    public void retryFirmwareProcess() {
+        startFirmwareProcess(true);
     }
 
     public void startFirmwareProcess() {
@@ -143,17 +146,18 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
 
     public void startFirmwareProcess(boolean retry) {
         Optional<DeviceMessageId> firmwareMessageId = getFirmwareCampaign().getFirmwareMessageId();
-        if (!checkDeviceType()
-                || !checkDeviceConfiguration()
+        if (!doesDeviceTypeAllowFirmwareManagement()
+                || !doesDeviceConfigurationSupportFirmwareManagement()
                 || !cancelPendingFirmwareUpdates()
                 || !firmwareMessageId.isPresent()
-                || noOverlappingConnectionWindow()) {
+                || !doesConnectionWindowOverlap()
+                || doesAnyFirmwareRankingCheckFail(getDevice(), getFirmwareCampaign().getFirmwareVersion())) {
             setStatus(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
         } else {
             if (deviceAlreadyHasTheSameVersion()) {
                 setStatus(FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS);
             } else {
-                createFirmwareMessage(firmwareMessageId, retry);
+                createFirmwareMessage(firmwareMessageId.get(), retry);
                 setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
                 scheduleFirmwareTask();
             }
@@ -161,17 +165,37 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         save();
     }
 
-    private boolean noOverlappingConnectionWindow() {
+    private boolean doesAnyFirmwareRankingCheckFail(Device device, FirmwareVersion firmwareVersion) {
+        if (firmwareVersion.getFirmwareType() == FirmwareType.CA_CONFIG_IMAGE) {
+            return false;
+        }
+        FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
+        return firmwareService.getFirmwareChecks()
+                .map(check -> {
+                    try {
+                        check.execute(utils, firmwareVersion);
+                        return false;
+                    } catch (FirmwareCheck.FirmwareCheckException e) {
+                        LOGGER.warning("Unable to upgrade firmware version on device " + device.getName() + " due to check fail: " + e.getLocalizedMessage());
+                        return true;
+                    }
+                })
+                // need to execute all checks to log all the relevant errors, so short circuit operation is not suitable here
+                .reduce(Boolean::logicalOr)
+                .orElse(false);
+    }
+
+    private boolean doesConnectionWindowOverlap() {
         Optional<ConnectionTask<?, ?>> connectionTask = getFirmwareComTaskExec().getConnectionTask();
         if (connectionTask.isPresent() && connectionTask.get() instanceof ScheduledConnectionTask) {
             ComWindow connectionTaskComWindow = ((ScheduledConnectionTask) connectionTask.get()).getCommunicationWindow();
             if (connectionTaskComWindow != null) {
                 Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(this.clock.getZone()));
                 connectionTaskComWindow.getStart().copyTo(calendar);
-                return !getFirmwareCampaign().getComWindow().includes(calendar);
+                return getFirmwareCampaign().getComWindow().includes(calendar);
             }
         }
-        return false;
+        return true;
     }
 
     public FirmwareManagementDeviceStatus updateStatus(ComTaskExecution comTaskExecution) {
@@ -225,7 +249,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         save();
     }
 
-    public void validateFirmvareVersion(ActivatedFirmwareVersion activatedFirmwareVersion) {
+    public void validateFirmwareVersion(ActivatedFirmwareVersion activatedFirmwareVersion) {
         if (activatedFirmwareVersion.getFirmwareVersion().getFirmwareVersion().equals(getFirmwareCampaign().getFirmwareVersion().getFirmwareVersion())) {
             setStatus(FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS);
         } else if (getFirmwareCampaign().getFirmwareType().equals(FirmwareType.CA_CONFIG_IMAGE)
@@ -240,7 +264,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     @Override
     public void updateTimeBoundaries() {
         if (hasNonFinalStatus()) {
-            if (noOverlappingConnectionWindow()) {
+            if (!doesConnectionWindowOverlap()) {
                 setStatus(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
                 save();
             } else {
@@ -272,9 +296,9 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         return NON_FINAL_STATUSES.contains(this.getStatus().key());
     }
 
-    private void createFirmwareMessage(Optional<DeviceMessageId> firmwareMessageId, boolean resume) {
+    private void createFirmwareMessage(DeviceMessageId firmwareMessageId, boolean resume) {
         Device.DeviceMessageBuilder deviceMessageBuilder = getDevice()
-                .newDeviceMessage(firmwareMessageId.get())
+                .newDeviceMessage(firmwareMessageId)
                 .setReleaseDate(getFirmwareCampaign().getStartedOn());
         for (Map.Entry<String, Object> property : getFirmwareCampaign().getProperties().entrySet()) {
             if (resume && property.getKey().equals(PROPERTY_NAME_RESUME)){
@@ -315,12 +339,12 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         }
     }
 
-    private boolean checkDeviceType() {
+    private boolean doesDeviceTypeAllowFirmwareManagement() {
         Set<ProtocolSupportedFirmwareOptions> deviceTypeAllowedOptions = firmwareService.getAllowedFirmwareManagementOptionsFor(getDevice().getDeviceType());
         return deviceTypeAllowedOptions.contains(getFirmwareCampaign().getFirmwareManagementOption());
     }
 
-    private boolean checkDeviceConfiguration() {
+    private boolean doesDeviceConfigurationSupportFirmwareManagement() {
         Optional<ComTask> firmwareComTask = taskService.findFirmwareComTask();
         return firmwareComTask.isPresent() && getDevice().getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask.get()).isPresent();
     }

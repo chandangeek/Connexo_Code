@@ -194,41 +194,41 @@ public class DeviceLoadProfileNextReadingImporterFactoryTest {
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
     }
 
-    @Test
-    public void testDeviceInDecommissionedState() {
-        String csv = "Device name;Load profile;Date Next Reading Block\n" +
-                "SPE01000003;1.0.99.2.0.255;25/02/2019 13:00";
-        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+//    @Test
+//    public void testDeviceInDecommissionedState() {
+//        String csv = "Device name;Load profile;Date Next Reading Block\n" +
+//                "SPE01000003;1.0.99.2.0.255;25/02/2019 13:00";
+//        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+//
+//        mockDeviceInState("SPE01000003", DefaultState.DECOMMISSIONED);
+//        User user = mockUser("batch executor");
+//        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+//
+//        FileImporter importer = createDeviceLoadProfileNextReadingImporter();
+//        importer.process(importOccurrence);
+//
+//        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE).format(2, "SPE01000003"));
+//        verifyNoMoreInteractions(logger);
+//        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
+//    }
 
-        mockDeviceInState("SPE01000003", DefaultState.DECOMMISSIONED);
-        User user = mockUser("batch executor");
-        when(threadPrincipalService.getPrincipal()).thenReturn(user);
-
-        FileImporter importer = createDeviceLoadProfileNextReadingImporter();
-        importer.process(importOccurrence);
-
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE).format(2, "SPE01000003"));
-        verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
-    }
-
-    @Test
-    public void testDeviceInInStockState() {
-        String csv = "Device name;Load profile;Date Next Reading Block\n" +
-                "SPE01000003;1.0.99.2.0.255;25/02/2019 13:00";
-        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
-
-        mockDeviceInState("SPE01000003", DefaultState.IN_STOCK);
-        User user = mockUser("batch executor");
-        when(threadPrincipalService.getPrincipal()).thenReturn(user);
-
-        FileImporter importer = createDeviceLoadProfileNextReadingImporter();
-        importer.process(importOccurrence);
-
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE).format(2, "SPE01000003"));
-        verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
-    }
+//    @Test
+//    public void testDeviceInInStockState() {
+//        String csv = "Device name;Load profile;Date Next Reading Block\n" +
+//                "SPE01000003;1.0.99.2.0.255;25/02/2019 13:00";
+//        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+//
+//        mockDeviceInState("SPE01000003", DefaultState.IN_STOCK);
+//        User user = mockUser("batch executor");
+//        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+//
+//        FileImporter importer = createDeviceLoadProfileNextReadingImporter();
+//        importer.process(importOccurrence);
+//
+//        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE).format(2, "SPE01000003"));
+//        verifyNoMoreInteractions(logger);
+//        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
+//    }
 
     @Test
     public void testInvalidOBISCode() {

@@ -20,6 +20,7 @@ import javax.validation.ConstraintViolationException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Whenever a REST call results in a ConstraintViolationException(or other), this mapper will convert the exception in a Result understood by our
@@ -59,9 +60,8 @@ public class ConstraintViolationInfo {
     }
 
     public ConstraintViolationInfo from(ConstraintViolationException exception) {
-
         for (ConstraintViolation<?> constraintViolation : exception.getConstraintViolations()) {
-            if (constraintViolation.getPropertyPath()!=null) {
+            if (constraintViolation.getPropertyPath() != null) {
                 errors.add(new FieldError(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage()));
             }
         }
@@ -78,27 +78,20 @@ public class ConstraintViolationInfo {
         return this;
     }
 
-    public ConstraintViolationInfo from(RestValidationBuilder.RestValidationException exception){
-        exception.getErrors().stream().forEach(this::from);
+    public ConstraintViolationInfo from(RestValidationBuilder.RestValidationException exception) {
+        exception.getErrors().forEach(this::from);
         return this;
     }
 
     public ConstraintViolationInfo from(FormValidationException exception) {
-        exception.getExceptions().entrySet()
-                .forEach(stringListEntry -> stringListEntry.getValue().stream()
-                        .forEach(message -> addFieldError(stringListEntry.getKey(), message)));
+        exception.getExceptions().forEach((key, messages) -> messages.forEach(message -> addFieldError(key, message)));
         return this;
     }
 
     private String getPathAsSingleProperty(JsonMappingException exception) {
-        String property="";
-        for (JsonMappingException.Reference reference : exception.getPath()) {
-            if (property.length()>0) {
-                property+=".";
-            }
-            property+=reference.getFieldName();
-        }
-        return property;
+        return exception.getPath().stream()
+                .map(JsonMappingException.Reference::getFieldName)
+                .collect(Collectors.joining("."));
     }
 
     public ConstraintViolationInfo from(LocalizedFieldValidationException fieldException) {
@@ -109,8 +102,8 @@ public class ConstraintViolationInfo {
     }
 
     public ConstraintViolationInfo from(LocalizedException exception) {
-        this.message= exception.getLocalizedMessage();
-        this.error= exception.getMessageSeed().getKey();
+        this.message = exception.getLocalizedMessage();
+        this.error = exception.getMessageSeed().getKey();
         this.errorCode = exception.getErrorCode();
         return this;
     }
@@ -122,7 +115,7 @@ public class ConstraintViolationInfo {
         return this;
     }
 
-    class FieldError {
+    static class FieldError {
         @JsonProperty("id")
         public String fieldIdentifier;
         @JsonProperty("msg")

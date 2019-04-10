@@ -18,7 +18,8 @@ class DeviceConfigurationEstimationRuleSetUsageImpl implements DeviceConfigurati
     enum Fields {
         DEVICECONFIGURATION("deviceConfiguration"),
         ESTIMATIONRULESET("estimationRuleSet"),
-        POSITION("position")
+        POSITION("position"),
+        IS_RULE_SET_ACTIVE("isRuleSetActive")
         ;
 
         private final String javaFieldName;
@@ -38,6 +39,8 @@ class DeviceConfigurationEstimationRuleSetUsageImpl implements DeviceConfigurati
     @IsPresent
     private Reference<EstimationRuleSet> estimationRuleSet = ValueReference.absent();
 
+    private boolean isRuleSetActive;
+
     @SuppressWarnings("unused")
     private int position;
     // audit columns
@@ -50,7 +53,8 @@ class DeviceConfigurationEstimationRuleSetUsageImpl implements DeviceConfigurati
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    DeviceConfigurationEstimationRuleSetUsage init(DeviceConfiguration deviceConfiguration, EstimationRuleSet estimationRuleSet) {
+    DeviceConfigurationEstimationRuleSetUsage init(DeviceConfiguration deviceConfiguration, EstimationRuleSet estimationRuleSet, boolean isRuleSetActive) {
+        this.isRuleSetActive = isRuleSetActive;
         this.deviceConfiguration.set(deviceConfiguration);
         this.estimationRuleSet.set(estimationRuleSet);
         return this;
@@ -64,5 +68,15 @@ class DeviceConfigurationEstimationRuleSetUsageImpl implements DeviceConfigurati
     @Override
     public EstimationRuleSet getEstimationRuleSet() {
         return estimationRuleSet.get();
+    }
+
+    @Override
+    public boolean isRuleSetActive() {
+        return isRuleSetActive;
+    }
+
+    @Override
+    public void setRuleSetStatus(boolean active) {
+        this.isRuleSetActive = active;
     }
 }

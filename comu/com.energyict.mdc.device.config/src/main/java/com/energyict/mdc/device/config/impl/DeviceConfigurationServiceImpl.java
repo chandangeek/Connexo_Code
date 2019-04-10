@@ -7,6 +7,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
@@ -37,7 +38,9 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_6SimpleUpgrader;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
@@ -133,7 +136,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
 
@@ -172,6 +174,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile CalendarService calendarService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile DataVaultService dataVaultService;
     private volatile SecurityManagementService securityManagementService;
 
     private final Set<Privilege> privileges = new HashSet<>();
@@ -200,6 +203,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                                           DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                           CalendarService calendarService,
                                           CustomPropertySetService customPropertySetService,
+                                          DataVaultService dataVaultService,
                                           UpgradeService upgradeService,
                                           DeviceMessageSpecificationService deviceMessageSpecificationService,
                                           SecurityManagementService securityManagementService) {
@@ -225,6 +229,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setCalendarService(calendarService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.setCustomPropertySetService(customPropertySetService);
+        this.setDataVaultService(dataVaultService);
         this.setSecurityManagementService(securityManagementService);
         setUpgradeService(upgradeService);
         this.activate();
@@ -269,6 +274,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Optional<DeviceType> findAndLockDeviceType(long id, long version) {
         return this.getDataModel().mapper(DeviceType.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<DeviceType> findAndLockDeviceType(long id) {
+        return Optional.ofNullable(dataModel.mapper(DeviceType.class).lock(id));
     }
 
     @Override
@@ -676,6 +686,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(EstimationService.class).toInstance(estimationService);
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
             }
         };
@@ -684,16 +695,19 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Activate
     public void activate() {
         dataModel.register(this.getModule());
+
         upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceConfigurationService.COMPONENTNAME),
                 dataModel,
                 Installer.class,
-                ImmutableMap.of(
-                        Version.version(10, 2), UpgraderV10_2.class,
-                        Version.version(10, 3), UpgraderV10_3.class,
-                        Version.version(10, 4), UpgraderV10_4.class,
-                        Version.version(10, 4, 1), UpgraderV10_4_1.class,
-                        Version.version(10, 4, 2), V10_4_2SimpleUpgrader.class));
-                initPrivileges();
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(Version.version(10, 2), UpgraderV10_2.class)
+                        .put(Version.version(10, 3), UpgraderV10_3.class)
+                        .put(Version.version(10, 4), UpgraderV10_4.class)
+                        .put(Version.version(10, 4, 1), UpgraderV10_4_1.class)
+                        .put(Version.version(10, 4, 2), V10_4_2SimpleUpgrader.class)
+                        .put(Version.version(10, 6), V10_6SimpleUpgrader.class)
+                        .build());
+        initPrivileges();
     }
 
     @Override
@@ -772,6 +786,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setDataVaultService(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
     }
 
     @Reference
@@ -865,6 +884,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return this.getDataModel().
                 query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class, DeviceType.class).
                 select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), Order.ascending("deviceType"), Order.ascending("name"));
+    }
+
+    @Override
+    public boolean isValidationRuleSetActiveOnDeviceConfig(long validationRuleSetId, long deviceConfigId) {
+        return this.getDataModel().
+                query(DeviceConfValidationRuleSetUsage.class).
+                select(where("validationRuleSetId").isEqualTo(validationRuleSetId)
+                        .and(where("deviceConfigurationId").isEqualTo(deviceConfigId)))
+                .stream()
+                .findAny()
+                .map(DeviceConfValidationRuleSetUsage::isRuleSetActive)
+                .orElse(false);
     }
 
 

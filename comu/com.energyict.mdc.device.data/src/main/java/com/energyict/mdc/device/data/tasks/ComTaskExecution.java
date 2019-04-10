@@ -385,6 +385,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
 
     long getConnectionTaskId(); // for performance reasons, approved by program architect
 
+    long getConnectionFunctionId();
+
     /**
      * Returns a list with one element with the {@link ComTask} that specifies
      * the details of this ComTaskExecution.
