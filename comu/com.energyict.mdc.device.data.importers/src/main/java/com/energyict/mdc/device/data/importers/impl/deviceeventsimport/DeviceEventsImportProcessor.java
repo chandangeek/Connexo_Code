@@ -51,7 +51,7 @@ public class DeviceEventsImportProcessor extends AbstractDeviceDataFileImportPro
         if(data.getReadingDate() != null) {
             validateReadingDate(device, data.getDateTime(), data.getReadingDate(), data.getLineNumber());
             readingDate = data.getReadingDate().toInstant();
-            return eventTime.isBefore(readingDate) ? readingDate : eventTime;
+            return readingDate;
         }
         return null;
     }
@@ -74,7 +74,8 @@ public class DeviceEventsImportProcessor extends AbstractDeviceDataFileImportPro
         if(readingDate.isBefore(eventDate)) {
             throw new ProcessorException(MessageSeeds.READING_DATE_BEFORE_EVENT_DATE, lineNumber,
                     DefaultDateTimeFormatters.shortDate().withShortTime().build().format(readingDate),
-                    DefaultDateTimeFormatters.shortDate().withShortTime().build().format(eventDate));
+                    DefaultDateTimeFormatters.shortDate().withShortTime().build().format(eventDate),
+                    device.getName());
         }
     }
 

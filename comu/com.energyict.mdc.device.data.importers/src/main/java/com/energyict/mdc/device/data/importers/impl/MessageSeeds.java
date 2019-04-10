@@ -54,7 +54,7 @@ public enum MessageSeeds implements MessageSeed {
     READING_TYPE_DUPLICATED_OBIS_CODE(216, "ReadingTypeDuplicatedObisCode", "Can''t process line {0}: Channel or register obis code {1} is duplicated on device {2}.", Level.WARNING),
     INVALID_DEVICE_LOADPROFILE_OBIS_CODE(217, "InvalidLoadProfileObisCode", "Can''t process line {0}: Invalid load profile obis code {1} on device {2}.", Level.WARNING),   //lori
     INVALID_DEVICE_LOGBOOK_OBIS_CODE(218, "InvalidLogBookObisCode", "Can''t process line {0}: Invalid logbook obis code {1} on device {2}.", Level.WARNING),
-    READING_DATE_BEFORE_EVENT_DATE(219, "ReadingDateBeforeEventDate", "Note for line {0}: Reading date: {1} is before the event creation date on device {2} and that is not a valid real life scenario. Reading date will take same value as event creation date", Level.WARNING),
+    READING_DATE_BEFORE_EVENT_DATE(219, "ReadingDateBeforeEventDate", "Note for line {0}: Reading date: {1}, is before the event creation date: {2}, on device with name: {3}, and imported line record will not be stored.", Level.WARNING),
 
     NO_CONNECTION_METHOD_ON_DEVICE(301, "NoSuchConnectionMethodOnDevice", "Can''t process line {0}: Connection method {1} is not supported on the device.", Level.WARNING),
     CONNECTION_METHOD_IS_NOT_UNIQUE_IN_FILE(302, "ConnectionMethodIsNotUniqueInFile", "Failure in line {0}: Connection method name is not unique in the file.", Level.SEVERE),
