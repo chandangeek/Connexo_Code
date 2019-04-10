@@ -547,6 +547,26 @@
 			<build>
 				<plugins>
 					<plugin>
+						<artifactId>maven-clean-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>Deleting FE build folder</id>
+								<goals>
+									<goal>clean</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<excludeDefaultDirectories>false</excludeDefaultDirectories>
+							<filesets>
+								<fileset>
+									<directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+									<followSymlinks>false</followSymlinks>
+								</fileset>
+							</filesets>
+						</configuration>
+					</plugin>
+					<plugin>
 						<groupId>com.elster.plugin</groupId>
 						<artifactId>npm-version-maven-plugin</artifactId>
 						<version>1.0</version>
