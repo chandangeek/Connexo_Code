@@ -51,7 +51,6 @@
                             <tasks>
                                 <unzip src="src/main/web-zip/web.zip" dest="${project.build.directory}/web/" />
                                 <unzip src="src/main/web-zip/en/en.zip" dest="${project.build.directory}/web/en/" />
-                                <unzip src="src/main/web-zip/de/de.zip" dest="${project.build.directory}/web/de/" />
                             </tasks>
                         </configuration>
                     </execution>
