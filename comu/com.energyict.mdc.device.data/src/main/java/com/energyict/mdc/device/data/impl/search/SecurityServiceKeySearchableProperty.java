@@ -54,12 +54,12 @@ public class SecurityServiceKeySearchableProperty extends AbstractSearchableDevi
 
     @Override
     protected boolean valueCompatibleForDisplay(Object value) {
-        return false;
+        return value instanceof Boolean;
     }
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return null;
+        return Boolean.toString((Boolean)value);
     }
 
     @Override

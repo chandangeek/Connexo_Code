@@ -90,7 +90,7 @@ Ext.define('Tou.controller.Overview', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('tou.campaigns.cancel.msg', 'TOU', 'Cancel time of use calendar upload for all scheduled devices. Ongoing uploads will not be terminated and successful uploads will not be reversed.'),
-            title: Uni.I18n.translate('tou.campaigns.cancel.title', 'TOU', 'Cancel ToU campaign "{0}"?', record.get('name'))
+            title: Uni.I18n.translate('tou.campaigns.cancel.title', 'TOU', 'Cancel ToU calendar campaign "{0}"?', record.get('name'))
         });
     },
 

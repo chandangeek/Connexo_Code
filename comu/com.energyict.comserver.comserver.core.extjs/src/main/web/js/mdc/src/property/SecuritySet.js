@@ -27,71 +27,77 @@ Ext.define('Mdc.property.SecuritySet', {
 
     renderedKeys: [],
 
-    listeners: {
-        afterrender: {
-            fn: function () {
-                var me = this;
-                var deviceNameToSet = me.up('property-form').context.deviceName;
-                me.securitySetsStore.getProxy().url = '/api/ddr/devices/' + deviceNameToSet + '/securityproperties/hsm';
+    initComponent: function () {
 
-                me.securitySetsStore.load(function () {
-                    if (me.securitySetsStore.getCount() == 0){
-                        me.down('#sets-container').hide();
-                        me.down('#accessors-container').hide();
-                        me.down('#no-security-sets').show();
-                    }else{
-                        me.down('#sets-container').show();
-                        me.down('#accessors-container').show();
-                        me.down('#no-security-sets').hide();
+        var me = this;
 
-                        me.securityAccessorsStore.getProxy().url = '/api/ddr/devices/' + deviceNameToSet + '/securityaccessors/keys';
-                        me.securityAccessorsStore.load(function () {
-                            me.getGrid().getSelectionModel().selectAll();
-                        })
-
+        me.securitySetsStore = Ext.create('Ext.data.Store', {
+                    model: 'Mdc.model.DeviceSecuritySetting',
+                    proxy: {
+                        type: 'rest',
+                        urlTpl: '/api/ddr/devices/{deviceNameToSet}/securityproperties/hsm',
+                        reader: {
+                            type: 'json',
+                            root: 'securityPropertySets'
+                        },
+            setUrl: function (deviceNameToSet) {
+                this.url = this.urlTpl.replace('{deviceNameToSet}', deviceNameToSet);
+                        }
                     }
-
-
                 });
+
+        me.securityAccessorsStore = Ext.create('Ext.data.Store', {
+            model: 'Mdc.securityaccessors.model.DeviceSecurityKey',
+            proxy: {
+                type: 'rest',
+                urlTpl: '/api/ddr/devices/{deviceNameToSet}/securityaccessors/keys',
+                reader: {
+                    type: 'json',
+                    root: 'keys'
+                },
+                setUrl: function (deviceNameToSet) {
+                    this.url = this.urlTpl.replace('{deviceNameToSet}', deviceNameToSet);
+                }
             }
-        }
+        });
+
+        me.resetButtonHidden = true;
+        me.name =  me.getName();
+
+
+        /* initComponent method in base class will call getEditCmp method so we should define
+        needed stores before callParent call */
+        me.callParent();
+
+        var deviceNameToSet = me.parentForm.context.deviceName;
+
+        me.securitySetsStore.getProxy().setUrl(deviceNameToSet);
+
+        me.securitySetsStore.load(function () {
+            if (me.securitySetsStore.getCount() == 0){
+                me.down('#sets-container').hide();
+                me.down('#accessors-container').hide();
+                me.down('#no-security-sets').show();
+            }else{
+                me.down('#sets-container').show();
+                me.down('#accessors-container').show();
+                me.down('#no-security-sets').hide();
+
+                me.securityAccessorsStore.getProxy().setUrl(deviceNameToSet);
+                me.securityAccessorsStore.load(function () {
+                        me.getGrid().getSelectionModel().selectAll();
+                    })
+            }
+        });
+
     },
 
     getEditCmp: function () {
         var me = this;
 
-        me.securitySetsStore = Ext.create('Ext.data.Store', {
-
-            model: 'Mdc.model.DeviceSecuritySetting',
-            proxy: {
-                type: 'rest',
-                reader: {
-                    type: 'json',
-                    root: 'securityPropertySets'
-                }
-            }
-        });
-
-        me.securityAccessorsStore = Ext.create('Ext.data.Store', {
-                    model: 'Mdc.securityaccessors.model.DeviceSecurityKey',
-                    proxy: {
-                        type: 'rest',
-                        reader: {
-                            type: 'json',
-                            root: 'keys'
-                        }
-                    }
-                });
-
-
-
-        me.name =  me.getName();
-
         me.layout = 'vbox';
-        me.resetButtonHidden = true;
 
         return [
-
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'sets-container',
@@ -126,11 +132,10 @@ Ext.define('Mdc.property.SecuritySet', {
                                     }
                                 },
                                 columns: [
-                                {
-
-                                    dataIndex: 'name',
-                                    flex: 1
-                                }
+                                    {
+                                        dataIndex: 'name',
+                                        flex: 1
+                                    }
                                 ],
 
                                 dockedItems: [
@@ -176,41 +181,59 @@ Ext.define('Mdc.property.SecuritySet', {
                             'margin': '6px 10px 6px 0px'
                         }
                     }
-
-
         ];
     },
 
-    renderAccessors: function(array){
+    renderAccessors: function(selectedAccessors){
 
         var me = this;
         var registry = Uni.property.controller.Registry;
+        var formForAccessors = me.getPropForm();
 
         Ext.suspendLayouts();
 
         var arrayToRender = [];
         renderedKeys = [];
 
-        arrayToRender = array;
+        arrayToRender = selectedAccessors;
 
         var propertiesToRender = [];
-        me.getPropForm().removeAll();
 
-       me.securityAccessorsStore.each(function (accessor) {
+        /* Save filed values for acesssors before we redraw them */
+        var fieldValues = formForAccessors.getFieldValues();
+        formForAccessors.removeAll();
+
+        me.securityAccessorsStore.each(function (accessor) {
             var nameOfAccessor = accessor.get('name');
             var properties = accessor.currentProperties();
             var accessorId = accessor.get('id');
             var defaultServiceKeyValue = accessor.get('defaultServiceKey');
+            var keyType = accessor.get('keyType');
 
             properties.each(function (property) {
                 property.set('name', nameOfAccessor);
                 var propertyKey = property.get('key');
 
-                if (propertyKey !== "label"){
+                if (propertyKey !== "label" && keyType == "HSM Key"){
                     var keyToset = nameOfAccessor;
+                    var savedValue = fieldValues.properties[nameOfAccessor]
                     property.set('key', keyToset);
-                    property.data.value = defaultServiceKeyValue;
+
+                    /* If it firs load of this form fill all accessors fields with predefined default values.
+                    It is done according to design requirement. If we changed selected sets fields will be filled with
+                    saved values */
+
+                    if (savedValue == undefined)
+                    {
+                        property.data.value = defaultServiceKeyValue;
+                    } else {
+                        property.data.value = savedValue;
+                    }
+                    /*Set value to which key will be set when restore to default button is pressed */
                     property.data['default'] = defaultServiceKeyValue;
+
+
+
 
                     var type = property.getType();
                     fieldType = registry.getProperty(type);
@@ -236,11 +259,10 @@ Ext.define('Mdc.property.SecuritySet', {
                                             blankText: "This field is required",
                                             propertyParams : property.getPropertyParams()
                                         }));
-                        me.getPropForm().add(field);
+                        formForAccessors.add(field);
                         renderedKeys.push(keyToset);
                     } else {
                     /* Accessor is not in array so delete in from the form */
-                        //me.up('property-form').remove(property.get('key'));
                     }
                 }
             });
@@ -260,7 +282,6 @@ Ext.define('Mdc.property.SecuritySet', {
         }else{
             me.down('#accessors-container').show();
             selections.forEach(function (selection) {
-
                     selection.properties().each(function (property) {
                         var idToAdd = property.raw.propertyValueInfo.value.id;
                         if(!(accessorIdArray.indexOf(idToAdd)>=0)){
