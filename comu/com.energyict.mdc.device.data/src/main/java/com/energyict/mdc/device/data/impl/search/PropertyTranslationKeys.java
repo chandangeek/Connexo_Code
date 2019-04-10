@@ -119,12 +119,13 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CONNECTION_TASK_STRATEGY_AS_SOON_AS_POSSIBLE("device.connection.strategy.asap", "As soon as possible"),
     CONNECTION_TASK_STRATEGY_MINIMIZE_CONNECTIONS("device.connection.strategy.min.connections", "Minimize connections"),
     CONNECTION_TASK_SIMULTANEOUS_CONNECTIONS_NUMBER("device.connection.simultaneous.connections.number", "Number of simultaneous connections"),
+    CONNECTION_TASK_CONNECTION_WINDOW("device.connection.window", "Connection window"),
+    CONNECTION_TASK_CONNECTION_WINDOW_NO_RESTRICTION("device.connection.window.no.restriction", "no restrictions"),
+    CONNECTION_FUNCTION("Connection.function", "''{0}'' function"),
     DEVICE_TIME_OF_USE_GROUP("device.calendar.timeOfUse.Group", "Time of use"),
     DEVICE_ACTIVE_TIME_OF_USE("device.calendar.activeTimeOfUse", "Active time of use"),
     DEVICE_PASSIVE_TIME_OF_USE("device.calendar.passiveTimeOfUse", "Passive time of use"),
-    DEVICE_PLANNED_PASSIVE_TIME_OF_USE("device.calendar.PlannedPasiveTimeOfUse", "Planned passive time of use"),
-    CONNECTION_TASK_CONNECTION_WINDOW("device.connection.window", "Connection window"),
-    CONNECTION_TASK_CONNECTION_WINDOW_NO_RESTRICTION("device.connection.window.no.restriction", "no restrictions"),
+    DEVICE_PLANNED_PASSIVE_TIME_OF_USE("device.calendar.plannedPasiveTimeOfUse", "Planned passive time of use"),
     ;
 
     private String key;

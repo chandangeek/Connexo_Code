@@ -9,6 +9,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAcessorsSetDefaultKeyValue', {
     resizable: false,
     shrinkWrapDock: true,
     securityAccessorRecord: null,
+    defaultKeyValueToSet: "",
 
     initComponent: function () {
         var me = this,
@@ -34,6 +35,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAcessorsSetDefaultKeyValue', {
                     fieldLabel: Uni.I18n.translate('securityaccessors.defaultKeyValue', 'MDC', 'Default key value'),
                     allowBlank: false,
                     margin: '20 0 0 0',
+                    value: me.defaultKeyValueToSet
                 },
                 {
                     xtype: 'fieldcontainer',
@@ -60,45 +62,5 @@ Ext.define('Mdc.securityaccessors.view.SecurityAcessorsSetDefaultKeyValue', {
             ]
         };
         me.callParent(arguments);
-    },
-
-    makeItemId: function(name) {
-        // replace spaces by '-'
-        return name.replace(/[ ]+/g, '-');
-    },
-
-    onCheckBoxClick: function(checkbox, checked, fieldName, defaultLevel) {
-        var me = this,
-            levels = me.securityAccessorRecord.get(fieldName),
-            indexOfLevel = -1,
-            levelsChanged = false;
-
-        if (checked) {
-            Ext.Array.each(levels, function(level, index) {
-                if (level.name === defaultLevel.name) {
-                    indexOfLevel = index;
-                    return false;
-                }
-            });
-            if (indexOfLevel===-1) {
-                levels.push(defaultLevel);
-                levelsChanged = true;
-            }
-        } else {
-            Ext.Array.each(levels, function(level, index) {
-                if (level.name === defaultLevel.name) {
-                    indexOfLevel = index;
-                    return false;
-                }
-            });
-            if (indexOfLevel!==-1) {
-                Ext.Array.splice(levels, indexOfLevel, 1);
-                levelsChanged = true;
-            }
-        }
-        if (levelsChanged) {
-            me.securityAccessorRecord.set(fieldName, levels);
-        }
     }
-
 });

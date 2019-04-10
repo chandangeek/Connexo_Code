@@ -166,7 +166,7 @@ public class CommonPropertiesDecoder {
     }
 
     private Map<String, Object> getActualClauses(long connectionTaskId) {
-        return ImmutableMap.of("ID", connectionTaskId);
+        return ImmutableMap.of("id", connectionTaskId);
     }
 
     private AuditTrailReference getAuditTrailReference() {

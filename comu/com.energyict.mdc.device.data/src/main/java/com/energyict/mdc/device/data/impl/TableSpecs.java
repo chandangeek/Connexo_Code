@@ -271,15 +271,15 @@ public enum TableSpecs {
                     .map(ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName())
                     .notAudited()
                     .add();
-            Column comServer = table.column("COMSERVER").number().add();
+            Column comServer = table.column("COMSERVER").number().notAudited().add();
             Column comPortPool = table.column("COMPORTPOOL").number().add();
             Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
             // Common columns for sheduled connection tasks
-            table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2INT).map(ConnectionTaskFields.CURRENT_RETRY_COUNT.fieldName()).add();
+            table.column("CURRENTRETRYCOUNT").number().conversion(NUMBER2INT).map(ConnectionTaskFields.CURRENT_RETRY_COUNT.fieldName()).notAudited().add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.LAST_EXECUTION_FAILED.fieldName()).notAudited().add();
             // ScheduledConnectionTaskImpl columns
-            table.column("COMWINDOWSTART").number().conversion(NUMBER2INT).map("comWindow.start.millis").add();
-            table.column("COMWINDOWEND").number().conversion(NUMBER2INT).map("comWindow.end.millis").add();
+            table.column("COMWINDOWSTART").number().conversion(NUMBER2INT).map("comWindow.start.millis").notAudited().add();
+            table.column("COMWINDOWEND").number().conversion(NUMBER2INT).map("comWindow.end.millis").notAudited().add();
             Column nextExecutionSpecs = table.column("NEXTEXECUTIONSPECS").number().notAudited().add();
             table.column("NEXTEXECUTIONTIMESTAMP").number().conversion(NUMBERINUTCSECONDS2INSTANT).map(ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName()).notAudited().add();
             table.column("PLANNEDNEXTEXECUTIONTIMESTAMP")
