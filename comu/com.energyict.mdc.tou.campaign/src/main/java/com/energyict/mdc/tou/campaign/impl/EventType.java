@@ -9,6 +9,7 @@ import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 public enum EventType {
     TOU_CAMPAIGN_EDITED("toucampaign/EDITED")
@@ -29,7 +30,7 @@ public enum EventType {
     void install(EventService eventService) {
         EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
                 .name(name())
-                .component("TOU")
+                .component(TimeOfUseCampaignService.COMPONENT_NAME)
                 .category("Crud")
                 .scope("System");
         this.addCustomProperties(builder).create();

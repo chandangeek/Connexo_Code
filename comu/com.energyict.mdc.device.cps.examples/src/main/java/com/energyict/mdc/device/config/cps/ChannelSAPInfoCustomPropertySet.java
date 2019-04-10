@@ -22,6 +22,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.inject.AbstractModule;
@@ -50,7 +51,8 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
         LOGICAL_REGISTER_NUMBER("logicalRegisterNumber"),
         PROFILE_NUMBER("profileNumber"),
         IN_USE("inUse"),
-        BILLING_FACTOR("billingFactor"),;
+        BILLING_FACTOR("billingFactor"),
+        DEVICE_REF("deviceRef"),;
 
         Fields(String javaName) {
             this.javaName = javaName;
@@ -74,6 +76,7 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
         private BigDecimal billingFactor;
 
         private Reference<ChannelSpec> channelSpec = ValueReference.absent();
+        private Reference<Device> deviceRef = ValueReference.absent();
         private Long device;
 
         @Override
@@ -155,6 +158,13 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
             table.column(Fields.PROFILE_NUMBER.name()).map(Fields.PROFILE_NUMBER.javaName()).number().notNull().add();
             table.column(Fields.IN_USE.name()).map(Fields.IN_USE.javaName()).bool().notNull().add();
             table.column(Fields.BILLING_FACTOR.name()).map(Fields.BILLING_FACTOR.javaName()).number().notNull().add();
+            Column contextReference = (Column)(table.getColumn(Fields.DEVICE.javaName()).get());
+            table
+                    .foreignKey(contextForeignKeyName())
+                    .on(contextReference)
+                    .references(getContextClass())
+                    .map(Fields.DEVICE_REF.javaName())
+                    .add();
         }
 
         @Override
@@ -171,6 +181,17 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
                     .findFirst()
                     .map(Fields::name)
                     .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
+
+
+        @Override
+        public String contextForeignKeyName() {
+            return PREFIX + "_SAP_INFO_"+ Fields.DEVICE.javaName().toUpperCase() + "_FK";
+        }
+
+        @Override
+        public Class getContextClass() {
+            return Device.class;
         }
     }
 

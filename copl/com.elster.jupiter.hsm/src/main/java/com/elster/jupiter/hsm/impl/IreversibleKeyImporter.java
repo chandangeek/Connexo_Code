@@ -10,8 +10,12 @@ import com.atos.worldline.jss.api.custom.energy.Energy;
 import com.atos.worldline.jss.api.custom.energy.KeyImportResponse;
 import com.atos.worldline.jss.api.custom.energy.ProtectedSessionKey;
 import com.atos.worldline.jss.api.key.KeyLabel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IreversibleKeyImporter  {
+
+    private static final Logger logger = LoggerFactory.getLogger(IreversibleKeyImporter.class);
 
     public HsmIrreversibleKey importKey(ImportKeyRequest importKeyRequest, HsmConfiguration hsmConfiguration) throws HsmBaseException {
         String encryptLabel = importKeyRequest.getStorageLabel();
@@ -24,6 +28,7 @@ public class IreversibleKeyImporter  {
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
             return new HsmIrreversibleKey(psk.getValue(), kekLabel);
         } catch (FunctionFailedException e) {
+            logger.error("Failed to import key:" + importKeyRequest );
             throw new HsmBaseException(e);
         }
     }

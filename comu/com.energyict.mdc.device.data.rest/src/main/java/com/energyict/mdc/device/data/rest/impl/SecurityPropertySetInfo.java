@@ -33,6 +33,7 @@ public class SecurityPropertySetInfo {
 
     public long version;
     public VersionInfo<String> parent;
+    public Boolean hasServiceKeys;
 
     public SecurityPropertySetInfo() {
     }

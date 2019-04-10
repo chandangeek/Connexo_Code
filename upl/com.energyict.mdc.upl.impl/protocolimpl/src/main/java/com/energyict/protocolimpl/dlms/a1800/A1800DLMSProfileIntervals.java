@@ -12,6 +12,7 @@ import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -29,6 +30,7 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
 
     protected final int channelStatusMask;
     protected Long multiplier = null;
+    protected Integer scaleFactor = null;
     private static final byte[] INVALID_DATETIME_OCTET_STRING_BYTES = new byte[12];
 
     public A1800DLMSProfileIntervals(byte[] encodedData, int clockMask, int statusMask, int channelMask, ProfileIntervalStatusBits statusBits) throws IOException {
@@ -44,6 +46,10 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
         this.multiplier = multiplier;
     }
 
+    public void setScaleFactor(int scaleFactor) {
+        this.scaleFactor = scaleFactor;
+    }
+
     /**
      * Parse the content to a list of IntervalData objects
      *
@@ -52,7 +58,7 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
      */
     public List<IntervalData> parseIntervals(int profileInterval, TimeZone timeZone) throws IOException {
         this.profileInterval = profileInterval;
-        List<IntervalData> intervalList = new ArrayList<IntervalData>();
+        List<IntervalData> intervalList = new ArrayList<>();
         Calendar cal = null;
         IntervalData currentInterval;
         int profileStatus = 0;
@@ -61,8 +67,8 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
             boolean jumpToNext = false;
             for (int i = 0; i < nrOfDataTypes(); i++) {
                 Structure element = (Structure) getDataType(i);
-                List<Long> values = new ArrayList<Long>();
-                List<Integer> status = new ArrayList<Integer>();
+                List<BigDecimal> values = new ArrayList<>();
+                List<Integer> status = new ArrayList<>();
 
                 for (int d = 0; d < element.nrOfDataTypes(); d++) {
                     if (isClockIndex(d)) {
@@ -82,9 +88,16 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
                         long state = adt.longValue();
                         fillChannelStatusArray(state, status);
                     } else if (isChannelIndex(d)) {
-                        long vr = element.getDataType(d).longValue();
-                        long vc = multiplier == null ? vr : vr * multiplier;
-                        values.add(vc);
+                        BigDecimal bd = new BigDecimal( element.getDataType(d).longValue() );
+
+                        if (multiplier != null && scaleFactor != null) {
+                            bd = bd.multiply( BigDecimal.valueOf(multiplier) )
+                                    .multiply( BigDecimal.valueOf( Math.pow(10, scaleFactor) ) );
+                        } else if (multiplier == null && scaleFactor != null) {
+                            bd = bd.multiply( BigDecimal.valueOf( Math.pow(10, scaleFactor) ) );
+                        }
+
+                        values.add(bd);
                     }
                 }
                 if (!jumpToNext) {

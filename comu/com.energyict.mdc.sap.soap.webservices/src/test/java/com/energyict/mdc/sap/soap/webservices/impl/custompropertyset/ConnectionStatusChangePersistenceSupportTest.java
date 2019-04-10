@@ -5,7 +5,6 @@ package com.energyict.mdc.sap.soap.webservices.impl.custompropertyset;
 
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangePersistenceSupport;
 import org.junit.Before;
@@ -14,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -69,7 +69,7 @@ public class ConnectionStatusChangePersistenceSupportTest {
 
     @Test
     public void testApplication() {
-        assertThat(persistenceSupport.application()).isEqualTo(MdcAppService.APPLICATION_NAME);
+        assertThat(persistenceSupport.application()).isEqualTo(APPLICATION_NAME);
     }
 
     @Test

@@ -15,12 +15,10 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
-import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -110,5 +108,12 @@ public class DeviceConfigValidationRuleSetResolverTest {
 
         Map<ValidationRuleSet, RangeSet<Instant>> setMap = resolver.resolve(validationContext);
         assertThat(setMap).isEmpty();
+    }
+
+    @Test
+    public void testResolverCanHandleRuleSetStatus() {
+        //Rule set status can only be resolved by an MDC resolver
+        DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
+        assertThat(resolver.canHandleRuleSetStatus()).isTrue();
     }
 }

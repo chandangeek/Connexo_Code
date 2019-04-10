@@ -38,6 +38,7 @@ Ext.define('Fwc.view.firmware.FirmwareEdit', {
                 ui: 'large',
                 title: this.router.getRoute().getTitle(),
                 layout: 'fit',
+                itemId: 'firmware-form-edit',
                 items: {
                     xtype:  (  this.record.getAssociatedData().firmwareStatus
                             && this.record.getAssociatedData().firmwareStatus.id === 'ghost')

@@ -18,7 +18,7 @@ import com.elster.jupiter.util.json.JsonService;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
@@ -26,6 +26,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceFinder;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -74,6 +75,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private ReplyTypeFactory replyTypeFactory;
     private MeterConfigFaultMessageFactory messageFactory;
     private DeviceBuilder deviceBuilder;
+    private DeviceFinder deviceFinder;
     private Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
     private CasHandler casHandler;
     private SecurityHelper securityHelper;
@@ -132,9 +134,12 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 
     private void processMeterConfigServiceCall(ServiceCall serviceCall) {
         MeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-        MeterInfo meterInfo = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
-        Device device = null;
+        MeterInfo meterInfo = null;
         OperationEnum operation = OperationEnum.getFromString(extensionFor.getOperation());
+        if (!OperationEnum.GET.equals(operation)) {
+            meterInfo = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
+        }
+        Device device = null;
         try {
             switch (operation) {
             case CREATE:
@@ -144,6 +149,9 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
             case UPDATE:
                 device = getDeviceBuilder().prepareChangeFrom(meterInfo).build();
                 processDevice(serviceCall, meterInfo, device);
+                break;
+            case GET:
+                getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
                 break;
             default:
                 break;
@@ -277,6 +285,13 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private void postProcessDevice(Device device, MeterInfo meterInfo) {
         webServiceExtension.ifPresent(
                 inboundCIMWebServiceExtension -> inboundCIMWebServiceExtension.extendMeterInfo(device, meterInfo));
+    }
+
+    private DeviceFinder getDeviceFinder() {
+        if (deviceFinder == null) {
+            deviceFinder = new DeviceFinder(deviceService, getMessageFactory());
+        }
+        return deviceFinder;
     }
 
     private DeviceBuilder getDeviceBuilder() {

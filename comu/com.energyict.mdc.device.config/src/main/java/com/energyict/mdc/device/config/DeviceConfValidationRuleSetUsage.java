@@ -22,6 +22,10 @@ public interface DeviceConfValidationRuleSetUsage {
 
     ValidationRuleSet getValidationRuleSet();
 
+    boolean isRuleSetActive();
+
+    void setRuleSetStatus(boolean active);
+
     void delete();
 
     void save();

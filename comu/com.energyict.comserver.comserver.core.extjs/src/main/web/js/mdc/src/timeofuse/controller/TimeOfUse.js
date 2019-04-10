@@ -368,7 +368,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     showPreview: function (selectionModel, record) {
         var me = this,
             preview = me.getPreview(),
-            previewForm = preview.down('devicetype-tou-preview-form'),
+            previewForm = preview.down('#devicetype-tou-preview-form'),
             model = Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar');
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         if (record.get('ghost') !== true) {
@@ -383,9 +383,9 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                     previewForm.setLoading(false);
                 }
             });
-
+            preview.showForm();
         } else {
-            previewForm.showEmptyMessage();
+            preview.showEmptyMessage();
         }
         if (preview.down('tou-devicetype-action-menu')) {
             preview.down('tou-devicetype-action-menu').record = record;

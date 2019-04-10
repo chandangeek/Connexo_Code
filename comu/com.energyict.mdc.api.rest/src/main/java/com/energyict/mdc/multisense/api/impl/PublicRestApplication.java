@@ -34,6 +34,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -107,6 +108,8 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MdcPropertyUtils mdcPropertyUtils;
     private volatile SecurityManagementService securityManagementService;
+    private volatile SecurityAccessorInfoFactory securityAccessorInfoFactory;
+    private volatile HsmEnergyService hsmEnergyService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -314,6 +317,16 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.securityManagementService = securityManagementService;
     }
 
+    @Reference
+    public void setSecurityAccessorInfoFactory(SecurityAccessorInfoFactory securityAccessorInfoFactory) {
+        this.securityAccessorInfoFactory = securityAccessorInfoFactory;
+    }
+
+    @Reference
+    public void setHsmEnergyService(HsmEnergyService hsmEnergyService) {
+        this.hsmEnergyService = hsmEnergyService;
+    }
+
     private Factory<Validator> getValidatorFactory() {
         return new Factory<Validator>() {
             private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
@@ -369,6 +382,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             bindFactory(getValidatorFactory()).to(Validator.class);
 
             bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
+            bind(securityAccessorInfoFactory).to(SecurityAccessorInfoFactory.class);
+            bind(hsmEnergyService).to(HsmEnergyService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);

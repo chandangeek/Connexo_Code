@@ -15,4 +15,8 @@ public interface DeviceConfigurationEstimationRuleSetUsage {
 
     EstimationRuleSet getEstimationRuleSet();
 
+    boolean isRuleSetActive();
+
+    void setRuleSetStatus(boolean active);
+
 }

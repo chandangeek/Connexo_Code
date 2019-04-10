@@ -18,6 +18,7 @@ class DeviceConfValidationRuleSetUsageImpl implements DeviceConfValidationRuleSe
 
     private long validationRuleSetId;
     private long deviceConfigurationId;
+    private boolean isRuleSetActive;
     @SuppressWarnings("unused") // Managed by ORM
     private long version;
     @SuppressWarnings("unused") // Managed by ORM
@@ -39,11 +40,12 @@ class DeviceConfValidationRuleSetUsageImpl implements DeviceConfValidationRuleSe
         this.validationService = validationService;
     }
 
-    DeviceConfValidationRuleSetUsageImpl init(ValidationRuleSet validationRuleSet, DeviceConfiguration deviceConfiguration) {
+    DeviceConfValidationRuleSetUsageImpl init(ValidationRuleSet validationRuleSet, DeviceConfiguration deviceConfiguration, boolean isRuleSetActive) {
         this.validationRuleSet = validationRuleSet;
         this.deviceConfiguration = deviceConfiguration;
         this.validationRuleSetId = validationRuleSet.getId();
         this.deviceConfigurationId = deviceConfiguration.getId();
+        this.isRuleSetActive = isRuleSetActive;
         return this;
     }
 
@@ -56,6 +58,15 @@ class DeviceConfValidationRuleSetUsageImpl implements DeviceConfValidationRuleSe
             }
         }
         return validationRuleSet;
+    }
+
+    public boolean isRuleSetActive() {
+        return isRuleSetActive;
+    }
+
+    @Override
+    public void setRuleSetStatus(boolean active) {
+        this.isRuleSetActive = active;
     }
 
     @Override
