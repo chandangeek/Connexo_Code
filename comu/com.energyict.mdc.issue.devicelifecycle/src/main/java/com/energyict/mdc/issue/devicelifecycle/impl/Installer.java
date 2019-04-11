@@ -6,7 +6,6 @@ package com.energyict.mdc.issue.devicelifecycle.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
-import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -21,6 +20,7 @@ import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycleService;
 import com.energyict.mdc.issue.devicelifecycle.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.devicelifecycle.impl.actions.RetryTransitionAction;
 import com.energyict.mdc.issue.devicelifecycle.impl.event.DeviceLifecycleEventDescription;
+
 import com.google.inject.Inject;
 
 import java.util.logging.Logger;
@@ -71,9 +71,9 @@ class Installer implements FullInstaller {
     }
 
     private void createIssueTypeAndReasons(IssueType type) {
-        IssueReason failedToEstimateReason = issueService.createReason(IssueDeviceLifecycleService.DEVICELIFECYCLE_ISSUE_REASON, type,
+        issueService.createReason(IssueDeviceLifecycleService.DEVICELIFECYCLE_ISSUE_REASON, type,
                 TranslationKeys.DEVICE_LIFECYCLE_ISSUE_REASON, TranslationKeys.DEVICE_LIFECYCLE_ISSUE_REASON_DESCRIPTION);
-        issueActionService.createActionType(DeviceLifecycleActionsFactory.ID, RetryTransitionAction.class.getName(), failedToEstimateReason, CreationRuleActionPhase.OVERDUE);
+        issueActionService.createActionType(DeviceLifecycleActionsFactory.ID, RetryTransitionAction.class.getName(), type, CreationRuleActionPhase.OVERDUE);
         issueActionService.createActionType(DeviceLifecycleActionsFactory.ID, CloseIssueAction.class.getName(), type, CreationRuleActionPhase.OVERDUE);
     }
 
