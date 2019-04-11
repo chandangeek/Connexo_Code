@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
@@ -19,12 +20,16 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.RaiseEventUrgencyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
+import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import org.osgi.service.component.annotations.Activate;
@@ -36,10 +41,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
+import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNABLE_TO_CONNECT;
@@ -51,6 +61,7 @@ import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEv
         service = CreationRuleTemplate.class,
         immediate = true)
 public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTemplate {
+    private static final Logger LOG = Logger.getLogger(BasicDataCollectionRuleTemplate.class.getName());
     static final String NAME = "BasicDataCollectionRuleTemplate";
 
     public static final String EVENTTYPE = NAME + ".eventType";
@@ -64,13 +75,14 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     }
 
     @Inject
-    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService) {
+    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
-
+        setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceLifeCycleConfigurationService( deviceLifeCycleConfigurationService);
         activate();
     }
 
@@ -98,6 +110,16 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         super.setPropertySpecService(propertySpecService);
     }
 
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        super.setDeviceConfigurationService(deviceConfigurationService);
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        super.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+    }
+
     @Override
     public String getName() {
         return BasicDataCollectionRuleTemplate.NAME;
@@ -118,6 +140,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 "rule \"Basic datacollection rule @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : DataCollectionEvent( eventType == \"@{" + EVENTTYPE + "}\", resolveEvent == false )\n" +
+                "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by basic datacollection rule=@{ruleId}\");\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
@@ -175,6 +198,15 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         EventTypeInfo[] possibleValues = possibleActionValues.entrySet().stream()
                 .map(entry -> new EventTypeInfo(entry.getKey(), entry.getValue()))
                 .toArray(EventTypeInfo[]::new);
+        builder.add(propertySpecService
+                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService))
+                .named(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .markMultiValued(";")
+                .addValues(deviceConfigurationService.getDeviceLifeCycleInDeviceTypeInfoPossibleValues())
+                .markExhaustive(PropertySelectionMode.LIST)
+                .finish());
         builder.add(propertySpecService
                 .specForValuesOf(new EventTypeValueFactory(eventTypes))
                 .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
@@ -327,5 +359,4 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
             }
         }
     }
-
 }

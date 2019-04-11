@@ -90,7 +90,12 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
     @Override
     public void store(QualityCodeSystem system, MeterReading meterReading) {
-        new MeterReadingStorer(getDataModel(), meteringService, this, meterReading, thesaurus, getEventService(), deviceEventFactory).store(system);
+        this.store(system, meterReading, null);
+    }
+
+    @Override
+    public void store(QualityCodeSystem system, MeterReading meterReading, Instant readingDate) {
+        new MeterReadingStorer(getDataModel(), meteringService, this, meterReading, thesaurus, getEventService(), deviceEventFactory).store(system, readingDate);
     }
 
     @Override

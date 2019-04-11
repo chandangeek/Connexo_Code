@@ -21,7 +21,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
 
     private static final String PROPERTIES_NODE = "properties";
     private static final String TRIGGERING_EVENTS = "BasicDeviceAlarmRuleTemplate.triggeringEvents";
-    private static final String LIFECYCLE_IN_DEVICE_TYPES = "BasicDeviceAlarmRuleTemplate.deviceLifecyleInDeviceTypes";
+    private static final String LIFECYCLE_IN_DEVICE_TYPES = "DeviceLifeCycleInDeviceType.deviceLifecyleInDeviceTypes";
 
     private HasValidProperties annotation;
     private boolean valid;
