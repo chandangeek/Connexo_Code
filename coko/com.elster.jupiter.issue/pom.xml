@@ -75,7 +75,7 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
         </dependency>
-        <dependency><!--dima-->
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>
         </dependency>
