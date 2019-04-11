@@ -24,7 +24,7 @@ Ext.define('Isu.model.DeviceGroup', {
         url: '/api/isu/devicegroups',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'devicegroups'
         }
     }
 });

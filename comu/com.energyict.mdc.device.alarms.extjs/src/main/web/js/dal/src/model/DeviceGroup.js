@@ -24,7 +24,7 @@ Ext.define('Dal.model.DeviceGroup', {
         url: '/api/dal/devicegroups',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'devicegroups'
         }
     }
 });
