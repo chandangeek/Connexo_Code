@@ -20,6 +20,7 @@ Ext.define('Mdc.securityaccessors.model.DeviceSecurityKey', {
         {name: 'swapped', type: 'boolean', defaultValue:false},
         {name: 'hasTempValue', type: 'boolean', defaultValue:false},
         {name: 'defaultServiceKey', type: 'string'},
+        {name: 'keyType', type: 'string'},
         'viewLevels',
         'editLevels'
     ],

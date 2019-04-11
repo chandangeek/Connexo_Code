@@ -14,8 +14,11 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterTransitionWrapper;
 import com.elster.jupiter.metering.MeteringService;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -25,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
@@ -448,6 +452,54 @@ public class DeviceLifeCycleEventSupportTest {
 
         // Asserts
         assertThat(extracted.isPresent()).isFalse();
+    }
+
+    @Test
+    public void extractFromMeterLinkedEvent() {
+        Instant time = Clock.systemDefaultZone().instant();
+        EventType eventType = mock(EventType.class);
+
+        MeterTransitionWrapper source = new MeterTransitionWrapperImpl(this.meter, time);
+
+        when(eventType.getTopic()).thenReturn(com.elster.jupiter.metering.EventType.METER_LINKED.topic());
+        LocalEvent localEvent = mock(LocalEvent.class);
+        when(localEvent.getType()).thenReturn(eventType);
+        when(localEvent.getSource()).thenReturn(source);
+
+        // Business method
+        Optional<CurrentStateExtractor.CurrentState> extracted = this.getTestInstance().extractFrom(localEvent, this.finiteStateMachine);
+
+        // Asserts
+        assertThat(extracted.isPresent()).isTrue();
+        CurrentStateExtractor.CurrentState currentState = extracted.get();
+        assertThat(currentState.sourceId).isEqualTo(String.valueOf(METER_ID));
+        assertThat(currentState.sourceType).isNotEmpty();
+        assertThat(currentState.name).isEqualTo(STATE_NAME);
+        assertThat(currentState.transitionTime.getLong(INSTANT_SECONDS)).isEqualTo(time.getLong(INSTANT_SECONDS));
+    }
+
+    @Test
+    public void extractFromMeterUnlinkedEvent() {
+        Instant time = Clock.systemDefaultZone().instant();
+        EventType eventType = mock(EventType.class);
+
+        MeterTransitionWrapper source = new MeterTransitionWrapperImpl(this.meter, time);
+
+        when(eventType.getTopic()).thenReturn(com.elster.jupiter.metering.EventType.METER_UNLINKED.topic());
+        LocalEvent localEvent = mock(LocalEvent.class);
+        when(localEvent.getType()).thenReturn(eventType);
+        when(localEvent.getSource()).thenReturn(source);
+
+        // Business method
+        Optional<CurrentStateExtractor.CurrentState> extracted = this.getTestInstance().extractFrom(localEvent, this.finiteStateMachine);
+
+        // Asserts
+        assertThat(extracted.isPresent()).isTrue();
+        CurrentStateExtractor.CurrentState currentState = extracted.get();
+        assertThat(currentState.sourceId).isEqualTo(String.valueOf(METER_ID));
+        assertThat(currentState.sourceType).isNotEmpty();
+        assertThat(currentState.name).isEqualTo(STATE_NAME);
+        assertThat(currentState.transitionTime.getLong(INSTANT_SECONDS)).isEqualTo(time.getLong(INSTANT_SECONDS));
     }
 
     private DeviceLifeCycleEventSupport getTestInstance() {

@@ -1,0 +1,9 @@
+# This file is needed  while git ignores empty directories.
+# We do not need this folder at this moment yet we have a plugin for which we have no sources and
+# documentation:
+#
+# <groupId>org.apache.felix</groupId>
+# <artifactId>maven-bundle-plugin</artifactId>
+# <version>3.0.1-elster-patch-1</version>
+#
+# that requires this folder to be present...

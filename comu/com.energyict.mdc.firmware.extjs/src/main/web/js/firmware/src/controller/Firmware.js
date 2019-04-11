@@ -211,9 +211,14 @@ Ext.define('Fwc.controller.Firmware', {
                     var supportedFirmwareTypesData = supportedFirmwareTypesStore.getRange();
                     if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "meter"}).length){
                         me.getContainer().down('firmware-form-add #firmware-min-meter-version-common').show();
+                    }else{
+                        me.getContainer().down('firmware-form-add #firmware-min-meter-version-common').hide();
                     }
+
                     if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
                         me.getContainer().down('firmware-form-add #firmware-min-communication-version-common').show();
+                    }else{
+                        me.getContainer().down('firmware-form-add #firmware-min-communication-version-common').hide();
                     }
 
                     if (supportedFirmwareTypesStore.totalCount===1) {

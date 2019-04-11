@@ -73,6 +73,10 @@ public class MeterReadingStorer {
     }
 
     void store(QualityCodeSystem system) {
+        this.store(system, null);
+    }
+
+    void store(QualityCodeSystem system, Instant readingDate) {
         getReadingTypes();
         List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
         if (meterActivations.isEmpty()) {
@@ -82,7 +86,7 @@ public class MeterReadingStorer {
         storeIntervalBlocks(facade.getMeterReading().getIntervalBlocks());
         removeOldReadingQualities();
         storeReadingQualities();
-        storeEvents(facade.getMeterReading().getEvents());
+        storeEvents(facade.getMeterReading().getEvents(), readingDate);
         readingStorer.execute(system);
         facade.getRange()
                 .ifPresent(range -> eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter
@@ -149,7 +153,7 @@ public class MeterReadingStorer {
         }
     }
 
-    private void storeEvents(List<EndDeviceEvent> events) {
+    private void storeEvents(List<EndDeviceEvent> events, Instant readingDate) {
         List<EndDeviceEventRecord> toCreate = new ArrayList<>(events.size());
         List<EndDeviceEventRecord> toUpdate = new ArrayList<>();
         for (EndDeviceEvent sourceEvent : events) {
@@ -175,6 +179,7 @@ public class MeterReadingStorer {
                     eventRecord.setAliasName(sourceEvent.getAliasName());
                     eventRecord.setLogBookPosition(sourceEvent.getLogBookPosition());
                     eventRecord.setDeviceEventType(sourceEvent.getType());
+                    eventRecord.setReadingDateTime(readingDate);
                     toCreate.add(eventRecord);
                 }
             } else {

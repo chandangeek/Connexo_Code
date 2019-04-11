@@ -8,9 +8,12 @@ import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.Map;
 
+@ProviderType
 public interface EndDeviceEventRecord extends EndDeviceEvent {
 
     long getProcessingFlags();
@@ -66,4 +69,13 @@ public interface EndDeviceEventRecord extends EndDeviceEvent {
     void removeProperty(String key);
 
 	boolean updateProperties(Map<String, String> props);
+
+    /**
+     * This is the date time when the event was readout from device.
+     * It is currently used only for imported data previously exported from a collecting system (EIServer, Connexo, other third party system)
+     * When data is collected and not imported in Connexo, this should be null.
+     */
+    Instant getReadingDateTime();
+
+    void setReadingDateTime(Instant readingDateTime);
 }

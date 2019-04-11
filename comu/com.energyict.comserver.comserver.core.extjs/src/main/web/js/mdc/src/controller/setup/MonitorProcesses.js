@@ -91,13 +91,11 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router');
-
         viewport.setLoading();
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 var widget;
-
                 me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
                 widget = Ext.widget('device-processes-start', {

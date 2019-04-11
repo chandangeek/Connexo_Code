@@ -13,6 +13,7 @@ Ext.define('Mdc.processes.view.AllProcessesGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.processes.store.AllProcessesStore',
+        'Mdc.processes.store.ProcessesBuffered',
         'Mdc.processes.view.AllProcessesTopFilter',
         'Mdc.processes.view.AllProcessesSortingMenu'
     ],

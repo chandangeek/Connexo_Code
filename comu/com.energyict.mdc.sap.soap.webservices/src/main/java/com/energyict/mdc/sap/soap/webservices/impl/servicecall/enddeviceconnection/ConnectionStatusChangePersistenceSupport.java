@@ -8,13 +8,14 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.google.inject.Module;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class ConnectionStatusChangePersistenceSupport implements PersistenceSupport<ServiceCall, ConnectionStatusChangeDomainExtension> {
 
@@ -87,6 +88,6 @@ public class ConnectionStatusChangePersistenceSupport implements PersistenceSupp
 
     @Override
     public String application() {
-        return MdcAppService.APPLICATION_NAME;
+        return APPLICATION_NAME;
     }
 }

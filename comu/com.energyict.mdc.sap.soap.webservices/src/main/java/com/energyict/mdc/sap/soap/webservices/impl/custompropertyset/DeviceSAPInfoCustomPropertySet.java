@@ -13,7 +13,6 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.data.Device;
 
 import com.google.inject.Module;
@@ -23,6 +22,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device, DeviceSAPInfoDomainExtension> {
     public static final String CPS_ID = DeviceSAPInfoCustomPropertySet.class.getName();
@@ -144,7 +145,7 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
 
         @Override
         public String application() {
-            return MdcAppService.APPLICATION_NAME;
+            return APPLICATION_NAME;
         }
     }
 }

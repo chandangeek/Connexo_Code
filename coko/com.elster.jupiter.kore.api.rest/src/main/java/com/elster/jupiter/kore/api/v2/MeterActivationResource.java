@@ -242,8 +242,12 @@ public class MeterActivationResource {
                         .lowerEndpoint()
                         .isAfter(Instant.ofEpochMilli(meterActivationInfo.interval.start).truncatedTo(ChronoUnit.MINUTES))
                         && stateTimeSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent())
-                .min(Comparator.comparing(slice -> slice.getPeriod().lowerEndpoint())))
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.INVALID_END_DEVICE_STAGE, start));
+                .min(Comparator.comparing(slice -> slice.getPeriod().lowerEndpoint()))).orElse(null);
+
+        if (state == null ){
+            return start;
+        }
+
         if (!state.getPeriod().lowerEndpoint().truncatedTo(ChronoUnit.MINUTES).equals(state.getPeriod().lowerEndpoint())) {
             return state.getPeriod().lowerEndpoint().plus(1, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MINUTES);
         } else {

@@ -279,7 +279,7 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
 
     onMenuAction: function(menu, menuItem) {
         var me = this;
-        console.log("CHOOOSE ACTION!!!",menuItem.action);
+
         switch (menuItem.action) {
             case 'editDeviceKey':
                 me.navigateToEditKeyAttributes(menu.record);
@@ -849,8 +849,6 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             viewport.setLoading();
 
             var url = '/api/ddr/devices/{deviceId}/securityaccessors/keys/{keyId}/unmarkservicekey';
-
-
 
             url = url.replace('{deviceId}', me.deviceId).replace('{keyId}', me.deviceKeyRecord.get('id'));
 
