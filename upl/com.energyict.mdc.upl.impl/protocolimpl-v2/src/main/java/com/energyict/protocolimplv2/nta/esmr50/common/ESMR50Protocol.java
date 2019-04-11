@@ -353,7 +353,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
      */
     @Override
     public int getPhysicalAddressFromSerialNumber(final String serialNumber) {
-        return 0;
+        return getMeterTopology().getPhysicalAddress(serialNumber);
     }
 
     public void resetFrameCounter(long newFrameCounter) {

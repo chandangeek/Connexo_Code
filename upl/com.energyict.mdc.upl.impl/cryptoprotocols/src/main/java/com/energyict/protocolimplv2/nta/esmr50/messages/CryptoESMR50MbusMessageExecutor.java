@@ -344,7 +344,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
 
     private boolean isUsingCryptoServer() {
         AbstractSmartNtaProtocol protocol = (AbstractSmartNtaProtocol) getProtocol();
-        return ((CryptoESMR50Properties) protocol.getProperties()).useCryptoServer();
+        return ((CryptoESMR50Properties) protocol.getDlmsSessionProperties()).useCryptoServer();
     }
 
     protected void log(final Level level, final String msg) {

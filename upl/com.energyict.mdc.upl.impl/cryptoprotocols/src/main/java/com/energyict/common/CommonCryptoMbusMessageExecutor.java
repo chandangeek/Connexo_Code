@@ -76,7 +76,7 @@ public class CommonCryptoMbusMessageExecutor extends AbstractMessageExecutor {
             ak = null;     //Don't use it if no authentication is used
         }
 
-        KeyRenewalMBusResponse response;
+            KeyRenewalMBusResponse response;
         try {
             response = Services.hsmService().renewMBusUserKey(
                     createApduTemplate(serialNumber),

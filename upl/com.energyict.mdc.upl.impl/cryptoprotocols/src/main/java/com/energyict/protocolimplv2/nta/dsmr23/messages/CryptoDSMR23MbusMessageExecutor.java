@@ -26,6 +26,6 @@ public class CryptoDSMR23MbusMessageExecutor extends Dsmr23MbusMessageExecutor {
 
     private boolean isUsingCryptoServer() {
         AbstractSmartNtaProtocol protocol = (AbstractSmartNtaProtocol)getProtocol();
-        return ((CryptoDSMR23Properties) protocol.getProperties()).useCryptoServer();
+        return ((CryptoDSMR23Properties) protocol.getDlmsSessionProperties()).useCryptoServer();
     }
 }
