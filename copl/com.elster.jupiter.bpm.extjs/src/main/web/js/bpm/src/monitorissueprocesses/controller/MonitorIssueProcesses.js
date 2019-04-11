@@ -101,7 +101,7 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
             processRecord,
             issueModel = 'Idc.model.Issue';
 
-        if (router.queryParams.issueType === "devicelifecycle")  // Lau
+        if (router.queryParams.issueType === "devicelifecycle")
         {
             issueModel = 'Idl.model.Issue';
         }

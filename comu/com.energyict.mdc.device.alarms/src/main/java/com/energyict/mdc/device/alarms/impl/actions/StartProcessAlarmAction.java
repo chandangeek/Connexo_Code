@@ -65,7 +65,7 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
         return bpmService.getActiveBpmProcessDefinitions()
                 .stream()
                 //.filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals("devicealarm"))
-                .filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals("devicelifecycleissue"))  // Lau
+                .filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals("devicelifecycleissue"))  // CXO-9377
                 .filter(f -> List.class.isInstance(f.getProperties().get("alarmReasons")))
                 .anyMatch(s -> ((List<Object>) s.getProperties().get("alarmReasons"))
                         .stream()

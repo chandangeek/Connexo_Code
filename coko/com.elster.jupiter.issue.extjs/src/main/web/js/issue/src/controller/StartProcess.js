@@ -30,7 +30,7 @@ Ext.define('Isu.controller.StartProcess', {
 
         viewport.setLoading();
 
-        if (router.queryParams.issueType === "devicelifecycle")  // Lau
+        if (router.queryParams.issueType === "devicelifecycle")
         {
             issueModel = 'Idl.model.Issue';
             issueType = 'devicelifecycleissue';

@@ -61,7 +61,7 @@ public class ProcessResource {
         DEVICE("device", "deviceId"),
         ALARM("devicealarm", "alarmId"),
         DATA_COLLECTION_ISSUE("datacollectionissue", "issueId"),
-        ISSUE_TYPE_NAME("devicelifecycleissue", "issueLifecycleId");  // Lau
+        ISSUE_TYPE_NAME("devicelifecycleissue", "issueLifecycleId");
 
         private final String variableId;
         private final String type;
@@ -400,9 +400,9 @@ public class ProcessResource {
                     return true;
                 };
             case ISSUE_TYPE_NAME:
-                Set<String> allowedLifecycleIssueReasons = getSetOfValueIds(definition, DeviceResource.PROCESS_LIFECYCLE_ISSUE_STATES);  // Lau
+                Set<String> allowedLifecycleIssueReasons = getSetOfValueIds(definition, DeviceResource.PROCESS_LIFECYCLE_ISSUE_STATES);
                 return info -> {
-                    Optional<? extends Issue> issueOptional = issueService.findIssue(Long.parseLong(info.getValue())); // Lau ????
+                    Optional<? extends Issue> issueOptional = issueService.findIssue(Long.parseLong(info.getValue())); //CXO-9377
                     if (!issueOptional.isPresent()) {
                         errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, info.getObjectName());
                         return false;

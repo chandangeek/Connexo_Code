@@ -139,7 +139,7 @@ public class InMemoryPersistence {
     private DeviceProcessAssociationProvider deviceProvider;
     private IssueProcessAssociationProvider issueProvider;
     private DeviceAlarmProcessAssociationProvider alarmProvider;
-    private IssueLifecycleProcessAssociationProvider lifecycleProvider;  // Lau
+    private IssueLifecycleProcessAssociationProvider lifecycleProvider;
 
     private InMemoryPersistence(Supplier<List<Module>> modulesSupplier) {
         super();
@@ -235,7 +235,7 @@ public class InMemoryPersistence {
             this.deviceProvider = this.injector.getInstance(DeviceProcessAssociationProvider.class);
             this.issueProvider = this.injector.getInstance(IssueProcessAssociationProvider.class);
             this.alarmProvider = this.injector.getInstance(DeviceAlarmProcessAssociationProvider.class);
-            this.lifecycleProvider = this.injector.getInstance(IssueLifecycleProcessAssociationProvider.class); // Lau
+            this.lifecycleProvider = this.injector.getInstance(IssueLifecycleProcessAssociationProvider.class);
             ctx.commit();
         }
     }

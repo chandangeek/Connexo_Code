@@ -95,14 +95,12 @@ public class IssueLifecycleProcessAssociationProvider implements ProcessAssociat
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(getIssueLifecycleReasonPropertySpec());
-        //builder.add(getIssueReasonPropertySpec());  // Lau
         return builder.build();
     }
 
     @Override
     public Optional<PropertySpec> getPropertySpec(String name) {
         return (TranslationKeys.DEVICE_LIFECYCLE_ISSUE_REASON_TITLE.getKey().equals(name))? Optional.of(getIssueLifecycleReasonPropertySpec()) : Optional.empty();
-       //Lau
     }
 
     private PropertySpec getIssueLifecycleReasonPropertySpec() {
