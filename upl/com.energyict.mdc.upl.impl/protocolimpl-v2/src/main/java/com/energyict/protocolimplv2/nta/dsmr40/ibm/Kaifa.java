@@ -71,7 +71,7 @@ public class Kaifa extends E350 {
     }
 
     protected DlmsSession newDlmsSession(ComChannel comChannel) {
-        return new DlmsSession(comChannel, getDlmsSessionProperties(), "");
+        return new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
     }
 
     @Override

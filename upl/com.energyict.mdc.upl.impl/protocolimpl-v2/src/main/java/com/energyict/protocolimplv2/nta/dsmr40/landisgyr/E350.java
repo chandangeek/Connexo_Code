@@ -116,7 +116,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
     }
 
     protected DlmsSession newDlmsSession(ComChannel comChannel) {
-        return new DlmsSession(comChannel, getDlmsSessionProperties(), "");
+        return new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
     }
 
     @Override
