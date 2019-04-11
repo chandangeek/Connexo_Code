@@ -354,7 +354,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     CRYPTO_ISKRA_MX382(303, "com.energyict.protocolimplv2.nta.dsmr23.iskra.CryptoMx382", FamilyRule.DSMR_NTA),
     CRYPTO_WEB_RTU_KP(304, "com.energyict.protocolimplv2.nta.dsmr23.eict.CryptoWebRTUKP", FamilyRule.EICT_NTA),
 
-    CRYPTO_E350_DSMR40(305, "com.energyict.protocolimplv2.nta.dsmr40.landysgir.CryptoE350", FamilyRule.DSMR_NTA),
+    CRYPTO_E350_DSMR40(305,  "com.energyict.protocolimplv2.nta.dsmr40.landisgyr.CryptoE350", FamilyRule.DSMR_NTA),
     CRYPTO_KAIFA_DSMR40(306, "com.energyict.protocolimplv2.nta.dsmr40.ibm.CryptoKaifa", FamilyRule.DSMR_NTA),
 
     CRYPTO_E350_DSMR42(307, "com.energyict.protocolimplv2.nta.dsmr42.landysgir.CryptoE350", FamilyRule.DSMR_NTA),
@@ -366,7 +366,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     CRYPTO_ISKRA_MX382_MBUS(310, "com.energyict.protocolimplv2.nta.dsmr23.iskra.CryptoMbusDevice", FamilyRule.DSMR_NTA),
     CRYPTO_WEB_RTU_KP_MBUS(311, "com.energyict.protocolimplv2.nta.dsmr23.eict.CryptoMbusDevice", FamilyRule.EICT_NTA),
 
-    CRYPTO_LG_DSMR40_MBUS(312, "com.energyict.protocolimplv2.nta.dsmr40.landysgir.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+    CRYPTO_LG_DSMR40_MBUS(312, "com.energyict.protocolimplv2.nta.dsmr40.landisgyr.CryptoMbusDevice", FamilyRule.DSMR_NTA),
     CRYPTO_ITRON_DMSR40_MBUS(313, "com.energyict.protocolimplv2.nta.dsmr40.itron.CryptoMbusDevice", FamilyRule.DSMR_NTA),
     CRYPTO_GENERIC_DSMR40_MBUS(314, "com.energyict.protocolimplv2.nta.dsmr40.elster.CryptoMbusDevice", FamilyRule.EICT_NTA),
 
