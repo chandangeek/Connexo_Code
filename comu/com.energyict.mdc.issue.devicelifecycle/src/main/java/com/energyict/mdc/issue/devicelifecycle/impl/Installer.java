@@ -73,7 +73,7 @@ class Installer implements FullInstaller {
     private void createIssueTypeAndReasons(IssueType type) {
         IssueReason failedToEstimateReason = issueService.createReason(IssueDeviceLifecycleService.DEVICELIFECYCLE_ISSUE_REASON, type,
                 TranslationKeys.DEVICE_LIFECYCLE_ISSUE_REASON, TranslationKeys.DEVICE_LIFECYCLE_ISSUE_REASON_DESCRIPTION);
-        issueActionService.createActionType(DeviceLifecycleActionsFactory.ID, RetryTransitionAction.class.getName(), failedToEstimateReason);
+        issueActionService.createActionType(DeviceLifecycleActionsFactory.ID, RetryTransitionAction.class.getName(), failedToEstimateReason, CreationRuleActionPhase.OVERDUE);
         issueActionService.createActionType(DeviceLifecycleActionsFactory.ID, CloseIssueAction.class.getName(), type, CreationRuleActionPhase.OVERDUE);
     }
 
