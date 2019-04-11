@@ -174,8 +174,8 @@ public class IssueResourceHelper {
         }
 
         if (jsonFilter.hasProperty(IssueRestModuleConst.DEVICE_GROUP)) {
-            jsonFilter.getStringList(IssueRestModuleConst.DEVICE_GROUP).stream()
-                    .map(id -> meteringGroupService.findEndDeviceGroup(Long.valueOf(id)).orElse(null))
+            jsonFilter.getLongList(IssueRestModuleConst.DEVICE_GROUP).stream()
+                    .map(id -> meteringGroupService.findEndDeviceGroup(id).orElse(null))
                     .filter(devGroup -> devGroup != null)
                     .forEach(filter::addDeviceGroup);
             List<DeviceGroupInfo> deviceGroupInfos = new ArrayList<>();
