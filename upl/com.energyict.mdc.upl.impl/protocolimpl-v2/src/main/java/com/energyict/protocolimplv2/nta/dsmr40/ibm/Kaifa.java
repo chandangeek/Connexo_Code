@@ -58,7 +58,7 @@ public class Kaifa extends E350 {
         if (comChannel.getComChannelType() == ComChannelType.SerialComChannel || comChannel.getComChannelType() == ComChannelType.OpticalComChannel) {
             hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
         }
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, ""));
+        setDlmsSession(newDlmsSession(comChannel));
     }
 
     @Override
@@ -70,6 +70,9 @@ public class Kaifa extends E350 {
         return hhuSignOn;
     }
 
+    protected DlmsSession newDlmsSession(ComChannel comChannel) {
+        return new DlmsSession(comChannel, getDlmsSessionProperties(), "");
+    }
 
     @Override
     public String getFirmwareVersion() {

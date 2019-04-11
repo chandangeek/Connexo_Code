@@ -70,15 +70,15 @@ public class CryptoKaifa extends Kaifa {
         return hhuSignOn;
     }
 
-
-    private DlmsSession newDlmsSession(ComChannel comChannel) {
+    @Override
+    protected DlmsSession newDlmsSession(ComChannel comChannel) {
         //Uses the HSM to encrypt requests and decrypt responses, we don't have the plain keys
         if (getDlmsSessionProperties().useCryptoServer()) {
             //Uses the cryptoserver to encrypt requests and decrypt responses
             return new CryptoDlmsSession(comChannel, getDlmsSessionProperties());
         } else {
             //Normal session
-            return super.getDlmsSession();
+            return super.newDlmsSession(comChannel);
         }
     }
 

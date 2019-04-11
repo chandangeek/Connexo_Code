@@ -104,7 +104,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
         if (comChannel.getComChannelType() == ComChannelType.SerialComChannel || comChannel.getComChannelType() == ComChannelType.OpticalComChannel) {
             hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
         }
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
+        setDlmsSession(newDlmsSession(comChannel));
     }
 
     protected HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
@@ -113,6 +113,10 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(false);
         return hhuSignOn;
+    }
+
+    protected DlmsSession newDlmsSession(ComChannel comChannel) {
+        return new DlmsSession(comChannel, getDlmsSessionProperties(), "");
     }
 
     @Override
