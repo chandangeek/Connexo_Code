@@ -6,9 +6,11 @@ package com.elster.jupiter.webservices.outbound.rest.issue.actions.impl;
 
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.client.WebTarget;
 
@@ -20,6 +22,9 @@ import javax.ws.rs.client.WebTarget;
         immediate = true,
         property = {"name=Issue logging"})
 public class IssueLoggingActionEndpointProvider implements OutboundRestEndPointProvider {
+
+    private volatile WebServicesService webServicesService;
+
     @Override
     public IssueWebServiceClient get(WebTarget target) {
         return new IssueLoggingClientImpl(target);
@@ -28,5 +33,10 @@ public class IssueLoggingActionEndpointProvider implements OutboundRestEndPointP
     @Override
     public Class<IssueWebServiceClient> getService() {
         return IssueWebServiceClient.class;
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
     }
 }

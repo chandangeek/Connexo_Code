@@ -140,6 +140,8 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         propertyForm.updateRecord();
         record.propertiesStore = messageSpec.properties();
 
+        record.getProxy().setExtraParam('force', false);
+
         record.save({
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.success', 'FWC', 'Firmware upload scheduled'));

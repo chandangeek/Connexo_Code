@@ -122,6 +122,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>estimation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.lifecycle.config</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -207,11 +211,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.tasks</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

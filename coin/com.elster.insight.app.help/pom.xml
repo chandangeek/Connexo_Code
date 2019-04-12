@@ -34,8 +34,6 @@
     </dependencies>
 
     <build>
-        <!-- This is not exactly what I wanted to do yet I am forced due to ticket CXO-9915
-        (mainly only what is in scr/main/web is added into bundle regardless of what you do) -->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -48,35 +46,35 @@
                         <goals>
                             <goal>run</goal>
                         </goals>
-                        <configuration>
+                        <configuration combine.self="override">
                             <tasks>
-                                <unzip src="src/main/web-zip/web.zip" dest="src/main/web/" />
-                                <unzip src="src/main/web-zip/en/en.zip" dest="src/main/web/en/" />
+                                <unzip src="src/main/web-zip/web.zip" dest="${project.build.directory}/web/" />
+                                <unzip src="src/main/web-zip/en/en.zip" dest="${project.build.directory}/web/en/" />
                             </tasks>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.8</version>
                 <executions>
                     <execution>
-                        <id>Deleting unzipped (help app) files</id>
-                        <phase>install</phase>
+                        <id>add-web-pages</id>
+                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>clean</goal>
+                            <goal>add-resource</goal>
                         </goals>
+                        <configuration combine.self="override">
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/web/</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                    <filesets>
-                        <fileset>
-                            <directory>src/main/web</directory>
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                    </filesets>
-                </configuration>
             </plugin>
         </plugins>
     </build>
