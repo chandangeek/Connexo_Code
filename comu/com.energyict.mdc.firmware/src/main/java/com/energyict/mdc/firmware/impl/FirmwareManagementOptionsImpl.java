@@ -108,7 +108,7 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
     }
 
     @Override
-    public EnumSet<FirmwareStatus> getTargetFirmwareStatuses(FirmwareCheckManagementOption checkManagementOption) {
+    public EnumSet<FirmwareStatus> getStatuses(FirmwareCheckManagementOption checkManagementOption) {
         EnumSet<FirmwareStatus> statuses = EnumSet.noneOf(FirmwareStatus.class);
         switch (checkManagementOption) {
             case TARGET_FIRMWARE_STATUS_CHECK:

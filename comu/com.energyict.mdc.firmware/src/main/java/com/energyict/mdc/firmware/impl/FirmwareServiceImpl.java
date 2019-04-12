@@ -221,10 +221,9 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 .orElse(Collections.emptySet());
     }
 
-    public boolean isFirmwareCheckActivatedForStatus(DeviceType deviceType, FirmwareCheckManagementOption checkManagementOption, FirmwareStatus firmwareStatus) {
+    public boolean isFirmwareCheckActivated(DeviceType deviceType, FirmwareCheckManagementOption checkManagementOption) {
         return findFirmwareManagementOptions(deviceType)
-                .map(firmwareManagementOptions -> firmwareManagementOptions.getTargetFirmwareStatuses(checkManagementOption))
-                .filter(statuses -> statuses.contains(firmwareStatus))
+                .filter(firmwareManagementOptions -> firmwareManagementOptions.isActivated(checkManagementOption))
                 .isPresent();
     }
 
@@ -841,10 +840,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return firmwareChecks.stream();
     }
 
-    public Optional<FirmwareVersion> getMaximumFirmware(DeviceType deviceType, Set<FirmwareType> accountedTypes) {
+    public Optional<FirmwareVersion> getMaximumFirmware(DeviceType deviceType, Set<FirmwareType> accountedTypes, Set<FirmwareStatus> accountedStatuses) {
         return dataModel.stream(FirmwareVersion.class)
                 .filter(where(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType))
                 .filter(where(FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).in(ImmutableList.copyOf(accountedTypes)))
+                .filter(where(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).in(ImmutableList.copyOf(accountedStatuses)))
                 .max(FirmwareVersionImpl.Fields.RANK.fieldName());
     }
 

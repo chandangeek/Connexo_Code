@@ -20,7 +20,7 @@ public class CheckManagementOptionInfo {
 
     public CheckManagementOptionInfo(FirmwareManagementOptions config, FirmwareCheckManagementOption check) {
         activated = config.isActivated(check);
-        statuses = config.getTargetFirmwareStatuses(check);
+        statuses = config.getStatuses(check);
     }
 
     public boolean isActivated() {
