@@ -28,10 +28,11 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
         INSTALL("install"),
         ACTIVATE("activate"),
         ACTIVATEONDATE("activateOnDate"),
-        CHK_CURRENT_FW_FOR_FINAL("checkCurrentFirmwareForFinalFirmwareUpload"),
-        CHK_CURRENT_FW_FOR_TEST("checkCurrentFirmwareForTestFirmwareUpload"),
-        CHK_MASTER_FW_FOR_FINAL("checkMasterFirmwareForFinalFirmwareUpload"),
-        CHK_MASTER_FW_FOR_TEST("checkMasterFirmwareForTestFirmwareUpload");
+        CHK_TARGET_FW_FINAL("checkFinalTargetFirmwareStatus"),
+        CHK_TARGET_FW_TEST("checkTestTargetFirmwareStatus"),
+        CHK_CURRENT_FW("checkCurrentFirmware"),
+        CHK_MASTER_FW_FINAL("checkMasterFirmwareWithFinalStatus"),
+        CHK_MASTER_FW_TEST("checkMasterFirmwareWithTestStatus");
 
         private final String javaFieldName;
 
@@ -50,10 +51,11 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
     private boolean activate;
     private boolean activateOnDate;
 
-    private boolean checkCurrentFirmwareForFinalFirmwareUpload;
-    private boolean checkCurrentFirmwareForTestFirmwareUpload;
-    private boolean checkMasterFirmwareForFinalFirmwareUpload;
-    private boolean checkMasterFirmwareForTestFirmwareUpload;
+    private boolean checkFinalTargetFirmwareStatus;
+    private boolean checkTestTargetFirmwareStatus;
+    private boolean checkCurrentFirmware;
+    private boolean checkMasterFirmwareWithFinalStatus;
+    private boolean checkMasterFirmwareWithTestStatus;
 
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -92,22 +94,38 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
     }
 
     @Override
+    public boolean isActivated(FirmwareCheckManagementOption checkManagementOption) {
+        switch (checkManagementOption) {
+            case TARGET_FIRMWARE_STATUS_CHECK:
+                return checkFinalTargetFirmwareStatus || checkTestTargetFirmwareStatus;
+            case CURRENT_FIRMWARE_CHECK:
+                return checkCurrentFirmware;
+            case MASTER_FIRMWARE_CHECK:
+                return checkMasterFirmwareWithFinalStatus || checkMasterFirmwareWithTestStatus;
+            default:
+                throw new IllegalArgumentException("Unknown firmware check management option!");
+        }
+    }
+
+    @Override
     public EnumSet<FirmwareStatus> getTargetFirmwareStatuses(FirmwareCheckManagementOption checkManagementOption) {
         EnumSet<FirmwareStatus> statuses = EnumSet.noneOf(FirmwareStatus.class);
         switch (checkManagementOption) {
-            case CURRENT_FIRMWARE_CHECK:
-                if (checkCurrentFirmwareForFinalFirmwareUpload) {
+            case TARGET_FIRMWARE_STATUS_CHECK:
+                if (checkFinalTargetFirmwareStatus) {
                     statuses.add(FirmwareStatus.FINAL);
                 }
-                if (checkCurrentFirmwareForTestFirmwareUpload) {
+                if (checkTestTargetFirmwareStatus) {
                     statuses.add(FirmwareStatus.TEST);
                 }
                 break;
+            case CURRENT_FIRMWARE_CHECK:
+                return null; // no status set is applicable for this check
             case MASTER_FIRMWARE_CHECK:
-                if (checkMasterFirmwareForFinalFirmwareUpload) {
+                if (checkMasterFirmwareWithFinalStatus) {
                     statuses.add(FirmwareStatus.FINAL);
                 }
-                if (checkMasterFirmwareForTestFirmwareUpload) {
+                if (checkMasterFirmwareWithTestStatus) {
                     statuses.add(FirmwareStatus.TEST);
                 }
                 break;
@@ -147,13 +165,35 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
     @Override
     public void activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption checkManagementOption, Set<FirmwareStatus> firmwareStatuses) {
         switch (checkManagementOption) {
+            case TARGET_FIRMWARE_STATUS_CHECK:
+                checkFinalTargetFirmwareStatus = firmwareStatuses.contains(FirmwareStatus.FINAL);
+                checkTestTargetFirmwareStatus = firmwareStatuses.contains(FirmwareStatus.TEST);
+                break;
             case CURRENT_FIRMWARE_CHECK:
-                checkCurrentFirmwareForFinalFirmwareUpload = firmwareStatuses.contains(FirmwareStatus.FINAL);
-                checkCurrentFirmwareForTestFirmwareUpload = firmwareStatuses.contains(FirmwareStatus.TEST);
+                checkCurrentFirmware = true;
                 break;
             case MASTER_FIRMWARE_CHECK:
-                checkMasterFirmwareForFinalFirmwareUpload = firmwareStatuses.contains(FirmwareStatus.FINAL);
-                checkMasterFirmwareForTestFirmwareUpload = firmwareStatuses.contains(FirmwareStatus.TEST);
+                checkMasterFirmwareWithFinalStatus = firmwareStatuses.contains(FirmwareStatus.FINAL);
+                checkMasterFirmwareWithTestStatus = firmwareStatuses.contains(FirmwareStatus.TEST);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown firmware check management option!");
+        }
+    }
+
+    @Override
+    public void deactivate(FirmwareCheckManagementOption checkManagementOption) {
+        switch (checkManagementOption) {
+            case TARGET_FIRMWARE_STATUS_CHECK:
+                checkFinalTargetFirmwareStatus = false;
+                checkTestTargetFirmwareStatus = false;
+                break;
+            case CURRENT_FIRMWARE_CHECK:
+                checkCurrentFirmware = false;
+                break;
+            case MASTER_FIRMWARE_CHECK:
+                checkMasterFirmwareWithFinalStatus = false;
+                checkMasterFirmwareWithTestStatus = false;
                 break;
             default:
                 throw new IllegalArgumentException("Unknown firmware check management option!");

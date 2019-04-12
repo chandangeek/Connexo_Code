@@ -25,6 +25,8 @@ public interface FirmwareManagementOptions {
      */
     void activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption checkManagementOption, Set<FirmwareStatus> firmwareStatuses);
 
+    void deactivate(FirmwareCheckManagementOption checkManagementOption);
+
     Set<ProtocolSupportedFirmwareOptions> getOptions();
 
     void save();
@@ -32,6 +34,8 @@ public interface FirmwareManagementOptions {
     void delete();
 
     long getVersion();
+
+    boolean isActivated(FirmwareCheckManagementOption checkManagementOption);
 
     EnumSet<FirmwareStatus> getTargetFirmwareStatuses(FirmwareCheckManagementOption checkManagementOption);
 }
