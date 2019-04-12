@@ -41,6 +41,7 @@ import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -154,6 +155,7 @@ public class InMemoryIntegrationPersistence {
     private Injector injector;
     private IssueService issueService;
     private DeviceLifeCycleChangeEventHandler deviceLifeCycleChangeEventHandler;
+    private DataModel dataModel;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -223,6 +225,7 @@ public class InMemoryIntegrationPersistence {
                 new CalendarModule(),
                 new PkiModule(),
                 new MeteringZoneModule());
+        when(dataModel.getInstance(any())).thenAnswer(invocationOnMock -> injector.getInstance(invocationOnMock.getArgumentAt(0, Class.class)));
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.transactionService = this.injector.getInstance(TransactionService.class);
@@ -291,6 +294,7 @@ public class InMemoryIntegrationPersistence {
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.issueService = mock(IssueService.class);
+        this.dataModel = mock(DataModel.class);
     }
 
     public BundleContext getBundleContext() {
@@ -376,11 +380,11 @@ public class InMemoryIntegrationPersistence {
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
-
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
             bind(StateTransitionPropertiesProvider.class).toInstance(mock(StateTransitionPropertiesProvider.class));
             bind(HttpAuthenticationService.class).toInstance(mock(HttpAuthenticationService.class));
+            bind(DataModel.class).toInstance(dataModel);
         }
     }
 

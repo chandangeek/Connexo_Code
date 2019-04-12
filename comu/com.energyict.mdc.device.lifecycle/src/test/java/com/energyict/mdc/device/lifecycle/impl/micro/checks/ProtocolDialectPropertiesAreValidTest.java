@@ -1,18 +1,18 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
 import java.time.Instant;
@@ -31,10 +31,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ProtocolDialectPropertiesAreValid} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-16 (14:03)
+ * Tests the {@link ProtocolDialectPropertiesAreValid} component
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ProtocolDialectPropertiesAreValidTest {
@@ -42,8 +39,7 @@ public class ProtocolDialectPropertiesAreValidTest {
     private static final String DIALECT1_NAME = "One";
     private static final String DIALECT2_NAME = "Two";
 
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties1;
     @Mock
@@ -58,6 +54,8 @@ public class ProtocolDialectPropertiesAreValidTest {
     private DeviceConfiguration deviceConfiguration;
     @Mock
     private Device device;
+    @Mock
+    private State state;
 
     @Before
     public void initializeMocks() {
@@ -81,7 +79,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -99,11 +97,11 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -123,7 +121,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -144,14 +142,16 @@ public class ProtocolDialectPropertiesAreValidTest {
         ProtocolDialectPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
     }
 
     public ProtocolDialectPropertiesAreValid getTestInstance() {
-        return new ProtocolDialectPropertiesAreValid(this.thesaurus);
+        ProtocolDialectPropertiesAreValid protocolDialectPropertiesAreValid =
+                new ProtocolDialectPropertiesAreValid();
+        protocolDialectPropertiesAreValid.setThesaurus(this.thesaurus);
+        return protocolDialectPropertiesAreValid;
     }
-
 }

@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests;
 
 import com.elster.jupiter.fsm.State;
@@ -25,11 +24,11 @@ public class AuthorizedActionRequestFactory {
         this.resourceHelper = resourceHelper;
     }
 
-    private StateTransitionEventType getEventType(){
+    private StateTransitionEventType getEventType() {
         return resourceHelper.findStateTransitionEventType(this.info.getEventTypeSymbol()).orElse(null);
     }
 
-    private boolean isComplexChanges(AuthorizedTransitionAction transitionAction, AuthorizedActionInfo info){
+    private boolean isComplexChanges(AuthorizedTransitionAction transitionAction, AuthorizedActionInfo info) {
         Optional<String> specialTransitionName = transitionAction.getStateTransition().getName();
         return (!specialTransitionName.isPresent() || !specialTransitionName.get().equals(info.name))
                 || fromStateChanged(transitionAction, info)
@@ -49,16 +48,16 @@ public class AuthorizedActionRequestFactory {
         return state.getId() != stateId;
     }
 
-    private boolean triggerByChanged(AuthorizedTransitionAction transitionAction, AuthorizedActionInfo info){
+    private boolean triggerByChanged(AuthorizedTransitionAction transitionAction, AuthorizedActionInfo info) {
         String newEventType = info.getEventTypeSymbol();
         return newEventType != null && !transitionAction.getStateTransition().getEventType().getSymbol().equals(newEventType);
     }
 
-    public AuthorizedActionChangeRequest from(DeviceLifeCycle deviceLifeCycle, AuthorizedActionInfo info, Operation operation){
+    public AuthorizedActionChangeRequest from(DeviceLifeCycle deviceLifeCycle, AuthorizedActionInfo info, Operation operation) {
         Objects.requireNonNull(deviceLifeCycle);
         Objects.requireNonNull(info);
         Objects.requireNonNull(operation);
-        if (info.id > 0){
+        if (info.id > 0) {
             this.authorizedAction = this.resourceHelper.lockAuthorizedActionOrThrowException(info);
         }
         this.deviceLifeCycle = deviceLifeCycle;
@@ -98,9 +97,10 @@ public class AuthorizedActionRequestFactory {
                 }
             }
         },
+
         ;
 
-        AuthorizedActionChangeRequest getRequest(AuthorizedActionRequestFactory factory){
+        AuthorizedActionChangeRequest getRequest(AuthorizedActionRequestFactory factory) {
             return new AuthorizedActionUnsupportedRequest();
         }
     }
