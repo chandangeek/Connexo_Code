@@ -54,4 +54,5 @@ public interface TimeOfUseCampaign {
 
     long getId();
 
+    boolean isWithUniqueCalendarName();
 }

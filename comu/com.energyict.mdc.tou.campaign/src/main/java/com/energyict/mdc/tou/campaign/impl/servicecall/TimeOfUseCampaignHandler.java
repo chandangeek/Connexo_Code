@@ -8,10 +8,12 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.EventHandler;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
@@ -23,10 +25,10 @@ import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
-import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
+import java.security.Principal;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
@@ -46,15 +48,19 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
     private Clock clock;
     private ServiceCallService serviceCallService;
     private Thesaurus thesaurus;
+    private ThreadPrincipalService threadPrincipalService;
+    private TransactionService transactionService;
 
     @Inject
     public TimeOfUseCampaignHandler(TimeOfUseCampaignServiceImpl timeOfUseCampaignService, Clock clock, ServiceCallService serviceCallService,
-                                    Thesaurus thesaurus) {
+                                    Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, TransactionService transactionService) {
         super(LocalEvent.class);
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.serviceCallService = serviceCallService;
         this.clock = clock;
         this.thesaurus = thesaurus;
+        this.threadPrincipalService = threadPrincipalService;
+        this.transactionService = transactionService;
     }
 
     @Override
@@ -73,7 +79,11 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                 processEvent(event, this::onComTaskFailed);
                 break;
             case TOU_CAMPAIGN_EDITED:
-                CompletableFuture.runAsync(() -> timeOfUseCampaignService.editCampaignItems((TimeOfUseCampaign) event.getSource()), Executors.newSingleThreadExecutor());
+                Principal principal = threadPrincipalService.getPrincipal();
+                CompletableFuture.runAsync(() -> {
+                    threadPrincipalService.set(principal);
+                    transactionService.run(() -> timeOfUseCampaignService.editCampaignItems((TimeOfUseCampaign) event.getSource()));
+                }, Executors.newSingleThreadExecutor());
                 break;
             default:
                 break;
@@ -112,7 +122,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
             Optional<TimeOfUseCampaign> timeOfUseCampaignOptional = timeOfUseCampaignService.getCampaignOn(comTaskExecution);
             if (timeOfUseCampaignOptional.isPresent()) {
                 TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignOptional.get();
-                if (isWithVerification(timeOfUseCampaign)) {
+                if (timeOfUseCampaignService.isWithVerification(timeOfUseCampaign)) {
                     ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
                     if (serviceCall.getExtension(TimeOfUseItemDomainExtension.class)
                             .flatMap(TimeOfUseItemDomainExtension::getDeviceMessage)
@@ -143,7 +153,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                             .filter(deviceMessageStatus -> deviceMessageStatus.equals(DeviceMessageStatus.CONFIRMED))
                             .isPresent()) {
                         ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
-                        if (!isWithVerification(timeOfUseCampaign)) {
+                        if (!timeOfUseCampaignService.isWithVerification(timeOfUseCampaign)) {
                             serviceCallService.lockServiceCall(serviceCall.getId());
                             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                             timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.CALENDAR_INSTALLATION_COMPLETED, LogLevel.INFO);
@@ -168,7 +178,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
             Optional<TimeOfUseCampaign> timeOfUseCampaignOptional = timeOfUseCampaignService.getCampaignOn(comTaskExecution);
             if (timeOfUseCampaignOptional.isPresent()) {
                 TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignOptional.get();
-                if (isWithVerification(timeOfUseCampaign)) {
+                if (timeOfUseCampaignService.isWithVerification(timeOfUseCampaign)) {
                     if (comTaskExecution.getDevice().calendars().getActive().isPresent()) {
                         ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
                         if (serviceCall.getExtension(TimeOfUseItemDomainExtension.class)
@@ -232,7 +242,6 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                 }
             }
         }
-
     }
 
     private boolean plannedCalendarIsOnCampaign(Device device, TimeOfUseCampaign timeOfUseCampaign) {
@@ -297,9 +306,5 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
             timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.ACTIVE_VERIFICATION_TASK_ISNT_FOUND, LogLevel.WARNING);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
-    }
-
-    private boolean isWithVerification(TimeOfUseCampaign timeOfUseCampaign) {
-        return timeOfUseCampaign.getActivationOption().equals(TranslationKeys.IMMEDIATELY.getKey());
     }
 }

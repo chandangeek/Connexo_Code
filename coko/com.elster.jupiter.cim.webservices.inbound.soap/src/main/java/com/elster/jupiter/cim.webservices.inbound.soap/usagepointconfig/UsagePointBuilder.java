@@ -752,11 +752,17 @@ class UsagePointBuilder {
 
     private UsagePointMetrologyConfiguration retrieveMetrologyConfigurationDefault(String usagePointMetrologyConfigurationName) throws
             FaultMessage {
-        return metrologyConfigurationService.findMetrologyConfiguration(usagePointMetrologyConfigurationName)
+        UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(usagePointMetrologyConfigurationName)
                 .filter(UsagePointMetrologyConfiguration.class::isInstance)
                 .map(UsagePointMetrologyConfiguration.class::cast)
                 .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
                         MessageSeeds.NO_METROLOGY_CONFIGURATION_WITH_NAME, usagePointMetrologyConfigurationName));
+        if (metrologyConfiguration.isActive()) {
+            return metrologyConfiguration;
+        } else {
+            throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                    MessageSeeds.NO_ACTIVE_METROLOGY_CONFIGURATION_WITH_NAME, usagePointMetrologyConfigurationName).get();
+        }
     }
 
     private <T> T retrieveMandatoryParameter(String element, Supplier<T> supplier) throws FaultMessage {

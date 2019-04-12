@@ -3,44 +3,13 @@
  */
 
 Ext.define('Cal.view.PreviewForm', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Uni.view.calendar.TimeOfUsePreview',
     frame: false,
     alias: 'widget.tou-preview-form',
-    layout: {
-        type: 'column'
-    },
 
     initComponent: function () {
         var me = this;
 
-        me.items = {
-            xtype: 'form',
-            defaults: {
-                labelWidth: 250
-            },
-            items: [
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: Uni.I18n.translate('general.startOfCalculations', 'CAL', 'Start of calculations'),
-                    name: 'startYear'
-                },
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.periods', 'CAL', 'Periods'),
-                    itemId: 'periodField'
-                },
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.dayTypes', 'CAL', 'Day types'),
-                    itemId: 'dayTypesField'
-                },
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.eventTypes', 'CAL', 'Event types'),
-                    itemId: 'tariffsField'
-                }
-            ]
-        };
         me.callParent(arguments);
     },
 
@@ -48,7 +17,7 @@ Ext.define('Cal.view.PreviewForm', {
         var me = this;
         Ext.suspendLayouts();
 
-        me.down('form').loadRecord(calendarRecord);
+        me.loadRecord(calendarRecord);
 
         me.down('#periodField').removeAll();
         calendarRecord.periods().each(function (record) {
@@ -84,6 +53,8 @@ Ext.define('Cal.view.PreviewForm', {
                 }
             );
         });
+
+        me.renderSpecialDays(calendarRecord);
         me.doComponentLayout();
         Ext.resumeLayouts(true);
         me.updateLayout();
@@ -105,13 +76,4 @@ Ext.define('Cal.view.PreviewForm', {
             return response;
         }
     },
-
-    calculateDate: function (month, day) {
-        var date = new Date();
-        date.setMonth(month - 1);
-        date.setDate(day);
-
-        return Ext.util.Format.date(date, 'j F')
-    }
-
 });

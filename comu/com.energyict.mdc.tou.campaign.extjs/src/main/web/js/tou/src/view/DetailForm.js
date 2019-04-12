@@ -60,7 +60,7 @@ Ext.define('Tou.view.DetailForm', {
                         renderer: function (value) {
                             return value && value.id ? '<a href="' + me.router.getRoute('administration/devicetypes/view').buildUrl({
                                 deviceTypeId: value.id
-                            }) + '">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
+                            }) + '/timeofuse">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
                         }
                     }, {
                         itemId: 'activation-field',
@@ -71,7 +71,7 @@ Ext.define('Tou.view.DetailForm', {
                             var res = '-';
                             if (value) {
                                 var dateEndValue = this.up('tou-campaigns-detail-form').getRecord().data.activationEnd;
-                                res = 'Between ' + Uni.DateTime.formatDateTimeShort(value) + ' and ' + (dateEndValue ? Uni.DateTime.formatDateTimeShort(dateEndValue) : '-');
+                                res = 'Between ' + Uni.DateTime.formatDateTimeShort(value/1000) + ' and ' + (dateEndValue ? Uni.DateTime.formatDateTimeShort(dateEndValue/1000) : '-');
                             }
                             return res;
                         }
@@ -154,6 +154,20 @@ Ext.define('Tou.view.DetailForm', {
                             }
                             return res;
                         }
+                    }, {
+                        itemId: 'unique-calendar-name-field',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.uniqueCalendarName',
+                            'TOU',
+                            'Upload with unique calendar name'
+                        ),
+                        renderer: function (item) {
+                            return item
+                                ? Uni.I18n.translate('general.yes', 'TOU', 'Yes')
+                                : Uni.I18n.translate('general.no', 'TOU', 'No');
+                        },
+                        name: 'withUniqueCalendarName',
                     }
                 ]
             }, {
@@ -192,10 +206,10 @@ Ext.define('Tou.view.DetailForm', {
                                 case 'Pending':
                                     iconCls = 'icon-forward2';
                                     break;
-                                case 'Configuration Error':
+                                case 'Configuration error':
                                     iconCls = 'icon-notification';
                                     break;
-                                case 'Canceled':
+                                case 'Cancelled':
                                     iconCls = 'icon-blocked';
                                     break;
                                 }

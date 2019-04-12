@@ -64,12 +64,13 @@ public class TimeOfUseSendHelper {
     }
 
     public void setCalendarOnDevice(Device device, ServiceCall serviceCall) {
+        timeOfUseCampaignService.revokeCalendarsCommands(device);
         TimeOfUseCampaign timeOfUseCampaign =
                 serviceCall.getParent()
                         .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.SERVICE_CALL_PARENT_NOT_FOUND))
                         .getExtension(TimeOfUseCampaignDomainExtension.class)
                         .orElse(null);
-        if (timeOfUseCampaign.getActivationOption().equals(TranslationKeys.IMMEDIATELY.getKey())) {
+        if (timeOfUseCampaignService.isWithVerification(timeOfUseCampaign)) {
             if (!timeOfUseCampaignService.getActiveVerificationTask(device).isPresent()) {
                 serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_DOESNT_CONTAIN_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG).format());
                 if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {

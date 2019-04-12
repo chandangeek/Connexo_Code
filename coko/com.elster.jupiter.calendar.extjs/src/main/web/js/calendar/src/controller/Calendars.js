@@ -55,17 +55,17 @@ Ext.define('Cal.controller.Calendars', {
     showPreview: function (selectionModel, record) {
         var me = this,
             preview = me.getPreview(),
-            previewForm = preview.down('tou-preview-form'),
+            previewForm = preview.down('#tou-grid-preview-form'),
             model = Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar');
 
         model.getProxy().setUrl('/api/cal/calendars');
         previewForm.setLoading(true);
         Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar').load(record.get('id'), {
-           success: function (calendar) {
-               previewForm.fillFieldContainers(calendar);
-               previewForm.setLoading(false);
-           },
-            failure: function() {
+            success: function (calendar) {
+                previewForm.fillFieldContainers(calendar);
+                previewForm.setLoading(false);
+            },
+            failure: function () {
                 previewForm.setLoading(false);
             }
         });
@@ -132,7 +132,7 @@ Ext.define('Cal.controller.Calendars', {
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('calendar.remove.success.msg', 'CAL', 'Calendar removed'));
                                 var grid = me.getTimeOfUseGrid();
                                 grid.down('pagingtoolbartop').totalCount = 0;
-                                
+
                                 grid.getStore().load();
                             }
                         });

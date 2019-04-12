@@ -5,10 +5,11 @@
 package com.elster.jupiter.util.collections;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,27 +21,21 @@ public class KPermutationTest extends EqualsContractTest {
 
     @Test
     public void testPerformTrivial() throws Exception {
-
         KPermutation variation = new KPermutation(1, 4, 13, 8, 18, 14, 13);
 
         assertThat(variation.perform(ALPHABET)).isEqualTo(Arrays.asList('b', 'e', 'n', 'i', 's', 'o', 'n'));
-
     }
 
     @Test
     public void testPerformFillsNullsForIllegalIndices() throws Exception {
-
         KPermutation variation = new KPermutation(1, 4, 13, 8, 29, 14, 13);
 
         assertThat(variation.perform(ALPHABET)).isEqualTo(Arrays.asList('b', 'e', 'n', 'i', null, 'o', 'n'));
-
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void disallowNegativeIndices() throws Exception {
-
-        KPermutation variation = new KPermutation(1, 4, 13, 8, -1, 14, 13);
-
+        new KPermutation(1, 4, 13, 8, -1, 14, 13);
     }
 
     @Test
@@ -93,7 +88,6 @@ public class KPermutationTest extends EqualsContractTest {
         List<Character> kpermutated = kpermutation.perform(characters);
 
         assertThat(KPermutation.of(characters, kpermutated)).isEqualTo(kpermutation);
-
     }
 
     @Test
@@ -102,7 +96,6 @@ public class KPermutationTest extends EqualsContractTest {
         long[] kpermutated = new long[] {4, 3, 0, 2};
 
         assertThat(KPermutation.of(numbers, kpermutated)).isEqualTo(new KPermutation(4, 3, 0, 2));
-
     }
 
     @Test
@@ -136,20 +129,16 @@ public class KPermutationTest extends EqualsContractTest {
         KPermutation kpermutation = new KPermutation(4, 3, 0, 2);
         List<Character> kpermutated = kpermutation.perform(characters);
 
-        KPermutation result = KPermutation.of(kpermutated, characters);
-
+        KPermutation.of(kpermutated, characters);
     }
 
     @Test
     public void testKPermutationAndThen() {
-        List<Character> characters = Arrays.asList('a', 'b', 'c', 'd', 'e', 'f');
         KPermutation kpermutation = new KPermutation(4, 3, 0, 2); //edac
         KPermutation second = new KPermutation(2, 1, 3); //adc
 
         assertThat(kpermutation.andThen(second)).isEqualTo(new KPermutation(0, 3, 2));
-
     }
-
 
     @Override
     protected Object getInstanceA() {

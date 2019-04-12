@@ -12,6 +12,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -28,6 +29,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
@@ -40,12 +42,15 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
+import com.energyict.mdc.firmware.FirmwareCheck;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
@@ -71,12 +76,16 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -87,13 +96,16 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -122,6 +134,9 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private volatile PropertySpecService propertySpecService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile UpgradeService upgradeService;
+    private volatile TopologyService topologyService;
+
+    private List<FirmwareCheck> firmwareChecks = new CopyOnWriteArrayList<>();
 
     // For OSGI
     public FirmwareServiceImpl() {
@@ -142,7 +157,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                                UserService userService,
                                CommunicationTaskService communicationTaskService,
                                PropertySpecService propertySpecService,
-                               UpgradeService upgradeService) {
+                               UpgradeService upgradeService,
+                               TopologyService topologyService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -158,6 +174,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         setCommunicationTaskService(communicationTaskService);
         setPropertySpecService(propertySpecService);
         setUpgradeService(upgradeService);
+        setTopologyService(topologyService);
         activate();
     }
 
@@ -186,6 +203,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         this.upgradeService = upgradeService;
     }
 
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
+
     @Override
     public Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType) {
         return deviceType.getDeviceProtocolPluggableClass()
@@ -197,6 +219,39 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                         .map(Optional::get)
                         .collect(Collectors.toSet()))
                 .orElse(Collections.emptySet());
+    }
+
+    public boolean isFirmwareCheckActivatedForStatus(DeviceType deviceType, FirmwareCheckManagementOption checkManagementOption, FirmwareStatus firmwareStatus) {
+        return findFirmwareManagementOptions(deviceType)
+                .map(firmwareManagementOptions -> firmwareManagementOptions.getTargetFirmwareStatuses(checkManagementOption))
+                .filter(statuses -> statuses.contains(firmwareStatus))
+                .isPresent();
+    }
+
+    public boolean isFirmwareTypeSupported(DeviceType deviceType, FirmwareType firmwareType) {
+        switch (firmwareType) {
+            case METER:
+                return true;
+            case COMMUNICATION:
+                return deviceType.getDeviceProtocolPluggableClass()
+                        .map(DeviceProtocolPluggableClass::getDeviceProtocol)
+                        .filter(DeviceProtocol::supportsCommunicationFirmwareVersion)
+                        .isPresent();
+            case CA_CONFIG_IMAGE:
+                return deviceType.getDeviceProtocolPluggableClass()
+                        .map(DeviceProtocolPluggableClass::getDeviceProtocol)
+                        .filter(DeviceProtocol::supportsCaConfigImageVersion)
+                        .isPresent();
+            default:
+                throw new IllegalArgumentException("Unknown firmware type!");
+        }
+    }
+
+    @Override
+    public EnumSet<FirmwareType> getSupportedFirmwareTypes(DeviceType deviceType) {
+        return Arrays.stream(FirmwareType.values())
+                .filter(firmwareType -> isFirmwareTypeSupported(deviceType, firmwareType))
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(FirmwareType.class)));
     }
 
     @Override
@@ -228,20 +283,23 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
             if (firmwareVersion != null) {
                 return deviceMessageIdList.stream()
                         .filter(deviceMessageId -> this.validateImageIdentifier(deviceMessageId, firmwareVersion.getImageIdentifier()))
-                        .findFirst();
+                        .findFirst()
+                        .map(Optional::of)
+                        .orElseGet(deviceMessageIdList.stream()::findFirst);
             } else {
                 // If an image identifier message is present, get that first. See CXO-7821 for more details
-                Optional<DeviceMessageId> messageIdOptional = deviceMessageIdList.stream()
-                        .filter(DeviceMessageId.needsImageIdentifier()::contains)
-                        .findFirst();
-                return messageIdOptional.isPresent() ? messageIdOptional : deviceMessageIdList.stream().findFirst();
+                return deviceMessageIdList.stream()
+                        .filter(deviceMessageSpecificationService::needsImageIdentifierAtFirmwareUpload)
+                        .findFirst()
+                        .map(Optional::of)
+                        .orElseGet(deviceMessageIdList.stream()::findFirst);
             }
         }
         return Optional.empty();
     }
 
     private boolean validateImageIdentifier(DeviceMessageId deviceMessageId, String imageIdentifier) {
-        return (imageIdentifier != null) == DeviceMessageId.needsImageIdentifier().contains(deviceMessageId);
+        return (imageIdentifier != null) == deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(deviceMessageId);
     }
 
     private List<DeviceMessageId> getDeviceMessageIdList(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOption) {
@@ -270,16 +328,18 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         }
         Condition condition = where(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(filter.getDeviceType());
         if (!filter.getFirmwareStatuses().isEmpty()) {
-            condition = condition.and(createMultipleConditions(filter.getFirmwareStatuses(), FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()));
+            condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).in(filter.getFirmwareStatuses()));
         }
         if (!filter.getFirmwareVersions().isEmpty()) {
-            condition = condition.and(createMultipleConditions(filter.getFirmwareVersions(), FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName()));
+            condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName()).in(filter.getFirmwareVersions()));
         }
         if (!filter.getFirmwareTypes().isEmpty()) {
-            condition = condition.and(createMultipleConditions(filter.getFirmwareTypes(), FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()));
+            condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).in(filter.getFirmwareTypes()));
         }
-
-        return DefaultFinder.of(FirmwareVersion.class, condition, dataModel).sorted("lower(firmwareVersion)", false);
+        if (!Range.<Integer>all().equals(filter.getRankRange())) {
+            condition = condition.and(where(FirmwareVersionImpl.Fields.RANK.fieldName()).in(filter.getRankRange()));
+        }
+        return DefaultFinder.of(FirmwareVersion.class, condition, dataModel).sorted(FirmwareVersionImpl.Fields.RANK.fieldName(), false);
     }
 
     Finder<ActivatedFirmwareVersion> findActivatedFirmwareVersion(Condition condition) {
@@ -288,14 +348,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     Finder<PassiveFirmwareVersion> findPassiveFirmwareVersion(Condition condition) {
         return DefaultFinder.of(PassiveFirmwareVersion.class, condition, dataModel);
-    }
-
-    private <T> Condition createMultipleConditions(List<T> params, String conditionField) {
-        Condition condition = Condition.FALSE;
-        for (T value : params) {
-            condition = condition.or(where(conditionField).isEqualTo(value));
-        }
-        return condition;
     }
 
     @Override
@@ -320,6 +372,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return new FirmwareVersionImpl.FirmwareVersionImplBuilder(dataModel.getInstance(FirmwareVersionImpl.class), deviceType, firmwareVersion, status, type);
     }
 
+    @Override
     public FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type, String imageIdentifier) {
         return new FirmwareVersionImpl.FirmwareVersionImplBuilder(dataModel.getInstance(FirmwareVersionImpl.class), deviceType, firmwareVersion, status, type, imageIdentifier);
     }
@@ -376,7 +429,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         if (firmwareType != null) {
             condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).isEqualTo(firmwareType));
         }
-        return dataModel.mapper(FirmwareVersion.class).select(condition, Order.descending("lower(firmwareVersion)"));
+        return dataModel.mapper(FirmwareVersion.class).select(condition, Order.descending(FirmwareVersionImpl.Fields.RANK.fieldName()));
     }
 
     private boolean isBeaconType(Device device) {
@@ -478,7 +531,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Override
     public boolean cancelFirmwareUploadForDevice(Device device) {
         Optional<ComTaskExecution> fwComTaskExecution = getFirmwareComtaskExecution(device);
-        return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution);
+        return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution.get());
     }
 
     public void resumeFirmwareUploadForDevice(Device device) {
@@ -508,7 +561,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         // As revoking the message leads to canceling the deviceInFirmwareCampaign : see FirmwareCampaignHandler
     }
 
-
     @Override
     public boolean retryFirmwareUploadForDevice(DeviceInFirmwareCampaign deviceInFirmwareCampaign) {
         if (deviceInFirmwareCampaign.getFirmwareCampaign().getStatus() != FirmwareCampaignStatus.ONGOING) {
@@ -518,7 +570,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         if (!deviceInFirmwareCampaign.getStatus().canTransitToStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING)) {
             throw RetryDeviceInFirmwareCampaignExceptions.transitionToPendingStateImpossible(this.thesaurus, deviceInFirmwareCampaign);
         }
-        ((DeviceInFirmwareCampaignImpl) deviceInFirmwareCampaign).retryFirmwareProces();
+        ((DeviceInFirmwareCampaignImpl) deviceInFirmwareCampaign).retryFirmwareProcess();
         return true;
     }
 
@@ -534,11 +586,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         }
     }
 
-    private boolean cancelFirmwareUpload(Optional<ComTaskExecution> fwComTaskExecution) {
-        ComTaskExecution comTaskExecution1 = fwComTaskExecution.get();
-        if (comTaskExecution1.getNextExecutionTimestamp() != null) {
-            comTaskExecution1.schedule(null);
-            cancelPendingFirmwareMessages(comTaskExecution1.getDevice());
+    private boolean cancelFirmwareUpload(ComTaskExecution fwComTaskExecution) {
+        if (fwComTaskExecution.getNextExecutionTimestamp() != null) {
+            fwComTaskExecution.schedule(null);
+            cancelPendingFirmwareMessages(fwComTaskExecution.getDevice());
             return true;
         } else {
             return false;
@@ -633,8 +684,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 DeviceMessageId.FIRMWARE_UPGRADE_URL_ACTIVATE_IMMEDIATE,
                 DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE
         )
-                .filter(firmwareDeviceMessage -> firmwareDeviceMessage.equals(deviceDeviceMessage.getDeviceMessageId()))
-                .findAny().isPresent();
+                .anyMatch(firmwareDeviceMessage -> firmwareDeviceMessage.equals(deviceDeviceMessage.getDeviceMessageId()));
     }
 
     @Activate
@@ -644,6 +694,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 @Override
                 protected void configure() {
                     bind(DataModel.class).toInstance(dataModel);
+                    bind(FirmwareServiceImpl.class).toInstance(FirmwareServiceImpl.this);
                     bind(FirmwareService.class).toInstance(FirmwareServiceImpl.this);
                     bind(MessageInterpolator.class).toInstance(thesaurus);
                     bind(Thesaurus.class).toInstance(thesaurus);
@@ -657,6 +708,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(MessageService.class).toInstance(messageService);
                     bind(UserService.class).toInstance(userService);
                     bind(PropertySpecService.class).toInstance(propertySpecService);
+                    bind(TopologyService.class).toInstance(topologyService);
                 }
             });
             upgradeService.register(
@@ -666,8 +718,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     ImmutableMap.of(
                             version(10, 2), UpgraderV10_2.class,
                             version(10, 4), V10_4SimpleUpgrader.class,
-                            version(10, 4, 1), V10_4_1SimpleUpgrader.class
+                            version(10, 4, 1), V10_4_1SimpleUpgrader.class,
+                            version(10, 6), UpgraderV10_6.class
                     ));
+            addFirmwareCheck(dataModel.getInstance(NoGhostFirmwareCheck.class));
+            addFirmwareCheck(dataModel.getInstance(MinimumLevelFirmwareCheck.class));
+            addFirmwareCheck(dataModel.getInstance(NoDowngradeFirmwareCheck.class));
+            addFirmwareCheck(dataModel.getInstance(MasterHasLatestFirmwareCheck.class));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -676,6 +733,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Deactivate
     public final void deactivate() {
+        firmwareChecks.clear();
     }
 
     @Reference
@@ -747,7 +805,9 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 Privileges.values(),
                 PropertyTranslationKeys.values(),
                 TranslationKeys.values(),
-                FirmwareType.values()
+                FirmwareType.values(),
+                new TranslationKey[]{FirmwareCheck.CHECK_PREFIX},
+                FirmwareCheckTranslationKeys.values()
         )
                 .flatMap(Arrays::stream)
                 .collect(Collectors.toList());
@@ -767,4 +827,54 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return new DeviceFirmwareHistoryImpl(this, device);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addFirmwareCheck(FirmwareCheck firmwareCheck) {
+        firmwareChecks.add(firmwareCheck);
+    }
+
+    public void removeFirmwareCheck(FirmwareCheck firmwareCheck) {
+        firmwareChecks.remove(firmwareCheck);
+    }
+
+    @Override
+    public Stream<FirmwareCheck> getFirmwareChecks() {
+        return firmwareChecks.stream();
+    }
+
+    public Optional<FirmwareVersion> getMaximumFirmware(DeviceType deviceType, Set<FirmwareType> accountedTypes) {
+        return dataModel.stream(FirmwareVersion.class)
+                .filter(where(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType))
+                .filter(where(FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).in(ImmutableList.copyOf(accountedTypes)))
+                .max(FirmwareVersionImpl.Fields.RANK.fieldName());
+    }
+
+    @Override
+    public List<FirmwareVersionImpl> getOrderedFirmwareVersions(DeviceType deviceType) {
+        return dataModel.stream(FirmwareVersionImpl.class)
+                .filter(where(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(deviceType))
+                .sorted(Order.descending(FirmwareVersionImpl.Fields.RANK.fieldName()))
+                .select();
+    }
+
+    @Override
+    public void reorderFirmwareVersions(DeviceType deviceType, KPermutation kPermutation) {
+        List<FirmwareVersionImpl> currentFirmwaresOrder = getOrderedFirmwareVersions(deviceType);
+        if (!kPermutation.isPermutation(currentFirmwaresOrder)) {
+            throw new LocalizedException(thesaurus, MessageSeeds.INVALID_FIRMWARE_VERSIONS_PERMUTATION) {};
+        }
+        List<FirmwareVersionImpl> target = kPermutation.perform(currentFirmwaresOrder);
+        int size = target.size();
+        List<FirmwareVersionImpl> toUpdate = new ArrayList<>();
+        for (int i = 0; i < size; ++i) {
+            int rank = size - i;
+            FirmwareVersionImpl item = target.get(i);
+            if (rank != item.getRank()) {
+                item.setRank(rank);
+                toUpdate.add(item);
+            }
+        }
+        dataModel.mapper(FirmwareVersionImpl.class).update(toUpdate, FirmwareVersionImpl.Fields.RANK.fieldName());
+        // need to validate the operation after changing ranks because objects are re-read from DB for validation
+        dataModel.getInstance(FirmwareDependenciesValidator.class).validateDependencyRanks(toUpdate);
+    }
 }

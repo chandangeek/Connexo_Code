@@ -10,12 +10,14 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
+import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.LinkedHashSet;
+import java.util.EnumSet;
 import java.util.Set;
 
 @FirmwareManagementOptionHasAtLeastOneOption(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -25,7 +27,11 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
         DEVICETYPE("deviceType"),
         INSTALL("install"),
         ACTIVATE("activate"),
-        ACTIVATEONDATE("activateOnDate");
+        ACTIVATEONDATE("activateOnDate"),
+        CHK_CURRENT_FW_FOR_FINAL("checkCurrentFirmwareForFinalFirmwareUpload"),
+        CHK_CURRENT_FW_FOR_TEST("checkCurrentFirmwareForTestFirmwareUpload"),
+        CHK_MASTER_FW_FOR_FINAL("checkMasterFirmwareForFinalFirmwareUpload"),
+        CHK_MASTER_FW_FOR_TEST("checkMasterFirmwareForTestFirmwareUpload");
 
         private final String javaFieldName;
 
@@ -38,12 +44,16 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
         }
     }
 
-
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceType> deviceType = ValueReference.absent();
     private boolean install;
     private boolean activate;
     private boolean activateOnDate;
+
+    private boolean checkCurrentFirmwareForFinalFirmwareUpload;
+    private boolean checkCurrentFirmwareForTestFirmwareUpload;
+    private boolean checkMasterFirmwareForFinalFirmwareUpload;
+    private boolean checkMasterFirmwareForTestFirmwareUpload;
 
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -68,7 +78,7 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
 
     @Override
     public Set<ProtocolSupportedFirmwareOptions> getOptions() {
-        Set<ProtocolSupportedFirmwareOptions> allowedOptions = new LinkedHashSet<>();
+        Set<ProtocolSupportedFirmwareOptions> allowedOptions = EnumSet.noneOf(ProtocolSupportedFirmwareOptions.class);
         if (install) {
             allowedOptions.add(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
         }
@@ -79,6 +89,32 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
             allowedOptions.add(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
         return allowedOptions;
+    }
+
+    @Override
+    public EnumSet<FirmwareStatus> getTargetFirmwareStatuses(FirmwareCheckManagementOption checkManagementOption) {
+        EnumSet<FirmwareStatus> statuses = EnumSet.noneOf(FirmwareStatus.class);
+        switch (checkManagementOption) {
+            case CURRENT_FIRMWARE_CHECK:
+                if (checkCurrentFirmwareForFinalFirmwareUpload) {
+                    statuses.add(FirmwareStatus.FINAL);
+                }
+                if (checkCurrentFirmwareForTestFirmwareUpload) {
+                    statuses.add(FirmwareStatus.TEST);
+                }
+                break;
+            case MASTER_FIRMWARE_CHECK:
+                if (checkMasterFirmwareForFinalFirmwareUpload) {
+                    statuses.add(FirmwareStatus.FINAL);
+                }
+                if (checkMasterFirmwareForTestFirmwareUpload) {
+                    statuses.add(FirmwareStatus.TEST);
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown firmware check management option!");
+        }
+        return statuses;
     }
 
     @Override
@@ -94,7 +130,7 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
     @Override
     public void setOptions(Set<ProtocolSupportedFirmwareOptions> allowedOptions) {
         clearOptions();
-        allowedOptions.stream().forEach(op -> {
+        allowedOptions.forEach(op -> {
             switch (op) {
                 case UPLOAD_FIRMWARE_AND_ACTIVATE_LATER:
                     this.install = true;
@@ -106,6 +142,22 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
                     this.activateOnDate = true;
             }
         });
+    }
+
+    @Override
+    public void activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption checkManagementOption, Set<FirmwareStatus> firmwareStatuses) {
+        switch (checkManagementOption) {
+            case CURRENT_FIRMWARE_CHECK:
+                checkCurrentFirmwareForFinalFirmwareUpload = firmwareStatuses.contains(FirmwareStatus.FINAL);
+                checkCurrentFirmwareForTestFirmwareUpload = firmwareStatuses.contains(FirmwareStatus.TEST);
+                break;
+            case MASTER_FIRMWARE_CHECK:
+                checkMasterFirmwareForFinalFirmwareUpload = firmwareStatuses.contains(FirmwareStatus.FINAL);
+                checkMasterFirmwareForTestFirmwareUpload = firmwareStatuses.contains(FirmwareStatus.TEST);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown firmware check management option!");
+        }
     }
 
     @Override
