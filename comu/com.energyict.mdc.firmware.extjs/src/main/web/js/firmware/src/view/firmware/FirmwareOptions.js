@@ -117,10 +117,10 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                     if (record && (record.get('checkOptions').length === 0 || record.get('isAllowed') === false)) {
                                         field.hide();
                                     } else {
-                                        var currentFirmwareCheck = value && value["CURRENT_FIRMWARE_CHECK"];
+                                        var currentFirmwareCheck;
                                         var masterFirmwareCheck = value && value["MASTER_FIRMWARE_CHECK"];
-                                        if ((!currentFirmwareCheck || !currentFirmwareCheck.activatedFor || !currentFirmwareCheck.activatedFor.length) &&
-                                            (!masterFirmwareCheck || !masterFirmwareCheck.activatedFor || !masterFirmwareCheck.activatedFor.length)){
+                                        //if ((!currentFirmwareCheck || !currentFirmwareCheck.activatedFor || !currentFirmwareCheck.activatedFor.length) &&
+                                        if  (!masterFirmwareCheck || !masterFirmwareCheck.activatedFor || !masterFirmwareCheck.activatedFor.length)){
                                             field.hide();
                                             return;
                                         }
