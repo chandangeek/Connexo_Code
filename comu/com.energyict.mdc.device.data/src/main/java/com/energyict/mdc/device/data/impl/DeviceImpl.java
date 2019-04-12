@@ -1057,7 +1057,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void store(MeterReading meterReading) {
-        this.meter.getOptional().ifPresent(meter -> meter.store(QualityCodeSystem.MDC, meterReading));
+        this.store(meterReading, null);
+    }
+
+    @Override
+    public void store(MeterReading meterReading, Instant readingDate) {
+        this.meter.getOptional().ifPresent(meter -> meter.store(QualityCodeSystem.MDC, meterReading, readingDate));
     }
 
     @Override

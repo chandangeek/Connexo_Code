@@ -179,6 +179,8 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_FUNCTION_UNIQUE(15028, Keys.CONNECTION_FUNCTION_UNIQUE, "The provided connection function is already used on another connection method"),
     COM_TASK_ENABLEMENT_CANNOT_USE_CONNECTION_FUNCTION_AND_PARTIAL_CONNECTION_TASK(15029, Keys.COM_TASK_ENABLEMENT_CANNOT_USE_CONNECTION_FUNCTION_AND_PARTIAL_CONNECTION_TASK, "When a partial connection task is specified, you can''t use the connection function"),
     VETO_SECURITY_ACCESSOR_TYPE_DELETION(15030, "securityAccessorTypeStillInUseByDeviceTypes", "The security accessor couldn''t be removed because it is still in use by the following device type(s): {0}"),
+    INVALID_NUMBER_OF_ARGUMENTS(9, "invalid.number.of.arguments", "Invalid number of arguments {0}, expected {1}", Level.SEVERE),
+    INVALID_ARGUMENT(10, "invalid.argument", "Invalid argument {0}", Level.SEVERE),
     SECURITY_ACCESSOR_TYPE_IS_NOT_FOUND(15031, "securityAccessorTypeIsNotFound", "The security accessor type ''{0}'' is not found"),
     SECURITY_ACCESSOR_TYPE_IS_NOT_HSM(15032, "securityAccessorTypeIsNotHSM", "The security accessor type ''{0}'' is not HSM")
     ;

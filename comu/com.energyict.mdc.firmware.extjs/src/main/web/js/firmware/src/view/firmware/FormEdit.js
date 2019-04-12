@@ -70,15 +70,14 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             fieldLabel: Uni.I18n.translate('firmware.field.status', 'FWC', 'Firmware status'),
             name: 'status'
         },
-            {
-                xtype: 'fieldcontainer',
-                layout: 'hbox',
-                flex: 1,
-                itemId: 'firmware-min-meter-version-common',
-                fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version meter firmware'),
-                items: [
-                        {
-                            xtype: 'combobox',
+        {
+            xtype: 'fieldcontainer',
+            layout: 'hbox',
+            flex: 1,
+            itemId: 'firmware-min-meter-version-common',
+            fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version meter firmware'),
+            items: [
+                       {    xtype: 'combobox',
                             itemId: 'firmware-min-meter-version',
                             allowBlank: false,
                             store: 'Fwc.store.MeterFirmwareDepependenciesEdit',
@@ -101,7 +100,18 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                                     var proxy = store.getProxy();
                                     store.getProxy().setUrl(versionId);
                                     store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'meter', property: 'firmwareType' }]));
+                                    var combobox = this;
                                     store.load(function (data) {
+                                        if ( !data || !data.length){
+                                            combobox.hide();
+                                            combobox.nextSibling('uni-default-button').hide();
+                                            combobox.up('fieldcontainer').add({
+                                                  xtype: 'displayfield',
+                                                  value: 'There are no firmwares files of this type uploaded to the device type',
+                                                  fieldStyle: 'color: red'
+                                            });
+                                            return;
+                                        }
                                         for (var iCnt = 0; iCnt < data.length; iCnt++){
                                             var item = data[iCnt];
                                             if (item.getId() === currMeterId) me.setValue(item);
@@ -157,6 +167,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                                     var versionId = formRecord.getId();
                                     var currCommunicationId;
                                     var curCommunicationVersion = formRecord.getCommunicationFirmwareDependency();
+                                    var combobox = this;
                                     if (curCommunicationVersion){
                                         currCommunicationId = curCommunicationVersion.getId();
                                     }
@@ -164,6 +175,16 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                                     store.getProxy().setUrl(versionId);
                                     store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'communication', property: 'firmwareType' }]));
                                     store.load(function (data) {
+                                        if ( !data || !data.length){
+                                            combobox.hide();
+                                            combobox.nextSibling('uni-default-button').hide();
+                                            combobox.up('fieldcontainer').add({
+                                                  xtype: 'displayfield',
+                                                  value: 'There are no firmwares files of this type uploaded to the device type',
+                                                  fieldStyle: 'color: red'
+                                            });
+                                            return;
+                                        }
                                         for (var iCnt = 0; iCnt < data.length; iCnt++){
                                             var item = data[iCnt];
                                             if (item.getId() === currCommunicationId) me.setValue(item);

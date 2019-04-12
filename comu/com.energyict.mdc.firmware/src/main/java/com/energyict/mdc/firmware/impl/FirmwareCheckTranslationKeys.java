@@ -8,9 +8,9 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum FirmwareCheckTranslationKeys implements TranslationKey {
     MINIMUM_LEVEL_FIRMWARE("MinimumLevelFirmware", "Minimum level firmware"),
-    NO_DOWNGRADE("NoDowngrade", "FW version has a higher ranking"),
+    NO_DOWNGRADE("NoDowngrade", "The target firmware version should have a higher rank than the current firmware version on the device"),
     MASTER_HAS_LATEST_FIRMWARE("MasterHasLatestFirmware", "Master has latest firmware"),
-    NO_GHOST_FIRMWARE("NoGhostFirmware", "Ghost firmware registered");
+    NO_GHOST_FIRMWARE("NoGhostFirmware", "No ghost firmware on device");
 
     private String key;
     private String name;

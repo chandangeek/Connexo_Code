@@ -1,66 +1,61 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
+import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link ServerMicroCheck} interface
- * that checks that there is a ComTaskExecution which has a schedule on the device.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-15 (09:28)
+ * Checks that there is a ComTaskExecution which has a schedule on the device
  */
 public class ScheduledCommunicationTaskAvailable extends TranslatableServerMicroCheck {
 
-    public ScheduledCommunicationTaskAvailable(Thesaurus thesaurus) {
-        super(thesaurus);
+    @Override
+    public String getCategory() {
+        return MicroCategory.COMMUNICATION.name();
     }
 
     @Override
-    protected MicroCheck getMicroCheck() {
-        return MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE;
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
+        return !anyManuallyScheduledCommunicationTask(device).isPresent() ?
+                fail(MicroCheckTranslations.Message.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE) :
+                Optional.empty();
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        if (!anyManuallyScheduledCommunicationTask(device).isPresent()) {
-            return Optional.of(
-                    new DeviceLifeCycleActionViolationImpl(
-                            this.thesaurus,
-                            MessageSeeds.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
-                            MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE));
-        }
-        else {
-            return Optional.empty();
-        }
+    public Set<DefaultTransition> getOptionalDefaultTransitions() {
+        return EnumSet.of(
+                DefaultTransition.COMMISSION,
+                DefaultTransition.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING,
+                DefaultTransition.INSTALL_INACTIVE_WITHOUT_COMMISSIONING,
+                DefaultTransition.INSTALL_AND_ACTIVATE,
+                DefaultTransition.INSTALL_INACTIVE,
+                DefaultTransition.ACTIVATE);
     }
 
     private Optional<ComTaskExecution> anyManuallyScheduledCommunicationTask(Device device) {
         return Stream.concat(
                 device
-                    .getComTaskExecutions()
-                    .stream()
-                    .filter(ComTaskExecution::isScheduledManually)
-                    .filter(Predicates.not(ComTaskExecution::isAdHoc)),
+                        .getComTaskExecutions()
+                        .stream()
+                        .filter(ComTaskExecution::isScheduledManually)
+                        .filter(Predicates.not(ComTaskExecution::isAdHoc)),
                 device
-                    .getComTaskExecutions()
-                    .stream()
-                    .filter(ComTaskExecution::usesSharedSchedule))
+                        .getComTaskExecutions()
+                        .stream()
+                        .filter(ComTaskExecution::usesSharedSchedule))
                 .findAny();
     }
-
 }

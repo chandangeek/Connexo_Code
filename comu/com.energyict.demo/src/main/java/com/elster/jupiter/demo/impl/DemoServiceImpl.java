@@ -705,12 +705,12 @@ public class DemoServiceImpl {
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
     }
+
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus("DLD", Layer.DOMAIN);
     }
-
 
     @Reference
     public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
