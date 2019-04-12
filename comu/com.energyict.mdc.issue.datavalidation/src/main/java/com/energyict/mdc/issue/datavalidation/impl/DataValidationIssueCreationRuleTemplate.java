@@ -22,6 +22,8 @@ import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
@@ -53,6 +55,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     //for OSGI
     public DataValidationIssueCreationRuleTemplate() {
@@ -60,13 +63,14 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
 
     @Inject
     public DataValidationIssueCreationRuleTemplate(IssueDataValidationService issueDataValidationIssueService, IssueService issueService,
-                                                   NlsService nlsService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService) {
+                                                   NlsService nlsService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         setIssueDataValidationService(issueDataValidationIssueService);
         setIssueService(issueService);
         setNlsService(nlsService);
         setPropertySpecService(propertySpecService);
         setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
     }
 
     @Override
@@ -134,6 +138,11 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         DeviceConfigurationInfo[] possibleValues =
@@ -144,6 +153,15 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                         .map(DeviceConfigurationInfo::new)
                         .toArray(DeviceConfigurationInfo[]::new);
         Builder<PropertySpec> builder = ImmutableList.builder();
+        builder.add(propertySpecService
+                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService))
+                .named(DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
+                .fromThesaurus(this.thesaurus)
+                .markRequired()
+                .markMultiValued(";")
+                .addValues(deviceConfigurationService.getDeviceLifeCycleInDeviceTypeInfoPossibleValues())
+                .markExhaustive(PropertySelectionMode.LIST)
+                .finish());
         builder.add(
                 propertySpecService
                         .specForValuesOf(new DeviceConfigurationInfoValueFactory())

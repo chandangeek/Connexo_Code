@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.domain.util.Finder;
@@ -15,6 +14,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Provides services to manage {@link DeviceLifeCycle}s.
@@ -39,10 +39,9 @@ public interface DeviceLifeCycleConfigurationService {
     /**
      * Starts the building process of a new {@link DeviceLifeCycle}.
      *
-     * @param name The unique name of the new DeviceLifeCycle
+     * @param name               The unique name of the new DeviceLifeCycle
      * @param finiteStateMachine The FiniteStateMachine that is providing all the
-     * {@link com.elster.jupiter.fsm.State}s and {@link com.elster.jupiter.fsm.StateTransition}s.
-     *
+     *                           {@link com.elster.jupiter.fsm.State}s and {@link com.elster.jupiter.fsm.StateTransition}s.
      * @return The DeviceLifeCycleBuilder
      */
     DeviceLifeCycleBuilder newDeviceLifeCycleUsing(String name, FiniteStateMachine finiteStateMachine);
@@ -59,7 +58,7 @@ public interface DeviceLifeCycleConfigurationService {
      * Clones the specified {@link DeviceLifeCycle} with the specified name.
      *
      * @param source The DeviceLifeCycle that is being cloned
-     * @param name The unique name of the new DeviceLifeCycle
+     * @param name   The unique name of the new DeviceLifeCycle
      * @return The cloned DeviceLifeCycle
      */
     DeviceLifeCycle cloneDeviceLifeCycle(DeviceLifeCycle source, String name);
@@ -83,6 +82,7 @@ public interface DeviceLifeCycleConfigurationService {
     Optional<DeviceLifeCycle> findDeviceLifeCycle(long id);
 
     Optional<DeviceLifeCycle> findAndLockDeviceLifeCycleByIdAndVersion(long id, long version);
+
     /**
      * Finds the {@link DeviceLifeCycle} with the specified name.
      *
@@ -154,7 +154,7 @@ public interface DeviceLifeCycleConfigurationService {
      * {@link DeviceLifeCycle} when a device is in a specific {@link State}.
      *
      * @param deploymentId The deployment id of the external process
-     * @param processId The process id of the external process
+     * @param processId    The process id of the external process
      * @return The TransitionBusinessProcess
      */
     TransitionBusinessProcess enableAsTransitionBusinessProcess(String name, String deploymentId, String processId);
@@ -167,7 +167,7 @@ public interface DeviceLifeCycleConfigurationService {
      * that is configured to execute the external business process.
      *
      * @param deploymentId The deployment id of the external process
-     * @param processId The process id of the external process
+     * @param processId    The process id of the external process
      */
     void disableAsTransitionBusinessProcess(String deploymentId, String processId);
 
@@ -191,4 +191,11 @@ public interface DeviceLifeCycleConfigurationService {
      */
     String getStageDisplayName(EndDeviceStage stage);
 
+    Set<MicroCheck> getMicroChecks();
+
+    Optional<MicroCheck> getMicroCheckByKey(String microCheckKey);
+
+    void addMicroCheckFactory(DeviceMicroCheckFactory microCheckFactory);
+
+    void removeMicroCheckFactory(DeviceMicroCheckFactory microCheckFactory);
 }

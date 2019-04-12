@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -105,5 +104,4 @@ public enum MessageSeeds implements MessageSeed {
         public static final String EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE = "authorizedAction.microAction.effectiveTimstamp.before.lastStateChange";
         public static final String EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_DATA = "authorizedAction.microAction.effectiveTimstamp.before.lastData";
     }
-
 }

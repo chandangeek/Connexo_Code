@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.events.EventService;
@@ -18,6 +17,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
@@ -26,6 +26,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateI
 import javax.inject.Inject;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService.COMPONENT_NAME;
 import static com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT;
@@ -144,10 +145,10 @@ public class ResourceHelper {
                 .build();
     }
 
-    public Optional<StateTransitionEventType> findStateTransitionEventType(String symbol){
+    public Optional<StateTransitionEventType> findStateTransitionEventType(String symbol) {
         Optional<EventType> eventType = eventService.getEventType(symbol);
         Optional<? extends StateTransitionEventType> stateTransitionEventType;
-        if (eventType.isPresent()){
+        if (eventType.isPresent()) {
             stateTransitionEventType = finiteStateMachineService.findStandardStateTransitionEventType(eventType.get());
         } else {
             stateTransitionEventType = finiteStateMachineService.findCustomStateTransitionEventType(symbol);
@@ -156,11 +157,14 @@ public class ResourceHelper {
     }
 
     void checkDeviceLifeCycleUsages(DeviceLifeCycle deviceLifeCycle) {
-        if (!deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(deviceLifeCycle).isEmpty()){
+        if (!deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(deviceLifeCycle).isEmpty()) {
             throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_IS_USED_BY_DEVICE_TYPE);
         }
     }
 
+    public Set<MicroCheck> findAllAvailableMicroChecks() {
+        return deviceLifeCycleConfigurationService.getMicroChecks();
+    }
     private void setNlsService(NlsService nlsService){
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST)

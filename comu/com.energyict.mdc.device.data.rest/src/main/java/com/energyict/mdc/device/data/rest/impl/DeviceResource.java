@@ -128,6 +128,7 @@ public class DeviceResource {
     private static final int RECENTLY_ADDED_COUNT = 5;
     private static final String DEVICE_ASSOCIATION = "device";
     static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
+    static final String PROCESS_LIFECYCLE_ISSUE_STATES = "lifecycleIssueStates";
     private final DeviceService deviceService;
     private final TopologyService topologyService;
     private final MultiElementDeviceService multiElementDeviceService;

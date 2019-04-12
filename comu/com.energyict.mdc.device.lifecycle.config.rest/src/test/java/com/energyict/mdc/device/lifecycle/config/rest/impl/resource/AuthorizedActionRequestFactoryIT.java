@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -30,7 +29,6 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedActionChangeRequest;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedActionRequestFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedTransitionActionComplexEditRequest;
@@ -65,10 +63,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
 /**
- * Integration test for the {@link AuthorizedActionRequestFactory} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-03-27 (11:28)
+ * Integration test for the {@link AuthorizedActionRequestFactory} component
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizedActionRequestFactoryIT {
@@ -121,7 +116,7 @@ public class AuthorizedActionRequestFactoryIT {
     private static CustomStateTransitionEventType createEventTypes() {
         FiniteStateMachineService service = inMemoryPersistence.getService(FiniteStateMachineService.class);
         CustomStateTransitionEventType eventType1 = service.newCustomStateTransitionEventType(EVENT_TYPE_1, "context");
-        CustomStateTransitionEventType eventType2 = service.newCustomStateTransitionEventType(EVENT_TYPE_2, "context");
+        service.newCustomStateTransitionEventType(EVENT_TYPE_2, "context");
         return eventType1;
     }
 
@@ -131,9 +126,9 @@ public class AuthorizedActionRequestFactoryIT {
                 .stream()
                 .forEach(t ->
                         builder
-                            .newTransitionAction(t)
-                            .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO)
-                            .complete());
+                                .newTransitionAction(t)
+                                .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO)
+                                .complete());
         DeviceLifeCycle deviceLifeCycle = builder.complete();
         deviceLifeCycle.save();
         return deviceLifeCycle;
@@ -288,7 +283,7 @@ public class AuthorizedActionRequestFactoryIT {
 
         actionInfo.microChecks = new HashSet<>(1);
         MicroActionAndCheckInfo microCheck = new MicroActionAndCheckInfo();
-        microCheck.key = MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID.name();
+        microCheck.key = "ConnectionPropertiesAreValid";
         actionInfo.microChecks.add(microAction);
 
         AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, actionInfo, AuthorizedActionRequestFactory.Operation.MODIFY);
@@ -328,7 +323,7 @@ public class AuthorizedActionRequestFactoryIT {
 
         info.microChecks = new HashSet<>(1);
         MicroActionAndCheckInfo microCheck = new MicroActionAndCheckInfo();
-        microCheck.key = MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID.name();
+        microCheck.key = "ConnectionPropertiesAreValid";
         info.microChecks.add(microCheck);
 
         AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, info, AuthorizedActionRequestFactory.Operation.CREATE);
@@ -373,5 +368,4 @@ public class AuthorizedActionRequestFactoryIT {
     private AuthorizedActionRequestFactory getTestInstance() {
         return new AuthorizedActionRequestFactory(this.resourceHelper);
     }
-
 }

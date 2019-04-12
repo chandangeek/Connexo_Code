@@ -37,6 +37,9 @@ public enum DefaultLifeCycleTranslationKey implements TranslationKey {
     TRANSITION_METER_READING_CREATED("com/elster/jupiter/metering/meterreading/CREATED", "Creation of a device reading"),
     TRANSITION_METER_READING_DELETED("com/elster/jupiter/metering/reading/DELETED", "Deletion of a device reading"),
 
+    TRANSITION_METER_LINKED("com/elster/jupiter/metering/meter/LINKED", "Linking a device to a usage point"),
+    TRANSITION_METER_UNLINKED("com/elster/jupiter/metering/meter/UNLINKED", "Unlinking a device from a usage point"),
+
     PRIVILEGE_LEVEL_1("privilege.level.ONE", "Level 1"),
     PRIVILEGE_LEVEL_2("privilege.level.TWO", "Level 2"),
     PRIVILEGE_LEVEL_3("privilege.level.THREE", "Level 3"),

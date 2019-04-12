@@ -36,7 +36,7 @@ public class LogBookDataInfo {
         info.eventData = record.getEventData();
         info.deviceCode = record.getDeviceEventType();
         info.eventLogId = record.getLogBookPosition();
-        info.readingDate = record.getModTime() != null ? record.getModTime() : record.getCreateTime();
+        info.readingDate = record.getReadingDateTime() != null ? record.getReadingDateTime() : record.getModTime() != null ? record.getModTime() : record.getCreateTime();
         info.message = record.getDescription();
 
         return info;
