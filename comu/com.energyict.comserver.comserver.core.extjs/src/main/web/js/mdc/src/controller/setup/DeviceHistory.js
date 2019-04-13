@@ -284,7 +284,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
 
         if (store.getCount()) {
             var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
-            if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
+            if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation') || (issueActualType === 'devicelifecycle')) {
                 me.getController('Mdc.controller.setup.IssueStartProcess').queryParams = {activeTab: 'issues'};
                 me.getController('Mdc.controller.setup.IssueStartProcess').showStartProcess(issueId);
             }
