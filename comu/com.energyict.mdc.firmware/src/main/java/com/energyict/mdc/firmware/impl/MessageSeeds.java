@@ -38,7 +38,8 @@ public enum MessageSeeds implements MessageSeed {
     WRONG_FIRMWARE_TYPE_FOR_METER_FW_DEPENDENCY(25, "WrongFirmwareTypeForMeterFWDependency", "{0} ''{1}'' can''t be selected as a minimal level meter firmware for ''{2}''.", Level.SEVERE),
     WRONG_FIRMWARE_TYPE_FOR_COM_FW_DEPENDENCY(26, "WrongFirmwareTypeForComFWDependency", "{0} ''{1}'' can''t be selected as a minimal communication firmware for ''{2}''.", Level.SEVERE),
     WRONG_RANK_FOR_METER_FW_DEPENDENCY(27, "WrongRankForMeterFWDependency", "Firmware ''{0}'' can''t have dependency on minimal level meter firmware ''{1}'' with a higher rank.", Level.SEVERE),
-    WRONG_RANK_FOR_COM_FW_DEPENDENCY(28, "WrongRankForComFWDependency", "Firmware ''{0}'' can''t have dependency on minimal communication firmware ''{1}'' with a higher rank.", Level.SEVERE);
+    WRONG_RANK_FOR_COM_FW_DEPENDENCY(28, "WrongRankForComFWDependency", "Firmware ''{0}'' can''t have dependency on minimal communication firmware ''{1}'' with a higher rank.", Level.SEVERE),
+    TARGET_FIRMWARE_STATUS_NOT_ACCEPTED(29, "TargetFirmwareStatusNotAccepted", "The status of the target firmware isn''t accepted.", Level.WARNING);
 
     private final int number;
     private final String key;

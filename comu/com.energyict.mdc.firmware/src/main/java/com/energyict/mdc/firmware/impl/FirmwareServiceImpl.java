@@ -720,6 +720,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                             version(10, 4, 1), V10_4_1SimpleUpgrader.class,
                             version(10, 6), UpgraderV10_6.class
                     ));
+            addFirmwareCheck(dataModel.getInstance(StatusOfTargetFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(NoGhostFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(MinimumLevelFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(NoDowngradeFirmwareCheck.class));
