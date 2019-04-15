@@ -47,9 +47,20 @@ public class MinimumLevelFirmwareCheck implements FirmwareCheck {
                                 .map(ActivatedFirmwareVersion::getFirmwareVersion)
                                 .filter(current -> current.compareTo(dependency) >= 0)
                                 .isPresent()) {
-                            throw new FirmwareCheckException(thesaurus, MessageSeeds.CURRENT_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED, firmwareType.getTranslation(thesaurus));
+                            throw new FirmwareCheckException(thesaurus, messageSeedForType(firmwareType));
                         }
                     });
+        }
+    }
+
+    private MessageSeeds messageSeedForType(FirmwareType firmwareType) {
+        switch (firmwareType) {
+            case METER:
+                return MessageSeeds.METER_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED;
+            case COMMUNICATION:
+                return MessageSeeds.COMMUNICATION_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED;
+            default:
+                throw new IllegalArgumentException("Firmware type " + firmwareType.name() + " isn't supported by " + MinimumLevelFirmwareCheck.class.getSimpleName());
         }
     }
 }

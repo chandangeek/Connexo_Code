@@ -27,19 +27,20 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_TOO_LONG(14, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
     VETO_SECURITY_ACCESSOR_DELETION(15, "securityAccessorStillInUseByDeviceTypes", "The security accessor couldn''t be removed because it is still used for firmware management on the following device type(s): {0}", Level.SEVERE),
     SIGNATURE_VALIDATION_FAILED(16, "SignatureValidationFailed", "Signature validation failed.", Level.SEVERE),
-    DEVICE_FIRMWARE_NOT_READOUT(17, "DeviceFirmwareNotReadout", "Device firmware hasn''t been read out after last upload.", Level.WARNING),
-    MASTER_FIRMWARE_NOT_READOUT(18, "MasterFirmwareNotReadout", "Master firmware hasn''t been read out after last upload.", Level.WARNING),
-    CURRENT_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(19, "FirmwareRankBelowMinimumSupported", "{0} has its rank below the requested minimum level.", Level.WARNING),
-    UPLOADED_FIRMWARE_RANK_BELOW_CURRENT(20, "UploadedFirmwareRankBelowCurrent", "Uploaded firmware has a lower rank than current.", Level.WARNING),
-    MASTER_FIRMWARE_NOT_LATEST(21, "MasterFirmwareNotLatest", "Master device doesn''t have the latest firmware.", Level.WARNING),
-    DEVICE_HAS_GHOST_FIRMWARE(22, "DeviceHasGhostFirmware", "There is firmware with ghost status on the device.", Level.WARNING),
-    MASTER_HAS_GHOST_FIRMWARE(23, "MasterHasGhostFirmware", "There is firmware with ghost status on the master device.", Level.WARNING),
-    INVALID_FIRMWARE_VERSIONS_PERMUTATION(24, "InvalidFirmwareVersionsPermutation", "The permutation of firmware versions isn''t valid. Their list may have changed since the page was last updated.", Level.SEVERE),
-    WRONG_FIRMWARE_TYPE_FOR_METER_FW_DEPENDENCY(25, "WrongFirmwareTypeForMeterFWDependency", "{0} ''{1}'' can''t be selected as a minimal level meter firmware for ''{2}''.", Level.SEVERE),
-    WRONG_FIRMWARE_TYPE_FOR_COM_FW_DEPENDENCY(26, "WrongFirmwareTypeForComFWDependency", "{0} ''{1}'' can''t be selected as a minimal communication firmware for ''{2}''.", Level.SEVERE),
-    WRONG_RANK_FOR_METER_FW_DEPENDENCY(27, "WrongRankForMeterFWDependency", "Firmware ''{0}'' can''t have dependency on minimal level meter firmware ''{1}'' with a higher rank.", Level.SEVERE),
-    WRONG_RANK_FOR_COM_FW_DEPENDENCY(28, "WrongRankForComFWDependency", "Firmware ''{0}'' can''t have dependency on minimal communication firmware ''{1}'' with a higher rank.", Level.SEVERE),
-    TARGET_FIRMWARE_STATUS_NOT_ACCEPTED(29, "TargetFirmwareStatusNotAccepted", "The status of the target firmware isn''t accepted.", Level.WARNING);
+    INVALID_FIRMWARE_VERSIONS_PERMUTATION(17, "InvalidFirmwareVersionsPermutation", "The permutation of firmware versions isn''t valid. Their list may have changed since the page was last updated.", Level.SEVERE),
+    WRONG_FIRMWARE_TYPE_FOR_METER_FW_DEPENDENCY(18, "WrongFirmwareTypeForMeterFWDependency", "{0} ''{1}'' can''t be selected as a minimal level meter firmware for ''{2}''.", Level.SEVERE),
+    WRONG_FIRMWARE_TYPE_FOR_COM_FW_DEPENDENCY(19, "WrongFirmwareTypeForComFWDependency", "{0} ''{1}'' can''t be selected as a minimal communication firmware for ''{2}''.", Level.SEVERE),
+    WRONG_RANK_FOR_METER_FW_DEPENDENCY(20, "WrongRankForMeterFWDependency", "Firmware ''{0}'' can''t have dependency on minimal level meter firmware ''{1}'' with a higher rank.", Level.SEVERE),
+    WRONG_RANK_FOR_COM_FW_DEPENDENCY(21, "WrongRankForComFWDependency", "Firmware ''{0}'' can''t have dependency on minimal communication firmware ''{1}'' with a higher rank.", Level.SEVERE),
+    TARGET_FIRMWARE_STATUS_NOT_ACCEPTED(22, "TargetFirmwareStatusNotAccepted", "Target firmware isn''t in the allowed status.", Level.WARNING),
+    DEVICE_FIRMWARE_NOT_READOUT(23, "DeviceFirmwareNotReadout", "Firmware hasn''t been read out after the last upload.", Level.WARNING),
+    MASTER_FIRMWARE_NOT_READOUT(24, "MasterFirmwareNotReadout", "Firmware on the master hasn''t been read out after the last upload.", Level.WARNING),
+    METER_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(25, "MeterFirmwareRankBelowMinimumSupported", "Meter firmware is below its minimal level.", Level.WARNING),
+    COMMUNICATION_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(26, "CommFirmwareRankBelowMinimumSupported", "Communication firmware is below its minimal level.", Level.WARNING),
+    UPLOADED_FIRMWARE_RANK_BELOW_CURRENT(27, "UploadedFirmwareRankBelowCurrent", "Target firmware version rank is lower than the current firmware rank.", Level.WARNING),
+    MASTER_FIRMWARE_NOT_LATEST(28, "MasterFirmwareNotLatest", "Firmware types on the master don''t have the highest level (among firmware types with the acceptable status).", Level.WARNING),
+    DEVICE_HAS_GHOST_FIRMWARE(29, "DeviceHasGhostFirmware", "There is firmware with \"Ghost\" status on the device.", Level.WARNING),
+    MASTER_HAS_GHOST_FIRMWARE(30, "MasterHasGhostFirmware", "There is firmware with \"Ghost\" status on the master device.", Level.WARNING);
 
     private final int number;
     private final String key;
