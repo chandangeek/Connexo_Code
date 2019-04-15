@@ -36,12 +36,13 @@ import java.util.Set;
         immediate = true)
 public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySet<ServiceCall, ParentGetMeterReadingsDomainExtension> {
     public static final String CUSTOM_PROPERTY_SET_NAME = "ParentGetMeterReadingsCustomPropertySet";
+    public static final String CUSTOM_PROPERTY_SET_ID = ParentGetMeterReadingsDomainExtension.class.getName();
+    public static final String PREFIX = "GMR";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
-
-    public ParentGetMeterReadingsCustomPropertySet () {
-        // for test purposes
+    // For OSGi framework
+    public ParentGetMeterReadingsCustomPropertySet() {
     }
 
     @Inject
@@ -77,8 +78,13 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
     }
 
     @Override
+    public String getId() {
+        return CUSTOM_PROPERTY_SET_ID;
+    }
+
+    @Override
     public String getName() {
-        return ParentGetMeterReadingsCustomPropertySet.class.getSimpleName();
+        return this.thesaurus.getFormat(TranslationKeys.GMR_NAME).format();
     }
 
     @Override
@@ -122,49 +128,43 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
                 this.propertySpecService
                         .stringSpec()
                         .named(ParentGetMeterReadingsDomainExtension.FieldNames.SOURCE.javaName(), TranslationKeys.SOURCE)
-                        .describedAs(TranslationKeys.SOURCE)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
                         .named(ParentGetMeterReadingsDomainExtension.FieldNames.CALLBACK_URL.javaName(), TranslationKeys.CALLBACK_URL)
-                        .describedAs(TranslationKeys.CALLBACK_URL)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(ParentGetMeterReadingsDomainExtension.FieldNames.TIME_PERIOD_START.javaName(), TranslationKeys.TIME_PERIOD_START)
-                        .describedAs(TranslationKeys.TIME_PERIOD_START)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(ParentGetMeterReadingsDomainExtension.FieldNames.TIME_PERIOD_END.javaName(), TranslationKeys.TIME_PERIOD_END)
-                        .describedAs(TranslationKeys.TIME_PERIOD_END)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
                         .named(ParentGetMeterReadingsDomainExtension.FieldNames.READING_TYPES.javaName(), TranslationKeys.READING_TYPES)
-                        .describedAs(TranslationKeys.READING_TYPES)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
                         .named(ParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICES.javaName(), TranslationKeys.END_DEVICES)
-                        .describedAs(TranslationKeys.END_DEVICES)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
     }
 
-    private class ParentGetMeterReadingsCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, ParentGetMeterReadingsDomainExtension> {
-        private final String TABLE_NAME = "GMR_METER_READINGS_SC_CPS";
-        private final String FK = "FK_GMR_MRSCCPS_SC";
+    private static class ParentGetMeterReadingsCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, ParentGetMeterReadingsDomainExtension> {
+        private static final String TABLE_NAME = PREFIX + "_METER_READINGS_SC_CPS";
+        private static final String FK = "FK_" + PREFIX + "_MRSCCPS_SC";
 
         @Override
         public String componentName() {
-            return "GMR";
+            return PREFIX;
         }
 
         @Override

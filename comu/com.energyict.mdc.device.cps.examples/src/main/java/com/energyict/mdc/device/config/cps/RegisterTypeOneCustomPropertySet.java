@@ -104,11 +104,6 @@ public class RegisterTypeOneCustomPropertySet implements CustomPropertySet<Regis
     }
 
     @Override
-    public Class getContextClass() {
-        return Device.class;
-    }
-
-    @Override
     public PersistenceSupport<RegisterSpec, RegisterTypeOneDomainExtension> getPersistenceSupport() {
         return new RegisterTypeOnePeristenceSupport();
     }
@@ -211,6 +206,14 @@ public class RegisterTypeOneCustomPropertySet implements CustomPropertySet<Regis
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+            Column contextReference = (Column)(table.getColumn(RegisterTypeOneDomainExtension.FieldNames.DEVICE.databaseName()).get());
+            table
+                    .foreignKey("FK_REGISTER_DEVICE_ONE")
+                    .on(contextReference)
+                    .references(getContextClass())
+                    .map(RegisterTypeOneDomainExtension.FieldNames.DEVICE_REF.javaName())
+                    .add();
+
             return Collections.singletonList(
                     table
                             .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
@@ -221,18 +224,13 @@ public class RegisterTypeOneCustomPropertySet implements CustomPropertySet<Regis
         }
 
         @Override
-        public String contextFieldName() {
-            return RegisterTypeOneDomainExtension.FieldNames.DEVICE_REF.javaName();
-        }
-
-        @Override
-        public String contextColumnName() {
-            return RegisterTypeOneDomainExtension.FieldNames.DEVICE.databaseName();
-        }
-
-        @Override
         public String contextForeignKeyName() {
-            return FK_REGISTER_DEVICE_ONE;
+            return "FK_REGISTER_DEVICE_ONE";
+        }
+
+        @Override
+        public Class getContextClass() {
+            return Device.class;
         }
 
         @Override

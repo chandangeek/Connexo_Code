@@ -95,7 +95,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         assertThat(comTaskExecution.getExecutionStartedTimestamp()).isNull();
         assertThat(comTaskExecution.getLastExecutionStartTimestamp()).isNull();
         assertThat(comTaskExecution.getNextExecutionTimestamp()).isNull();
-        assertThat(comTaskExecution.getMaxNumberOfTries()).isEqualTo(maxNrOfTries);
+        assertThat(comTaskEnablement.getMaxNumberOfTries()).isEqualTo(maxNrOfTries);
         assertThat(comTaskExecution.getObsoleteDate()).isNull();
         assertThat(comTaskExecution.getPlannedPriority()).isEqualTo(comTaskEnablementPriority);
         assertThat(comTaskExecution.isAdHoc()).isTrue();

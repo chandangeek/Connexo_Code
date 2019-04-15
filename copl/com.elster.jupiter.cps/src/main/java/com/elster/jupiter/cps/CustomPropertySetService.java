@@ -283,6 +283,9 @@ public interface CustomPropertySetService {
     <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues);
 
 
+    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListOfValuesModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues);
+
+
     /**
      * Gets the unique set of history values for the {@link CustomPropertySet} that were saved for
      * the specified businesObject object at the specified point in time.
@@ -304,6 +307,8 @@ public interface CustomPropertySetService {
      * @see CustomPropertySet#isVersioned()
      */
     <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueHistoryValuesForVersion(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+
+    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListOfHistoryValuesForVersion(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant from, Instant to, Object... additionalPrimaryKeyValues);
 
 
     /**
@@ -520,6 +525,8 @@ public interface CustomPropertySetService {
      * @see CustomPropertySet#isVersioned()
      */
     <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues);
+
+    <D, T extends PersistentDomainExtension<D>> List<T> getListValuesEntityModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues);
     /**
      * Gets the history values for the {@link CustomPropertySet} that were saved for
      * the specified businesObject object at the specified point in time.
@@ -541,6 +548,8 @@ public interface CustomPropertySetService {
      * @see CustomPropertySet#isVersioned()
      */
     <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+
+    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant from, Instant to, Object... additionalPrimaryKeyValues);
 
     /**
      * Gets the values for the {@link CustomPropertySet} that match the condition

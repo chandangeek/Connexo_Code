@@ -44,4 +44,14 @@ public interface SecurityAccessor<T extends SecurityValueWrapper> extends com.el
      * @return {@code true} if it's allowed to change this security accessor or its values (properties) on device level, {@code false} otherwise.
      */
     boolean isEditable();
+
+    /**
+     * Sets/unsets service key flag for the key.
+     */
+    public void setServiceKey(boolean serviceKey);
+
+    /**
+     * @return {@code true} if security accessor has service key, {@code false} otherwise.
+     */
+    public boolean isServiceKey();
 }

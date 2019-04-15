@@ -34,7 +34,7 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
         LEVELS("levelBits"),
         // AuthorizedTransitionAction
         STATE_TRANSITION("stateTransition"),
-        CHECKS("checkBits"),
+        CHECKS("microCheckUsages"),
         ACTIONS("actionBits"),
         TYPE("type"), // field was removed in version 10.2
         // AuthorizedBusinessProcessAction
@@ -65,7 +65,7 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
     @SuppressWarnings("unused")
     private long id;
 
-    @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
+    @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = {Save.Create.class, Save.Update.class})
     private Reference<DeviceLifeCycleImpl> deviceLifeCycle = ValueReference.absent();
     private int levelBits;
     private EnumSet<Level> levels = EnumSet.noneOf(Level.class);
@@ -150,5 +150,4 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
     protected void save() {
         Save.action(this.id).save(this.dataModel, this);
     }
-
 }

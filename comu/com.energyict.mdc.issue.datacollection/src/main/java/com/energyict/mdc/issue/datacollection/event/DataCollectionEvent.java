@@ -33,11 +33,13 @@ import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.google.inject.Injector;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     protected static final Logger LOG = Logger.getLogger(DataCollectionEvent.class.getName());
@@ -54,6 +56,10 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     private EventDescription eventDescription;
     private Optional<? extends OpenIssue> existingIssue;
     private Injector injector;
+
+    private static final String COLON_SEPARATOR = ":";
+    private static final String COMMA_SEPARATOR = ",";
+    private static final String SEMI_COLON_SEPARATOR = ";";
 
     public DataCollectionEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, TopologyService topologyService, Thesaurus thesaurus, Injector injector) {
         this.issueDataCollectionService = issueDataCollectionService;
@@ -192,6 +198,22 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
             return -1;
         }
         return (double) numberOfEvents / (double) numberOfConnectedDevices * 100.0;
+    }
+
+    // Used in rule engine
+    //copied from com.energyict.mdc.device.alarms.event.DeviceAlarmEvent
+    public boolean hasAssociatedDeviceLifecycleStatesInDeviceTypes(String statesInDeviceTypes) {
+        return parseRawInputToList(statesInDeviceTypes, SEMI_COLON_SEPARATOR).stream().map(value -> parseRawInputToList(value, COLON_SEPARATOR))
+                .anyMatch(valueSet -> valueSet.size() == 3 &&
+                        this.getDevice().getDeviceType().getId() == Long.parseLong(valueSet.get(0)) &&
+                        this.getDevice().getDeviceType().getDeviceLifeCycle().getId() == Long.parseLong(valueSet.get(1)) &&
+                        parseRawInputToList(valueSet.get(2), COMMA_SEPARATOR).stream()
+                                .map(String::trim)
+                                .mapToLong(Long::parseLong).boxed().collect(Collectors.toList()).contains(this.getDevice().getState().getId()));
+    }
+
+    private List<String> parseRawInputToList(String rawInput, String delimiter) {
+        return Arrays.stream(rawInput.split(delimiter)).map(String::trim).collect(Collectors.toList());
     }
 
     @Override

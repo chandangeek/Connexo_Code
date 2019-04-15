@@ -27,8 +27,6 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-
 import javax.inject.Inject;
 
 import java.math.BigDecimal;

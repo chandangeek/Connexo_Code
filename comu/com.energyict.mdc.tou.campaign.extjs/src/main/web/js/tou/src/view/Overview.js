@@ -17,7 +17,7 @@ Ext.define('Tou.view.Overview', {
         var me = this;
 
         me.content = [{
-                title: Uni.I18n.translate('tou.campaigns.touCampaigns', 'TOU', 'ToU campaigns'),
+                title: Uni.I18n.translate('tou.campaigns.touCampaigns', 'TOU', 'ToU calendar campaigns'),
                 ui: 'large',
                 items: [{
                         xtype: 'preview-container',
@@ -30,13 +30,13 @@ Ext.define('Tou.view.Overview', {
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'tou-empty-component',
-                            title: Uni.I18n.translate('tou.campaigns.empty.title', 'TOU', 'No ToU campaigns found'),
+                            title: Uni.I18n.translate('tou.campaigns.empty.title', 'TOU', 'No ToU calendar campaigns found'),
                             reasons: [
-                                Uni.I18n.translate('tou.campaigns.empty.list.item1', 'TOU', 'No ToU campaigns have been added yet.')
+                                Uni.I18n.translate('tou.campaigns.empty.list.item1', 'TOU', 'No ToU calendar campaigns have been added yet.')
                             ],
                             stepItems: [{
                                     itemId: 'tou-empty-add-button',
-                                    text: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU campaign'),
+                                    text: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU calendar campaign'),
                                     action: 'addTouCampaign',
                                     href: me.router.getRoute('workspace/toucampaigns/add').buildUrl(),
                                     privileges: Tou.privileges.TouCampaign.administrate

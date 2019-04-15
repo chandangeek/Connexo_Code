@@ -220,6 +220,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 && propertyType != SimplePropertyType.WEB_SERVICES_ENDPOINT
                 && propertyType != SimplePropertyType.IDWITHNAME
                 && propertyType != SimplePropertyType.RADIO_GROUP
+                && propertyType != SimplePropertyType.RECURRENCE_SELECTION_PROPS
                 && propertyType != SimplePropertyType.LIFECYCLETRANSITION
                 ) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
@@ -231,7 +232,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
             for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
                 if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST || propertyType == SimplePropertyType.METROLOGYCONFIGURATIONLIST ||
                         propertyType == SimplePropertyType.ENDDEVICEEVENTTYPE || propertyType == SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE ||
-                        propertyType == SimplePropertyType.RADIO_GROUP || propertyType == SimplePropertyType.LIFECYCLETRANSITION) {
+                        propertyType == SimplePropertyType.RADIO_GROUP || propertyType == SimplePropertyType.LIFECYCLETRANSITION || propertyType == SimplePropertyType.RECURRENCE_SELECTION_PROPS) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
                 } else if (propertyType == SimplePropertyType.IDWITHNAME || propertyType == SimplePropertyType.BPM_PROCESS ||
                         propertyType == SimplePropertyType.WEB_SERVICES_ENDPOINT) {

@@ -60,8 +60,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
-import com.energyict.mdc.cim.webservices.inbound.soap.getmeterconfig.GetMeterConfigEndpoint;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -86,7 +86,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     public static final String COMPONENT_NAME = "SIM";
 
     private static final String CIM_MERER_CONFIG = "CIM MeterConfig";
-    private static final String CIM_GET_METER_CONFIG = "CIM GetMeterConfig";
     private static final String CIM_GET_END_DEVICE_EVENTS = "CIM GetEndDeviceEvents";
     private static final String CIM_END_DEVICE_EVENTS = "CIM EndDeviceEvents";
 
@@ -117,6 +116,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile SecurityManagementService securityManagementService;
 	private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 	private volatile OrmService ormService;
+	private volatile MeterConfigFactory meterConfigFactory;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -136,7 +136,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          JsonService jsonService, CustomPropertySetService customPropertySetService,
                                          WebServicesService webServicesService, InboundCIMWebServiceExtension webServiceExtensionFactory,
                                          HsmEnergyService hsmEnergyService, SecurityManagementService securityManagementService,
-                                         DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, OrmService ormService) {
+                                         DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -196,6 +196,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
 				bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
 				bind(OrmService.class).toInstance(ormService);
+				bind(MeterConfigFactory.class).toInstance(meterConfigFactory);
             }
         };
     }
@@ -224,7 +225,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 
     private void registerServices(BundleContext bundleContext) {
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterConfigEndpoint.class), CIM_MERER_CONFIG);
-        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetMeterConfigEndpoint.class), CIM_GET_METER_CONFIG);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetEndDeviceEventsEndpoint.class), CIM_GET_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteEndDeviceEventsEndpoint.class), CIM_END_DEVICE_EVENTS);
     }
@@ -386,7 +386,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 			DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
 		this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
 	}
-    
+
+
     @Override
     public Layer getLayer() {
         return Layer.SOAP;

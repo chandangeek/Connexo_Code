@@ -287,13 +287,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             firmwareManagementOption.load(newValue.managementOption, {
                 success: function (record) {
                     me.down('#property-form').loadRecord(record);
-                    if(record.get('uploadOption') === 'activate'){
-                        periodValues.show();
-                        if(!recurrenceTypeCombo.getValue()){
-                            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(1));
-                        }
-                    } else {
-                        periodValues.hide();
+                    periodValues.show();
+                    if(!recurrenceTypeCombo.getValue()){
+                        recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(1));
                     }
                 },
                 callback: function () {

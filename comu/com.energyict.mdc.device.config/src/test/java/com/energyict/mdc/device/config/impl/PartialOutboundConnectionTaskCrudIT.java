@@ -11,6 +11,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -308,6 +309,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                     injector.getInstance(DeviceLifeCycleConfigurationService.class),
                     injector.getInstance(CalendarService.class),
                     injector.getInstance(CustomPropertySetService.class),
+                    injector.getInstance(DataVaultService.class),
                     UpgradeModule.FakeUpgradeService.getInstance(),
                     injector.getInstance(DeviceMessageSpecificationService.class),
                     injector.getInstance(SecurityManagementService.class));

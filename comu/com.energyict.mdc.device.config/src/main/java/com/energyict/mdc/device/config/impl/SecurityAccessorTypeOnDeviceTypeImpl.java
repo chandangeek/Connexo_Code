@@ -5,19 +5,26 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityAccessorTypeOnDeviceType;
 
+import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
+
 
 public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTypeOnDeviceType {
     enum Fields {
         DEVICETYPE("deviceType"),
-        SECACCTYPE("securityAccessorType");
+        SECACCTYPE("securityAccessorType"),
+        DEFAULTKEY("defaultKey");
 
         private final String javaFieldName;
 
@@ -34,6 +41,9 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     private Reference<DeviceType> deviceType = Reference.empty();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<SecurityAccessorType> securityAccessorType = Reference.empty();
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String defaultKey;
+
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -42,6 +52,13 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+
+    private final DataModel dataModel;
+
+    @Inject
+    SecurityAccessorTypeOnDeviceTypeImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
 
     SecurityAccessorTypeOnDeviceTypeImpl init(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
         this.deviceType.set(deviceType);
@@ -70,5 +87,14 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     @Override
     public int hashCode() {
         return Objects.hash(getDeviceType(), getSecurityAccessorType());
+    }
+
+    public Optional<String> getDefaultKey() {
+        return Optional.ofNullable(defaultKey);
+    }
+
+    public void setDefaultKey(String defaultKey) {
+        this.defaultKey = defaultKey;
+        dataModel.update(this);
     }
 }

@@ -15,16 +15,16 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
+							
 import java.util.Optional;
 
 public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
-        DOMAIN("serviceCall", "serviceCall"),
-        CALLS_EXPECTED("expectedNumberOfCalls", "expected_calls"),
-        CALLS_SUCCESS("actualNumberOfSuccessfulCalls", "success_calls"),
-        CALLS_FAILED("actualNumberOfFailedCalls", "failed_calls"),
-        CALLBACK_URL("callbackURL", "callback_url");
+        DOMAIN("serviceCall", "SERVICE_CALL"),
+        CALLS_EXPECTED("expectedNumberOfCalls", "EXPECTED_CALLS"),
+        CALLS_SUCCESS("actualNumberOfSuccessfulCalls", "SUCCESS_CALLS"),
+        CALLS_FAILED("actualNumberOfFailedCalls", "FAILED_CALLS"),
+        CALLBACK_URL("callbackURL", "CALLBACK_URL");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -46,11 +46,11 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private BigDecimal expectedNumberOfCalls;
+    private Long expectedNumberOfCalls;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private BigDecimal actualNumberOfSuccessfulCalls;
+    private Long actualNumberOfSuccessfulCalls;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private BigDecimal actualNumberOfFailedCalls;
+    private Long actualNumberOfFailedCalls;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackURL;
 
@@ -58,27 +58,27 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
         super();
     }
 
-    public BigDecimal getExpectedNumberOfCalls() {
+    public Long getExpectedNumberOfCalls() {
         return expectedNumberOfCalls;
     }
 
-    public void setExpectedNumberOfCalls(BigDecimal expectedNumberOfCalls) {
+    public void setExpectedNumberOfCalls(Long expectedNumberOfCalls) {
         this.expectedNumberOfCalls = expectedNumberOfCalls;
     }
 
-    public BigDecimal getActualNumberOfSuccessfulCalls() {
+    public Long getActualNumberOfSuccessfulCalls() {
         return actualNumberOfSuccessfulCalls;
     }
 
-    public void setActualNumberOfSuccessfulCalls(BigDecimal actualNumberOfSuccessfulCalls) {
+    public void setActualNumberOfSuccessfulCalls(Long actualNumberOfSuccessfulCalls) {
         this.actualNumberOfSuccessfulCalls = actualNumberOfSuccessfulCalls;
     }
 
-    public BigDecimal getActualNumberOfFailedCalls() {
+    public Long getActualNumberOfFailedCalls() {
         return actualNumberOfFailedCalls;
     }
 
-    public void setActualNumberOfFailedCalls(BigDecimal actualNumberOfFailedCalls) {
+    public void setActualNumberOfFailedCalls(Long actualNumberOfFailedCalls) {
         this.actualNumberOfFailedCalls = actualNumberOfFailedCalls;
     }
 
@@ -93,9 +93,9 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setExpectedNumberOfCalls(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_EXPECTED.javaName())).orElse(0).toString()));
-        this.setActualNumberOfSuccessfulCalls(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_SUCCESS.javaName())).orElse(0).toString()));
-        this.setActualNumberOfFailedCalls(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_FAILED.javaName())).orElse(0).toString()));
+        this.setExpectedNumberOfCalls((Long)Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_EXPECTED.javaName())).orElse(0l));
+        this.setActualNumberOfSuccessfulCalls((Long)Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_SUCCESS.javaName())).orElse(0l));
+        this.setActualNumberOfFailedCalls((Long)Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_FAILED.javaName())).orElse(0l));
         this.setCallbackURL((String) propertyValues.getProperty(FieldNames.CALLBACK_URL.javaName()));
     }
 
@@ -111,4 +111,3 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
     public void validateDelete() {
     }
 }
-

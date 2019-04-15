@@ -37,7 +37,7 @@ import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
@@ -792,7 +792,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
         AuthorizedAction authorizedAction = mock(AuthorizedAction.class);
         when(executableAction.getAction()).thenReturn(authorizedAction);
-        doThrow(new MultipleMicroCheckViolationsException(thesaurus, null, Collections.<DeviceLifeCycleActionViolation>emptyList()))
+        doThrow(new MultipleMicroCheckViolationsException(thesaurus, null, Collections.<ExecutableMicroCheckViolation>emptyList()))
                 .when(executableAction).execute(Matchers.any(Instant.class), Matchers.anyList());
 
         importer.process(importOccurrence);
