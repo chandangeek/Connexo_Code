@@ -120,7 +120,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                         var currentFirmwareCheck;
                                         var masterFirmwareCheck = value && value["MASTER_FIRMWARE_CHECK"];
                                         //if ((!currentFirmwareCheck || !currentFirmwareCheck.activatedFor || !currentFirmwareCheck.activatedFor.length) &&
-                                        if  (!masterFirmwareCheck || !masterFirmwareCheck.activatedFor || !masterFirmwareCheck.activatedFor.length)){
+                                        if  (!masterFirmwareCheck || !masterFirmwareCheck.activatedFor || !masterFirmwareCheck.activatedFor.length) {
                                             field.hide();
                                             return;
                                         }
