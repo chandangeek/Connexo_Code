@@ -48,30 +48,43 @@
                         </goals>
                         <configuration combine.self="override">
                             <tasks>
-                                <unzip src="src/main/web-zip/web.zip" dest="${project.build.directory}/web/" />
-                                <unzip src="src/main/web-zip/en/en.zip" dest="${project.build.directory}/web/en/" />
+                                <unzip src="src/main/web-zip/web.zip" dest="src/main/web/" />
+                                <unzip src="src/main/web-zip/en/en.zip" dest="src/main/web/en/" />
                             </tasks>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.8</version>
+                <artifactId>maven-clean-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>add-web-pages</id>
-                        <phase>generate-resources</phase>
+                        <id>Default cleanup</id>
+                        <phase>clean</phase>
                         <goals>
-                            <goal>add-resource</goal>
+                            <goal>clean</goal>
                         </goals>
-                        <configuration combine.self="override">
-                            <resources>
-                                <resource>
-                                    <directory>${project.build.directory}/web/</directory>
-                                </resource>
-                            </resources>
+                        <configuration>
+                            <excludeDefaultDirectories>false</excludeDefaultDirectories>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>Deleting unzipped (help app) files</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <filesets>
+                                <fileset>
+                                    <directory>src/main/web</directory>
+                                    <followSymlinks>false</followSymlinks>
+                                    <excludes>
+                                        <exclude>.gitignore</exclude>
+                                    </excludes>
+                                </fileset>
+                            </filesets>
                         </configuration>
                     </execution>
                 </executions>
