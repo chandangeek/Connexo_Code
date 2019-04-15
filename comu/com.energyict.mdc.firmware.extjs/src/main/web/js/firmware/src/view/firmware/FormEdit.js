@@ -107,7 +107,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                                             combobox.nextSibling('uni-default-button').hide();
                                             combobox.up('fieldcontainer').add({
                                                   xtype: 'displayfield',
-                                                  value: 'There are no firmwares files of this type uploaded to the device type',
+                                                  value: 'There are no firmware files of this type uploaded to the device type',
                                                   fieldStyle: 'color: red'
                                             });
                                             return;
@@ -180,7 +180,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                                             combobox.nextSibling('uni-default-button').hide();
                                             combobox.up('fieldcontainer').add({
                                                   xtype: 'displayfield',
-                                                  value: 'There are no firmwares files of this type uploaded to the device type',
+                                                  value: 'There are no firmwares file of this type uploaded to the device type',
                                                   fieldStyle: 'color: red'
                                             });
                                             return;
