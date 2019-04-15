@@ -282,7 +282,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                         String.valueOf(2),
                         String.valueOf(values.size()));
             }
-            if (!LOG_ON_SAME_ISSUE_POSSIBLE_VALUES.containsAll(values)) {
+            if (!LOG_ON_SAME_ISSUE_POSSIBLE_VALUES.contains(value)) {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ARGUMENT,
                         "properties." + LOG_ON_SAME_ISSUE,
                         values.stream()
