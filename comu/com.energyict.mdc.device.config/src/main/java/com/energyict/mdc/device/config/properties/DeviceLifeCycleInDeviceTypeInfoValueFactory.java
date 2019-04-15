@@ -31,10 +31,6 @@ public class DeviceLifeCycleInDeviceTypeInfoValueFactory implements ValueFactory
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
-    //DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService
-
-    //public DeviceLifeCycleInDeviceTypeInfoValueFactory() {}
-
     public DeviceLifeCycleInDeviceTypeInfoValueFactory(DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;

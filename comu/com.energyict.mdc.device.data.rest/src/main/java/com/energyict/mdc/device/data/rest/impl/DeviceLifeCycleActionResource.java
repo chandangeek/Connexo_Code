@@ -130,7 +130,7 @@ public class DeviceLifeCycleActionResource {
                     Map<String, PropertySpec> allPropertySpecsForAction = authorizedAction.getActions()
                             .stream()
                             .flatMap(microAction -> deviceLifeCycleService.getPropertySpecsFor(microAction).stream())
-                            .collect(Collectors.toMap(PropertySpec::getName, Function.<PropertySpec>identity(), (prop1, prop2) -> prop1));
+                            .collect(Collectors.toMap(PropertySpec::getName, Function.identity(), (prop1, prop2) -> prop1));
                     List<ExecutableActionProperty> executableProperties = getExecutableActionPropertiesFromInfo(info, allPropertySpecsForAction);
                     try {
                         requestedAction.execute(info.effectiveTimestamp, executableProperties);
@@ -177,8 +177,8 @@ public class DeviceLifeCycleActionResource {
                 .map(violation -> {
                     IdWithNameInfo microCheckInfo = new IdWithNameInfo();
                     MicroCheck microCheck = violation.getCheck();
-                    microCheckInfo.id = deviceLifeCycleService.getName(microCheck);
-                    microCheckInfo.name = deviceLifeCycleService.getDescription(microCheck);
+                    microCheckInfo.id = microCheck.getName();
+                    microCheckInfo.name = microCheck.getDescription();
                     return microCheckInfo;
                 })
                 .distinct(check -> check.id)

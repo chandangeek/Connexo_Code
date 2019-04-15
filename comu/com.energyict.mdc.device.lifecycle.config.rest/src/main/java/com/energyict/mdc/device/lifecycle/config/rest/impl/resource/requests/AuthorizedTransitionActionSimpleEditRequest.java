@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -19,7 +18,9 @@ public class AuthorizedTransitionActionSimpleEditRequest implements AuthorizedAc
     private final DeviceLifeCycle deviceLifeCycle;
     private final AuthorizedActionInfo infoForEdit;
 
-    public AuthorizedTransitionActionSimpleEditRequest(DeviceLifeCycle deviceLifeCycle, AuthorizedTransitionAction action, AuthorizedActionInfo infoForEdit) {
+    public AuthorizedTransitionActionSimpleEditRequest(DeviceLifeCycle deviceLifeCycle,
+                                                       AuthorizedTransitionAction action,
+                                                       AuthorizedActionInfo infoForEdit) {
         Objects.requireNonNull(deviceLifeCycle);
         Objects.requireNonNull(action);
         Objects.requireNonNull(infoForEdit);
@@ -39,8 +40,8 @@ public class AuthorizedTransitionActionSimpleEditRequest implements AuthorizedAc
                 .clearLevels()
                 .clearChecks()
                 .clearActions()
-                .addAllChecks(this.infoForEdit.getMicroChecks())
-                .addAllActions(this.infoForEdit.getMicroActions())
+                .setChecks(this.infoForEdit.getMicroChecks())
+                .addActions(this.infoForEdit.getMicroActions())
                 .addAllLevels(this.infoForEdit.getPrivilegeLevels())
                 .complete();
         deviceLifeCycleUpdater.complete();

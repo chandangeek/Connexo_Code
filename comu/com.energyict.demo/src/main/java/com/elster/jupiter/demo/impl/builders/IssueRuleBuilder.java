@@ -426,13 +426,13 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private HasIdAndName getOnReccurrenceProps() {
         return new HasIdAndName() {
             @Override
-            public Long getId() {
-                return 1L;
+            public String getId() {
+                return "1:1";
             }
 
             @Override
             public String getName() {
-                return "Create new issue";
+                return "Log on existing open lifecycle issue: Increase urgency (+1)";
             }
         };
     }

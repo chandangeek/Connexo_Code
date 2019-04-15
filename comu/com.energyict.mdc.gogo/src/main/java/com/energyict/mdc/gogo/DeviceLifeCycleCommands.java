@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.gogo;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
@@ -23,7 +22,6 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -45,9 +43,6 @@ import java.util.stream.Stream;
 
 /**
  * Provides gogo commands that support the device life cycle.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-08 (17:29)
  */
 @Component(name = "com.energyict.mdc.gogo.DeviceLifeCycleCommands", service = DeviceLifeCycleCommands.class,
         property = {"osgi.command.scope=mdc.device.lifecycle",
@@ -57,9 +52,7 @@ import java.util.stream.Stream;
                 "osgi.command.function=currentState",
                 "osgi.command.function=historicalState",
                 "osgi.command.function=printMicroActionBitsFor",
-                "osgi.command.function=printMicroActionsFromBits",
-                "osgi.command.function=printMicroCheckBitsFor",
-                "osgi.command.function=printMicroChecksFromBits"},
+                "osgi.command.function=printMicroActionsFromBits"},
         immediate = true)
 @SuppressWarnings("unused")
 public class DeviceLifeCycleCommands {
@@ -205,11 +198,11 @@ public class DeviceLifeCycleCommands {
         AuthorizedTransitionAction authorizedTransitionAction = (AuthorizedTransitionAction) action.getAction();
         List<ExecutableActionProperty> properties =
                 DecoratedStream
-                    .decorate(authorizedTransitionAction.getActions().stream())
-                    .flatMap(ma -> this.deviceLifeCycleService.getPropertySpecsFor(ma).stream())
-                    .distinct(PropertySpec::getName)
-                    .map(ps -> this.toExecutableActionProperty(ps, effectiveTimestamp))
-                    .collect(Collectors.toList());
+                        .decorate(authorizedTransitionAction.getActions().stream())
+                        .flatMap(ma -> this.deviceLifeCycleService.getPropertySpecsFor(ma).stream())
+                        .distinct(PropertySpec::getName)
+                        .map(ps -> this.toExecutableActionProperty(ps, effectiveTimestamp))
+                        .collect(Collectors.toList());
         action.execute(effectiveTimestamp, properties);
     }
 
@@ -298,38 +291,6 @@ public class DeviceLifeCycleCommands {
         System.out.println(actions.stream().map(MicroAction::name).collect(Collectors.joining(", ")));
     }
 
-    public void printMicroCheckBitsFor(String... providedMicroChecks) {
-        boolean allIsOk = true;
-        List<MicroCheck> microChecks = new ArrayList<>();
-        for (String providedMicroCheck : providedMicroChecks) {
-            Optional<MicroCheck> any = Stream.of(MicroCheck.values()).filter(microCheck -> microCheck.name().equalsIgnoreCase(providedMicroCheck)).findAny();
-            if (any.isPresent()) {
-                microChecks.add(any.get());
-            } else {
-                System.out.println("ERROR ERROR -> No MicroCheck found for '" + providedMicroCheck);
-                allIsOk = false;
-            }
-        }
-        if (allIsOk) {
-            System.out.println("Your check bit is " + new Double(microChecks.stream().mapToDouble(microCheck -> Math.pow(2, microCheck.ordinal())).sum()).longValue());
-        } else {
-            System.out.println("Your check bit is not calculated as you provided incorrect MicroChecks.");
-        }
-    }
-
-    public void printMicroChecksFromBits(long bits) {
-        EnumSet<MicroCheck> checks = EnumSet.noneOf(MicroCheck.class);
-        int mask = 1;
-        for (MicroCheck microCheck : MicroCheck.values()) {
-            if ((bits & mask) != 0) {
-                // The bit corresponding to the current microCheck is set so add it to the set.
-                checks.add(microCheck);
-            }
-            mask = mask * 2;
-        }
-        System.out.println(checks.stream().map(MicroCheck::name).collect(Collectors.joining(", ")));
-    }
-
     @SuppressWarnings("unused")
     public void help() {
         System.out.println("triggerEvent <event type> <device name>");
@@ -377,5 +338,4 @@ public class DeviceLifeCycleCommands {
     private Principal getPrincipal() {
         return this.userService.findUser("admin").get();
     }
-
 }
