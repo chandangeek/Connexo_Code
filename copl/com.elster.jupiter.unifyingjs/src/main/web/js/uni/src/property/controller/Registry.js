@@ -65,7 +65,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.NoneOrTimeDuration',
         'Uni.property.view.property.UsagePoint',
         'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations',
-        'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions'
+        'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
+        'Uni.property.view.property.Recurrence'
     ],
 
     /**
