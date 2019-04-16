@@ -209,6 +209,7 @@ Ext.define('Fwc.controller.Firmware', {
                     me.getContainer().down('firmware-form-add #radio-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount!==1);
 
                     var supportedFirmwareTypesData = supportedFirmwareTypesStore.getRange();
+                    me.getContainer().down('firmware-form-add').supportedTypes = supportedFirmwareTypesData;
                     if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "meter"}).length){
                         me.getContainer().down('firmware-form-add #firmware-min-meter-version-common').show();
                     }else{
