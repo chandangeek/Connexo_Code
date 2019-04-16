@@ -541,11 +541,6 @@
 		</profile>
 		<profile>
 			<id>sencha-compile</id>
-			<activation>
-				<property>
-					<name>sencha.ext.dir</name>
-				</property>
-			</activation>
 			<build>
 				<plugins>
 					<plugin>
