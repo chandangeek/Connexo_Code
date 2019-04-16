@@ -5,6 +5,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.license.LicenseService;
@@ -539,8 +540,39 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private void executeMicroChecks(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp) throws DeviceLifeCycleActionViolationException {
         List<ExecutableMicroCheckViolation> violations = action.getChecks()
                 .stream()
-                .filter(check -> check instanceof ExecutableMicroCheck)
-                .map(ExecutableMicroCheck.class::cast)
+                .map(check -> check instanceof ExecutableMicroCheck ?
+                        (ExecutableMicroCheck) check :
+                        new ExecutableMicroCheck() {
+                            @Override
+                            public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
+                                return Optional.of(new ExecutableMicroCheckViolation(this, thesaurus.getSimpleFormat(MessageSeeds.MICRO_CHECK_NOT_EXECUTABLE).format()));
+                            }
+
+                            @Override
+                            public String getKey() {
+                                return check.getKey();
+                            }
+
+                            @Override
+                            public String getName() {
+                                return check.getName();
+                            }
+
+                            @Override
+                            public String getDescription() {
+                                return check.getDescription();
+                            }
+
+                            @Override
+                            public String getCategory() {
+                                return check.getCategory();
+                            }
+
+                            @Override
+                            public String getCategoryName() {
+                                return check.getCategoryName();
+                            }
+                        })
                 .map(check -> check.execute(device, effectiveTimestamp, action.getStateTransition().getTo()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)

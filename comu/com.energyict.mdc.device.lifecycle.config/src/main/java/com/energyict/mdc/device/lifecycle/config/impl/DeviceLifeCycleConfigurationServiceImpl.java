@@ -139,7 +139,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         return Stream.of(
                 DefaultLifeCycleTranslationKey.values(),
                 DefaultState.values(),
-                EndDeviceStageTranslationKey.values()
+                EndDeviceStageTranslationKey.values(),
+                DeviceAuthorizedActionMicroCheckUsageImpl.UnknownCheckTranslationKey.values()
         )
                 .flatMap(Arrays::stream)
                 .collect(Collectors.toList());
