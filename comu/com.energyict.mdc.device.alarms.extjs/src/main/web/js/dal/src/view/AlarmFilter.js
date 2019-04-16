@@ -144,7 +144,7 @@ Ext.define('Dal.view.AlarmFilter', {
                 type: 'combobox',
                 itemId: 'alarm-deviceGroup-filter',
                 dataIndex: 'deviceGroup',
-                emptyText: Uni.I18n.translate('general.deviceGroup', 'DAL', 'Device Group'),
+                emptyText: Uni.I18n.translate('general.deviceGroup', 'DAL', 'Device group'),
                 displayField: 'name',
                 valueField: 'id',
                 store: 'Dal.store.DeviceGroups',
