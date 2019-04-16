@@ -531,7 +531,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
             return "";
         }
 
-        protected DeviceType getDeviceType() {
+        public DeviceType getDeviceType() {
             return deviceType;
         }
 
