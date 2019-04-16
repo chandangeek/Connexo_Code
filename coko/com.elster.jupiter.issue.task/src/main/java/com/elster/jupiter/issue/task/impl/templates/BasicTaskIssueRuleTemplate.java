@@ -134,7 +134,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 "\tevent : TaskFailureEvent( resolveEvent == false, recurrentTaskId in (@{" + TASK_PROPS + "}))\n" +
                 "\teval( event.logOnSameIssue(\"@{" + LOG_ON_SAME_ISSUE + "}\") == true )\n" +
                 "then\n" +
-                "\tLOGGER.info(\"Trying to create issue by basic task rule=@{ruleId}\");\n" +
+                "\tLOGGER.info(\"Trying to create issue by basic task rule=@{ruleId} with log on same issue\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
                 "end\n" +
                 "rule \"Basic task rule @{ruleId} without log on same issue\"\n" +
@@ -142,7 +142,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 "\tevent : TaskFailureEvent( resolveEvent == false, recurrentTaskId in (@{" + TASK_PROPS + "}))\n" +
                 "\teval( event.logOnSameIssue(\"@{" + LOG_ON_SAME_ISSUE + "}\") == false )\n" +
                 "then\n" +
-                "\tLOGGER.info(\"Trying to create issue by basic task rule=@{ruleId}\");\n" +
+                "\tLOGGER.info(\"Trying to create issue by basic task rule=@{ruleId} with create new issue\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, false);\n" +
                 "end\n" +
                 "rule \"Auto-resolution section @{ruleId}\"\n" +

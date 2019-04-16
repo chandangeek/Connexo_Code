@@ -54,8 +54,7 @@ public class TaskIssueEventHandler implements MessageHandler {
 
     private List<IssueEvent> createEvents(Map<?, ?> map) {
         List<IssueEvent> events = new ArrayList<>();
-        Stream.concat(Arrays.stream(TaskEventDescription.values()),
-                Arrays.stream(TaskEventDescription.values()))
+                Arrays.stream(TaskEventDescription.values())
                 .filter(description -> description.validateEvent(map))
                 .forEach(description -> createEventsBasedOnDescription(events, map, description));
         return events;
