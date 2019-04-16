@@ -5,6 +5,7 @@
 package com.energyict.comserver.core.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
@@ -41,9 +42,10 @@ public class MdcUiInstaller implements TranslationKeyProvider {
 
     @Activate
     public void activate(BundleContext context) {
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
         //HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Development\\Jupiter\\connexo\\comu\\com.energyict.comserver.comserver.core.extjs\\src\\main\\web\\js\\mdc", new FileResolver());
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\x\\comu\\com.energyict.comserver.comserver.core.extjs\\src\\main\\web\\js\\mdc", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 

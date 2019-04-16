@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.device.data.rest.impl;
@@ -137,6 +137,7 @@ public class DeviceResource {
     private final ExceptionFactory exceptionFactory;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
+    private final Provider<BulkLoadProfileResource> bulkLoadProfileResourceProvider;
     private final Provider<LogBookResource> logBookResourceProvider;
     private final Provider<DeviceValidationResource> deviceValidationResourceProvider;
     private final Provider<DeviceEstimationResource> deviceEstimationResourceProvider;
@@ -187,6 +188,7 @@ public class DeviceResource {
             DeviceConfigurationService deviceConfigurationService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
             Provider<LoadProfileResource> loadProfileResourceProvider,
+            Provider<BulkLoadProfileResource> bulkLoadProfileResourceProvider,
             Provider<LogBookResource> logBookResourceProvider,
             Provider<RegisterResource> registerResourceProvider,
             Provider<DeviceValidationResource> deviceValidationResourceProvider,
@@ -235,6 +237,7 @@ public class DeviceResource {
         this.deviceConfigurationService = deviceConfigurationService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileResourceProvider = loadProfileResourceProvider;
+        this.bulkLoadProfileResourceProvider = bulkLoadProfileResourceProvider;
         this.logBookResourceProvider = logBookResourceProvider;
         this.registerResourceProvider = registerResourceProvider;
         this.deviceValidationResourceProvider = deviceValidationResourceProvider;
@@ -887,6 +890,11 @@ public class DeviceResource {
     @Path("/{name}/loadprofiles")
     public LoadProfileResource getLoadProfileResource() {
         return loadProfileResourceProvider.get();
+    }
+
+    @Path("/changelpstart")
+    public BulkLoadProfileResource getBulkLoadProfileResource() {
+        return bulkLoadProfileResourceProvider.get();
     }
 
     @Path("/{name}/logbooks")
