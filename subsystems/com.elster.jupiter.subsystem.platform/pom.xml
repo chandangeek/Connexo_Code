@@ -434,16 +434,13 @@
                         </goals>
                     </execution>
                 </executions>
-
                 <configuration>
                     <archiverConfig>
                         <duplicateBehavior>skip</duplicateBehavior>
                     </archiverConfig>
-
                     <descriptors>
                         <descriptor>assembly/assembly.xml</descriptor>
                     </descriptors>
-
                     <finalName>connexo-platform-v${project.version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
