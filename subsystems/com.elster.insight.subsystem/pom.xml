@@ -12,9 +12,13 @@
     </parent>
 
     <artifactId>mdm</artifactId>
-    <packaging>pom</packaging>
+    <packaging>bundle</packaging>
     <name>[Insight Subsystem] com.elster.insight.subsystem</name>
     <description>Assembly project for Insight</description>
+
+    <properties>
+        <baseline>(,${project.version})</baseline>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -105,42 +109,31 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>insight</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-
-                        <configuration>
-                            <archiverConfig>
-                                <duplicateBehavior>skip</duplicateBehavior>
-                            </archiverConfig>
-
-                            <descriptors>
-                                <descriptor>assembly.xml</descriptor>
-                            </descriptors>
-
-                            <finalName>connexo-insight-v${project.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>insight</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <archiverConfig>
+                        <duplicateBehavior>skip</duplicateBehavior>
+                    </archiverConfig>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
+                    <finalName>connexo-insight-v${project.version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

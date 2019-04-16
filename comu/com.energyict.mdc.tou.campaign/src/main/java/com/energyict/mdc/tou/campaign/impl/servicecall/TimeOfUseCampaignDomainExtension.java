@@ -43,7 +43,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         ACTIVATION_OPTION("activationOption", "activation_option"),
         ACTIVATION_DATE("activationDate", "activation_date"),
         UPDATE_TYPE("updateType", "update_type"),
-        VALIDATION_TIMEOUT("validationTimeout", "validation_timeout");
+        VALIDATION_TIMEOUT("validationTimeout", "validation_timeout"),
+        WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "with_unique_calendar_name");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -91,6 +92,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     private String activationOption;
     private Instant activationDate;
     private long validationTimeout;
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    private boolean withUniqueCalendarName;
 
     @Inject
     public TimeOfUseCampaignDomainExtension(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
@@ -229,6 +232,15 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
+    public boolean isWithUniqueCalendarName() {
+        return withUniqueCalendarName;
+    }
+
+    public void setWithUniqueCalendarName(boolean withUniqueCalendarName) {
+        this.withUniqueCalendarName = withUniqueCalendarName;
+    }
+
+    @Override
     public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(domainInstance);
         this.setName((String) propertyValues.getProperty(FieldNames.NAME_OF_CAMPAIGN.javaName()));
@@ -241,6 +253,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         this.setActivationDate((Instant) propertyValues.getProperty(FieldNames.ACTIVATION_DATE.javaName()));
         this.setUpdateType((String) propertyValues.getProperty(FieldNames.UPDATE_TYPE.javaName()));
         this.setValidationTimeout((long) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
+        this.setWithUniqueCalendarName((boolean) propertyValues.getProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName()));
     }
 
     @Override
@@ -255,6 +268,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.ACTIVATION_DATE.javaName(), this.getActivationDate());
         propertySetValues.setProperty(FieldNames.UPDATE_TYPE.javaName(), this.getUpdateType());
         propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getValidationTimeout());
+        propertySetValues.setProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName(), this.isWithUniqueCalendarName());
     }
 
     @Override

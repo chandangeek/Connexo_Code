@@ -18,5 +18,6 @@ public class DeviceCommandInfo {
     public String keyAccessorType;
     public String callbackSuccess;
     public String callbackError;
+    public String securityPropertySet;
 
 }

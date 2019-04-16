@@ -28,6 +28,8 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     public Instant activationDate;
     public String updateType;
     public Long validationTimeout;
+    public Boolean withUniqueCalendarName;
+
     private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
     private final DataModel dataModel;
 
@@ -73,6 +75,12 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         return this;
     }
 
+    @Override
+    public TimeOfUseCampaignBuilder withUniqueCalendarName(boolean withCalendarNameValidation) {
+        this.withUniqueCalendarName = withCalendarNameValidation;
+        return this;
+    }
+
     public TimeOfUseCampaignBuilderImpl withType(DeviceType deviceType) {
         this.deviceType = deviceType;
         return this;
@@ -99,6 +107,7 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         timeOfUseCampaign.setCalendar(calendar);
         timeOfUseCampaign.setUpdateType(updateType);
         timeOfUseCampaign.setActivationOption(activationOption);
+        timeOfUseCampaign.setWithUniqueCalendarName(withUniqueCalendarName);
         Optional.ofNullable(activationDate).ifPresent(timeOfUseCampaign::setActivationDate);
         Optional.ofNullable(validationTimeout).ifPresent(timeOfUseCampaign::setValidationTimeout);
         ServiceCall serviceCall = timeOfUseCampaignService.createServiceCallAndTransition(timeOfUseCampaign);

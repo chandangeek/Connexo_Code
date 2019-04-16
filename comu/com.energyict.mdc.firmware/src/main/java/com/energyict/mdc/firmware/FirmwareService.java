@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -18,9 +19,11 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import aQute.bnd.annotation.ProviderType;
 
 import java.io.File;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Provides Firmware related services.
@@ -54,6 +57,7 @@ public interface FirmwareService {
      * Provides a set of ProtocolSupportedFirmwareOptions for the given DeviceType
      */
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
+    EnumSet<FirmwareType> getSupportedFirmwareTypes(DeviceType deviceType);
     boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType);
     boolean isResumeFirmwareUploadEnabled(DeviceType deviceType);
     Optional<com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec> defaultFirmwareVersionSpec();
@@ -135,4 +139,9 @@ public interface FirmwareService {
 
     DeviceFirmwareHistory getFirmwareHistory(Device device);
 
+    Stream<FirmwareCheck> getFirmwareChecks();
+
+    List<? extends FirmwareVersion> getOrderedFirmwareVersions(DeviceType deviceType);
+
+    void reorderFirmwareVersions(DeviceType deviceType, KPermutation kPermutation);
 }

@@ -110,6 +110,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_MODEL_VERSION("device.model.version", "Model version"),
     DEVICE_ATTRIBUTES("device.attributes", "Device attributes"),
     DEVICE_MASTER_SEARCH_CRITERION_NAME("device.master.searchcriterion.search", "Has master device"),
+    SERVICE_KEYS("device.security.servicekeys", "Has service keys"),
     ZONE_NAME("device.zoneName", "Zone name"),
     ZONE_TYPE("device.zoneType","Zone type"),
     ZONE("device.zone", "Zone"),
@@ -120,6 +121,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CONNECTION_TASK_SIMULTANEOUS_CONNECTIONS_NUMBER("device.connection.simultaneous.connections.number", "Number of simultaneous connections"),
     CONNECTION_TASK_CONNECTION_WINDOW("device.connection.window", "Connection window"),
     CONNECTION_TASK_CONNECTION_WINDOW_NO_RESTRICTION("device.connection.window.no.restriction", "no restrictions"),
+    CONNECTION_FUNCTION("Connection.function", "''{0}'' function"),
 
     ;
 

@@ -10,6 +10,7 @@ Ext.define('Mdc.timeofuse.view.Preview', {
 
     requires: [
         'Mdc.timeofuse.view.PreviewForm',
+        'Uni.util.FormEmptyMessage',
         'Mdc.timeofuse.view.ActionMenu'
     ],
 
@@ -27,11 +28,32 @@ Ext.define('Mdc.timeofuse.view.Preview', {
             }
         ];
 
-        me.items = {
-            xtype: 'devicetype-tou-preview-form',
-            itemId: 'devicetype-tou-preview-form'
-        };
+        me.items = [
+            {
+                xtype: 'devicetype-tou-preview-form',
+                itemId: 'devicetype-tou-preview-form',
+            },
+            {
+                xtype: 'uni-form-empty-message',
+                text: Uni.I18n.translate('timeofuse.calendarIsGhostMessage', 'MDC', "No information available due to status as 'ghost'."),
+                itemId: 'ghostStatusMessage',
+                hidden: true
+            }
+        ];
         me.callParent(arguments);
-    }
+    },
 
+    showForm: function() {
+        var me = this;
+
+        me.down('#devicetype-tou-preview-form').show();
+        me.down('#ghostStatusMessage').hide();
+    },
+
+    showEmptyMessage: function () {
+        var me = this;
+
+        me.down('#devicetype-tou-preview-form').hide();
+        me.down('#ghostStatusMessage').show();
+    }
 });

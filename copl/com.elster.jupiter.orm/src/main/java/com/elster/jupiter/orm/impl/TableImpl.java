@@ -357,7 +357,7 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public Column addUserNameColumn(String name, String fieldName) {
-        return column(name).varChar(80).notNull().conversion(CHAR2PRINCIPAL).map(fieldName).installValue("'install/upgrade'").add();
+        return column(name).varChar(80).notNull().conversion(CHAR2PRINCIPAL).map(fieldName).notAudited().installValue("'install/upgrade'").add();
     }
 
     @Override

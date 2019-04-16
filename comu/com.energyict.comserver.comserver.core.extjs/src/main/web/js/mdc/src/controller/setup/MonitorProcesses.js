@@ -91,13 +91,11 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router');
-
         viewport.setLoading();
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 var widget;
-
                 me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
                 widget = Ext.widget('device-processes-start', {
@@ -124,7 +122,8 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                         ],
                         additionalReasons: [Uni.I18n.translate('startProcess.empty.list.item', 'MDC', 'No processes are available for the current device state.')],
                         successLink: router.getRoute('devices/device/processes').buildUrl({deviceId: deviceId}),
-                        cancelLink: router.getRoute('devices/device').buildUrl({deviceId: deviceId})
+                        cancelLink: router.getRoute('devices/device').buildUrl({deviceId: deviceId}),
+                        context: {deviceName: device.get('name')}
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);

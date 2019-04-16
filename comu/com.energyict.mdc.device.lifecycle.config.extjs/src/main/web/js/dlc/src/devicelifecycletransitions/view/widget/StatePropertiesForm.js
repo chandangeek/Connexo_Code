@@ -220,7 +220,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
     },
 
     getFieldById: function (id) {
-        return this.down('#' + id);
+        return this.down('#' + id.replace(/\./g, '\\.'));
     },
 
     setValue: function (micro) {

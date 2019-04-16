@@ -61,6 +61,10 @@
             <groupId>org.glassfish.web</groupId>
             <artifactId>javax.el</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.elster.jupiter</groupId>

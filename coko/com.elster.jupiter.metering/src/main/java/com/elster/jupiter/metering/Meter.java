@@ -30,6 +30,15 @@ public interface Meter extends EndDevice, ReadingContainer {
      */
     void store(QualityCodeSystem system, MeterReading reading);
 
+    /**
+     * Stores {@link MeterReading}.
+     *
+     * @param system {@link QualityCodeSystem} that handles storage.
+     * @param reading {@link MeterReading} to store.
+     * @param readingDate used to set the reading date in case data is imported from another system.  If data is collected, it can be set to null
+     */
+    void store(QualityCodeSystem system, MeterReading reading, Instant readingDate);
+
     List<? extends MeterActivation> getMeterActivations();
 
     List<? extends MeterActivation> getMeterActivations(Range<Instant> range);

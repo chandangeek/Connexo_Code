@@ -34,7 +34,7 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel,
             widget;
 
-        if (issueType === 'datacollection') {
+        if (issueType === 'datacollection' || issueType ==='devicelifecycle') {
             processStore.getProxy().setUrl(id);
             processStore.load(function (records) {
             });
@@ -591,7 +591,7 @@ Ext.define('Isu.controller.IssueDetail', {
         } else if (issueType === 'datavalidation') {
             issueModel = 'Idv.model.Issue';
         } else if (issueType === 'devicelifecycle') {
-            issueModel = 'Idv.model.Issue';
+            issueModel = 'Idl.model.Issue';
         }else if (issueType === 'task') {
             issueModel = 'Itk.model.Issue';
         }

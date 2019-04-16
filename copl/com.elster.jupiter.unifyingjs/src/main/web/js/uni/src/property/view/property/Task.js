@@ -17,13 +17,13 @@ Ext.define('Uni.property.view.property.Task', {
                     {
                         xtype: 'uni-grid-filtertop-combobox',
                         itemId: 'task-type',
-                        fieldLabel: Uni.I18n.translate('task.type', 'UNI', 'Task Type'),
+                        fieldLabel: Uni.I18n.translate('task.types', 'UNI', 'Tasks'),
                         queryMode: 'local',
                         name: 'taskType',
                         labelWidth: 260,
                         width: 595,
-                        emptyText: Uni.I18n.translate('general.device.type.empty', 'UNI', 'Select a task type...'),
-                        valueField: 'id',
+                        emptyText: Uni.I18n.translate('task.types.empty', 'UNI', 'Select a task ...'),
+                        valueField: 'destinationName',
                         displayField: 'destinationName',
                         allowBlank: false,
                         multiSelect: true,
@@ -35,21 +35,13 @@ Ext.define('Uni.property.view.property.Task', {
                             change: function (combo, newValue, oldValue) {
                                 var taskNameCombo = me.down('#task-name');
                                 var store = me.getTaskNameStore();
-                                var elements = [];
-                                store.each(function (record) {
-
-                                    var result = elements.filter(function (element) {
-                                        return element.recurrentTaskName == record.get('recurrentTaskName') &&
-                                            element.destinationName == record.get('destinationName');
+                                var filterByTaskTypes = [];
+                                Ext.Array.forEach(newValue, function (destinationName) {
+                                    store.each(function (record) {
+                                        if (record.get('destinationName') == destinationName) {
+                                            filterByTaskTypes.push(record);
+                                        }
                                     });
-
-                                    if (result.length == 0) {
-                                        var object = {};
-                                        object.recurrentTaskName = record.get('recurrentTaskName');
-                                        object.id = record.get('id');
-                                        object.destinationName = record.get('destinationName');
-                                        elements.push(object);
-                                    }
                                 });
 
                                 var filteredStore = Ext.create('Ext.data.JsonStore', {
@@ -58,11 +50,10 @@ Ext.define('Uni.property.view.property.Task', {
                                         property: 'recurrentTaskName',
                                         direction: 'ASC'
                                     }],
-                                    groupField: 'id',
-                                    data: elements
+                                    data: filterByTaskTypes
                                 });
                                 taskNameCombo.queryFilter = null;
-                                if (elements.length == 0) {
+                                if (filterByTaskTypes.length == 0) {
                                     taskNameCombo.clearValue();
                                     taskNameCombo.bindStore(null);
                                     taskNameCombo.setDisabled(true);
@@ -105,58 +96,45 @@ Ext.define('Uni.property.view.property.Task', {
     setLocalizedName: function (name) {
     },
 
-    setValue: function (value) {
+    setValue: function (values) {
         var me = this,
+            possibleValues = me.getProperty().getPossibleValues(),
             taskTypeValues = [],
             taskNameValues = [],
             taskTypeCombo = me.down('#task-type'),
             taskNameCombo = me.down('#task-name');
 
-        if (value) {
-            value = [].concat(value);
-            Ext.Array.forEach(value, function (item) {
-                if (item !== '') {
-                    taskNameValues.push(item);
+        if (values) {
+            values = [].concat(values);
+            taskNameValues = values;
+
+            Ext.Array.forEach(values, function (value) {
+                var destinationName = '';
+                var selectedValues = Ext.Array.findBy(possibleValues, function (possibleValue) {
+                    return possibleValue.id == value;
+                });
+
+                if (selectedValues){
+                    selectedValues = [].concat(selectedValues);
+                    destinationName = JSON.parse(selectedValues[0].name).destinationName;
+
+                    var selectedTaskType = Ext.Array.findBy(taskTypeValues, function (taskTypeValue) {
+                        return taskTypeValue === destinationName;
+                    });
+                    if (!selectedTaskType){
+                        taskTypeValues.push(destinationName);
+                    }
                 }
             });
-            var uniqueDeviceTypeValues = taskTypeValues.filter(function (item, pos, self) {
-                return self.indexOf(item) == pos;
-            });
-            taskTypeCombo.setValue(uniqueDeviceTypeValues);
+            taskTypeCombo.setValue(taskTypeValues);
             taskNameCombo.setValue(taskNameValues);
         }
     },
 
     getValue: function () {
         var me = this,
-            taskTypeCombo = me.down('#task-type'),
             taskNameCombo = me.down('#task-name');
-
-        var values = taskNameCombo.getValue();
-
-        if (values.length > 0) {
-            var taskNameStore = me.getTaskNameStore();
-            var taskTypeValues = taskTypeCombo.getValue();
-            var names = [];
-            var unique = [];
-            taskNameStore.each(function (record) {
-                Ext.Array.forEach(taskTypeValues, function (taskTypeValue) {
-                    if (record.get('id') == taskTypeValue) {
-                        Ext.Array.forEach(values, function (value) {
-                            names.push(value);
-                        });
-                    }
-                });
-
-                unique = names.filter(function (item, pos, self) {
-                    return self.indexOf(item) == pos;
-                });
-
-            });
-            return unique;
-        } else {
-            return null;
-        }
+       return taskNameCombo.getValue();
     },
 
     getTaskTypeStore: function () {
@@ -165,23 +143,31 @@ Ext.define('Uni.property.view.property.Task', {
 
         var elements = [];
         if (possibleValues) {
-            for (var i = 0; i < possibleValues.length; i++) {
-                var object = {};
-                object.id = possibleValues[i].id;
-                object.destinationName = JSON.parse(possibleValues[i].name).destinationName;
-                elements.push(object);
-            }
+            Ext.Array.forEach(possibleValues, function (possibleValue) {
+                elements.push({destinationName: JSON.parse(possibleValue.name).destinationName} );
+            });
         }
+
+        var unique = [], uniqueByDestinations = [], l = elements.length, i;
+        for( i=0; i<l; i++) {
+            if( unique[elements[i].destinationName]) continue;
+            unique[elements[i].destinationName] = true;
+            uniqueByDestinations.push(elements[i]);
+        }
+
         return Ext.create('Ext.data.JsonStore', {
             fields: [
-                {
-                    name: 'id'
-                },
                 {
                     name: 'destinationName'
                 }
             ],
-            data: elements
+            sorters: [
+                {
+                    property: 'destinationName',
+                    direction: 'ASC'
+                }
+            ],
+            data: uniqueByDestinations
         });
 
     },
@@ -211,9 +197,13 @@ Ext.define('Uni.property.view.property.Task', {
                     name: 'recurrentTaskName'
                 }
             ],
+            sorters: [
+                {
+                    property: 'recurrentTaskName',
+                    direction: 'ASC'
+                }
+            ],
             data: elements
         });
-
     }
-
 });

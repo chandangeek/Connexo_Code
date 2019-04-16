@@ -95,10 +95,10 @@ Ext.define('Tou.view.Grid', {
                         case 'Pending':
                             iconCls = 'icon-forward2';
                             break;
-                        case 'Configuration Error':
+                        case 'Configuration error':
                             iconCls = 'icon-notification';
                             break;
-                        case 'Canceled':
+                        case 'Cancelled':
                             iconCls = 'icon-blocked';
                             break;
                         }
@@ -153,7 +153,7 @@ Ext.define('Tou.view.Grid', {
                 itemId: 'tou-campaigns-grid-paging-toolbar-bottom',
                 dock: 'bottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbarbottom.itemsPerPage', 'TOU', 'ToU campaigns per page')
+                itemsPerPageMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbarbottom.itemsPerPage', 'TOU', 'ToU calendar campaigns per page')
             }
         ];
 

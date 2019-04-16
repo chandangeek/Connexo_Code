@@ -55,6 +55,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.EventTypeWindow',
         'Uni.property.view.property.LifeCycleStatusInDeviceType',
         'Uni.property.view.property.RaisedEventProps',
+        'Uni.property.view.property.RecurrenceSelectionProps',
         'Uni.property.view.property.RadioGroup',
         'Uni.property.view.property.EventTime',
         'Uni.property.view.property.StartAlarmProcess',
@@ -66,7 +67,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.UsagePoint',
         'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations',
         'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
-        'Uni.property.view.property.Recurrence'
+        'Uni.property.view.property.Recurrence',
+        'Uni.property.view.property.Task'
     ],
 
     /**
@@ -107,6 +109,7 @@ Ext.define('Uni.property.controller.Registry', {
         PASSWORD: 'Uni.property.view.property.Password',
         QUANTITY: 'Uni.property.view.property.Quantity',
         RAISEEVENTPROPS: 'Uni.property.view.property.RaisedEventProps',
+        RECURRENCE_SELECTION_PROPS: 'Uni.property.view.property.RecurrenceSelectionProps',
         RADIO_GROUP: 'Uni.property.view.property.RadioGroup',
         READINGTYPE: 'Uni.property.view.property.Reference',
         RECURRENCE: 'Uni.property.view.property.Recurrence',

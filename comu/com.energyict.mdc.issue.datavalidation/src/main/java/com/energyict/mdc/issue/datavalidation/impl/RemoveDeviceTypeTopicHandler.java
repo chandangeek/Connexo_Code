@@ -14,22 +14,21 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.streams.Functions;
 
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 
-import org.mvel2.util.Make;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate.*;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation.RemoveDeviceTypeTopicHandler", service = TopicHandler.class, immediate = true)
@@ -58,8 +57,19 @@ public class RemoveDeviceTypeTopicHandler implements TopicHandler {
                 .map(rule -> (List<DeviceConfigurationInfo>) rule.getProperties().get(DEVICE_CONFIGURATIONS))
                 .flatMap(Collection::stream)
                 .anyMatch(info -> configIds.contains(info.getId()));
-        if(configOfDeviceTypeInUse) {
-            throw new VetoDeviceTypeDeleteException(issueDataValidationService.thesaurus(), deviceType);
+
+        boolean deviceTypeInUse = validationCreationRules.stream()
+                .map(rule -> (List)rule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES))
+                .filter(list -> !list.isEmpty())
+                .map(list -> list.get(0))
+                .map(rule -> (DeviceLifeCycleInDeviceTypeInfo) rule)
+                .anyMatch(info ->  info.getDeviceTypeId() == deviceType.getId());
+
+        if(configOfDeviceTypeInUse)
+            throw new VetoDeviceTypeDeleteException(issueDataValidationService.thesaurus(), deviceType, MessageSeeds.DEVICE_TYPE_DEVICE_CONFIG_IN_USE);
+
+        if(deviceTypeInUse) {
+            throw new VetoDeviceTypeDeleteException(issueDataValidationService.thesaurus(), deviceType, MessageSeeds.DEVICE_TYPE_IN_USE);
         }
     }
 

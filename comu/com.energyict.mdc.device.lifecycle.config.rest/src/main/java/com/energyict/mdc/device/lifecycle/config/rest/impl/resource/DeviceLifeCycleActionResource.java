@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.fsm.State;
@@ -40,7 +39,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -65,8 +63,9 @@ public class DeviceLifeCycleActionResource {
         this.microActionAndCheckInfoFactory = microActionAndCheckInfoFactory;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getActionsForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam JsonQueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
@@ -78,9 +77,10 @@ public class DeviceLifeCycleActionResource {
         return PagedInfoList.fromPagedList("deviceLifeCycleActions", ListPager.of(transitions).from(queryParams).find(), queryParams);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{actionId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response getAuthorizedActionById(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("actionId") Long actionId, @BeanParam JsonQueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
@@ -88,9 +88,10 @@ public class DeviceLifeCycleActionResource {
         return Response.ok(authorizedActionInfoFactory.from(action)).build();
     }
 
-    @POST @Transactional
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @POST
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response addActionsForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, AuthorizedActionInfo newAction) {
         validateInfo(newAction);
@@ -101,9 +102,10 @@ public class DeviceLifeCycleActionResource {
         return Response.ok(authorizedActionInfoFactory.from(authorizedAction)).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{actionId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response editAuthorizedAction(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, AuthorizedActionInfo info) {
         validateInfo(info);
@@ -124,9 +126,10 @@ public class DeviceLifeCycleActionResource {
                 .validate();
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/{actionId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response deleteAuthorizedAction(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId,
                                            @PathParam("actionId") Long actionId,
@@ -140,19 +143,21 @@ public class DeviceLifeCycleActionResource {
         return Response.ok(authorizedActionInfoFactory.from(authorizedAction)).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/microactions")
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response getAvailableMicroActionsForTransition(
             @PathParam("deviceLifeCycleId") Long deviceLifeCycleId,
             @QueryParam("fromState") long fromStateId,
             @QueryParam("toState") long toStateId,
             @BeanParam JsonQueryParameters queryParams) {
-        Optional<TransitionType> defaultTransition = getDefaultTransition(deviceLifeCycleId, fromStateId, toStateId);
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
+        Optional<TransitionType> defaultTransition = getDefaultTransition(deviceLifeCycle, fromStateId, toStateId);
         List<MicroActionAndCheckInfo> microActions = new ArrayList<>();
-        if (defaultTransition.isPresent()){
+        if (defaultTransition.isPresent()) {
             defaultTransition.get().optionalActions()
                     .stream()
                     .map(microActionAndCheckInfoFactory::optional)
@@ -166,46 +171,56 @@ public class DeviceLifeCycleActionResource {
                     .map(microActionAndCheckInfoFactory::optional)
                     .forEach(microActions::add);
         }
-        Collections.sort(microActions, Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name)
-                .thenComparing(Comparator.comparing(obj -> obj.name)));
+        microActions.sort(Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name)
+                .thenComparing(obj -> obj.name));
         return Response.ok(PagedInfoList.fromCompleteList("microActions", microActions, queryParams)).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/microchecks")
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response getAvailableMicroChecksForTransition(
             @PathParam("deviceLifeCycleId") Long deviceLifeCycleId,
             @QueryParam("fromState") long fromStateId,
             @QueryParam("toState") long toStateId,
             @BeanParam JsonQueryParameters queryParams) {
-        Optional<TransitionType> defaultTransition = getDefaultTransition(deviceLifeCycleId, fromStateId, toStateId);
         Set<MicroActionAndCheckInfo> microChecks = new TreeSet<>(Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name)
-                .thenComparing(Comparator.comparing(obj -> obj.name)));
-        if (defaultTransition.isPresent()){
-            defaultTransition.get().optionalChecks()
-                    .stream()
-                    .map(microActionAndCheckInfoFactory::optional)
-                    .forEach(microChecks::add);
-            defaultTransition.get().requiredChecks()
-                    .stream()
-                    .map(microActionAndCheckInfoFactory::required)
-                    .forEach(microChecks::add);
-        } else {
-            Arrays.stream(MicroCheck.values())
-                    .filter(microCheck -> microCheck != MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
-                    .map(microActionAndCheckInfoFactory::optional)
-                    .forEach(microChecks::add);
-        }
+                .thenComparing(obj -> obj.name));
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
+        Set<MicroCheck> allMicroChecks = resourceHelper.findAllAvailableMicroChecks();
+        State fromState = getFromState(deviceLifeCycle, fromStateId);
+        State toState = getToState(deviceLifeCycle, toStateId);
+        allMicroChecks
+                .stream()
+                .filter(microCheck -> microCheck.isRequiredForTransition(fromState, toState))
+                .map(microActionAndCheckInfoFactory::required)
+                .forEach(microChecks::add);
+        allMicroChecks
+                .stream()
+                .filter(microCheck -> microCheck.isOptionalForTransition(fromState, toState))
+                .map(microActionAndCheckInfoFactory::optional)
+                .forEach(microChecks::add);
         return Response.ok(PagedInfoList.fromCompleteList("microChecks", new ArrayList<>(microChecks), queryParams)).build();
     }
 
-    private Optional<TransitionType> getDefaultTransition(Long deviceLifeCycleId, long fromStateId, long toStateId) {
-        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
-        State fromState = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, fromStateId);
-        State toState = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, toStateId);
+    private State getFromState(DeviceLifeCycle deviceLifeCycle, long fromStateId) {
+        return resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, fromStateId);
+    }
+
+    private State getToState(DeviceLifeCycle deviceLifeCycle, long toStateId) {
+        return resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, toStateId);
+    }
+
+    private Optional<TransitionType> getDefaultTransition(DeviceLifeCycle deviceLifeCycle, long fromStateId, long toStateId) {
+        State fromState = getFromState(deviceLifeCycle, fromStateId);
+        State toState = getToState(deviceLifeCycle, toStateId);
+        return getDefaultTransition(fromState, toState);
+    }
+
+    private Optional<TransitionType> getDefaultTransition(State fromState, State toState) {
         return TransitionType.from(fromState, toState);
     }
 }
