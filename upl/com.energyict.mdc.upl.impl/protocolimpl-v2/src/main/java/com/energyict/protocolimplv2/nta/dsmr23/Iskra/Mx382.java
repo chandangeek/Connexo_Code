@@ -97,7 +97,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
             hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
         }
 
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
+        setDlmsSession(newDlmsSession(comChannel));
         getDlmsSession().getDLMSConnection().setSNRMType(1);//Uses a specific parameter length for the HDLC signon (SNRM request)
     }
 
@@ -107,6 +107,10 @@ public class Mx382 extends AbstractSmartNtaProtocol {
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(false);
         return hhuSignOn;
+    }
+
+    protected DlmsSession newDlmsSession(ComChannel comChannel) {
+        return new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
     }
 
     @Override
