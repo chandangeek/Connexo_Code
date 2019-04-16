@@ -1,19 +1,18 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.rest.info;
 
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,23 +30,24 @@ public class AuthorizedActionInfo {
     public long version;
     public VersionInfo<Long> parent;
 
-    public AuthorizedActionInfo() {}
+    public AuthorizedActionInfo() {
+    }
 
     @JsonIgnore
-    public Set<AuthorizedAction.Level> getPrivilegeLevels(){
+    public Set<AuthorizedAction.Level> getPrivilegeLevels() {
         Set<AuthorizedAction.Level> levels = EnumSet.noneOf(AuthorizedAction.Level.class);
-        if (this.privileges != null){
+        if (this.privileges != null) {
             this.privileges.stream()
-                .map(each -> AuthorizedAction.Level.valueOf(each.privilege))
-                .forEach(levels::add);
+                    .map(each -> AuthorizedAction.Level.valueOf(each.privilege))
+                    .forEach(levels::add);
         }
         return levels;
     }
 
     @JsonIgnore
-    public Set<MicroAction> getMicroActions(){
+    public Set<MicroAction> getMicroActions() {
         Set<MicroAction> microActions = EnumSet.noneOf(MicroAction.class);
-        if (this.microActions != null){
+        if (this.microActions != null) {
             this.microActions.stream()
                     .filter(candidate -> candidate.checked != null && candidate.checked)
                     .map(each -> MicroAction.valueOf(each.key))
@@ -57,24 +57,24 @@ public class AuthorizedActionInfo {
     }
 
     @JsonIgnore
-    public Set<MicroCheck> getMicroChecks(){
-        Set<MicroCheck> microChecks = EnumSet.noneOf(MicroCheck.class);
-        if (this.microChecks != null){
+    public Set<String> getMicroChecks() {
+        Set<String> microChecks = new HashSet<>();
+        if (this.microChecks != null) {
             this.microChecks.stream()
                     .filter(candidate -> candidate.checked != null && candidate.checked)
                     .forEach(microCheck -> {
-                        if (MicroActionAndCheckInfoFactory.CONSOLIDATED_MICRO_CHECKS_KEY.equals(microCheck.key)){
+                        if (MicroActionAndCheckInfoFactory.CONSOLIDATED_MICRO_CHECKS_KEY.equals(microCheck.key)) {
                             microChecks.addAll(MicroActionAndCheckInfoFactory.CONSOLIDATED_MICRO_CHECKS);
                         } else {
-                            microChecks.add(MicroCheck.valueOf(microCheck.key));
+                            microChecks.add(microCheck.key);
                         }
                     });
         }
         return microChecks;
     }
 
-    public boolean isLinkedTo(StateTransition candidate){
-        if (this.fromState != null && this.toState != null && this.triggeredBy != null){
+    public boolean isLinkedTo(StateTransition candidate) {
+        if (this.fromState != null && this.toState != null && this.triggeredBy != null) {
             return candidate.getEventType().getSymbol().equals(this.triggeredBy.symbol)
                     && candidate.getFrom().getId() == this.fromState.id
                     && candidate.getTo().getId() == this.toState.id;
@@ -83,7 +83,7 @@ public class AuthorizedActionInfo {
     }
 
     @JsonIgnore
-    public String getEventTypeSymbol(){
+    public String getEventTypeSymbol() {
         return this.triggeredBy != null ? this.triggeredBy.symbol : null;
     }
 }

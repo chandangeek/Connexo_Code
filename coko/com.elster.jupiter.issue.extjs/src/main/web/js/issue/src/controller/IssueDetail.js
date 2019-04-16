@@ -34,11 +34,12 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel,
             widget;
 
-        if (issueType === 'datacollection') {
+        if (issueType === 'datacollection' || issueType ==='devicelifecycle') {
             processStore.getProxy().setUrl(id);
             processStore.load(function (records) {
             });
         }
+
 
         if (store.getCount()) {
             var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
@@ -48,6 +49,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 issueType = issueActualType;
             }
         }
+
 
         if (issueType === 'datacollection') {
             widgetXtype = 'data-collection-issue-detail';
@@ -548,7 +550,7 @@ Ext.define('Isu.controller.IssueDetail', {
         } else if (issueType === 'datavalidation') {
             issueModel = 'Idv.model.Issue';
         } else if (issueType === 'devicelifecycle') {
-            issueModel = 'Idv.model.Issue';
+            issueModel = 'Idl.model.Issue';
         }
         else {
             issueModel = me.issueModel;
