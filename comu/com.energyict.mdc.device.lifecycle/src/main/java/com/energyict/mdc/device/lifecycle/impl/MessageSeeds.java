@@ -19,6 +19,7 @@ public enum MessageSeeds implements MessageSeed {
     NOT_ALLOWED_2_EXECUTE(102, Keys.NOT_ALLOWED_2_EXECUTE, "The current user is not allowed to execute this action"),
 
     // MicroChecks
+    MICRO_CHECK_NOT_EXECUTABLE(9999, "microCheckNotExecutable", "It isn''t possible to execute the check."),
     MULTIPLE_MICRO_CHECKS_FAILED(10000, Keys.MULTIPLE_MICRO_CHECKS_FAILED, "Action cannot be triggered because the following checks have failed: {0}"),
     // Numbers 10001 - ... are reserved for com.energyict.mdc.device.lifecycle.impl.micro.checks.MicroCheckTranslations.Message
 

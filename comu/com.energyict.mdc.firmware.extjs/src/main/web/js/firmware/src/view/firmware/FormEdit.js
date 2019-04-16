@@ -106,8 +106,9 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                                             combobox.hide();
                                             combobox.nextSibling('uni-default-button').hide();
                                             combobox.up('fieldcontainer').add({
+                                                  itemId: 'firmware-min-meter-version-dispfld',
                                                   xtype: 'displayfield',
-                                                  value: 'There are no firmware files of this type uploaded to the device type',
+                                                  value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
                                                   fieldStyle: 'color: red'
                                             });
                                             return;
@@ -179,8 +180,9 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                                             combobox.hide();
                                             combobox.nextSibling('uni-default-button').hide();
                                             combobox.up('fieldcontainer').add({
+                                                  itemId: 'firmware-min-communication-version-dispfld',
                                                   xtype: 'displayfield',
-                                                  value: 'There are no firmwares file of this type uploaded to the device type',
+                                                  value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
                                                   fieldStyle: 'color: red'
                                             });
                                             return;
