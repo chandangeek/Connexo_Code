@@ -278,7 +278,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         // Asserts
         assertThat(post.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel model = JsonModel.model((ByteArrayInputStream) post.getEntity());
-        assertThat(model.<String>get("$.error")).isEqualTo("InvalidEndDeviceStage");
+        assertThat(model.<String>get("$.error")).isEqualTo(null);
     }
 
     @Test // CXO-1824

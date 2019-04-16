@@ -34,11 +34,12 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel,
             widget;
 
-        if (issueType === 'datacollection') {
+        if (issueType === 'datacollection' || issueType ==='devicelifecycle') {
             processStore.getProxy().setUrl(id);
             processStore.load(function (records) {
             });
         }
+
 
         if (store.getCount()) {
             var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
@@ -48,6 +49,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 issueType = issueActualType;
             }
         }
+
 
         if (issueType === 'datacollection') {
             widgetXtype = 'data-collection-issue-detail';
@@ -59,7 +61,12 @@ Ext.define('Isu.controller.IssueDetail', {
             /* } else if (issueType === 'usagepointdatavalidation' && Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'] == 'INS') {
              widgetXtype = 'data-validation-issue-detail';
              issueModel = 'Imt.datavalidation.model.Issue';
+
              */
+        } else if(issueType ==='devicelifecycle') {
+            widgetXtype = 'device-lifecycle-issue-detail';
+            issueModel='Idl.model.Issue';
+            me.transitionStore = 'Idl.store.TransitionStore';
         } else {
             widgetXtype = me.widgetXtype;
             issueModel = me.issueModel;
@@ -109,6 +116,9 @@ Ext.define('Isu.controller.IssueDetail', {
         });
         if ((issueType === 'datavalidation') || (issueType == 'usagepointdatavalidation')) {
             me.addValidationBlocksWidget(widget);
+        }
+        if ((issueType === 'devicelifecycle')) {
+            me.addTransitionBlocksWidget(widget);
         }
     },
 
@@ -194,7 +204,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
                 commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && me.canComment());
-                if ((issueType === 'datacollection') || (issueType === 'alarm')) {
+                if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle')) {
                     me.loadTimeline(commentsStore);
                 }
                 me.constructComments(commentsView, commentsStore);
@@ -203,7 +213,7 @@ Ext.define('Isu.controller.IssueDetail', {
             }
         });
         if (router.queryParams.addComment) {
-            if ((issueType === 'datacollection') || (issueType === 'alarm')) {
+            if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle')) {
                 this.showCommentForm();
             } else {
                 this.showCommentFormValidation();
@@ -492,6 +502,40 @@ Ext.define('Isu.controller.IssueDetail', {
         });
     },
 
+    addTransitionBlocksWidget: function (widget) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        me.getApplication().on('issueLoad', function (rec) {
+            var panel = widget.down('#device-lifecycle-issue-detail-container');
+
+            if (rec.raw.failedTransitionData && panel) {
+                var data = [],
+                    store, validationBlocksWidget;
+
+                rec.raw.failedTransitionData.map(function (item) {
+                    item.failedTransitions.map(function (block) {
+                        data.push(Ext.apply({}, {
+                            deviceType: rec.raw.device.name,
+                            cause: block.cause,
+                            from: block.from.name,
+                            failedStateChange: 'From '+block.from.name+' to '+block.to.name,
+                            deviceLifecycle: block.lifecycle.name,
+                            transition: block.transition.name
+                        }, block))
+                    });
+                });
+
+                if (data.length) {
+                    store = Ext.create(me.transitionStore, {data: data});
+                    panel.getView().bindStore(store);
+                }
+            }
+        }, me, {
+            single: true
+        });
+    },
+
     refreshGrid: function (widget) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -505,6 +549,8 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel = 'Idc.model.Issue';
         } else if (issueType === 'datavalidation') {
             issueModel = 'Idv.model.Issue';
+        } else if (issueType === 'devicelifecycle') {
+            issueModel = 'Idl.model.Issue';
         }
         else {
             issueModel = me.issueModel;
@@ -538,6 +584,10 @@ Ext.define('Isu.controller.IssueDetail', {
 
         if ((issueType === 'datavalidation') || (issueType == 'usagepointdatavalidation')) {
             me.addValidationBlocksWidget(widget);
+        }
+
+        if ((issueType === 'devicelifecycle')) {
+            me.addTransitionBlocksWidget(widget);
         }
     },
 

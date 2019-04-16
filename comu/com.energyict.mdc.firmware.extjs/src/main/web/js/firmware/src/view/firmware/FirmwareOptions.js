@@ -104,6 +104,54 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                     }
                                     return result;
                                 }
+                            },
+                            {
+                                xtype: 'displayfield',
+                                name: 'checkOptions',
+                                itemId: 'checked-options',
+                                fieldStyle: 'margin-top : 3px;',
+                                fieldLabel: Uni.I18n.translate('general.rankManagementOptions', 'FWC', 'Dependencies check'),
+                                renderer: function (value, field) {
+                                    var result = '',
+                                        record = field.up('form').getRecord();
+                                    if (record && (record.get('checkOptions').length === 0 || record.get('isAllowed') === false)) {
+                                        field.hide();
+                                    } else {
+                                        var currentFirmwareCheck = value && value["CURRENT_FIRMWARE_CHECK"];
+                                        var masterFirmwareCheck = value && value["MASTER_FIRMWARE_CHECK"];
+                                        if ((!currentFirmwareCheck || !currentFirmwareCheck.activatedFor || !currentFirmwareCheck.activatedFor.length) &&
+                                            (!masterFirmwareCheck || !masterFirmwareCheck.activatedFor || !masterFirmwareCheck.activatedFor.length)){
+                                            field.hide();
+                                            return;
+                                        }
+                                        field.show();
+                                        if (currentFirmwareCheck){
+                                            var currentFirmwareOptionTemplate = [];
+                                            var currentFirmwareOptionsValues = {'FINAL' : 'Final FW status', 'TEST' : 'Test FW status'};
+                                            currentFirmwareCheck['activatedFor'].forEach(function(item){
+                                                currentFirmwareOptionTemplate.push({"localizedValue" : currentFirmwareOptionsValues[item]});
+                                            })
+                                            if (currentFirmwareOptionTemplate && currentFirmwareOptionTemplate.length){
+                                                result += '<div style="margin-bottom:10px">FW version has a higher ranking</div>';
+                                                var tpl = Ext.create('FirmwareOptionsXTemplate');
+                                                result += ('<div style="margin-bottom:10px">' + tpl.apply(currentFirmwareOptionTemplate) + '</div>');
+                                            }
+                                        }
+                                        if (masterFirmwareCheck){
+                                            var masterFirmwareOptionTemplate = [];
+                                            var masterFirmwareOptionsValues = {'FINAL' : 'Final master FW status', 'TEST' : 'Test master FW status'};
+                                            masterFirmwareCheck['activatedFor'].forEach(function(item){
+                                                masterFirmwareOptionTemplate.push({"localizedValue" : masterFirmwareOptionsValues[item]});
+                                            })
+                                            if (masterFirmwareOptionTemplate && masterFirmwareOptionTemplate.length){
+                                                result += '<div style="margin-bottom:10px">Master has a latest firmware</div>';
+                                                var tpl = Ext.create('FirmwareOptionsXTemplate');
+                                                result += ('<div style="margin-bottom:10px">' + tpl.apply(masterFirmwareOptionTemplate) + '</div>');
+                                            }
+                                        }
+                                    }
+                                    return result ? result : "-";
+                                }
                             }
                         ],
                         loadRecord: function (record) {

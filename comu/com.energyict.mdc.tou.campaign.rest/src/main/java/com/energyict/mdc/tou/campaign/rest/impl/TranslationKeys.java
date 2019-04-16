@@ -7,18 +7,13 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
 
-    STATUS_SUCCESSFUL("successful", "Successful"),
-    STATUS_FAILED("failed", "Failed"),
-    STATUS_CONFIGURATION_ERROR("configurationError", "Configuration Error"),
-    STATUS_ONGOING("ongoing", "Ongoing"),
-    STATUS_PENDING("pending", "Pending"),
-    STATUS_CANCELED("canceled", "Canceled"),
     STATUS_COMPLETED("completed", "Completed"),
-    FULL_CALENDAR("fullCalendar", "Full Calendar"),
-    SPECIAL_DAYS("specialDays", "Special Days"),
+    STATUS_CONFIGURATION_ERROR("configurationError", "Configuration error"),
+    FULL_CALENDAR("fullCalendar", "Full calendar"),
+    SPECIAL_DAYS("specialDays", "Special days"),
     IMMEDIATELY("immediately", "Immediately"),
-    WITHOUT_ACTIVATION("withoutActivation", "Without Activation"),
-    ON_DATE("onDate", "On Date");
+    WITHOUT_ACTIVATION("withoutActivation", "Without activation"),
+    ON_DATE("onDate", "On date");
 
 
     private final String key;

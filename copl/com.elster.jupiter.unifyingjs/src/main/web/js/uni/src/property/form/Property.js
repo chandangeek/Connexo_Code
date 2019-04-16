@@ -110,6 +110,7 @@ Ext.define('Uni.property.form.Property', {
                 dependOnIsEdited = me.isMultiEdit && !me.isEdit;
                 if ((dependOnIsEdited && property.isEdited) || (!dependOnIsEdited && fieldType)) {
                     var field = Ext.create(fieldType, Ext.apply(me.defaults, {
+                        parentForm: me,
                         property: property,
                         isEdit: me.isEdit,
                         isReadOnly: me.isReadOnly,

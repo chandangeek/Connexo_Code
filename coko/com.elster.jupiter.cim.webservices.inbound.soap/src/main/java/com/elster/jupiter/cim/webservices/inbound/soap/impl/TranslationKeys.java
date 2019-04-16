@@ -1,6 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
@@ -25,6 +29,7 @@ public enum TranslationKeys implements TranslationKey {
     TIME_PERIOD_END("timePeriodEnd", "Time period end"),
     READING_TYPES("readingTypes", "Reading Types"),
     END_DEVICES("endDevices", "End Devices"),
+    GMR_NAME(ParentGetMeterReadingsCustomPropertySet.PREFIX + ".name", "Get meter readings"),
     READ_METER_CHANGE_MESSAGE_HANDLER(
             ReadMeterChangeMessageHandlerFactory.TASK_SUBSCRIBER,
             ReadMeterChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME);

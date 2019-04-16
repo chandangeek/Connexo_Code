@@ -73,6 +73,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.nls.impl.NlsServiceImpl;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.PassphraseFactory;
@@ -159,6 +160,7 @@ import com.energyict.mdc.device.data.importers.impl.devices.decommission.DeviceD
 import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceInstallationImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.loadprofilenextreading.DeviceLoadProfileNextReadingImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -184,6 +186,8 @@ import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollection
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate;
 import com.energyict.mdc.issue.datavalidation.impl.IssueDataValidationModule;
+import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate;
+import com.energyict.mdc.issue.devicelifecycle.impl.IssueDeviceLifecycleModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -296,6 +300,7 @@ public class DemoTest {
             bind(com.elster.jupiter.hsm.HsmProtocolService.class).toInstance(mock(com.elster.jupiter.hsm.HsmProtocolService.class));
             bind(com.elster.jupiter.hsm.HsmEnergyService.class).toInstance(mock(com.elster.jupiter.hsm.HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
+            bind(DataModel.class).toInstance(mock(DataModel.class));
         }
 
         private License mockLicense(String applicationname) {
@@ -447,7 +452,8 @@ public class DemoTest {
                 new DataQualityKpiModule(),
                 new SyntheticLoadProfileImportModule(),
                 new MeteringImportsModule(),
-                new MeteringZoneModule()
+                new MeteringZoneModule(),
+                new IssueDeviceLifecycleModule()
         );
 
         doPreparations();
@@ -764,7 +770,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
-        assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(6);
+        assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(7);
     }
 
     @Test
@@ -776,7 +782,7 @@ public class DemoTest {
         demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createImporters();
 
-        assertThat(fileImportService.getImportSchedules()).hasSize(12);
+        assertThat(fileImportService.getImportSchedules()).hasSize(13);
     }
 
     @Test
@@ -806,6 +812,8 @@ public class DemoTest {
     }
 
     protected void doPreparations() {
+        DataModel dataModel = injector.getInstance(DataModel.class);
+        when(dataModel.getInstance(any())).thenAnswer(invocationOnMock -> injector.getInstance(invocationOnMock.getArgumentAt(0, Class.class)));
         passphraseFactory = mock(PassphraseFactory.class);
         when(passphraseFactory.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
         PassphraseWrapper passphraseWrapper = mock(PassphraseWrapper.class);
@@ -894,6 +902,7 @@ public class DemoTest {
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(CalendarImporterFactory.class));
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(UsagePointsImporterFactory.class));
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(SyntheticLoadProfileImporterFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceLoadProfileNextReadingImporterFactory.class));
 
         HashMap<String, Object> formatterType = new HashMap<>();
         formatterType.put(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_USAGE_POINT_DATA_TYPE);
@@ -920,12 +929,14 @@ public class DemoTest {
         DataValidationIssueCreationRuleTemplate dataValidationIssueCreationRuleTemplate = injector.getInstance(DataValidationIssueCreationRuleTemplate.class);
         AbstractDeviceAlarmTemplate alarmTemplate = injector.getInstance(BasicDeviceAlarmRuleTemplate.class);
         UsagePointDataValidationIssueCreationRuleTemplate usagePointIssueTemplate = injector.getInstance(UsagePointDataValidationIssueCreationRuleTemplate.class);
+        DeviceLifecycleIssueCreationRuleTemplate deviceLifecycleIssueCreationRuleTemplate = injector.getInstance(DeviceLifecycleIssueCreationRuleTemplate.class);
 
         IssueServiceImpl issueService = (IssueServiceImpl) injector.getInstance(IssueService.class);
         issueService.addCreationRuleTemplate(template);
         issueService.addCreationRuleTemplate(dataValidationIssueCreationRuleTemplate);
         issueService.addCreationRuleTemplate(alarmTemplate);
         issueService.addCreationRuleTemplate(usagePointIssueTemplate);
+        issueService.addCreationRuleTemplate(deviceLifecycleIssueCreationRuleTemplate);
     }
 
     private void fixEstimators(PropertySpecService propertySpecService, TimeService timeService) {

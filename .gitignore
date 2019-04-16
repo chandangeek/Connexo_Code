@@ -1,6 +1,17 @@
 .idea/
 *.iml
 target/
-/.project
-/.settings/
 
+# Following lines will ignore pkg files we create and import during FE component (app) build
+copl/com.elster.jupiter.extjs/src/main/web/js/ext/packages/uni-theme-skyline
+copl/com.elster.jupiter.extjs/src/main/web/js/ext/packages/com.elster.*
+copl/com.elster.jupiter.extjs/src/main/web/js/ext/packages/com.energyict.*
+
+
+# Following lines will ignore app (FE) generated files
+**/src/main/web/js/*/build
+
+# Ignore app bootstrap (generated during FE build)
+**/src/main/web/js/*/bootstrap.css
+**/src/main/web/js/*/bootstrap.js
+**/src/main/web/js/*/bootstrap.json

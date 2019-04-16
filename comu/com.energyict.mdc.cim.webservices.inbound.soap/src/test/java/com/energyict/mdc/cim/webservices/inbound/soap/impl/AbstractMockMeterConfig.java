@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -15,6 +16,9 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.upl.TypedProperties;
 
 import ch.iec.tc57._2011.meterconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
@@ -64,10 +68,15 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     protected static final String REPLY_ADDRESS = "replyAddress";
     protected static final String NON_VERSIONED_CPS_ID = "my cps id";
     protected static final String VERSIONED_CPS_ID = "my versioned cps id";
+    protected static final String GENERAL_ATTRIBUTES_ID = "General attributes id";
     protected static final String CPS_NAME_1 = "name 1";
     protected static final String CPS_VALUE_1 = "value 1";
     protected static final String CPS_NAME_2 = "name 2";
     protected static final String CPS_VALUE_2 = "value 2";
+    protected static final String GA_NAME_1 = "GA name 1";
+    protected static final String GA_VALUE_1 = "GA value 1";
+    protected static final String GA_NAME_2 = "GA name 2";
+    protected static final String GA_VALUE_2 = "GA value 2";
 
     protected final ObjectFactory meterConfigMessageObjectFactory = new ObjectFactory();
     protected final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
@@ -93,11 +102,14 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     protected CustomPropertySet customVersionedPropertySet;
     @Mock
     private CIMLifecycleDates lifecycleDates;
+    @Mock
+    protected MeterConfig meterConfig;
 
     protected void mockDeviceType() {
         when(deviceType.getName()).thenReturn(DEVICE_TYPE_NAME);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
     }
+
     protected void mockDeviceConfiguration() {
         when(deviceConfigurationService.findDeviceTypeByName(any())).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceTypeByName(DEVICE_TYPE_NAME)).thenReturn(Optional.of(deviceType));
@@ -145,6 +157,21 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         when(device.getState()).thenReturn(state);
         mockDeviceConfiguration();
         mockLifeCycleDates();
+        mockMeterConfigFactoryWithDefaultMeter();
+    }
+
+    private void mockMeterConfigFactoryWithDefaultMeter() {
+        when(meterConfig.getMeter()).thenReturn(Arrays.asList(createDefaultMeter()));
+        when(meterConfig.getSimpleEndDeviceFunction()).thenReturn(Arrays.asList(createDefaultEndDeviceFunction()));
+        when(meterConfigFactory.asMeterConfig(any(Device.class))).thenReturn(meterConfig);
+        when(meterConfigFactory.asGetMeterConfig(any(Device.class))).thenReturn(meterConfig);
+    }
+
+    protected void mockMeterConfigFactoryWithCas() {
+        when(meterConfig.getMeter()).thenReturn(Arrays.asList(createMeterWithCas()));
+        when(meterConfig.getSimpleEndDeviceFunction()).thenReturn(Arrays.asList(createDefaultEndDeviceFunction()));
+        when(meterConfigFactory.asMeterConfig(any(Device.class))).thenReturn(meterConfig);
+        when(meterConfigFactory.asGetMeterConfig(any(Device.class))).thenReturn(meterConfig);
     }
 
     private void mockLifeCycleDates() {
@@ -171,8 +198,21 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
 
     protected Status createStatus() {
         Status status = new Status();
-        status.setValue("Active");
+        status.setValue(STATE_NAME);
         return status;
+    }
+
+    protected Meter createMeterWithCas() {
+        Meter meter = createMeter();
+        meter.setMRID(DEVICE_MRID);
+        meter.setLotNumber(BATCH);
+        meter.setSerialNumber(SERIAL_NUMBER);
+        meter.getMeterMultipliers().add(createMeterMultiplier(MULTIPLIER));
+        EndDeviceInfo endDeviceInfo = createEndDeviceInfo(MODEL_NUMBER, MODEL_VERSION, MANUFACTURER);
+        meter.setEndDeviceInfo(endDeviceInfo);
+        meter.setStatus(createStatus());
+        meter.getMeterCustomAttributeSet().addAll(Arrays.asList(createGeneralAttributes(), createNonVersionedCustomPropertySet(), createVersionedCustomPropertySet()));
+        return meter;
     }
 
     protected Meter createDefaultMeter() {
@@ -183,6 +223,7 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         meter.getMeterMultipliers().add(createMeterMultiplier(MULTIPLIER));
         EndDeviceInfo endDeviceInfo = createEndDeviceInfo(MODEL_NUMBER, MODEL_VERSION, MANUFACTURER);
         meter.setEndDeviceInfo(endDeviceInfo);
+        meter.setStatus(createStatus());
         return meter;
     }
 
@@ -242,6 +283,20 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         return name;
     }
 
+
+    protected CustomAttributeSet createGeneralAttributes() {
+        CustomAttributeSet cas = new CustomAttributeSet();
+        cas.setId(GENERAL_ATTRIBUTES_ID);
+        Attribute attrbute = new Attribute();
+        attrbute.setName(GA_NAME_1);
+        attrbute.setValue(GA_VALUE_1);
+        cas.getAttribute().add(attrbute);
+        attrbute = new Attribute();
+        attrbute.setName(GA_NAME_2);
+        attrbute.setValue(GA_VALUE_2);
+        cas.getAttribute().add(attrbute);
+        return cas;
+    }
 
     protected CustomAttributeSet createNonVersionedCustomPropertySet() {
         return createCustomAttributeSet(NON_VERSIONED_CPS_ID);

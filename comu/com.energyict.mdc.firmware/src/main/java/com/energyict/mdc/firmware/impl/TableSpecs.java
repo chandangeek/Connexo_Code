@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -41,15 +42,37 @@ public enum TableSpecs {
             table.column("FIRMWAREFILE").blob().map(FirmwareVersionImpl.Fields.FIRMWAREFILE.fieldName()).add();
             table.column("IMAGEIDENTIFIER").varChar(80).map(FirmwareVersionImpl.Fields.IMAGEIDENTIFIER.fieldName()).add().since(version(10, 4));
             table.addAuditColumns();
+            Column rankColumn = table.column(FirmwareVersionImpl.Fields.RANK.name())
+                    .number()
+                    .notNull()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map(FirmwareVersionImpl.Fields.RANK.fieldName())
+                    .since(Version.version(10, 6))
+                    .installValue("0")
+                    .add();
+            Column meterFWDependency = table.column(FirmwareVersionImpl.Fields.METER_FW_DEP.name()).number().since(Version.version(10, 6)).add();
+            Column communicationFWDependency = table.column(FirmwareVersionImpl.Fields.COM_FW_DEP.name()).number().since(Version.version(10, 6)).add();
             table.primaryKey("FWC_PK_FIRMWARE").on(idColumn).add();
-            table
-                    .foreignKey("FWC_FK_DEVICETYPE")
+            table.foreignKey("FWC_FK_DEVICETYPE")
                     .on(deviceTypeColumn)
                     .references(DeviceType.class)
                     .map(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName())
                     .onDelete(CASCADE)
                     .add();
             table.unique("FWC_UK_VERSIONTYPE").on(firmwareVersion, firmwareType, deviceTypeColumn).add();
+            table.index("FWC_IDX_FW_BY_RANK").on(deviceTypeColumn, rankColumn).compress(1).add().since(Version.version(10, 6));
+            table.foreignKey("FWC_FK_FW_METER_FW_DEP")
+                    .on(meterFWDependency)
+                    .references(FirmwareVersion.class)
+                    .map(FirmwareVersionImpl.Fields.METER_FW_DEP.fieldName())
+                    .since(Version.version(10, 6))
+                    .add();
+            table.foreignKey("FWC_FK_FW_COM_FW_DEP")
+                    .on(communicationFWDependency)
+                    .references(FirmwareVersion.class)
+                    .map(FirmwareVersionImpl.Fields.COM_FW_DEP.fieldName())
+                    .since(Version.version(10, 6))
+                    .add();
         }
     },
 
@@ -59,17 +82,41 @@ public enum TableSpecs {
             Table<FirmwareManagementOptions> table = dataModel.addTable(name(), FirmwareManagementOptions.class);
             table.map(FirmwareManagementOptionsImpl.class);
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
-            table.column("INSTALL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareManagementOptionsImpl.Fields.INSTALL.fieldName()).add();
-            table.column("ACTIVATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareManagementOptionsImpl.Fields.ACTIVATE.fieldName()).add();
-            table.column("ACTIVATEONDATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareManagementOptionsImpl.Fields.ACTIVATEONDATE.fieldName()).add();
+            table.column(FirmwareManagementOptionsImpl.Fields.INSTALL.name())
+                    .type("char(1)")
+                    .conversion(ColumnConversion.CHAR2BOOLEAN)
+                    .map(FirmwareManagementOptionsImpl.Fields.INSTALL.fieldName())
+                    .add();
+            table.column(FirmwareManagementOptionsImpl.Fields.ACTIVATE.name())
+                    .type("char(1)")
+                    .conversion(ColumnConversion.CHAR2BOOLEAN)
+                    .map(FirmwareManagementOptionsImpl.Fields.ACTIVATE.fieldName())
+                    .add();
+            table.column(FirmwareManagementOptionsImpl.Fields.ACTIVATEONDATE.name())
+                    .type("char(1)")
+                    .conversion(ColumnConversion.CHAR2BOOLEAN)
+                    .map(FirmwareManagementOptionsImpl.Fields.ACTIVATEONDATE.fieldName())
+                    .add();
             table.setJournalTableName("FWC_FIRMWAREMNGMNTOPTIONSJRNL").since(version(10, 2));
             table.addAuditColumns();
+            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_CURRENT_FW_FOR_FINAL, "'N'");
+            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_CURRENT_FW_FOR_TEST, "'N'");
+            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_MASTER_FW_FOR_FINAL, "'Y'");
+            addCheckConfigurationColumnFor10_6(table, FirmwareManagementOptionsImpl.Fields.CHK_MASTER_FW_FOR_TEST, "'N'");
             table.primaryKey("FWC_PK_FIRMWAREMGTOPTIONS").on(deviceTypeColumn).add();
-            table
-                    .foreignKey("FWC_OPTIONS_FK_DEVICETYPE")
+            table.foreignKey("FWC_OPTIONS_FK_DEVICETYPE")
                     .on(deviceTypeColumn)
                     .references(DeviceType.class)
                     .map(FirmwareManagementOptionsImpl.Fields.DEVICETYPE.fieldName())
+                    .add();
+        }
+
+        private Column addCheckConfigurationColumnFor10_6(Table<FirmwareManagementOptions> table, FirmwareManagementOptionsImpl.Fields descriptor, String defaultValue) {
+            return table.column(descriptor.name())
+                    .bool()
+                    .map(descriptor.fieldName())
+                    .since(Version.version(10, 6))
+                    .installValue(defaultValue)
                     .add();
         }
     },

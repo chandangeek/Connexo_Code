@@ -114,6 +114,10 @@ public class PropertyTypeInfo {
             createQuantityField(field);
         } else if ("readingType".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
             simplePropertyType = "METROLOGYCONFIGOUTPUT";
+        } else if ("securityAccessors".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+            simplePropertyType = "SECURITYACCESSORSOUTPUT";
+        } else if ("serviceKeysSignatures".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+            simplePropertyType = "SERVICEKEYSSIGNATURESOUTPUT";
         } else if ("meterActivationsOnUsagePoint".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
             simplePropertyType = "UP_METERACTIVATION";
         } else if ("meterMrid".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {

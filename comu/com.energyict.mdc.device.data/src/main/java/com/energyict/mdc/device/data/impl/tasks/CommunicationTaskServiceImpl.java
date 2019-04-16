@@ -200,6 +200,10 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" set connectionTask = null");
         sqlBuilder.append(" where comtask = ?");  // Match the ComTask
+        return addConditionsToSqlBuilder(comTask, deviceConfiguration, previousPartialConnectionTask, sqlBuilder);
+    }
+
+    private SqlBuilder addConditionsToSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask previousPartialConnectionTask, SqlBuilder sqlBuilder) {
         sqlBuilder.addLong(comTask.getId());
         sqlBuilder.append("   and connectionTask = ");
         sqlBuilder.append("(select id from ");
@@ -210,6 +214,10 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append("    and partialconnectiontask =");   // Match the connection task
         sqlBuilder.addLong(previousPartialConnectionTask.getId());
         sqlBuilder.append("    and obsolete_date is null)");
+        return addConditionOnDeviceByConfiguration(deviceConfiguration, sqlBuilder);
+    }
+
+    private SqlBuilder addConditionOnDeviceByConfiguration(DeviceConfiguration deviceConfiguration, SqlBuilder sqlBuilder) {
         sqlBuilder.append("   and device in (select id from ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
         sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
@@ -224,47 +232,23 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private SqlBuilder switchFromDefaultConnectionTaskToPreferredConnectionTaskSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask partialConnectionTask) {
-        SqlBuilder sqlBuilder = new SqlBuilder("update DDC_COMTASKEXEC exec");
-        sqlBuilder.append(" set useDefaultConnectionTask = 0, connectionTask = ");
+        SqlBuilder sqlBuilder = initSwitchToConnectionTaskSqlBuilder(comTask, partialConnectionTask,
+                " set useDefaultConnectionTask = 0, connectionTask = ", " where comtask =");
+        sqlBuilder.append(" and useDefaultConnectionTask = 1"); // Update only if the ComTaskExecution is also using the default connection (~ so config not overwritten on device level)
+        return addConditionOnDeviceByConfiguration(deviceConfiguration, sqlBuilder);
+    }
+
+    private void addConditionOnConnectionTask(PartialConnectionTask partialConnectionTask, SqlBuilder sqlBuilder) {
         sqlBuilder.append("(select id from DDC_CONNECTIONTASK");
         sqlBuilder.append(" where device = exec.device");
         sqlBuilder.append("   and partialconnectiontask =");  //Match the connection task against the same device
         sqlBuilder.addLong(partialConnectionTask.getId());
         sqlBuilder.append("   and obsolete_date is null)");
-        sqlBuilder.append(" where comtask =");  // Match the ComTask
-        sqlBuilder.addLong(comTask.getId());
-        sqlBuilder.append(" and useDefaultConnectionTask = 1"); // Update only if the ComTaskExecution is also using the default connection (~ so config not overwritten on device level)
-        sqlBuilder.append("   and device in (select id from ");
-        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.addLong(deviceConfiguration.getId());
-        sqlBuilder.append(")");
-        return sqlBuilder;
     }
 
     @Override
     public void switchFromDefaultConnectionTaskToConnectionFunction(ComTask comTask, DeviceConfiguration deviceConfiguration, ConnectionFunction connectionFunction) {
-        this.deviceDataModelService.executeUpdate(this.switchFromDefaultConnectionTaskToConnectionFunctionSqlBuilder(comTask, deviceConfiguration, connectionFunction));
-    }
-
-    private SqlBuilder switchFromDefaultConnectionTaskToConnectionFunctionSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, ConnectionFunction connectionFunction) {
-        SqlBuilder sqlBuilder = new SqlBuilder("update DDC_COMTASKEXEC exec");
-        sqlBuilder.append(" set useDefaultConnectionTask = 0, connectionFunction = ");
-        sqlBuilder.addLong(connectionFunction.getId());
-        sqlBuilder.append(", connectionTask = ");
-        sqlBuilder.append("(select ct.id from DDC_CONNECTIONTASK ct, DTC_PARTIALCONNECTIONTASK pct"); // Find the connection task with the given connection function
-        sqlBuilder.append(" where ct.partialconnectiontask = pct.id");
-        sqlBuilder.append("   and ct.device = exec.device");
-        sqlBuilder.append("   and pct.connectionfunction = ");
-        sqlBuilder.addLong(connectionFunction.getId());
-        sqlBuilder.append("   and ct.obsolete_date is null)");
-        sqlBuilder.append(" where exec.comtask = "); // Match the ComTask
-        sqlBuilder.addLong(comTask.getId());
-        sqlBuilder.append(" and exec.useDefaultConnectionTask = 1"); // Update only if the ComTaskExecution is also using the default connection (~ so config not overwritten on device level)
-        sqlBuilder.append(" and exec.device in (select id from DDC_DEVICE where deviceConfigId = ");    // Match device of the specified DeviceConfiguration
-        sqlBuilder.addLong(deviceConfiguration.getId());
-        sqlBuilder.append(")");
-        return sqlBuilder;
+        this.deviceDataModelService.executeUpdate(this.switchOnConnectionFunctionSqlBuilder(comTask, deviceConfiguration, connectionFunction, true));
     }
 
     @Override
@@ -273,6 +257,12 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private SqlBuilder switchOnDefaultSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        SqlBuilder sqlBuilder = switchToDefaultConnectionTaskSqlBuilder();
+        sqlBuilder.addLong(comTask.getId());
+        return addConditionOnDeviceByConfiguration(deviceConfiguration, sqlBuilder);
+    }
+
+    private SqlBuilder switchToDefaultConnectionTaskSqlBuilder() {
         SqlBuilder sqlBuilder = new SqlBuilder("update ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" set useDefaultConnectionTask = 1, connectionTask = ");
@@ -284,21 +274,28 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append("    and isdefault = 1");  // Match the default connection task against the same device
         sqlBuilder.append("    and obsolete_date is null)");
         sqlBuilder.append(" where comtask =");  // Match the ComTask
-        sqlBuilder.addLong(comTask.getId());
-        sqlBuilder.append("   and device in (select id from ");
-        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.addLong(deviceConfiguration.getId());
-        sqlBuilder.append(")");
+
         return sqlBuilder;
     }
 
     @Override
     public void switchOnConnectionFunction(ComTask comTask, DeviceConfiguration deviceConfiguration, ConnectionFunction connectionFunction) {
-        this.deviceDataModelService.executeUpdate(this.switchOnConnectionFunctionSqlBuilder(comTask, deviceConfiguration, connectionFunction));
+        this.deviceDataModelService.executeUpdate(this.switchOnConnectionFunctionSqlBuilder(comTask, deviceConfiguration, connectionFunction, false));
     }
 
-    private SqlBuilder switchOnConnectionFunctionSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, ConnectionFunction connectionFunction) {
+    private SqlBuilder switchOnConnectionFunctionSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration,
+                                                            ConnectionFunction connectionFunction, boolean addCondOnDefaultConnTask) {
+        SqlBuilder sqlBuilder = switchToConnectionFunctionSqlBuilder(comTask, connectionFunction);
+        if (addCondOnDefaultConnTask) {
+            sqlBuilder.append(" and exec.useDefaultConnectionTask = 1"); // Update only if the ComTaskExecution is also using the default connection (~ so config not overwritten on device level)
+        }
+        sqlBuilder.append(" and exec.device in (select id from DDC_DEVICE where deviceConfigId = ");    // Match device of the specified DeviceConfiguration
+        sqlBuilder.addLong(deviceConfiguration.getId());
+        sqlBuilder.append(")");
+        return sqlBuilder;
+    }
+
+    private SqlBuilder switchToConnectionFunctionSqlBuilder(ComTask comTask, ConnectionFunction connectionFunction) {
         SqlBuilder sqlBuilder = new SqlBuilder("update DDC_COMTASKEXEC exec");
         sqlBuilder.append(" set useDefaultConnectionTask = 0, connectionFunction = ");
         sqlBuilder.addLong(connectionFunction.getId());
@@ -311,9 +308,6 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append("   and ct.obsolete_date is null)");
         sqlBuilder.append(" where exec.comtask = "); // Match the ComTask
         sqlBuilder.addLong(comTask.getId());
-        sqlBuilder.append(" and exec.device in (select id from DDC_DEVICE where deviceConfigId = ");    // Match device of the specified DeviceConfiguration
-        sqlBuilder.addLong(deviceConfiguration.getId());
-        sqlBuilder.append(")");
         return sqlBuilder;
     }
 
@@ -323,18 +317,20 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private SqlBuilder switchOnPreferredConnectionTaskSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask partialConnectionTask) {
-        SqlBuilder sqlBuilder = new SqlBuilder("update DDC_COMTASKEXEC exec");
-        sqlBuilder.append(" set useDefaultConnectionTask = 0, connectionFunction = 0, connectionTask = ");
-        sqlBuilder.append("(select id from DDC_CONNECTIONTASK");
-        sqlBuilder.append(" where device = exec.device");
-        sqlBuilder.append("   and partialconnectiontask =");  //Match the connection task against the same device
-        sqlBuilder.addLong(partialConnectionTask.getId());
-        sqlBuilder.append("   and obsolete_date is null)");
-        sqlBuilder.append(" where exec.comtask = "); // Match the ComTask
-        sqlBuilder.addLong(comTask.getId());
+        SqlBuilder sqlBuilder = initSwitchToConnectionTaskSqlBuilder(comTask, partialConnectionTask,
+                " set useDefaultConnectionTask = 0, connectionFunction = 0, connectionTask = ", " where exec.comtask = ");
         sqlBuilder.append(" and exec.device in (select id from DDC_DEVICE where deviceConfigId = ");    // Match device of the specified DeviceConfiguration
         sqlBuilder.addLong(deviceConfiguration.getId());
         sqlBuilder.append(")");
+        return sqlBuilder;
+    }
+
+    private SqlBuilder initSwitchToConnectionTaskSqlBuilder(ComTask comTask, PartialConnectionTask partialConnectionTask, String specificValues, String condition) {
+        SqlBuilder sqlBuilder = new SqlBuilder("update DDC_COMTASKEXEC exec");
+        sqlBuilder.append(specificValues);
+        addConditionOnConnectionTask(partialConnectionTask, sqlBuilder);
+        sqlBuilder.append(condition); // Match the ComTask
+        sqlBuilder.addLong(comTask.getId());
         return sqlBuilder;
     }
 
@@ -349,12 +345,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append(" set useDefaultConnectionTask = 0");
         sqlBuilder.append(" where comtask =");  // Match the ComTask
         sqlBuilder.addLong(comTask.getId());
-        sqlBuilder.append("   and device in (select id from ");
-        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.addLong(deviceConfiguration.getId());
-        sqlBuilder.append(")");
-        return sqlBuilder;
+        return addConditionOnDeviceByConfiguration(deviceConfiguration, sqlBuilder);
     }
 
     @Override
@@ -365,8 +356,16 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     private SqlBuilder switchOffConnectionFunctionSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, ConnectionFunction connectionFunction) {
         SqlBuilder sqlBuilder = new SqlBuilder("update DDC_COMTASKEXEC exec");
         sqlBuilder.append(" set connectionFunction = 0");
+        return addConditionOnComTaskConnectionFunctionAndDevice(comTask, deviceConfiguration, connectionFunction, sqlBuilder);
+    }
+
+    private SqlBuilder addConditionOnComTaskConnectionFunctionAndDevice(ComTask comTask, DeviceConfiguration deviceConfiguration, ConnectionFunction connectionFunction, SqlBuilder sqlBuilder) {
         sqlBuilder.append(" where exec.comtask = "); // Match the ComTask
         sqlBuilder.addLong(comTask.getId());
+        return addConditionOnConnectionFunctionAndDevice(deviceConfiguration, connectionFunction, sqlBuilder);
+    }
+
+    private SqlBuilder addConditionOnConnectionFunctionAndDevice(DeviceConfiguration deviceConfiguration, ConnectionFunction connectionFunction, SqlBuilder sqlBuilder) {
         sqlBuilder.append(" and exec.connectionFunction = ");   // Update only if the ComTaskExecution is also using the connection function (~ so config not overwritten on device level)
         sqlBuilder.addLong(connectionFunction.getId());
         sqlBuilder.append(" and exec.device in (select id from DDC_DEVICE where deviceConfigId = ");    // Match device of the specified DeviceConfiguration
@@ -381,33 +380,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private SqlBuilder switchFromPreferredConnectionTaskToDefaultSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask previousPartialConnectionTask) {
-        SqlBuilder sqlBuilder = new SqlBuilder("update ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" set useDefaultConnectionTask = 1, connectionTask = ");
-        sqlBuilder.append("(select id from ");
-        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" where device = ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(".device");
-        sqlBuilder.append("    and isdefault = 1");  // Match the default connection task against the same device
-        sqlBuilder.append("    and obsolete_date is null)");
-        sqlBuilder.append(" where comtask =");  // Match the ComTask
-        sqlBuilder.addLong(comTask.getId());
-        sqlBuilder.append("   and connectionTask = ");
-        sqlBuilder.append("(select id from ");
-        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" where device = ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(".device");
-        sqlBuilder.append("    and partialconnectiontask =");   // Match the connection task
-        sqlBuilder.addLong(previousPartialConnectionTask.getId());
-        sqlBuilder.append("    and obsolete_date is null)");
-        sqlBuilder.append("   and device in (select id from ");
-        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.addLong(deviceConfiguration.getId());
-        sqlBuilder.append(")");
-        return sqlBuilder;
+        SqlBuilder sqlBuilder = switchToDefaultConnectionTaskSqlBuilder();
+        return addConditionsToSqlBuilder(comTask, deviceConfiguration, previousPartialConnectionTask, sqlBuilder);
     }
 
     @Override
@@ -416,24 +390,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private SqlBuilder switchFromPreferredConnectionTaskToConnectionFunctionSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask partialConnectionTask, ConnectionFunction connectionFunction) {
-        SqlBuilder sqlBuilder = new SqlBuilder("update DDC_COMTASKEXEC exec");
-        sqlBuilder.append(" set useDefaultConnectionTask = 0, connectionFunction = ");
-        sqlBuilder.addLong(connectionFunction.getId());
-        sqlBuilder.append(", connectionTask = ");
-        sqlBuilder.append("(select ct.id from DDC_CONNECTIONTASK ct, DTC_PARTIALCONNECTIONTASK pct"); // Find the connection task with the given connection function
-        sqlBuilder.append(" where ct.partialconnectiontask = pct.id");
-        sqlBuilder.append("   and ct.device = exec.device");
-        sqlBuilder.append("   and pct.connectionfunction = ");
-        sqlBuilder.addLong(connectionFunction.getId());
-        sqlBuilder.append("   and ct.obsolete_date is null)");
-        sqlBuilder.append(" where exec.comtask = "); // Match the ComTask
-        sqlBuilder.addLong(comTask.getId());
+        SqlBuilder sqlBuilder = switchToConnectionFunctionSqlBuilder(comTask, connectionFunction);
         sqlBuilder.append("   and connectionTask = "); // Update only if the ComTaskExecution is also using a specified connectionTask (~ so config not overwritten on device level)
-        sqlBuilder.append("(select id from DDC_CONNECTIONTASK");
-        sqlBuilder.append(" where device = exec.device");
-        sqlBuilder.append("   and partialconnectiontask =");  //Match the connection task against the same device
-        sqlBuilder.addLong(partialConnectionTask.getId());
-        sqlBuilder.append("   and obsolete_date is null)");
+        addConditionOnConnectionTask(partialConnectionTask, sqlBuilder);
         sqlBuilder.append(" and exec.device in (select id from DDC_DEVICE where deviceConfigId = ");    // Match device of the specified DeviceConfiguration
         sqlBuilder.addLong(deviceConfiguration.getId());
         sqlBuilder.append(")");
@@ -452,14 +411,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append(" where device = exec.device");
         sqlBuilder.append("   and isdefault = 1");  // Match the default connection task against the same device
         sqlBuilder.append("   and obsolete_date is null)");
-        sqlBuilder.append(" where exec.comtask = "); // Match the ComTask
-        sqlBuilder.addLong(comTask.getId());
-        sqlBuilder.append(" and exec.connectionFunction = ");   // Update only if the ComTaskExecution is also using the connection function (~ so config not overwritten on device level)
-        sqlBuilder.addLong(connectionFunction.getId());
-        sqlBuilder.append(" and exec.device in (select id from DDC_DEVICE where deviceConfigId = ");    // Match device of the specified DeviceConfiguration
-        sqlBuilder.addLong(deviceConfiguration.getId());
-        sqlBuilder.append(")");
-        return sqlBuilder;
+        return addConditionOnComTaskConnectionFunctionAndDevice(comTask, deviceConfiguration, connectionFunction, sqlBuilder);
     }
 
     @Override
@@ -468,21 +420,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private SqlBuilder switchFromConnectionFunctionToPreferredConnectionTaskSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, ConnectionFunction connectionFunction, PartialConnectionTask partialConnectionTask) {
-        SqlBuilder sqlBuilder = new SqlBuilder("update DDC_COMTASKEXEC exec");
-        sqlBuilder.append(" set useDefaultConnectionTask = 0, connectionFunction = 0, connectionTask = ");
-        sqlBuilder.append("(select id from DDC_CONNECTIONTASK");
-        sqlBuilder.append(" where device = exec.device");
-        sqlBuilder.append("   and partialconnectiontask =");  //Match the connection task against the same device
-        sqlBuilder.addLong(partialConnectionTask.getId());
-        sqlBuilder.append("   and obsolete_date is null)");
-        sqlBuilder.append(" where exec.comtask = "); // Match the ComTask
-        sqlBuilder.addLong(comTask.getId());
-        sqlBuilder.append(" and exec.connectionFunction = ");   // Update only if the ComTaskExecution is also using the connection function (~ so config not overwritten on device level)
-        sqlBuilder.addLong(connectionFunction.getId());
-        sqlBuilder.append(" and exec.device in (select id from DDC_DEVICE where deviceConfigId = ");    // Match device of the specified DeviceConfiguration
-        sqlBuilder.addLong(deviceConfiguration.getId());
-        sqlBuilder.append(")");
-        return sqlBuilder;
+        SqlBuilder sqlBuilder = initSwitchToConnectionTaskSqlBuilder(comTask, partialConnectionTask, " set useDefaultConnectionTask = 0, connectionFunction = 0, connectionTask = ", " where exec.comtask = ");
+        return addConditionOnConnectionFunctionAndDevice(deviceConfiguration, connectionFunction, sqlBuilder);
     }
 
     @Override
@@ -513,12 +452,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append("         and partialconnectiontask =");   // Match the previous connection task
         sqlBuilder.addLong(previousPartialConnectionTask.getId());
         sqlBuilder.append("         and obsolete_date is null)");
-        sqlBuilder.append("   and device in (select id from ");
-        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.addLong(deviceConfiguration.getId());
-        sqlBuilder.append(")");
-        return sqlBuilder;
+        return addConditionOnDeviceByConfiguration(deviceConfiguration, sqlBuilder);
     }
 
     @Override
@@ -527,24 +461,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private SqlBuilder preferredConnectionFunctionChangedSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, ConnectionFunction oldConnectionFunction, ConnectionFunction newConnectionFunction) {
-        SqlBuilder sqlBuilder = new SqlBuilder("update DDC_COMTASKEXEC exec");
-        sqlBuilder.append(" set useDefaultConnectionTask = 0, connectionFunction = ");
-        sqlBuilder.addLong(newConnectionFunction.getId());
-        sqlBuilder.append(", connectionTask = ");
-        sqlBuilder.append("(select ct.id from DDC_CONNECTIONTASK ct, DTC_PARTIALCONNECTIONTASK pct"); // Find the connection task with the given connection function
-        sqlBuilder.append(" where ct.partialconnectiontask = pct.id");
-        sqlBuilder.append("   and ct.device = exec.device");
-        sqlBuilder.append("   and pct.connectionfunction = ");
-        sqlBuilder.addLong(newConnectionFunction.getId());
-        sqlBuilder.append("   and ct.obsolete_date is null)");
-        sqlBuilder.append(" where exec.comtask = "); // Match the ComTask
-        sqlBuilder.addLong(comTask.getId());
-        sqlBuilder.append(" and exec.connectionFunction = ");   // Update only if the ComTaskExecution is also using the connection function (~ so config not overwritten on device level)
-        sqlBuilder.addLong(oldConnectionFunction.getId());
-        sqlBuilder.append(" and exec.device in (select id from DDC_DEVICE where deviceConfigId = ");    // Match device of the specified DeviceConfiguration
-        sqlBuilder.addLong(deviceConfiguration.getId());
-        sqlBuilder.append(")");
-        return sqlBuilder;
+        SqlBuilder sqlBuilder = switchToConnectionFunctionSqlBuilder(comTask, newConnectionFunction);
+        return addConditionOnConnectionFunctionAndDevice(deviceConfiguration, oldConnectionFunction, sqlBuilder);
     }
 
     @Override
@@ -647,12 +565,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.addInt(previousPreferredPriority);
         sqlBuilder.append("   and comtask = ?");  // Match the ComTask
         sqlBuilder.addLong(comTask.getId());
-        sqlBuilder.append("   and device in (select id from ");
-        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.addLong(deviceConfiguration.getId());
-        sqlBuilder.append(")");
-        return sqlBuilder;
+        return addConditionOnDeviceByConfiguration(deviceConfiguration, sqlBuilder);
     }
 
     @Override
@@ -661,9 +574,13 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private SqlBuilder suspendAllSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        return suspendResumeSqlBuilder(comTask, deviceConfiguration, "nextExecutionTimestamp = null, onHold = 1");
+    }
+
+    private SqlBuilder suspendResumeSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration, String specificValues) {
         SqlBuilder sqlBuilder = new SqlBuilder("update ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" set nextExecutionTimestamp = null, onHold = 1");
+        sqlBuilder.append(" set " + specificValues);
         sqlBuilder.append("   where device in (select id from ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
         sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
@@ -681,18 +598,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private SqlBuilder resumeAllSqlBuilder(ComTask comTask, DeviceConfiguration deviceConfiguration) {
-        SqlBuilder sqlBuilder = new SqlBuilder("update ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" set onHold = 0, nextExecutionTimestamp = plannedNextExecutionTimestamp");
-        sqlBuilder.append("   where device in (select id from ");
-        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" where deviceConfigId =");  // Match device of the specified DeviceConfiguration
-        sqlBuilder.addLong(deviceConfiguration.getId());
-        sqlBuilder.append(")");
-        sqlBuilder.append("   and comtask =");
-        sqlBuilder.addLong(comTask.getId());
-        sqlBuilder.append("   and onHold = 1");      // Only tasks that were suspended
-        return sqlBuilder;
+        return suspendResumeSqlBuilder(comTask, deviceConfiguration, "onHold = 0, nextExecutionTimestamp = plannedNextExecutionTimestamp");
     }
 
     @Override
@@ -793,6 +699,17 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                         .and(where(ComTaskExecutionFields.ID.fieldName()).between(minId).and(maxId)));
     }
 
+    private SqlBuilder initComTaskExecFinderSqlBuilder(DataMapper<ComTaskExecution> mapper) {
+        SqlBuilder sqlBuilder = mapper.builder("cte", "FIRST_ROWS(1) LEADING(cte) USE_NL(ct)");
+        sqlBuilder.append(", ");
+        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+        sqlBuilder.append(" ct");
+        sqlBuilder.append(" where ct.status = 0");
+        sqlBuilder.append("   and ct.comserver is null");
+        sqlBuilder.append("   and ct.obsolete_date is null");
+        return sqlBuilder;
+    }
+
     @Override
     public Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(OutboundComPort comPort) {
         List<OutboundComPortPool> comPortPools =
@@ -805,13 +722,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         if (!comPortPools.isEmpty()) {
             long nowInSeconds = this.toSeconds(this.deviceDataModelService.clock().instant());
             DataMapper<ComTaskExecution> mapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
-            com.elster.jupiter.util.sql.SqlBuilder sqlBuilder = mapper.builder("cte", "FIRST_ROWS(1) LEADING(cte) USE_NL(ct)");
-            sqlBuilder.append(", ");
-            sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-            sqlBuilder.append(" ct");
-            sqlBuilder.append(" where ct.status = 0");
-            sqlBuilder.append("   and ct.comserver is null");
-            sqlBuilder.append("   and ct.obsolete_date is null");
+            SqlBuilder sqlBuilder = initComTaskExecFinderSqlBuilder(mapper);
             sqlBuilder.append("   and cte.obsolete_date is null");
             sqlBuilder.append("   and cte.connectiontask = ct.id");
             sqlBuilder.append("   and cte.nextexecutiontimestamp <=");
@@ -833,6 +744,30 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         } else {
             return new NoComTaskExecutions();
         }
+    }
+
+    public Fetcher<ComTaskExecution> findComTaskExecutionsForDevicesByComTask(List<Long> deviceIds, List<Long> comTaskIds) {
+        DataMapper<ComTaskExecution> mapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
+        SqlBuilder sqlBuilder = mapper.builder("cte");
+        sqlBuilder.append(" where cte.obsolete_date is null");
+        sqlBuilder.append("   and cte.onhold = 0");
+        sqlBuilder.append("   and cte.lastsuccessfulcompletion is not null");
+        sqlBuilder.append("   and cte.lastexecutiontimestamp is not null");
+        sqlBuilder.append("   and cte.lastexecutiontimestamp > cte.lastsuccessfulcompletion");
+        sqlBuilder.append("   and cte.lastexecutionfailed = 1");
+        sqlBuilder.append("   and cte.currentretrycount = 0");
+        addConditionOnIdList(deviceIds, "cte.device", sqlBuilder);
+        addConditionOnIdList(comTaskIds, "cte.comtask", sqlBuilder);
+
+        return mapper.fetcher(sqlBuilder);
+    }
+
+    private void addConditionOnIdList(List<Long> deviceIds, String column, SqlBuilder sqlBuilder) {
+        if (deviceIds == null || deviceIds.isEmpty()) {
+            return;
+        }
+        sqlBuilder.append("   and ");
+        INClauseBuilder.build(deviceIds, column, sqlBuilder);
     }
 
     @Override

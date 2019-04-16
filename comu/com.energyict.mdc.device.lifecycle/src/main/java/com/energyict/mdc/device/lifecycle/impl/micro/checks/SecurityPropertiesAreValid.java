@@ -1,10 +1,9 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -12,12 +11,10 @@ import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
+import com.energyict.mdc.device.data.SecurityAccessor;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -27,39 +24,34 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Provides an implementation for the {@link ServerMicroCheck} interface
- * that checks that a Device has valid security properties
+ * Checks that a Device has valid security properties
  * for all {@link SecurityPropertySet}s that are used at the
- * configuration level when communication tasks are being enabled.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-15 (09:48)
+ * configuration level when communication tasks are being enabled
  */
 public class SecurityPropertiesAreValid extends ConsolidatedServerMicroCheck {
 
     private boolean valid = true;
 
-    public SecurityPropertiesAreValid(Thesaurus thesaurus) {
-        super(thesaurus);
+    @Override
+    public String getCategory() {
+        return MicroCategory.COMMUNICATION.name();
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         List<SecurityPropertySet> usedSecurityPropertySets = deviceConfiguration.getSecurityPropertySets()
                 .stream()
                 .filter(securityPropertySet -> isUsedInAnyComTaskEnablement(securityPropertySet, deviceConfiguration.getComTaskEnablements()))
                 .collect(Collectors.toList());
-
         Map<PropertySpec, Optional<SecurityAccessorType>> propertySpecKeyAccessorTypeMapping = new HashMap<>();
         for (SecurityPropertySet usedSecurityPropertySet : usedSecurityPropertySets) {
             usedSecurityPropertySet.getPropertySpecs().forEach(propertySpec ->
                     propertySpecKeyAccessorTypeMapping.put(propertySpec, findCorrespondingKeyAccessorType(usedSecurityPropertySet, propertySpec))
             );
         }
-
         propertySpecKeyAccessorTypeMapping.forEach((propertySpec, keyAccessorTypeOptional) -> checkIfValid(propertySpec, keyAccessorTypeOptional, device));
-        return this.valid ? Optional.empty() : Optional.of(newViolation());
+        return this.valid ? Optional.empty() : fail(MicroCheckTranslations.Message.SECURITY_PROPERTIES_ARE_ALL_VALID);
     }
 
     private Optional<SecurityAccessorType> findCorrespondingKeyAccessorType(SecurityPropertySet securityPropertySet, PropertySpec propertySpec) {
@@ -96,12 +88,5 @@ public class SecurityPropertiesAreValid extends ConsolidatedServerMicroCheck {
         } else if (propertySpec.isRequired()){
             this.valid = false; // Didn't found a matching security accessor for the a required security accessor type
         }
-    }
-
-    private DeviceLifeCycleActionViolationImpl newViolation() {
-        return new DeviceLifeCycleActionViolationImpl(
-                this.thesaurus,
-                MessageSeeds.SECURITY_PROPERTIES_ARE_ALL_VALID,
-                MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID);
     }
 }

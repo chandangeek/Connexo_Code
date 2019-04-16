@@ -50,10 +50,10 @@ Ext.define('Tou.view.DevicesGrid', {
                     case 'Pending':
                         iconCls = 'icon-forward2';
                         break;
-                    case 'Configuration Error':
+                    case 'Configuration error':
                         iconCls = 'icon-notification';
                         break;
-                    case 'Canceled':
+                    case 'Cancelled':
                         iconCls = 'icon-blocked';
                         break;
                     }
@@ -85,9 +85,9 @@ Ext.define('Tou.view.DevicesGrid', {
                     case 'Pending':
                     case 'Ongoing':
                         return false;
-                    case 'Canceled':
+                    case 'Cancelled':
                     case 'Failed':
-                    case 'Configuration Error':
+                    case 'Configuration error':
                         return false; // because the device can be retried
                     default:
                         return true;

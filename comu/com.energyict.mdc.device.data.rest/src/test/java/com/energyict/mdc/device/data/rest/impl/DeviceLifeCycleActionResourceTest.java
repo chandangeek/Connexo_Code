@@ -16,17 +16,17 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceLifeCycleActionViolationImpl;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllDataValidated;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.MicroCheckTranslations;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -124,7 +124,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         when(action1.getId()).thenReturn(1L);
         when(action1.getName()).thenReturn("Transition name 1");
         when(action1.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
-        when(action1.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
+        when(action1.getChecks()).thenReturn(Collections.singleton(new AllDataValidated()));
         List<ExecutableAction> executableActions = Arrays.asList(mockExecutableAction(device, action1));
         when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(executableActions);
         List<PropertySpec> propertySpecs = mockLastCheckedPropertySpec();
@@ -152,7 +152,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         info.device.parent = new VersionInfo<>(1L, 1L);
 
         when(deviceService.findDeviceByName(MAIN_DEVICE_NAME)).thenReturn(Optional.empty());
-        when(deviceService.findAndLockDeviceByNameAndVersion(eq(MAIN_DEVICE_NAME), anyLong())).thenReturn(Optional.<Device>empty());
+        when(deviceService.findAndLockDeviceByNameAndVersion(eq(MAIN_DEVICE_NAME), anyLong())).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.empty());
 
@@ -166,7 +166,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         when(action.getId()).thenReturn(1L);
         when(action.getName()).thenReturn("Transition name 1");
         when(action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
-        when(action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
+        when(action.getChecks()).thenReturn(Collections.singleton(new AllDataValidated()));
         StateTransition transition = mock(StateTransition.class);
         when(transition.getTo()).thenReturn(state);
         when(action.getStateTransition()).thenReturn(transition);
@@ -216,7 +216,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         when(action.getId()).thenReturn(1L);
         when(action.getName()).thenReturn("Transition name 1");
         when(action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
-        when(action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
+        when(action.getChecks()).thenReturn(Collections.singleton(new AllDataValidated()));
         StateTransition transition = mock(StateTransition.class);
         when(transition.getTo()).thenReturn(state);
         when(action.getStateTransition()).thenReturn(transition);
@@ -268,7 +268,9 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         when(action.getId()).thenReturn(1L);
         when(action.getName()).thenReturn("Transition name 1");
         when(action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
-        when(action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
+        AllDataValidated allDataValidated = new AllDataValidated();
+        allDataValidated.setThesaurus(thesaurus);
+        when(action.getChecks()).thenReturn(Collections.singleton(allDataValidated));
         StateTransition transition = mock(StateTransition.class);
         when(transition.getTo()).thenReturn(state);
         when(action.getStateTransition()).thenReturn(transition);
@@ -280,8 +282,8 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         doReturn(actionProperty).when(deviceLifeCycleService).toExecutableActionProperty(Matchers.any(Object.class), Matchers.eq(propertySpecs.get(0)));
 
         Instant now = Instant.now();
-        DeviceLifeCycleActionViolation violation = new DeviceLifeCycleActionViolationImpl(thesaurus,
-                com.energyict.mdc.device.lifecycle.impl.MessageSeeds.ALL_DATA_VALID, MicroCheck.ALL_DATA_VALIDATED);
+        ExecutableMicroCheckViolation violation = new ExecutableMicroCheckViolation(allDataValidated,
+                thesaurus.getSimpleFormat(MicroCheckTranslations.Message.ALL_DATA_VALID).format());
         MultipleMicroCheckViolationsException exception = new MultipleMicroCheckViolationsException(thesaurus,
                 com.energyict.mdc.device.lifecycle.impl.MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, Collections.singletonList(violation));
         doThrow(exception).when(executableActions.get(0)).execute(eq(now), Matchers.anyList());
@@ -323,7 +325,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         when(action.getId()).thenReturn(1L);
         when(action.getName()).thenReturn("Transition name 1");
         when(action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
-        when(action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
+        when(action.getChecks()).thenReturn(Collections.singleton(new AllDataValidated()));
         StateTransition transition = mock(StateTransition.class);
         when(transition.getTo()).thenReturn(state);
         when(action.getStateTransition()).thenReturn(transition);

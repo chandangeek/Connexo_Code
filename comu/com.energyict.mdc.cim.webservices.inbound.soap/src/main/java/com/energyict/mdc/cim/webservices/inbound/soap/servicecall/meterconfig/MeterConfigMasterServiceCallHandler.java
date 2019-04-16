@@ -9,19 +9,15 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.cim.webservices.inbound.soap.FailedMeterOperation;
-import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
-import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
+import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
+import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,9 +35,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
 
     private volatile DeviceService deviceService;
     private volatile EndPointConfigurationService endPointConfigurationService;
-    private volatile JsonService jsonService;
-
-    private ReplyMeterConfigWebService replyMeterConfigWebService;
+    private volatile ReplyMeterConfigWebService replyMeterConfigWebService;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -84,7 +78,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         }
     }
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    @Reference
     public void addReplyMeterConfigWebServiceClient(ReplyMeterConfigWebService webService) {
         this.replyMeterConfigWebService = webService;
     }
@@ -103,32 +97,27 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         this.endPointConfigurationService = endPointConfigurationService;
     }
 
-    @Reference
-    public void setJsonService(JsonService jsonService) {
-        this.jsonService = jsonService;
-    }
-
     private void updateCounter(ServiceCall serviceCall, DefaultState state) {
         MeterConfigMasterDomainExtension extension = serviceCall.getExtension(MeterConfigMasterDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
-        BigDecimal successfulCalls = extension.getActualNumberOfSuccessfulCalls();
-        BigDecimal failedCalls = extension.getActualNumberOfFailedCalls();
-        BigDecimal expectedCalls = extension.getExpectedNumberOfCalls();
+        long successfulCalls = extension.getActualNumberOfSuccessfulCalls();
+        long failedCalls = extension.getActualNumberOfFailedCalls();
+        long expectedCalls = extension.getExpectedNumberOfCalls();
 
         if (DefaultState.SUCCESSFUL.equals(state)) {
-            successfulCalls = successfulCalls.add(BigDecimal.ONE);
+            successfulCalls++;
             extension.setActualNumberOfSuccessfulCalls(successfulCalls);
         } else {
-            failedCalls = failedCalls.add(BigDecimal.ONE);
+            failedCalls++;
             extension.setActualNumberOfFailedCalls(failedCalls);
         }
         serviceCall.update(extension);
 
-        if (extension.getExpectedNumberOfCalls().compareTo(successfulCalls.add(failedCalls)) <= 0) {
-            if (successfulCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
+        if (expectedCalls <= successfulCalls + failedCalls) {
+            if (successfulCalls >= expectedCalls && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-            } else if (failedCalls.compareTo(expectedCalls) >= 0 && serviceCall.canTransitionTo(DefaultState.FAILED)) {
+            } else if (failedCalls >= expectedCalls && serviceCall.canTransitionTo(DefaultState.FAILED)) {
                 serviceCall.requestTransition(DefaultState.FAILED);
             } else if (serviceCall.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
                 serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
@@ -150,39 +139,44 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
 
         replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
-                getSuccessfullyProceededDevices(serviceCall),
-                getUnsuccessfullyProceededDevices(serviceCall),
+                getSuccessfullyProcessedDevices(serviceCall),
+                getUnsuccessfullyProcessedDevices(serviceCall),
                 extensionFor.getExpectedNumberOfCalls());
     }
 
-    private List<Device> getSuccessfullyProceededDevices(ServiceCall serviceCall) {
+    private List<Device> getSuccessfullyProcessedDevices(ServiceCall serviceCall) {
         List<Device> devices = new ArrayList<>();
         serviceCall.findChildren()
                 .stream()
                 .filter(child -> child.getState().equals(DefaultState.SUCCESSFUL))
                 .forEach(child ->  {
                     MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-                    MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
-                    deviceService.findDeviceByName(meter.getDeviceName()).ifPresent(devices::add);
+                    Optional<Device> device = findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
+                    if (device.isPresent()) {
+                        devices.add(device.get());
+                    }
                 });
         return devices;
     }
 
-    private List<FailedMeterOperation> getUnsuccessfullyProceededDevices(ServiceCall serviceCall) {
+    private List<FailedMeterOperation> getUnsuccessfullyProcessedDevices(ServiceCall serviceCall) {
         List<FailedMeterOperation> failedMeterOperations = new ArrayList<>();
         serviceCall.findChildren()
                 .stream()
                 .filter(child -> child.getState().equals(DefaultState.FAILED))
                 .forEach(child ->  {
                     MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-                    MeterInfo meter = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
                     FailedMeterOperation failedMeterOperation = new FailedMeterOperation();
                     failedMeterOperation.setErrorCode(extensionFor.getErrorCode());
                     failedMeterOperation.setErrorMessage(extensionFor.getErrorMessage());
-                    failedMeterOperation.setmRID(meter.getmRID());
-                    failedMeterOperation.setMeterName(meter.getDeviceName());
+                    failedMeterOperation.setmRID(extensionFor.getMeterMrid());
+                    failedMeterOperation.setMeterName(extensionFor.getMeterName());
                     failedMeterOperations.add(failedMeterOperation);
                 });
         return failedMeterOperations;
+    }
+
+    private Optional<Device> findDevice(String mrid, String deviceName) {
+        return (mrid != null && !mrid.isEmpty()) ? deviceService.findDeviceByMrid(mrid) : deviceService.findDeviceByName(deviceName);
     }
 }

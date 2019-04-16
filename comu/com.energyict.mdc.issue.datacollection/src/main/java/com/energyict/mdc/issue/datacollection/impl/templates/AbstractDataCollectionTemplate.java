@@ -10,6 +10,8 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
@@ -21,16 +23,22 @@ public abstract class AbstractDataCollectionTemplate implements CreationRuleTemp
     protected volatile IssueService issueService;
     protected volatile IssueDataCollectionService issueDataCollectionService;
     protected volatile PropertySpecService propertySpecService;
+    protected volatile DeviceConfigurationService deviceConfigurationService;
+    protected volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     protected volatile Thesaurus thesaurus;
+
+
     
     public AbstractDataCollectionTemplate() {
     }
 
     @Inject
-    protected AbstractDataCollectionTemplate(IssueService issueService, IssueDataCollectionService issueDataCollectionService, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    protected AbstractDataCollectionTemplate(IssueService issueService, IssueDataCollectionService issueDataCollectionService, Thesaurus thesaurus, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.issueService = issueService;
         this.issueDataCollectionService = issueDataCollectionService;
         this.propertySpecService = propertySpecService;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.thesaurus = thesaurus;
     }
     
@@ -62,5 +70,13 @@ public abstract class AbstractDataCollectionTemplate implements CreationRuleTemp
 
     protected void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+    }
+
+    protected void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    protected void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 }

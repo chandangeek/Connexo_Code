@@ -17,7 +17,7 @@ Ext.define('Tou.view.Add', {
         me.content = [{
                 xtype: 'tou-campaigns-add-form',
                 itemId: 'tou-campaigns-add-form',
-                title: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU campaign'),
+                title: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU calendar campaign'),
                 ui: 'large',
                 returnLink: me.returnLink,
                 action: me.action

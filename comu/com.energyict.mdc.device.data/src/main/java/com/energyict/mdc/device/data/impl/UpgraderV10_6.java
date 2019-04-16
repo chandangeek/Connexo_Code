@@ -9,19 +9,20 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
-
 import com.energyict.mdc.device.data.DeviceDataServices;
 
 import javax.inject.Inject;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class UpgraderV10_6 implements Upgrader {
+
+    private static final Logger logger = Logger.getLogger(UpgraderV10_6.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;

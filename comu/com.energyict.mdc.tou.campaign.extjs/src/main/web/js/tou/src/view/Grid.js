@@ -22,7 +22,7 @@ Ext.define('Tou.view.Grid', {
                 flex: 2,
                 renderer: function (value, metaData, record) {
                     return value ? '<a href="' + me.router.getRoute('workspace/toucampaigns/toucampaign').buildUrl({
-                        touCampaignName: value
+                        touCampaignId: record.getId()
                     }) + '">' + Ext.String.htmlEncode(value) + '</a>' : '-';
                 }
             }, {
@@ -95,10 +95,10 @@ Ext.define('Tou.view.Grid', {
                         case 'Pending':
                             iconCls = 'icon-forward2';
                             break;
-                        case 'Configuration Error':
+                        case 'Configuration error':
                             iconCls = 'icon-notification';
                             break;
-                        case 'Canceled':
+                        case 'Cancelled':
                             iconCls = 'icon-blocked';
                             break;
                         }
@@ -137,9 +137,9 @@ Ext.define('Tou.view.Grid', {
                 itemId: 'tou-campaigns-grid-paging-toolbar-top',
                 dock: 'top',
                 store: me.store,
-                displayMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.displayMsg', 'TOU', '{0} - {1} of {2} time of use campaigns'),
-                displayMoreMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.displayMoreMsg', 'TOU', '{0} - {1} of more than {2} time of use campaigns'),
-                emptyMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.emptyMsg', 'TOU', 'There are no time of use campaigns to display'),
+                displayMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.displayMsg', 'TOU', '{0} - {1} of {2} ToU calendar campaigns'),
+                displayMoreMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.displayMoreMsg', 'TOU', '{0} - {1} of more than {2} ToU calendar campaigns'),
+                emptyMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbartop.emptyMsg', 'TOU', 'There are no ToU calendar campaigns to display'),
                 items: [{
                         itemId: 'tou-campaigns-add-button',
                         text: Uni.I18n.translate('tou.campaigns.addTouCampaign', 'TOU', 'Add ToU calendar campaign'),
@@ -153,7 +153,7 @@ Ext.define('Tou.view.Grid', {
                 itemId: 'tou-campaigns-grid-paging-toolbar-bottom',
                 dock: 'bottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbarbottom.itemsPerPage', 'TOU', 'ToU campaigns per page')
+                itemsPerPageMsg: Uni.I18n.translate('tou.campaigns.pagingtoolbarbottom.itemsPerPage', 'TOU', 'ToU calendar campaigns per page')
             }
         ];
 

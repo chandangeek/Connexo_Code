@@ -246,6 +246,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.issue.devicelifecycle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.firmware</artifactId>
         </dependency>
         <dependency>
@@ -328,6 +332,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.issue.datavalidation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+        </dependency>
+
         <!-- TESTS -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -347,11 +356,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validators</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>bpm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

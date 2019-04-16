@@ -49,6 +49,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -77,11 +78,13 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -92,6 +95,7 @@ import org.junit.rules.TestRule;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
+import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -183,9 +187,9 @@ public class DataValidationIssueCreationRuleTemplateTest {
     public void testTemplatePropertySpecs() {
         List<PropertySpec> propertySpecs = template.getPropertySpecs();
 
-        assertThat(propertySpecs).hasSize(1);
+        assertThat(propertySpecs).hasSize(2);
 
-        PropertySpec propertySpec = propertySpecs.get(0);
+        PropertySpec propertySpec = propertySpecs.get(1);
         assertThat(propertySpec.getName()).isEqualTo(DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS);
 
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
@@ -397,7 +401,21 @@ public class DataValidationIssueCreationRuleTemplateTest {
             when(deviceConfig.getId()).thenReturn(config.getId());
             value.add(deviceConfig);
         }
+        List<HasIdAndName> value2 = new ArrayList<>();
+        HasIdAndName deviceLife = mock(HasIdAndName.class);
+        String deviceLifeId = deviceType.getId() + ":" + deviceType.getDeviceLifeCycle().getId() + ":" + deviceType.getDeviceLifeCycle()
+                .getFiniteStateMachine()
+                .getStates()
+                .stream()
+                .sorted(Comparator.comparing(State::getId))
+                .map(HasId::getId)
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+
+        when(deviceLife.getId()).thenReturn(deviceLifeId);
+        value2.add(deviceLife);
         props.put(DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, value);
+        props.put(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, value2);
         return ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
                 .setName(name)
                 .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())

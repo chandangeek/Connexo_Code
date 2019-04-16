@@ -40,6 +40,7 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
         {name: 'renewCapability', type: 'auto'},
         {name: 'keySize', type: 'int'},
         {name: 'isReversible', type: 'boolean', defaultValue: true, convert: null},
+        {name: 'defaultServiceKey', type: 'string'},
 
         {
             name: 'viewLevelsInfo',

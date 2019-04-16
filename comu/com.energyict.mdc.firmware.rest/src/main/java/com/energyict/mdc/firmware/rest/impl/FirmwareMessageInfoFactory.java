@@ -27,9 +27,9 @@ import java.util.Map;
 
 public class FirmwareMessageInfoFactory {
 
-    static String PROPERTY_KEY_FIRMWARE_VERSION = "FirmwareDeviceMessage.upgrade.userfile";
-    static String PROPERTY_KEY_IMAGE_IDENTIFIER = "FirmwareDeviceMessage.image.identifier";
-    static String PROPERTY_KEY_RESUME = "FirmwareDeviceMessage.upgrade.resume";
+    static final String PROPERTY_KEY_FIRMWARE_VERSION = "FirmwareDeviceMessage.upgrade.userfile";
+    static final String PROPERTY_KEY_IMAGE_IDENTIFIER = "FirmwareDeviceMessage.image.identifier";
+    static final String PROPERTY_KEY_RESUME = "FirmwareDeviceMessage.upgrade.resume";
 
     private final MdcPropertyUtils mdcPropertyUtils;
     private final FirmwareService firmwareService;

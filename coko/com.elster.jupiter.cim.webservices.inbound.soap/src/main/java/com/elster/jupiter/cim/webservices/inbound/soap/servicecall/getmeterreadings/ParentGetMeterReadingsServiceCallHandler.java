@@ -85,35 +85,42 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
 
         MeterReadingsBuilder meterReadingsBuilder = readingBuilderProvider.get();
         MeterReadings meterReadings = null;
-        serviceCall.log(LogLevel.FINE, MessageFormat.format("Result collection is started for source {0}, time range {1}",
+        serviceCall.log(LogLevel.FINE, MessageFormat.format("Result collection is started for source ''{0}'', time range {1}",
                 source, timeRangeSet));
         try {
             meterReadings = meterReadingsBuilder.withEndDevices(getEndDevices)
                     .ofReadingTypesWithMRIDs(readingTypesMRIDs)
-                    .ofReadingTypesWithFullAliasNames(Collections.emptySet())
                     .inTimeIntervals(timeRangeSet)
                     .build();
         } catch (FaultMessage faultMessage) {
             serviceCall.requestTransition(DefaultState.FAILED);
             serviceCall.log(LogLevel.SEVERE,
-                    MessageFormat.format("Unable to get meter readings for source {0}, time range {1}, du to error: " + faultMessage.getMessage(),
+                    MessageFormat.format("Unable to collect meter readings for source ''{0}'', time range {1}, du to error: " + faultMessage.getMessage(),
                         source, timeRangeSet));
+            return;
+        }
+        if (meterReadings == null || meterReadings.getMeterReading().isEmpty()) {
+            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+            serviceCall.log(LogLevel.FINE,
+                    MessageFormat.format("No meter readings are found for source ''{0}'', time range {1}",
+                            source, timeRangeSet));
             return;
         }
         EndPointConfiguration endPointConfiguration = getEndPointConfiguration(serviceCall, callbackUrl);
         if (endPointConfiguration == null) {
+            serviceCall.requestTransition(DefaultState.FAILED);
             return;
         }
         boolean isOk = sendMeterReadingsProvider.call(meterReadings, HeaderType.Verb.CREATED, endPointConfiguration);
         if (!isOk) {
             serviceCall.requestTransition(DefaultState.FAILED);
             serviceCall.log(LogLevel.SEVERE,
-                    MessageFormat.format("Unable to send meter readings data for source {0}, time range {1}", source, timeRangeSet));
+                    MessageFormat.format("Unable to send meter readings data for source ''{0}'', time range {1}", source, timeRangeSet));
             return;
         }
         serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         serviceCall.log(LogLevel.FINE,
-                MessageFormat.format("Data successfully sent for source {0}, time range {1}",
+                MessageFormat.format("Data successfully sent for source ''{0}'', time range {1}",
                         source, timeRangeSet));
     }
 

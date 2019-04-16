@@ -31,6 +31,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 
+import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -117,6 +118,8 @@ public abstract class AbstractMockActivator {
     protected WebServicesService webServicesService;
     @Mock
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    @Mock
+    protected MeterConfigFactory meterConfigFactory;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -160,6 +163,7 @@ public abstract class AbstractMockActivator {
         activator.setServiceCallService(serviceCallService);
         activator.setWebServicesService(webServicesService);
         activator.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        activator.setMeterConfigFactory(meterConfigFactory);
         activator.activate(mock(BundleContext.class));
     }
 

@@ -63,22 +63,21 @@ public class DeviceComTaskInfoFactory {
     }
 
     private DeviceComTaskInfo fromCompatibleComTaskExecutions(ComTaskEnablement comTaskEnablement, List<ComTaskExecution> compatibleComTaskExecutions) {
-        DeviceComTaskInfo deviceComTasksInfo = new DeviceComTaskInfo();
-        deviceComTasksInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
-        deviceComTasksInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
+        DeviceComTaskInfo deviceComTaskInfo = new DeviceComTaskInfo();
+        deviceComTaskInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
+        deviceComTaskInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
         for (ComTaskExecution comTaskExecution : compatibleComTaskExecutions) {
             if (comTaskExecution.usesSharedSchedule()) {
-                setFieldsForSharedScheduleExecution(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
+                setFieldsForSharedScheduleExecution(deviceComTaskInfo, comTaskExecution, comTaskEnablement);
             } else if (comTaskExecution.isScheduledManually() && !comTaskExecution.isAdHoc()) {
-                setFieldsForIndividualScheduleExecution(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
+                setFieldsForIndividualScheduleExecution(deviceComTaskInfo, comTaskExecution, comTaskEnablement);
             } else if (comTaskExecution.isAdHoc()) {
-                setFieldsForIndividualScheduleExecution(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
-                deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.ON_REQUEST).format();
+                setFieldsForIndividualScheduleExecution(deviceComTaskInfo, comTaskExecution, comTaskEnablement);
+                deviceComTaskInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.ON_REQUEST).format();
             }
         }
 
-
-        return deviceComTasksInfo;
+        return deviceComTaskInfo;
     }
 
     private void setFieldsForIndividualScheduleExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution, ComTaskEnablement comTaskEnablement) {
@@ -87,6 +86,10 @@ public class DeviceComTaskInfoFactory {
         if (comTaskExecution.getNextExecutionSpecs().isPresent()) {
             deviceComTasksInfo.temporalExpression = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         }
+        setFieldsForScheduledExecution(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
+    }
+
+    private void setFieldsForScheduledExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution, ComTaskEnablement comTaskEnablement) {
         deviceComTasksInfo.lastCommunicationStart = comTaskExecution.getLastExecutionStartTimestamp();
         deviceComTasksInfo.latestResult =
                 comTaskExecution
@@ -102,6 +105,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceComTasksInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
         deviceComTasksInfo.connectionFunctionInfo = comTaskExecution.getConnectionFunction().isPresent() ? new ConnectionFunctionInfo(comTaskExecution.getConnectionFunction().get()) : null;
+        deviceComTasksInfo.maxNumberOfTries = comTaskExecution.getMaxNumberOfTries();
         setConnectionMethodInfo(comTaskExecution, comTaskEnablement, deviceComTasksInfo);
         setConnectionStrategy(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
     }
@@ -115,23 +119,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.scheduleName = comTaskExecution.getComSchedule().get().getName();
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.SHARED.name();
         deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.SHARED_SCHEDULE).format();
-        deviceComTasksInfo.lastCommunicationStart = comTaskExecution.getLastExecutionStartTimestamp();
-        deviceComTasksInfo.latestResult =
-                comTaskExecution
-                        .getLastSession()
-                        .map(ComTaskExecutionSession::getHighestPriorityCompletionCode)
-                        .map(this::infoFrom)
-                        .orElse(null);
-        deviceComTasksInfo.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
-        deviceComTasksInfo.isOnHold = comTaskExecution.isOnHold();
-        deviceComTasksInfo.status = TaskStatusTranslationKeys.translationFor(comTaskExecution.getStatus(), thesaurus);
-        deviceComTasksInfo.urgency = comTaskExecution.getPlannedPriority();
-        deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
-        deviceComTasksInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
-        deviceComTasksInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
-        deviceComTasksInfo.connectionFunctionInfo = comTaskExecution.getConnectionFunction().isPresent() ? new ConnectionFunctionInfo(comTaskExecution.getConnectionFunction().get()) : null;
-        setConnectionMethodInfo(comTaskExecution, comTaskEnablement, deviceComTasksInfo);
-        setConnectionStrategy(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
+        setFieldsForScheduledExecution(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
     }
 
     private DeviceComTaskInfo setFieldsForEnablementWhichIsNotOnDeviceYet(ComTaskEnablement comTaskEnablement, Device device) {
@@ -144,6 +132,7 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
         deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         deviceComTasksInfo.connectionFunctionInfo = comTaskEnablement.getConnectionFunction().isPresent() ? new ConnectionFunctionInfo(comTaskEnablement.getConnectionFunction().get()) : null;
+        deviceComTasksInfo.maxNumberOfTries = comTaskEnablement.getMaxNumberOfTries();
         setConnectionMethodInfo(comTaskEnablement, device, deviceComTasksInfo);
         setConnectionTaskStrategy(deviceComTasksInfo, comTaskEnablement);
         return deviceComTasksInfo;
@@ -154,7 +143,7 @@ public class DeviceComTaskInfoFactory {
             ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
             deviceComTasksInfo.connectionStrategy = ConnectionStrategyTranslationKeys.translationFor(connectionStrategy, thesaurus);
             deviceComTasksInfo.connectionStrategyKey = connectionStrategy.name();
-        } else  {
+        } else {
             setConnectionTaskStrategy(deviceComTasksInfo, comTaskEnablement);
         }
     }
