@@ -14,7 +14,7 @@
  * // add properties by one
  * var registry = Uni.property.controller.Registry;
  * registry.addProperty('CUSTOM_PROPERTY', 'App.view.property.Custom');
- *
+ *IssuesAndAlarmsLayerBuilder.java:
  * // or provide a config
  * registry.addProperties({
  *      'CUSTOM_1': 'App.view.property.Custom1',
@@ -28,6 +28,7 @@ Ext.define('Uni.property.controller.Registry', {
     requires: [
         'Uni.property.view.property.Text',
         'Uni.property.view.property.Combobox',
+        'Uni.property.view.property.DeviceGroupCombobox',
         'Uni.property.view.property.Textarea',
         'Uni.property.view.property.Password',
         'Uni.property.view.property.Hexstring',
