@@ -10,13 +10,14 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
         type: 'column'
     },
     requires: [
-        'Uni.util.FormEmptyMessage'
+        'Uni.util.FormEmptyMessage',
+        'Uni.view.calendar.SpecialDaysPreview'
     ],
 
     initComponent: function () {
         var me = this;
 
-        me.items = {
+        me.items = [{
             xtype: 'form',
             defaults: {
                 labelWidth: 250
@@ -73,7 +74,9 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                     value: '-'
                 }
             ]
-        };
+        }, {
+            xtype: 'specialDaysPreview'
+        }];
         me.callParent(arguments);
     },
 
@@ -149,6 +152,8 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
         });
         me.fillEmpty(counter, '#tariffsField');
         counter = 0;
+
+        me.down('specialDaysPreview').renderSpecialDays(calendarRecord);
 
         me.doComponentLayout();
         Ext.resumeLayouts(true);

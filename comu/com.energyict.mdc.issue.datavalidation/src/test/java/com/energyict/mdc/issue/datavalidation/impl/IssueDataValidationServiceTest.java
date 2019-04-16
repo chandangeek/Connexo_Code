@@ -8,7 +8,9 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.impl.records.HistoricalIssueImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
@@ -41,10 +43,14 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
@@ -57,6 +63,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +78,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import javax.management.AttributeList;
+
+import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -123,8 +133,28 @@ public class IssueDataValidationServiceTest {
         when(deviceConfiguration.getId()).thenReturn(deviceConfigurationId);
         List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
         deviceConfigurations.add(deviceConfiguration);
+        when(deviceType.getId()).thenReturn(1l);
         when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
+        DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        FiniteStateMachine fsm = mock(FiniteStateMachine.class);
+        when(deviceLifeCycle.getId()).thenReturn(1l);
+        when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(fsm);
+        List<State> states = new ArrayList<>();
+        State state1 = mock(State.class);
+        when(state1.getId()).thenReturn(1l);
+        states.add(state1);
+        State state2 = mock(State.class);
+        when(state2.getId()).thenReturn(2l);
+        states.add(state2);
+        when(fsm.getStates()).thenReturn(states);
         when(deviceTypeFinder.stream()).thenAnswer(invocationOnMock -> Stream.of(deviceType));
+        DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService = mock(DeviceLifeCycleConfigurationService.class);
+        DeviceLifeCycleInDeviceTypeInfo[] deviceLifeCycleInDeviceTypes = { new DeviceLifeCycleInDeviceTypeInfo(deviceType, deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
+                .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), deviceLifeCycleConfigurationService)};
+        DeviceLifeCycleInDeviceTypeInfo[] something;
+        when(deviceConfigurationService.getDeviceLifeCycleInDeviceTypeInfoPossibleValues()).thenReturn(deviceLifeCycleInDeviceTypes);
+        when(deviceConfigurationService.findDeviceType(1l)).thenReturn(Optional.of(deviceType));
         when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
         when(deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId)).thenReturn(Optional.of(deviceConfiguration));
 
@@ -134,6 +164,20 @@ public class IssueDataValidationServiceTest {
         HasIdAndName deviceConfig = mock(HasIdAndName.class);
         when(deviceConfig.getId()).thenReturn(deviceConfigurationId);
         value.add(deviceConfig);
+        List<HasIdAndName> value2 = new ArrayList<>();
+        HasIdAndName deviceLife = mock(HasIdAndName.class);
+        String deviceLifeId = deviceType.getId() + ":" + deviceType.getDeviceLifeCycle().getId() + ":" + deviceType.getDeviceLifeCycle()
+                .getFiniteStateMachine()
+                .getStates()
+                .stream()
+                .sorted(Comparator.comparing(State::getId))
+                .map(HasId::getId)
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+
+        when(deviceLife.getId()).thenReturn(deviceLifeId);
+        value2.add(deviceLife);
+        props.put(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, value2);
         props.put(DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, value);
         issueCreationRule = ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
                 .setName("Test")

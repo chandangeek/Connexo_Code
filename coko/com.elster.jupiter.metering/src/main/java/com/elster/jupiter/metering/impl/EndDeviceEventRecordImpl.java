@@ -16,7 +16,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,6 +70,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     private long logBookId;
     private int logBookPosition;
     private Instant createdDateTime;
+    private Instant readingDateTime;
     private long createdDateTimeMillis;
     
     @SuppressWarnings("unused")
@@ -193,6 +193,11 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     }
 
     @Override
+    public Instant getReadingDateTime() {
+        return readingDateTime;
+    }
+
+    @Override
     public String getReason() {
         return reason;
     }
@@ -260,6 +265,11 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     @Override
     public void setProcessingFlags(long processingFlags) {
         this.processingFlags = processingFlags;
+    }
+
+    @Override
+    public void setReadingDateTime(Instant readingDateTime) {
+        this.readingDateTime = readingDateTime;
     }
 
     @Override

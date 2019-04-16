@@ -1,18 +1,16 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -27,29 +25,27 @@ import java.util.stream.Collectors;
  */
 public class ProtocolDialectPropertiesAreValid extends ConsolidatedServerMicroCheck {
 
-    public ProtocolDialectPropertiesAreValid(Thesaurus thesaurus) {
-        super(thesaurus);
+    @Override
+    public String getCategory() {
+        return MicroCategory.COMMUNICATION.name();
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         Set<PropertySpec> requiredPropertySpecs = device.getDeviceConfiguration().getPartialConnectionTasks().stream().map(PartialConnectionTask::getProtocolDialectConfigurationProperties)
                 .flatMap(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getPropertySpecs().stream())
                 .filter(PropertySpec::isRequired)
                 .collect(Collectors.toSet());
-
         requiredPropertySpecs.addAll(device.getConnectionTasks().stream()
                 .flatMap(connectionTask -> connectionTask.getProtocolDialectConfigurationProperties().getPropertySpecs().stream())
                 .filter(PropertySpec::isRequired)
                 .collect(Collectors.toSet()));
-
         Optional<PropertySpec> unsolvedRequiredProperty = requiredPropertySpecs.stream()
                 .filter(findDialectProperty(device).negate())
                 .findFirst();
-        if (unsolvedRequiredProperty.isPresent()) {
-            return Optional.of(newViolation());
-        }
-        return Optional.empty();
+        return unsolvedRequiredProperty.isPresent() ?
+                fail(MicroCheckTranslations.Message.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID) :
+                Optional.empty();
     }
 
     private Predicate<PropertySpec> findDialectProperty(Device device) {
@@ -63,19 +59,13 @@ public class ProtocolDialectPropertiesAreValid extends ConsolidatedServerMicroCh
     private Optional<ProtocolDialectConfigurationProperties> findDialectPropertyOnConfigurationLevel(Device device, PropertySpec propertySpec) {
         return device.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList()
                 .stream()
-                .filter(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getProperty(propertySpec.getName()) != null).findFirst();
+                .filter(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getProperty(propertySpec.getName()) != null)
+                .findFirst();
     }
 
     private Optional<ProtocolDialectProperties> findDialectPropertyOnDeviceLevel(Device device, PropertySpec propertySpec) {
         return device.getProtocolDialectPropertiesList().stream()
-                .filter(protocolDialectProperties -> protocolDialectProperties.getProperty(propertySpec.getName()) != null).findFirst();
+                .filter(protocolDialectProperties -> protocolDialectProperties.getProperty(propertySpec.getName()) != null)
+                .findFirst();
     }
-
-    private DeviceLifeCycleActionViolationImpl newViolation() {
-        return new DeviceLifeCycleActionViolationImpl(
-                this.thesaurus,
-                MessageSeeds.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
-                MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID);
-    }
-
 }

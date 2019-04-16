@@ -9,6 +9,7 @@ import com.elster.jupiter.calendar.rest.impl.DayInfo;
 import com.elster.jupiter.calendar.rest.impl.DayTypeInfo;
 import com.elster.jupiter.calendar.rest.impl.DaysPerTypeInfo;
 import com.elster.jupiter.calendar.rest.impl.EventInfo;
+import com.elster.jupiter.calendar.rest.impl.ExceptionalOccurrenceInfo;
 import com.elster.jupiter.calendar.rest.impl.PeriodInfo;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 
@@ -26,6 +27,8 @@ public class CalendarInfo {
     public List<PeriodInfo> periods;
     public List<DayInfo> weekTemplate;
     public List<DaysPerTypeInfo> daysPerType;
+    public List<ExceptionalOccurrenceInfo> fixedSpecialDays;
+    public List<ExceptionalOccurrenceInfo> recurrentSpecialDays;
     public boolean inUse = true;
     public IdWithDisplayValueInfo<Status> status;
     public long version;

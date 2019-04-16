@@ -12,6 +12,7 @@ Ext.define('Fwc.store.Firmwares', {
     autoLoad: false,
     remoteSort: true,
     hydrator: 'Uni.util.IdHydrator',
+    pageSize: undefined,
 
     proxy: {
         type: 'rest',
@@ -21,6 +22,9 @@ Ext.define('Fwc.store.Firmwares', {
             root: 'firmwares',
             totalProperty: 'total'
         },
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
 
         setUrl: function (deviceTypeId) {
             this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);

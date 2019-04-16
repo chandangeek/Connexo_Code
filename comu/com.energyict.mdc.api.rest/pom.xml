@@ -62,6 +62,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.config.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.pluggable</artifactId>
         </dependency>
         <dependency>
@@ -127,6 +131,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>domain.util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>hsm</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

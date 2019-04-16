@@ -895,13 +895,4 @@ public enum DeviceMessageId {
                 DeviceMessageId.ACTIVITY_CALENDAR_WRITE_CONTRACTS_FROM_XML_USERFILE);
     }
 
-    public static Set<DeviceMessageId> needsImageIdentifier(){
-        return EnumSet.of(
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER,
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER,
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER,
-                DeviceMessageId.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME
-        );
-    }
-
 }

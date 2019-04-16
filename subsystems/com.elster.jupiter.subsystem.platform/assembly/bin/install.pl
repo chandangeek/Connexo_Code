@@ -57,9 +57,8 @@ my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DB_USE_SERVIC
 my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
-my $TOMCAT_BASE="$CONNEXO_DIR/partners"; 
-my $TOMCAT_ZIP="tomcat-8.5.24.1";
-my $TOMCAT_UNZIP="tomcat-8.5.24";
+my $TOMCAT_BASE="$CONNEXO_DIR/partners";
+my $TOMCAT_ZIP="tomcat-8.5.24.2";
 my $CATALINA_BASE="$TOMCAT_BASE/$TOMCAT_DIR";
 my $CATALINA_HOME=$CATALINA_BASE;
 $ENV{"CATALINA_HOME"}=$CATALINA_HOME;
@@ -547,8 +546,7 @@ sub install_tomcat {
 		system("\"$JAVA_HOME/bin/jar\" -xf $TOMCAT_ZIP.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf $TOMCAT_ZIP.zip failed: $?";
 		if (-d "$TOMCAT_DIR") { rmtree("$TOMCAT_DIR"); }
 		sleep 10;
-		rename("apache-$TOMCAT_UNZIP","$TOMCAT_DIR");
-
+		rename("apache-$TOMCAT_ZIP","$TOMCAT_DIR");
 		if (-e "$TOMCAT_BASE/connexo.filter.jar") {
             print "    $TOMCAT_BASE/connexo.filter.jar -> $TOMCAT_BASE/tomcat/lib/connexo.filter.jar\n";
 		    copy("$TOMCAT_BASE/connexo.filter.jar","$TOMCAT_BASE/tomcat/lib/connexo.filter.jar");
@@ -1648,6 +1646,10 @@ print "| Installation script started at ".localtime(time)." |\n";
 print "'---------------------------------------------------------'\n";
 check_root();
 check_create_users();
+if ("$OS" eq "linux" ){
+    system(chmod "-R 755 $CONNEXO_DIR");
+    print "Setting the needed folder rights. Done!\n";
+}
 read_args();
 if ($help) {
     show_help();

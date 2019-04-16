@@ -46,7 +46,8 @@ Ext.define('Fwc.view.firmware.FirmwareAdd', {
                         enctype: 'multipart/form-data'
                     },
                     record: this.record,
-                    router: this.router
+                    router: this.router,
+                    deviceTypeId: this.deviceType.get('id')
                 }
             }
         ];

@@ -198,6 +198,7 @@ public class ToUCampaignServiceIT {
                 .withActivationOption(activationOption)
                 .withUpdateType(updateType)
                 .withValidationTimeout(timeValidation)
+                .withUniqueCalendarName(false)
                 .create();
         assertThat(timeOfUseCampaign1.getName()).isEqualTo(name);
         assertThat(timeOfUseCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);

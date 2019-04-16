@@ -56,7 +56,7 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
             return SimplePropertyType.RADIO_GROUP;
         }
         if (propertySpec.getValueFactory() instanceof RecurrenceSelectionPropertyFactory) {
-            return SimplePropertyType.RECURRENCE;
+            return SimplePropertyType.RECURRENCE_SELECTION_PROPS;
         }
         return SimplePropertyType.IDWITHNAME;
     }
