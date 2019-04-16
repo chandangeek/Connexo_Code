@@ -123,7 +123,7 @@ public abstract class AbstractMockActivator {
     protected MeterConfigFactory meterConfigFactory;
     @Mock
     protected OrmService ormService;
-    
+
     private InboundSoapEndpointsActivator activator;
 
     @Before
@@ -166,6 +166,7 @@ public abstract class AbstractMockActivator {
         activator.setServiceCallService(serviceCallService);
         activator.setWebServicesService(webServicesService);
         activator.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        activator.setMeterConfigFactory(meterConfigFactory);
         activator.setOrmService(ormService);
         activator.activate(mock(BundleContext.class));
     }
