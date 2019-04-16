@@ -26,7 +26,7 @@ public interface ExecutableMicroCheck extends MicroCheck {
      *
      * @param device             The Device
      * @param effectiveTimestamp The effective timestamp of the transition
-     * @param state              The new target state
+     * @param toState              The new target state
      * @return The violation if the check fails
      */
     Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState);
