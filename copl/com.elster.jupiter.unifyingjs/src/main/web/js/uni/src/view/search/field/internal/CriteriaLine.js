@@ -8,7 +8,7 @@
 Ext.define('Uni.view.search.field.internal.CriteriaLine', {
     extend: 'Ext.panel.Panel',
     xtype: 'uni-search-internal-criterialine',
-    layout: 'fit',
+    minWidth: 300,
 
     requires: [
         'Uni.view.search.field.internal.Input',
@@ -19,7 +19,8 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         'Uni.view.search.field.internal.Operator',
         'Uni.model.search.Value',
         'Uni.view.search.field.internal.QuantityField',
-        'Uni.view.search.field.internal.QuantityRange'
+        'Uni.view.search.field.internal.QuantityRange',
+        'Uni.view.search.field.internal.DataTable',
     ],
 
     defaults: {
@@ -40,7 +41,8 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         '>=': 'uni-search-internal-numberfield',
         '<': 'uni-search-internal-numberfield',
         '<=': 'uni-search-internal-numberfield',
-        'BETWEEN': 'uni-search-internal-numberrange'
+        'BETWEEN': 'uni-search-internal-numberrange',
+        'IN': 'uni-search-internal-datatable'
     },
     itemsDefaultConfig: {},
 
@@ -48,31 +50,30 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         var me = this,
             xtype = this.operatorMap[value];
 
-        if(me.rendered && (oldValue == 'BETWEEN' || value == 'BETWEEN' )) {
-            me.remove(me.getField());
-        }
-        if (xtype) {
+        if (xtype && (me.field || {}).xtype !== xtype) {
             Ext.suspendLayouts();
-            if (!me.rendered || (oldValue == 'BETWEEN' || value == 'BETWEEN' )) {
-                me.field = me.add(Ext.apply({
-                    xtype: xtype,
-                    listeners: {
-                        change: function () {
-                            me.fireEvent('change', me.getValue())
-                        },
-                        reset: function () {
-                            me.fireEvent('reset')
-                        }
-                    }
-                }, me.itemsDefaultConfig));
-            }else{
-                me.getField().operator = value;
+            if (me.field) {
+                me.remove(me.getField());
             }
-            Ext.resumeLayouts(true);
 
-            if (me.rendered) {
-                me.fireEvent('change', null);
-            }
+            me.field = me.add(Ext.apply({
+                xtype: xtype,
+                listeners: {
+                    change: function () {
+                        me.fireEvent('change', me.getValue())
+                    },
+                    reset: function () {
+                        me.fireEvent('reset')
+                    }
+                }
+            }, me.itemsDefaultConfig));
+
+            Ext.resumeLayouts(true);
+            Ext.re
+        }
+
+        if (me.rendered) {
+            me.fireEvent('change', null);
         }
     },
 

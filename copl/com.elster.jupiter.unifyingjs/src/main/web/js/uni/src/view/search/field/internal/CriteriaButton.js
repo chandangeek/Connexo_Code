@@ -30,7 +30,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         me.menu.removeAll();
         var widget = me.menu.add(me.service.createWidgetForProperty(me.property));
         var filter = me.service.filters.get(me.dataIndex);
-        me.menu.setWidth(widget.minWidth);
+        // me.menu.setWidth(widget.minWidth);
 
         // restore value
         widget.setValue(filter && filter.value
@@ -55,6 +55,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
                 bodyStyle: {
                     background: '#fff'
                 },
+                layout: 'fit',
                 padding: 0,
                 minWidth: 70,
                 items: [],

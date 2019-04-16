@@ -58,7 +58,9 @@ Ext.define('Uni.view.search.field.Selection', {
 
     xtype: 'uni-search-criteria-selection',
     store: null,
-    minWidth: 300,
+    layout: 'fit',
+    width: 350,
+
     setValue: function (value) {
         var me = this,
             store = me.getStore(),
