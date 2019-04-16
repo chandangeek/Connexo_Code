@@ -49,6 +49,12 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                 }
+            },
+            {
+                xtype: 'uni-actioncolumn-remove',
+                dataIndex: 'unlink',
+                privileges: Imt.privileges.UsagePoint.admin,
+                tooltip: Uni.I18n.translate('general.tooltip.unlink', 'IMT', 'Unlink'),
             }
         ];
         me.dockedItems = [
