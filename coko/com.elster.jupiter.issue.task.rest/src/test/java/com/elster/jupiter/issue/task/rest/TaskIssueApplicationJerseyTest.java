@@ -15,7 +15,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.task.TaskIssueService;
-import com.elster.jupiter.issue.task.entity.OpenTaskIssue;
+import com.elster.jupiter.issue.task.OpenTaskIssue;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;

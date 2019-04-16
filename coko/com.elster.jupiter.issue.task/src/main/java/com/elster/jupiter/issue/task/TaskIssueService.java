@@ -9,9 +9,6 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.task.entity.HistoricalTaskIssue;
-import com.elster.jupiter.issue.task.entity.TaskIssue;
-import com.elster.jupiter.issue.task.entity.OpenTaskIssue;
 
 import java.util.Optional;
 
@@ -33,6 +30,6 @@ public interface TaskIssueService {
 
     <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers);
 
-    Finder<? extends TaskIssue> findIssues(IssueTaskIssueFilter filter, Class<?>... eagers);
+    Finder<? extends TaskIssue> findIssues(TaskIssueFilter filter, Class<?>... eagers);
 
 }

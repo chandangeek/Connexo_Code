@@ -11,7 +11,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.issue.task.TaskIssueService;
-import com.elster.jupiter.issue.task.entity.OpenTaskIssue;
+import com.elster.jupiter.issue.task.OpenTaskIssue;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.tasks.TaskService;
 

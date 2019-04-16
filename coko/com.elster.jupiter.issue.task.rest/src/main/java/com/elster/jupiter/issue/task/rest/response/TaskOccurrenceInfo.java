@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.task.rest.response;
 
+import com.elster.jupiter.issue.task.RelatedTaskOccurrence;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
@@ -20,12 +21,16 @@ public class TaskOccurrenceInfo {
     public TaskOccurrenceInfo() {
     }
 
-    public TaskOccurrenceInfo(Thesaurus thesaurus, TaskOccurrence occurrence) {
-        this.id = occurrence.getId();
-        this.recurrentTask = RecurrentTaskInfo.from(thesaurus, occurrence.getRecurrentTask());
-        this.triggerTime = occurrence.getTriggerTime();
-        this.startDate = occurrence.getStartDate().orElse(null);
-        this.enddate = occurrence.getEndDate().orElse(null);
-        this.status = occurrence.getStatus().getDefaultFormat();
+    public static TaskOccurrenceInfo from (Thesaurus thesaurus, RelatedTaskOccurrence relatedTaskOccurrence) {
+        TaskOccurrenceInfo taskOccurrence = new TaskOccurrenceInfo();
+        TaskOccurrence occurrence = relatedTaskOccurrence.getTaskOccurrence();
+        taskOccurrence.id = occurrence.getId();
+        taskOccurrence.triggerTime = occurrence.getTriggerTime();
+        taskOccurrence.startDate = occurrence.getStartDate().orElse(null);
+        taskOccurrence.enddate = occurrence.getEndDate().orElse(null);
+        taskOccurrence.status = occurrence.getStatus().getDefaultFormat();
+        taskOccurrence.errorMessage = relatedTaskOccurrence.getErrorMessage();
+        taskOccurrence.failureTime = relatedTaskOccurrence.getFailureTime();
+        return taskOccurrence;
     }
 }

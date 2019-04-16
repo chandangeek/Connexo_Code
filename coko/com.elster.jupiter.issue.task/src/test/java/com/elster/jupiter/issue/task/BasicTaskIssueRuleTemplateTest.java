@@ -15,11 +15,10 @@ import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.task.entity.OpenTaskIssue;
 import com.elster.jupiter.issue.task.event.TaskFailureEvent;
 import com.elster.jupiter.issue.task.impl.ModuleConstants;
 import com.elster.jupiter.issue.task.impl.event.TaskEventDescription;
-import com.elster.jupiter.issue.task.impl.records.OpenTaskIssueImpl;
+import com.elster.jupiter.issue.task.entity.OpenTaskIssueImpl;
 import com.elster.jupiter.issue.task.impl.templates.BasicTaskIssueRuleTemplate;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
@@ -130,7 +129,7 @@ public class BasicTaskIssueRuleTemplateTest extends BaseTest {
     }
 
     private TaskFailureEvent getTaskFailureEvent(Long taskOccurrenceId) {
-        TaskFailureEvent event = new TaskFailureEvent(getIssueTaskIssueService(), getMeteringService(), getTaskService(), getThesaurus(), mock(Injector.class));
+        TaskFailureEvent event = new TaskFailureEvent(getIssueTaskIssueService(), getMeteringService(), getTaskService(), getThesaurus(),getIssueService(), mock(Injector.class));
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/elster/jupiter/tasks/taskoccurrence/FAILED");
         messageMap.put(ModuleConstants.TASKOCCURRENCE_ID, taskOccurrenceId.toString());

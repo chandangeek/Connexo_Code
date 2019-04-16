@@ -6,7 +6,7 @@ package com.elster.jupiter.issue.task.rest;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmServer;
-import com.elster.jupiter.issue.task.entity.TaskIssue;
+import com.elster.jupiter.issue.task.TaskIssue;
 
 import javax.ws.rs.core.Response;
 import java.util.Arrays;

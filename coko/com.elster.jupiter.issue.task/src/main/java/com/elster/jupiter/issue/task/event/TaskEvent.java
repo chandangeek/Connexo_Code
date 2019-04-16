@@ -4,21 +4,25 @@
 
 package com.elster.jupiter.issue.task.event;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.issue.task.TaskIssueFilter;
+import com.elster.jupiter.issue.task.TaskIssue;
 import com.elster.jupiter.issue.task.TaskIssueService;
-import com.elster.jupiter.issue.task.entity.OpenTaskIssue;
 import com.elster.jupiter.issue.task.impl.event.EventDescription;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.util.conditions.Condition;
 
 import com.google.inject.Injector;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,17 +35,19 @@ public abstract class TaskEvent implements IssueEvent, Cloneable {
     private final MeteringService meteringService;
     private final TaskService taskService;
     private final Thesaurus thesaurus;
+    private final IssueService issueService;
 
     private Instant timestamp;
     private EventDescription eventDescription;
-    private Optional<? extends OpenIssue> existingIssue;
     private Injector injector;
+    private int ruleId;
 
-    public TaskEvent(TaskIssueService taskIssueService, MeteringService meteringService, TaskService taskService, Thesaurus thesaurus, Injector injector) {
+    public TaskEvent(TaskIssueService taskIssueService, MeteringService meteringService, TaskService taskService, Thesaurus thesaurus, IssueService issueService, Injector injector) {
         this.taskIssueService = taskIssueService;
         this.meteringService = meteringService;
         this.taskService = taskService;
         this.thesaurus = thesaurus;
+        this.issueService = issueService;
         this.injector = injector;
     }
 
@@ -94,19 +100,26 @@ public abstract class TaskEvent implements IssueEvent, Cloneable {
 
     @Override
     public Optional<? extends OpenIssue> findExistingIssue() {
-        if (existingIssue == null) {
-            Query<OpenTaskIssue> query = getTaskIssueService().query(OpenTaskIssue.class, TaskOccurrence.class);
-            List<OpenTaskIssue> theSameIssues = query.select(getConditionForExistingIssue());
-            if (!theSameIssues.isEmpty()) {
-                existingIssue = Optional.of(theSameIssues.get(0));
-            } else {
-                existingIssue = Optional.empty();
+        TaskIssueFilter filter = new TaskIssueFilter();
+        Optional<CreationRule> rule = issueService.getIssueCreationService().findCreationRuleById(ruleId);
+        if(rule.isPresent()){
+            filter.setRule(rule.get());
+            new ArrayList<String>(){{
+                add(IssueStatus.OPEN);
+                add(IssueStatus.IN_PROGRESS);
+                add(IssueStatus.SNOOZED);
+            }}.forEach(is -> filter.addStatus(issueService.findStatus(is).get()));
+            filter.setIssueReason(rule.get().getReason());
+            Optional<? extends TaskIssue> foundIssue = filterIssuesByTaskType(taskIssueService.findIssues(filter).find());
+            if (foundIssue.isPresent()) {
+                return Optional.of((OpenIssue) foundIssue.get());
             }
         }
-        return existingIssue;
+        return Optional.empty();
+
     }
 
-    protected abstract Condition getConditionForExistingIssue();
+    protected abstract Optional<? extends TaskIssue> filterIssuesByTaskType(List<? extends TaskIssue> issues);
 
     protected Optional<Long> getLong(Map<?, ?> map, String key) {
         Object contents = map.get(key);
@@ -121,6 +134,10 @@ public abstract class TaskEvent implements IssueEvent, Cloneable {
         TaskEvent clone = injector.getInstance(eventDescription.getEventClass());
         clone.eventDescription = eventDescription;
         return clone;
+    }
+
+    protected void setCreationRule(int ruleId){
+        this.ruleId = ruleId;
     }
 
 

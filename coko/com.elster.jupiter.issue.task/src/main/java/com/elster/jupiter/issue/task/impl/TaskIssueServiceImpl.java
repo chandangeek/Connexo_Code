@@ -21,9 +21,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
-import com.elster.jupiter.issue.task.event.TaskEvent;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -37,16 +35,16 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.issue.task.IssueTaskIssueFilter;
+import com.elster.jupiter.issue.task.TaskIssueFilter;
 import com.elster.jupiter.issue.task.TaskIssueService;
-import com.elster.jupiter.issue.task.entity.HistoricalTaskIssue;
-import com.elster.jupiter.issue.task.entity.TaskIssue;
-import com.elster.jupiter.issue.task.entity.OpenTaskIssue;
+import com.elster.jupiter.issue.task.HistoricalTaskIssue;
+import com.elster.jupiter.issue.task.TaskIssue;
+import com.elster.jupiter.issue.task.OpenTaskIssue;
 import com.elster.jupiter.issue.task.impl.database.TableSpecs;
 import com.elster.jupiter.issue.task.impl.i18n.MessageSeeds;
 import com.elster.jupiter.issue.task.impl.i18n.TranslationKeys;
 import com.elster.jupiter.issue.task.impl.install.Installer;
-import com.elster.jupiter.issue.task.impl.records.OpenTaskIssueImpl;
+import com.elster.jupiter.issue.task.entity.OpenTaskIssueImpl;
 
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -118,6 +116,7 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
                 bind(IssueActionService.class).toInstance(issueActionService);
                 bind(QueryService.class).toInstance(queryService);
                 bind(EventService.class).toInstance(eventService);
+                bind(TaskIssueService.class).toInstance(TaskIssueServiceImpl.this);
             }
         });
         upgradeService.register(identifier("Pulse", TaskIssueService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
@@ -216,11 +215,11 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
     }
 
     @Override
-    public Finder<? extends TaskIssue> findIssues(IssueTaskIssueFilter filter, Class<?>... eagers) {
+    public Finder<? extends TaskIssue> findIssues(TaskIssueFilter filter, Class<?>... eagers) {
         Condition condition = buildConditionFromFilter(filter);
         List<Class<?>> eagerClasses = determineMainApiClass(filter);
         if (eagers == null) {
-            eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class));
+            eagerClasses.addAll(Arrays.asList(IssueStatus.class, User.class, IssueReason.class, IssueType.class));
         } else {
             eagerClasses.addAll(Arrays.asList(eagers));
         }
@@ -228,7 +227,7 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
                 .size()]));
     }
 
-    private List<Class<?>> determineMainApiClass(IssueTaskIssueFilter filter) {
+    private List<Class<?>> determineMainApiClass(TaskIssueFilter filter) {
         List<Class<?>> eagerClasses = new ArrayList<>();
         List<IssueStatus> statuses = filter.getStatuses();
         if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
@@ -244,7 +243,7 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
         return eagerClasses;
     }
 
-    private Condition buildConditionFromFilter(IssueTaskIssueFilter filter) {
+    private Condition buildConditionFromFilter(TaskIssueFilter filter) {
         Condition condition = Condition.TRUE;
         //filter by assignee
         Condition assigneeCondition = Condition.TRUE;

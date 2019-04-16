@@ -277,6 +277,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     BasicTaskIssueRuleTemplate.LOG_ON_SAME_ISSUE,
                     getLogOnSameIssueProps());
             taskService.getRecurrentTasks().stream()
+                    .filter(task -> task.getApplication().equals("MultiSense"))
                     .forEach(task -> recurrentTasks.add(new HasIdAndName() {
                         @Override
                         public String getId() {

@@ -12,6 +12,8 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.task.TaskIssueService;
+import com.elster.jupiter.issue.task.OpenTaskIssue;
+import com.elster.jupiter.issue.task.event.TaskFailureEvent;
 import com.elster.jupiter.issue.task.impl.i18n.MessageSeeds;
 import com.elster.jupiter.issue.task.impl.i18n.TranslationKeys;
 import com.elster.jupiter.nls.Layer;
@@ -42,7 +44,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -132,7 +133,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 "rule \"Basic task rule @{ruleId} with log on same issue\"\n" +
                 "when\n" +
                 "\tevent : TaskFailureEvent( resolveEvent == false, recurrentTaskId in (@{" + TASK_PROPS + "}))\n" +
-                "\teval( event.logOnSameIssue(\"@{" + LOG_ON_SAME_ISSUE + "}\") == true )\n" +
+                "\teval( event.logOnSameIssue(@{ruleId}, \"@{" + LOG_ON_SAME_ISSUE + "}\") == true )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by basic task rule=@{ruleId} with log on same issue\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
@@ -140,7 +141,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 "rule \"Basic task rule @{ruleId} without log on same issue\"\n" +
                 "when\n" +
                 "\tevent : TaskFailureEvent( resolveEvent == false, recurrentTaskId in (@{" + TASK_PROPS + "}))\n" +
-                "\teval( event.logOnSameIssue(\"@{" + LOG_ON_SAME_ISSUE + "}\") == false )\n" +
+                "\teval( event.logOnSameIssue(@{ruleId}, \"@{" + LOG_ON_SAME_ISSUE + "}\") == false )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by basic task rule=@{ruleId} with create new issue\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, false);\n" +
@@ -156,25 +157,33 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
 
     @Override
     public void updateIssue(OpenIssue openIssue, IssueEvent event) {
-        if (IssueStatus.IN_PROGRESS.equals(openIssue.getStatus().getKey())) {
-            openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElseThrow(() ->
-                    new IllegalArgumentException(TranslationKeys.ISSUE_REASON_TASKFAILED.getDefaultFormat()) {
-                    }));
+        if (openIssue instanceof OpenTaskIssue && event instanceof TaskFailureEvent) {
+            OpenTaskIssue taskIssue = OpenTaskIssue.class.cast(openIssue);
+            TaskFailureEvent taskEvent = (TaskFailureEvent) event;
+            taskIssue.addTaskOccurrence(taskEvent.getTaskOccurrence(), taskEvent.getErrorMessage(), taskEvent.getFailureTime());
+
+            if (IssueStatus.IN_PROGRESS.equals(openIssue.getStatus().getKey())) {
+                taskIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElseThrow(() ->
+                        new IllegalArgumentException(TranslationKeys.ISSUE_REASON_TASKFAILED.getDefaultFormat()) {
+                        }));
+            }
+            Optional<RecurrenceSelectionInfo> recurrenceSelectionInfo = openIssue.getRule()
+                    .getProperties()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getKey().equals(LOG_ON_SAME_ISSUE))
+                    .findFirst()
+                    .map(found -> (RecurrenceSelectionInfo) found.getValue());
+            if (recurrenceSelectionInfo.isPresent() &&
+                    recurrenceSelectionInfo.get().hasIncreaseUrgency()) {
+                taskIssue.setPriority(Priority.get(openIssue.getPriority().increaseUrgency(), openIssue.getPriority()
+                        .getImpact()));
+            }
+
         }
 
-        Optional<RecurrenceSelectionInfo> newEventProps = openIssue.getRule()
-                .getProperties()
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().equals(LOG_ON_SAME_ISSUE))
-                .findFirst()
-                .map(found -> (RecurrenceSelectionInfo) found.getValue());
-        if (newEventProps.isPresent() &&
-                newEventProps.get().hasIncreaseUrgency()) {
-            openIssue.setPriority(Priority.get(openIssue.getPriority().increaseUrgency(), openIssue.getPriority()
-                    .getImpact()));
-        }
     }
+
 
     @Override
     public Optional<? extends Issue> resolveIssue(IssueEvent event) {
@@ -191,7 +200,11 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
         //As per product management request - this type of tasks will be supported for Multisense only
-        TaskPropsInfo[] taskPossibleValues = taskService.getRecurrentTasks().stream().filter(task -> task.getApplication().equals(SUPPORTED_APPLICATION)).map(TaskPropsInfo::new).toArray(TaskPropsInfo[]::new);
+        TaskPropsInfo[] taskPossibleValues = taskService.getRecurrentTasks()
+                .stream()
+                .filter(task -> task.getApplication().equals(SUPPORTED_APPLICATION))
+                .map(TaskPropsInfo::new)
+                .toArray(TaskPropsInfo[]::new);
         RecurrenceSelectionInfo[] logAndPriorityValues = LOG_ON_SAME_ISSUE_POSSIBLE_VALUES.stream()
                 .map(RecurrenceSelectionInfo::new)
                 .toArray(RecurrenceSelectionInfo[]::new);

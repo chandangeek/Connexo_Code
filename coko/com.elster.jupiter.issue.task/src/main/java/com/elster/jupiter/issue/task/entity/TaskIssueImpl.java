@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.issue.task.impl.records;
+package com.elster.jupiter.issue.task.entity;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.share.Priority;
@@ -12,26 +12,42 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.task.entity.TaskIssue;
+import com.elster.jupiter.issue.task.TaskIssueService;
+import com.elster.jupiter.issue.task.RelatedTaskOccurrence;
+import com.elster.jupiter.issue.task.TaskIssue;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.users.User;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 public class TaskIssueImpl implements TaskIssue {
 
+    public enum Fields {
+        BASEISSUE("baseIssue"),
+        TASK_OCCURRENCES("taskOccurrences"),;
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        public String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     private Reference<Issue> baseIssue = ValueReference.absent();
-    private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
-    private String errorMessage;
-    private Instant failureTime;
+
 
     private long id;//do we need this id ? we have a reference to base issue instead...
     // Audit fields
@@ -45,10 +61,12 @@ public class TaskIssueImpl implements TaskIssue {
     private String userName;
 
     private final DataModel dataModel;
+    private final TaskIssueService taskIssueService;
 
     @Inject
-    public TaskIssueImpl(DataModel dataModel) {
+    public TaskIssueImpl(DataModel dataModel, TaskIssueService taskIssueService) {
         this.dataModel = dataModel;
+        this.taskIssueService = taskIssueService;
     }
 
     public long getId() {
@@ -219,38 +237,22 @@ public class TaskIssueImpl implements TaskIssue {
         getBaseIssue().setCreateDateTime(dateTime);
     }
 
-    @Override
-    public Optional<TaskOccurrence> getTaskOccurrence() {
-        return taskOccurrence.getOptional();
-    }
-
-    public void setTaskOccurrence(TaskOccurrence occurrence) {
-        taskOccurrence.set(occurrence);
-    }
-
-    @Override
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    @Override
-    public Instant getFailureTime() {
-        return failureTime;
-    }
-
-    public void setFailureTime(Instant failureTime) {
-        this.failureTime = failureTime;
-    }
-
     public void save() {
         if (getBaseIssue() != null) {
             this.setId(getBaseIssue().getId());
         }
         Save.CREATE.save(dataModel, this);
+    }
+
+    @Override
+    public List<RelatedTaskOccurrence> getTaskOccurrences() {
+        Optional<? extends TaskIssue> issue;
+        if (getStatus().isHistorical()) {
+            issue = taskIssueService.findHistoricalIssue(getId());
+        } else {
+            issue = taskIssueService.findOpenIssue(getId());
+        }
+        return issue.map(TaskIssue::getTaskOccurrences).orElse(Collections.emptyList());
     }
 
     @Override

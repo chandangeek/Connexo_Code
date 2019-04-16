@@ -11,6 +11,7 @@ import java.util.logging.Level;
 
 
 public enum MessageSeeds implements MessageSeed {
+    INVALID_NUMBER_OF_ARGUMENTS(1, "invalid.number.of.arguments", "Invalid number of arguments {0}, expected {1} ", Level.SEVERE),
     ;
 
     private final int number;

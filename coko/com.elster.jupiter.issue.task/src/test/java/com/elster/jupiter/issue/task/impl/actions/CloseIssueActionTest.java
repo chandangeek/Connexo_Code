@@ -28,8 +28,8 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.issue.task.BaseTest;
-import com.elster.jupiter.issue.task.entity.OpenTaskIssue;
-import com.elster.jupiter.issue.task.impl.records.OpenTaskIssueImpl;
+import com.elster.jupiter.issue.task.OpenTaskIssue;
+import com.elster.jupiter.issue.task.entity.OpenTaskIssueImpl;
 
 import java.time.Instant;
 import java.util.Collections;

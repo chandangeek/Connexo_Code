@@ -18,7 +18,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.task.TaskIssueService;
-import com.elster.jupiter.issue.task.entity.TaskIssue;
+import com.elster.jupiter.issue.task.TaskIssue;
 import com.elster.jupiter.issue.task.rest.IssueProcessInfos;
 import com.elster.jupiter.issue.task.rest.i18n.TaskIssueTranslationKeys;
 import com.elster.jupiter.issue.task.rest.response.TaskIssueInfoFactory;

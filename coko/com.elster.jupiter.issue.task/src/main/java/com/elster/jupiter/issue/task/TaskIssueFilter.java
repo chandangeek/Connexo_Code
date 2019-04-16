@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.issue.task;
 
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
@@ -16,14 +17,16 @@ import java.util.List;
 import java.util.Optional;
 
 @ProviderType
-public class IssueTaskIssueFilter {
+public class TaskIssueFilter {
     private List<IssueStatus> statuses = new ArrayList<>();
     private List<IssueReason> reasons = new ArrayList<>();
     private List<EndDevice> devices = new ArrayList<>();
     private Optional<User> assignee = Optional.empty();
     private boolean unassignedOnly = false;
+    private CreationRule rule = null;
 
-    public IssueTaskIssueFilter() {
+
+    public TaskIssueFilter() {
     }
 
     public void setUnassignedOnly() {
@@ -70,5 +73,14 @@ public class IssueTaskIssueFilter {
 
     public List<IssueStatus> getStatuses() {
         return this.statuses;
+    }
+
+
+    public CreationRule getRule() {
+        return rule;
+    }
+
+    public void setRule(CreationRule rule) {
+        this.rule = rule;
     }
 }

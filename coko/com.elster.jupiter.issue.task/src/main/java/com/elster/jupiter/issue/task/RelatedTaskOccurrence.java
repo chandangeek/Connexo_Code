@@ -2,9 +2,10 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.issue.task.entity;
+package com.elster.jupiter.issue.task;
 
-import com.elster.jupiter.issue.share.entity.Issue;
+
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
 import aQute.bnd.annotation.ProviderType;
@@ -13,12 +14,11 @@ import java.time.Instant;
 import java.util.Optional;
 
 @ProviderType
-public interface TaskIssue extends Issue {
+public interface RelatedTaskOccurrence {
 
-    Optional<TaskOccurrence> getTaskOccurrence();
+    TaskOccurrence getTaskOccurrence();
 
     String getErrorMessage();
 
     Instant getFailureTime();
-
 }

@@ -11,10 +11,8 @@ import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.task.entity.HistoricalTaskIssue;
-import com.elster.jupiter.issue.task.entity.OpenTaskIssue;
 import com.elster.jupiter.issue.task.impl.ModuleConstants;
-import com.elster.jupiter.issue.task.impl.records.OpenTaskIssueImpl;
+import com.elster.jupiter.issue.task.entity.OpenTaskIssueImpl;
 import com.elster.jupiter.transaction.TransactionContext;
 
 import java.util.Optional;
