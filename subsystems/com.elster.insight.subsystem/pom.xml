@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>mdm</artifactId>
-    <packaging>pom</packaging>
+    <packaging>bundle</packaging>
     <name>[Insight Subsystem] com.elster.insight.subsystem</name>
     <description>Assembly project for Insight</description>
 
