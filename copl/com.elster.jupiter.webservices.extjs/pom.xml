@@ -38,13 +38,9 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/webservices</js.dir>
-                <package.name>com.elster.jupiter.webservices.extjs</package.name>
-            </properties>
-        </profile>
-    </profiles>
+    <properties>
+        <js.dir>js/webservices</js.dir>
+        <package.name>com.elster.jupiter.webservices.extjs</package.name>
+    </properties>
+
 </project>

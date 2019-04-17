@@ -41,6 +41,7 @@ public enum SimplePropertyType implements PropertyType {
     ASSIGN(String.class),
     ENDDEVICEEVENTTYPE(ListValueFactory.class),
     LIFECYCLESTATUSINDEVICETYPE(ListValueFactory.class),
+    DEVICEGROUPTYPE(ListValueFactory.class),
     RAISEEVENTPROPS(HasIdAndName.class),
     RECURRENCE_SELECTION_PROPS(HasIdAndName.class),
     RELATIVEPERIODWITHCOUNT(ListValueFactory.class),

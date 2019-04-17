@@ -43,21 +43,15 @@
         </dependency>
     </dependencies>
 
+    <properties>
+        <sencha.ext.dir>${basedir}/../com.elster.jupiter.extjs/src/main/web/js/ext</sencha.ext.dir>
+        <js.dir>js/uni</js.dir>
+        <package.name>com.elster.jupiter.unifyingjs</package.name>
+    </properties>
+
     <profiles>
         <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/uni</js.dir>
-                <package.name>com.elster.jupiter.unifyingjs</package.name>
-            </properties>
-        </profile>
-        <profile>
             <id>sencha-dev</id>
-            <properties>
-                <sencha.ext.dir>${basedir}/../com.elster.jupiter.extjs/src/main/web/js/ext</sencha.ext.dir>
-                <js.dir>js/uni</js.dir>
-                <package.name>com.elster.jupiter.unifyingjs</package.name>
-            </properties>
             <build>
                 <plugins>
                     <plugin>

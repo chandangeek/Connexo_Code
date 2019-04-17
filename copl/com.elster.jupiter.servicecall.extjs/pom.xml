@@ -38,13 +38,10 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/servicecall</js.dir>
-                <package.name>com.elster.jupiter.servicecall.extjs</package.name>
-            </properties>
-        </profile>
-    </profiles>
+    <properties>
+        <js.dir>js/servicecall</js.dir>
+        <package.name>com.elster.jupiter.servicecall.extjs</package.name>
+    </properties>
+
 </project>
+
