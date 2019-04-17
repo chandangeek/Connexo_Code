@@ -181,9 +181,6 @@ public class IssueResourceHelper {
             List<DeviceGroupInfo> deviceGroupInfos = new ArrayList<>();
             filter.getDeviceGroups().stream().forEach(dev-> deviceGroupInfos.add(new DeviceGroupInfo(dev)));
             deviceGroupInfos.stream().forEach(devInfo -> devInfo.devices.stream().forEach(id -> meteringService.findEndDeviceById(id).ifPresent(filter::addDevice)));
-            //there may be duplicate values in filter.devices
-            //for optimization need to change 'List' filter.devices to 'Set'
-            filter.setDeviceGroups(null);
         }
 
         if (jsonFilter.hasProperty(IssueRestModuleConst.USAGEPOINT)) {

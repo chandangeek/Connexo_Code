@@ -18,14 +18,16 @@ import com.elster.jupiter.users.WorkGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class IssueFilterImpl implements IssueFilter {
     private String issueId;
     private List<IssueStatus> statuses = new ArrayList<>();
     private List<IssueReason> reasons = new ArrayList<>();
-    private List<EndDevice> devices = new ArrayList<>();
+    private Set<EndDevice> devices = new HashSet<>();
     private List<EndDeviceGroup> deviceGroups = new ArrayList<>();
     private List<UsagePoint> usagePoints = new ArrayList<>();
     private List<User> assignees = new ArrayList<>();
@@ -72,10 +74,9 @@ public class IssueFilterImpl implements IssueFilter {
     }
 
     @Override
-    public void setDeviceGroups(List<EndDeviceGroup> deviceGroups) {this.deviceGroups = deviceGroups;}
-
-    @Override
-    public List<EndDeviceGroup> getDeviceGroups() { return this.deviceGroups; }
+    public List<EndDeviceGroup> getDeviceGroups() {
+        return this.deviceGroups;
+    }
 
     @Override
     public void addUsagePoint(UsagePoint usagePoint) {
@@ -137,7 +138,7 @@ public class IssueFilterImpl implements IssueFilter {
 
     @Override
     public List<EndDevice> getDevices() {
-        return this.devices;
+        return new ArrayList<>(this.devices);
     }
 
     @Override

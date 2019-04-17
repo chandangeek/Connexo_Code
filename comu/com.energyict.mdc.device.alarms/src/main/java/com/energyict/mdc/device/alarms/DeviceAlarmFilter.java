@@ -18,14 +18,16 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @ProviderType
 public class DeviceAlarmFilter {
     private String alarmId;
     private List<IssueStatus> statuses = new ArrayList<>();
     private List<IssueReason> reasons = new ArrayList<>();
-    private List<EndDevice> devices = new ArrayList<>();
+    private Set<EndDevice> devices = new HashSet<>();
     private List<EndDeviceGroup> deviceGroups = new ArrayList<>();
     private List<User> userAssignee = new ArrayList<>();
     private List<WorkGroup> workGroupAssignees = new ArrayList<>();
@@ -84,7 +86,7 @@ public class DeviceAlarmFilter {
     }
 
     public List<EndDevice> getDevices() {
-        return Collections.unmodifiableList(this.devices);
+        return Collections.unmodifiableList(new ArrayList<>(this.devices));
     }
 
     public List<IssueReason> getAlarmReasons() {
@@ -162,8 +164,6 @@ public class DeviceAlarmFilter {
     public void addDeviceGroup(EndDeviceGroup deviceGroup) {
         this.deviceGroups.add(deviceGroup);
     }
-
-    public void setDeviceGroups(List<EndDeviceGroup> deviceGroups) {this.deviceGroups = deviceGroups;}
 
     public List<EndDeviceGroup> getDeviceGroups() { return this.deviceGroups; }
 }

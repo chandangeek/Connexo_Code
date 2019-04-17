@@ -34,8 +34,6 @@ public interface IssueFilter {
 
     void addDeviceGroup(EndDeviceGroup deviceGroup);
 
-    void setDeviceGroups(List<EndDeviceGroup> deviceGroups);
-
     void addUsagePoint(UsagePoint usagePoint);
 
     void setIssueReason(IssueReason issueReason);

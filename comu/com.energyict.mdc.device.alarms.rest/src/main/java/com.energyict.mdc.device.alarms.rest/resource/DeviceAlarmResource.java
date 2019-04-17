@@ -693,9 +693,6 @@ public class DeviceAlarmResource extends BaseAlarmResource{
             List<DeviceGroupInfo> deviceGroupInfos = new ArrayList<>();
             filter.getDeviceGroups().stream().forEach(dev-> deviceGroupInfos.add(new DeviceGroupInfo(dev)));
             deviceGroupInfos.stream().forEach(devInfo -> devInfo.devices.stream().forEach(id -> getMeteringService().findEndDeviceById(id).ifPresent(filter::setDevice)));
-            //there may be duplicate values in filter.devices
-            //for optimization need to change 'List' filter.devices to 'Set'
-            filter.setDeviceGroups(null);
         }
 
         if (jsonFilter.getLongList(DeviceAlarmRestModuleConst.USER_ASSIGNEE).stream().allMatch(s -> s == null)) {
