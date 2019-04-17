@@ -70,6 +70,6 @@ public enum EventType {
     }
 
     EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
-        return eventTypeBuilder.shouldNotPublish();
+        return eventTypeBuilder.shouldPublish();
     }
 }
