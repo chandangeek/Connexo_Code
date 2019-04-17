@@ -46,6 +46,7 @@ public class IssueTypeResource extends BaseResource {
                         add(IssueTypes.DATA_COLLECTION.getName());
                         add(IssueTypes.DATA_VALIDATION.getName());
                         add(IssueTypes.DEVICE_LIFECYCLE.getName());
+                        add(IssueTypes.MANUAL.getName());
                     }}));
         }
         return issueTypes;

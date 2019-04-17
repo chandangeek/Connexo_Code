@@ -5,7 +5,9 @@
 package com.elster.jupiter.issue.rest.resource;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.rest.MessageSeeds;
+import com.elster.jupiter.issue.rest.request.AddIssueRequest;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
@@ -21,13 +23,17 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.IssueTypes;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -42,6 +48,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,10 +69,11 @@ public class IssueResourceHelper {
     private final SecurityContext securityContext;
     private final MeteringService meteringService;
     private final UserService userService;
+    private final DataModel dataModel;
 
     @Inject
     public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, MeteringService meteringService, UserService userService,
-                               IssueActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, Thesaurus thesaurus, @Context SecurityContext securityContext) {
+                               IssueActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, Thesaurus thesaurus, @Context SecurityContext securityContext, DataModel dataModel) {
         this.transactionService = transactionService;
         this.issueService = issueService;
         this.issueActionService = issueActionService;
@@ -75,6 +83,7 @@ public class IssueResourceHelper {
         this.securityContext = securityContext;
         this.meteringService = meteringService;
         this.userService = userService;
+        this.dataModel = dataModel;
     }
 
     public List<IssueActionTypeInfo> getListOfAvailableIssueActions(Issue issue) {
@@ -255,5 +264,16 @@ public class IssueResourceHelper {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
             }
         }).collect(Collectors.toList());
+    }
+
+    public Issue createNewIssue(AddIssueRequest request, User user) {
+        IssueBuilder issueBuilder = issueService.newIssueBuilder(user);
+        Issue issue = issueBuilder.withReason(request.getReason())
+                .withPriority(request.getPriority())
+                .withDevice(request.getDevice())
+                .withDueDate(request.getDueDate())
+                .withComment(request.getComment())
+                .create();
+        return issue;
     }
 }

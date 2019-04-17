@@ -5,7 +5,9 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.rest.MessageSeeds;
+import com.elster.jupiter.issue.rest.request.AddIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
@@ -474,6 +476,18 @@ public class IssueResource extends BaseResource {
         return entity(doBulkClose(request, performer, issueProvider)).build();
     }
 
+    @POST
+    @Transactional
+    @Path("/add")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADD_ISSUE)
+    public Response addIssue(AddIssueRequest request, @Context SecurityContext securityContext) {
+        User performer = (User) securityContext.getUserPrincipal();
+        ActionInfo response = new ActionInfo();
+        response.addSuccess(issueResourceHelper.createNewIssue(request, performer).getId());
+        return entity(response).build();
+    }
 
     private boolean isNumericValue(String id) {
         try {
