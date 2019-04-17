@@ -548,25 +548,20 @@ Ext.define('Isu.controller.IssueDetail', {
         me.getApplication().on('issueLoad', function (rec) {
             var panel = widget.down('#task-issue-detail-container');
 
-            if (rec.raw.failedTask && panel) {
+            if (rec.raw.taskOccurrences && panel) {
                 var data = [],
                     store, taskOccurenceWidget;
 
-                rec.raw.failedTask.map(function (item) {
-                    item.failedTask.map(function (task) {
-                        data.push(Ext.apply({}, {
-                            id: rec.raw.device.name,
-                            recurrentTask: task.recurrentTask.id,
-                            triggerTime: task.triggerTime,
-                            startDate: task.startDate,
-                            enddate: task.enddate,
-                            status: task.status,
-                            errorMessage: task.errorMessage,
-                            failureTime: task.failureTime
-                        }, task))
-                    });
+                rec.raw.taskOccurrences.map(function (taskOccurrence) {
+                    data.push(Ext.apply({}, {
+                        triggerTime: taskOccurrence.triggerTime,
+                        startDate: taskOccurrence.startDate,
+                        enddate: taskOccurrence.enddate,
+                        status: taskOccurrence.status,
+                        errorMessage: taskOccurrence.errorMessage,
+                        failureTime: taskOccurrence.failureTime
+                    }, taskOccurrence))
                 });
-
                 if (data.length) {
                     store = Ext.create(me.taskStore, {data: data});
                     panel.getView().bindStore(store);

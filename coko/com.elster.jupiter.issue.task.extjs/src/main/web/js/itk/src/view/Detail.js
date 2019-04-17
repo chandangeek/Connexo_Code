@@ -10,8 +10,7 @@ Ext.define('Itk.view.Detail', {
         'Itk.view.DetailForm',
         'Isu.view.issues.CommentsList',
         'Uni.view.toolbar.PreviousNextNavigation',
-        'Itk.view.OccurrenceGrid',
-        'Itk.view.RecurrentTaskGrid'
+        'Itk.view.OccurrenceGrid'
     ],
     router: null,
     issuesListLink: null,
@@ -53,23 +52,11 @@ Ext.define('Itk.view.Detail', {
             {   xtype: 'panel',
                 itemId: 'occurrence-panel',
                 ui: 'medium',
-                title: Uni.I18n.translate('issue.workspace.task.occurences', 'ITK', 'Occurences'),
+                title: Uni.I18n.translate('issue.workspace.task.logs', 'ITK', 'Task logs'),
                 items:[
                     {
                         xtype: 'occurrence-details-grid',
                         itemId: 'task-issue-detail-container',
-                        router: me.router
-                    }
-                ]
-            },
-            {   xtype: 'panel',
-                itemId: 'recurrence-panel',
-                ui: 'medium',
-                title: Uni.I18n.translate('issue.workspace.task.recurrence', 'ITK', 'Recurrent task'),
-                items:[
-                    {
-                        xtype: 'task-details-grid',
-                        itemId: 'recurrent-task-issue-detail-container',
                         router: me.router
                     }
                 ]

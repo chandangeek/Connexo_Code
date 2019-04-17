@@ -22,7 +22,7 @@ Ext.define('Uni.property.view.property.Task', {
                         name: 'taskType',
                         labelWidth: 260,
                         width: 595,
-                        emptyText: Uni.I18n.translate('task.types.empty', 'UNI', 'Select a task ...'),
+                        emptyText: Uni.I18n.translate('task.types.empty', 'UNI', 'Select a queue ...'),
                         valueField: 'destinationName',
                         displayField: 'destinationName',
                         allowBlank: false,
@@ -134,6 +134,10 @@ Ext.define('Uni.property.view.property.Task', {
     getValue: function () {
         var me = this,
             taskNameCombo = me.down('#task-name');
+
+        if (taskNameCombo == null || taskNameCombo.getValue() == null || taskNameCombo.getValue().length == 0){
+            return null;
+        }
        return taskNameCombo.getValue();
     },
 

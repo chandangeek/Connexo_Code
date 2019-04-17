@@ -10,43 +10,37 @@ Ext.define('Itk.view.OccurrenceGrid', {
     maxHeight: 408,
     columns: [
         {
-            text: Uni.I18n.translate('general.taskId', 'ITK', 'Occurrence id'),
-            dataIndex: 'id',
+            text: Uni.I18n.translate('general.task.startOn', 'ITK', 'Start on'),
+            dataIndex: 'startDate',
+            flex: 1,
+            renderer: function (value) {
+                return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+            }
+        },
+        {
+            text: Uni.I18n.translate('general.task.duration', 'ITK', 'Duration'),
+            dataIndex: 'duration',
+            xtype: 'uni-grid-column-duration',
+            shortFormat: true,
+            textAlign: 'center',
             flex: 1
         },
         {
-            text: Uni.I18n.translate('general.task', 'ITK', 'Task Type'),
-            dataIndex: 'recurrentTask.queue',
-            flex: 2
+            text: Uni.I18n.translate('general.failureTime', 'ITK', 'Failure on'),
+            dataIndex: 'failureTime',
+            flex: 1,
+            renderer: function (value) {
+                return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+            }
         },
         {
-            text: Uni.I18n.translate('general.triggerTime', 'ITK', 'Trigger time'),
-            dataIndex: 'triggerTime',
-            flex: 1
-        },
-        {
-            text: Uni.I18n.translate('general.startDate', 'ITK', 'Started on'),
-            dataIndex: 'startDate',
-            flex: 2
-        },
-        {
-            text: Uni.I18n.translate('general.endDate', 'ITK', 'Finished on'),
-            dataIndex: 'startDate',
-            flex: 2
-        },
-        {
-            text: Uni.I18n.translate('general.endDate', 'ITK', 'Status'),
+            text: Uni.I18n.translate('general.task.status', 'ITK', 'Status'),
             dataIndex: 'status',
             flex: 1
         },
         {
-            text: Uni.I18n.translate('general.errorMessage', 'ITK', 'Cause'),
+            text: Uni.I18n.translate('general.startDate', 'ITK', 'Message'),
             dataIndex: 'errorMessage',
-            flex: 5
-        },
-        {
-            text: Uni.I18n.translate('general.failureTime', 'ITK', 'Failure time'),
-            dataIndex: 'failureTime',
             flex: 2
         }
     ]
