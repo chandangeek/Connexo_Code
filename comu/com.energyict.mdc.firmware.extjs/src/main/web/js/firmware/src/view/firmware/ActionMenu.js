@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Fwc.view.firmware.ActionMenu', {
@@ -12,6 +12,10 @@ Ext.define('Fwc.view.firmware.ActionMenu', {
                 text: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),
                 action: 'editFirmware',
                 itemId: 'editFirmware',
+                visible: function () {
+                    return this.record.getAssociatedData().firmwareStatus
+                        && this.record.getAssociatedData().firmwareStatus.id !== 'deprecated';
+                },
                 section: this.SECTION_EDIT
             },
             {
@@ -20,6 +24,7 @@ Ext.define('Fwc.view.firmware.ActionMenu', {
                 itemId: 'setFinal',
                 visible: function () {
                     return this.record.getAssociatedData().firmwareStatus
+                        && this.record.getAssociatedData().firmwareStatus.id !== 'deprecated'
                         && this.record.getAssociatedData().firmwareStatus.id === 'test';
                 },
                 section: this.SECTION_ACTION
@@ -28,7 +33,21 @@ Ext.define('Fwc.view.firmware.ActionMenu', {
                 text: Uni.I18n.translate('general.deprecate', 'FWC', 'Deprecate'),
                 action: 'deprecate',
                 itemId: 'deprecate',
+                visible: function () {
+                    return this.record.getAssociatedData().firmwareStatus
+                        && this.record.getAssociatedData().firmwareStatus.id !== 'deprecated';
+                },
                 section: this.SECTION_ACTION
+            },
+            {
+                text: Uni.I18n.translate('general.remove', 'FWC', 'Remove'),
+                action: 'remove',
+                itemId: 'remove',
+                visible: function () {
+                    return this.record.getAssociatedData().firmwareStatus
+                        && this.record.getAssociatedData().firmwareStatus.id === 'deprecated';
+                },
+                section: this.SECTION_REMOVE
             }
         ];
         this.callParent(arguments);
@@ -37,15 +56,9 @@ Ext.define('Fwc.view.firmware.ActionMenu', {
     listeners: {
         beforeshow: function () {
             var me = this;
-            if (me.record.getAssociatedData().firmwareStatus
-             && me.record.getAssociatedData().firmwareStatus.id === 'deprecated') {
-                // do not show the menu
-                return false;
-            } else {
-                me.items.each(function (item) {
-                    (item.visible && !item.visible.call(me)) ? item.hide() : item.show();
-                });
-            }
+            me.items.each(function (item) {
+                (item.visible && !item.visible.call(me)) ? item.hide() : item.show();
+            });
         }
     }
 });

@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -239,6 +240,22 @@ public class FirmwareVersionResource {
             default:
         }
         return Response.ok().entity(versionFactory.fullInfo(firmwareVersion)).build();
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    public Response deleteFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo info) {
+        info.id = id;
+        if (info.firmwareStatus.id == FirmwareStatus.DEPRECATED) {
+            FirmwareVersion firmwareVersion = resourceHelper.lockFirmwareVersionOrThrowException(info);
+            firmwareVersion.delete();
+            return Response.noContent().build();
+        };
+        return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     private void checkIfEditableOrThrowException(FirmwareVersion firmwareVersion) {
