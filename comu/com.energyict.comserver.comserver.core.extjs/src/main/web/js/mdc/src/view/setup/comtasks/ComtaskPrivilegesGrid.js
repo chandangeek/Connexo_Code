@@ -19,7 +19,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPrivilegesGrid', {
     autoHeight: true,
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+        	layoutNeedsUpdate = true;
         me.columns = [
             {
                 header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
@@ -40,6 +41,12 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPrivilegesGrid', {
                             ui: 'blank',
                             record: record
                         });
+                        if (layoutNeedsUpdate) {
+                        	Ext.defer(function () {
+                        		me.updateLayout();
+                        	}, 10);
+                        	layoutNeedsUpdate = false;
+                        }
                     }, 10);
 
                     return value + Ext.String.format('<span style="margin-left:7px; padding:0;" id="{0}"></span>', id);
