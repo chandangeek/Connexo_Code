@@ -143,7 +143,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 type: 'combobox',
                 itemId: 'issue-deviceGroup-filter',
                 dataIndex: 'deviceGroup',
-                emptyText: Uni.I18n.translate('general.deviceGroup', 'ISU', 'Device Group'),
+                emptyText: Uni.I18n.translate('general.deviceGroup', 'ISU', 'Device group'),
                 displayField: 'name',
                 valueField: 'id',
                 store: 'Isu.store.DeviceGroups',
