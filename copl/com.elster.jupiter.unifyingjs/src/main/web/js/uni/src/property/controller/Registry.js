@@ -84,6 +84,7 @@ Ext.define('Uni.property.controller.Registry', {
         COMBOBOX: 'Uni.property.view.property.Combobox',
         DATE: 'Uni.property.view.property.Date',
         DEVICECONFIGURATIONLIST: 'Uni.property.view.property.deviceconfigurations.DeviceConfigurations',
+        DEVICEGROUPTYPE: 'Uni.property.view.property.DeviceGroupCombobox',
         METROLOGYCONFIGURATIONLIST: 'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations',
         LIFECYCLETRANSITION:'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
         DURATION: 'Uni.property.view.property.Period',

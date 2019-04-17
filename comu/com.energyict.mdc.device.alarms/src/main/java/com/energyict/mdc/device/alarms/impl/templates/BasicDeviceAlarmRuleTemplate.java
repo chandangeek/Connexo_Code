@@ -68,7 +68,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
+//import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
         property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
@@ -82,6 +82,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public static final String CLEARING_EVENTS = NAME + ".clearingEvents";
     public static final String THRESHOLD = NAME + ".threshold";
     public static final String DEVICE_IN_GROUP = NAME + ".deviceInGroup";
+    public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES = NAME + ".deviceLifecyleInDeviceTypes";
     private static final String SEPARATOR = ":";
     private static final int DEFAULT_NUMERICAL_VALUE = 0;
     private static final String EMPTY_CODE = "-1";
