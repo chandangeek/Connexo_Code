@@ -40,7 +40,7 @@ public enum MicroActionTranslationKey implements TranslationKey {
     MICRO_ACTION_NAME_CANCEL_ALL_SERVICE_CALLS(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.CANCEL_ALL_SERVICE_CALLS, "Cancel all service calls"),
     MICRO_ACTION_NAME_REMOVE_LOCATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.REMOVE_LOCATION, "Remove location"),
 
-    MICRO_ACTION_DESCRIPTION_NAME_SET_LAST_CHECKED(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(), "Set the last checked date, so date can be validated from the transition date."),
+    MICRO_ACTION_DESCRIPTION_NAME_SET_LAST_CHECKED(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(), "Set the last checked date, so date can be validated from the transition date."),
     MICRO_ACTION_DESCRIPTION_SET_LAST_READING(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.SET_LAST_READING, "Set the last reading date, so data can be collected starting from the transition date."),
     MICRO_ACTION_DESCRIPTION_ENABLE_VALIDATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.ENABLE_VALIDATION, "Activate the data validation on this device. This auto action is effective immediately."),
     MICRO_ACTION_DESCRIPTION_DISABLE_VALIDATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.DISABLE_VALIDATION, "Deactivate the data validation on this device. This auto action is effective immediately."),
@@ -50,7 +50,7 @@ public enum MicroActionTranslationKey implements TranslationKey {
     MICRO_ACTION_DESCRIPTION_CLOSE_METER_ACTIVATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.CLOSE_METER_ACTIVATION, "Stop the meter activation of this device and unlink the device from its usage point."),
     MICRO_ACTION_DESCRIPTION_REMOVE_DEVICE_FROM_STATIC_GROUPS(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS, "Remove this device from the static device groups."),
     MICRO_ACTION_DESCRIPTION_DETACH_SLAVE_FROM_MASTER(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.DETACH_SLAVE_FROM_MASTER, "If this device is a slave, disconnect it from its master."),
-    MICRO_ACTION_DESCRIPTION_REMOVE_DEVICE(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.REMOVE_DEVICE, "\tRemove the device and all of its data, and close the current meter activation."),
+    MICRO_ACTION_DESCRIPTION_REMOVE_DEVICE(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.REMOVE_DEVICE, "Remove the device and all of its data, and close the current meter activation."),
     MICRO_ACTION_DESCRIPTION_CLOSE_ALL_ISSUES(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.CLOSE_ALL_ISSUES, "Close all issues and alarms on the device with the status \"Won't fix\"."),
     MICRO_ACTION_DESCRIPTION_START_RECURRING_COMMUNICATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.START_RECURRING_COMMUNICATION, "Trigger all the recurring communication tasks and their connections on the date of the transition."),
     MICRO_ACTION_DESCRIPTION_FORCE_VALIDATION_AND_ESTIMATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.FORCE_VALIDATION_AND_ESTIMATION, "Force the validation and the estimation to resolve all reading quality issues."),

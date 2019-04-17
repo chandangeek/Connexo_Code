@@ -358,7 +358,7 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat</artifactId>
-            <version>8.5.24.1</version>
+            <version>8.5.24.2</version>
             <type>zip</type>
             <classifier>connexo</classifier>
             <scope>provided</scope>
@@ -434,16 +434,13 @@
                         </goals>
                     </execution>
                 </executions>
-
                 <configuration>
                     <archiverConfig>
                         <duplicateBehavior>skip</duplicateBehavior>
                     </archiverConfig>
-
                     <descriptors>
                         <descriptor>assembly/assembly.xml</descriptor>
                     </descriptors>
-
                     <finalName>connexo-platform-v${project.version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>

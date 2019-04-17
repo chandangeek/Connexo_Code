@@ -11,10 +11,10 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 
 import java.sql.SQLException;
@@ -80,17 +80,6 @@ public class DeviceLifeCycleConfigurationServiceIT {
 
         // Asserts
         assertThat(layer).isNotNull();
-    }
-
-    @Test
-    public void keysNotNull() {
-        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
-
-        // Business method
-        List<TranslationKey> keys = service.getKeys();
-
-        // Asserts
-        assertThat(keys).isNotNull();
     }
 
     @Transactional
@@ -223,6 +212,22 @@ public class DeviceLifeCycleConfigurationServiceIT {
 
         // Asserts
         assertThat(timeShift).isNotNull();
+    }
+
+    @Test
+    public void testAddGetRemoveMicroChecks() {
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
+        assertThat(service.getMicroCheckByKey(TestMicroCheck.class.getSimpleName())).contains(new TestMicroCheck());
+        assertThat(service.getMicroChecks()).containsOnly(new TestMicroCheck());
+
+        DeviceMicroCheckFactory factory = new TestMicroCheck.Factory();
+        service.removeMicroCheckFactory(factory);
+        assertThat(service.getMicroCheckByKey(TestMicroCheck.class.getSimpleName())).isEmpty();
+        assertThat(service.getMicroChecks()).isEmpty();
+
+        service.addMicroCheckFactory(factory);
+        assertThat(service.getMicroCheckByKey(TestMicroCheck.class.getSimpleName())).contains(new TestMicroCheck());
+        assertThat(service.getMicroChecks()).containsOnly(new TestMicroCheck());
     }
 
     private void testFindInitiateActionPrivilege(String privilegeName) {

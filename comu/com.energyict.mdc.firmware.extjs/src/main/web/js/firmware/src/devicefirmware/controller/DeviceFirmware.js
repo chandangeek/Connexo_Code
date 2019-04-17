@@ -104,6 +104,9 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                     failure: function (record, resp) {
                         errorMsg.show();
                         container.setLoading(false);
+                    },
+                    callback: function () {
+                        if (record.getProxy().extraParams && record.getProxy().extraParams['force']) delete record.getProxy().extraParams['force'];
                     }
         });
     },
@@ -139,8 +142,6 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
         propertyForm.updateRecord();
         record.propertiesStore = messageSpec.properties();
-
-        record.getProxy().setExtraParam('force', false);
 
         record.save({
             success: function () {
