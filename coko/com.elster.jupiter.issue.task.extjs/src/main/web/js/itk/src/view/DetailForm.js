@@ -34,21 +34,18 @@ Ext.define('Itk.view.DetailForm', {
                     },
                     {
                         itemId: 'task-issue-detail-recurrent-task',
-                        fieldLabel: Uni.I18n.translate('general.title.recurrent.task', 'ITK', 'Recurrent Task'),
+                        fieldLabel: Uni.I18n.translate('general.title.task', 'ITK', 'Task'),
                         name: 'recurrentTask',
-                        renderer: function (value) {
+                        renderer: function (record) {
                             var url = '',
                                 result = '';
-
-                            if (value) {
-                                if (value.name) {
-                                    url = me.router.getRoute('recurrentTask').buildUrl({recurrentTaskId: value.name});
-                                    result = '<a href="' + url + '">' + value.name + '</a>';
-                                } else {
-                                    result = value.name;
-                                }
+                            if (record && record.name) {
+                                var url = me.router.getRoute('administration/taskmanagement/viewTaskManagement').buildUrl({
+                                    type: record.queue,
+                                    taskManagementId: record.id
+                                });
+                                result = '<a href="' + url + '">' + record.name + '</a>';
                             }
-
                             return result;
                         }
                     }

@@ -8,8 +8,7 @@ Ext.define('Itk.controller.Detail', {
     stores: [
         'Isu.store.IssueActions',
         'Isu.store.Clipboard',
-        'Itk.store.OccurrenceStore',
-        'Itk.store.RecurrentTaskStore'
+        'Itk.store.OccurrenceStore'
     ],
 
     models: [

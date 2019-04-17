@@ -139,7 +139,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>18.0</version>
+				<version>26.0</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.ws.rs</groupId>
@@ -1124,7 +1124,7 @@
 			com.elster.jupiter.appserver.security:com.elster.jupiter.bpm.security:com.elster.jupiter.fileimport.security:com.elster.jupiter.license.security:com.elster.jupiter.servicecall.security:${line.separator}
 			com.elster.jupiter.soap.whiteboard.cxf.security:com.elster.jupiter.system.security:com.elster.jupiter.tasks.security:com.elster.jupiter.users.security:com.elster.jupiter.yellowfin.security
 		</javadoc.excluded.package.names>
-		<apache.cxf.version>3.1.6</apache.cxf.version>
+		<apache.cxf.version>3.2.0</apache.cxf.version>
 		<bouncycastle.version>1.60</bouncycastle.version>
 		<ejbcabundle.version>1.0.0</ejbcabundle.version>
 	</properties>

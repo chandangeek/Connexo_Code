@@ -7,21 +7,16 @@ Ext.define('Itk.model.Issue', {
 
     fields: [
         {name: 'task_data', persist: false, mapping: 'id'},
-        {
-            name: 'failedTaskData',
-            persist: false,
-            mapping: function (data) {
-
-            }
-
-        }
-        ],
+        {name: 'recurrentTask', type: 'auto'},
+        {name: 'taskOccurrences', type: 'auto'}
+    ],
 
     proxy: {
         type: 'rest',
         url: '/api/itk/issues',
         reader: {
-            type: 'json'
+            type: 'json',
+            root: 'data'
         }
     }
 });
