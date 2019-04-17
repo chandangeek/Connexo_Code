@@ -30,7 +30,8 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
 
                 me.removeAll();
 
-                if ((me.record.get('issueType').uid === "datacollection") || (me.record.get('issueType').uid === "datavalidation") || (me.record.get('issueType').uid === "devicelifecycle")) {
+                if ((me.record.get('issueType').uid === "datacollection") || (me.record.get('issueType').uid === "datavalidation")
+                    || (me.record.get('issueType').uid === "devicelifecycle")) {
                     me.setLoading(true);
                     me.store.getProxy().url = Ext.String.format(me.urlIssueStoreProxy, me.record.getId());
                     me.store.load(function () {
@@ -392,7 +393,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
             me.add(predefinedItems);
         }
 
-        if (Isu.privileges.Issue.canViewProcessMenu() && issueType == 'datacollection') {
+        if (Isu.privileges.Issue.canViewProcessMenu() && ((issueType == 'datacollection') || (issueType === "devicelifecycle")) ){
             me.add({
                 text: Uni.I18n.translate('issues.actionMenu.startProcess', 'MDC', 'Start process'),
                 action: 'startProcess',

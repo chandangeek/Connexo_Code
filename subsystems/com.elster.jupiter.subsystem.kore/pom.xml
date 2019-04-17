@@ -12,14 +12,15 @@
     </parent>
 
     <artifactId>kore</artifactId>
-    <packaging>pom</packaging>
+    <packaging>bundle</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.kore</name>
     <description>This POM details all versions of bundles related to business intelligence (e.g. Metering, Issues,...)</description>
 
+    <!-- This is a workaround until release while most of deployed artifacts for this artifact does not contain jar (they were pom type previously) and bundle plugin simply crashes,
+        the old bundle plugin for which we do not have documentation or sources -->
     <properties>
-        <baseline>(,${project.version})</baseline>
+        <baseline>1.4.0</baseline>
     </properties>
-
 
     <dependencyManagement>
         <dependencies>
