@@ -6,7 +6,6 @@ Ext.define('Sam.view.about.About', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.about-info',
     requires: [
-        'Sam.view.about.VersionInfo',
         'Sam.view.about.Dynamic',
         'Sam.view.about.Static'
     ],
