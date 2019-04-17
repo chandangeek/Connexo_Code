@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.devicelifecycle;
 
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
@@ -22,17 +23,19 @@ public class DeviceLifecycleIssueFilter {
     private List<IssueStatus> statuses = new ArrayList<>();
 
     private boolean unassignedOnly = false;
-    
+
     private Optional<User> assignee = Optional.empty();
 
     private Optional<IssueReason> issueReason = Optional.empty();
 
     private Optional<EndDevice> device = Optional.empty();
 
+    private CreationRule rule = null;
+
     public void setUnassignedOnly() {
         this.unassignedOnly = true;
     }
-    
+
     public void setAssignee(User assignee) {
         this.assignee = Optional.of(assignee);
     }
@@ -52,11 +55,11 @@ public class DeviceLifecycleIssueFilter {
     public Optional<User> getAssignee() {
         return assignee;
     }
-    
+
     public boolean isUnassignedOnly() {
         return unassignedOnly;
     }
-    
+
     public Optional<EndDevice> getDevice() {
         return device;
     }
@@ -67,5 +70,13 @@ public class DeviceLifecycleIssueFilter {
 
     public List<IssueStatus> getStatuses() {
         return Collections.unmodifiableList(statuses);
+    }
+
+    public CreationRule getRule() {
+        return rule;
+    }
+
+    public void setRule(CreationRule rule) {
+        this.rule = rule;
     }
 }
