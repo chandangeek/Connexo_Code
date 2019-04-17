@@ -16,12 +16,16 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiFunction;
 
-public class TestMicroCheck implements ExecutableMicroCheck {
-    private final BiFunction<Device, Instant, Optional<ExecutableMicroCheckViolation>> onExecute;
+public final class TestMicroCheck implements ExecutableMicroCheck {
+    @FunctionalInterface
+    public interface TriFunction<D, I, S, R> {
+        R apply(D d, I i, S s);
+    }
 
-    public TestMicroCheck(BiFunction<Device, Instant, Optional<ExecutableMicroCheckViolation>> onExecute) {
+    private final TriFunction<Device, Instant, State, Optional<ExecutableMicroCheckViolation>> onExecute;
+
+    public TestMicroCheck(TriFunction<Device, Instant, State, Optional<ExecutableMicroCheckViolation>> onExecute) {
         this.onExecute = onExecute;
     }
 
@@ -65,13 +69,13 @@ public class TestMicroCheck implements ExecutableMicroCheck {
     @Override
     public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant transitionTime, State state) {
         if (this.onExecute != null) {
-            return this.onExecute.apply(device, transitionTime);
+            return this.onExecute.apply(device, transitionTime, state);
         }
         return Optional.empty();
     }
 
-    public static class Factory implements DeviceMicroCheckFactory {
-        private BiFunction<Device, Instant, Optional<ExecutableMicroCheckViolation>> onExecute;
+    public static final class Factory implements DeviceMicroCheckFactory {
+        private TriFunction<Device, Instant, State, Optional<ExecutableMicroCheckViolation>> onExecute;
 
         @Override
         public Optional<MicroCheck> from(String microActionKey) {
@@ -83,8 +87,14 @@ public class TestMicroCheck implements ExecutableMicroCheck {
             return Collections.singleton(new TestMicroCheck(this.onExecute));
         }
 
-        public void setOnExecute(BiFunction<Device, Instant, Optional<ExecutableMicroCheckViolation>> onExecute) {
+        public void setOnExecute(TriFunction<Device, Instant, State, Optional<ExecutableMicroCheckViolation>> onExecute) {
             this.onExecute = onExecute;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return this == obj
+                    || obj instanceof Factory;
         }
     }
 }

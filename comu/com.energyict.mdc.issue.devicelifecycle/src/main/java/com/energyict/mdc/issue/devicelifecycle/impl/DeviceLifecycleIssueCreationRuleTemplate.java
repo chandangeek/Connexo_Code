@@ -8,6 +8,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -23,7 +24,7 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleTransitionPropertyFactory;
-import com.elster.jupiter.properties.rest.RaiseEventUrgencyFactory;
+import com.elster.jupiter.properties.rest.RecurrenceSelectionPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -49,7 +50,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -64,6 +64,8 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
     public static final String LOG_ON_SAME_ISSUE = NAME + ".logOnSameIssue";
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
     public static final String DEVICE_LIFECYCLE_TRANSITION_PROPS = NAME + ".deviceLifecycleTransitionProps";
+    private static final String RECURRENCE_PROPS_DEFAULT_VALUE = "0:0";
+    private static final List<String> RECURRENCE_PROPS_POSSIBLE_VALUES = Arrays.asList("0:0", "1:0:", "1:1");
     private static final String SEPARATOR = ":";
     private static final String DASH_SEPARATOR = "-";
 
@@ -192,10 +194,31 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
+    @Override
+    public void updateIssue(OpenIssue openIssue, IssueEvent event) {
+        event.apply(openIssue);
+        openIssue.update();
+        if (IssueStatus.IN_PROGRESS.equals(openIssue.getStatus().getKey())) {
+            openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElseThrow(() ->
+                    new IllegalArgumentException(TranslationKeys.UNABLE_TO_UPDATE_TRANSITION_STATUS.getDefaultFormat()) {
+                    }));
+        }
+        Optional<RecurrenceSelectionInfo> newEventProps = openIssue.getRule()
+                .getProperties()
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().equals(LOG_ON_SAME_ISSUE))
+                .findFirst()
+                .map(found -> (RecurrenceSelectionInfo) found.getValue());
+        if (newEventProps.isPresent() &&
+                newEventProps.get().hasIncreaseUrgency()) {
+            openIssue.setPriority(Priority.get(openIssue.getPriority().increaseUrgency(), openIssue.getPriority()
+                    .getImpact()));
+            openIssue.update();
+        }
+    }
 
-
-
-    public void clearAndRecalculateCache() {
+    private void clearAndRecalculateCache() {
         deviceLifeCycleProps.clear();
         deviceConfigurationService.findAllDeviceTypes()
                 .find().stream()
@@ -214,13 +237,12 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        HashMap<Long, String> possibleActionValues = getPossibleValues();
 
-        RecurrenceSelectionInfo[] possibleValues = possibleActionValues.entrySet().stream()
-                .map(entry -> new RecurrenceSelectionInfo(entry.getKey(), entry.getValue()))
+        RecurrenceSelectionInfo[] logPossibleValues = RECURRENCE_PROPS_POSSIBLE_VALUES.stream()
+                .map(RecurrenceSelectionInfo::new)
                 .toArray(RecurrenceSelectionInfo[]::new);
         clearAndRecalculateCache();
-        DeviceLifeCycleTransitionPropsInfo[] deviceLifeCyclePropsPossibleValues = deviceLifeCycleProps.stream().toArray(DeviceLifeCycleTransitionPropsInfo[]::new);
+        DeviceLifeCycleTransitionPropsInfo[] deviceLifeCyclePropsPossibleValues = deviceLifeCycleProps.toArray(new DeviceLifeCycleTransitionPropsInfo[0]);
 
         Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(propertySpecService
@@ -228,8 +250,8 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
                 .named(LOG_ON_SAME_ISSUE, TranslationKeys.ISSUE_CREATION_SELECTION_ON_RECURRENCE)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
-                .setDefaultValue(new RecurrenceSelectionInfo(1L, thesaurus.getFormat(TranslationKeys.CREATE_NEW_DEVICELIFECYCLE_ISSUE).format()))
-                .addValues(possibleValues)
+                .setDefaultValue(new RecurrenceSelectionInfo(RECURRENCE_PROPS_DEFAULT_VALUE))
+                .addValues(logPossibleValues)
                 .finish());
         builder.add(propertySpecService
                 .booleanSpec()
@@ -275,38 +297,28 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         return issue;
     }
 
-    private HashMap<Long, String> getPossibleValues() {
-        return new HashMap<Long, String>() {{
-            put(0L, thesaurus.getFormat(TranslationKeys.CREATE_NEW_DEVICELIFECYCLE_ISSUE).format());
-            put(1L, thesaurus.getFormat(TranslationKeys.LOG_ON_EXISTING_DEVICELIFECYCLE_ISSUE).format());
-        }};
-    }
-
     @XmlRootElement
     private class RecurrenceSelectionInfo extends HasIdAndName {
 
-        private Long id;
-        private String name;
+        private final String value;
 
-
-        public RecurrenceSelectionInfo(Long id, String name) {
-            this.id = id;
-            this.name = name;
+        RecurrenceSelectionInfo(String value) {
+            this.value = value;
         }
 
 
         @Override
-        public Long getId() {
-            return id;
+        public Object getId() {
+            return value;
         }
 
         @Override
         public String getName() {
-            return name;
+            return "Transition failure should : When transition failure reoccurs";
         }
 
         private boolean hasIncreaseUrgency() {
-            return id == 1L;
+            return Integer.parseInt(Arrays.asList(value.split(SEPARATOR)).get(1)) == 1;
         }
 
         @Override
@@ -322,27 +334,20 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
             }
 
             RecurrenceSelectionInfo that = (RecurrenceSelectionInfo) o;
-
-            if (!id.equals(that.id)) {
-                return false;
-            }
-            return name.equals(that.name);
+            return value.equals(that.value);
         }
 
         @Override
         public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + id.hashCode();
-            result = 31 * result + name.hashCode();
-            return result;
+            return value.hashCode();
         }
 
     }
 
-    private class RecurrenceSelectionInfoValueFactory implements ValueFactory<HasIdAndName>, RaiseEventUrgencyFactory {
+    private class RecurrenceSelectionInfoValueFactory implements ValueFactory<HasIdAndName>, RecurrenceSelectionPropertyFactory {
         @Override
         public RecurrenceSelectionInfo fromStringValue(String stringValue) {
-            return new RecurrenceSelectionInfo(Long.parseLong(stringValue), getPossibleValues().get(Long.parseLong(stringValue)));
+            return new RecurrenceSelectionInfo(stringValue);
         }
 
         @Override

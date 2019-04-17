@@ -13,6 +13,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.impl.TableSpecs;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -57,6 +58,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 
 /**
  * Integration test for the {@link AuthorizedActionRequestFactory} component
@@ -75,6 +79,8 @@ public class AuthorizedActionRequestFactoryIT {
 
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private NlsService nlsService;
     @Mock
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private ResourceHelper resourceHelper;
@@ -140,6 +146,8 @@ public class AuthorizedActionRequestFactoryIT {
     @Before
     public void setupResourceHelper() {
         inMemoryPersistence.getService(OrmService.class).invalidateCache(FiniteStateMachineService.COMPONENT_NAME, TableSpecs.FSM_FINITE_STATE_MACHINE.name());
+        when(thesaurus.join(any())).thenReturn(thesaurus);
+        when(nlsService.getThesaurus(anyString(), any())).thenReturn(thesaurus);
         this.resourceHelper =
                 new ResourceHelper(
                         getDeviceLifeCycleConfigurationService(),
@@ -147,7 +155,8 @@ public class AuthorizedActionRequestFactoryIT {
                         inMemoryPersistence.getService(FiniteStateMachineService.class),
                         new ExceptionFactory(this.thesaurus),
                         inMemoryPersistence.getService(EventService.class),
-                        new ConcurrentModificationExceptionFactory(this.thesaurus));
+                        new ConcurrentModificationExceptionFactory(this.thesaurus),
+                        this.nlsService);
         microActionAndCheckInfoFactory = new MicroActionAndCheckInfoFactory(deviceLifeCycleService, thesaurus);
         authorizedActionInfoFactory = new AuthorizedActionInfoFactory(thesaurus, deviceLifeCycleConfigurationService, microActionAndCheckInfoFactory);
     }
