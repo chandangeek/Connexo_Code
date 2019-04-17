@@ -10,6 +10,7 @@ public final class ModuleConstants {
 
     public static final String TASK_FAILED_EVENT = "Task failed event";
     public static final String REASON_TASK_FAILED = "reason.task.failed";
+    public static final String REASON_TASK_FAILED_DESCRIPTION = "reason.task.failed.descr";
 
 
     public static final String AQ_TASK_EVENT_SUBSC = "IssueCreationTK";

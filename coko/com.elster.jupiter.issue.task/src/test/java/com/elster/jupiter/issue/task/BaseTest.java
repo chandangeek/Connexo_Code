@@ -33,8 +33,9 @@ import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.issue.task.impl.TaskIssueModule;
+import com.elster.jupiter.issue.task.impl.ModuleConstants;
 import com.elster.jupiter.issue.task.impl.TaskIssueActionsFactory;
+import com.elster.jupiter.issue.task.impl.TaskIssueModule;
 import com.elster.jupiter.issue.task.impl.TaskIssueServiceImpl;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -47,6 +48,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -261,12 +263,36 @@ public abstract class BaseTest {
     }
 
 
-    protected CreationRule getCreationRule(String name, String reasonKey) {
+    protected CreationRule getCreationRule(String name, String reason) {
         CreationRuleBuilder builder = getIssueService().getIssueCreationService().newCreationRule();
         builder.setName(name);
         builder.setComment("Comment for rule");
         builder.setIssueType(getIssueService().findIssueType(TaskIssueService.TASK_ISSUE).get());
-        builder.setReason(getIssueService().findReason(reasonKey).orElse(null));
+        if (getIssueService().findReason(reason).isPresent()) {
+            builder.setReason(getIssueService().findReason(reason).get());
+        } else {
+            builder.setReason(getIssueService().createReason(ModuleConstants.REASON_TASK_FAILED, getIssueService().findIssueType(TaskIssueService.TASK_ISSUE).get(), new TranslationKey() {
+                @Override
+                public String getKey() {
+                    return ModuleConstants.REASON_TASK_FAILED;
+                }
+
+                @Override
+                public String getDefaultFormat() {
+                    return "Task issue";
+                }
+            }, new TranslationKey() {
+                @Override
+                public String getKey() {
+                    return ModuleConstants.REASON_TASK_FAILED_DESCRIPTION;
+                }
+
+                @Override
+                public String getDefaultFormat() {
+                    return "Task issue description";
+                }
+            }));
+        }
         builder.setDueInTime(DueInType.DAY, 15L);
         builder.setPriority(Priority.DEFAULT);
         builder.activate();

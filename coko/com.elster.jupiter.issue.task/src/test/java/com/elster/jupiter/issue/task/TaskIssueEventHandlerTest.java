@@ -39,29 +39,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TaskIssueEventHandlerTest extends BaseTest {
-    @Test
-    public void testSuccessfullProcess() {
-        Map<String, Object> messageMap = new HashMap<>();
-        messageMap.put(EventConstants.EVENT_TOPIC, "com/elster/jupiter/tasks/taskoccurrence/FAILED");
-        messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
-        messageMap.put(ModuleConstants.TASKOCCURRENCE_ID, "1");
-        Message message = getMockMessage(getJsonService().serialize(messageMap));
-        MessageHandler handler = getTaskIssueEventHandler(getMockIssueCreationService());
-
-        Boolean isProcessed = false;
-        try {
-            handler.process(message);
-        } catch (DispatchCreationEventException ex) {
-            assertThat(ex.getMessage()).isEqualTo("processed!");
-            isProcessed = true;
-        }
-        assertThat(isProcessed).isTrue();
-    }
 
     @Test
     public void testUnmappedEvent() {
         Map<String, Object> messageMap = new HashMap<>();
-        messageMap.put(EventConstants.EVENT_TOPIC, "com/elster/jupiter/tasks/taskoccurrence/FAILED");
+        messageMap.put(EventConstants.EVENT_TOPIC, "com/elster/jupiter/tasks/unknown/EVENT");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.TASKOCCURRENCE_ID, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));

@@ -24,18 +24,6 @@ import static org.mockito.Mockito.when;
 public class IssueResourceTest extends TaskIssueApplicationJerseyTest {
 
     @Test
-    public void testGetIssueById() {
-        Optional<TaskIssue> issue = Optional.of(getDefaultIssue());
-        doReturn(issue).when(taskIssueService).findIssue(1);
-        //TODO: refactor kore so that usage point only dirrectly accessible from MDM issues
-        when(issue.get().getUsagePoint()).thenReturn(Optional.empty());
-
-        Map<?, ?> map = target("/issues/1").request().get(Map.class);
-        Map<?, ?> issueMap = (Map<?, ?>) map.get("data");
-        assertDefaultIssueMap(issueMap);
-    }
-
-    @Test
     public void testGetUnexistingIssueById() {
         when(taskIssueService.findIssue(1)).thenReturn(Optional.empty());
 
@@ -150,14 +138,5 @@ public class IssueResourceTest extends TaskIssueApplicationJerseyTest {
         Map<?, ?> assigneeMap = (Map<?, ?>) issueMap.get("assignee");
         assertThat(assigneeMap.get("id")).isEqualTo(1);
         assertThat(assigneeMap.get("name")).isEqualTo("Admin");
-
-        Map<?, ?> deviceMap = (Map<?, ?>) issueMap.get("device");
-        assertThat(deviceMap.get("id")).isEqualTo(1);
-        assertThat(deviceMap.get("serialNumber")).isEqualTo("0.0.0.0.0.0.0.0");
-        assertThat(deviceMap.get("name")).isEqualTo("DefaultDevice");
-        assertThat(deviceMap.get("usagePoint")).isEqualTo(null);
-        assertThat(deviceMap.get("serviceLocation")).isEqualTo(null);
-        assertThat(deviceMap.get("serviceCategory")).isEqualTo(null);
-        assertThat(deviceMap.get("version")).isEqualTo(0);
     }
 }
