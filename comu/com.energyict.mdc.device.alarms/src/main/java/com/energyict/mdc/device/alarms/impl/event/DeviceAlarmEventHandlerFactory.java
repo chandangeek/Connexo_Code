@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -38,6 +39,7 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
     private volatile IssueCreationService issueCreationService;
     private volatile IssueService issueService;
     private volatile MeteringService meteringService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile DeviceService deviceService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile Thesaurus thesaurus;
@@ -55,6 +57,7 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
             JsonService jsonService,
             IssueService issueService,
             MeteringService meteringService,
+            MeteringGroupsService meteringGroupsService,
             DeviceService deviceService,
             DeviceAlarmService deviceAlarmService,
             NlsService nlsService,
@@ -64,6 +67,7 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
         setJsonService(jsonService);
         setIssueService(issueService);
         setMeteringService(meteringService);
+        setMeteringGroupsService(meteringGroupsService);
         setDeviceService(deviceService);
         setDeviceAlarmService(deviceAlarmService);
         setNlsService(nlsService);
@@ -78,6 +82,7 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(IssueCreationService.class).toInstance(issueCreationService);
                 bind(IssueService.class).toInstance(issueService);
@@ -103,6 +108,11 @@ public class DeviceAlarmEventHandlerFactory implements MessageHandlerFactory {
     @Reference
     public final void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public final void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference

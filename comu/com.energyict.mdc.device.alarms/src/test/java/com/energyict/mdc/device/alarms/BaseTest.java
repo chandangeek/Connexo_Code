@@ -288,6 +288,8 @@ public abstract class BaseTest {
         return injector.getInstance(MeteringService.class);
     }
 
+    protected MeteringGroupsService getMeteringGroupsService() { return injector.getInstance(MeteringGroupsService.class);  }
+
     protected DeviceService getDeviceService() {
         return injector.getInstance(DeviceService.class);
     }
@@ -412,7 +414,8 @@ public abstract class BaseTest {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(amrId);
         when(mockDeviceDataService.findDeviceById(Matchers.anyLong())).thenReturn(Optional.of(device));
-        EndDeviceEventCreatedEvent event = new EndDeviceEventCreatedEvent(getDeviceAlarmService(), getIssueService(), getMeteringService(), mockDeviceDataService, getThesaurus(), getTimeService(), mock(Clock.class), mock(Injector.class));
+        EndDeviceEventCreatedEvent event = new EndDeviceEventCreatedEvent(getDeviceAlarmService(), getIssueService(), getMeteringService(), getMeteringGroupsService(), mockDeviceDataService, getThesaurus(), getTimeService(), mock(Clock.class), mock(Injector.class));
+
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/elster/jupiter/metering/enddeviceevent/CREATED");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, amrId.toString());

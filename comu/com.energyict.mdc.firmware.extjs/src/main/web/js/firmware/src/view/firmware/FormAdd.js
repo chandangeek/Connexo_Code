@@ -215,7 +215,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                        combobox.up('fieldcontainer').add({
                                                       itemId: cbxId + '-dispfld',
                                                       xtype: 'displayfield',
-                                                      value: 'There are no firmware files of this type uploaded to the device type',
+                                                      value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
                                                       fieldStyle: 'color: red'
                                                    });
                  }

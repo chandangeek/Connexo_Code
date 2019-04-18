@@ -17,6 +17,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
@@ -114,9 +115,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile SecurityManagementService securityManagementService;
 	private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile MeterConfigFactory meterConfigFactory;
+    private volatile OrmService ormService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
+
 
     public InboundSoapEndpointsActivator() {
         // for OSGI purposes
@@ -133,7 +136,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          JsonService jsonService, CustomPropertySetService customPropertySetService,
                                          WebServicesService webServicesService, InboundCIMWebServiceExtension webServiceExtensionFactory,
                                          HsmEnergyService hsmEnergyService, SecurityManagementService securityManagementService,
-                                         DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+                                         DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                         OrmService ormService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -159,6 +163,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setHsmEnergyService(hsmEnergyService);
         setSecurityManagementService(securityManagementService);
 		setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+		setOrmService(ormService);
     }
 
     private Module getModule() {
@@ -192,6 +197,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
 				bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
 				bind(MeterConfigFactory.class).toInstance(meterConfigFactory);
+				bind(OrmService.class).toInstance(ormService);
             }
         };
     }
@@ -408,4 +414,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     DataModel getDataModel() {
         return dataModel;
     }
+
+	public void setOrmService(OrmService ormService) {
+		this.ormService=ormService;
+	}
 }
