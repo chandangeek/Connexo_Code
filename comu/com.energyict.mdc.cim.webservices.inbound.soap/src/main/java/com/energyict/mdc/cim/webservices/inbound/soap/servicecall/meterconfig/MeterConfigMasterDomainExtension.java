@@ -15,6 +15,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+							
 import java.util.Optional;
 
 public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
@@ -50,7 +51,6 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
     private Long actualNumberOfSuccessfulCalls;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Long actualNumberOfFailedCalls;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackURL;
 
@@ -111,4 +111,3 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
     public void validateDelete() {
     }
 }
-
