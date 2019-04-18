@@ -158,7 +158,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
     }
 
     @Test
-    public void testNoReplyAddress() {
+    public void testNoReplyAddress() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         meterConfig.getMeter().add(createDefaultMeter());
         MeterConfigRequestMessageType meterConfigRequest = createMeterConfigRequest(meterConfig);
@@ -166,19 +166,9 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
 
         try {
             // Business method
-            getInstance(ExecuteMeterConfigEndpoint.class).getMeterConfig(meterConfigRequest);
-            fail("FaultMessage must be thrown");
-        } catch (FaultMessage faultMessage) {
-            // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_GET_DEVICE.translate(thesaurus));
-            MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
-            assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
-            assertThat(faultInfo.getReply().getError()).hasSize(1);
-            ErrorType error = faultInfo.getReply().getError().get(0);
-            assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
-            assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_REPLY_ADDRESS.getErrorCode());
-        } catch (Exception e) {
-            fail("FaultMessage must be thrown");
+            getInstance(ExecuteMeterConfigEndpoint.class).createMeterConfig(meterConfigRequest);
+            fail("A NPE must be thrown");
+        } catch (NullPointerException e) {
         }
     }
 
