@@ -161,5 +161,4 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
             }
         });
     }
-
 });

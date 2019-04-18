@@ -202,7 +202,7 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>appserver.rest</artifactId>
         </dependency>
-
+        
         <!-- test dependencies -->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>

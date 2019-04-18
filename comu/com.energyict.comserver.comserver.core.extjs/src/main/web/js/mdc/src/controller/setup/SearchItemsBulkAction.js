@@ -794,6 +794,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             changeDeviceConfigForm = nextCmp.down('#change-device-configuration'),
                             currentConfigField = nextCmp.down('#current-device-config-selection');
 
+                        nextCmp.down('#device-zone-add-panel').hide();
                         nextCmp.down('#select-schedules-panel').hide();
                         nextCmp.down('#bulk-start-processes-panel').hide();
                         changeDeviceConfigForm.show();

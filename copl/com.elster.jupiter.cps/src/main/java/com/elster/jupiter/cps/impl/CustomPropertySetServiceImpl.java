@@ -41,6 +41,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.SqlExceptionThrowingFunction;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
@@ -64,6 +65,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -430,7 +433,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     private static class CustomPropertySetInstaller implements FullInstaller, Upgrader {
-
         private final DataModel dataModel;
 
         @Inject
@@ -441,6 +443,26 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         @Override
         public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
             dataModelUpgrader.upgrade(dataModel, Version.latest());
+        }
+
+        @Override
+        public <T> T executeQuery(Statement statement, String sql, SqlExceptionThrowingFunction<ResultSet, T> resultMapper) {
+            return FullInstaller.super.executeQuery(statement, sql, resultMapper);
+        }
+
+        @Override
+        public <T> T executeQuery(DataModel dataModel, String sql, SqlExceptionThrowingFunction<ResultSet, T> resultMapper) {
+            return FullInstaller.super.executeQuery(dataModel, sql, resultMapper);
+        }
+
+        @Override
+        public void execute(Statement statement, String sql) {
+            FullInstaller.super.execute(statement, sql);
+        }
+
+        @Override
+        public void execute(DataModel dataModel, String... sql) {
+            FullInstaller.super.execute(dataModel, sql);
         }
 
         @Override

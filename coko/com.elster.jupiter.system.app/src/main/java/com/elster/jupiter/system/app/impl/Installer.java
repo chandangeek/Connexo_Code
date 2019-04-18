@@ -4,13 +4,17 @@
 
 package com.elster.jupiter.system.app.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.system.app.SysAppService;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.upgrade.SqlExceptionThrowingFunction;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.logging.Logger;
 
 final class Installer implements FullInstaller, Upgrader {
@@ -25,6 +29,26 @@ final class Installer implements FullInstaller, Upgrader {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         grantPrivileges();
+    }
+
+    @Override
+    public <T> T executeQuery(Statement statement, String sql, SqlExceptionThrowingFunction<ResultSet, T> resultMapper) {
+        return FullInstaller.super.executeQuery(statement, sql, resultMapper);
+    }
+
+    @Override
+    public <T> T executeQuery(DataModel dataModel, String sql, SqlExceptionThrowingFunction<ResultSet, T> resultMapper) {
+        return FullInstaller.super.executeQuery(dataModel, sql, resultMapper);
+    }
+
+    @Override
+    public void execute(Statement statement, String sql) {
+        FullInstaller.super.execute(statement, sql);
+    }
+
+    @Override
+    public void execute(DataModel dataModel, String... sql) {
+        FullInstaller.super.execute(dataModel, sql);
     }
 
     @Override

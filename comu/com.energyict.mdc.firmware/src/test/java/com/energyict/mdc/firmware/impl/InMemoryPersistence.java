@@ -77,6 +77,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCusto
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -186,7 +187,8 @@ public class InMemoryPersistence {
                 new WebServicesModule(),
                 new AuditServiceModule(),
                 new FileImportModule(),
-                new MeteringZoneModule()
+                new MeteringZoneModule(),
+                new TopologyModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {

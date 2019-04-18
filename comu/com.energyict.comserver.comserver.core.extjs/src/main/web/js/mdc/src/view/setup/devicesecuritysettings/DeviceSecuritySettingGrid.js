@@ -24,7 +24,17 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             {
                 header: Uni.I18n.translate('general.securitySet', 'MDC', 'Security set'),
                 dataIndex: 'name',
-                flex: 3
+                flex: 3,
+                renderer: function(value, field, record) {
+                    if(record) {
+                        if (record.get('hasServiceKeys')){
+                            var tooltip = Uni.I18n.translate('general.securitySet.tooltip', 'MDC', 'The security set contains security accessors with service keys')
+                            return value + '<span class="icon-warning" style="margin-left:5px; position:absolute; color:#eb5642;" data-qtip="' + tooltip + '"></span>';
+                        } else {
+                            return value;
+                        }
+                    }
+                }
             },
             {
                 header: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),

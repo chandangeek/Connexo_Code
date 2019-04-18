@@ -16,7 +16,7 @@ Ext.define('Tou.controller.History', {
             disabled: true,
             items: {
                 toucampaigns: {
-                    title: Uni.I18n.translate('tou.campaigns.touCampaigns', 'TOU', 'ToU campaigns'),
+                    title: Uni.I18n.translate('tou.campaigns.touCampaigns', 'TOU', 'ToU calendar campaigns'),
                     route: 'toucampaigns',
                     controller: 'Tou.controller.Overview',
                     action: 'showOverview',
@@ -30,7 +30,7 @@ Ext.define('Tou.controller.History', {
                             privileges: Tou.privileges.TouCampaign.administrate
                         },
                         toucampaign: {
-                            title: Uni.I18n.translate('tou.campaigns.touCampaign', 'TOU', 'ToU campaign'),
+                            title: Uni.I18n.translate('tou.campaigns.touCampaign', 'TOU', 'ToU calendar campaign'),
                             route: '{touCampaignId}',
                             controller: 'Tou.controller.Detail',
                             action: 'showDetail',

@@ -9,7 +9,6 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.tou.campaign.TimeOfUseItem;
 
 import javax.inject.Inject;
 
@@ -22,14 +21,6 @@ public class DeviceInCampaignInfoFactory {
     @Inject
     public DeviceInCampaignInfoFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
-    }
-
-    public DeviceInCampaignInfo createOnCancel(TimeOfUseItem timeOfUseItem) {
-        return create(timeOfUseItem.getDevice(), timeOfUseItem.cancel());
-    }
-
-    public DeviceInCampaignInfo createOnRetry(TimeOfUseItem timeOfUseItem) {
-        return create(timeOfUseItem.getDevice(), timeOfUseItem.retry());
     }
 
     public DeviceInCampaignInfo create(Device device, ServiceCall serviceCall) {

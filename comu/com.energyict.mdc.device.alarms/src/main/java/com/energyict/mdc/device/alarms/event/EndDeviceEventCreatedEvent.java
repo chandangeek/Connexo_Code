@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -32,8 +33,8 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
 
 
     @Inject
-    public EndDeviceEventCreatedEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus, TimeService timeService, Clock clock, Injector injector) {
-        super(deviceAlarmService, issueService, meteringService, deviceService, thesaurus, timeService, clock, injector);
+    public EndDeviceEventCreatedEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, DeviceService deviceService, Thesaurus thesaurus, TimeService timeService, Clock clock, Injector injector) {
+        super(deviceAlarmService, issueService, meteringService, meteringGroupsService, deviceService, thesaurus, timeService, clock, injector);
     }
 
     @Override

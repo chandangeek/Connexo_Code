@@ -283,7 +283,6 @@ Ext.define('Bpm.controller.Task', {
 
     findProcessVariable: function (processNodeRecord, variableName) {
         var nodes = processNodeRecord.processInstanceNodes();
-        console.log(nodes);
         var continueLoop = true;
         var returnVariable = undefined;
         if (!Ext.isEmpty(nodes)) {

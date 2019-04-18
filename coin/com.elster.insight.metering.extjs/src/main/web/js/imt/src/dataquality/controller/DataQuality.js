@@ -39,7 +39,7 @@ Ext.define('Imt.dataquality.controller.DataQuality', {
                 router: router,
                 filterDefault: {
                     from: moment().subtract(1, 'months').startOf('day').toDate(),
-                    to: moment().add(1, 'days').startOf('day').toDate()
+                    to: moment().add('days', 1).startOf('day').toDate()
                 }
             }));
             me.getStore('Imt.dataquality.store.DataQuality').load();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Fwc.controller.Firmware', {
@@ -31,14 +31,20 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.store.FirmwareStatuses',
         'Fwc.store.FirmwareTypes',
         'Fwc.store.SupportedFirmwareTypes',
-        'Fwc.store.SecurityAccessors'
+        'Fwc.store.SecurityAccessors',
+        'Fwc.store.MeterFirmwareDepependencies',
+        'Fwc.store.CommunicationFirmwareDepependencies',
+        'Fwc.store.MeterFirmwareDepependenciesEdit',
+        'Fwc.store.CommunicationFirmwareDepependenciesEdit'
     ],
 
     refs: [
         {ref: 'firmwareForm', selector: '#firmwareForm'},
         {ref: 'container', selector: 'viewport > #contentPanel'},
         {ref: 'firmwareOptionsEditForm', selector: '#firmwareOptionsEditForm'},
-        {ref: 'firmwareSignatureEditForm', selector: '#firmware-options-signature-edit'}
+        {ref: 'firmwareSignatureEditForm', selector: '#firmware-options-signature-edit'},
+        {ref: 'firmwareVersionsForm', selector: '#firmware-versions'},
+        {ref: 'firmwareGrid', selector: '#FirmwareGrid'}
     ],
 
     deviceTypeId: null,
@@ -54,6 +60,18 @@ Ext.define('Fwc.controller.Firmware', {
                         .forward();
                 }
             },
+            'firmware-versions [action=applyAll]': {
+                click: function () {
+                    var editBtn = this.getFirmwareVersionsForm().down('#btn-edit-order-estimation-rules');
+                    if (editBtn) editBtn.disable()
+                }
+            },
+            'firmware-versions [action=clearAll]': {
+                click: function () {
+                    var editBtn = this.getFirmwareVersionsForm().down('#btn-edit-order-estimation-rules');
+                    if (editBtn) editBtn.enable()
+                }
+            },
             'firmware-versions actioncolumn': {
                 editFirmware: function (firmware) {
                     this.getController('Uni.controller.history.Router')
@@ -61,7 +79,8 @@ Ext.define('Fwc.controller.Firmware', {
                         .forward({firmwareId: firmware.getId()});
                 },
                 setFinal: this.setFinal,
-                deprecate: this.deprecate
+                deprecate: this.deprecate,
+                remove: this.remove
             },
             'firmware-edit [action=saveFirmware]': {
                 click: this.saveEditedFirmware
@@ -105,6 +124,9 @@ Ext.define('Fwc.controller.Firmware', {
                 click: function() {
                     this.tab2Activate = 1;
                 }
+            },
+            'firmware-versions [action=saveFirmwareVersionOrder]': {
+                 click: this.saveFirmwareVersionOrder
             }
         });
     },
@@ -160,6 +182,36 @@ Ext.define('Fwc.controller.Firmware', {
         });
     },
 
+    remove: function (firmware) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            container = me.getContainer();
+
+        this.tab2Activate = 1;
+        var data = firmware.getAssociatedData().firmwareType;
+        Ext.create('Uni.view.window.Confirmation', {
+            confirmText: Uni.I18n.translate('general.remove', 'FWC', 'Remove')
+        }).show({
+            msg: Uni.I18n.translate('firmware.remove.msg', 'FWC', 'This firmware version will no longer be available.'),
+            title: Uni.I18n.translate('firmware.remove.title', 'FWC', "Remove {0} firmware '{1}'?",[data.id,firmware.get('firmwareVersion')]),
+            fn: function (btn) {
+                if (btn === 'confirm') {
+                    container.setLoading();
+                    firmware.getProxy().setUrl(router.arguments.deviceTypeId);
+                    firmware.destroy({
+                        success: function () {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.remove.success', 'FWC', 'Firmware version removed'));
+                            router.getRoute().forward();
+                        },
+                        callback: function () {
+                            container.setLoading(false);
+                        }
+                    });
+                }
+            }
+        });
+    },
+
     addFirmware: function (deviceTypeId) {
         var me = this;
         me.loadDeviceType(deviceTypeId, function (deviceType) {
@@ -186,6 +238,21 @@ Ext.define('Fwc.controller.Firmware', {
                 callback: function () {
                     me.getContainer().down('firmware-form-add #disp-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount===1);
                     me.getContainer().down('firmware-form-add #radio-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount!==1);
+
+                    var supportedFirmwareTypesData = supportedFirmwareTypesStore.getRange();
+                    me.getContainer().down('firmware-form-add').supportedTypes = supportedFirmwareTypesData;
+                    if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "meter"}).length){
+                        me.getContainer().down('firmware-form-add #firmware-min-meter-version-common').show();
+                    }else{
+                        me.getContainer().down('firmware-form-add #firmware-min-meter-version-common').hide();
+                    }
+
+                    if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
+                        me.getContainer().down('firmware-form-add #firmware-min-communication-version-common').show();
+                    }else{
+                        me.getContainer().down('firmware-form-add #firmware-min-communication-version-common').hide();
+                    }
+
                     if (supportedFirmwareTypesStore.totalCount===1) {
                         var id = me.getContainer().down('firmware-form-add #radio-firmware-type').getStore().getAt(0).data.id;
                         var onlyType = me.getContainer().down('firmware-form-add #radio-firmware-type').getStore().getAt(0).data.localizedValue;
@@ -222,6 +289,21 @@ Ext.define('Fwc.controller.Firmware', {
                         'firmware-edit',
                         {deviceType: deviceType, record: firmware}
                     );
+                    var supportedFirmwareTypesStore = Ext.getStore('Fwc.store.SupportedFirmwareTypes');
+                    supportedFirmwareTypesStore.getProxy().setUrl(deviceType.getId());
+                    supportedFirmwareTypesStore.load({
+                          scope: this,
+                          callback: function () {
+                               var supportedFirmwareTypesData = supportedFirmwareTypesStore.getRange();
+                               if (!Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "meter"}).length){
+                                    me.getContainer().down('firmware-edit #firmware-min-meter-version-common').hide();
+                               }
+                               if (!Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
+                                    me.getContainer().down('firmware-edit #firmware-min-communication-version-common').hide();
+                               }
+                          }
+                    });
+
 
                     var widget = me.getContainer().down('firmware-edit');
                     me.reconfigureMenu(deviceType, widget);
@@ -271,6 +353,9 @@ Ext.define('Fwc.controller.Firmware', {
         form.down('uni-form-error-message').hide();
         form.getForm().clearInvalid();
         record = form.updateRecord().getRecord();
+        var firmwareMinMeterVersionField = form.down('#firmware-min-meter-version');
+        var firmwareMinCommunicationVersionField = form.down('#firmware-min-communication-version');
+
         record.setFirmwareType(
             form.down('#radio-firmware-type')
                 .getStore()
@@ -283,6 +368,16 @@ Ext.define('Fwc.controller.Firmware', {
                 .findRecord('id', form.down('#radio-firmware-status')
                     .getValue().firmwareStatus)
         );
+        if (firmwareMinMeterVersionField){
+            record.setMeterFirmwareDependency(
+                 firmwareMinMeterVersionField.getStore().getById(firmwareMinMeterVersionField.getValue())
+            );
+        }
+        if (firmwareMinCommunicationVersionField){
+            record.setCommunicationFirmwareDependency(
+                 firmwareMinCommunicationVersionField.getStore().getById(firmwareMinCommunicationVersionField.getValue())
+            );
+        }
 
         var input = form.down('filefield').button.fileInputEl.dom,
             file = input.files[0],
@@ -374,6 +469,20 @@ Ext.define('Fwc.controller.Firmware', {
                     form.setLoading(false);
                 }
             };
+
+        var firmwareMinMeterVersionField = form.down('#firmware-min-meter-version');
+        var firmwareMinCommunicationVersionField = form.down('#firmware-min-communication-version');
+
+        if (firmwareMinMeterVersionField){
+            record.setMeterFirmwareDependency(
+                 firmwareMinMeterVersionField.getStore().getById(firmwareMinMeterVersionField.getValue())
+            );
+        }
+        if (firmwareMinCommunicationVersionField){
+            record.setCommunicationFirmwareDependency(
+                 firmwareMinCommunicationVersionField.getStore().getById(firmwareMinCommunicationVersionField.getValue())
+            );
+        }
 
         if (file) {
             var reader = new FileReader();
@@ -473,14 +582,16 @@ Ext.define('Fwc.controller.Firmware', {
                     me.deviceTypeId = deviceTypeId;
                     me.getApplication().fireEvent('changecontentevent', view);
                     me.tab2Activate = undefined;
+                    var router = me.getController('Uni.controller.history.Router');
                     var callbackFunc = function () {
                         me.reconfigureMenu(deviceType, view);
                         firmwareStore.getProxy().setUrl(deviceType.getId());
-                        firmwareStore.load({
+                        var options = {
                             callback: function () {
                                 viewport.setLoading(false);
                             }
-                        });
+                        }
+                        firmwareStore.load(options);
                     };
 
                     var widget = view.down('firmware-options'),
@@ -494,6 +605,16 @@ Ext.define('Fwc.controller.Firmware', {
                                 if (view.down('fwc-view-firmware-versions-topfilter')) {
                                     view.down('fwc-view-firmware-versions-topfilter').showOrHideFirmwareTypeFilter(supportedFirmwareTypesStore.totalCount !== 1);
                                 }
+
+                                var supportedFirmwareTypesData = supportedFirmwareTypesStore.getRange();
+                                var firmwareGrid = me.getFirmwareGrid();
+                                if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "meter"}).length){
+                                    firmwareGrid.down('#minMeterLevel').show();
+                                }
+                                if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
+                                    firmwareGrid.down('#minCommLevel').show();
+                                }
+
                                 var signatureCheckContainer = widget ? widget.down('#security-check-container') : null;
                                 if (signatureCheckContainer) {
                                     if(optionsRecord.get('validateFirmwareFileSignature')){
@@ -641,7 +762,11 @@ Ext.define('Fwc.controller.Firmware', {
             backUrl = router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl();
 
         this.tab2Activate = 0;
-        form.updateRecord();
+        if (!form.updateRecord()){
+            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors.title', 'FWC', 'Couldn\'t perform your action'),
+                 Uni.I18n.translate('firmware.specs.save.validationError', 'FWC', 'You must select at least one item in the group'));
+            return;
+        }
         allowedOptionsError.removeAll();
         form.getRecord().save({
             backUrl: backUrl,
@@ -672,5 +797,31 @@ Ext.define('Fwc.controller.Firmware', {
                 form.setLoading(false);
             }
         });
+    },
+
+    saveFirmwareVersionOrder: function () {
+        var me = this,
+            dataForSend = [],
+            store = me.getFirmwareGrid().getStore(),
+            router = me.getController('Uni.controller.history.Router');
+
+        store.each(function(record) {
+            if (!record.data) return;
+            if (!record.data.meterFirmwareDependency) delete record.data.meterFirmwareDependency;
+            if (!record.data.communicationFirmwareDependency) delete record.data.communicationFirmwareDependency;
+            dataForSend.push(record.data);
+        })
+
+        var url = store.getProxy().url + '/reorder';
+        if(dataForSend){
+            Ext.Ajax.request({
+                        url: url,
+                        jsonData: dataForSend,
+                        method: 'PUT',
+                        success: function (response) {
+                            router.getRoute(router.currentRoute).forward(router.arguments, null);
+                        }
+                    });
+        }
     }
 });

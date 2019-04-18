@@ -25,6 +25,7 @@ public final class ModuleConstants {
     public static final String RAISE_EVENT_PROPS = "raiseEventProperties";
     public static final String TRIGGERING_EVENTS = "triggeringEvents";
     public static final String CLEARING_EVENTS = "clearingEvents";
+    public static final String DEVICE_IN_GROUP = "deviceInGroup";
     public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES ="deviceLifecycleInDeviceStates";
     public static final String ALARM_RELATIVE_PERIOD_CATEGORY = "relativeperiod.category.deviceAlarm";
     public static final String ALARM_REASON_DESCRIPTION = "alarmReasonDescription";

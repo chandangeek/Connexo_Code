@@ -329,4 +329,8 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
         return issue instanceof HistoricalIssueDataCollection ? Optional.of(issue) : findHistoricalIssue(issue.getId());
     }
+
+    public Thesaurus thesaurus() {
+        return thesaurus;
+    }
 }

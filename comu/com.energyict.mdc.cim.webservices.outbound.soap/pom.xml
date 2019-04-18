@@ -125,10 +125,6 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.upl</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.cim.webservices.inbound.soap</artifactId>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -215,7 +211,9 @@
                     <wsdlFiles>
                         <wsdlFile>enddeviceevents/SendEndDeviceEvents.wsdl</wsdlFile>
                         <wsdlFile>meterconfig/ReplyMeterConfig.wsdl</wsdlFile>
+                        <wsdlFile>meterconfig/ExecuteMeterConfig.wsdl</wsdlFile>
                         <wsdlFile>getenddeviceevents/GetEndDeviceEvents.wsdl</wsdlFile>
+                        <wsdlFile>enddeviceevents/ReceiveEndDeviceEvents.wsdl</wsdlFile>
                     </wsdlFiles>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
                     <bindingDirectory>${basedir}/src/main/resources/binding</bindingDirectory>

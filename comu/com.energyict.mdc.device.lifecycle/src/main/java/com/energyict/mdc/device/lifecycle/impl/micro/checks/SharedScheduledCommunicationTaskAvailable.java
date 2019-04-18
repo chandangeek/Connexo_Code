@@ -1,50 +1,46 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
+import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
- * Provides an implementation for the {@link ServerMicroCheck} interface
- * that checks that there is a ComTasksExecutions on the device.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-05-13 (09:00)
+ * Checks that there is a ComTasksExecutions on the device
  */
 public class SharedScheduledCommunicationTaskAvailable extends TranslatableServerMicroCheck {
 
-    public SharedScheduledCommunicationTaskAvailable(Thesaurus thesaurus) {
-        super(thesaurus);
+    @Override
+    public String getCategory() {
+        return MicroCategory.COMMUNICATION.name();
     }
 
     @Override
-    protected MicroCheck getMicroCheck() {
-        return MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE;
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
+        return !anyScheduledCommunicationTask(device).isPresent() ?
+                fail(MicroCheckTranslations.Message.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE) :
+                Optional.empty();
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        if (!anyScheduledCommunicationTask(device).isPresent()) {
-            return Optional.of(
-                    new DeviceLifeCycleActionViolationImpl(
-                            this.thesaurus,
-                            MessageSeeds.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE,
-                            MicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE));
-        }
-        else {
-            return Optional.empty();
-        }
+    public Set<DefaultTransition> getOptionalDefaultTransitions() {
+        return EnumSet.of(
+                DefaultTransition.COMMISSION,
+                DefaultTransition.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING,
+                DefaultTransition.INSTALL_INACTIVE_WITHOUT_COMMISSIONING,
+                DefaultTransition.INSTALL_AND_ACTIVATE,
+                DefaultTransition.INSTALL_INACTIVE,
+                DefaultTransition.ACTIVATE);
     }
 
     private Optional<ComTaskExecution> anyScheduledCommunicationTask(Device device) {
@@ -54,5 +50,4 @@ public class SharedScheduledCommunicationTaskAvailable extends TranslatableServe
                 .filter(ComTaskExecution::usesSharedSchedule)
                 .findAny();
     }
-
 }
