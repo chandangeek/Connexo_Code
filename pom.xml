@@ -512,6 +512,27 @@
 			<build>
 				<plugins>
 					<plugin>
+						<artifactId>maven-clean-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>Deleting FE build folder</id>
+								<goals>
+									<goal>clean</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<excludeDefaultDirectories>false</excludeDefaultDirectories>
+							<filesets>
+								<fileset>
+									<directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+									<followSymlinks>false</followSymlinks>
+								</fileset>
+							</filesets>
+						</configuration>
+					</plugin>
+					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>build-helper-maven-plugin</artifactId>
 						<version>1.8</version>
