@@ -46,9 +46,9 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
     this.fireEvent('change', this, this.getValue());
   },
 
-  onPaste: function(event) {
+  onPaste: function(event, el) {
     var me = this;
-    // debugger;
+    var value = el.value;
 
     var paste = event.browserEvent.clipboardData
       .getData('text/plain')
@@ -56,14 +56,20 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
       .replace(/\t/g, me.separator)
       .replace(/\r\n/g, me.separator)
       .replace(/\n/g, me.separator)
+      .replace(/\s/g, me.separator)
       .split(me.separator)
+    ;
+
+    paste.unshift(value.substring(0, el.selectionStart))
+    paste.push(value.substring(el.selectionEnd, el.value.length))
+
+    this.setValue(paste
       .map(function(piece) {
         return piece.trim();
       })
-      .join(me.separator)
-    ;
-
-    this.setValue(paste);
+      .filter(Boolean)
+      .join(me.separator + ' ')
+    );
     event.preventDefault();
     event.stopPropagation();
   },
