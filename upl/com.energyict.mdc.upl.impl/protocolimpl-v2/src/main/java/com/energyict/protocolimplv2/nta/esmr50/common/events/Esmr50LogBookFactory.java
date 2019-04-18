@@ -23,7 +23,7 @@ public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
     private static final ObisCode VOLTAGE_QUALITY_LOG = ObisCode.fromString("0.0.99.98.5.255");
     private static final ObisCode COMMS_EVENT_LOG = ObisCode.fromString("0.0.99.98.4.255");
 
-    private static final ObisCode MBUS_EVENT_LOG = ObisCode.fromString("0.x.99.98.3.255");
+    private static final ObisCode MBUS_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");
     private static final ObisCode MBUS_CONTROL_LOG = ObisCode.fromString("0.x.24.5.0.255");
 
     public Esmr50LogBookFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
