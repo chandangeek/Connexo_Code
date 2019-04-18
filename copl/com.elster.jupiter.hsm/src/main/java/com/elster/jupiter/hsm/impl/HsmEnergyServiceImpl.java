@@ -21,12 +21,15 @@ import com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponse;
 import com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponseImpl;
 import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalAgree2EGenerateResponse;
 import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalMBusResponse;
+import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalMBusResponseImpl;
 import com.elster.jupiter.hsm.model.response.protocols.MacResponse;
 
 import com.elster.jupiter.hsm.model.response.protocols.KeyRenewalAgree2EGenerateResponseImpl;
+import com.elster.jupiter.hsm.model.response.protocols.MacResponseImpl;
 
 import com.atos.worldline.jss.api.FunctionFailedException;
 import com.atos.worldline.jss.api.basecrypto.BlockMode;
+import com.atos.worldline.jss.api.basecrypto.ChainingValue;
 import com.atos.worldline.jss.api.basecrypto.HashAlgorithm;
 import com.atos.worldline.jss.api.basecrypto.MAC;
 import com.atos.worldline.jss.api.basecrypto.RandomMode;
