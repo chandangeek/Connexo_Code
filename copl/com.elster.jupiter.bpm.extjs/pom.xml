@@ -54,14 +54,9 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/bpm</js.dir>
-                <package.name>com.elster.jupiter.bpm.extjs</package.name>
-            </properties>
-        </profile>
-    </profiles>
+    <properties>
+        <js.dir>js/bpm</js.dir>
+        <package.name>com.elster.jupiter.bpm.extjs</package.name>
+    </properties>
 
 </project>

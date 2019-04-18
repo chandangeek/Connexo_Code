@@ -6,7 +6,6 @@ Ext.define('Sam.view.about.About', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.about-info',
     requires: [
-        'Sam.view.about.VersionInfo',
         'Sam.view.about.Dynamic',
         'Sam.view.about.Static'
     ],
@@ -17,6 +16,9 @@ Ext.define('Sam.view.about.About', {
             ui: 'large',
             bbar: {
                 xtype: 'panel',
+                title: Uni.I18n.translate('general.connexoVersion', 'SAM', 'Connexo version N/A'),
+                ui: 'medium',
+                padding: 0,
                 items: [
                     {
                         xtype: 'about-version-info',

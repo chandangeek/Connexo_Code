@@ -12,8 +12,14 @@
     </parent>
 
     <artifactId>mdc</artifactId>
-    <packaging>pom</packaging>
+    <packaging>bundle</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.mdc</name>
+
+    <!-- This is a workaround until release while most of deployed artifacts for this artifact does not contain jar (they were pom type previously) and bundle plugin simply crashes,
+    the old bundle plugin for which we do not have documentation or sources -->
+    <properties>
+        <baseline>1.4.0</baseline>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -385,41 +391,31 @@
 
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>multisense</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>multisense</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <archiverConfig>
+                        <duplicateBehavior>skip</duplicateBehavior>
+                    </archiverConfig>
+                    <descriptors>
+                        <descriptor>assembly/assembly.xml</descriptor>
+                    </descriptors>
+                    <finalName>multisense-v${project.version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-                        <configuration>
-                            <archiverConfig>
-                                <duplicateBehavior>skip</duplicateBehavior>
-                            </archiverConfig>
-
-                            <descriptors>
-                                <descriptor>assembly/assembly.xml</descriptor>
-                            </descriptors>
-
-                            <finalName>multisense-v${project.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
