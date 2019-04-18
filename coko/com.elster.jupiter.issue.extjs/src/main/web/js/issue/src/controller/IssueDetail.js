@@ -563,7 +563,14 @@ Ext.define('Isu.controller.IssueDetail', {
                     }, taskOccurrence))
                 });
                 if (data.length) {
-                    store = Ext.create(me.taskStore, {data: data});
+                    store = Ext.create(me.taskStore, {
+                        data: data,
+                        sorters: [
+                            {
+                                property: 'startDate',
+                                direction: 'DESC'
+                            }
+                        ],});
                     panel.getView().bindStore(store);
                 }
             }
