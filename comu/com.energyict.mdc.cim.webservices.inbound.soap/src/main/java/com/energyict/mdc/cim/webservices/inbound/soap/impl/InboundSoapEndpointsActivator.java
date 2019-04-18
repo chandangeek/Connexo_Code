@@ -3,7 +3,7 @@
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
-
+import static com.elster.jupiter.orm.Version.version;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.hsm.HsmEnergyService;
@@ -36,6 +36,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV1_1;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
@@ -207,7 +208,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(version(1, 1), UpgraderV1_1.class));
 
         addConverter(new ObisCodePropertyValueConverter());
         registerServices(bundleContext);
@@ -236,6 +237,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         serviceRegistrations.add(bundleContext.registerService(InboundSoapEndPointProvider.class, provider, properties));
     }
 
+    @Reference
+   	public void setOrmService(OrmService ormService) {
+   		this.ormService=ormService;
+   	}
+    
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -415,7 +421,4 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         return dataModel;
     }
 
-	public void setOrmService(OrmService ormService) {
-		this.ormService=ormService;
-	}
 }
