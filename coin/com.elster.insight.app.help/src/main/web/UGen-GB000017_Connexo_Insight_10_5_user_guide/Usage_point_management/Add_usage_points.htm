@@ -1,0 +1,1321 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Add usage points</title>
+
+    <link rel="stylesheet" href="Usage_point_management.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "5.0_10";
+    </script>
+    <meta name="brsprev" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Usage_point_management/Estimate_data_on_request_for_a_purpose.htm">
+    <meta name="brsnext" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Usage_point_management/Edit_usage_point_data.htm">
+    <meta name="topic-breadcrumbs" content="Usage point management"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic"><a name="XREF_27605_Add_usage_points"></a>Add usage points</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_57648_Add_a_single_usage"></a>Add a single usage point</p>
+    <p dir="ltr" class="FM_Body">Add a usage point to link to one or more devices and get meter data to work with.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Click <span class="FM_UIRef">Usage points</span> in the quick access bar on the left side on any page.</p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">In </span><span class="FM_change_bar"
+                                                                                              style="font-family : Lato; font-weight : bold; ">Usage point life cycle management</span><span
+            class="FM_change_bar">, click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Add usage point</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent">You must have sufficient <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/privilege.htm');" id="GLPOPUPAdd_Resp1011">
+        <script type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+        FilePopupInit('GLPOPUPAdd_Resp1011');</script>
+        privilege</a>s to see this link.
+    </p>
+    <p dir="ltr" class="FM_Indent">The usage point information is entered in several steps that are specified by a wizard. Initially, only the first five steps are shown: <span class="FM_UIRef">General info</span><span
+            class="FM_change_bar">rmation</span><span class="FM_change_bar">, </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Technical information</span><span
+            class="FM_change_bar">, </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Link metrology configuration</span><span class="FM_UIRef">,</span><span
+            class="FM_change_bar"> Calendars</span><span class="FM_change_bar">&#160;and </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Life cycle transitio</span><span
+            class="FM_UIRef">n</span>. The next steps contain custom attribute sets and these depend on the service category that is selected in the first step. </p>
+    <p dir="ltr" class="FM_Indent">During c<span class="FM_change_bar">reation of the usage point you can already specify the needed usage point life cycle that the usage point will follow. This can be changed afterwards. See </span><a
+            href="Manage_usage_point_life_cycle_on_a_usage_point.htm#XREF_48472_Change_usage_point"><span class="FM_change_bar"></span><span class="FM_blue_crossreference">“</span><span
+            class="FM_CR_URL"></span><span class="FM_blue_crossreference"></span><span class="FM_change_bar">Change usage point life cycle of a usage point</span><span
+            class="FM_blue_crossreference">”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent">Only the service categories for which you have sufficient privileges are available for you to choose from. After you select the service category the remaining steps
+        are shown and the technical information form is filled with the appropriate fields.</p>
+    <p dir="ltr" class="FM_Indent">To enter a location in <span class="FM_change_bar">the field </span><span class="FM_UIRef">Location</span>&#160;you can just start typing an address. Connexo will
+        suggest a value. You can also open the combobox and select one of the addresses. If the address is not in the list, then select <span class="FM_UIRef">Input location</span>&#160;to show the
+        address fields and enter the address details yourself.</p>
+    <p dir="ltr" class="FM_Indent">When selecting the fields <span class="FM_UIRef">Limiter</span>&#160;or <span class="FM_UIRef">Bypass</span>&#160;in <span class="FM_change_bar">t</span>he step
+        <span class="FM_UIRef">Technical information</span>, additional fields are added to the form for completion.</p>
+    <p dir="ltr" class="FM_Indent">For more inform<span class="FM_change_bar">ation with regard to the step </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Link metrology configuration</span><span
+            class="FM_change_bar">, see </span><a href="Edit_usage_point_data.htm#XREF_62692_Link_a_metrology"><span class="FM_change_bar"></span><span class="FM_blue_crossreference">“</span><span
+            class="FM_CR_URL"></span><span class="FM_blue_crossreference">Link a metrology configuration to a usage point”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar">. It is possible to skip this step.</span>
+    </p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">For more information with regard to the step </span><span class="FM_UIRef">Life cycle transition</span><span
+            class="FM_change_bar">, see </span><a href="Manage_usage_point_life_cycles.htm#XREF_19639_4_3_Manage_usage"><span class="FM_change_bar"></span><span class="FM_blue_crossreference">“</span><span
+            class="FM_CR_URL"></span><span class="FM_blue_crossreference">Manage usage point life cycles”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar"></span>. It is
+        possible to skip this step.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; After you have gone through all of the steps and completed the required information, click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_76892_Import_usage"></a>Import usage points with a csv file</p>
+    <p dir="ltr" class="FM_Body">You can import multiple usage points using a csv file and the Connexo import framework. This is done in the Connexo Admin application. For detailed information on
+        import services, refer to the Connexo Admin user guide. Remember that you need specific <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/privilege.htm');" id="GLPOPUPAdd_Resp1012">
+            <script type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+            FilePopupInit('GLPOPUPAdd_Resp1012');</script>
+            privilege</a>s to access the Connexo Admin application and to import usage points.
+    </p>
+    <p dir="ltr" class="FM_Body">Alternatively - and if you have the needed privileges - you can also simply upload a file for import via the <span class="FM_UIRef">Administration</span>&#160;tab. See
+        <a href="../Import/Upload_a_file_in_application.htm#XREF_77356_11_3_Upload_a_file"><span class="FM_blue_crossreference">“</span><span
+                class="FM_change_bar">Upload a file in application</span><span class="FM_blue_crossreference">”</span></a>.</p>
+    <p dir="ltr" class="FM_Body">In Connexo Admin the following steps will need to be executed.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Click the hamburger icon in the upper left corner of any Connexo screen and select <span class="FM_UIRef">Admin</span>&#160;to open the Connexo
+        Admin app.</p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; In <span class="FM_UIRef">Administration</span>, click <span class="FM_UIRef">Import services</span>&#160;and make sure that an import service of the
+        type <span class="FM_UIRef">Usage Point Importer</span>&#160;exists. Verify the other information such as folder scan frequency and the folders for input file, output file, etc. Make sure that
+        the configured folders exist and that they are accessible.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Make sure that the import service is activated. If not, select <span class="FM_UIRef">Activate</span>&#160;from the action icon <img
+            alt="Usage_point_management00012.png" id="image68" src="../../assets/Usage_point_management00012.png" style="max-width: 100% ;height: auto"/> at the end of the corresponding row.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Make sure that the import service is added to an active application server. Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span
+            class="FM_UIRef">Application servers</span> and open an active application server. Click<span class="FM_UIRef">&#160;Import services</span>&#160;on the left vertical navigation bar. If the
+        import service is not in the list, then add it by clicking <span class="FM_UIRef">Add import services</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Add the import file to the configured import folder and wait for the application server to pick it up.</p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; Monitor the import progress by checking the <span class="FM_UIRef">In progress</span>, <span class="FM_UIRef">Success</span>&#160;and <span
+            class="FM_UIRef">Failure</span>&#160;folders. In <span class="FM_UIRef">Import history</span>&#160;you can review the results of the finished import and see where errors have occurred.</p>
+    <p dir="ltr" class="FM_ListNumber1">7. &#160; Verify the added usage points using the search page.</p>
+    <p dir="ltr" class="FM_Body">&nbsp;</p>
+    <p dir="ltr" class="FM_BoldBody">Characteristics of the usage point import file</p>
+    <p dir="ltr" class="FM_Body">The usage point import file must be a csv file with specific column headers. The order of the columns is not fixed. A limited number of columns is required by the
+        importer. If these columns don’t contain any value, the usage point importer gives warnings and the concerned usage points won’t be imported.</p>
+    <p dir="ltr" class="FM_Body">If values in columns with the boolean data type are left empty, then they are imported as ‘false’<span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Body">Custom attribute sets are supported by the importer. Usage points can be imported without custom attribute sets as long as there are no required fields in those custom
+        attribute sets. It is even possible to import usage points with time-sliced custom attribute sets.</p>
+    <p dir="ltr" class="FM_Body">You can add multiple import files.</p>
+    <p dir="ltr" class="FM_Body">The import file is a csv file and needs to list the different attributes for each usage point in columns with specific headers:</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Additional properties:</span><span
+            style="font-family : 'Times New Roman'; font-weight : normal; font-size  : 12.0pt; color   : #000000; "></span></p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table62 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Property</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Type</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Format</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Delimiter</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Combobox</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Semicolon (default), Comma</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Date format</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Any format. The default is ‘dd/MM/yyyy HH:mm’.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Time zone</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Any timezone. The default is determined by the application server timezone.</span></p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body"><span style="font-family : 'Times New Roman'; font-weight : normal; font-size  : 12.0pt; color   : #000000; "></span></p>
+    <p dir="ltr" class="FM_Body">&nbsp;</p>
+    <p dir="ltr" class="FM_Body">Columns i<span class="FM_change_bar">n</span> the import file:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table64 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Field</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Header</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Required</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Comment</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td colspan="4">
+                    <p dir="ltr" class="FM_BoldBody"><span class="FM_change_bar">General information</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Name</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">name</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Yes</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Name of the usage point. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Created date</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">installationTime</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Default value is now. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Service kind</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">serviceKind</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Yes</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">&#160;String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Usage point life cycle</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">lifecycle</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span
+                            class="FM_change_bar">If empty, then the default life cycle is specified for the imported usage point. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Coordinates</span></p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Latitude</span></p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Longitude</span></p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Elevation</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Latitude</span></p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Longitude</span></p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Elevation</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">&#160;String of maximum 80 characters.</span></p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">&#160;String of maximum 80 characters.</span></p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">&#160;String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Country code</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">countryCode</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">&#160;String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Country name</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">countryName</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">&#160;String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Administrative area</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">administrativeArea</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Part of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Location</span><span
+                            class="FM_change_bar">. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Locality</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">locality</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Part of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Location</span><span
+                            class="FM_change_bar">. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Sublocality</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">subLocality</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Part of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Location</span><span
+                            class="FM_change_bar">. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Street type</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">streetType</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Part of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Location</span><span
+                            class="FM_change_bar">. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Street name</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">streetName</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Part of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Location</span><span
+                            class="FM_change_bar">. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Street number</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">streetNumber</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Part of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Location</span><span
+                            class="FM_change_bar">. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Establishment type</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">establishmentType</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Part of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Location</span><span
+                            class="FM_change_bar">. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Establishment name</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">establishmentName</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Part of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Location</span><span
+                            class="FM_change_bar">. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Establishment number</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">establishmentNumber</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Part of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Location</span><span
+                            class="FM_change_bar">. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Address detail</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">addressDetail</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Part of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Location</span><span
+                            class="FM_change_bar">. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Zip code</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">zipCode</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Part of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Location</span><span
+                            class="FM_change_bar">. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Locale</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">locale</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on configuration.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Part of </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Location</span><span
+                            class="FM_change_bar">. Locale in which the address is provided, e.g. en-GB. String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Type of usage point</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">isSDP</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Boolean (true/false).</span></p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Default value = </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">FALSE</span><span
+                            class="FM_change_bar">.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Type of usage point</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">isVirtual</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Boolean (true/false). Default value = </span><span class="FM_change_bar"
+                                                                                                                                    style="font-family : Lato; font-weight : bold; ">false</span><span
+                            class="FM_change_bar">.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Read route</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">readRoute</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Service delivery remark</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">serviceDeliveryRemark</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td colspan="4">
+                    <p dir="ltr" class="FM_BoldBody"><span class="FM_change_bar">Technical information</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Grounded</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">grounded</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Enumeration: yes, no, unknown.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Pressure</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">pressure</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Quantity format: ‘&lt;value&gt;:&lt;multiplier&gt;:&lt;unit&gt;’.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Physcial capacity</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">physicalCapacity</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Limiter</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">limiter</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Enumeration: yes, no, unknown.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Load limiter type</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">loadLimiterType</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Load limit</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">loadLimit</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Quantity format: ‘&lt;value&gt;:&lt;multiplier&gt;:&lt;unit&gt;’.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Bypass</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">bypass</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Enumeration: yes, no, unknown.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Bypass status</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">bypassStatus</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Valve</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">valve</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Enumeration: yes, no, unknown.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Collar</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">collar</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Enumeration: yes, no, unknown.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Capped</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">capped</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Enumeration: yes, no, unknown.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Clamped</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">clamped</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Enumeration: yes, no, unknown.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Interruptible</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">interruptible</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Enumeration: yes, no, unknown.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Nominal voltage</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">nominalVoltage</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Quantity format: ‘&lt;value&gt;:&lt;multiplier&gt;:&lt;unit&gt;’.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Phase code</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">phaseCode</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Rated power</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">ratedPower</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Quantity format: ‘&lt;value&gt;:&lt;multiplier&gt;:&lt;unit&gt;’.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Rated current</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">ratedCurrent</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Quantity format: ‘&lt;value&gt;:&lt;multiplier&gt;:&lt;unit&gt;’.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Estimated load</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">estimatedLoad</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Quantity format: ‘&lt;value&gt;:&lt;multiplier&gt;:&lt;unit&gt;’.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td colspan="4">
+                    <p dir="ltr" class="FM_BoldBody"><span class="FM_change_bar">Common columns</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Allow update</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">allowUpdate</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Boolean (true/false). </span><span class="FM_change_bar"
+                                                                                                                    style="font-family : Lato; font-weight : bold; ">False</span><span
+                            class="FM_change_bar">&#160;when importing new usage points.</span></p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">True</span><span class="FM_change_bar">&#160;when updating existing usage points.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.versionId</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">See example below.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters. Equal to start time of existing version. Used only when updating the current version. If the importer can’t find the time interval for this version ID, then the line is ignored.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.startTime</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">See example below.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String. Time format depends on importer settings. Must be later than or equal to the creation date of the usage point. It can’t be infinite.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.endTime</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">See example below.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String. Time format depends on importer settings. Infinite end time can be used. Put </span><span class="FM_change_bar"
+                                                                                                                                                                                   style="font-family : Lato; font-weight : bold; ">NaN</span><span
+                            class="FM_change_bar">.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.ATTRIBUTE1</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">See example below.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on customer attribute settings.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.ATTRIBUTE2</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">See example below.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on customer attribute settings.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.ATTRIBUTE3</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">See example below.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on customer attribute settings.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td colspan="4">
+                    <p dir="ltr" class="FM_BoldBody"><span class="FM_change_bar">Link metrology configuration and meters</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Metrology configuration</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">metrologyConfiguration</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Metrology configuration start</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">metrologyConfigurationTime</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Required if a metrology configuration is specified</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String. Time format depends on importer settings.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.versionId</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">See example below.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters.</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Equal to start time of existing version.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1" style="text-align  : left;"><span class="FM_change_bar">Used only when updating the current version.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1" style="text-align  : left;"><span class="FM_change_bar">If version is determined but the importer can’t find the time interval for the mentioned versionId, then the whole line is ignored.</span>
+                            </p>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.startTime</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">See example below.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String. Time format depends on importer settings.</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Must be larger than or equal to the creation date of the usage point.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Can’t be infinite.</span></p>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.endTime</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">See example below.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String. Time format depends on importer settings. Infinite settings can be used. Use </span><span class="FM_change_bar"
+                                                                                                                                                                                   style="font-family : Lato; font-weight : bold; ">NaN</span><span
+                            class="FM_change_bar">.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.ATTRIBUTE1</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">See example below.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on CAS settings.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.ATTRIBUTE2</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">See example below.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on CAS settings.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Meter role</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">meterRole1</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span
+                            class="FM_change_bar">String of maximum 80 characters. Name of the meter role. Several meter roles can be specified within one import file.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Meter</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">meter1</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters. Name of the meter installed to the meter role.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Activation date</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">activationDate1</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String. Time format depends on importer settings. By default, the usage point’s creation date is considered.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Active purpose</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">activePurpose1</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters. To activate an optional purpose on the usage point. One import file can contain multiple active purpose columns.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">&lt;Category&gt; Calendar</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">&lt;Category&gt;calendar</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on whether the metrology configuration needs it.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span
+                            class="FM_change_bar">String of maximum 80 characters. There should be one field per calendar category to specify which calendar to use.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">&lt;Category&gt; Calendar usage start time</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">&lt;category&gt;CalendarUsageStartTime</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">No</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters. If not included, then the current time is used. This property is only relevant in conjunction with the calendar name property.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_BoldBody"><span class="FM_change_bar">Life cycle transition</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Transition</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">transition</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String of maximum 80 characters. Life cycle transition that is triggered after creation of the usage point. Note that the transition won’t affect the usage point’s creation itself.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Transition date</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">transitionDate</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Required if a transition is specified.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String. Time format depends on importer settings.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">ATTRIBUTE1</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">transition&lt;attr name&gt;</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on the attribute setting of the selected transition’s <a
+                            href="javascript:BSSCPopup('../../Glo$$aryPopup$/auto-action.htm');" id="GLPOPUPAdd_Resp1013"><script
+                            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+                    FilePopupInit('GLPOPUPAdd_Resp1013');</script>auto </a>action.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Attribute of an auto action of the selected transition.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">ATTRIBUTE2</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">transition&lt;attr name&gt;</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Depends on the attribute setting of the selected transition’s auto action.</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Attribute of an auto action of the selected transition.</span></p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_BoldBody">Examples of custom attribute set import information:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table64 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Field</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Header</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.versionId</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.versionId</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.startTime</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.startTime</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.endTime</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.endTime</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.ATTRIBUTE1</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.prepay</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.ATTRIBUTE2</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.marketCodeSector</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CASname.ATTRIBUTE3</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.meteringPointType</span></p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_BoldBody">Example of csv import file containing usage points with locations, custom attribute values, metrology configurations, meters and specified life cycle
+        transition.</p>
+    <p dir="ltr" class="FM_Body">id; installationTime; serviceKind; isSDP; isVirtual; countryCode; countryName; administrativeArea; locality; subLocality; streetType; streetName; streetNumber;
+        establishmentType; establishmentName; establishmentNumber; addressDetail; zipCode; locale; metrologyConfiguration; metrologyConfigurationTime; meterRole1; meter1; activationdate1; transition;
+        transitionDate; transitionConnectionState; allowUpdate; com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.marketCodeSector;
+        com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.meteringPointType; com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.prepay;
+        com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrDE.substationDistance </p>
+    <p dir="ltr" class="FM_Body">UP_DEMO7_IMPORT1; 10/03/2017 0:00; electricity; TRUE; FALSE; ; US; California; Loas Angeles; bvd; Pacific shore; 10; ; <span
+            style="font-family : 'Times New Roman'; font-weight : normal; font-size  : 10.0pt; ">; ; ; ; ; </span>Residential net metering (consumption); ########; meter.role.default; DEMO7_IGOR4;
+        ########; Install active; ########; Connected; FALSE; 1; 1; FALSE; 1.0:0:m</p>
+    <p dir="ltr" class="FM_Body"><span style="font-family : Calibri; font-weight : normal; ">UP_DEMO7_IMPORT2; 10/03/2017 0:00; electricity; TRUE; FALSE; ; US; California; Loas Angeles; bvd; Pacific shore; 10; ; </span><span
+            style="font-family : 'Times New Roman'; font-weight : normal; font-size  : 10.0pt; ">; ; ; ; ; </span><span style="font-family : Calibri; font-weight : normal; ">Residential net metering (consumption); ########; meter.role.default; DEMO7_IGOR5; ########; Install inactive; ########; Connected; FALSE; 1; 1; FALSE; 1.0:0:m</span>
+    </p>
+    <p dir="ltr" class="FM_H4Topic">View import services in <span data-name="MDM_App" data-val="Connexo Insight" data-showval="TRUE" data-format="MDM_App">Connexo Insight</span></p>
+    <p dir="ltr" class="FM_Body">An overview of the available import services along with their status and history information can also be seen in <span data-name="MDM_App" data-val="Connexo Insight"
+                                                                                                                                                        data-showval="TRUE" data-format="MDM_App">Connexo Insight</span>.
+        This feature is for viewing only. In this environment, you can’t edit any information. Import services in <span data-name="MDM_App" data-val="Connexo Insight" data-showval="TRUE"
+                                                                                                                        data-format="MDM_App">Connexo Insight</span>&#160;is especially meant for
+        troubleshooting and monitoring.</p>
+    <p dir="ltr" class="FM_Body">For more detailed information about how to view import services in <span data-name="MDM_App" data-val="Connexo Insight" data-showval="TRUE" data-format="MDM_App">Connexo Insight</span>,
+        see <a href="../Import/Import.htm#XREF_26578_8_Import"><span class="FM_blue_crossreference">“Data import”</span></a>.</p>
+</div>
+</body>
+</html>

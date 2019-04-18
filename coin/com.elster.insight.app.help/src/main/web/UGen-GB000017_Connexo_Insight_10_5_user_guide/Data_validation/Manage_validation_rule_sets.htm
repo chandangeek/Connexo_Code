@@ -1,0 +1,175 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Manage validation rule sets</title>
+
+    <link rel="stylesheet" href="Data_validation.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "6.0_3";
+    </script>
+    <meta name="brsprev" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_validation/Understand_data_validation_configuration.htm">
+    <meta name="brsnext" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Data_validation/Manage_validation_rule_set_versions_and_associated_validation_rules.htm">
+    <meta name="topic-breadcrumbs" content="Data validation"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic">Manage validation rule sets</p>
+    <p dir="ltr" class="FM_Body">The validation rule set is linked to a purpose of a particular metrology configuration. It contains active and inactive versions. Inactive versions are validation rule
+        sets that are not yet or no longer valid. The validation rules in each validation rule set’s version are mapped to the <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/reading type.htm');"
+                                                                                                                                  id="GLPOPUPManaResp1011">
+            <script type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+            FilePopupInit('GLPOPUPManaResp1011');</script>
+            reading type</a>s matching the inputs (collected data) and outputs (computed data) of the metrology configuration. Depending on the reading types in the metrology configuration the
+        relevant rules can be selected and their options restricted. So, it isn’t possible to add <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/validation rules.htm');" id="GLPOPUPManaResp1012">
+            <script type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+            FilePopupInit('GLPOPUPManaResp1012');</script>
+            validation rules</a> to a metrology configuration that has no data for it to validate.
+    </p>
+    <p dir="ltr" class="FM_Body">The criteria for adding validation rule sets to usage points via the metrology configurations can be different based on market, country or other elements.</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table11" border-collapse="collapse" style="max-width: 100% ;height: auto">
+            <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: Data validation at work.</caption>
+            <tr class="tr82">
+                <td class="td13">
+                    <p dir="ltr" class="FM_CGraphicCell">&nbsp;</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div align="center"><img alt="JHO_Insight_validation.png" id="image93" src="../../assets/JHO_Insight_validation.png" style="max-width: 100% ;height: auto"/>
+    </div>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_18393_View_validation"></a>View validation rule sets</p>
+    <p dir="ltr" class="FM_Body">Get a complete overview of all validation rule sets that are available in <span data-name="MDM_App" data-val="Connexo Insight" data-showval="TRUE"
+                                                                                                                 data-format="MDM_App">Connexo Insight</span>&#160;and drill down to the needed detail
+        level.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Administration</span><span
+            class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Data validation</span><span
+            class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Validation rule sets</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The complete list of validation rule sets with their status is shown in the first table.</span></p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">Details of each validation rule set can be viewed by clicking the link in its name. On the </span><span class="FM_UIRef">Details</span><span
+                    class="FM_change_bar">&#160;page you can see the active version for the selected validation rule set. </span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">On the </span><span class="FM_UIRef">Versions</span><span class="FM_change_bar">&#160;page you can see the versions for the selected validation rule set as well as the related validation rules. From this page, you can add additional versions and validation rules.</span>
+            </p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">On the </span><span class="FM_UIRef">Metrology configuration purposes</span><span class="FM_change_bar">&#160;page you can see the metrology configuration that this validation rule set is linked to. From this page it is possible to l</span>ink
+                validation rule sets to multiple metrology configurations simultaneously.</p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The second table shows the versions of the selected validation rule set and the number of active and inactive rules that are associated with them. See </span><a
+            href="Manage_validation_rule_set_versions_and_associated_validation_rules.htm#XREF_47260_Add_a_version_to_a"><span class="FM_change_bar"></span><span
+            class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">Add a version to a validation rule set”</span><span class="FM_change_bar"></span></a><span
+            class="FM_change_bar">.</span></p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">Details of each version can be viewed by clicking the link in the version name. In the left column of the version details page you can click </span><span
+                    class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Validation rules</span><span class="FM_change_bar">&#160;to see the active and inactive validation rules that are associated with this validation rule set’s version. For each validation rule details are shown.</span>
+            </p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The third table shows the validation rules that are associated with the selected version of the selected validation rule set. For each rule, its status is indicated. At the bottom of the page is a pane showing the details of the selected validation rule. See </span><a
+            href="Manage_validation_rule_set_versions_and_associated_validation_rules.htm#XREF_77117_Add_a_validation"><span class="FM_change_bar"></span><span
+            class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span
+            class="FM_blue_crossreference">Add a validation rule to a validation rule set version and activate it”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar"></span></p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">Click the validation rule’s name to see its details on a separate page.</span></p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_87255_Add_a_validation"></a>Add a validation rule set</p>
+    <p dir="ltr" class="FM_Body">Validation rule sets must first be created before they can be associated with a metrology configuration in a separate step.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Validation rule sets</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click the button <span class="FM_UIRef">Add validation rule set</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; On the <span class="FM_UIRef">Add validation rule set</span>&#160;page specify a <span class="FM_UIRef">Name</span>&#160;and a <span class="FM_UIRef">Description</span>&#160;for
+        future reference.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_Indent">The new validation rule set is listed in the first table with validation rule sets.</p>
+    <p dir="ltr" class="FM_Indent">After adding a validation rule set, the next task is to add a validation rule set version (See <a
+            href="Manage_validation_rule_set_versions_and_associated_validation_rules.htm#XREF_47260_Add_a_version_to_a"><span class="FM_blue_crossreference">“</span><span
+            class="FM_CR_URL"></span><span class="FM_blue_crossreference">Add a version to a validation rule set”</span></a>) and validation rules (See <a
+            href="Manage_validation_rule_set_versions_and_associated_validation_rules.htm#XREF_77117_Add_a_validation"><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span
+            class="FM_blue_crossreference">Add a validation rule to a validation rule set version and activate it”</span></a>).</p>
+    <p dir="ltr" class="FM_H4Topic">Edit or remove a validation rule set</p>
+    <p dir="ltr" class="FM_Body">It is possible to edit or remove a validation rule set to correct mistakes.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Validation rule sets</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="Data_validation00024.png" id="image94" src="../../assets/Data_validation00024.png"
+                                                                              style="max-width: 100% ;height: auto"/>&#160;next to a validation rule set in the table or click the actions button on its
+        detail page.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Edit</span>&#160;or <span class="FM_UIRef">Remove</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Make the required changes and click <span class="FM_UIRef">Save</span> or confirm the removal message.</p>
+    <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+    <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+    <p dir="ltr" class="FM_BodyGrey">It isn’t possible to remove a validation rule set that is still associated with one or more metrology configurations.</p>
+</div>
+</body>
+</html>

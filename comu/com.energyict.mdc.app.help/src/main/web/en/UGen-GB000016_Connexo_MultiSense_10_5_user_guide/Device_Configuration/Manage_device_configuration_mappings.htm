@@ -1,0 +1,193 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Manage device configuration mappings</title>
+
+    <link rel="stylesheet" href="Device_Configuration.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "4.0_22";
+    </script>
+    <meta name="brsprev" value="UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Configuration/Change_device_configurations.htm">
+    <meta name="brsnext" value="UGen-GB000016_Connexo_MultiSense_10_5_user_guide/Device_Configuration/Change_device_configurations1.htm">
+    <meta name="topic-breadcrumbs" content="Device Configuration"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic">Manage device configuration mappings</p>
+    <p dir="ltr" class="FM_Body">The meter operator can define what happens with conflicting connection methods and security settings for all possible device configurations on a device type. </p>
+    <p dir="ltr" class="FM_H4Topic">Generate conflicting device mappings</p>
+    <p dir="ltr" class="FM_Body">There are five different cases that can create conflicting device mappings, these are the following:</p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet1">When you activate a device configuration.</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1">When you add new security settings to an active device configuration.</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1">When you edit security settings on an active device configuration.</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1">When you add a new connection method on an active device configuration.</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1">When you edit a connection method on an active device configuration.</p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_Body">In these cases <span data-name="MDC_App" data-val="Connexo MultiSense" data-showval="TRUE" data-format="MDC_App">Connexo MultiSense</span>&#160;will check if the
+        connection methods and security settings of the current configuration conflict when mapping to all other device configurations configured on the device type and when you map all the other
+        configuration to this configuration.</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+            <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: Use case when connection methods/security settings from the different configurations do not have
+                conflicting attributes. In this case connection method A is mapped to connection method A on configuration B and connection method A’ is added.
+            </caption>
+            <tr class="tr59">
+                <td class="td6">
+                    <p dir="ltr" class="FM_CGraphicCell"><img alt="Change_device_configuration_noConflicts.png" id="image104" src="../../assets/Change_device_configuration_noConflicts.png"
+                                                              style="max-width: 100% ;height: auto"/>&nbsp;</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse" style="max-width: 100% ;height: auto">
+            <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: Use case when two configurations contain connection methods/security settings that have conflicting
+                attributes (for example different name). In this case the user will have to select which scenario will be executed when changing the device configuration. He can choose to map
+                connection method A to connection method A’ or A’’ thereby using the attribute values of connection method A and adding a new connection method A’’ or A’. The third option is to remove
+                the connection method from configuration A and adding the connection methods A’ and A’’.
+            </caption>
+            <tr class="tr60">
+                <td class="td6">
+                    <p dir="ltr" class="FM_CGraphicCell"><img alt="Change_device_configuration_conflicts.png" id="image105" src="../../assets/Change_device_configuration_conflicts.png"
+                                                              style="max-width: 100% ;height: auto"/>&nbsp;</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_H4Topic">View conflicting device mappings</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; <span class="FM_UIRef">Device types</span>&#160;&gt;&#160;select
+        a device type &gt; <span class="FM_UIRef">Configurations</span>&#160;&gt; <span class="FM_UIRef">Conflicting mappings</span>.</p>
+    <p dir="ltr" class="FM_BodyProcedure">The menu item <span class="FM_UIRef">Conflicting mappings</span> shows the total amount of conflicting mappings.</p>
+    <p dir="ltr" class="FM_BodyProcedure">By default all unsolved conflicting mappings are shown in a table.</p>
+    <p dir="ltr" class="FM_H4Topic">Solve conflicting device mappings</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; <span class="FM_UIRef">Device types</span>&#160;&gt;&#160;select
+        a device type &gt; <span class="FM_UIRef">Configurations</span>&#160;&gt; <span class="FM_UIRef">Conflicting mappings</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Click the actions icon <img alt="masterActions_50.png" id="image106" src="../../assets/masterActions_50.png"
+                                                                                                     style="max-width: 100% ;height: auto"/>&#160;next to the conflicting mapping and select <span
+            class="FM_UIRef">Solve</span>.</p>
+    <p dir="ltr" class="FM_BodyProcedure">This screen shows all conflicting connection methods and security settings when you go from one configuration (A) to another (B). <span data-name="MDC_App"
+                                                                                                                                                                                  data-val="Connexo MultiSense"
+                                                                                                                                                                                  data-showval="TRUE"
+                                                                                                                                                                                  data-format="MDC_App">Connexo MultiSense</span>&#160;offers
+        two options to solve the conflicts:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Option</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Remove</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Remove the connection method or security settings from the original device configuration. The connection method or security settings from the
+                        second configuration will be added.</p>
+                    <p dir="ltr" class="FM_CellBody">When you select to remove the connection method/security settings, all these attributes will be removed from the device.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Map</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The second option is to map the connection method/security settings from configuration A to configuration B. However this is only possible for
+                        connection methods that have the same connection type and security settings that have the same authentication and encryption level.</p>
+                    <p dir="ltr" class="FM_CellBody">The attributes of the connection method/security setting of configuration A will be mapped to those of configuration B.</p>
+                    <p dir="ltr" class="FM_CellBody">Only one connection method/security setting can be mapped to one connection method/security setting.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Select a mapping option for every connection method and security setting.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Save</span>.</p>
+    <p dir="ltr" class="FM_H4Topic">Edit conflicting device mappings</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; <span class="FM_UIRef">Device types</span>&#160;&gt;&#160;select
+        a device type &gt; <span class="FM_UIRef">Configurations</span>&#160;&gt; <span class="FM_UIRef">Conflicting mappings</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">All mappings</span> in the upper right corner to see all mappings (unsolved + solved).</p>
+    <p dir="ltr" class="FM_ListNumber1" style="display:inline">3. &#160; Click the actions icon <img alt="masterActions_51.png" id="image107" src="../../assets/masterActions_51.png"
+                                                                                                     style="max-width: 100% ;height: auto"/>&#160;and select <span class="FM_UIRef">Edit</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Change the conflicting mappings solution.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Save</span>.</p>
+</div>
+</body>
+</html>

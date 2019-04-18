@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Service calls, service call types and life cycle</title>
+
+    <link rel="stylesheet" href="Service_calls.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "15.0_2";
+    </script>
+    <meta name="brsprev" value="UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Service_calls/Service_calls.htm">
+    <meta name="brsnext" value="UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Service_calls/Manage_service_call_types.htm">
+    <meta name="topic-breadcrumbs" content="Service calls"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H2Section"><span class="FM_change_bar" style="font-family : Lato; font-style : italic; font-weight : bold; font-size  : 11.0pt; color   : #1f7e9e; "></span><span
+            class="FM_change_bar">Service calls, service call types and life cycle</span></p>
+
+    <p dir="ltr" class="FM_H3SectionTopic">Understand service calls</p>
+    <p dir="ltr" class="FM_H4Topic"><span class="FM_change_bar">What is a service call?</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Service calls are used if responsibility for executing an action is passed to an external system like a billing system or an MDM. They allow you to track the status and progress of actions requested by third party systems through web services, api, importers, processes, etc. on different objects in Connexo such as devices and usage points.</span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Using service calls the operator can see what changed on an object and where the action originates from. All of this information enables the operator to investigate what is happening and to intervene if necessary.</span>
+    </p>
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Service calls are a tracking mechanism and do not do any actions by themselves. The actual service is handled by the requester, i.e. the third party system. The service call functions as a tag.</span>
+    </p>
+    <p dir="ltr" class="FM_H4Topic"><span class="FM_change_bar"><a name="XREF_86140_What_is_a_service"></a>Understand service call types</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">In Connexo third party system create service calls through the service call framework. This framework requires service call types to allow following up the incoming requests. Service calls are always associated with a service call type.</span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Each service call type has some mandatory properties such as a unique type name, a version and a log level. On top of that, each service call type has an associated service call type life cycle (See </span><a
+            href="#XREF_30356_What_is_the"><span class="FM_change_bar"></span><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span
+            class="FM_blue_crossreference"></span><span class="FM_change_bar">Understand service call type life cycles</span><span class="FM_blue_crossreference">”</span><span
+            class="FM_change_bar"></span></a><span class="FM_change_bar">). The same service call type life cycle can be associated with multiple service call types. A service call is always in a certain state.</span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The properties of a service call are defined on a per-service call basis. For example, a service call created from a web service to disconnect a meter will need other properties than a service call created from a web service to collect meter data. The service call type links the service call handler to the correct custom property sets.</span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Service call types are installed by your service &amp; delivery team and cannot be changed after creation. </span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Service call types can be viewed in Connexo Admin. </span></p>
+    <p dir="ltr" class="FM_H4Topic"><span class="FM_change_bar"><a name="XREF_30356_What_is_the"></a>Understand service call type life cycles</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">A service call is always in a certain state, this is the current state. States are managed through a finite state machine. So, each service call is in only 1 state simultaneously. It can change from 1 state to another when initiated by a triggering event or a condition. This is called a transition. The service call type life cycle is defined by a list of its states and the triggering conditions for each transition.</span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The service call type life cycle is named and defined in the service call type which is installed by your service &amp; delivery team. In order to limit existing life cycle diagrams, it is possible to have states and transitions removed from the life cycle but not added. </span>
+    </p>
+</div>
+</body>
+</html>

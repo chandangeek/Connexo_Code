@@ -1,0 +1,206 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Monitor import services</title>
+
+    <link rel="stylesheet" href="Import_Services.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "7.0_3";
+    </script>
+    <meta name="brsprev" value="UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Import_Services/Understand_import_services.htm">
+    <meta name="brsnext" value="UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Import_Services/Configure_import_services.htm">
+    <meta name="topic-breadcrumbs" content="Import Services"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H2Section">Monitor import services</p>
+
+    <p dir="ltr" class="FM_H3SectionTopic">View configured import services</p>
+    <p dir="ltr" class="FM_H4Topic">View import services</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration </span>&gt;<span class="FM_UIRef"> Data import</span>&#160;&gt; <span class="FM_UIRef">Import services</span>.
+    </p>
+    <p dir="ltr" class="FM_BodyProcedure">The overview page contains a table that shows al configured import services. In the table you can see the importer the service uses as well as the application
+        that uses the importer. This table also shows the status of the import service and what type of file can be imported.</p>
+    <p dir="ltr" class="FM_BodyProcedure">By selecting the import service in the table, you can see more details in the details pane on the bottom of the page.</p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click the import service name.</p>
+    <p dir="ltr" class="FM_BodyProcedure">The page shows all details of the import service and also allows you to edit, remove and (de)activate the service.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_70347_Default_importers"></a>Default importers</p>
+    <p dir="ltr" class="FM_Body">Connexo provides different default importers that allow the import of different types of data to perform different actions in the Connexo applications. These different
+        importers are described here, the usage of the configured import services is described in the Connexo MultiSense and Connexo Insight user guides.</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Importer</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Calendar importer</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Import time of use (TOU) calendars.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">CSR importer</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Import one or more CSRs (certificate signing requests) from a device manufacturer who can then upload them to the device. In addition, you can also upload (in the same file) a number of trust anchors (certificates from a trust store) to include them on the device during manufacturing.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Device connection attributes importer</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Importer developed to import different connection attributes of different connection methods and devices.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Device security attributes importer</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Importer developed to import different security attributes of different security settings and devices.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Devices commissioning importer</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Importer to transition devices to the commissioning state.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Devices decommissioning importer</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Importer to transition devices to the decommissioning state.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Devices installation importer</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Importer to install devices.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Devices remove importer</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Importer to remove selected devices from Connexo.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Devices shipment importer</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Importer to add devices to Connexo in bulk.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Device activation/deactivation importer</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Importer to transition devices to the active or inactive state.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Device readings importer</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Importer designed to add meter readings to selected devices.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Usage point importer</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Import usage points using a CSV file.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+    <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+    <p dir="ltr" class="FM_BodyGrey">In the import files there is only one column for MRID and <span class="FM_UIRef">Name</span>. Importers will first look on MRID. If there is a match, then the
+        importer will update. If there isn’t a match, then the importer looks on <span class="FM_UIRef">Name</span>. If there is a match, then the importer will update. If there isn’t a match, then
+        the item is inserted and the value is used as <span class="FM_UIRef">Name</span>. The MRID is generated by Connexo.</p>
+</div>
+</body>
+</html>
