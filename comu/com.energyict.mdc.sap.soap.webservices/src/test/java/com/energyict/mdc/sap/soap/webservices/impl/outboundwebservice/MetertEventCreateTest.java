@@ -7,8 +7,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.eventmanagement.MeterEventCreateRequestProviderImpl;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.SOAUtilitiesSmartMeterEventERPBulkCreateRequest;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.SOAUtilitiesSmartMeterEventERPBulkCreateRequestService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilitiesSmartMeterEventERPBulkCreateRequestEOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilitiesSmartMeterEventERPBulkCreateRequestEOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilsSmrtMtrEvtERPBulkCrteReqMsg;
 
 import org.junit.Assert;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 public class MetertEventCreateTest extends AbstractOutboundWebserviceTest {
 
     @Mock
-    private SOAUtilitiesSmartMeterEventERPBulkCreateRequest port;
+    private UtilitiesSmartMeterEventERPBulkCreateRequestEOut port;
     @Mock
     private UtilsSmrtMtrEvtERPBulkCrteReqMsg reqMsg;
     @Mock
@@ -30,9 +30,9 @@ public class MetertEventCreateTest extends AbstractOutboundWebserviceTest {
     @Test
     public void testCall() {
         MeterEventCreateRequestProviderImpl meterEventCreateRequestProvider = new MeterEventCreateRequestProviderImpl();
-        meterEventCreateRequestProvider.addSOAUtilitiesSmartMeterEventERPBulkCreateRequest(port);
+        meterEventCreateRequestProvider.addUtilitiesSmartMeterEventERPBulkCreateRequestEOut(port);
         meterEventCreateRequestProvider.send(reqMsg);
-        Mockito.verify(port).soaUtilitiesSmartMeterEventERPBulkCreateRequest(reqMsg);
+        Mockito.verify(port).utilitiesSmartMeterEventERPBulkCreateRequestEOut(reqMsg);
     }
 
     @Test
@@ -48,12 +48,12 @@ public class MetertEventCreateTest extends AbstractOutboundWebserviceTest {
     @Test
     public void testGetService() {
         MeterEventCreateRequestProviderImpl meterEventCreateRequest = new MeterEventCreateRequestProviderImpl();
-        Assert.assertEquals(meterEventCreateRequest.getService(), SOAUtilitiesSmartMeterEventERPBulkCreateRequest.class);
+        Assert.assertEquals(meterEventCreateRequest.getService(), UtilitiesSmartMeterEventERPBulkCreateRequestEOut.class);
     }
 
     @Test
     public void testGet() {
         MeterEventCreateRequestProviderImpl meterEventCreateRequest = new MeterEventCreateRequestProviderImpl();
-        Assert.assertEquals(meterEventCreateRequest.get().getClass(), SOAUtilitiesSmartMeterEventERPBulkCreateRequestService.class);
+        Assert.assertEquals(meterEventCreateRequest.get().getClass(), UtilitiesSmartMeterEventERPBulkCreateRequestEOutService.class);
     }
 }

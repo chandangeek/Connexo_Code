@@ -303,10 +303,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/UtilitiesSmartMeterEventERPBulkCreateRequestService.wsdl
+                                    sap/UtilitiesSmartMeterEventERPBulkCreateRequest_E_OutService.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/UtilitiesSmartMeterEventERPBulkCreateRequestService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/UtilitiesSmartMeterEventERPBulkCreateRequest_E_OutService.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice
                             </packageName>
