@@ -129,7 +129,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
     public String getContent() {
         return "package com.energyict.mdc.issue.devicelifecycle\n" +
                 "import com.energyict.mdc.issue.devicelifecycle.impl.event.TransitionFailureEvent;\n" +
-                "import com.energyict.mdc.issue.devicelifecycle.impl.event.TransitionRemovedEvent;\n" +
+                "import com.energyict.mdc.issue.devicelifecycle.impl.event.TransitionDoneEvent;\n" +
                 "global java.util.logging.Logger LOGGER;\n" +
                 "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
@@ -156,7 +156,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
                 "\n" +
                 "rule \"Autoresolution section @{ruleId}\"\n" +
                 "when\n" +
-                "\tevent : TransitionRemovedEvent(resolveEvent == true, @{" + AUTORESOLUTION + "} == 1 )\n" +
+                "\tevent : TransitionDoneEvent(resolveEvent == true, @{" + AUTORESOLUTION + "} == 1 )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to resolve issue by devicelifecycle rule [id = @{ruleId}]\");\n" +
                 "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
@@ -514,6 +514,10 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
             return stateTransition.getId();
         }
 
+        public long getDeviceTypeId() {
+            return deviceType.getId();
+        }
+
         @Override
         public String getName() {
             try {
@@ -531,7 +535,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
             return "";
         }
 
-        public DeviceType getDeviceType() {
+        protected DeviceType getDeviceType() {
             return deviceType;
         }
 
