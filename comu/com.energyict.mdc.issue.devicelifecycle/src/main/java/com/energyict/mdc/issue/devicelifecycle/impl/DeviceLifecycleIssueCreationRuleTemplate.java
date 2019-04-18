@@ -32,6 +32,8 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issue.devicelifecycle.DeviceLifecycleIssueFilter;
+import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycle;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycleService;
 import com.energyict.mdc.issue.devicelifecycle.OpenIssueDeviceLifecycle;
 
@@ -158,8 +160,8 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
                 "when\n" +
                 "\tevent : TransitionDoneEvent(resolveEvent == true, @{" + AUTORESOLUTION + "} == 1 )\n" +
                 "then\n" +
-                "\tLOGGER.info(\"Trying to resolve issue by devicelifecycle rule [id = @{ruleId}]\");\n" +
-                "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
+                "\tLOGGER.info(\"Trying to close all opened issues on device by devicelifecycle rule [id = @{ruleId}]\");\n" +
+                "\tissueCreationService.closeAllOpenIssuesResolutionEvent(@{ruleId}, event);\n" +
                 "end\n";
     }
 
@@ -295,6 +297,25 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
             }
         }
         return issue;
+    }
+
+    @Override
+    public void closeAllOpenIssues(IssueEvent event) {
+        List<? extends IssueDeviceLifecycle> existingIssues = findExistingIssues(event);
+        existingIssues.forEach(issue -> {
+            OpenIssueDeviceLifecycle issueDeviceLifecycle = (OpenIssueDeviceLifecycle) issue;
+            issueDeviceLifecycle.close(issueService.findStatus(IssueStatus.RESOLVED).get());
+        });
+    }
+
+    private List<? extends IssueDeviceLifecycle> findExistingIssues(IssueEvent event) {
+        DeviceLifecycleIssueFilter filter = new DeviceLifecycleIssueFilter();
+        event.getEndDevice().ifPresent(filter::setDevice);
+        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
+        filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
+        filter.addStatus(issueService.findStatus(IssueStatus.SNOOZED).get());
+        return issueDeviceLifecycleService.findAllDeviceLifecycleIssues(filter)
+                .find();
     }
 
     @XmlRootElement
