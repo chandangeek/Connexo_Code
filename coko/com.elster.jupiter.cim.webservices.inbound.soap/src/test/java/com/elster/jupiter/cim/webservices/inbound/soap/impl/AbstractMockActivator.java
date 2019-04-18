@@ -5,6 +5,8 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
+import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -39,6 +41,7 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
+
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -99,6 +102,10 @@ public abstract class AbstractMockActivator {
     protected ServiceCall serviceCall;
 
     private CIMInboundSoapEndpointsActivator activator;
+    @Mock
+    private ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
+    @Mock
+    private ReplyUsagePointConfigWebService replyUsagePointConfigWebService;
 
     @Before
     public void init() {
@@ -107,7 +114,8 @@ public abstract class AbstractMockActivator {
     }
 
     private void initMocks() {
-        when(nlsService.getThesaurus(CIMInboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP)).thenReturn(thesaurus);
+        when(nlsService.getThesaurus(CIMInboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP))
+                .thenReturn(thesaurus);
         when(transactionService.getContext()).thenReturn(transactionContext);
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
         when(serviceCallService.findServiceCallType(anyString(), anyString())).thenReturn(Optional.of(serviceCallType));
@@ -116,29 +124,19 @@ public abstract class AbstractMockActivator {
         when(builder.extendedWith(any())).thenReturn(builder);
         when(builder.create()).thenReturn(serviceCall);
         when(serviceCallType.newServiceCall()).thenReturn(builder);
-        when(messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION)).thenReturn(Optional.of(destinationSpec));
-        when(messageService.getQueueTableSpec(ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME)).thenReturn(Optional.of(queueTableSpec));
+        when(messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION))
+                .thenReturn(Optional.of(destinationSpec));
+        when(messageService.getQueueTableSpec(ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME))
+                .thenReturn(Optional.of(queueTableSpec));
+        when(serviceCall.newChildCall(any(ServiceCallType.class))).thenReturn(builder);
     }
 
     private void initActivator() {
-        activator = new CIMInboundSoapEndpointsActivator();
-        activator.setClock(clock);
-        activator.setUpgradeService(upgradeService);
-        activator.setTransactionService(transactionService);
-        activator.setThreadPrincipalService(threadPrincipalService);
-        activator.setNlsService(nlsService);
-        activator.setMeteringService(meteringService);
-        activator.setMetrologyConfigurationService(metrologyConfigurationService);
-        activator.setUserService(userService);
-        activator.setUsagePointLifeCycleService(usagePointLifeCycleService);
-        activator.setCustomPropertySetService(customPropertySetService);
-        activator.setEndPointConfigurationService(endPointConfigurationService);
-        activator.setWebServicesService(webServicesService);
-        activator.setServiceCallService(serviceCallService);
-        activator.setMessageService(messageService);
-        activator.setJsonService(jsonService);
-        activator.setSendMeterReadingsProvider(sendMeterReadingsProvider);
-        activator.activate(mock(BundleContext.class));
+        activator = new CIMInboundSoapEndpointsActivator(mock(BundleContext.class), clock, threadPrincipalService,
+                transactionService, meteringService, nlsService, upgradeService, metrologyConfigurationService,
+                userService, usagePointLifeCycleService, customPropertySetService, endPointConfigurationService,
+                webServicesService, serviceCallService, messageService, jsonService, sendMeterReadingsProvider,
+                replyMasterDataLinkageConfigWebService, replyUsagePointConfigWebService);
     }
 
     protected <T> T getInstance(Class<T> clazz) {
