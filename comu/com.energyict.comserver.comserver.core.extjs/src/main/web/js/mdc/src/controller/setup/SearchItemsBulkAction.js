@@ -807,9 +807,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     changeLoadProfileStartAvailable: function () {
         var me = this,
             result = false,
-            filters = me.getDevicesGrid().getStore().filters.getRange(),
-            deviceTypeName,
-            deviceConfigName;
+            filters = me.getDevicesGrid().getStore().filters.getRange();
 
         // If the proper search criteria is applied move on
         Ext.each(filters, function (item) {
@@ -820,25 +818,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
             }
         });
-
-        //Postponed since buffering/paging need to be taken into account.
-        // There is also a case when all the devices are of the same type/config irregardless of search criteria.
-
-        // Else, if there is a selection, check if all the devices have the same device type and configuration.
-        if (!result && !me.allDevices) {
-            deviceTypeName = me.devices[0].get('deviceTypeName');
-            deviceConfigName = me.devices[0].get('deviceConfigurationName');
-            result = true;
-            Ext.each(me.devices, function (item) {
-                if (item.get('deviceTypeName') !== deviceTypeName ||
-                    item.get('deviceConfigurationName') !== deviceConfigName) {
-                    result = false;
-                    return false; // break here
-                }
-            });
-        }
-        /*
-        */
         return result;
     },
 
