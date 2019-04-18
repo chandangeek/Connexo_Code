@@ -33,9 +33,9 @@ public class TaskIssueImplTest extends com.elster.jupiter.issue.task.BaseTest {
     }
 
     @Test
-    public void testIDCSuccessfullCreation() {
+    public void testITKSuccessfullCreation() {
         try (TransactionContext context = getContext()) {
-            CreationRule rule = getCreationRule("testIDCSuccessfullCreation", ModuleConstants.REASON_TASK_FAILED);
+            CreationRule rule = getCreationRule("testITKSuccessfullCreation", ModuleConstants.REASON_TASK_FAILED);
             Issue baseIssue = createBaseIssue(rule);
             OpenTaskIssueImpl taskIssue = getDataModel().getInstance(OpenTaskIssueImpl.class);
             taskIssue.setIssue((OpenIssue) baseIssue);

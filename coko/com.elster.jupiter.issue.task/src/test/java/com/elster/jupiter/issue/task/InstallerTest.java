@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstallerTest extends BaseTest {
-    private static final int DEFAULT_REASON_COUNT = 8;
+    private static final int DEFAULT_REASON_COUNT = 1;
     
     @Test
     public void testDefaultReasons(){
