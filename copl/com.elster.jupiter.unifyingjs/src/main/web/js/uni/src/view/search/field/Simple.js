@@ -7,7 +7,7 @@ Ext.define('Uni.view.search.field.Simple', {
     xtype: 'uni-search-criteria-simple',
     requires: [
         'Uni.view.search.field.internal.CriteriaLine',
-        'Uni.view.search.field.internal.DataTable'
+        'Uni.view.search.field.internal.Textarea'
     ],
     // layout: 'fit',
 
@@ -38,7 +38,7 @@ Ext.define('Uni.view.search.field.Simple', {
             operatorMap: {
                 '==': 'uni-search-internal-input',
                 '!=': 'uni-search-internal-input',
-                'IN': 'uni-search-internal-datatable',
+                'IN': 'uni-search-internal-textarea',
                 //'>': 'uni-search-internal-input',
                 //'>=': 'uni-search-internal-input',
                 //'<': 'uni-search-internal-input',

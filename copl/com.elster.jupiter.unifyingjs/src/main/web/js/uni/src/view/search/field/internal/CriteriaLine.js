@@ -20,7 +20,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         'Uni.model.search.Value',
         'Uni.view.search.field.internal.QuantityField',
         'Uni.view.search.field.internal.QuantityRange',
-        'Uni.view.search.field.internal.DataTable',
+        'Uni.view.search.field.internal.Textarea',
     ],
 
     defaults: {
@@ -42,7 +42,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         '<': 'uni-search-internal-numberfield',
         '<=': 'uni-search-internal-numberfield',
         'BETWEEN': 'uni-search-internal-numberrange',
-        'IN': 'uni-search-internal-datatable'
+        'IN': 'uni-search-internal-textarea'
     },
     itemsDefaultConfig: {},
 
