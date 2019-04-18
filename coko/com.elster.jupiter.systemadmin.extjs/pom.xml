@@ -39,14 +39,53 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/systemadmin</js.dir>
-                <package.name>${project.groupId}.${project.artifactId}</package.name>
-            </properties>
-        </profile>
-    </profiles>
+    <properties>
+        <js.dir>js/systemadmin</js.dir>
+        <package.name>${project.groupId}.${project.artifactId}</package.name>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- This is horrific but needed since bundle plugin does not include resource from build dir (target/classes/i18n.properties)
+            and therefore we reset resource after we package it (processed)-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>set-cxo-version-i18n</id>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <tasks>
+                                <replace token= "general.connexoVersion=Connexo version" value="general.connexoVersion=Connexo version ${commercial.version}"
+                                         dir="src/main/resources">
+                                    <include name="i18n.properties"/>
+                                </replace>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>reset-cxo-version-i18n</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <tasks>
+                                <replace token="general.connexoVersion=Connexo version ${commercial.version}" value= "general.connexoVersion=Connexo version"
+                                         dir="src/main/resources">
+                                    <include name="i18n.properties"/>
+                                </replace>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

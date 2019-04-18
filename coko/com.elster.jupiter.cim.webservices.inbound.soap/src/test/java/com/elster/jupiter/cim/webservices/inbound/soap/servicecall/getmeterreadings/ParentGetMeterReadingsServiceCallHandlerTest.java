@@ -27,7 +27,6 @@ import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
 import javax.inject.Provider;
-import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.Month;
 import java.time.ZonedDateTime;
@@ -64,7 +63,6 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
     private static final Instant endDate = JUNE_1ST.toInstant();
     private static final String END_DEVICE1_MRID = "f86cdede-c8ee-42c8-8c58-dc8f26fe41ac";
     private static final String MIN15_MRID = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    private final RangeSet<Instant> timeRangeSet = getTimeRangeSet(startDate, endDate);
 
     @Mock
     private com.elster.jupiter.metering.Meter meter1;
@@ -228,7 +226,7 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
         verify(sendMeterReadingsProvider).call(any(), eq(HeaderType.Verb.CREATED), any());
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
-        verify(serviceCall).log(LogLevel.FINE,"Data successfully sent for source 'Meter', time range [(2017-04-30T12:00:00Z‥2017-05-31T12:00:00Z]]");
+        verify(serviceCall).log(LogLevel.FINE,"Data successfully sent for source 'Meter', time range [(2017-04-30T12:00:00Z..2017-05-31T12:00:00Z]]");
     }
 
     @Test
@@ -241,7 +239,7 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
         verify(sendMeterReadingsProvider).call(any(), eq(HeaderType.Verb.CREATED), any());
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
-        verify(serviceCall).log(LogLevel.FINE,"Data successfully sent for source 'Meter', time range [(2017-04-30T12:00:00Z‥2017-05-31T12:00:00Z]]");
+        verify(serviceCall).log(LogLevel.FINE,"Data successfully sent for source 'Meter', time range [(2017-04-30T12:00:00Z..2017-05-31T12:00:00Z]]");
 
     }
 
@@ -255,6 +253,6 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         parentGetMeterReadingsServiceCallHandler.onStateChange(serviceCall, DefaultState.PAUSED, DefaultState.ONGOING);
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
         verify(sendMeterReadingsProvider).call(any(), eq(HeaderType.Verb.CREATED), any());
-        verify(serviceCall).log(LogLevel.SEVERE,"Unable to send meter readings data for source 'Meter', time range [(2017-04-30T12:00:00Z‥2017-05-31T12:00:00Z]]");
+        verify(serviceCall).log(LogLevel.SEVERE,"Unable to send meter readings data for source 'Meter', time range [(2017-04-30T12:00:00Z..2017-05-31T12:00:00Z]]");
     }
 }

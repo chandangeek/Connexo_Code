@@ -57,8 +57,21 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                     change: function(radio, newValue){
                         if(newValue && Ext.isString(newValue.firmwareType)){
                             if(newValue.firmwareType !== 'caConfigImage'){
-                                me.down('#firmware-min-meter-version-common').show();
-                                me.down('#firmware-min-communication-version-common').show();
+                                if (me.supportedTypes && me.supportedTypes.length){
+                                     if (Ext.Array.filter(me.supportedTypes, function(item){ return item.data.id === "meter"}).length){
+                                          me.down('#firmware-min-meter-version-common').show();
+                                     }else{
+                                          me.down('#firmware-min-meter-version-common').hide();
+                                     }
+                                     if (Ext.Array.filter(me.supportedTypes, function(item){ return item.data.id === "communication"}).length){
+                                          me.down('#firmware-min-communication-version-common').show();
+                                     }else{
+                                          me.down('#firmware-min-communication-version-common').hide();
+                                     }
+                                }else{
+                                     me.down('#firmware-min-meter-version-common').show();
+                                     me.down('#firmware-min-communication-version-common').show();
+                                }
                                 me.down('#text-imageIdentifier').show();
                                 me.down('#text-firmware-version').setFieldLabel(
                                     Uni.I18n.translate('general.version', 'FWC', 'Version'));
@@ -200,8 +213,9 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                        combobox.hide();
                        combobox.nextSibling('uni-default-button').hide();
                        combobox.up('fieldcontainer').add({
+                                                      itemId: cbxId + '-dispfld',
                                                       xtype: 'displayfield',
-                                                      value: 'There are no firmwares files of this type uploaded to the device type',
+                                                      value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
                                                       fieldStyle: 'color: red'
                                                    });
                  }

@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.firmware;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
@@ -50,6 +52,8 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
     void validate();
 
     void deprecate();
+
+    void delete();
 
     void update();
 

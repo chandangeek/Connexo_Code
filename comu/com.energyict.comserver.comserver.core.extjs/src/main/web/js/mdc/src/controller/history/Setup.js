@@ -193,6 +193,17 @@ Ext.define('Mdc.controller.history.Setup', {
                                             controller: 'Mdc.controller.setup.DeviceHistory',
                                             action: 'startProcess',
                                             privileges: Isu.privileges.Issue.viewAdminDevice
+                                        },
+                                        viewProcesses: {
+                                            title: Uni.I18n.translate('general.processes', 'MDC', 'Processes'),
+                                            route: 'viewProcesses',
+                                            controller: 'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses',
+                                            action: 'viewProcesses',
+                                            privileges: Isu.privileges.Issue.viewAdminDevice,
+                                            params: {
+                                                process: '',
+
+                                            }
                                         }
                                     }
                                 }
