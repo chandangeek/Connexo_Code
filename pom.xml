@@ -401,7 +401,7 @@
 	<profiles>
 		<profile>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<id>enforce-version</id>
 			<build>
