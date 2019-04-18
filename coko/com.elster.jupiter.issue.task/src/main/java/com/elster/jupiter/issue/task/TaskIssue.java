@@ -13,6 +13,6 @@ import java.util.List;
 @ProviderType
 public interface TaskIssue extends Issue {
 
-    List<RelatedTaskOccurrence> getTaskOccurrences();
+    List<RelatedTaskOccurrence> getRelatedTaskOccurrences();
 
 }

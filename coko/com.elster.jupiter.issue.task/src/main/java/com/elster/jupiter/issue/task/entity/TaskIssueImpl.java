@@ -239,20 +239,21 @@ public class TaskIssueImpl implements TaskIssue {
 
     public void save() {
         if (getBaseIssue() != null) {
+            getBaseIssue().update();
             this.setId(getBaseIssue().getId());
         }
         Save.CREATE.save(dataModel, this);
     }
 
     @Override
-    public List<RelatedTaskOccurrence> getTaskOccurrences() {
+    public List<RelatedTaskOccurrence> getRelatedTaskOccurrences() {
         Optional<? extends TaskIssue> issue;
         if (getStatus().isHistorical()) {
             issue = taskIssueService.findHistoricalIssue(getId());
         } else {
             issue = taskIssueService.findOpenIssue(getId());
         }
-        return issue.map(TaskIssue::getTaskOccurrences).orElse(Collections.emptyList());
+        return issue.map(TaskIssue::getRelatedTaskOccurrences).orElse(Collections.emptyList());
     }
 
     @Override

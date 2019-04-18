@@ -80,7 +80,7 @@ public class TaskIssueInfoFactory implements InfoFactory<TaskIssue> {
 
 
     private void addTaskInfo(TaskIssueInfo<?> info, TaskIssue issue) throws LocalizedFieldValidationException {
-        List<RelatedTaskOccurrence> occurrences = issue.getTaskOccurrences();
+        List<RelatedTaskOccurrence> occurrences = issue.getRelatedTaskOccurrences();
         Set<RecurrentTask> recurrentTasks = occurrences.stream().map(occ -> occ.getTaskOccurrence().getRecurrentTask()).collect(Collectors.toSet());
         if (recurrentTasks.size() == 1) {
 

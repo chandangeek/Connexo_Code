@@ -64,12 +64,12 @@ public class TaskFailureEvent extends TaskEvent {
     protected Optional<? extends TaskIssue> filterIssuesByTaskType(List<? extends TaskIssue> issues) {
         return issues.stream().
                 filter(this::checkIssuetaskOccurrencesHaveTheSameType).
-                filter(issue -> issue.getTaskOccurrences().get(0).getTaskOccurrence().getRecurrentTask().getId() == recurrentTaskId)
+                filter(issue -> issue.getRelatedTaskOccurrences().get(0).getTaskOccurrence().getRecurrentTask().getId() == recurrentTaskId)
                 .max(Comparator.comparing(Issue::getCreateDateTime));
     }
 
     private boolean checkIssuetaskOccurrencesHaveTheSameType(TaskIssue issue) {
-        Set<RecurrentTask> recurrentTasks = issue.getTaskOccurrences().stream().map(occ -> occ.getTaskOccurrence().getRecurrentTask()).collect(Collectors.toSet());
+        Set<RecurrentTask> recurrentTasks = issue.getRelatedTaskOccurrences().stream().map(occ -> occ.getTaskOccurrence().getRecurrentTask()).collect(Collectors.toSet());
         return recurrentTasks.size() == 1;
     }
 

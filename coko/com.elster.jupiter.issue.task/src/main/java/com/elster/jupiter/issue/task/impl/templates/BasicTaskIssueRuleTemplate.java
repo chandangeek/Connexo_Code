@@ -11,8 +11,8 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.issue.task.TaskIssueService;
 import com.elster.jupiter.issue.task.OpenTaskIssue;
+import com.elster.jupiter.issue.task.TaskIssueService;
 import com.elster.jupiter.issue.task.event.TaskFailureEvent;
 import com.elster.jupiter.issue.task.impl.i18n.MessageSeeds;
 import com.elster.jupiter.issue.task.impl.i18n.TranslationKeys;
@@ -179,6 +179,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 taskIssue.setPriority(Priority.get(openIssue.getPriority().increaseUrgency(), openIssue.getPriority()
                         .getImpact()));
             }
+            taskIssue.update();
 
         }
 

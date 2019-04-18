@@ -77,7 +77,7 @@ public class OpenTaskIssueImpl extends TaskIssueImpl implements OpenTaskIssue {
 
 
     @Override
-    public List<RelatedTaskOccurrence> getTaskOccurrences() {
+    public List<RelatedTaskOccurrence> getRelatedTaskOccurrences() {
         return Collections.unmodifiableList(taskOccurrences);
     }
 
