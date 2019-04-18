@@ -538,7 +538,7 @@
 						<version>1.8</version>
 						<executions>
 							<execution>
-								<id>add-compiled-js</id>
+								<id>add-js-sources</id>
 								<phase>compile</phase>
 								<goals>
 									<goal>add-resource</goal>
