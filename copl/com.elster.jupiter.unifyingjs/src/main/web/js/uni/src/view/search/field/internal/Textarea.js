@@ -12,6 +12,8 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
     'Ext.form.field.TextArea'
   ],
 
+  maxCount: 1000,
+
   getField: function() {
     return this.down('#filter-input');
   },
@@ -90,11 +92,22 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
       grow: true,
       minGrow: 2,
       maxGrow: 10,
-      maxLength: 1000,
+      maxLength: 5000,
       allowBlank: !me.isFilterField,
       // enforceMaxLength: true,
       validateOnBlur: false,
-      margin: '0 5 0 0',
+      validator: function() {
+        if (me.getValue().length < me.maxCount) {
+          return true
+        }
+
+        return Uni.I18n.translate(
+          'search.field.internal.textarea.maxCount',
+          'UNI',
+          'Maximum item limit reached ({0})',
+          [me.maxCount],
+        );
+      },
       listeners: {
         change: {
             fn: me.onChange,
@@ -106,8 +119,10 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
     me.dockedItems = {
       xtype: 'toolbar',
       dock: 'right',
+      width: 24,
       items: [{
         xtype: 'button',
+        layout: 'fit',
         tooltip: {
           title: Uni.I18n.translate(
             'search.field.internal.textarea.header',
@@ -122,13 +137,9 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
           ),
           maxWidth: 150
         },
-        iconCls: 'icon-info',
+        iconCls: 'uni-icon-info-small',
         cls: 'uni-btn-transparent',
-        height: 24,
-        style: {
-            display: 'inline-block',
-            "text-decoration": 'none !important'
-        }
+        margin: '5 10 5 5',
       }]
     }
 
