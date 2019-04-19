@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -120,6 +121,8 @@ public abstract class AbstractMockActivator {
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
     protected MeterConfigFactory meterConfigFactory;
+    @Mock
+    protected OrmService ormService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -164,6 +167,7 @@ public abstract class AbstractMockActivator {
         activator.setWebServicesService(webServicesService);
         activator.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         activator.setMeterConfigFactory(meterConfigFactory);
+        activator.setOrmService(ormService);
         activator.activate(mock(BundleContext.class));
     }
 
