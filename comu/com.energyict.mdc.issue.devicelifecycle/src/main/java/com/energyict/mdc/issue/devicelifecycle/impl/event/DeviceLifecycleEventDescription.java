@@ -14,12 +14,6 @@ public enum DeviceLifecycleEventDescription {
             return super.matches(map);
         }
     },
-    TRANSITION_REMOVED("com/energyict/mdc/device/lifecycle/config/transition/REMOVED", TransitionRemovedEvent.class) {
-        @Override
-        public boolean matches(Map<?, ?> map) {
-            return super.matches(map);
-        }
-    },
     TRANSITION_DONE("com/energyict/mdc/device/lifecycle/config/transition/DONE", TransitionDoneEvent.class) {
         @Override
         public boolean matches(Map<?, ?> map) {
