@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
@@ -44,6 +45,8 @@ public class DisableCommunicationTest {
     private Device device;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private DeviceService deviceService;
 
     @Test
     public void testGetPropertySpecs() {
@@ -89,7 +92,7 @@ public class DisableCommunicationTest {
     }
 
     private DisableCommunication getTestInstance() {
-        return new DisableCommunication(thesaurus);
+        return new DisableCommunication(thesaurus, deviceService);
     }
 
 }

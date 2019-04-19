@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
@@ -41,6 +42,7 @@ public class DeviceLifeCycleModule extends AbstractModule {
         requireBinding(DeviceLifeCycleConfigurationService.class);
         requireBinding(MetrologyConfigurationService.class);
         requireBinding(DataModel.class);
+        requireBinding(DeviceService.class);
         bind(DeviceMicroCheckFactory.class).to(DeviceMicroCheckFactoryImpl.class).in(Scopes.SINGLETON);
         bind(ServerMicroActionFactory.class).to(MicroActionFactoryImpl.class).in(Scopes.SINGLETON);
         bind(DeviceLifeCycleService.class).to(DeviceLifeCycleServiceImpl.class).in(Scopes.SINGLETON);
