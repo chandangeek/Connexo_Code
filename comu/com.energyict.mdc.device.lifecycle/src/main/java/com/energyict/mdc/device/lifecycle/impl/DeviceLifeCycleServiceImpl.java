@@ -38,6 +38,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DefaultMicroCheck;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
@@ -113,6 +114,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private volatile MeteringZoneService meteringZoneService;
     private volatile ServiceCallService serviceCallService;
     private volatile DeviceMicroCheckFactoryImpl deviceMicroCheckFactory;
+    private volatile DeviceService deviceService;
 
     // For OSGi purposes
     public DeviceLifeCycleServiceImpl() {
@@ -138,7 +140,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                                       ValidationService validationService,
                                       MeteringZoneService meteringZoneService,
                                       ServiceCallService serviceCallService,
-                                      OrmService ormService) {
+                                      OrmService ormService,
+                                      DeviceService deviceService) {
         this();
         setNlsService(nlsService);
         setThreadPrincipalService(threadPrincipalService);
@@ -158,6 +161,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         setMeteringZoneService(meteringZoneService);
         setServiceCallService(serviceCallService);
         setOrmService(ormService);
+        this.setDeviceService(deviceService);
         activate();
     }
 
@@ -249,6 +253,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(DeviceLifeCycleService.COMPONENT_NAME, "Device Life Cycle checks & actions");
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Activate
@@ -588,7 +597,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         action.getActions()
                 .stream()
                 .map(this.microActionFactory::from)
-                .forEach(a -> this.execute(a, device, effectiveTimestamp, properties));
+                .forEach(a ->
+                        deviceService
+                                .findDeviceById(device.getId())
+                                .ifPresent(modDevice ->
+                                        this.execute(a, modDevice, effectiveTimestamp, properties))
+                );
     }
 
     private void execute(ServerMicroAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
