@@ -98,7 +98,6 @@ class Installer implements FullInstaller {
                 Layer.DOMAIN,
                 whereCorrelationId()
                         .isEqualTo(DeviceLifecycleEventDescription.TRANSITION_FAILURE.getTopic())
-                        .or(whereCorrelationId().isEqualTo(DeviceLifecycleEventDescription.TRANSITION_REMOVED.getTopic()))
                         .or(whereCorrelationId().isEqualTo(DeviceLifecycleEventDescription.TRANSITION_DONE.getTopic()))
         );
     }
