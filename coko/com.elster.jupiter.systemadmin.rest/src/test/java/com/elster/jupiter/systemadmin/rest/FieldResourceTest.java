@@ -8,13 +8,11 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.system.Subsystem;
 import com.elster.jupiter.system.beans.SubsystemImpl;
 import com.elster.jupiter.systemadmin.rest.imp.resource.BundleTypeTranslationKeys;
-import com.elster.jupiter.systemadmin.rest.imp.response.VersionInfo;
 
 import com.jayway.jsonpath.JsonModel;
 
 import java.util.Arrays;
 import java.util.List;
-import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 
@@ -86,12 +84,4 @@ public class FieldResourceTest extends SystemApplicationJerseyTest {
                 .containsExactly("Active", "Installed", "Resolved", "Starting", "Stopping", "Uninstalled");
     }
 
-    @Test
-    public void testGetConnexoVersion() {
-        Response response = target("/fields/versionInfo").request().get();
-
-        VersionInfo versionInfo =  response.readEntity(VersionInfo.class);
-        assertThat(versionInfo.CONNEXO_VERSION).isNotNull();
-        assertThat(versionInfo.CONNEXO_VERSION).isNotEmpty();
-    }
 }

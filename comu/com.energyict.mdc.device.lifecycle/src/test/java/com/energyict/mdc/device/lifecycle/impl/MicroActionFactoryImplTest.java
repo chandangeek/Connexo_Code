@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.topology.TopologyService;
 
@@ -52,6 +53,8 @@ public class MicroActionFactoryImplTest {
     private NlsService nlsService;
     @Mock
     private MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    private DeviceService deviceService;
 
 
     @Test
@@ -69,7 +72,7 @@ public class MicroActionFactoryImplTest {
     }
 
     private MicroActionFactoryImpl getTestInstance() {
-        return new MicroActionFactoryImpl(this.nlsService, this.meteringService, this.meteringGroupsService, this.topologyService, this.validationService, this.estimationService, this.issueService, this.metrologyConfigurationService);
+        return new MicroActionFactoryImpl(this.nlsService, this.meteringService, this.meteringGroupsService, this.topologyService, this.validationService, this.estimationService, this.issueService, this.metrologyConfigurationService, this.deviceService);
     }
 
 }

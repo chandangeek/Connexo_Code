@@ -21,10 +21,9 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.InvalidValueException;
@@ -39,11 +38,12 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
+import com.energyict.mdc.device.lifecycle.DefaultMicroCheck;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotAfterLastStateChangeException;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
@@ -51,6 +51,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheck;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.MicroCategoryTranslationKey;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
@@ -61,7 +62,9 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllDataValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.MicroCheckTranslations;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
@@ -70,7 +73,6 @@ import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -79,7 +81,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -99,7 +100,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -121,8 +121,7 @@ public class DeviceLifeCycleServiceImplTest {
 
     @Mock
     private NlsService nlsService;
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.SimpleThesaurus.from(new DeviceLifeCycleServiceImpl().getKeys());
     @Mock
     private DeviceMicroCheckFactory microCheckFactory;
     @Mock
@@ -183,15 +182,13 @@ public class DeviceLifeCycleServiceImplTest {
     private ServiceCallService serviceCallService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private DeviceService deviceService;
 
     @Before
     public void initializeMocks() {
         // Mock thesaurus such that it returns the key as the translation
         when(licenseService.getLicensedApplicationKeys()).thenReturn(Arrays.asList("MDC", "INS"));
-        when(this.thesaurus.getFormat(any(TranslationKey.class)))
-                .thenAnswer(invocationOnMock -> new NoTranslation((TranslationKey) invocationOnMock.getArguments()[0]));
-        when(this.thesaurus.getFormat(any(MessageSeed.class)))
-                .thenAnswer(invocationOnMock -> new NoTranslation((MessageSeed) invocationOnMock.getArguments()[0]));
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.lifeCycle.getId()).thenReturn(DEVICE_LIFE_CYCLE_ID);
         when(this.lifeCycle.getFiniteStateMachine()).thenReturn(this.finiteStateMachine);
@@ -251,17 +248,6 @@ public class DeviceLifeCycleServiceImplTest {
 
         // Asserts
         assertThat(layer).isNotNull();
-    }
-
-    @Test
-    public void geTranslationKeysDoesNotReturnNull() {
-        DeviceLifeCycleServiceImpl service = this.getTestInstance();
-
-        // Business method
-        List<TranslationKey> translationKeys = service.getKeys();
-
-        // Asserts
-        assertThat(translationKeys).isNotNull();
     }
 
     @Test(expected = ActionDoesNotRelateToDeviceStateException.class)
@@ -328,7 +314,7 @@ public class DeviceLifeCycleServiceImplTest {
             // Asserts: see expected exception rule
         } catch (SecurityException e) {
             // Asserts: see also expected exception rule
-            assertThat(e.getMessage()).isEqualTo(MessageSeeds.Keys.NOT_ALLOWED_2_EXECUTE);
+            assertThat(e.getMessage()).isEqualTo(MessageSeeds.NOT_ALLOWED_2_EXECUTE.getDefaultFormat());
             throw e;
         }
     }
@@ -345,7 +331,7 @@ public class DeviceLifeCycleServiceImplTest {
             // Asserts: see expected exception rule
         } catch (SecurityException e) {
             // Asserts: see also expected exception rule
-            assertThat(e.getMessage()).isEqualTo(MessageSeeds.Keys.NOT_ALLOWED_2_EXECUTE);
+            assertThat(e.getMessage()).isEqualTo(MessageSeeds.NOT_ALLOWED_2_EXECUTE.getDefaultFormat());
             throw e;
         }
     }
@@ -362,7 +348,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         } catch (SecurityException e) {
             // Asserts: see also expected exception rule
-            assertThat(e.getMessage()).isEqualTo(MessageSeeds.Keys.NOT_ALLOWED_2_EXECUTE);
+            assertThat(e.getMessage()).isEqualTo(MessageSeeds.NOT_ALLOWED_2_EXECUTE.getDefaultFormat());
             throw e;
         }
     }
@@ -389,11 +375,6 @@ public class DeviceLifeCycleServiceImplTest {
     @Test(expected = MultipleMicroCheckViolationsException.class)
     @Ignore
     public void allFailingChecksAreReported() {
-        reset(this.thesaurus);
-        when(this.thesaurus.getFormat(any(TranslationKey.class)))
-                .thenAnswer(invocationOnMock -> new TranslationArgumentsOnly((TranslationKey) invocationOnMock.getArguments()[0]));
-        when(this.thesaurus.getFormat(any(MessageSeed.class)))
-                .thenAnswer(invocationOnMock -> new TranslationArgumentsOnly((MessageSeed) invocationOnMock.getArguments()[0]));
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
@@ -889,52 +870,27 @@ public class DeviceLifeCycleServiceImplTest {
         assertThat(executableActions.get(0).getAction()).isEqualTo(customTransition);
     }
 
+    @Test
+    public void testGetDefaultCheckAttributes() {
+        DeviceLifeCycleServiceImpl service = getTestInstance();
+        when(dataModel.getInstance(DeviceMicroCheckFactoryImpl.class)).thenReturn(new DeviceMicroCheckFactoryImpl(dataModel));
+        service.activate();
+
+        AllDataValid allDataValid = new AllDataValid();
+        allDataValid.setThesaurus(thesaurus);
+        allDataValid.setValidationService(validationService);
+        when(dataModel.getInstance(AllDataValid.class)).thenReturn(allDataValid);
+
+        assertThat(service.getKey(DefaultMicroCheck.ALL_DATA_VALID)).isEqualTo(AllDataValid.class.getSimpleName());
+        assertThat(service.getName(DefaultMicroCheck.ALL_DATA_VALID)).isEqualTo(MicroCheckTranslations.Name.ALL_DATA_VALID.getDefaultFormat());
+        assertThat(service.getDescription(DefaultMicroCheck.ALL_DATA_VALID)).isEqualTo(MicroCheckTranslations.Description.ALL_DATA_VALID.getDefaultFormat());
+        assertThat(service.getCategoryName(DefaultMicroCheck.ALL_DATA_VALID)).isEqualTo(MicroCategoryTranslationKey.TRANSITION_ACTION_CHECK_CATEGORY_VALIDATION.getDefaultFormat());
+    }
+
     private DeviceLifeCycleServiceImpl getTestInstance() {
         return new DeviceLifeCycleServiceImpl(nlsService, threadPrincipleService, propertySpecService,
                 microActionFactory, deviceLifeCycleConfigurationService, userService, Clock.systemDefaultZone(),
                 licenseService, meteringService, eventService, transactionService, upgradeService,
-                topologyService, multiElementDeviceService, validationService, meteringZoneService, serviceCallService, ormService);
-    }
-
-    public static class NoTranslation implements NlsMessageFormat {
-        private final String defaultFormat;
-
-        NoTranslation(TranslationKey translationKey) {
-            this.defaultFormat = translationKey.getKey();
-        }
-
-        NoTranslation(MessageSeed messageSeed) {
-            this.defaultFormat = messageSeed.getKey();
-        }
-
-        @Override
-        public String format(Object... args) {
-            return MessageFormat.format(this.defaultFormat, args);
-        }
-
-        @Override
-        public String format(Locale locale, Object... args) {
-            return MessageFormat.format(this.defaultFormat, args);
-        }
-
-    }
-
-    public static class TranslationArgumentsOnly implements NlsMessageFormat {
-
-        TranslationArgumentsOnly(TranslationKey translationKey) {
-        }
-
-        TranslationArgumentsOnly(MessageSeed messageSeed) {
-        }
-
-        @Override
-        public String format(Object... args) {
-            return MessageFormat.format("{0}", args);
-        }
-
-        @Override
-        public String format(Locale locale, Object... args) {
-            return this.format(args);
-        }
+                topologyService, multiElementDeviceService, validationService, meteringZoneService, serviceCallService, ormService, deviceService);
     }
 }

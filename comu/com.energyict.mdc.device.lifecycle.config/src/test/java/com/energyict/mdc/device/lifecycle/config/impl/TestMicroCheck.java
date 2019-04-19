@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-public class TestMicroCheck implements MicroCheck {
+public final class TestMicroCheck implements MicroCheck {
 
     @Override
     public String getKey() {
@@ -50,7 +50,7 @@ public class TestMicroCheck implements MicroCheck {
                 && Objects.equals(getKey(), ((TestMicroCheck) o).getKey());
     }
 
-    public static class Factory implements DeviceMicroCheckFactory {
+    public static final class Factory implements DeviceMicroCheckFactory {
 
         @Override
         public Optional<MicroCheck> from(String microActionKey) {
@@ -60,6 +60,12 @@ public class TestMicroCheck implements MicroCheck {
         @Override
         public Set<MicroCheck> getAllChecks() {
             return Collections.singleton(new TestMicroCheck());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return this == o
+                    || o instanceof Factory;
         }
     }
 }

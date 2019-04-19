@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                             itemId: 'device-history-firmware-tab'
                         },
                         {
-                            title: Uni.I18n.translate('general.meterActivation', 'MDC', 'Meter activation'),
+                            title: Uni.I18n.translate('general.meterActivation', 'MDC', 'Device activation'),
                             padding: '8 16 16 0',
                             itemId: 'device-history-meter-activations-tab',
                             items: {

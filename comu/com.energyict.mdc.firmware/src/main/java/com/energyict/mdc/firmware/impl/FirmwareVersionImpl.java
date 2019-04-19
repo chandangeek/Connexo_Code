@@ -226,6 +226,11 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     }
 
     @Override
+    public void delete() {
+        dataModel.remove(this);
+    }
+
+    @Override
     public void update() {
         Save.UPDATE.save(dataModel, this);
         this.notifyUpdated();

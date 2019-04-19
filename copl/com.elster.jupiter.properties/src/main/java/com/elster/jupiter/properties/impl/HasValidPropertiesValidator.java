@@ -22,6 +22,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
     private static final String PROPERTIES_NODE = "properties";
     private static final String TRIGGERING_EVENTS = "BasicDeviceAlarmRuleTemplate.triggeringEvents";
     private static final String LIFECYCLE_IN_DEVICE_TYPES = "DeviceLifeCycleInDeviceType.deviceLifecyleInDeviceTypes";
+    private static final String ALARMS_LIFECYCLE_IN_DEVICE_TYPES = "BasicDeviceAlarmRuleTemplate.deviceLifecyleInDeviceTypes";
 
     private HasValidProperties annotation;
     private boolean valid;
@@ -89,7 +90,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
                             throwThisFieldIsRequired(propertySpec, context);
                         }
                     }
-                } else if(propertySpec.getName().equals(LIFECYCLE_IN_DEVICE_TYPES)){
+                } else if(propertySpec.getName().equals(LIFECYCLE_IN_DEVICE_TYPES) || propertySpec.getName().equals(ALARMS_LIFECYCLE_IN_DEVICE_TYPES)){
                     if(propertySpec.isRequired()){
                         if(propertyValue == Collections.emptyList()){
                             throwThisFieldIsRequired(propertySpec, context);

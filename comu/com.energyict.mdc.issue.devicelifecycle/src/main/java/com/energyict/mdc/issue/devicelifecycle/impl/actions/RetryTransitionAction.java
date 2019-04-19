@@ -60,20 +60,18 @@ public class RetryTransitionAction extends AbstractIssueAction {
     public IssueActionResult execute(Issue issue) {
         DefaultActionResult result = new DefaultActionResult();
         if (isApplicable(issue)) {
-            IssueStatus statusBeforeRetry = issue.getStatus();
             issue.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
+            issue.update();
             try {
                 if (retry(issue)) {
                     result.success(getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_LIFECYCLE_TRANSITION_SUCCESS).format());
                     ((OpenIssueDeviceLifecycle) issue).close(issueService.findStatus(IssueStatus.RESOLVED).get());
                 } else {
                     result.fail(getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_LIFECYCLE_TRANSITION_FAIL).format());
-                    issue.setStatus(statusBeforeRetry);
                 }
             } catch (NotFoundException | IllegalStateException | MultipleMicroCheckViolationsException e) {
                 String exceptionMessage = e.getLocalizedMessage() == null ? e.getMessage() : e.getLocalizedMessage();
                 result.fail(getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_LIFECYCLE_TRANSITION_FAIL).format() + ":" + exceptionMessage);
-                issue.setStatus(statusBeforeRetry);
             }
         }
         return result;
