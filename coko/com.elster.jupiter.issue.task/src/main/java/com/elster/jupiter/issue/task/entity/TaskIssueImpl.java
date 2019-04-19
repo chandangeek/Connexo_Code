@@ -12,9 +12,9 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.task.TaskIssueService;
 import com.elster.jupiter.issue.task.RelatedTaskOccurrence;
 import com.elster.jupiter.issue.task.TaskIssue;
+import com.elster.jupiter.issue.task.TaskIssueService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
@@ -25,9 +25,11 @@ import com.elster.jupiter.users.User;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TaskIssueImpl implements TaskIssue {
 
@@ -253,7 +255,11 @@ public class TaskIssueImpl implements TaskIssue {
         } else {
             issue = taskIssueService.findOpenIssue(getId());
         }
-        return issue.map(TaskIssue::getRelatedTaskOccurrences).orElse(Collections.emptyList());
+        return issue.map(TaskIssue::getRelatedTaskOccurrences)
+                .orElse(Collections.emptyList())
+                .stream()
+                .sorted(Comparator.comparing(RelatedTaskOccurrence::getFailureTime).reversed())
+                .collect(Collectors.toList());
     }
 
     @Override
