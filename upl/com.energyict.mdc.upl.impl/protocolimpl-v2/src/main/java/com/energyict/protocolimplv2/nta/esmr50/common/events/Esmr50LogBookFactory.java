@@ -17,14 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
-    private static final ObisCode STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
-    private static final ObisCode POWER_FAILURE_LOG = ObisCode.fromString("1.0.99.97.0.255");
-    private static final ObisCode FRAUD_DETECTION_LOG = ObisCode.fromString("0.0.99.98.1.255");
-    private static final ObisCode VOLTAGE_QUALITY_LOG = ObisCode.fromString("0.0.99.98.5.255");
     private static final ObisCode COMMS_EVENT_LOG = ObisCode.fromString("0.0.99.98.4.255");
-
-    private static final ObisCode MBUS_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");
-    private static final ObisCode MBUS_CONTROL_LOG = ObisCode.fromString("0.x.24.5.0.255");
 
     public Esmr50LogBookFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
@@ -33,13 +26,8 @@ public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
     @Override
     public void initializeSupportedLogBooks() {
         supportedLogBooks = new ArrayList<>();
-        supportedLogBooks.add(STANDARD_EVENT_LOG);
-        supportedLogBooks.add(POWER_FAILURE_LOG);
-        supportedLogBooks.add(FRAUD_DETECTION_LOG);
+        super.initializeSupportedLogBooks();
         supportedLogBooks.add(COMMS_EVENT_LOG);
-        supportedLogBooks.add(VOLTAGE_QUALITY_LOG);
-        supportedLogBooks.add(MBUS_EVENT_LOG);
-        supportedLogBooks.add(MBUS_CONTROL_LOG);
     }
 
     @Override
