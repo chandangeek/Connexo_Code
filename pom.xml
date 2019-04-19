@@ -240,6 +240,11 @@
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.1.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-eclipse-plugin</artifactId>
 					<version>2.9</version>
 				</plugin>
@@ -513,7 +518,6 @@
 				<plugins>
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
-						<version>3.1.0</version>
 						<executions>
 							<execution>
 								<id>Deleting FE build folder</id>
@@ -574,7 +578,6 @@
 				<plugins>
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
-						<version>3.1.0</version>
 						<executions>
 							<execution>
 								<id>Deleting FE build folder</id>
@@ -763,7 +766,6 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-clean-plugin</artifactId>
-						<version>2.5</version>
 						<configuration>
 							<filesets>
 								<fileset>
