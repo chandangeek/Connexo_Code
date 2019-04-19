@@ -60,7 +60,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
-
     </dependencies>
+
+    <properties>
+        <js.dir>js/yellowfin</js.dir>
+    </properties>
 
 </project>
