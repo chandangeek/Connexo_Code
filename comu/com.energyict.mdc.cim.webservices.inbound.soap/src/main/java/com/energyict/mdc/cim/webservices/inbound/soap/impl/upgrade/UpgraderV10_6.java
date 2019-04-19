@@ -13,10 +13,10 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class UpgraderV1_1 extends SqlExecuteUpgrader {
+public class UpgraderV10_6 extends SqlExecuteUpgrader {
 
     @Inject
-    UpgraderV1_1(OrmService ormService) {
+    UpgraderV10_6(OrmService ormService) {
         super(ormService);
     }
 
