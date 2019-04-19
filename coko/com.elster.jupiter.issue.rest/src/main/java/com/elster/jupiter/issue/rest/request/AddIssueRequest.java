@@ -4,56 +4,60 @@
 
 package com.elster.jupiter.issue.rest.request;
 
-import com.elster.jupiter.issue.share.Priority;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.UsagePoint;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.time.Instant;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AddIssueRequest {
 
-    private IssueReason reason;
-    private Priority priority;
-    private EndDevice device;
-    private UsagePoint usagePoint;
+    private String reasonId;
+    private String statusId;
+    private String priority;
+    private String deviceMrid;
+    private String usagePointMrid;
     private String comment;
     private String title;
-    private Instant dueDate;
+    private long dueDate;
+    private boolean overdue;
 
-    public IssueReason getReason() {
-        return reason;
+    public String getReasonId() {
+        return reasonId;
     }
 
-    public void setReason(IssueReason reason) {
-        this.reason = reason;
+    public void setReasonId(String reasonId) {
+        this.reasonId = reasonId;
     }
 
-    public Priority getPriority() {
+    public String getStatusId() {
+        return statusId;
+    }
+
+    public void setStatusId(String statusId) {
+        this.statusId = statusId;
+    }
+
+    public String getPriority() {
         return priority;
     }
 
-    public void setPriority(Priority priority) {
+    public void setPriority(String priority) {
         this.priority = priority;
     }
 
-    public EndDevice getDevice() {
-        return device;
+    public String getDeviceMrid() {
+        return deviceMrid;
     }
 
-    public void setDevice(EndDevice device) {
-        this.device = device;
+    public void setDeviceMrid(String deviceMrid) {
+        this.deviceMrid = deviceMrid;
     }
 
-    public UsagePoint getUsagePoint() {
-        return usagePoint;
+    public String getUsagePointMrid() {
+        return usagePointMrid;
     }
 
-    public void setUsagePoint(UsagePoint usagePoint) {
-        this.usagePoint = usagePoint;
+    public void setUsagePointMrid(String usagePointMrid) {
+        this.usagePointMrid = usagePointMrid;
     }
 
     public String getComment() {
@@ -72,11 +76,19 @@ public class AddIssueRequest {
         this.title = title;
     }
 
-    public Instant getDueDate() {
+    public long getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(Instant dueDate) {
+    public void setDueDate(long dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public boolean isOverdue() {
+        return overdue;
+    }
+
+    public void setOverdue(boolean overdue) {
+        this.overdue = overdue;
     }
 }

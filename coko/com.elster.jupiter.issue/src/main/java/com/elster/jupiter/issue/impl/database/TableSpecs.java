@@ -434,7 +434,8 @@ public enum TableSpecs {
             Column userRefIdColumn = table.column(ISSUE_COLUMN_USER_ID).number().conversion(NUMBER2LONG).add();
             Column workGroupRefIdColumn = table.column(ISSUE_COLUMN_WORKGROUP_ID).number().conversion(NUMBER2LONG).add().since(Version.version(10, 3));
             table.column(ISSUE_COLUMN_OVERDUE).map("overdue").number().conversion(NUMBER2BOOLEAN).notNull().add();
-            Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull().add();
+            Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull().upTo(Version.version(10, 6)).add();
+            Column ruleRefIdColumnNullable = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).previously(ruleRefIdColumn).add();
             Column urgencyColumn = table.column(ISSUE_COLUMN_URGENCY)
                     .map("priority.urgency")
                     .number()
@@ -485,7 +486,7 @@ public enum TableSpecs {
             table.foreignKey(fkKeysIter.next()).map("usagePoint").on(usagePointRefIdColumn).references(UsagePoint.class).since(version(10,5)).add();
             table.foreignKey(fkKeysIter.next()).map("user").on(userRefIdColumn).references(User.class).onDelete(DeleteRule.SETNULL).add();
             table.foreignKey(fkKeysIter.next()).map("workGroup").on(workGroupRefIdColumn).references(WorkGroup.class).onDelete(DeleteRule.SETNULL).add();
-            table.foreignKey(fkKeysIter.next()).map("rule").on(ruleRefIdColumn).references(CreationRule.class).add();
+            table.foreignKey(fkKeysIter.next()).map("rule").on(ruleRefIdColumnNullable).references(CreationRule.class).add();
         }
     }
 }

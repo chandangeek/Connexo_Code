@@ -5,7 +5,6 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.AddIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
@@ -481,7 +480,7 @@ public class IssueResource extends BaseResource {
     @Path("/add")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADD_ISSUE)
+    //@RolesAllowed(Privileges.Constants.ADD_ISSUE)
     public Response addIssue(AddIssueRequest request, @Context SecurityContext securityContext) {
         User performer = (User) securityContext.getUserPrincipal();
         ActionInfo response = new ActionInfo();

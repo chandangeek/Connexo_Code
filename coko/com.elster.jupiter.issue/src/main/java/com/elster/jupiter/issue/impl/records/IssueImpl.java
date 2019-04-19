@@ -53,7 +53,7 @@ public class IssueImpl extends EntityImpl implements Issue {
     private Reference<EndDevice> device = ValueReference.absent();
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     //private Reference<T> member = ValueReference.absent(); // TODO - make IssueImpl abstract and implement DeviceIssueImpl and UsagePointIssueImpl and make getDevice and getUsagePoint Deprecated
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    //@IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<CreationRule> rule = ValueReference.absent();
 
     private final IssueService issueService;

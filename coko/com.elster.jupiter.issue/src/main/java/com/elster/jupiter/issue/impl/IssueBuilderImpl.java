@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueBuilder;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
@@ -27,6 +28,9 @@ public class IssueBuilderImpl implements IssueBuilder {
     private UsagePoint usagePoint;
     private String comment;
     private Instant dueDate;
+    private IssueStatus status;
+    private boolean overdue;
+
 
     public IssueBuilderImpl(User user, DataModel dataModel) {
         this.user = user;
@@ -70,15 +74,31 @@ public class IssueBuilderImpl implements IssueBuilder {
     }
 
     @Override
+    public IssueBuilder withStatus(IssueStatus status) {
+        this.status = status;
+        return this;
+    }
+
+    @Override
+    public IssueBuilder withOverdue(boolean overdue) {
+        this.overdue = overdue;
+        return this;
+    }
+
+
+
+    @Override
     public Issue create() {
         OpenIssueImpl issue = dataModel.getInstance(OpenIssueImpl.class);
         Optional.ofNullable(reason).ifPresent(issue::setReason);
+        Optional.ofNullable(status).ifPresent(issue::setStatus);
         Optional.ofNullable(priority).ifPresent(issue::setPriority);
         Optional.ofNullable(dueDate).ifPresent(issue::setDueDate);
         Optional.ofNullable(device).ifPresent(issue::setDevice);
         Optional.ofNullable(usagePoint).ifPresent(issue::setUsagePoint);
-        Optional.ofNullable(comment).ifPresent(comm -> issue.addComment(comm, user));
+        issue.setOverdue(overdue);
         issue.save();
+        Optional.ofNullable(comment).ifPresent(comm -> issue.addComment(comm, user));
         return issue;
     }
 }
