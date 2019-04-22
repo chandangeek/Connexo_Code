@@ -497,7 +497,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
 
             @Override
             public String getName() {
-                return "Log on existing open lifecycle issue: Increase urgency (+1)";
+                return "Log on existing open issue: Increase urgency (+1)";
             }
         };
     }
