@@ -32,7 +32,10 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
 
   getValue: function() {
     var me = this;
-    return this.getField().getValue().split(me.separator);
+    return this.getField().getValue().split(me.separator)
+      .map(function(piece) {
+        return piece.trim();
+      });
   },
 
   reset: function() {
