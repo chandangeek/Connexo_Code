@@ -263,10 +263,10 @@ public class IssueResourceHelper {
 
     public Issue createNewIssue(AddIssueRequest request, User user) {
         IssueBuilder issueBuilder = issueService.newIssueBuilder(user);
-        Issue issue = issueBuilder.withReason(issueService.findReason(request.getReasonId()).orElse(null)) // TODO error message
-                .withStatus(issueService.findStatus(request.getStatusId()).orElse(null)) // TODO error message
+        Issue issue = issueBuilder.withReason(issueService.findReason(request.getReasonId()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "reasonId")))
+                .withStatus(issueService.findStatus(request.getStatusId()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "statusId")))
                 .withPriority(Priority.fromStringValue(request.getPriority()))
-                .withDevice(meteringService.findEndDeviceByMRID(request.getDeviceMrid()).orElse(null)) // TODO error message?
+                .withDevice(meteringService.findEndDeviceByMRID(request.getDeviceMrid()).orElse(null))
                 .withDueDate(Instant.ofEpochSecond(request.getDueDate()))
                 .withOverdue(request.isOverdue())
                 .withComment(request.getComment())
