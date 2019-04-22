@@ -17,7 +17,6 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.LoadProfileService;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -44,7 +43,6 @@ public class UpgraderV10_6 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 6));
         createMessageHandler();
-        createMessageHandlerLP();
         userService.addModulePrivileges(privilegesProviderV10_6);
         EventType.MANUAL_COMTASKEXECUTION_STARTED.createIfNotExists(eventService);
         EventType.MANUAL_COMTASKEXECUTION_COMPLETED.createIfNotExists(eventService);
@@ -75,29 +73,4 @@ public class UpgraderV10_6 implements Upgrader {
         queue.activate();
         queue.subscribe(SubscriberTranslationKeys.ZONE_SUBSCRIBER, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
     }
-
-
-    private void createMessageHandlerLP() {
-        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(LoadProfileService.BULK_LOADPROFILE_QUEUE_DESTINATION);
-        if (!destinationSpecOptional.isPresent()) {
-            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(LoadProfileService.BULK_LOADPROFILE_QUEUE_DESTINATION, Installer.DEFAULT_RETRY_DELAY_IN_SECONDS);
-            subscribeLP(queue);
-        } else {
-            boolean notSubscribedYet = !destinationSpecOptional.get()
-                    .getSubscribers()
-                    .stream()
-                    .anyMatch(spec -> spec.getName().equals(SubscriberTranslationKeys.LOADPROFILE_SUBSCRIBER.getKey()));
-            if (notSubscribedYet) {
-                subscribeLP(destinationSpecOptional.get());
-            }
-        }
-    }
-
-    private void subscribeLP(DestinationSpec queue) {
-        queue.activate();
-        queue.subscribe(SubscriberTranslationKeys.LOADPROFILE_SUBSCRIBER, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-
 }
