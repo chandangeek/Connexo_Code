@@ -70,7 +70,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
                 afterSubTpl: '<span class="x-form-cb-label" style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('searchItems.bulk.changeLoadProfileStartMsg', 'MDC', 'This option is only available on devices of the same device configuration of a standard device type. Please first apply the corresponding search criteria to enable this option.') + '</span>',
                 name: 'operation',
                 inputValue: 'changeLoadProfileStart',
-                privileges: Mdc.privileges.Device.administrateDevice // TODO: ???
+                privileges: Mdc.privileges.Device.administrateDevice
             }
         ]
     }

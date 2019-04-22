@@ -507,7 +507,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 break;
             case 'changeLoadProfileStart':
                 me.changeLoadProfileStart(function (success) {
-                    statusPage.showChangeDeviceConfigSuccess(me.buildFinalMessage(success));
+                    if (success) {
+                        statusPage.showChangeDeviceConfigSuccess(me.buildFinalMessage(success));
+                    }
                     statusPage.setLoading(false);
                     wizard.setLoading(false);
                     finishBtn.enable();
@@ -644,16 +646,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     "Successfully removed zone '{0}' {1}", [me.zoneName, message]);
                 break;
             case 'changeLoadProfileStart':
-                if (success) {
-                    finalMessage = Ext.isEmpty(me.devices)
-                        ? Uni.I18n.translate('searchItems.bulk.changeLoadProfileStartQueuedTitle', 'MDC', 'All devices are queued to change next reading block start for selected load profile.')
-                        : Uni.I18n.translatePlural('searchItems.bulk.changeLoadProfileStartQueuedTitle', me.devices.length, 'MDC',
-                            'No devices are queued to change to change load profile next reading block.',
-                            'One device is queued to change next reading block start for selected load profile.',
-                            '{0} devices are queued to change next reading block start for selected load profile.');
-                } else {
-                    finalMessage = Uni.I18n.translate('searchItems.bulk.changeLoadProfileStartFailed', 'MDC', 'Task failed.');
-                }
+                finalMessage = Ext.isEmpty(me.devices)
+                    ? Uni.I18n.translate('searchItems.bulk.changeLoadProfileStartQueuedTitle', 'MDC', 'All devices are queued to change next reading block start for selected load profile.')
+                    : Uni.I18n.translatePlural('searchItems.bulk.changeLoadProfileStartQueuedTitle', me.devices.length, 'MDC',
+                        'No devices are queued to change to change load profile next reading block.',
+                        'One device is queued to change next reading block start for selected load profile.',
+                        '{0} devices are queued to change next reading block start for selected load profile.');
                 break;
         }
         return finalMessage;
