@@ -300,7 +300,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
 
     }
 
-    private class RecurrenceSelectionInfoValueFactory implements ValueFactory<HasIdAndName>, RaiseEventUrgencyFactory {
+    private class RecurrenceSelectionInfoValueFactory implements ValueFactory<HasIdAndName>, RecurrenceSelectionPropertyFactory {
         @Override
         public RecurrenceSelectionInfo fromStringValue(String stringValue) {
             return new RecurrenceSelectionInfo(stringValue);

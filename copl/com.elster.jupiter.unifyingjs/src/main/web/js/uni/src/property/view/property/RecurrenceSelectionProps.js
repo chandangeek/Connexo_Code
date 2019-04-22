@@ -21,10 +21,10 @@ Ext.define('Uni.property.view.property.RecurrenceSelectionProps', {
                         columns: 1,
                         vertical: true,
                         msgTarget: 'under',
-                        fieldLabel: Uni.I18n.translate('general.transitionFailureShould.name', 'UNI', 'Transition failure should'),
+                        fieldLabel: Uni.I18n.translate('general.transitionFailureShould.name', 'UNI', 'On failure'),
                         items: [
-                            {boxLabel: Uni.I18n.translate('general.transitionFailureShould.create', 'UNI', 'Create new device lifecycle issue'), name: 'transitionFailureCreate', inputValue: '0'},
-                            {boxLabel: Uni.I18n.translate('general.transitionFailureShould.log', 'UNI', 'Log on existing open lifecycle issue'), name: 'transitionFailureCreate', inputValue: '1'}
+                            {boxLabel: Uni.I18n.translate('general.transitionFailureShould.create', 'UNI', 'Create new device issue'), name: 'transitionFailureCreate', inputValue: '0'},
+                            {boxLabel: Uni.I18n.translate('general.transitionFailureShould.log', 'UNI', 'Log on existing open issue'), name: 'transitionFailureCreate', inputValue: '1'}
                         ],
                         listeners: {
                             change: function (control, newValue, oldValue, eOpts ) {
@@ -46,7 +46,7 @@ Ext.define('Uni.property.view.property.RecurrenceSelectionProps', {
                         columns: 1,
                         vertical: true,
                         msgTarget: 'under',
-                        fieldLabel: Uni.I18n.translate('general.transitionReoccurs.name', 'UNI', 'When transition failure reoccurs'),
+                        fieldLabel: Uni.I18n.translate('general.transitionReoccurs.name', 'UNI', 'On failure recurrence'),
                         items: [
                             {boxLabel: Uni.I18n.translate('general.raiseEvents.nothing', 'UNI', 'Do nothing'), name: 'transitionFailureReoccurs', inputValue: '0'},
                             {boxLabel: Uni.I18n.translate('general.raiseEvents.increase', 'UNI', 'Increase urgency (+1)'), name: 'transitionFailureReoccurs', inputValue: '1'}
