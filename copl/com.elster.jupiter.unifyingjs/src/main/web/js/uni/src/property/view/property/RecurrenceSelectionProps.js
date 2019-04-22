@@ -23,7 +23,7 @@ Ext.define('Uni.property.view.property.RecurrenceSelectionProps', {
                         msgTarget: 'under',
                         fieldLabel: Uni.I18n.translate('general.transitionFailureShould.name', 'UNI', 'On failure'),
                         items: [
-                            {boxLabel: Uni.I18n.translate('general.transitionFailureShould.create', 'UNI', 'Create new device issue'), name: 'transitionFailureCreate', inputValue: '0'},
+                            {boxLabel: Uni.I18n.translate('general.transitionFailureShould.create', 'UNI', 'Create new issue'), name: 'transitionFailureCreate', inputValue: '0'},
                             {boxLabel: Uni.I18n.translate('general.transitionFailureShould.log', 'UNI', 'Log on existing open issue'), name: 'transitionFailureCreate', inputValue: '1'}
                         ],
                         listeners: {
