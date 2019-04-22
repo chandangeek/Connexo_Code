@@ -178,8 +178,9 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                           if (targetFirmwareCheckOption){
                              var data = dependenciesCheckOptionsData['TARGET_FIRMWARE_STATUS_CHECK'];
                              if (data){
-                                 targetFirmwareCheckOption.show();
-                                 targetFirmwareCheckOption.setValue(data.activated);
+                                  targetFirmwareCheckOption.show();
+                                  targetFirmwareCheckOption.setValue(data.activated);
+                                  if (!data['statuses'] || !(data['statuses'] instanceof Array ) ) return;
                                   var finalOptionVal = data['statuses'].indexOf('FINAL') !==-1;
                                   me.down('#targetFirmwareCheckFinal').setValue(finalOptionVal);
                                   var testOptionVal = data['statuses'].indexOf('TEST') !==-1;

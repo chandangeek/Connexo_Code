@@ -27,7 +27,18 @@ Ext.define('Fwc.model.FirmwareManagementOptions', {
               name: 'checkOptions',
               type: 'auto',
               useNull: true
+        },
+        {
+              name: 'targetOptions',
+              persist: false,
+              mapping:  function (data) {
+                   if (data && data.checkOptions && data.checkOptions['TARGET_FIRMWARE_STATUS_CHECK']) {
+                      return data.checkOptions['TARGET_FIRMWARE_STATUS_CHECK'];
+                   }
+                   return null;
+              }
         }
+
         ],
     associations: [
            {type: 'hasMany',

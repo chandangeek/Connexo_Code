@@ -107,6 +107,45 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                             },
                             {
                                 xtype: 'displayfield',
+                                name: 'targetOptions',
+                                itemId: 'target-options',
+                                fieldStyle: 'margin-top : 3px;',
+                                fieldLabel: Uni.I18n.translate('general.targetManagementOptions', 'FWC', 'Target firmware status'),
+                                renderer: function (value, field) {
+                                      var result = '',
+                                          record = field.up('form').getRecord();
+                                      if (!record || record.get('isAllowed') === false) {
+                                          field.hide();
+                                      } else {
+                                              var targetFirmwareCheck = value;
+
+                                              if  (!targetFirmwareCheck) {
+                                                  field.hide();
+                                                  return;
+                                              }
+                                              field.show();
+
+                                              if (targetFirmwareCheck && targetFirmwareCheck.activated){
+                                                  var targetFirmwareOptionTemplate = [];
+                                                  var targetFirmwareOptionsValues = {
+                                                      'FINAL' : Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', 'Final status of the target firmware'),
+                                                      'TEST' :  Uni.I18n.translate('general.targetFirmwareTestOption', 'FWC', 'Test status of the target firmware')
+                                                  };
+                                                  targetFirmwareCheck['statuses'].sort();
+                                                  targetFirmwareCheck['statuses'].forEach(function(item){
+                                                      targetFirmwareOptionTemplate.push({"localizedValue" : targetFirmwareOptionsValues[item]});
+                                                  })
+                                                  if (targetFirmwareOptionTemplate && targetFirmwareOptionTemplate.length){
+                                                      var tpl = Ext.create('FirmwareOptionsXTemplate');
+                                                      result += ('<div style="margin:0 0 10px -3px">' + tpl.apply(targetFirmwareOptionTemplate) + '</div>');
+                                                  }
+                                              }
+                                      }
+                                    return result;
+                                }
+                            },
+                            {
+                                xtype: 'displayfield',
                                 name: 'checkOptions',
                                 itemId: 'checked-options',
                                 fieldStyle: 'margin-top : 3px;',
@@ -119,28 +158,17 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                     } else {
                                         var currentFirmwareCheck  = value && value["CURRENT_FIRMWARE_CHECK"];
                                         var masterFirmwareCheck = value && value["MASTER_FIRMWARE_CHECK"];
-                                        var targetFirmwareCheck = value && value["TARGET_FIRMWARE_STATUS_CHECK"];
 
-                                        if  (!masterFirmwareCheck && !targetFirmwareCheck && !currentFirmwareCheck) {
+                                        if  (!masterFirmwareCheck && !currentFirmwareCheck) {
                                             field.hide();
                                             return;
                                         }
                                         field.show();
 
-                                        if (targetFirmwareCheck && targetFirmwareCheck.activated){
-                                            var targetFirmwareOptionTemplate = [];
-                                            var targetFirmwareOptionsValues = {'FINAL' : 'Final current FW status', 'TEST' : 'Test current FW status'};
-                                            targetFirmwareCheck['statuses'].forEach(function(item){
-                                                targetFirmwareOptionTemplate.push({"localizedValue" : targetFirmwareOptionsValues[item]});
-                                            })
-                                            if (targetFirmwareOptionTemplate && targetFirmwareOptionTemplate.length){
-                                                var tpl = Ext.create('FirmwareOptionsXTemplate');
-                                                result += ('<div style="margin:0 0 10px -3px">' + tpl.apply(targetFirmwareOptionTemplate) + '</div>');
-                                            }
-                                        }
-
                                         if (currentFirmwareCheck && currentFirmwareCheck.activated){
-                                            var currentFirmwareOptionTemplate = [{"localizedValue" : "The target firmware should have a higher rank than the current firmware"}];
+                                            var currentFirmwareOptionTemplate = [{
+                                                "localizedValue" : Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', "The target firmware version should have a higher rank than the current firmware version on the device with the same type. All firmware types present in the device should have a rank not less than that of the version with the minimal level configured on the target version")
+                                            }];
 
                                             var tpl = Ext.create('FirmwareOptionsXTemplate');
                                             result += ('<div style="margin:0 0 10px -3px">' + tpl.apply(currentFirmwareOptionTemplate) + '</div>');
@@ -148,12 +176,16 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
 
                                         if (masterFirmwareCheck && masterFirmwareCheck.activated){
                                             var masterFirmwareOptionTemplate = [];
-                                            var masterFirmwareOptionsValues = {'FINAL' : 'Final master FW status', 'TEST' : 'Test master FW status'};
+                                            var masterFirmwareOptionsValues = {
+                                                       'FINAL' : Uni.I18n.translate('general.masterFirmwareFinalOption', 'FWC', 'Final status of firmware on master device'),
+                                                       'TEST' : Uni.I18n.translate('general.masterFirmwareTestOption', 'FWC', 'Test status of firmware on master device')
+                                                    };
+                                            masterFirmwareCheck['statuses'].sort();
                                             masterFirmwareCheck['statuses'].forEach(function(item){
                                                 masterFirmwareOptionTemplate.push({"localizedValue" : masterFirmwareOptionsValues[item]});
                                             })
                                             if (masterFirmwareOptionTemplate && masterFirmwareOptionTemplate.length){
-                                                result += '<div style="margin-bottom:10px">Master has a latest firmware</div>';
+                                                result += '<div style="margin-bottom:10px">' + Uni.I18n.translate('general.masterFirmwareMainOption', 'FWC', 'Master has a latest firmware(both meter and communication)') + '</div>';
                                                 var tpl = Ext.create('FirmwareOptionsXTemplate');
                                                 result += ('<div style="margin-bottom:10px">' + tpl.apply(masterFirmwareOptionTemplate) + '</div>');
                                             }
