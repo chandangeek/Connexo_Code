@@ -12,7 +12,9 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.conditions.Operator;
 import com.energyict.mdc.common.search.SearchDomains;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -123,9 +125,9 @@ public class DeviceSearchDomain implements SearchDomain {
         ZonesSearchablePropertyGroup zonesGroup =  injector.getInstance(ZonesSearchablePropertyGroup.class);
         ZoneTypeSearchableProperty zoneTypeSearchableProperty = injector.getInstance(ZoneTypeSearchableProperty.class).init(this, zonesGroup);
         return Arrays.asList(
-                injector.getInstance(NameSearchableProperty.class).init(this),
-                injector.getInstance(MridSearchableProperty.class).init(this),
-                injector.getInstance(SerialNumberSearchableProperty.class).init(this),
+                injector.getInstance(NameSearchableProperty.class).init(this).setAvailableOperators(Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code(), SearchablePropertyOperator.IN.code())),
+                injector.getInstance(MridSearchableProperty.class).init(this).setAvailableOperators(Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code(), SearchablePropertyOperator.IN.code())),
+                injector.getInstance(SerialNumberSearchableProperty.class).init(this).setAvailableOperators(Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code(), SearchablePropertyOperator.IN.code())),
                 deviceTypeSearchableProperty,
                 injector.getInstance(DeviceConfigurationSearchableProperty.class).init(this, deviceTypeSearchableProperty),
                 injector.getInstance(StateNameSearchableProperty.class).init(this, deviceTypeSearchableProperty),
@@ -139,7 +141,7 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(SharedScheduleSearchableProperty.class).init(this),
                 zoneTypeSearchableProperty,
                 injector.getInstance(ZoneSearchableProperty.class).init(this, zonesGroup, zoneTypeSearchableProperty),
-                injector.getInstance(UsagePointSearchableProperty.class).init(this),
+                injector.getInstance(UsagePointSearchableProperty.class).init(this).setAvailableOperators(Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code(), SearchablePropertyOperator.IN.code())),
                 injector.getInstance(MasterDeviceSearchableProperty.class).init(this, topologyGroup),
                 injector.getInstance(SlaveDeviceSearchableProperty.class).init(this, topologyGroup),
                 injector.getInstance(ValidationStatusSearchableProperty.class).init(this, validationGroup),

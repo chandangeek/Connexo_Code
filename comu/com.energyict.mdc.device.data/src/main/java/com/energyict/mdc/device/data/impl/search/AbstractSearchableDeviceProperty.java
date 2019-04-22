@@ -7,6 +7,8 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.And;
@@ -32,6 +34,7 @@ import com.elster.jupiter.properties.TimeDurationValueFactory;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -48,6 +51,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     private String columnName;
     protected Instant now;
     private final Thesaurus thesaurus;
+    private List<String> availableOperators;
 
     private final TimeDuration YEAR = new TimeDuration(1, TimeDuration.TimeUnit.YEARS);
     private final TimeDuration MONTH = new TimeDuration(1, TimeDuration.TimeUnit.MONTHS);
@@ -60,10 +64,21 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     protected AbstractSearchableDeviceProperty(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
+        this.availableOperators = Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code());
     }
 
     protected Thesaurus getThesaurus() {
         return thesaurus;
+    }
+
+    @Override
+    public List<String> getAvailableOperators(){
+        return availableOperators;
+    }
+
+    public SearchableProperty setAvailableOperators(List<String> operators){
+        this.availableOperators = operators;
+        return this;
     }
 
     protected abstract TranslationKey getNameTranslationKey();
