@@ -119,7 +119,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                       } else {
                                               var targetFirmwareCheck = value;
 
-                                              if  (!targetFirmwareCheck) {
+                                              if  (!targetFirmwareCheck || !targetFirmwareCheck.activated) {
                                                   field.hide();
                                                   return;
                                               }
@@ -159,7 +159,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                         var currentFirmwareCheck  = value && value["CURRENT_FIRMWARE_CHECK"];
                                         var masterFirmwareCheck = value && value["MASTER_FIRMWARE_CHECK"];
 
-                                        if  (!masterFirmwareCheck && !currentFirmwareCheck) {
+                                        if  ((!masterFirmwareCheck || !masterFirmwareCheck.activated) && (!currentFirmwareCheck || !currentFirmwareCheck.activated)) {
                                             field.hide();
                                             return;
                                         }
