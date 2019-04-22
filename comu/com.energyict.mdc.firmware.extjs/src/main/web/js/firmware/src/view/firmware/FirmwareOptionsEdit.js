@@ -131,6 +131,8 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
 
                            mainOption.show();
 
+                           if ( !modelData['statuses'] || !(modelData['statuses'] instanceof Array) ) return;
+
                            finalOptionVal = modelData['statuses'].indexOf('FINAL') !==-1;
                            testOptionVal = modelData['statuses'].indexOf('TEST') !==-1;
                            if (finalOptionVal || testOptionVal){
