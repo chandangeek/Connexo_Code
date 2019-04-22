@@ -24,6 +24,7 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.RaiseEventUrgencyFactory;
 import com.elster.jupiter.properties.rest.RecurrenceSelectionPropertyFactory;
 import com.elster.jupiter.properties.rest.TaskPropertyFacory;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -57,8 +58,6 @@ import java.util.stream.Collectors;
         immediate = true)
 public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     static final String NAME = "BasicTaskIssueRuleTemplate";
-
-    public static final String AUTORESOLUTION = NAME + ".autoresolution";
     public static final String LOG_ON_SAME_ISSUE = NAME + ".logOnSameIssue";
     public static final String TASK_PROPS = NAME + ".taskProps";
     private static final String DEFAULT_KEY = "1:1";
@@ -145,13 +144,6 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by basic task rule=@{ruleId} with create new issue\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, false);\n" +
-                "end\n" +
-                "rule \"Auto-resolution section @{ruleId}\"\n" +
-                "when\n" +
-                "\tevent : TaskFailureEvent(resolveEvent == true, @{" + AUTORESOLUTION + "} == 1 )\n" +
-                "then\n" +
-                "\tLOGGER.info(\"Trying to resolve issue by basic task rule=@{ruleId}\");\n" +
-                "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
                 "end";
     }
 
@@ -216,12 +208,6 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                 .markRequired()
                 .setDefaultValue(new RecurrenceSelectionInfo(DEFAULT_KEY))
                 .addValues(logAndPriorityValues)
-                .finish());
-        builder.add(propertySpecService
-                .booleanSpec()
-                .named(AUTORESOLUTION, TranslationKeys.PARAMETER_AUTO_RESOLUTION)
-                .fromThesaurus(this.getThesaurus())
-                .setDefaultValue(true)
                 .finish());
         builder.add(propertySpecService
                 .specForValuesOf(new TaskPropsInfoValueFactory())
@@ -314,7 +300,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
 
     }
 
-    private class RecurrenceSelectionInfoValueFactory implements ValueFactory<HasIdAndName>, RecurrenceSelectionPropertyFactory {
+    private class RecurrenceSelectionInfoValueFactory implements ValueFactory<HasIdAndName>, RaiseEventUrgencyFactory {
         @Override
         public RecurrenceSelectionInfo fromStringValue(String stringValue) {
             return new RecurrenceSelectionInfo(stringValue);

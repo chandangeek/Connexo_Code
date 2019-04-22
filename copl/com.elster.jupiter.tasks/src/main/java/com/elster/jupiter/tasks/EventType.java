@@ -61,15 +61,7 @@ public enum EventType {
         this.shouldPublish(builder).create();
     }
 
-
-    @TransactionRequired
-    public void createIfNotExists(EventService eventService) {
-        if (!eventService.getEventType(topic()).isPresent()) {
-            install(eventService);
-        }
-    }
-
     EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
-        return eventTypeBuilder.shouldPublish();
+        return eventTypeBuilder.shouldNotPublish();
     }
 }

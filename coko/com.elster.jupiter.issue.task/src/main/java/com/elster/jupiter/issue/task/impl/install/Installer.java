@@ -61,7 +61,6 @@ public class Installer implements FullInstaller {
             setTaskIssueReasons(issueType);
         }, "issue reasons and action types", logger);
         run(this::publishEvents, "event publishing", logger);
-        run(this::createEventTypes, "create event types", logger);
     }
 
     private void publishEvents() {
@@ -89,13 +88,6 @@ public class Installer implements FullInstaller {
                             .isEqualTo("com/elster/jupiter/tasks/taskoccurrence/FAILED"));
         } catch (DuplicateSubscriberNameException e) {
             // subscriber already exists, ignoring
-        }
-    }
-
-
-    private void createEventTypes() {
-        for (com.elster.jupiter.tasks.EventType eventType : com.elster.jupiter.tasks.EventType.values()) {
-            eventType.createIfNotExists(eventService);
         }
     }
 
