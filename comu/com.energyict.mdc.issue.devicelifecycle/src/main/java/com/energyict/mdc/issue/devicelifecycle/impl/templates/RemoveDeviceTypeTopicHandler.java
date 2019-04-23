@@ -18,6 +18,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 
 @Component(name = "com.energyict.mdc.issue.devicelifecycle.impl.templates.RemoveDeviceTypeTopicHandler", service = TopicHandler.class, immediate = true)
@@ -41,9 +42,8 @@ public class RemoveDeviceTypeTopicHandler implements TopicHandler {
         boolean deviceTypeInUse = issueCreationRules.stream()
                 .map(rule -> (List) rule.getProperties().get(DeviceLifecycleIssueCreationRuleTemplate.DEVICE_LIFECYCLE_TRANSITION_PROPS))
                 .filter(list -> !list.isEmpty())
-                .map(list -> list.get(0))
-                .map(rule -> (DeviceLifecycleIssueCreationRuleTemplate.DeviceLifeCycleTransitionPropsInfo) rule)
-                .anyMatch(info -> info.getDeviceTypeId() == deviceType.getId());
+                .flatMap(Collection::stream)
+                .anyMatch(info -> ((DeviceLifecycleIssueCreationRuleTemplate.DeviceLifeCycleTransitionPropsInfo) info).getDeviceTypeId() == deviceType.getId());
         if (deviceTypeInUse) {
             throw new VetoDeviceTypeDeleteException(issueDeviceLifecycleService.thesaurus(), deviceType);
         }

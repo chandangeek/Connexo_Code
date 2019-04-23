@@ -45,6 +45,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -108,6 +109,7 @@ public class UserDirectoryIT extends EqualsContractTest {
         });
     }
 
+    @Override
     @After
     public void tearDown() {
         inMemoryBootstrapModule.deactivate();
@@ -116,7 +118,7 @@ public class UserDirectoryIT extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (userDir == null) {
-            userDir = new ActiveDirectoryImpl(dataModel, mock(UserService.class)).init(TEST_DOMAIN);
+            userDir = new ActiveDirectoryImpl(dataModel, mock(UserService.class), mock(BundleContext.class)).init(TEST_DOMAIN);
             setId(userDir, ID);
         }
         return userDir;
@@ -124,14 +126,14 @@ public class UserDirectoryIT extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        UserDirectory userDirB = new ActiveDirectoryImpl(dataModel, mock(UserService.class)).init(TEST_DOMAIN);
+        UserDirectory userDirB = new ActiveDirectoryImpl(dataModel, mock(UserService.class), mock(BundleContext.class)).init(TEST_DOMAIN);
         setId(userDirB, ID);
         return userDirB;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        UserDirectory userDirC = new ActiveDirectoryImpl(dataModel, mock(UserService.class)).init(TEST_DOMAIN);
+        UserDirectory userDirC = new ActiveDirectoryImpl(dataModel, mock(UserService.class), mock(BundleContext.class)).init(TEST_DOMAIN);
         setId(userDirC, OTHER_ID);
         return Collections.singletonList(userDirC);
     }
