@@ -97,7 +97,17 @@ Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
                 displayField: 'name',
                 valueField: 'name',
                 store: 'Bpm.monitorprocesses.store.HistoryProcessesFilterUsers'
-            }
+            },
+            {
+        		type: 'noui',
+        		itemId: 'processInstanceIdFilter',
+        		dataIndex: 'processInstanceId'
+        	},
+        	{
+        		type: 'noui',
+        		itemId: 'searchInAllProcessesFilter',
+        		dataIndex: 'searchInAllProcesses'
+        	}
         ];
 
         me.callParent(arguments);

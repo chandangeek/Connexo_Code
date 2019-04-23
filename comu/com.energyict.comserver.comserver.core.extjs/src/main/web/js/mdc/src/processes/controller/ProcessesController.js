@@ -6,7 +6,8 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
     extend: 'Ext.app.Controller',
 
     models: [
-        'Bpm.monitorprocesses.model.ProcessNodes'
+        'Bpm.monitorprocesses.model.ProcessNodes',
+        'Bpm.monitorprocesses.model.ExtendedProcessNodes'
     ],
 
     requires: [
@@ -41,7 +42,11 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         {ref: 'processPreviewForm', selector: '#processPreviewForm'},
         {ref: 'processStatusPreviewGrid', selector: '#all-process-status-preview #process-nodes-grid'},
         {ref: 'statusVariablesPreviewPanel', selector: '#all-process-status-preview #node-variables-preview-panel'},
-        {ref: 'openTasksDisplay', selector: '#processPreviewForm #preview-running-process-open-tasks-all-processes'}
+        {ref: 'openTasksDisplay', selector: '#processPreviewForm #preview-running-process-open-tasks-all-processes'},
+        {ref: 'processStatusPreviewExtendedTab', selector: '#all-process-status-preview-extended'},
+        {ref: 'processStatusPreviewExtendedGrid', selector: '#all-process-status-preview-extended #process-nodes-grid-extended'},
+        {ref: 'statusVariablesPreviewExtendedPanel', selector: '#all-process-status-preview-extended #node-variables-preview-panel'},
+        {ref: 'childProcessPreviewExtendedPanel', selector: '#all-process-status-preview-extended #child-process-preview-panel'}
     ],
     router: null,
 
@@ -52,6 +57,9 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
             },
             '#all-process-status-preview #process-nodes-grid': {
                 select: this.showVariablesPreviewForStatus
+            },
+            '#all-process-status-preview-extended #process-nodes-grid-extended': {
+                select: this.showVariablesPreviewExtendedForStatus
             },
             'processes-sorting-menu': {
                 click: this.chooseSort
@@ -144,10 +152,13 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                 previewForm.down("#deviceForAlarm").setVisible(false);
             }
 
-
             /* For status preview */
-            this.showNodesDetails(process, this.getProcessStatusPreviewGrid());
-
+            if(me.getProcessStatusPreviewExtendedTab()){
+            	this.showNodesDetailsWithSubprocesses(process, this.getProcessStatusPreviewExtendedGrid());
+            } else {
+            	this.showNodesDetails(process, this.getProcessStatusPreviewGrid());
+            }
+            
             /* Prepare user tasks to show */
             process.openTasks().each(function (rec) {
                 if (openTasksValue.length > 0) {
@@ -206,7 +217,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
             }
         })
     },
-
+    
     showVariablesPreviewForStatus: function (selectionModel, record) {
         var me = this;
         return me.showVariablesPreview(me.getStatusVariablesPreviewPanel(), record);
@@ -253,7 +264,106 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         panel.items = panelItems;
         panel.doLayout();
     },
+    
+    showNodesDetailsWithSubprocesses: function (processRecord, grid) {
+        var me = this;
+        var extendedProcessNodesModel = Ext.ModelManager.getModel('Bpm.monitorprocesses.model.ExtendedProcessNodes');
 
+        Ext.Ajax.request({
+            url: Ext.String.format('../../api/bpm/runtime/process/instance/{0}/nodeswithsubprocessinfo', processRecord.get('processId')),
+            method: 'GET',
+            success: function (option) {
+                var response = Ext.JSON.decode(option.responseText),
+                    reader = Bpm.monitorprocesses.model.ExtendedProcessNodes.getProxy().getReader(),
+                    resultSet = reader.readRecords(response),
+                    record = resultSet.records[0];
+                if (grid){
+                    grid.reconfigure(record.list());
+                    grid.getSelectionModel().select(0);
+                }
+
+            }
+        })
+    },
+    
+    showVariablesPreviewExtendedForStatus: function (selectionModel, record) {
+        var me = this;
+        return me.showVariablesPreviewExtended(me.getStatusVariablesPreviewExtendedPanel(), me.getChildProcessPreviewExtendedPanel(), record);
+    },
+
+   showVariablesPreviewExtended: function (panel, subprocessPanel, record) {
+        var me = this;
+
+        panel.setTitle(Ext.String.format(Uni.I18n.translate('mdc.process.node.variablesTitle', 'MDC', '{0} ({1}) variables'),
+            record.get('nodeInfo.name'), record.get('nodeInfo.type')));
+
+        var panelItems = new Ext.util.MixedCollection(), subprocessPanelItems = new Ext.util.MixedCollection();
+
+
+        if (record.get('nodeInfo.processInstanceVariables') && record.get('nodeInfo.processInstanceVariables').length > 0) {
+            Ext.Array.each(record.get('nodeInfo.processInstanceVariables'), function (variable) {
+                panelItems.add(Ext.create("Ext.form.field.Display", {
+                        fieldLabel: variable.variableName,
+                        style: '{word-break: break-word; word-wrap: break-word;}',
+                        flex: 1,
+                        labelWidth: 150,
+                        value: variable.value
+                    }
+                ))
+            });
+        }
+        else {
+            panelItems.add(Ext.create("Ext.Component", {
+                    height: 40,
+                    autoEl: {
+                        html: Uni.I18n.translate('mdc.process.node.noVariables', 'MDC', 'No variable change during the node execution'),
+                        tag: 'span',
+                        style: {
+                            top: '2em !important',
+                            fontStyle: 'italic',
+                            color: '#999'
+                        }
+                    }
+                }
+            ))
+        }
+        
+        if(record.get('childSubprocessLog.childProcessInstanceId')) {
+        	subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
+                        fieldLabel: 'Child process instance id',
+                        style: '{word-break: break-word; word-wrap: break-word;}',
+                        flex: 1,
+                        labelWidth: 200,
+                        value: record.get('childSubprocessLog.childProcessInstanceId'),
+                        listeners: {
+                        	afterrender: function(view) {
+                        		view.getEl().on('click', function() {
+                        			var router = me.getController('Uni.controller.history.Router');
+                        			var route = router.getRoute('workspace/multisenseprocesses');
+                        			route.forwardInNewTab(null, {processInstanceId: [record.get('childSubprocessLog.childProcessInstanceId')], searchInAllProcesses: true});
+                        		});
+                        	}
+                        }
+                    }
+                ));
+            subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
+                        fieldLabel: 'Child process name',
+                        style: '{word-break: break-word; word-wrap: break-word;}',
+                        flex: 1,
+                        labelWidth: 200,
+                        value: record.get('childSubprocessLog.processName')
+                    }
+                ));        
+        }
+
+        panel.removeAll();
+        subprocessPanel.removeAll();
+        panel.items = panelItems;
+        subprocessPanel.items = subprocessPanelItems;
+        panel.doLayout();
+        subprocessPanel.doLayout();
+    },
+    
    /* Functions for sorting */
    chooseSort: function (menu, item) {
            var me = this,
