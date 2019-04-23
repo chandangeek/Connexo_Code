@@ -61,6 +61,10 @@ public class EK280 extends LIS200 implements IRegisterReadable {
 
             new ValueRegisterDefinition(Lis200ObisCode.FLOW_RATE_MEAS_COND_CURR, 4, "310.0"),
             new ValueRegisterDefinition(Lis200ObisCode.FLOW_RATE_BASE_COND_CURR, 2, "310.0"),
+            new ValueRegisterDefinition(Lis200ObisCode.MAX_INT_VAL_BASE_COND, 3, "161.0"),
+            new ValueRegisterDefinition(Lis200ObisCode.MAX_DAY_VAL_BASE_COND, 4, "161.0"),
+            new ValueRegisterDefinition(Lis200ObisCode.MAX_INT_VAL_MEAS_COND, 10, "161.0"),
+            new ValueRegisterDefinition(Lis200ObisCode.MAX_DAY_VAL_MEAS_COND, 11, "161.0"),
 
             /** maximum demand values */
             /** volume */
