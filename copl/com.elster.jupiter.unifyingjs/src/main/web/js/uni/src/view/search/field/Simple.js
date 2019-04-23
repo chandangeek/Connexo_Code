@@ -9,7 +9,6 @@ Ext.define('Uni.view.search.field.Simple', {
         'Uni.view.search.field.internal.CriteriaLine',
         'Uni.view.search.field.internal.Textarea'
     ],
-    // layout: 'fit',
 
     //reset: function() {
     //    this.down('uni-search-internal-criterialine').reset();
@@ -25,25 +24,27 @@ Ext.define('Uni.view.search.field.Simple', {
 
         me.init();
         me.callParent(arguments);
+        console.log(me.property.get('availableOperators'));
     },
 
     init: function () {
         var me = this;
+        var operators = me.property.get('availableOperators');
+        var operatorMap = {
+            '==': 'uni-search-internal-input',
+            '!=': 'uni-search-internal-input',
+        }
+
+        if (Ext.Array.contains(operators, 'IN')) {
+            operatorMap['IN'] = 'uni-search-internal-textarea'
+        }
 
         me.items = {
             xtype: 'uni-search-internal-criterialine',
             operator: '==',
             padding: 5,
             removable: false,
-            operatorMap: {
-                '==': 'uni-search-internal-input',
-                '!=': 'uni-search-internal-input',
-                'IN': 'uni-search-internal-textarea',
-                //'>': 'uni-search-internal-input',
-                //'>=': 'uni-search-internal-input',
-                //'<': 'uni-search-internal-input',
-                //'<=': 'uni-search-internal-input'
-            },
+            operatorMap,
             listeners: {
                 change: {
                     fn: me.onValueChange,
