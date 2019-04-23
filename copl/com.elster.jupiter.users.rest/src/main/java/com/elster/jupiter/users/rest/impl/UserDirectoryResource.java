@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.users.rest.impl;
 
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.CertificateWrapper;
@@ -20,12 +19,14 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.users.LdapGroup;
 import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
+import com.elster.jupiter.users.rest.LdapGroupsInfo;
+import com.elster.jupiter.users.rest.LdapGroupsInfos;
 import com.elster.jupiter.users.rest.LdapUsersInfo;
 import com.elster.jupiter.users.rest.LdapUsersInfos;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
@@ -50,9 +51,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -66,7 +70,9 @@ public class UserDirectoryResource {
     private final UserDirectoryInfoFactory userDirectoryInfoFactory;
 
     @Inject
-    public UserDirectoryResource(UserService userService, TransactionService transactionService, RestQueryService restQueryService, SecurityManagementService securityManagementService, UserDirectoryInfoFactory userDirectoryInfoFactory) {
+    public UserDirectoryResource(UserService userService, TransactionService transactionService,
+            RestQueryService restQueryService, SecurityManagementService securityManagementService,
+            UserDirectoryInfoFactory userDirectoryInfoFactory) {
         this.transactionService = transactionService;
         this.userService = userService;
         this.restQueryService = restQueryService;
@@ -74,27 +80,29 @@ public class UserDirectoryResource {
         this.userDirectoryInfoFactory = userDirectoryInfoFactory;
     }
 
-
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE,
+            com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
     public UserDirectoryInfos getUserDirectory(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<AbstractLdapDirectoryImpl> userDirectory = (List<AbstractLdapDirectoryImpl>)(List<?>)getUserDirectoriesQuery().select(queryParameters, Order.ascending("domain").toLowerCase());
+        List<UserDirectory> userDirectory = getUserDirectoriesQuery().select(queryParameters,
+                Order.ascending("domain").toLowerCase());
         List<LdapUserDirectory> ldapUserDirectories = new ArrayList<>();
-        for(int i=0; i<userDirectory.size();i++){
+        for (int i = 0; i < userDirectory.size(); i++) {
             try {
                 ldapUserDirectories.add((LdapUserDirectory) userDirectory.get(i));
-            }catch (ClassCastException e ){
+            } catch (ClassCastException e) {
                 Optional<UserDirectory> usr = userService.findUserDirectory("Local");
-                if(usr.isPresent()){
+                if (usr.isPresent()) {
                     LdapUserDirectory ldapUserDirectory = userService.createApacheDirectory(usr.get().getDomain());
                     ldapUserDirectory.setDefault(usr.get().isDefault());
                     ldapUserDirectories.add(ldapUserDirectory);
                 }
             }
         }
-        UserDirectoryInfos infos = userDirectoryInfoFactory.asInfoList(queryParameters.clipToLimit(ldapUserDirectories));
+        UserDirectoryInfos infos = userDirectoryInfoFactory
+                .asInfoList(queryParameters.clipToLimit(ldapUserDirectories));
         infos.total = queryParameters.determineTotal(ldapUserDirectories.size());
         return infos;
 
@@ -103,8 +111,9 @@ public class UserDirectoryResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
-    public UserDirectoryInfo getUserDirectory(@PathParam("id") long id,@Context SecurityContext securityContext) {
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE,
+            com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
+    public UserDirectoryInfo getUserDirectory(@PathParam("id") long id, @Context SecurityContext securityContext) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
         return userDirectoryInfoFactory.asInfo(ldapUserDirectory);
     }
@@ -129,20 +138,26 @@ public class UserDirectoryResource {
             ldapUserDirectory.setUrl(info.url);
             ldapUserDirectory.setBackupUrl(info.backupUrl);
             ldapUserDirectory.setDefault(info.isDefault);
-            ldapUserDirectory.setManageGroupsInternal(true);
+            ldapUserDirectory.setGroupName(info.groupName);
             ldapUserDirectory.update();
-            if (!(info.securityProtocol == null || info.securityProtocol.toUpperCase().contains("NONE")) && (info.trustStore != null || info.certificateAlias != null)) {
+            if (!(info.securityProtocol == null || info.securityProtocol.toUpperCase().contains("NONE"))
+                    && (info.trustStore != null || info.certificateAlias != null)) {
                 CertificateWrapper certificate = null;
                 TrustStore trustStore = null;
                 if (!Checks.is(info.certificateAlias).emptyOrOnlyWhiteSpace()) {
-                    certificate = securityManagementService.findCertificateWrapper(Optional.ofNullable(info.certificateAlias).orElse(""))
-                            .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_CERTIFICATE, "certificateAlias"));
+                    certificate = securityManagementService
+                            .findCertificateWrapper(Optional.ofNullable(info.certificateAlias).orElse(""))
+                            .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_CERTIFICATE,
+                                    "certificateAlias"));
                 }
                 if (info.trustStore != null) {
-                    trustStore = securityManagementService.findTrustStore(Optional.ofNullable(info.trustStore).map(ts -> ts.id).orElse(0L))
-                            .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
+                    trustStore = securityManagementService
+                            .findTrustStore(Optional.ofNullable(info.trustStore).map(ts -> ts.id).orElse(0L))
+                            .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE,
+                                    "trustStore"));
                 }
-                DirectoryCertificateUsage newDirectoryCertificateUsage = securityManagementService.newDirectoryCertificateUsage(ldapUserDirectory);
+                DirectoryCertificateUsage newDirectoryCertificateUsage = securityManagementService
+                        .newDirectoryCertificateUsage(ldapUserDirectory);
                 newDirectoryCertificateUsage.setCertificate(certificate);
                 newDirectoryCertificateUsage.setTrustStore(trustStore);
                 newDirectoryCertificateUsage.save();
@@ -157,22 +172,23 @@ public class UserDirectoryResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
-    public UserDirectoryInfo editUserDirectory(UserDirectoryInfo info, @PathParam("id") long id,@Context SecurityContext securityContext) {
+    public UserDirectoryInfo editUserDirectory(UserDirectoryInfo info, @PathParam("id") long id,
+            @Context SecurityContext securityContext) {
         transactionService.execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                if(info.isDefault){
+                if (info.isDefault) {
                     UserDirectory fi = userService.findDefaultUserDirectory();
                     fi.setDefault(false);
                     fi.update();
                 }
-                if(info.name.equals("Local")){
+                if (info.name.equals("Local")) {
                     Optional<UserDirectory> userDirectory = userService.findUserDirectory(info.name);
-                    if(userDirectory.isPresent()){
+                    if (userDirectory.isPresent()) {
                         userDirectory.get().setDefault(true);
                         userDirectory.get().update();
                     }
-                }else {
+                } else {
                     LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
                     ldapUserDirectory.setBackupUrl(info.backupUrl);
                     ldapUserDirectory.setDomain(info.name);
@@ -184,26 +200,34 @@ public class UserDirectoryResource {
                     ldapUserDirectory.setBaseUser(info.baseUser);
                     ldapUserDirectory.setDefault(info.isDefault);
                     ldapUserDirectory.setType(info.type);
+                    ldapUserDirectory.setGroupName(info.groupName);
                     if (info.securityProtocol == null || info.securityProtocol.toUpperCase().contains("NONE")) {
-                        securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory).ifPresent(DirectoryCertificateUsage::delete);
+                        securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory)
+                                .ifPresent(DirectoryCertificateUsage::delete);
                     } else if (info.trustStore != null || info.certificateAlias != null) {
-                        Optional<DirectoryCertificateUsage> directoryCertificateUsage = securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory);
+                        Optional<DirectoryCertificateUsage> directoryCertificateUsage = securityManagementService
+                                .getUserDirectoryCertificateUsage(ldapUserDirectory);
                         CertificateWrapper certificate = null;
                         TrustStore trustStore = null;
                         if (!Checks.is(info.certificateAlias).emptyOrOnlyWhiteSpace()) {
-                            certificate = securityManagementService.findCertificateWrapper(Optional.ofNullable(info.certificateAlias).orElse(""))
-                                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_CERTIFICATE, "certificateAlias"));
+                            certificate = securityManagementService
+                                    .findCertificateWrapper(Optional.ofNullable(info.certificateAlias).orElse(""))
+                                    .orElseThrow(() -> new LocalizedFieldValidationException(
+                                            MessageSeeds.NO_SUCH_CERTIFICATE, "certificateAlias"));
                         }
                         if (info.trustStore != null) {
-                            trustStore = securityManagementService.findTrustStore(Optional.ofNullable(info.trustStore).map(ts -> ts.id).orElse(0L))
-                                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
+                            trustStore = securityManagementService
+                                    .findTrustStore(Optional.ofNullable(info.trustStore).map(ts -> ts.id).orElse(0L))
+                                    .orElseThrow(() -> new LocalizedFieldValidationException(
+                                            MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
                         }
                         if (directoryCertificateUsage.isPresent()) {
                             directoryCertificateUsage.get().setCertificate(certificate);
                             directoryCertificateUsage.get().setTrustStore(trustStore);
                             directoryCertificateUsage.get().save();
                         } else {
-                            DirectoryCertificateUsage newDirectoryCertificateUsage = securityManagementService.newDirectoryCertificateUsage(ldapUserDirectory);
+                            DirectoryCertificateUsage newDirectoryCertificateUsage = securityManagementService
+                                    .newDirectoryCertificateUsage(ldapUserDirectory);
                             newDirectoryCertificateUsage.setCertificate(certificate);
                             newDirectoryCertificateUsage.setTrustStore(trustStore);
                             newDirectoryCertificateUsage.save();
@@ -213,24 +237,25 @@ public class UserDirectoryResource {
                 }
             }
         });
-        if(id == 0 ){
+        if (id == 0) {
             UserDirectory userDirectory = userService.findUserDirectory(info.name).get();
             LdapUserDirectory ldapUserDirectory = userService.createApacheDirectory(userDirectory.getDomain());
             ldapUserDirectory.setDefault(userDirectory.isDefault());
             return userDirectoryInfoFactory.asInfo(ldapUserDirectory);
-        }else {
+        } else {
             return getUserDirectory(id, securityContext);
         }
     }
 
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
     public Response deleteUserDirectory(UserDirectoryInfo info, @PathParam("id") long id) {
         try (TransactionContext context = transactionService.getContext()) {
             LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
-            securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory).ifPresent(DirectoryCertificateUsage::delete);
+            securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory)
+                    .ifPresent(DirectoryCertificateUsage::delete);
             ldapUserDirectory.delete();
             context.commit();
             return Response.status(Response.Status.OK).build();
@@ -240,47 +265,98 @@ public class UserDirectoryResource {
     @GET
     @Path("/{id}/extusers")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
-    public PagedInfoList getExtUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE,
+            com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
+    public PagedInfoList getExtUsers(@BeanParam JsonQueryParameters queryParameters, @PathParam("id") long id,
+            @Context SecurityContext securityContext) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
         List<LdapUser> ldapUsers = ldapUserDirectory.getLdapUsers();
         List<LdapUsersInfo> ldapUsersInfos = ListPager.of(ldapUsers)
-                .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null))
-                .find()
-                .stream()
-                .sorted((s1,s2)-> s1.getUserName().toLowerCase().compareTo(s2.getUserName().toLowerCase()))
-                .map(LdapUsersInfo::new)
-                .collect(toList());
-        return PagedInfoList.fromCompleteList("extusers",ldapUsersInfos,queryParameters);
+                .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null)).find().stream()
+                .sorted((s1, s2) -> s1.getUserName().toLowerCase().compareTo(s2.getUserName().toLowerCase()))
+                .map(LdapUsersInfo::new).collect(toList());
+        return PagedInfoList.fromCompleteList("extusers", ldapUsersInfos, queryParameters);
     }
 
     @GET
     @Path("/{id}/users")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
-    public PagedInfoList getUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE,
+            com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
+    public PagedInfoList getUsers(@BeanParam JsonQueryParameters queryParameters, @PathParam("id") long id,
+            @Context SecurityContext securityContext) {
         List<User> users = userService.getAllUsers(id);
         List<LdapUsersInfo> ldapUsersInfos = ListPager.of(users)
-                .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null))
-                .find()
-                .stream()
-                .map(LdapUsersInfo::new)
-                .collect(toList());
-        return PagedInfoList.fromCompleteList("users",ldapUsersInfos,queryParameters);
+                .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null)).find().stream()
+                .map(LdapUsersInfo::new).collect(toList());
+        return PagedInfoList.fromCompleteList("users", ldapUsersInfos, queryParameters);
     }
 
     @POST
     @Path("/{id}/users")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
-    public Response saveUsers(LdapUsersInfos infos ,@PathParam("id") long id,@Context SecurityContext securityContext) {
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE,
+            com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
+    public Response saveUsers(LdapUsersInfos infos, @PathParam("id") long id,
+            @Context SecurityContext securityContext) {
         try (TransactionContext context = transactionService.getContext()) {
             LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
-            infos.ldapUsers.stream().forEach(s -> userService.findOrCreateUser(s.name, ldapUserDirectory.getDomain(), ldapUserDirectory.getType(),s.status));
+            infos.ldapUsers.stream().forEach(s -> userService.findOrCreateUser(s.name, ldapUserDirectory.getDomain(),
+                    ldapUserDirectory.getType(), s.status));
             context.commit();
         }
         return Response.status(Response.Status.OK).build();
+    }
+
+    /**
+     * Gets a list of groups from LDAP
+     *
+     * @param queryParameters
+     * @param id
+     * @return
+     */
+    @GET
+    @Path("/{id}/extgroups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE,
+            com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
+    public PagedInfoList getExtGroups(@BeanParam JsonQueryParameters queryParameters, @PathParam("id") long id) {
+        List<LdapGroupsInfo> groups = getLDAPGroups(queryParameters, id, null);
+        return PagedInfoList.fromCompleteList("extgroups", groups, queryParameters);
+    }
+
+    private List<LdapGroupsInfo> getLDAPGroups(JsonQueryParameters queryParameters, long id,
+            Function<LdapGroup, Boolean> filterFunction) {
+        LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
+        List<LdapGroup> ldapGroups = ldapUserDirectory.getLdapGroups();
+        Stream<LdapGroup> streamOfNames = ListPager.of(ldapGroups)
+                .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null)).find()
+                .stream();
+        if (filterFunction != null) {
+            streamOfNames = streamOfNames.filter(filterFunction::apply);
+        }
+        return streamOfNames.sorted((s1, s2) -> s1.getName().toLowerCase().compareTo(s2.getName().toLowerCase()))
+                .map(LdapGroupsInfo::new).collect(toList());
+    }
+
+    /**
+     * Gets a list of groups which were imported into Connexo from LDAP
+     *
+     * @param queryParameters
+     * @param id
+     * @return
+     */
+    @GET
+    @Path("/{id}/extimportedgroups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE,
+            com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
+    public PagedInfoList getExtImportedGroups(@BeanParam JsonQueryParameters queryParameters,
+            @PathParam("id") long id) {
+        List<LdapGroupsInfo> groups = getLDAPGroups(queryParameters, id,
+                ldapGroup -> userService.findGroup(ldapGroup.getName()).isPresent());
+        return PagedInfoList.fromCompleteList("extimportedgroups", groups, queryParameters);
     }
 
     private RestQuery<UserDirectory> getUserDirectoriesQuery() {
@@ -288,5 +364,22 @@ public class UserDirectoryResource {
         return restQueryService.wrap(query);
     }
 
+    @POST
+    @Path("/groups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE,
+            com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL })
+    public Response saveGroups(LdapGroupsInfos infos, @Context SecurityContext securityContext) {
+        try (TransactionContext context = transactionService.getContext()) {
+            infos.ldapGroups.stream().forEach(s -> {
+                if (!userService.findGroup(s.name).isPresent()) {
+                    userService.createGroup(s.name, s.description);
+                }
+            });
+            context.commit();
+        }
+        return Response.status(Response.Status.OK).build();
+    }
 
 }

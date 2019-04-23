@@ -117,6 +117,13 @@ Ext.define('Usr.controller.history.UserManagement', {
                                     controller: 'Usr.controller.UserDirectories',
                                     privileges: Usr.privileges.Users.admin,
                                     action: 'showSelectUsers'
+                                },
+								addGroups: {
+                                    title: Uni.I18n.translate('general.selectGroups', 'USR', 'Select groups'),
+                                    route: 'addGroups',
+                                    controller: 'Usr.controller.UserDirectories',
+                                    privileges: Usr.privileges.Users.admin,
+                                    action: 'showSelectGroups'
                                 }
                             }
                         }

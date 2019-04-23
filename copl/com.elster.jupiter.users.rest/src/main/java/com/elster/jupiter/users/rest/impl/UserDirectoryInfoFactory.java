@@ -31,6 +31,7 @@ public class UserDirectoryInfoFactory {
         userDirectoryInfo.backupUrl = ldapUserDirectory.getBackupUrl();
         userDirectoryInfo.baseGroup = ldapUserDirectory.getBaseGroup();
         userDirectoryInfo.baseUser = ldapUserDirectory.getBaseUser();
+		userDirectoryInfo.groupName = ldapUserDirectory.getGroupName();
         userDirectoryInfo.type = ldapUserDirectory.getType();
         userDirectoryInfo.directoryUser = ldapUserDirectory.getDirectoryUser();
         securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory).ifPresent(directoryCertificateUsage -> {
