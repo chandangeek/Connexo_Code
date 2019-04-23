@@ -108,7 +108,7 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
           'search.field.internal.textarea.maxCount',
           'UNI',
           'Maximum item limit reached ({0})',
-          [me.maxCount],
+          [me.maxCount]
         );
       },
       listeners: {
@@ -136,13 +136,13 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
             'search.field.internal.textarea.text',
             'UNI',
             'Multiple values canbe inserted, divided by separator.<br /> {0} - Item separator',
-            [me.separator],
+            [me.separator]
           ),
           maxWidth: 150
         },
         iconCls: 'uni-icon-info-small',
         cls: 'uni-btn-transparent',
-        margin: '5 10 5 5',
+        margin: '5 10 5 5'
       }]
     }
 

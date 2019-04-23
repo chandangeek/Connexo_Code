@@ -44,7 +44,7 @@ Ext.define('Uni.view.search.field.Simple', {
             operator: '==',
             padding: 5,
             removable: false,
-            operatorMap,
+            operatorMap: operatorMap,
             listeners: {
                 change: {
                     fn: me.onValueChange,
