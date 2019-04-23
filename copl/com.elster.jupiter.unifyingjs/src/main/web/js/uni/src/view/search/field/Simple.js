@@ -24,7 +24,6 @@ Ext.define('Uni.view.search.field.Simple', {
 
         me.init();
         me.callParent(arguments);
-        console.log(me.property.get('availableOperators'));
     },
 
     init: function () {
