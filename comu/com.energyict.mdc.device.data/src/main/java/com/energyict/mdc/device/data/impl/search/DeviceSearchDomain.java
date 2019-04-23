@@ -125,9 +125,9 @@ public class DeviceSearchDomain implements SearchDomain {
         ZonesSearchablePropertyGroup zonesGroup =  injector.getInstance(ZonesSearchablePropertyGroup.class);
         ZoneTypeSearchableProperty zoneTypeSearchableProperty = injector.getInstance(ZoneTypeSearchableProperty.class).init(this, zonesGroup);
         return Arrays.asList(
-                injector.getInstance(NameSearchableProperty.class).init(this).setAvailableOperators(Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code(), SearchablePropertyOperator.IN.code())),
-                injector.getInstance(MridSearchableProperty.class).init(this).setAvailableOperators(Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code(), SearchablePropertyOperator.IN.code())),
-                injector.getInstance(SerialNumberSearchableProperty.class).init(this).setAvailableOperators(Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code(), SearchablePropertyOperator.IN.code())),
+                injector.getInstance(NameSearchableProperty.class).init(this),
+                injector.getInstance(MridSearchableProperty.class).init(this),
+                injector.getInstance(SerialNumberSearchableProperty.class).init(this),
                 deviceTypeSearchableProperty,
                 injector.getInstance(DeviceConfigurationSearchableProperty.class).init(this, deviceTypeSearchableProperty),
                 injector.getInstance(StateNameSearchableProperty.class).init(this, deviceTypeSearchableProperty),
@@ -141,7 +141,7 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(SharedScheduleSearchableProperty.class).init(this),
                 zoneTypeSearchableProperty,
                 injector.getInstance(ZoneSearchableProperty.class).init(this, zonesGroup, zoneTypeSearchableProperty),
-                injector.getInstance(UsagePointSearchableProperty.class).init(this).setAvailableOperators(Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code(), SearchablePropertyOperator.IN.code())),
+                injector.getInstance(UsagePointSearchableProperty.class).init(this),
                 injector.getInstance(MasterDeviceSearchableProperty.class).init(this, topologyGroup),
                 injector.getInstance(SlaveDeviceSearchableProperty.class).init(this, topologyGroup),
                 injector.getInstance(ValidationStatusSearchableProperty.class).init(this, validationGroup),

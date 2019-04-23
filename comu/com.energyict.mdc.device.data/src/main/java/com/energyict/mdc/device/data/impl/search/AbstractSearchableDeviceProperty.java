@@ -51,7 +51,6 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     private String columnName;
     protected Instant now;
     private final Thesaurus thesaurus;
-    private List<String> availableOperators;
 
     private final TimeDuration YEAR = new TimeDuration(1, TimeDuration.TimeUnit.YEARS);
     private final TimeDuration MONTH = new TimeDuration(1, TimeDuration.TimeUnit.MONTHS);
@@ -64,22 +63,21 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     protected AbstractSearchableDeviceProperty(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
-        this.availableOperators = Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code());
     }
 
     protected Thesaurus getThesaurus() {
         return thesaurus;
     }
 
-    @Override
+/*    @Override
     public List<String> getAvailableOperators(){
         return availableOperators;
-    }
+    }*/
 
-    public SearchableProperty setAvailableOperators(List<String> operators){
+/*    public SearchableProperty setAvailableOperators(List<String> operators){
         this.availableOperators = operators;
         return this;
-    }
+    }*/
 
     protected abstract TranslationKey getNameTranslationKey();
 
