@@ -280,6 +280,11 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_NTA_DEFAULT_KEY("upl.property.v2.nta.defaultKey", "Default key"),
     V2_NTA_WORKING_KEY_LABEL_PHASE1("upl.property.v2.nta.workingKeyLabelPhase1", "Working key label phase 1"),
     V2_NTA_WORKING_KEY_LABEL_PHASE2("upl.property.v2.nta.workingKeyLabelPhase2", "Working key label phase 2"),
+    V2_NTA_CRYPTO_SERVER_USAGE("upl.property.v2.nta.cryptoserver.usage", "Use Crypto Server"),
+    V2_NTA_CRYPTO_SERVER_HLSSECRET("upl.property.v2.nta.cryptoserver.hlssecret", "Crypto Server HLS Secret"),
+    V2_NTA_CRYPTO_SERVER_INIT("upl.property.v2.nta.cryptoserver.init", "Initialize Crypto Server"),
+    V2_NTA_CRYPTO_SERVER_CONFIG_FILE("upl.property.v2.nta.cryptoserver.configfile", "Crypto Server Config File"),
+    V2_NTA_REPLAY_ATTACK_PREVENTION("upl.property.v2.nta.replayattackprevention", "Replay Attack Prevention"),
 
     V2_ELSTER_GATEWAY_LOGICAL_DEVICE_ID("upl.property.v2.elster.gatewayLogicalDeviceId", "Gateway logical device id"),
     V2_ELSTER_GATEWAY_LOGICAL_DEVICE_ID_DESCRIPTION("upl.property.v2.elster.gatewayLogicalDeviceId.description", "Gateway logical device id"),

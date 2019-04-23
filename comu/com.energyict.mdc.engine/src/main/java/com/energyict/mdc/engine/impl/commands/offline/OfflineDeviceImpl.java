@@ -182,7 +182,8 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
             setAllLoadProfiles(convertToOfflineLoadProfiles(getAllLoadProfilesIncludingDownStreams(this.device), serviceProvider.topologyService()));
         }
         if (context.needsLogBooks()) {
-            setAllLogBooks(convertToOfflineLogBooks(this.device.getLogBooks()));
+            //setAllLogBooks(convertToOfflineLogBooks(this.device.getLogBooks()));
+            setAllLogBooks(convertToOfflineLogBooks(getAllLogBooksIncludingDownStreams(this.device)));
         }
         if (context.needsRegisters()) {
             setAllOfflineRegisters(convertToOfflineRegister(createCompleteRegisterList()));
@@ -288,6 +289,14 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
                 filter(this::checkTheNeedToGoOffline).
                 forEach(slave -> allLoadProfiles.addAll(getAllLoadProfilesIncludingDownStreams(slave)));
         return allLoadProfiles;
+    }
+
+    private List<LogBook> getAllLogBooksIncludingDownStreams(Device device) {
+        List<LogBook> allLogBooks = new ArrayList<>(device.getLogBooks());
+        getPhysicalConnectedDevices(device).stream().
+                filter(this::checkTheNeedToGoOffline).
+                forEach(slave -> allLogBooks.addAll(getAllLogBooksIncludingDownStreams(slave)));
+        return allLogBooks;
     }
 
     /**

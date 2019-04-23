@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.PowerConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
@@ -28,8 +29,6 @@ public class KaifaDsmr40Messaging extends Dsmr40Messaging {
         supportedMessages.add(this.get(PowerConfigurationDeviceMessage.SetVoltageSagTimeThreshold));
         supportedMessages.add(this.get(PowerConfigurationDeviceMessage.SetVoltageSwellThreshold));
         supportedMessages.add(this.get(PowerConfigurationDeviceMessage.SetVoltageSwellTimeThreshold));
-
-
 
         return supportedMessages;
     }
