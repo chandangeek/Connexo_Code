@@ -59,14 +59,9 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/idc</js.dir>
-                <package.name>${project.groupId}.${project.artifactId}</package.name>
-            </properties>
-        </profile>
-    </profiles>
+    <properties>
+        <js.dir>js/idc</js.dir>
+        <package.name>${project.groupId}.${project.artifactId}</package.name>
+    </properties>
 
 </project>

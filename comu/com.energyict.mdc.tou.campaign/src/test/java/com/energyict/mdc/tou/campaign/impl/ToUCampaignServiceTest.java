@@ -7,6 +7,7 @@ package com.energyict.mdc.tou.campaign.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.events.EventService;
@@ -46,7 +47,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tou.campaign.TimeOfUseItem;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignCustomPropertySet;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignDomainExtension;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceImpl;
@@ -67,7 +67,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -79,8 +78,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-// TODO: fix this test
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class ToUCampaignServiceTest {
 
@@ -113,8 +110,8 @@ public class ToUCampaignServiceTest {
 
     @Before
     public void setUp() {
-        timeOfUseSendHelper = new TimeOfUseSendHelper(thesaurus, deviceConfigurationService, deviceMessageSpecificationService, timeOfUseCampaignService);
         when(nlsService.getThesaurus(anyString(), any())).thenReturn(thesaurus);
+        timeOfUseSendHelper = new TimeOfUseSendHelper(thesaurus, deviceConfigurationService, deviceMessageSpecificationService, timeOfUseCampaignService);
         when(upgradeService.newNonOrmDataModel()).thenReturn(dataModel);
         when(customPropertySetService.findActiveCustomPropertySet(TimeOfUseCampaignCustomPropertySet.CUSTOM_PROPERTY_SET_ID)).thenReturn(Optional.ofNullable(registeredCustomPropertySet));
         timeOfUseCampaignService = new TimeOfUseCampaignServiceImpl(threadPrincipalService, transactionService,
@@ -134,7 +131,10 @@ public class ToUCampaignServiceTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         when(dataModel.getInstance(TimeOfUseSendHelper.class)).thenReturn(timeOfUseSendHelper);
+        when(dataModel.getInstance(ServiceCallService.class)).thenReturn(serviceCallService);
+        when(dataModel.getInstance(Thesaurus.class)).thenReturn(thesaurus);
         when(calendar.getId()).thenReturn(1L);
     }
 
@@ -142,17 +142,19 @@ public class ToUCampaignServiceTest {
     public void cancelDevice() {
         DataModel dataModel = mock(DataModel.class);
         when(ormService.getDataModel(TimeOfUseItemPersistenceSupport.COMPONENT_NAME)).thenReturn(java.util.Optional.of(dataModel));
-        TimeOfUseItem timeOfUseItem = mock(TimeOfUseItem.class);
+        TimeOfUseItemDomainExtension timeOfUseItem = new TimeOfUseItemDomainExtension(timeOfUseCampaignService);
         QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(timeOfUseItem), QueryStream.class);
         when(dataModel.stream(TimeOfUseItemDomainExtension.class)).thenReturn(queryStream);
         ServiceCall serviceCall = mock(ServiceCall.class);
         Device device = mock(Device.class);
-        TimeOfUseItemDomainExtension timeOfUseItemDomainExtension = mock(TimeOfUseItemDomainExtension.class);
         when(serviceCallService.getServiceCall(anyLong())).thenReturn(Optional.of(serviceCall));
-        when(serviceCall.getExtension(TimeOfUseItemDomainExtension.class)).thenReturn(Optional.ofNullable(timeOfUseItemDomainExtension));
+        when(serviceCall.getExtension(TimeOfUseItemDomainExtension.class)).thenReturn(Optional.of(timeOfUseItem));
         when(serviceCall.canTransitionTo(DefaultState.CANCELLED)).thenReturn(true);
-        when(timeOfUseItemDomainExtension.getDevice()).thenReturn(device);
-        when(timeOfUseItem.getServiceCall()).thenReturn(serviceCall);
+        CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
+        customPropertySetValues.setProperty("device", device);
+        customPropertySetValues.setProperty("parentServiceCallId", 11L);
+        customPropertySetValues.setProperty("deviceMessage", null);
+        timeOfUseItem.copyFrom(serviceCall, customPropertySetValues);
         when(device.getId()).thenReturn(1L);
         EndDevice endDevice = mock(EndDevice.class);
         when(endDevice.getId()).thenReturn(1L);
@@ -166,7 +168,7 @@ public class ToUCampaignServiceTest {
     public void retryDevice() {
         DataModel dataModel = mock(DataModel.class);
         when(ormService.getDataModel(TimeOfUseItemPersistenceSupport.COMPONENT_NAME)).thenReturn(java.util.Optional.of(dataModel));
-        TimeOfUseItem timeOfUseItem = mock(TimeOfUseItem.class);
+        TimeOfUseItemDomainExtension timeOfUseItem = new TimeOfUseItemDomainExtension(timeOfUseCampaignService);
         QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(timeOfUseItem), QueryStream.class);
         when(dataModel.stream(TimeOfUseItemDomainExtension.class)).thenReturn(queryStream);
         ServiceCall serviceCall = mock(ServiceCall.class);
@@ -187,7 +189,6 @@ public class ToUCampaignServiceTest {
         when(serviceCall.getExtension(TimeOfUseItemDomainExtension.class)).thenReturn(Optional.ofNullable(timeOfUseItemDomainExtension));
         when(serviceCall.canTransitionTo(DefaultState.PENDING)).thenReturn(true);
         when(timeOfUseItemDomainExtension.getDevice()).thenReturn(device);
-        when(timeOfUseItem.getServiceCall()).thenReturn(serviceCall);
         when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parent));
         when(parent.getExtension(any())).thenReturn(Optional.of(timeOfUseCampaignDomainExtension));
         when(serviceCall.getCreationTime()).thenReturn(Instant.ofEpochSecond(3600));
@@ -200,6 +201,12 @@ public class ToUCampaignServiceTest {
         when(endDevice.getId()).thenReturn(1L);
         EndDeviceGroup group = mock(EndDeviceGroup.class);
         when(group.getMembers((Instant) any())).thenReturn(Collections.singletonList(endDevice));
+        CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
+        customPropertySetValues.setProperty("device", device);
+        customPropertySetValues.setProperty("parentServiceCallId", 11L);
+        customPropertySetValues.setProperty("deviceMessage", null);
+        timeOfUseItem.copyFrom(serviceCall, customPropertySetValues);
+
         timeOfUseItem.retry();
         verify(serviceCall).requestTransition(DefaultState.PENDING);
     }
@@ -230,7 +237,7 @@ public class ToUCampaignServiceTest {
     private TimeOfUseCampaignDomainExtension createCampaignExtension() {
         TimeOfUseCampaignDomainExtension timeOfUseCampaignDomainExtension = mock(TimeOfUseCampaignDomainExtension.class);
         when(timeOfUseCampaignDomainExtension.getUpdateType()).thenReturn("fullCalendar");
-        when(timeOfUseCampaignDomainExtension.getActivationStart()).thenReturn(Instant.ofEpochSecond(36000));
+        when(timeOfUseCampaignDomainExtension.getUploadPeriodStart()).thenReturn(Instant.ofEpochSecond(36000));
         when(timeOfUseCampaignDomainExtension.getCalendar()).thenReturn(calendar);
         when(timeOfUseCampaignDomainExtension.getActivationOption()).thenReturn("immediately");
         return timeOfUseCampaignDomainExtension;

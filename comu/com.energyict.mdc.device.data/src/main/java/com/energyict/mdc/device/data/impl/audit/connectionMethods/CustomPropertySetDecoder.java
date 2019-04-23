@@ -12,8 +12,8 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.properties.PropertySpec;
-
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
@@ -87,9 +87,12 @@ public class CustomPropertySetDecoder {
                                     decoder.getAuditLogChangeForUpdate(finalToCustomPropertySetValues.get(), finalFromCustomPropertySetValues.get(), propertySpec).ifPresent(auditLogChanges::add);
                                 }
                                 else {
-                                    decoder.getAuditLogChangeFromValues(decoder.convertCustomPropertySetValue(finalToCustomPropertySetValues.get(), propertySpec),
-                                            partialConnectionTask.getProperty(propertySpec.getName()).getValue().toString(),
-                                            propertySpec).ifPresent(auditLogChanges::add);
+                                    Object toValue = decoder.convertCustomPropertySetValue(finalToCustomPropertySetValues.get(), propertySpec);
+                                    if (toValue!= null) {
+                                        decoder.getAuditLogChangeFromValues(toValue,
+                                                getValueFromPartialConnectionTask(partialConnectionTask, propertySpec),
+                                                propertySpec).ifPresent(auditLogChanges::add);
+                                    }
                                 }
                             }
                     );
@@ -104,7 +107,7 @@ public class CustomPropertySetDecoder {
                 .forEach(propertySpec -> {
                     if (toCustomPropertySetValues.getProperty(propertySpec.getName()) != null) {
                         decoder.getAuditLogChangeFromValues(decoder.convertCustomPropertySetValue(toCustomPropertySetValues, propertySpec),
-                                partialConnectionTask.getProperty(propertySpec.getName()).getValue().toString(),
+                                getValueFromPartialConnectionTask(partialConnectionTask, propertySpec),
                                 propertySpec).ifPresent(auditLogChanges::add);
                     }
                 });
@@ -123,6 +126,14 @@ public class CustomPropertySetDecoder {
                     .getModTimeEnd());
         }
         return customPropertySetValues;
+    }
+
+    private String getValueFromPartialConnectionTask(PartialConnectionTask partialConnectionTask, PropertySpec propertySpec){
+        PartialConnectionTaskProperty property = partialConnectionTask.getProperty(propertySpec.getName());
+        if (property != null && property.getValue() != null){
+            return property.getValue().toString();
+        }
+        return "";
     }
 
     @SuppressWarnings("unchecked")

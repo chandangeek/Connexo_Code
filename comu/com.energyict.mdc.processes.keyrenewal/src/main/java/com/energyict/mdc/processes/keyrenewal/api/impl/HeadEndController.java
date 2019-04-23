@@ -27,6 +27,7 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -147,6 +148,13 @@ public class HeadEndController {
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }
 
+    public void performTestCommunicationForSecuritySet(EndDevice endDevice, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+        MultiSenseHeadEndInterface headEndInterface = (MultiSenseHeadEndInterface) getHeadEndInterface(endDevice);
+        serviceCall.log(LogLevel.INFO, "Handling test communication for security set.");
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutions(device, getSecurityPropertySet(deviceCommandInfo.securityPropertySet, device));
+        CompletionOptions completionOptions = ((MultiSenseHeadEndInterface) headEndInterface).runCommunicationTask(device, getFilteredList(comTaskExecutions), deviceCommandInfo.activationDate, serviceCall);
+        completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
+    }
 
     private PropertySpec getCommandArgumentSpec(EndDeviceCommand endDeviceCommand, String commandArgumentName) {
         return endDeviceCommand.getCommandArgumentSpecs().stream()
@@ -169,9 +177,21 @@ public class HeadEndController {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.UNKNOWN_KEYACCESSORTYPE));
     }
 
+    protected SecurityPropertySet getSecurityPropertySet(String securityPropertySetName, Device device) {
+        return device.getDeviceConfiguration().getSecurityPropertySets().stream()
+                .filter(set -> set.getName().equals(securityPropertySetName)).findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.UNKNOWN_SECURITYPROPERTYSET));
+    }
+
     protected List<ComTaskExecution> getComTaskExecutions(Device device, SecurityAccessorType securityAccessorType) {
         return device.getComTaskExecutions().stream().filter(comTaskExecution -> getComTaskEnablement(comTaskExecution).map(comTaskEnablement1 -> comTaskEnablement1.getSecurityPropertySet().getConfigurationSecurityProperties().stream()
                 .anyMatch(configurationSecurityProperty -> configurationSecurityProperty.getSecurityAccessorType().equals(securityAccessorType))).orElse(false)).collect(Collectors.toList());
+    }
+
+    protected List<ComTaskExecution> getComTaskExecutions(Device device, SecurityPropertySet securityPropertySet) {
+        return device.getComTaskExecutions().stream().filter(comTaskExecution -> getComTaskEnablement(comTaskExecution)
+                .map(comTaskEnablement -> comTaskEnablement.getSecurityPropertySet().equals(securityPropertySet)).orElse(false))
+                .collect(Collectors.toList());
     }
 
     private Optional<ComTaskEnablement> getComTaskEnablement(ComTaskExecution comTaskExecution) {

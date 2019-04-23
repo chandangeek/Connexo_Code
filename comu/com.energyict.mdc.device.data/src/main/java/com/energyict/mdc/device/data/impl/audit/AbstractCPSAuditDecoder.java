@@ -86,7 +86,9 @@ public abstract class AbstractCPSAuditDecoder extends AbstractDeviceAuditDecoder
     }
 
     public Optional<AuditLogChange> getAuditLogChangeFromValues(Object toValue, Object fromValue, PropertySpec propertySpec){
-        if (!toValue.equals(fromValue)) {
+        if ((toValue != null && fromValue != null && !toValue.equals(fromValue)) ||
+                (toValue == null && fromValue != null) ||
+                (toValue != null && fromValue == null)){
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(propertySpec.getDisplayName());
             auditLogChange.setType(convertCustomPropertySetType(propertySpec));
@@ -115,7 +117,7 @@ public abstract class AbstractCPSAuditDecoder extends AbstractDeviceAuditDecoder
         }
         return Optional.ofNullable(value.getProperty(propertyName))
                 .map(Object::toString)
-                .orElseGet(() -> "");
+                .orElseGet(() -> null);
     }
 
     private Object convertCustomPropertySetDefaultValue(PropertySpec propertySpec) {

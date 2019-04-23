@@ -617,6 +617,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     public ComTaskEnablement cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
         ComTaskEnablementBuilder builder = deviceConfiguration.enableComTask(getComTask(), getCorrespondingSecuritySetFromOtherDeviceConfig(deviceConfiguration));
         builder.setIgnoreNextExecutionSpecsForInbound(isIgnoreNextExecutionSpecsForInbound());
+        builder.setMaxNumberOfTries(getMaxNumberOfTries());
         builder.setPriority(getPriority());
         if (usesDefaultConnectionTask()) {
             builder.useDefaultConnectionTask(usesDefaultConnectionTask());

@@ -20,9 +20,9 @@ public interface TimeOfUseCampaign {
 
     String getDeviceGroup();
 
-    Instant getActivationStart();
+    Instant getUploadPeriodStart();
 
-    Instant getActivationEnd();
+    Instant getUploadPeriodEnd();
 
     Calendar getCalendar();
 
@@ -36,11 +36,17 @@ public interface TimeOfUseCampaign {
 
     Map<DefaultState, Long> getNumbersOfChildrenWithStatuses();
 
+    void update();
+
     void cancel();
 
     void delete();
 
-    void edit(String name, Instant start, Instant end);
+    void setName(String name);
+
+    void setUploadPeriodStart(Instant start);
+
+    void setUploadPeriodEnd(Instant end);
 
     long getValidationTimeout();
 
@@ -48,4 +54,5 @@ public interface TimeOfUseCampaign {
 
     long getId();
 
+    boolean isWithUniqueCalendarName();
 }

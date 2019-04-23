@@ -7,16 +7,17 @@ package com.energyict.mdc.device.alarms.impl.event;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 public class DeviceTypesChangedEventHandler implements MessageHandler {
-    private final BasicDeviceAlarmRuleTemplate basicAlarmDeviceTemplate;
+    private final DeviceConfigurationService deviceConfigurationService;
 
-    public DeviceTypesChangedEventHandler(BasicDeviceAlarmRuleTemplate basicDeviceAlarmRuleTemplate) {
-        this.basicAlarmDeviceTemplate = basicDeviceAlarmRuleTemplate;
+    public DeviceTypesChangedEventHandler(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
     public void process(Message message) {
-        basicAlarmDeviceTemplate.clearAndRecalculateCache();
+        deviceConfigurationService.clearAndRecalculateCache();
     }
 }

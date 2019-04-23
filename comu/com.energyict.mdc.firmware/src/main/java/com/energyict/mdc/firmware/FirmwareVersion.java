@@ -4,12 +4,18 @@
 
 package com.energyict.mdc.firmware;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.io.InputStream;
 import java.time.Instant;
+import java.util.Optional;
 
+@ProviderType
 public interface FirmwareVersion extends BaseFirmwareVersion {
 
     FirmwareType getFirmwareType();
@@ -47,6 +53,8 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
 
     void deprecate();
 
+    void delete();
+
     void update();
 
     long getVersion();
@@ -56,4 +64,25 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
     String getImageIdentifier();
 
     void setImageIdentifier(String imageIdentifier);
+
+    int getRank();
+
+    Optional<FirmwareVersion> getMeterFirmwareDependency();
+
+    void setMeterFirmwareDependency(FirmwareVersion meterFirmwareDependency);
+
+    Optional<FirmwareVersion> getCommunicationFirmwareDependency();
+
+    void setCommunicationFirmwareDependency(FirmwareVersion communicationFirmwareDependency);
+
+    default int compareTo(FirmwareVersion o) {
+        return compare(this, o);
+    }
+
+    static int compare(FirmwareVersion fw1, FirmwareVersion fw2) {
+        if (!fw1.getDeviceType().equals(fw2.getDeviceType())) {
+            throw new IllegalStateException("Can't compare ranks of firmware versions on different device types!");
+        }
+        return Integer.compare(fw1.getRank(), fw2.getRank());
+    }
 }

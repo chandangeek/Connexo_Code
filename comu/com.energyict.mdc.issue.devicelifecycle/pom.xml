@@ -134,6 +134,12 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.lifecycle</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+            <version>1.0.0-Nessus-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
 
         <!-- Test dependencies -->
     </dependencies>

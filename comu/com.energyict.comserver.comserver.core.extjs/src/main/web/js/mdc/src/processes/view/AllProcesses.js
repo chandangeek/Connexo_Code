@@ -12,6 +12,7 @@ Ext.define('Mdc.processes.view.AllProcesses', {
         'Uni.view.container.PreviewContainer',
         'Mdc.processes.view.AllProcessesTopFilter',
         'Mdc.processes.store.AllProcessesStore',
+        'Mdc.processes.store.ProcessesBuffered',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
     router: null,
@@ -121,4 +122,3 @@ Ext.define('Mdc.processes.view.AllProcesses', {
         this.callParent(arguments);
    }
 });
-

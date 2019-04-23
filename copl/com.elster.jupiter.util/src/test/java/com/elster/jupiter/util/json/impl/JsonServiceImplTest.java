@@ -5,9 +5,11 @@
 package com.elster.jupiter.util.json.impl;
 
 import com.elster.jupiter.util.json.JsonService;
-import org.junit.Test;
 
+import java.time.Instant;
 import java.util.Properties;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,6 +51,16 @@ public class JsonServiceImplTest {
         Dummy deserialized = jsonService.deserialize(serialized.getBytes(), Dummy.class);
 
         assertThat(deserialized.getProperties()).containsKey("id").containsValue("145").hasSize(1);
+    }
+
+    @Test
+    public void testInstant() {
+        Instant now = Instant.now();
+
+        String serialized = jsonService.serialize(now);
+        Instant deserialized = jsonService.deserialize(serialized, Instant.class);
+
+        assertThat(deserialized).isEqualTo(now);
     }
 
 }

@@ -37,13 +37,14 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         NAME_OF_CAMPAIGN("name", "name"),
         DEVICE_TYPE("deviceType", "device_type"),
         DEVICE_GROUP("deviceGroup", "device_group"),
-        ACTIVATION_START("activationStart", "activation_start"),
-        ACTIVATION_END("activationEnd", "activation_end"),
+        UPLOAD_PERIOD_START("uploadPeriodStart", "activation_start"),
+        UPLOAD_PERIOD_END("uploadPeriodEnd", "activation_end"),
         CALENDAR("calendar", "calendar"),
         ACTIVATION_OPTION("activationOption", "activation_option"),
         ACTIVATION_DATE("activationDate", "activation_date"),
         UPDATE_TYPE("updateType", "update_type"),
-        VALIDATION_TIMEOUT("validationTimeout", "validation_timeout");
+        VALIDATION_TIMEOUT("validationTimeout", "validation_timeout"),
+        WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "with_unique_calendar_name");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -78,9 +79,9 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceGroup;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private Instant activationStart;
+    private Instant uploadPeriodStart;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private Instant activationEnd;
+    private Instant uploadPeriodEnd;
     @IsPresent
     private Reference<Calendar> calendar = Reference.empty();
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
@@ -91,6 +92,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     private String activationOption;
     private Instant activationDate;
     private long validationTimeout;
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    private boolean withUniqueCalendarName;
 
     @Inject
     public TimeOfUseCampaignDomainExtension(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
@@ -106,6 +109,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -129,21 +133,21 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
-    public Instant getActivationStart() {
-        return activationStart;
+    public Instant getUploadPeriodStart() {
+        return uploadPeriodStart;
     }
 
-    public void setActivationStart(Instant activationStart) {
-        this.activationStart = activationStart;
+    public void setUploadPeriodStart(Instant activationStart) {
+        this.uploadPeriodStart = activationStart;
     }
 
     @Override
-    public Instant getActivationEnd() {
-        return activationEnd;
+    public Instant getUploadPeriodEnd() {
+        return uploadPeriodEnd;
     }
 
-    public void setActivationEnd(Instant activationEnd) {
-        this.activationEnd = activationEnd;
+    public void setUploadPeriodEnd(Instant uploadPeriodEnd) {
+        this.uploadPeriodEnd = uploadPeriodEnd;
     }
 
     @Override
@@ -198,24 +202,18 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
-    public void edit(String name, Instant start, Instant end) {
-        ServiceCall serviceCall = getServiceCall();
-        TimeOfUseCampaignDomainExtension extension = serviceCall.getExtension(TimeOfUseCampaignDomainExtension.class).get();
-        extension.setName(name);
-        extension.setActivationStart(start);
-        extension.setActivationEnd(end);
-        serviceCall.update(extension);
-        eventService.postEvent(EventType.TOU_CAMPAIGN_EDITED.topic(), extension);
+    public void update() {
+        getServiceCall().update(this);
+        eventService.postEvent(EventType.TOU_CAMPAIGN_EDITED.topic(), this);
     }
 
     @Override
     public void cancel() {
         ServiceCall serviceCall = getServiceCall();
         if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-            serviceCallService.lockServiceCall(serviceCall.getId());
             serviceCall.requestTransition(DefaultState.CANCELLED);
             serviceCall.update(this);
-            serviceCall.log(LogLevel.INFO, thesaurus.getString(MessageSeeds.CANCELED_BY_USER.getKey(), MessageSeeds.CANCELED_BY_USER.getDefaultFormat()));
+            serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
         }
     }
 
@@ -234,18 +232,28 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
+    public boolean isWithUniqueCalendarName() {
+        return withUniqueCalendarName;
+    }
+
+    public void setWithUniqueCalendarName(boolean withUniqueCalendarName) {
+        this.withUniqueCalendarName = withUniqueCalendarName;
+    }
+
+    @Override
     public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(domainInstance);
         this.setName((String) propertyValues.getProperty(FieldNames.NAME_OF_CAMPAIGN.javaName()));
         this.setDeviceType((DeviceType) propertyValues.getProperty(FieldNames.DEVICE_TYPE.javaName()));
         this.setDeviceGroup((String) propertyValues.getProperty(FieldNames.DEVICE_GROUP.javaName()));
-        this.setActivationStart((Instant) propertyValues.getProperty(FieldNames.ACTIVATION_START.javaName()));
-        this.setActivationEnd((Instant) propertyValues.getProperty(FieldNames.ACTIVATION_END.javaName()));
+        this.setUploadPeriodStart((Instant) propertyValues.getProperty(FieldNames.UPLOAD_PERIOD_START.javaName()));
+        this.setUploadPeriodEnd((Instant) propertyValues.getProperty(FieldNames.UPLOAD_PERIOD_END.javaName()));
         this.setCalendar((Calendar) propertyValues.getProperty(FieldNames.CALENDAR.javaName()));
         this.setActivationOption((String) propertyValues.getProperty(FieldNames.ACTIVATION_OPTION.javaName()));
         this.setActivationDate((Instant) propertyValues.getProperty(FieldNames.ACTIVATION_DATE.javaName()));
         this.setUpdateType((String) propertyValues.getProperty(FieldNames.UPDATE_TYPE.javaName()));
         this.setValidationTimeout((long) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
+        this.setWithUniqueCalendarName((boolean) propertyValues.getProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName()));
     }
 
     @Override
@@ -253,13 +261,14 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.NAME_OF_CAMPAIGN.javaName(), this.getName());
         propertySetValues.setProperty(FieldNames.DEVICE_TYPE.javaName(), this.getDeviceType());
         propertySetValues.setProperty(FieldNames.DEVICE_GROUP.javaName(), this.getDeviceGroup());
-        propertySetValues.setProperty(FieldNames.ACTIVATION_START.javaName(), this.getActivationStart());
-        propertySetValues.setProperty(FieldNames.ACTIVATION_END.javaName(), this.getActivationEnd());
+        propertySetValues.setProperty(FieldNames.UPLOAD_PERIOD_START.javaName(), this.getUploadPeriodStart());
+        propertySetValues.setProperty(FieldNames.UPLOAD_PERIOD_END.javaName(), this.getUploadPeriodEnd());
         propertySetValues.setProperty(FieldNames.CALENDAR.javaName(), this.getCalendar());
         propertySetValues.setProperty(FieldNames.ACTIVATION_OPTION.javaName(), this.getActivationOption());
         propertySetValues.setProperty(FieldNames.ACTIVATION_DATE.javaName(), this.getActivationDate());
         propertySetValues.setProperty(FieldNames.UPDATE_TYPE.javaName(), this.getUpdateType());
         propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getValidationTimeout());
+        propertySetValues.setProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName(), this.isWithUniqueCalendarName());
     }
 
     @Override
