@@ -42,8 +42,7 @@ public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
         registeredCustomPropertySet
                 .filter(set -> set.getCustomPropertySet().isVersioned())
                 .ifPresent(set -> {
-                    CustomPropertySetValues customPropertySetValues = getCustomPropertySetValues(getCustomPropertySet().get(),
-                            isContextObsolete() ? getAuditTrailReference().getModTimeEnd() : getAuditTrailReference().getModTimeEnd());
+                    CustomPropertySetValues customPropertySetValues = getCustomPropertySetValues(getCustomPropertySet().get(), getAuditTrailReference().getModTimeEnd());
                     if (customPropertySetValues.getEffectiveRange().hasLowerBound()) {
                         builder.put("startTime", customPropertySetValues.getEffectiveRange().lowerEndpoint());
                     }
