@@ -140,7 +140,7 @@ public class CSRProcessorTest {
     public void testSigningTimedOut() {
         addCSRToMap(PRESENT_SERIAL, PRESENT_NAME + "-123", csr2);
         when(caService.signCsr(csr2, Optional.empty())).thenAnswer(invocationOnMock -> {
-            Thread.sleep(TIMEOUT.getMilliSeconds()+1);
+            Thread.sleep(TIMEOUT.getMilliSeconds() + 100);
             return cert2;
         });
 

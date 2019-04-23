@@ -21,10 +21,6 @@ Ext.define('Sam.view.about.About', {
                 padding: 0,
                 items: [
                     {
-                        xtype: 'about-version-info',
-                        itemId: 'about-version-part-info'
-                    },
-                    {
                         xtype: 'about-dynamic-info',
                         itemId: 'about-dynamic-part-info'
                     },

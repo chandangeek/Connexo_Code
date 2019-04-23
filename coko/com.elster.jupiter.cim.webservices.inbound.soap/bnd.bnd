@@ -13,4 +13,4 @@ Private-Package: com.elster.jupiter.cim.webservices.inbound.soap.*,\
                  ch.iec.tc57._2011.executemasterdatalinkageconfig.*,\
                  com.elster.connexo.*,\
                  org.w3._2001.xmlschema
-Export-Package: !com.elster.jupiter.cim.webservices.inbound.soap
+Export-Package: com.elster.jupiter.cim.webservices.inbound.soap

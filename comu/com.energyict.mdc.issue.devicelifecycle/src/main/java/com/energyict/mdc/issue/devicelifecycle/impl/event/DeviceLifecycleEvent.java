@@ -87,6 +87,7 @@ public abstract class DeviceLifecycleEvent implements IssueEvent {
         getEndDevice().ifPresent(filter::setDevice);
         filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
         filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
+        filter.addStatus(issueService.findStatus(IssueStatus.SNOOZED).get());
         Optional<? extends IssueDeviceLifecycle> foundIssue = issueDeviceLifecycleService.findAllDeviceLifecycleIssues(filter)
                 .find()
                 .stream()
