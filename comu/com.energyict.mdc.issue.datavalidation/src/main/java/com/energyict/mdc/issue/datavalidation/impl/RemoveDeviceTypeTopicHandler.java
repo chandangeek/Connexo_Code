@@ -14,7 +14,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
@@ -29,7 +28,8 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
-import static com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate.*;
+import static com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS;
+import static com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate.DeviceConfigurationInfo;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation.RemoveDeviceTypeTopicHandler", service = TopicHandler.class, immediate = true)
 public class RemoveDeviceTypeTopicHandler implements TopicHandler {
@@ -61,9 +61,8 @@ public class RemoveDeviceTypeTopicHandler implements TopicHandler {
         boolean deviceTypeInUse = validationCreationRules.stream()
                 .map(rule -> (List)rule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES))
                 .filter(list -> !list.isEmpty())
-                .map(list -> list.get(0))
-                .map(rule -> (DeviceLifeCycleInDeviceTypeInfo) rule)
-                .anyMatch(info ->  info.getDeviceTypeId() == deviceType.getId());
+                .flatMap(Collection::stream)
+                .anyMatch(info -> ((DeviceLifeCycleInDeviceTypeInfo) info).getDeviceTypeId() == deviceType.getId());
 
         if(configOfDeviceTypeInUse)
             throw new VetoDeviceTypeDeleteException(issueDataValidationService.thesaurus(), deviceType, MessageSeeds.DEVICE_TYPE_DEVICE_CONFIG_IN_USE);
