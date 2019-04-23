@@ -226,6 +226,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         when(this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
         when(ormService.newDataModel(eq(DeviceLifeCycleService.COMPONENT_NAME), anyString())).thenReturn(dataModel);
+        when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.of(device));
     }
 
     @Test

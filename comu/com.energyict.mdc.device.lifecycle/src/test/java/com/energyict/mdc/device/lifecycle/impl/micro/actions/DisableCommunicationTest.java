@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,6 +67,7 @@ public class DisableCommunicationTest {
         ConnectionTask connectionTask2 = mock(ConnectionTask.class);
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask1, connectionTask2));
         when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
+        when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.of(device));
         DisableCommunication microAction = this.getTestInstance();
 
         // Business method
@@ -81,6 +84,7 @@ public class DisableCommunicationTest {
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
         when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
+        when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.of(device));
         DisableCommunication microAction = this.getTestInstance();
 
         // Business method
