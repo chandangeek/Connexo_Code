@@ -4,13 +4,21 @@
 
 package com.elster.jupiter.issue.share.service;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueType;
 
+import aQute.bnd.annotation.ProviderType;
+
+import javax.naming.OperationNotSupportedException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +45,8 @@ public interface IssueCreationService {
     void processAlarmCreationEvent(int ruleId, IssueEvent event, boolean logOnSameAlarm);
 
     void processIssueResolutionEvent(long ruleId, IssueEvent event);
+
+    void closeAllOpenIssuesResolutionEvent(long ruleId, IssueEvent event) throws OperationNotSupportedException;
 
     boolean reReadRules();
 

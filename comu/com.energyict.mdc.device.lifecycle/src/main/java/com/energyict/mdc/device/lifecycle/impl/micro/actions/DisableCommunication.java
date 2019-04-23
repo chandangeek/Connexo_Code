@@ -7,6 +7,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -31,22 +32,26 @@ import static com.elster.jupiter.util.streams.Predicates.not;
  */
 public class DisableCommunication extends TranslatableServerMicroAction {
 
-    public DisableCommunication(Thesaurus thesaurus) {
+    protected final DeviceService deviceService;
+
+    public DisableCommunication(Thesaurus thesaurus, DeviceService deviceService) {
         super(thesaurus);
+        this.deviceService = deviceService;
     }
 
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         device.getConnectionTasks().forEach(ConnectionTask::deactivate);
         device.getComTaskExecutions().forEach(ComTaskExecution::putOnHold);
-        device.getDeviceConfiguration().getComTaskEnablements().stream()
-                .filter(comTaskEnablement -> !device.getComTaskExecutions().stream()
-                        .map(comTaskExecution -> comTaskExecution.getComTask().getId())
-                        .collect(Collectors.toList())
-                        .contains(comTaskEnablement.getComTask().getId()))
-                .map(comTaskEnablement -> createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add())
-                .filter(not(ComTaskExecution::isOnHold))
-                .forEach(ComTaskExecution::putOnHold);
+        deviceService.findDeviceById(device.getId())
+                .ifPresent(modDevice -> modDevice.getDeviceConfiguration().getComTaskEnablements().stream()
+                        .filter(comTaskEnablement -> !modDevice.getComTaskExecutions().stream()
+                                .map(comTaskExecution -> comTaskExecution.getComTask().getId())
+                                .collect(Collectors.toList())
+                                .contains(comTaskEnablement.getComTask().getId()))
+                        .map(comTaskEnablement -> createManuallyScheduledComTaskExecutionWithoutFrequency(modDevice, comTaskEnablement).add())
+                        .filter(not(ComTaskExecution::isOnHold))
+                        .forEach(ComTaskExecution::putOnHold));
     }
 
     @Override

@@ -6,7 +6,6 @@ Ext.define('Sam.view.about.About', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.about-info',
     requires: [
-        'Sam.view.about.VersionInfo',
         'Sam.view.about.Dynamic',
         'Sam.view.about.Static'
     ],
@@ -21,10 +20,6 @@ Ext.define('Sam.view.about.About', {
                 ui: 'medium',
                 padding: 0,
                 items: [
-                    {
-                        xtype: 'about-version-info',
-                        itemId: 'about-version-part-info'
-                    },
                     {
                         xtype: 'about-dynamic-info',
                         itemId: 'about-dynamic-part-info'

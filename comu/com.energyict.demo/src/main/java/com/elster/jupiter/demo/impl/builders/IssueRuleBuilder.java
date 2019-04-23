@@ -251,7 +251,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             properties.put(
                     BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS).get().getValueFactory().fromStringValue("0:0:0"));
-            properties.put(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
+            properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
             properties.put(
                     BasicDeviceAlarmRuleTemplate.THRESHOLD, getRelativePeriodWithCount());
         } else if (template.getName().equals(USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE)) {

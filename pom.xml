@@ -240,6 +240,11 @@
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.1.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-eclipse-plugin</artifactId>
 					<version>2.9</version>
 				</plugin>
@@ -401,7 +406,7 @@
 	<profiles>
 		<profile>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<id>enforce-version</id>
 			<build>
@@ -512,12 +517,32 @@
 			<build>
 				<plugins>
 					<plugin>
+						<artifactId>maven-clean-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>Deleting FE build folder</id>
+								<goals>
+									<goal>clean</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<excludeDefaultDirectories>false</excludeDefaultDirectories>
+							<filesets>
+								<fileset>
+									<directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+									<followSymlinks>false</followSymlinks>
+								</fileset>
+							</filesets>
+						</configuration>
+					</plugin>
+					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>build-helper-maven-plugin</artifactId>
 						<version>1.8</version>
 						<executions>
 							<execution>
-								<id>add-compiled-js</id>
+								<id>add-js-sources</id>
 								<phase>compile</phase>
 								<goals>
 									<goal>add-resource</goal>
@@ -553,7 +578,6 @@
 				<plugins>
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
-						<version>3.1.0</version>
 						<executions>
 							<execution>
 								<id>Deleting FE build folder</id>
@@ -742,7 +766,6 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-clean-plugin</artifactId>
-						<version>2.5</version>
 						<configuration>
 							<filesets>
 								<fileset>

@@ -6,8 +6,11 @@ package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
@@ -15,9 +18,11 @@ import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigR
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,24 +45,28 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
     private VerboseConstraintViolationException violationException;
     @Mock
     private LocalizedException localizedException;
-    @Mock
+
     private MasterDataLinkageConfigRequestMessageType message;
     @Mock
     private MasterDataLinkageMessageValidator validator;
+    @Mock
+    private EndPointConfigurationService endPointConfigurationService;
+    @Mock
+    private WebServicesService webServicesService;
+    @Mock
+    private ServiceCallCommands serviceCallCommands;
 
     @Before
     public void setUp() throws Exception {
-        endpoint = new ExecuteMasterDataLinkageConfigEndpoint(
-                getInstance(MasterDataLinkageFaultMessageFactory.class),
-                transactionService,
-                endPointHelper,
-                () -> linkageHandler,
-                () -> validator);
+        endpoint = new ExecuteMasterDataLinkageConfigEndpoint(getInstance(MasterDataLinkageFaultMessageFactory.class),
+                transactionService, endPointHelper, () -> linkageHandler, () -> validator, endPointConfigurationService,
+                webServicesService, serviceCallCommands);
 
-
-        //common mocks
+        message = getValidMessage().build();
+        // common mocks
         when(transactionService.getContext()).thenReturn(transactionContext);
-        when(linkageHandler.forMessage(message)).thenReturn(linkageHandler);
+        when(linkageHandler.forMessage(any(MasterDataLinkageConfigRequestMessageType.class)))
+                .thenReturn(linkageHandler);
         when(violationException.getLocalizedMessage()).thenReturn(VIOLATION_EXCEPTION_MESSAGE);
         when(localizedException.getErrorCode()).thenReturn(LOCALIZED_EXCEPTION_CODE);
         when(localizedException.getLocalizedMessage()).thenReturn(LOCALIZED_EXCEPTION_MESSAGE);
@@ -65,13 +74,13 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
 
     @Test
     public void testCreateMasterDataLinkageConfig() throws Exception {
-        //Prepare
+        // Prepare
         when(linkageHandler.createLinkage()).thenReturn(response);
 
-        //Act
+        // Act
         MasterDataLinkageConfigResponseMessageType actualResponse = endpoint.createMasterDataLinkageConfig(message);
 
-        //Verify
+        // Verify
         assertThat(actualResponse).isNotNull().isSameAs(response);
         verify(linkageHandler).forMessage(message);
         verify(endPointHelper, times(1)).setSecurityContext();
@@ -81,10 +90,10 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
 
     @Test
     public void testCreateMasterDataLinkageConfig_verboseConstraintViolationException() throws Exception {
-        //Prepare
+        // Prepare
         doThrow(violationException).when(linkageHandler).createLinkage();
 
-        //Act and verify
+        // Act and verify
         try {
             endpoint.createMasterDataLinkageConfig(message);
             failNoException();
@@ -96,28 +105,29 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
 
     @Test
     public void testCreateMasterDataLinkageConfig_localizedException() throws Exception {
-        //Prepare
+        // Prepare
         doThrow(localizedException).when(linkageHandler).createLinkage();
 
-        //Act and verify
+        // Act and verify
         try {
             endpoint.createMasterDataLinkageConfig(message);
             failNoException();
         } catch (FaultMessage e) {
             verify(linkageHandler).forMessage(message);
-            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, LOCALIZED_EXCEPTION_CODE, LOCALIZED_EXCEPTION_MESSAGE);
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_LINK_METER, LOCALIZED_EXCEPTION_CODE,
+                    LOCALIZED_EXCEPTION_MESSAGE);
         }
     }
 
     @Test
     public void testCloseMasterDataLinkageConfig() throws Exception {
-        //Prepare
+        // Prepare
         when(linkageHandler.closeLinkage()).thenReturn(response);
 
-        //Act
+        // Act
         MasterDataLinkageConfigResponseMessageType actualResponse = endpoint.closeMasterDataLinkageConfig(message);
 
-        //Verify
+        // Verify
         assertThat(actualResponse).isNotNull().isSameAs(response);
         verify(linkageHandler).forMessage(message);
         verify(endPointHelper, times(1)).setSecurityContext();
@@ -127,10 +137,10 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
 
     @Test
     public void testCloseMasterDataLinkageConfig_verboseConstraintViolationException() throws Exception {
-        //Prepare
+        // Prepare
         doThrow(violationException).when(linkageHandler).closeLinkage();
 
-        //Act and verify
+        // Act and verify
         try {
             endpoint.closeMasterDataLinkageConfig(message);
             failNoException();
@@ -142,16 +152,17 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
 
     @Test
     public void testCloseMasterDataLinkageConfig_localizedException() throws Exception {
-        //Prepare
+        // Prepare
         doThrow(localizedException).when(linkageHandler).closeLinkage();
 
-        //Act and verify
+        // Act and verify
         try {
             endpoint.closeMasterDataLinkageConfig(message);
             failNoException();
         } catch (FaultMessage e) {
             verify(linkageHandler).forMessage(message);
-            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, LOCALIZED_EXCEPTION_CODE, LOCALIZED_EXCEPTION_MESSAGE);
+            verifyFaultMessage(e, MessageSeeds.UNABLE_TO_UNLINK_METER, LOCALIZED_EXCEPTION_CODE,
+                    LOCALIZED_EXCEPTION_MESSAGE);
         }
     }
 
