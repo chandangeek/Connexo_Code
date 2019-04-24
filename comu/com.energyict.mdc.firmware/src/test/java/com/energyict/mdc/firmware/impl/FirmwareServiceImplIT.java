@@ -4,7 +4,10 @@
 
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.firmware.FirmwareCheck;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -15,19 +18,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FirmwareServiceImplTest extends PersistenceTest {
+public class FirmwareServiceImplIT extends PersistenceTest {
 
     @Test
+    @Transactional
     public void getProtocolSupportedFirmwareOptionsWhenNoneAreApplicableTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds();
 
@@ -38,6 +44,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void getProtocolSupportedFirmwareOptionsWithOnlyActivateImmediateTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
 
@@ -48,6 +55,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void getProtocolSupportedFirmwareOptionsWithOnlyActivateLaterTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_BROADCAST_FIRMWARE_UPGRADE);
 
@@ -58,6 +66,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void getProtocolSupportedFirmwareOptionsWithOnlyActivateDateTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE);
 
@@ -68,6 +77,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void getProtocolSupportedFirmwareOptionsWithActivateLaterAndActivateImmediateTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(
                 DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES,
@@ -83,6 +93,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void getProtocolSupportedFirmwareOptionsWithAllOptionsTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(
                 DeviceMessageId.FIRMWARE_UPGRADE_BROADCAST_FIRMWARE_UPGRADE,
@@ -100,6 +111,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void getProtocolSupportedFirmwareOptionsWithAllOptionsAndDuplicatesByTheProtocolTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(
                 DeviceMessageId.FIRMWARE_UPGRADE_BROADCAST_FIRMWARE_UPGRADE,
@@ -122,6 +134,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void protocolWithNoSupportedDeviceMessagesDoesNotNeedImageIdentifierToUploadFirmwareTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds();
         assertThat(deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().getSupportedMessages()).isEmpty();
@@ -130,6 +143,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void protocolDoesNotNeedImageIdentifierToUploadFirmwareTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE,
                 DeviceMessageId.CONTACTOR_OPEN,
@@ -146,6 +160,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void protocolNeedsImageIdentifierToUploadFirmwareTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
@@ -153,6 +168,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void protocolWithNoSupportedDeviceMessagesCannotResumeUploadFirmwareTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds();
         assertThat(deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().getSupportedMessages()).isEmpty();
@@ -161,6 +177,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void protocolCannotResumeFirmwareUploadTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE,
                 DeviceMessageId.CONTACTOR_OPEN,
@@ -177,6 +194,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void protocolCanResumeFirmwareUploadTest() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
 
@@ -193,6 +211,61 @@ public class FirmwareServiceImplTest extends PersistenceTest {
                 DeviceMessageId.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME);
 
         assertThat(firmwareService.isResumeFirmwareUploadEnabled(deviceType5030)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testSupportedFirmwareTypes() {
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+        DeviceType deviceType = getMockedDeviceTypeWithMessageIds();
+        assertThat(firmwareService.getSupportedFirmwareTypes(deviceType)).containsOnly(FirmwareType.METER);
+
+        DeviceProtocol protocol = deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol();
+
+        when(protocol.supportsCommunicationFirmwareVersion()).thenReturn(true);
+        assertThat(firmwareService.getSupportedFirmwareTypes(deviceType)).containsOnly(FirmwareType.METER, FirmwareType.COMMUNICATION);
+
+        when(protocol.supportsCaConfigImageVersion()).thenReturn(true);
+        assertThat(firmwareService.getSupportedFirmwareTypes(deviceType)).containsOnly(FirmwareType.METER, FirmwareType.COMMUNICATION, FirmwareType.CA_CONFIG_IMAGE);
+
+        when(protocol.supportsCommunicationFirmwareVersion()).thenReturn(false);
+        assertThat(firmwareService.getSupportedFirmwareTypes(deviceType)).containsOnly(FirmwareType.METER, FirmwareType.CA_CONFIG_IMAGE);
+    }
+
+    @Test
+    @Transactional
+    public void testGetDefaultChecks() {
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+
+        List<FirmwareCheck> firmwareChecks = firmwareService.getFirmwareChecks().collect(Collectors.toList());
+        assertThat(firmwareChecks).hasSize(5);
+        assertThat(firmwareChecks.stream().map(FirmwareCheck::getName).collect(Collectors.toList())).containsExactly(Stream.of(
+                FirmwareCheckTranslationKeys.MATCHING_TARGET_FIRMWARE_STATUS,
+                FirmwareCheckTranslationKeys.NO_GHOST_FIRMWARE,
+                FirmwareCheckTranslationKeys.MINIMUM_LEVEL_FIRMWARE,
+                FirmwareCheckTranslationKeys.NO_DOWNGRADE,
+                FirmwareCheckTranslationKeys.MASTER_HAS_LATEST_FIRMWARE
+        ).map(FirmwareCheckTranslationKeys::getDefaultFormat).toArray(String[]::new));
+    }
+
+    @Test
+    @Transactional
+    public void testAddGetChecks() {
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+
+        int defaultChecksNumber = (int) firmwareService.getFirmwareChecks().count();
+
+        FirmwareCheck customCheck = mock(FirmwareCheck.class);
+        firmwareService.addFirmwareCheck(customCheck);
+
+        assertThat(firmwareService.getFirmwareChecks().collect(Collectors.toList()))
+                .hasSize(defaultChecksNumber + 1)
+                .contains(customCheck);
+
+        firmwareService.removeFirmwareCheck(customCheck);
+        assertThat(firmwareService.getFirmwareChecks().collect(Collectors.toList()))
+                .hasSize(defaultChecksNumber)
+                .doesNotContain(customCheck);
     }
 
     private DeviceType getMockedDeviceTypeWithMessageIds(DeviceMessageId... deviceMessageIds) {

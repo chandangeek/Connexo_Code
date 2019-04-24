@@ -30,7 +30,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
-import org.junit.Test;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -41,6 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -50,7 +51,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class FirmwareCampaignTest extends PersistenceTest {
+public class FirmwareCampaignIT extends PersistenceTest {
 
     private static final String imageIdentifier = "imageIdentifier";
 
@@ -277,7 +278,6 @@ public class FirmwareCampaignTest extends PersistenceTest {
         assertThat(campaignAfterUpdate.getStatus()).isEqualTo(FirmwareCampaignStatus.CANCELLED);
     }
 
-
     @Test
     @Transactional
     public void testSimpleRemoval() {
@@ -368,7 +368,6 @@ public class FirmwareCampaignTest extends PersistenceTest {
         FirmwareCampaignImpl campaignAfterUpdate = (FirmwareCampaignImpl) inMemoryPersistence.getFirmwareService().getFirmwareCampaignById(firmwareCampaign.getId()).get();
         campaignAfterUpdate.delete();
     }
-
  */
 
     @Test
