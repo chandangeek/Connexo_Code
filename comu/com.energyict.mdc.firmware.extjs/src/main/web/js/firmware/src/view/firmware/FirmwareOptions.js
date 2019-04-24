@@ -109,7 +109,6 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 xtype: 'displayfield',
                                 name: 'targetOptions',
                                 itemId: 'target-options',
-                                fieldStyle: 'margin-top : 3px;',
                                 fieldLabel: Uni.I18n.translate('general.targetManagementOptions', 'FWC', 'Target firmware status'),
                                 renderer: function (value, field) {
                                       var result = '',
@@ -148,8 +147,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 xtype: 'displayfield',
                                 name: 'currOptions',
                                 itemId: 'cur-options',
-                                fieldStyle: 'margin-top : 3px;',
-                                fieldLabel: ' ',
+                                fieldLabel: Uni.I18n.translate('general.rankManagementOptions', 'FWC', 'Dependencies check'),
                                 renderer: function (value, field) {
                                     var result = '',
                                         record = field.up('form').getRecord();
@@ -187,8 +185,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 xtype: 'displayfield',
                                 name: 'masterOptions',
                                 itemId: 'master-options',
-                                fieldStyle: 'margin-top : 3px;',
-                                fieldLabel: Uni.I18n.translate('general.rankManagementOptions', 'FWC', 'Dependencies check'),
+                                fieldLabel: ' ',
                                 renderer: function (value, field) {
                                     var result = '',
                                         record = field.up('form').getRecord();
@@ -214,9 +211,9 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                                 masterFirmwareOptionTemplate.push({"localizedValue" : masterFirmwareOptionsValues[item]});
                                             })
                                             if (masterFirmwareOptionTemplate && masterFirmwareOptionTemplate.length){
-                                                result += '<div style="margin:10 0px">' + Uni.I18n.translate('general.masterFirmwareMainOption', 'FWC', 'Master has a latest firmware(both meter and communication)') + '</div>';
+                                                result += '<div style="margin:10 0px">' + Uni.I18n.translate('general.masterFirmwareMainOption', 'FWC', 'Master has a latest firmware (both meter and communication)') + '</div>';
                                                 var tpl = Ext.create('FirmwareOptionsXTemplate');
-                                                result += ('<div style="margin:0 0 10px 3px">' + tpl.apply(masterFirmwareOptionTemplate) + '</div>');
+                                                result += ('<div style="margin:0 0 10px 30px">' + tpl.apply(masterFirmwareOptionTemplate) + '</div>');
                                             }
                                         }
                                     }
