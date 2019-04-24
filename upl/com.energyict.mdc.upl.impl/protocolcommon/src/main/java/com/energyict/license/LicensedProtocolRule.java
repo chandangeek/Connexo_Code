@@ -373,11 +373,11 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     CRYPTO_LG_DSMR42_MBUS(315, "com.energyict.protocolimplv2.nta.dsmr42.landysgir.CryptoMbusDevice", FamilyRule.DSMR_NTA),
     CRYPTO_ITRON_DMSR42_MBUS(316, "com.energyict.protocolimplv2.nta.dsmr42.itron.CryptoMbusDevice", FamilyRule.DSMR_NTA),
     CRYPTO_ELSTER_DSR42_MBUS(317, "com.energyict.protocolimplv2.nta.dsmr42.elster.CryptoMbusDevice", FamilyRule.EICT_NTA),
-    CRYPTO_GENERIC_DSMR42_MBUS(318, "com.energyict.protocolimplv2.nta.dsmr42.elster.CryptoMbusDevice", FamilyRule.EICT_NTA),
+    CRYPTO_GENERIC_DSMR42_MBUS(318, "com.energyict.protocolimplv2.nta.dsmr42.common.CryptoMbusDevice", FamilyRule.EICT_NTA),
 
     CRYPTO_ITRON_EMSR50_MBUS(319, "com.energyict.protocolimplv2.nta.esmr50.itron.CryptoMbusDevice", FamilyRule.DSMR_NTA),
     CRYPTO_ELSTER_EMSR50_MBUS(320, "com.energyict.protocolimplv2.nta.esmr50.elster.CryptoMbusDevice", FamilyRule.EICT_NTA),
-    CRYPTO_GENERIC_ESMR50_MBUS(321, "com.energyict.protocolimplv2.nta.esmr50.elster.CryptoMbusDevice", FamilyRule.EICT_NTA),
+    CRYPTO_GENERIC_ESMR50_MBUS(321, "com.energyict.protocolimplv2.nta.esmr50.common.CryptoMbusDevice", FamilyRule.EICT_NTA),
 
 
 
