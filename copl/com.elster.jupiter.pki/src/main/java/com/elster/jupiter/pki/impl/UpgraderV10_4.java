@@ -17,7 +17,6 @@ import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
 import java.security.cert.CertificateParsingException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -58,7 +57,7 @@ public class UpgraderV10_4 implements Upgrader {
     }
 
     private void renameJournalTables() {
-        executeInTransaction(
+        execute(dataModel,
                 renameTableSql(
                         TableSpecs.Constants.PKI_SECACCESSORTYPE_JOURNAL_TABLE_UP_TO_10_4,
                         TableSpecs.Constants.PKI_SECACCESSORTYPE_JOURNAL_TABLE),
@@ -111,7 +110,7 @@ public class UpgraderV10_4 implements Upgrader {
                 .map(privilege -> privilege.replaceFirst("\\.", ".device."))
                 .map(privilege -> "'" + privilege + "'")
                 .collect(Collectors.joining(", ", "(", ")"));
-        executeInTransaction(
+        execute(dataModel,
                 "update USR_RESOURCE" +
                         " set NAME = '" + Privileges.RESOURCE_SECURITY_ACCESSOR_ATTRIBUTES.getKey() + "'," +
                         " DESCRIPTION = '" + Privileges.RESOURCE_SECURITY_ACCESSOR_ATTRIBUTES_DESCRIPTION.getKey() + "'," +
@@ -133,7 +132,7 @@ public class UpgraderV10_4 implements Upgrader {
     }
 
     private void renameSecurityAccessorTypes() {
-        executeInTransaction(
+        execute(dataModel,
                 "merge into " + TableSpecs.Constants.PKI_SECACCESSORTYPE_TABLE_UP_TO_10_4 + " sa" +
                         " using DTC_DEVICETYPE dt" +
                         " on (sa.DEVICETYPEID = dt.ID)" +
@@ -147,14 +146,6 @@ public class UpgraderV10_4 implements Upgrader {
                         " set saj." + SecurityAccessorTypeImpl.Fields.NAME.name() +
                         " = saj." + SecurityAccessorTypeImpl.Fields.NAME.name() + "||'_'||dt.NAME"
         );
-    }
-
-    private void executeInTransaction(String... sql) {
-        dataModel.useConnectionRequiringTransaction(connection -> {
-            try (Statement statement = connection.createStatement()) {
-                Arrays.stream(sql).forEach(sqlCommand -> execute(statement, sqlCommand));
-            }
-        });
     }
 
     private void installNewEventTypes() {

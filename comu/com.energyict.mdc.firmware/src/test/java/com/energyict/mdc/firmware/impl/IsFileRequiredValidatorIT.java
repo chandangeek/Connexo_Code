@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
  * @author sva
  * @since 19/05/2016 - 14:55
  */
-public class IsFileRequiredValidatorTest extends PersistenceTest {
+public class IsFileRequiredValidatorIT extends PersistenceTest {
 
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     private static final byte[] FIRMWARE_FILE = new byte[]{1, 2, 3, 4};

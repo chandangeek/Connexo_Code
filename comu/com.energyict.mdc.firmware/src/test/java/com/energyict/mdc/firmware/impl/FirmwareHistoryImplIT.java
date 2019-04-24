@@ -38,7 +38,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FirmwareHistoryImplTest extends PersistenceTest {
+public class FirmwareHistoryImplIT extends PersistenceTest {
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     private static final byte[] FIRMWARE_FILE = new byte[]{1,2,3,4,5,6,7,8};
 
@@ -70,7 +70,6 @@ public class FirmwareHistoryImplTest extends PersistenceTest {
         firmwareVersion2 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion2", FirmwareStatus.FINAL, FirmwareType.COMMUNICATION,"firmwareVersion2").initFirmwareFile(FIRMWARE_FILE).create();
         firmwareVersion3 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion3", FirmwareStatus.FINAL, FirmwareType.METER,"firmwareVersion3").initFirmwareFile(FIRMWARE_FILE).create();
 
-
         LocalDateTime now = LocalDateTime.now();
         Instant twoMonthsAgo = Instant.ofEpochSecond(now.minus(2, ChronoUnit.MONTHS).toEpochSecond(ZoneOffset.UTC));
         Instant oneMonthAgo = Instant.ofEpochSecond(now.minus(1, ChronoUnit.MONTHS).toEpochSecond(ZoneOffset.UTC));
@@ -82,7 +81,6 @@ public class FirmwareHistoryImplTest extends PersistenceTest {
         activatedFirmwareVersion2.save();
         activatedFirmwareVersion3 = firmwareService.newActivatedFirmwareVersionFrom(device, firmwareVersion2, Interval.startAt(oneWeekAgo));
         activatedFirmwareVersion3.save();
-
     }
 
     @Test
@@ -91,6 +89,7 @@ public class FirmwareHistoryImplTest extends PersistenceTest {
         assertTrue(firmwareService.getActiveFirmwareVersion(device, FirmwareType.COMMUNICATION).isPresent());
         assertTrue(firmwareService.getActiveFirmwareVersion(device, FirmwareType.METER).isPresent());
     }
+
     @Test
     @Transactional
     public void historyTest(){
@@ -98,6 +97,7 @@ public class FirmwareHistoryImplTest extends PersistenceTest {
         DeviceFirmwareHistory history = firmwareService.getFirmwareHistory(device);
         assertThat(history.history()).hasSize(3);
     }
+
     @Test
     @Transactional
     public void historySortTest(){
@@ -117,6 +117,4 @@ public class FirmwareHistoryImplTest extends PersistenceTest {
         assertThat(history.history(FirmwareType.METER)).hasSize(2);
         assertThat(history.history(FirmwareType.COMMUNICATION)).hasSize(1);
     }
-
-
 }
