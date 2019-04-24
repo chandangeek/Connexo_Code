@@ -18,9 +18,13 @@ public class CheckManagementOptionInfo {
         // for the case where firmware management is off
     }
 
+    public CheckManagementOptionInfo(boolean activated, EnumSet<FirmwareStatus> statuses) {
+        this.activated = activated;
+        this.statuses = statuses;
+    }
+
     public CheckManagementOptionInfo(FirmwareManagementOptions config, FirmwareCheckManagementOption check) {
-        activated = config.isActivated(check);
-        statuses = config.getStatuses(check);
+        this(config.isActivated(check), config.getStatuses(check));
     }
 
     public boolean isActivated() {
