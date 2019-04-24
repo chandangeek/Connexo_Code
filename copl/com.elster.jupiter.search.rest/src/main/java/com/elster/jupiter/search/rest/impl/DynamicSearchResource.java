@@ -21,10 +21,14 @@ import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
 import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -138,6 +142,34 @@ public class DynamicSearchResource {
                              @Context UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         InfoFactory infoFactory = infoFactoryService.getInfoFactoryFor(searchDomain);
+        List<?> domainObjects = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().from(jsonQueryParameters).find();
+
+        List searchResults = infoFactory.from(domainObjects);
+        return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
+    }
+
+    @POST
+    //@Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{domain}")
+    public Response doSearchPost(@PathParam("domain") String domainId,
+                                 /*@BeanParam JsonQueryFilter jsonQueryFilter,*/
+                                 //@BeanParam JsonQueryParameters jsonQueryParameters,
+                                 @FormParam("page")Integer page,
+                                 @FormParam("start")Integer start,
+                                 @FormParam("limit")Integer limit,
+                                 @FormParam("filter")String filter/*,
+                                /*@BeanParam JsonQueryParameters jsonQueryParameters,*/
+                                /*@Context UriInfo uriInfo*/) throws InvalidValueException {
+        SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
+        InfoFactory infoFactory = infoFactoryService.getInfoFactoryFor(searchDomain);
+        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(filter);
+        JsonQueryParameters jsonQueryParameters = new JsonQueryParameters(start,limit);
+        //JsonQueryParameters jsonQueryParameters = new JsonQueryParameters();
+        System.out.println("POST RECEIVED page ");
+        System.out.println("filter  =  "+jsonQueryFilter);
+        System.out.println("filter  =  "+jsonQueryParameters);
         List<?> domainObjects = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().from(jsonQueryParameters).find();
 
         List searchResults = infoFactory.from(domainObjects);
