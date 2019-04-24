@@ -109,6 +109,10 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         {
             issueModel = 'Idl.model.Issue';
         }
+        else if (router.queryParams.issueType === "task")
+        {
+            issueModel = 'Itk.model.Issue';
+        }
         viewport.setLoading();
 
 

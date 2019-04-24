@@ -47,6 +47,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.tasks.impl.TaskServiceImpl;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -65,6 +66,7 @@ import com.energyict.mdc.bpm.impl.alarms.DeviceAlarmProcessAssociationProvider;
 import com.energyict.mdc.bpm.impl.device.DeviceProcessAssociationProvider;
 import com.energyict.mdc.bpm.impl.issue.datacollection.IssueProcessAssociationProvider;
 import com.energyict.mdc.bpm.impl.issue.devicelifecycle.IssueLifecycleProcessAssociationProvider;
+import com.energyict.mdc.bpm.impl.issue.task.TaskIssueProcessAssociationProvider;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
@@ -140,6 +142,7 @@ public class InMemoryPersistence {
     private IssueProcessAssociationProvider issueProvider;
     private DeviceAlarmProcessAssociationProvider alarmProvider;
     private IssueLifecycleProcessAssociationProvider lifecycleProvider;
+    private TaskIssueProcessAssociationProvider taskProvider;
 
     private InMemoryPersistence(Supplier<List<Module>> modulesSupplier) {
         super();
@@ -232,10 +235,12 @@ public class InMemoryPersistence {
             this.injector.getInstance(MeteringGroupsService.class);
             this.injector.getInstance(MasterDataService.class);
             this.injector.getInstance(IssueDeviceLifecycleServiceImpl.class);
+            this.injector.getInstance(TaskServiceImpl.class);
             this.deviceProvider = this.injector.getInstance(DeviceProcessAssociationProvider.class);
             this.issueProvider = this.injector.getInstance(IssueProcessAssociationProvider.class);
             this.alarmProvider = this.injector.getInstance(DeviceAlarmProcessAssociationProvider.class);
             this.lifecycleProvider = this.injector.getInstance(IssueLifecycleProcessAssociationProvider.class);
+            this.taskProvider = this.injector.getInstance(TaskIssueProcessAssociationProvider.class);
             ctx.commit();
         }
     }
@@ -290,6 +295,8 @@ public class InMemoryPersistence {
     }
 
     public ProcessAssociationProvider getLifecycleAssociationProvider() { return  this.lifecycleProvider; }
+
+    public ProcessAssociationProvider getTaskAssociationProvider() {return  this.taskProvider;}
 
     public <T> T getService(Class<T> serviceClass) {
         return this.injector.getInstance(serviceClass);
