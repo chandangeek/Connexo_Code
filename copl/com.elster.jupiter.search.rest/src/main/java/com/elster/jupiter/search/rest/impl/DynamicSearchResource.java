@@ -21,8 +21,6 @@ import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
 import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 
-import org.glassfish.jersey.media.multipart.FormDataParam;
-
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -154,22 +152,15 @@ public class DynamicSearchResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{domain}")
     public Response doSearchPost(@PathParam("domain") String domainId,
-                                 /*@BeanParam JsonQueryFilter jsonQueryFilter,*/
-                                 //@BeanParam JsonQueryParameters jsonQueryParameters,
                                  @FormParam("page")Integer page,
                                  @FormParam("start")Integer start,
                                  @FormParam("limit")Integer limit,
-                                 @FormParam("filter")String filter/*,
-                                /*@BeanParam JsonQueryParameters jsonQueryParameters,*/
-                                /*@Context UriInfo uriInfo*/) throws InvalidValueException {
+                                 @FormParam("filter")String filter) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         InfoFactory infoFactory = infoFactoryService.getInfoFactoryFor(searchDomain);
         JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(filter);
         JsonQueryParameters jsonQueryParameters = new JsonQueryParameters(start,limit);
-        //JsonQueryParameters jsonQueryParameters = new JsonQueryParameters();
-        System.out.println("POST RECEIVED page ");
-        System.out.println("filter  =  "+jsonQueryFilter);
-        System.out.println("filter  =  "+jsonQueryParameters);
+        
         List<?> domainObjects = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().from(jsonQueryParameters).find();
 
         List searchResults = infoFactory.from(domainObjects);
