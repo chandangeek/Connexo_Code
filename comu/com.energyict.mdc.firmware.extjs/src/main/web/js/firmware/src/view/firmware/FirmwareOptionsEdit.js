@@ -111,6 +111,10 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                   if (masterFirmwareCheckFinal) masterFirmwareCheckFinal.setValue(true);
                                   if (masterFirmwareCheckTest) masterFirmwareCheckTest.setValue(false);
                              }
+
+                             var curFirmwareCheck = me.down('#curFirmwareCheck');
+                             if (curFirmwareCheck) curFirmwareCheck.setValue(true);
+
                              var targetFirmwareCheckFinal = me.down('#targetFirmwareCheckFinal');
                              var targetFirmwareCheckTest = me.down('#targetFirmwareCheckTest');
 
@@ -311,8 +315,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                             {
                                 itemId: 'curFirmwareCheck',
                                 boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type. All firmware types present in the device should have a rank not less than that of the version with the minimal level configured on the target version') + '</b>',
-                                inputValue: 'curFirmwareCheck',
-                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck.comment', 'FWC', 'The check will be applied only to the target firmware with the selected status') + '</span>'
+                                inputValue: 'curFirmwareCheck'
                             }
                         ]
                     },
@@ -328,7 +331,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 itemId: 'masterFirmwareCheck',
                                 boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck', 'FWC', 'Master has the latest firmware (both meter and communication)') + '</b>',
                                 inputValue: 'currentFirmwareCheck',
-                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck.comment', 'FWC', 'The check will be applied only to the target firmware with the selected status') + '</span>',
+                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck.comment', 'FWC', 'The latest firmeware on the master is chosen only within versions with the selected status') + '</span>',
                             }
                         ]
                     },
@@ -343,15 +346,24 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         items: [
                             {
                                 itemId: 'masterFirmwareCheckFinal',
-                                boxLabel: Uni.I18n.translate('general.upload.fw.masterFirmwareCheckFinalOption', 'FWC', 'Final status of target firmware on slave device'),
+                                boxLabel: Uni.I18n.translate('general.upload.fw.masterFirmwareCheckFinalOption', 'FWC', 'Final status of firmware on master device'),
                                 inputValue: 'masterFirmwareCheckFinal',
                             },
                             {
                                 itemId: 'masterFirmwareCheckTest',
-                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckTestOption', 'FWC', 'Test status of target firmware on slave device'),
+                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckTestOption', 'FWC', 'Test status of firmware on master device'),
                                 inputValue: 'masterFirmwareCheckTest',
                             }
                         ]
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'masterOptionsError',
+                        fieldLabel: '&nbsp',
+                        hidden: true,
+                        renderer: function (value, field) {
+                            return '<span style="color:red;margin:10px 0 0 30px;">' + Uni.I18n.translate('firmware.specs.save.validationError', 'FWC', 'You must select at least one item in the group') + '</span>';
+                        }
                     },
                     {
                         xtype: 'fieldcontainer',
