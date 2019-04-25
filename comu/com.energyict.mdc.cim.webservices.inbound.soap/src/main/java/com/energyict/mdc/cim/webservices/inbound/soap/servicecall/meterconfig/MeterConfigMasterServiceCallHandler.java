@@ -133,15 +133,16 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                 .filter(epc -> !epc.isInbound())
                 .filter(epc -> epc.getUrl().equals(extensionFor.getCallbackURL()))
                 .findAny();
+		if (endPointConfiguration.isPresent()) {
+			ServiceCall child = serviceCall.findChildren().stream().findFirst().get();
+			MeterConfigDomainExtension extensionForChild = child.getExtensionFor(new MeterConfigCustomPropertySet())
+					.get();
+			OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
 
-        ServiceCall child = serviceCall.findChildren().stream().findFirst().get();
-        MeterConfigDomainExtension extensionForChild = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-        OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
-
-        replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
-                getSuccessfullyProcessedDevices(serviceCall),
-                getUnsuccessfullyProcessedDevices(serviceCall),
-                extensionFor.getExpectedNumberOfCalls());
+			replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
+					getSuccessfullyProcessedDevices(serviceCall), getUnsuccessfullyProcessedDevices(serviceCall),
+					extensionFor.getExpectedNumberOfCalls());
+		}
     }
 
     private List<Device> getSuccessfullyProcessedDevices(ServiceCall serviceCall) {
