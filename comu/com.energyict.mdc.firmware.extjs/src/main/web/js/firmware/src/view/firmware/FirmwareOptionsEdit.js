@@ -51,7 +51,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     this.getForm().loadRecord(record);
 
                     function showAllCheckboxes(isShown){
-                        var allOptions = ['dependenciesCheckMainOption', 'currentFirmwareCheck', 'currentFirmwareCheckFinal', 'currentFirmwareCheckTest', 'masterFirmwareCheck', 'masterFirmwareCheckFinal', 'masterFirmwareCheckTest'];
+                        var allOptions = ['dependenciesCheckTargetOption', 'targetFirmwareCheckFinal', 'targetFirmwareCheckTest', 'masterFirmwareCheck', 'masterFirmwareCheckFinal', 'masterFirmwareCheckTest'];
                         allOptions.forEach(function(item){
                            var option = me.down('#' + item);
                            if (option){
@@ -111,41 +111,44 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                   if (masterFirmwareCheckFinal) masterFirmwareCheckFinal.setValue(true);
                                   if (masterFirmwareCheckTest) masterFirmwareCheckTest.setValue(false);
                              }
-                             var currentFirmwareCheckFinal = me.down('#currentFirmwareCheckFinal');
-                             var currentFirmwareCheckTest = me.down('#currentFirmwareCheckTest');
-                             var currentFirmwareCheck = me.down('#currentFirmwareCheck');
 
-                             if (currentFirmwareCheck){
-                                  currentFirmwareCheck.setValue(false);
-                                  if (currentFirmwareCheckFinal) currentFirmwareCheckFinal.setValue(false);
-                                  if (currentFirmwareCheckTest) currentFirmwareCheckTest.setValue(false);
-                             }
+                             var curFirmwareCheck = me.down('#curFirmwareCheck');
+                             if (curFirmwareCheck) curFirmwareCheck.setValue(true);
+
+                             var targetFirmwareCheckFinal = me.down('#targetFirmwareCheckFinal');
+                             var targetFirmwareCheckTest = me.down('#targetFirmwareCheckTest');
+
+                             if (targetFirmwareCheckFinal) targetFirmwareCheckFinal.setValue(true);
+                             if (targetFirmwareCheckTest) targetFirmwareCheckTest.setValue(false);
                         }
                     }, allowedCheckBox);
 
                     var dependenciesCheckOptionsData = record.data['checkOptions'];
 
-                    var dependenciesMainOption = this.down('#dependenciesCheckMainOption');
 
                     function setVisibleCheckBoxes(mainOptionId, finalOptionId, testOptionId, modelData){
                        var mainOption =  me.down('#' + mainOptionId);
                        var finalOption =  me.down('#' + finalOptionId);
                        var testOption =  me.down('#' + testOptionId);
 
-                       var mainOptionShown = modelData && modelData['activatedFor'];
-                       if (mainOptionShown){
+                       if (modelData){
+
                            mainOption.show();
 
-                           finalOptionVal = modelData['activatedFor'].indexOf('FINAL') !==-1;
-                           testOptionVal = modelData['activatedFor'].indexOf('TEST') !==-1;
-                           if (finalOptionVal || testOptionVal){
-                              mainOption.setValue(true);
-                           }else{
-                              finalOption.disable();
-                              testOption.disable();
+                           if ( modelData['statuses'] && (modelData['statuses'] instanceof Array) ){
+
+                               finalOptionVal = modelData['statuses'].indexOf('FINAL') !==-1;
+                               testOptionVal = modelData['statuses'].indexOf('TEST') !==-1;
+                               if (finalOptionVal || testOptionVal){
+                                  mainOption.setValue(true);
+                               }else{
+                                  finalOption.disable();
+                                  testOption.disable();
+                               }
+                               finalOption.setValue(finalOptionVal);
+                               testOption.setValue(testOptionVal);
+
                            }
-                           finalOption.setValue(finalOptionVal);
-                           testOption.setValue(testOptionVal);
 
                            finalOption.on('change', function(checkBox, newVal, oldVal){
                                 if (newVal === oldVal) return;
@@ -164,13 +167,34 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                            finalOption.hide();
                            testOption.hide()
                        }
-                       return mainOptionShown;
                     }
 
                     if (dependenciesCheckOptionsData){
-                      var currFirmBlockShown = setVisibleCheckBoxes('currentFirmwareCheck', 'currentFirmwareCheckFinal', 'currentFirmwareCheckTest', dependenciesCheckOptionsData['CURRENT_FIRMWARE_CHECK']);
-                      var masterFirmBlockShown = setVisibleCheckBoxes('masterFirmwareCheck', 'masterFirmwareCheckFinal', 'masterFirmwareCheckTest', dependenciesCheckOptionsData['MASTER_FIRMWARE_CHECK']);
-                      (currFirmBlockShown || masterFirmBlockShown) ? dependenciesMainOption.show() : dependenciesMainOption.hide();
+                          setVisibleCheckBoxes('masterFirmwareCheck', 'masterFirmwareCheckFinal', 'masterFirmwareCheckTest', dependenciesCheckOptionsData['MASTER_FIRMWARE_CHECK']);
+                          var curFirmwareCheckOption =  me.down('#curFirmwareCheck');
+                          if (curFirmwareCheckOption){
+                             if (dependenciesCheckOptionsData['CURRENT_FIRMWARE_CHECK']){
+                                 curFirmwareCheckOption.show();
+                                 curFirmwareCheckOption.setValue(dependenciesCheckOptionsData['CURRENT_FIRMWARE_CHECK'].activated);
+                             }else{
+                                 curFirmwareCheckOption.hide();
+                             }
+                          }
+                          var targetFirmwareCheckOption =  me.down('#firmwareTargetFileStatus');
+                          if (targetFirmwareCheckOption){
+                             var data = dependenciesCheckOptionsData['TARGET_FIRMWARE_STATUS_CHECK'];
+                             if (data){
+                                  targetFirmwareCheckOption.show();
+                                  targetFirmwareCheckOption.setValue(data.activated);
+                                  if (!data['statuses'] || !(data['statuses'] instanceof Array ) ) return;
+                                  var finalOptionVal = data['statuses'].indexOf('FINAL') !==-1;
+                                  me.down('#targetFirmwareCheckFinal').setValue(finalOptionVal);
+                                  var testOptionVal = data['statuses'].indexOf('TEST') !==-1;
+                                  me.down('#targetFirmwareCheckTest').setValue(testOptionVal);
+                             }else{
+                                 targetFirmwareCheckOption.hide();
+                             }
+                          }
 
                     }
 
@@ -180,28 +204,32 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     var record = this.getForm().getRecord();
                     var checkOptions = {};
 
-                    var currentFirmwareCheck = this.down("#currentFirmwareCheck");
-                    var currentFirmwareCheckFinal = this.down("#currentFirmwareCheckFinal");
-                    var currentFirmwareCheckTest = this.down("#currentFirmwareCheckTest");
+                    var curFirmwareCheckOption =  me.down('#curFirmwareCheck');
 
-                    var masterFirmwareMainOption = this.down("#masterFirmwareCheck");
                     var masterFirmwareCheckFinal = this.down("#masterFirmwareCheckFinal");
                     var masterFirmwareCheckTest = this.down("#masterFirmwareCheckTest");
+                    var masterFirmwareMainOption = me.down('#masterFirmwareCheck');
 
-                    if ( currentFirmwareCheck && !currentFirmwareCheck.hidden){
-                        checkOptions["CURRENT_FIRMWARE_CHECK"] = {};
-                        var rankOptions = checkOptions["CURRENT_FIRMWARE_CHECK"]["activatedFor"] = [];
-                        if (currentFirmwareCheckFinal && currentFirmwareCheckFinal.getValue()) rankOptions.push("FINAL");
-                        if (currentFirmwareCheckTest && currentFirmwareCheckTest.getValue()) rankOptions.push("TEST");
-                        if (currentFirmwareCheck.getValue() && !rankOptions.length) return false;
-                    }
-                    if ( masterFirmwareMainOption && !masterFirmwareMainOption.hidden){
-                        checkOptions["MASTER_FIRMWARE_CHECK"] = {};
-                        var masterOptions = checkOptions["MASTER_FIRMWARE_CHECK"]["activatedFor"] = [];
-                        if (masterFirmwareCheckFinal && masterFirmwareCheckFinal.getValue()) masterOptions.push("FINAL");
-                        if (masterFirmwareCheckTest && masterFirmwareCheckTest.getValue()) masterOptions.push("TEST");
-                        if (masterFirmwareMainOption.getValue() && !masterOptions.length) return false;
-                    }
+                    var targetFirmwareCheckFinal = this.down("#targetFirmwareCheckFinal");
+                    var targetFirmwareCheckTest = this.down("#targetFirmwareCheckTest");
+
+                    checkOptions["CURRENT_FIRMWARE_CHECK"] = {};
+                    checkOptions["CURRENT_FIRMWARE_CHECK"]["statuses"] = [];
+                    checkOptions["CURRENT_FIRMWARE_CHECK"]["activated"] = curFirmwareCheckOption.getValue() ? true : false;
+
+                    checkOptions["TARGET_FIRMWARE_STATUS_CHECK"] = {};
+                    checkOptions["TARGET_FIRMWARE_STATUS_CHECK"]["activated"] = targetFirmwareCheckFinal.getValue() || targetFirmwareCheckTest.getValue() ? true : false;
+                    var targetOptions = checkOptions["TARGET_FIRMWARE_STATUS_CHECK"]["statuses"] = [];
+                    if (targetFirmwareCheckFinal && targetFirmwareCheckFinal.getValue()) targetOptions.push("FINAL");
+                    if (targetFirmwareCheckTest && targetFirmwareCheckTest.getValue()) targetOptions.push("TEST");
+
+
+                    checkOptions["MASTER_FIRMWARE_CHECK"] = {};
+                    checkOptions["MASTER_FIRMWARE_CHECK"]["activated"] = masterFirmwareCheckFinal.getValue() || masterFirmwareCheckTest.getValue() ? true : false;
+                    var masterOptions = checkOptions["MASTER_FIRMWARE_CHECK"]["statuses"] = [];
+                    if (masterFirmwareCheckFinal && masterFirmwareCheckFinal.getValue()) masterOptions.push("FINAL");
+                    if (masterFirmwareCheckTest && masterFirmwareCheckTest.getValue()) masterOptions.push("TEST");
+                    if (masterFirmwareMainOption.getValue() && !masterOptions.length) return false;
                     record.set("checkOptions", checkOptions);
 
                     return true;
@@ -258,38 +286,38 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     },
                     {
                         xtype: 'checkboxgroup',
-                        fieldLabel: Uni.I18n.translate('general.firmwareDependenciesCheck', 'FWC', 'Dependencies check'),
                         required: false,
-                        itemId: 'dependenciesCheckMainOption',
+                        itemId: 'firmwareTargetFileStatus',
                         columns: 1,
                         vertical: true,
+                        fieldLabel: Uni.I18n.translate('general.firmwareTargetFileStatus', 'FWC', 'Target firmware status'),
+                        margin: '0 0 30 0',
                         items: [
                             {
-                                itemId: 'currentFirmwareCheck',
-                                boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type. All firmware types present in the device should have a rank not less than that of the version with the minimal level configured on the target version') + '</b>',
-                                inputValue: 'currentFirmwareCheck',
-                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck.comment', 'FWC', 'The check will be applied only to the target firmware with the selected status') + '</span>'
+                                beforeSubTpl: '<span style="font-style:italic;color: grey;padding: 0 5px 5px 0;">' + Uni.I18n.translate('general.upload.fw.target.firm.status', 'FWC', 'Check if the uploaded firmware has this status') + '</span>',
+                                itemId: 'targetFirmwareCheckFinal',
+                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckFinalOption', 'FWC', 'Final status of target firmware'),
+                                inputValue: 'targetFirmwareCheckFinal',
+                            },
+                            {
+                                itemId: 'targetFirmwareCheckTest',
+                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckTestOption', 'FWC', 'Test status of target firmware'),
+                                inputValue: 'targetFirmwareCheckTest',
                             }
                         ]
                     },
                     {
                         xtype: 'checkboxgroup',
+                        fieldLabel: Uni.I18n.translate('general.firmwareDependenciesCheck', 'FWC', 'Dependencies check'),
                         required: false,
-                        itemId: 'dependenciesCheckOptions',
+                        itemId: 'dependenciesCheckTargetOption',
                         columns: 1,
                         vertical: true,
-                        fieldLabel: ' ',
-                        margin: '0 0 30 30',
                         items: [
                             {
-                                itemId: 'currentFirmwareCheckFinal',
-                                boxLabel: Uni.I18n.translate('general.upload.fw.currentFirmwareCheckFinalOption', 'FWC', 'Final status of target firmware'),
-                                inputValue: 'currentFirmwareCheckFinal',
-                            },
-                            {
-                                itemId: 'currentFirmwareCheckTest',
-                                boxLabel: Uni.I18n.translate('general.upload.fw.currentFirmwareCheckTestOption', 'FWC', 'Test status of target firmware'),
-                                inputValue: 'currentFirmwareCheckTest',
+                                itemId: 'curFirmwareCheck',
+                                boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type. All firmware types present in the device should have a rank not less than that of the version with the minimal level configured on the target version') + '</b>',
+                                inputValue: 'curFirmwareCheck'
                             }
                         ]
                     },
@@ -305,7 +333,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 itemId: 'masterFirmwareCheck',
                                 boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck', 'FWC', 'Master has the latest firmware (both meter and communication)') + '</b>',
                                 inputValue: 'currentFirmwareCheck',
-                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck.comment', 'FWC', 'The check will be applied only to the target firmware with the selected status') + '</span>'
+                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck.comment', 'FWC', 'The latest firmeware on the master is chosen only within versions with the selected status') + '</span>',
                             }
                         ]
                     },
@@ -320,15 +348,24 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         items: [
                             {
                                 itemId: 'masterFirmwareCheckFinal',
-                                boxLabel: Uni.I18n.translate('general.upload.fw.masterFirmwareCheckFinalOption', 'FWC', 'Final status of target firmware on slave device'),
+                                boxLabel: Uni.I18n.translate('general.upload.fw.masterFirmwareCheckFinalOption', 'FWC', 'Final status of firmware on master device'),
                                 inputValue: 'masterFirmwareCheckFinal',
                             },
                             {
                                 itemId: 'masterFirmwareCheckTest',
-                                boxLabel: Uni.I18n.translate('general.upload.fw.currentFirmwareCheckTestOption', 'FWC', 'Test status of target firmware on slave device'),
+                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckTestOption', 'FWC', 'Test status of firmware on master device'),
                                 inputValue: 'masterFirmwareCheckTest',
                             }
                         ]
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'masterOptionsError',
+                        fieldLabel: '&nbsp',
+                        hidden: true,
+                        renderer: function (value, field) {
+                            return '<span style="color:red;margin:10px 0 0 30px;">' + Uni.I18n.translate('firmware.specs.save.validationError', 'FWC', 'You must select at least one item in the group') + '</span>';
+                        }
                     },
                     {
                         xtype: 'fieldcontainer',

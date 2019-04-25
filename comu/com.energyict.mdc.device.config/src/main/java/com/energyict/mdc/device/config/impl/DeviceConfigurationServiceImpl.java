@@ -1093,9 +1093,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public DeviceLifeCycleInDeviceTypeInfo[] getDeviceLifeCycleInDeviceTypeInfoPossibleValues() {
-        if(deviceLifeCycleInDeviceTypes.isEmpty()) {
-            clearAndRecalculateCache();
-        }
+        //TODO: this chaange was a quick fix before release but we should device if we move this code back to templates to we keep it here and we find another way to not reload the data from DB each time, but only when needed
+        clearAndRecalculateCache();
         return deviceLifeCycleInDeviceTypes.stream().toArray(DeviceLifeCycleInDeviceTypeInfo[]::new);
     }
 

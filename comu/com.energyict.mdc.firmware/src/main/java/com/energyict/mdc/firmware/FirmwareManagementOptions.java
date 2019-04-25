@@ -16,14 +16,15 @@ public interface FirmwareManagementOptions {
     void setOptions(Set<ProtocolSupportedFirmwareOptions> allowedOptions);
 
     /**
-     * Activates firmware check option for a given set of {@link FirmwareStatus FirmwareStatuses}.
-     * Empty set of statuses means deactivation of the check option.
+     * Activates firmware check option with a given set of {@link FirmwareStatus FirmwareStatuses}, where applicable.
+     * If statuses are applicable, empty set of statuses means deactivation of the check option.
      *
-     * @param checkManagementOption The check option to activate or deactivate.
-     * @param firmwareStatuses The set of {@link FirmwareStatus FirmwareStatuses} to activate the provided check option for.
-     * Empty set of statuses means deactivation of the check option.
+     * @param checkManagementOption The check option to activate.
+     * @param firmwareStatuses The set of {@link FirmwareStatus FirmwareStatuses} to activate the provided check option with.
      */
     void activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption checkManagementOption, Set<FirmwareStatus> firmwareStatuses);
+
+    void deactivate(FirmwareCheckManagementOption checkManagementOption);
 
     Set<ProtocolSupportedFirmwareOptions> getOptions();
 
@@ -33,5 +34,7 @@ public interface FirmwareManagementOptions {
 
     long getVersion();
 
-    EnumSet<FirmwareStatus> getTargetFirmwareStatuses(FirmwareCheckManagementOption checkManagementOption);
+    boolean isActivated(FirmwareCheckManagementOption checkManagementOption);
+
+    EnumSet<FirmwareStatus> getStatuses(FirmwareCheckManagementOption checkManagementOption);
 }

@@ -35,7 +35,7 @@ public class MinimumLevelFirmwareCheck implements FirmwareCheck {
     @Override
     public void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         Device device = deviceUtils.getDevice();
-        if (firmwareService.isFirmwareCheckActivatedForStatus(device.getDeviceType(), FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK, firmwareVersion.getFirmwareStatus())) {
+        if (firmwareService.isFirmwareCheckActivated(device.getDeviceType(), FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)) {
             if (!deviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
                 throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_FIRMWARE_NOT_READOUT);
             }
@@ -47,9 +47,20 @@ public class MinimumLevelFirmwareCheck implements FirmwareCheck {
                                 .map(ActivatedFirmwareVersion::getFirmwareVersion)
                                 .filter(current -> current.compareTo(dependency) >= 0)
                                 .isPresent()) {
-                            throw new FirmwareCheckException(thesaurus, MessageSeeds.CURRENT_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED, firmwareType.getTranslation(thesaurus));
+                            throw new FirmwareCheckException(thesaurus, messageSeedForType(firmwareType));
                         }
                     });
+        }
+    }
+
+    private MessageSeeds messageSeedForType(FirmwareType firmwareType) {
+        switch (firmwareType) {
+            case METER:
+                return MessageSeeds.METER_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED;
+            case COMMUNICATION:
+                return MessageSeeds.COMMUNICATION_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED;
+            default:
+                throw new IllegalArgumentException("Firmware type " + firmwareType.name() + " isn't supported by " + MinimumLevelFirmwareCheck.class.getSimpleName());
         }
     }
 }
