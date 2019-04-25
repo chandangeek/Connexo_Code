@@ -759,13 +759,15 @@ Ext.define('Fwc.controller.Firmware', {
             router = this.getController('Uni.controller.history.Router'),
             form = me.getFirmwareOptionsEditForm(),
             allowedOptionsError = form.down('#allowedOptionsError'),
-            backUrl = router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl();
+            backUrl = router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl(),
+            formGroupErrorItem = form.down('#masterOptionsError');
 
         this.tab2Activate = 0;
         if (!form.updateRecord()){
-            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors.title', 'FWC', 'Couldn\'t perform your action'),
-                 Uni.I18n.translate('firmware.specs.save.validationError', 'FWC', 'You must select at least one item in the group'));
+            if (formGroupErrorItem) formGroupErrorItem.show();
             return;
+        }else{
+            if (formGroupErrorItem) formGroupErrorItem.hide();
         }
         allowedOptionsError.removeAll();
         form.getRecord().save({

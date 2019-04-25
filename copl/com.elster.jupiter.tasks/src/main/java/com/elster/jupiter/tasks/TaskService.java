@@ -21,6 +21,8 @@ public interface TaskService {
 
     String COMPONENTNAME = "TSK";
 
+    String EVENT_NAMESPACE = "com/elster/jupiter/tasks/";
+
     RecurrentTaskBuilder newBuilder();
 
     MessageHandler createMessageHandler(TaskExecutor taskExecutor);

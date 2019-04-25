@@ -749,7 +749,8 @@ public class BpmResource {
         connexoFlowHashMap.put("device", "deviceId");
         connexoFlowHashMap.put("usagepoint", "usagePointId");
         connexoFlowHashMap.put("datacollectionissue", "issueId");
-        connexoFlowHashMap.put("devicelifecycleissue", "issueId");  // Laurentia
+        connexoFlowHashMap.put("devicelifecycleissue", "issueId");
+        connexoFlowHashMap.put("taskissue", "issueId");
 
         String requiredVariable = connexoFlowHashMap.get(info.type);
 
@@ -1616,5 +1617,4 @@ public class BpmResource {
         List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions(appKey);
         return (filterProperties.get("type") != null) ? filterProcesses(activeProcesses, filterProperties.get("type").get(0), auth) : filterProcesses(activeProcesses, null, auth);
     }
-
 }

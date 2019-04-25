@@ -23,7 +23,8 @@ public class UpgraderV10_6 extends SqlExecuteUpgrader {
     @Override
     protected List<String> getSQLStatementsToExecute() {
         return Arrays.asList(
-                ignoreColumnExistsOrTableDoesNotExist("alter table MCP_SCS_CNT modify (CALLBACK_URL NULL)"));
+                ignoreColumnExistsOrTableDoesNotExist("alter table MCP_SCS_CNT modify (CALLBACK_URL NULL)"),
+                ignoreColumnExistsOrTableDoesNotExist("alter table MCP_SCS_CNTJRNL modify (CALLBACK_URL NULL)"));
     }
 
 }

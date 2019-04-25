@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.pki.tasks.crlrequest;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.nls.Layer;
@@ -41,6 +42,7 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
+    private volatile EventService eventService;
 
     public static final String CRL_REQUEST_TASK_SUBSCRIBER = "CrlRequestSubscriber";
     public static final String CRL_REQUEST_TASK_NAME = "Crl Request Task";
@@ -70,6 +72,7 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
         setClock(clock);
         setNlsService(nlsService);
         setTransactionService(transactionService);
+        setEventService(eventService);
     }
 
     @Reference
@@ -112,6 +115,11 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
     @Override
     public Optional<RecurrentTask> getTask() {
         return taskService.getRecurrentTask(CRL_REQUEST_TASK_NAME);
@@ -120,13 +128,13 @@ public class CrlRequestHandlerFactory implements MessageHandlerFactory, CrlReque
     @Override
     public TaskOccurrence runNow() {
         if (getTask().isPresent()) {
-            return getTask().get().runNow(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock, thesaurus, transactionService));
+            return getTask().get().runNow(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock, thesaurus, transactionService, eventService));
         }
         return null;
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock, thesaurus, transactionService));
+        return taskService.createMessageHandler(new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock, thesaurus, transactionService, eventService));
     }
 }

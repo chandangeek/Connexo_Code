@@ -67,7 +67,9 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.NoneOrTimeDuration',
         'Uni.property.view.property.UsagePoint',
         'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations',
-        'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions'
+        'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
+        'Uni.property.view.property.Recurrence',
+        'Uni.property.view.property.Task'
     ],
 
     /**
@@ -112,11 +114,13 @@ Ext.define('Uni.property.controller.Registry', {
         RECURRENCE_SELECTION_PROPS: 'Uni.property.view.property.RecurrenceSelectionProps',
         RADIO_GROUP: 'Uni.property.view.property.RadioGroup',
         READINGTYPE: 'Uni.property.view.property.Reference',
+        RECURRENCE: 'Uni.property.view.property.Recurrence',
         REFERENCE: 'Uni.property.view.property.Reference',
         REGISTER: 'Uni.property.view.property.Reference',
         RELATIVEPERIOD: 'Uni.property.view.property.RelativePeriod',
         RELATIVEPERIODWITHCOUNT: 'Uni.property.view.property.EventTime',
         SELECTIONGRID: 'Uni.property.view.property.SelectionGrid',
+        TASK: 'Uni.property.view.property.Task',
         TEXT: 'Uni.property.view.property.Text',
         TEXTAREA: 'Uni.property.view.property.Textarea',
         TEMPORALAMOUNT: 'Uni.property.view.property.Period',

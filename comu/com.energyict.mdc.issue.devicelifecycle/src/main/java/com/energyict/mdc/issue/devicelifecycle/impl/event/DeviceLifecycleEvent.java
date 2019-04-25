@@ -8,6 +8,8 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -28,6 +30,8 @@ import com.energyict.mdc.issue.devicelifecycle.impl.MessageSeeds;
 
 import com.google.inject.Inject;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -40,6 +44,7 @@ public abstract class DeviceLifecycleEvent implements IssueEvent {
     protected Long from;
     protected Long to;
     protected String cause;
+    private int ruleId;
 
 
     private final Thesaurus thesaurus;
@@ -84,15 +89,22 @@ public abstract class DeviceLifecycleEvent implements IssueEvent {
     @Override
     public Optional<? extends OpenIssue> findExistingIssue() {
         DeviceLifecycleIssueFilter filter = new DeviceLifecycleIssueFilter();
-        getEndDevice().ifPresent(filter::setDevice);
-        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-        filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-        filter.addStatus(issueService.findStatus(IssueStatus.SNOOZED).get());
-        Optional<? extends IssueDeviceLifecycle> foundIssue = issueDeviceLifecycleService.findAllDeviceLifecycleIssues(filter)
-                .find()
-                .stream()
-                .findFirst();//It is going to be only zero or one open issue per device
-        return foundIssue.map(issueDeviceLifecycle -> (OpenIssue) issueDeviceLifecycle);
+        Optional<CreationRule> rule = issueService.getIssueCreationService().findCreationRuleById(ruleId);
+        if(rule.isPresent()){
+            filter.setRule(rule.get());
+            new ArrayList<String>(){{
+                add(IssueStatus.OPEN);
+                add(IssueStatus.IN_PROGRESS);
+                add(IssueStatus.SNOOZED);
+            }}.forEach(is -> filter.addStatus(issueService.findStatus(is).get()));
+            filter.setIssueReason(rule.get().getReason());
+            Optional<? extends IssueDeviceLifecycle> foundIssue = issueDeviceLifecycleService.findIssues(filter).find().
+                    stream().max(Comparator.comparing(Issue::getCreateDateTime));
+            if (foundIssue.isPresent()) {
+                return Optional.of((OpenIssue) foundIssue.get());
+            }
+        }
+        return Optional.empty();
     }
 
     protected Optional<Device> getDevice() {
@@ -140,6 +152,10 @@ public abstract class DeviceLifecycleEvent implements IssueEvent {
         } else {
             return Optional.empty();
         }
+    }
+
+    protected void setCreationRule(int ruleId){
+        this.ruleId = ruleId;
     }
 
     public boolean isResolveEvent() {

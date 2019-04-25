@@ -5,6 +5,7 @@
 package com.elster.jupiter.issue.impl.tasks;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
@@ -53,6 +54,11 @@ public class IssueOverdueHandler implements TaskExecutor {
             doOverdueActions(issue);
             MessageSeeds.ISSUE_OVERDUE_NOTIFICATION.log(LOG, thesaurus, issue.getTitle());
         }
+    }
+
+    @Override
+    public void postFailEvent(EventService eventService, TaskOccurrence occurrence, String cause){
+        throw new UnsupportedOperationException("Unsupported operation");
     }
 
     private OpenIssue mapBaseIssue(OpenIssue baseIssue) {

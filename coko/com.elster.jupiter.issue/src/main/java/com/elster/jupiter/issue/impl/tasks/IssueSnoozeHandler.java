@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.issue.impl.tasks;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -50,6 +51,11 @@ public class IssueSnoozeHandler implements TaskExecutor {
             issueService.findAlarms(issueFilter).find()
                     .forEach(this::handleExpired);
         }
+    }
+
+    @Override
+    public void postFailEvent(EventService eventService, TaskOccurrence occurrence, String cause){
+        throw new UnsupportedOperationException("Unsupported operation");
     }
 
     private void handleExpired(Issue issue) {
