@@ -24,6 +24,8 @@ import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
+import com.elster.jupiter.issue.task.TaskIssueService;
+import com.elster.jupiter.issue.task.impl.TaskIssueModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -210,7 +212,8 @@ public class InMemoryPersistence {
                 new WebServicesModule(),
                 new AuditServiceModule(),
                 new FileImportModule(),
-                new MeteringZoneModule()
+                new MeteringZoneModule(),
+                new TaskIssueModule()
         );
     }
 
@@ -235,7 +238,7 @@ public class InMemoryPersistence {
             this.injector.getInstance(MeteringGroupsService.class);
             this.injector.getInstance(MasterDataService.class);
             this.injector.getInstance(IssueDeviceLifecycleServiceImpl.class);
-            this.injector.getInstance(TaskServiceImpl.class);
+            this.injector.getInstance(TaskIssueService.class);
             this.deviceProvider = this.injector.getInstance(DeviceProcessAssociationProvider.class);
             this.issueProvider = this.injector.getInstance(IssueProcessAssociationProvider.class);
             this.alarmProvider = this.injector.getInstance(DeviceAlarmProcessAssociationProvider.class);

@@ -37,7 +37,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class TaskIssueProcessAssociationProvider implements ProcessAssociationProvider, TranslationKeyProvider {
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "BPM";
-    public static final String ASSOCIATION_TYPE = "task";
+    public static final String ASSOCIATION_TYPE = "taskissue";
 
     private volatile License license;
     private volatile Thesaurus thesaurus;
