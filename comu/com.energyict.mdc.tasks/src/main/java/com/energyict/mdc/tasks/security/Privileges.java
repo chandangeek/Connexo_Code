@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public enum Privileges implements TranslationKey {
 
     // Resources
-    RESOURCE_COMMUNICATION_TASK_EXECUTION("comminication.task.execution.planning.scheduling", "Communication task execution/planning/scheduling"),
+    RESOURCE_COMMUNICATION_TASK_EXECUTION("comminication.task.execution.planning.scheduling", "Communication task execution/scheduling"),
     RESOURCE_COMMUNICATION_TASK_EXECUTION_DESCRIPTION(
             "comminication.task.execution.planning.scheduling",
             "Execute/plan/schedule communication tasks"),
