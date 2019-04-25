@@ -12,16 +12,16 @@ import java.util.stream.Collectors;
 public enum Privileges implements TranslationKey {
 
     // Resources
-    RESOURCE_COMMUNICATION_TASK_EXECUTION("comminication.task.execution", "Communication task execution"),
+    RESOURCE_COMMUNICATION_TASK_EXECUTION("comminication.task.execution.planning.scheduling", "Communication task execution/planning/scheduling"),
     RESOURCE_COMMUNICATION_TASK_EXECUTION_DESCRIPTION(
-            "comminication.task.execution.description",
-            "Execute communication tasks"),
+            "comminication.task.execution.planning.scheduling",
+            "Execute/plan/schedule communication tasks"),
 
     // Privileges
-    EXECUTE_COM_TASK_1(Constants.EXECUTE_COM_TASK_1, "Execute level 1"),
-    EXECUTE_COM_TASK_2(Constants.EXECUTE_COM_TASK_2, "Execute level 2"),
-    EXECUTE_COM_TASK_3(Constants.EXECUTE_COM_TASK_3, "Execute level 3"),
-    EXECUTE_COM_TASK_4(Constants.EXECUTE_COM_TASK_4, "Execute level 4");
+    EXECUTE_COM_TASK_1(Constants.EXECUTE_COM_TASK_1, "Level 1"),
+    EXECUTE_COM_TASK_2(Constants.EXECUTE_COM_TASK_2, "Level 2"),
+    EXECUTE_COM_TASK_3(Constants.EXECUTE_COM_TASK_3, "Level 3"),
+    EXECUTE_COM_TASK_4(Constants.EXECUTE_COM_TASK_4, "Level 4");
 
     private final String key;
     private final String description;
