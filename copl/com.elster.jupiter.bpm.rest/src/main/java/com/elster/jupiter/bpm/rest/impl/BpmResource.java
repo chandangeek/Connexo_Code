@@ -423,7 +423,6 @@ public class BpmResource {
         return jsnobject != null ? new ProcessInstanceNodeInfos(jsnobject, thesaurus) : new ProcessInstanceNodeInfos();
     }
     
-    // -----------------------------------------------------------
     @GET
     @Path("/process/instance/{processInstanceId}/parent")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -516,7 +515,6 @@ public class BpmResource {
         }
         return new ProcessInstanceNodeInfoWithSubprocessList();
     }
-    // -----------------------------------------------------------
 
     @GET
     @Path("/processes")

@@ -7,7 +7,8 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
     models: [
         'Bpm.monitorprocesses.model.ProcessNodes',
-        'Bpm.monitorprocesses.model.ExtendedProcessNodes'
+        'Bpm.monitorprocesses.model.ExtendedProcessNodes',
+        'Bpm.monitorprocesses.model.ParentProcess'
     ],
 
     requires: [
@@ -47,7 +48,8 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         {ref: 'processStatusPreviewExtendedTab', selector: '#all-process-status-preview-extended'},
         {ref: 'processStatusPreviewExtendedGrid', selector: '#all-process-status-preview-extended #process-nodes-grid-extended'},
         {ref: 'statusVariablesPreviewExtendedPanel', selector: '#all-process-status-preview-extended #node-variables-preview-panel'},
-        {ref: 'childProcessPreviewExtendedPanel', selector: '#all-process-status-preview-extended #child-process-preview-panel'}
+        {ref: 'childProcessPreviewExtendedPanel', selector: '#all-process-status-preview-extended #child-process-preview-panel'},
+		{ref: 'parentProcessPreviewExtendedPanel', selector: '#all-process-status-preview-extended #parent-process-preview-panel'}
     ],
     router: null,
 
@@ -155,7 +157,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
             /* For status preview */
             if(me.getProcessStatusPreviewExtendedTab()){
-            	this.showNodesDetailsWithSubprocesses(process, this.getProcessStatusPreviewExtendedGrid());
+            	this.showNodesDetailsWithSubprocesses(process, this.getProcessStatusPreviewExtendedGrid(), this.getParentProcessPreviewExtendedPanel());
             } else {
             	this.showNodesDetails(process, this.getProcessStatusPreviewGrid());
             }
@@ -266,9 +268,10 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         panel.doLayout();
     },
     
-    showNodesDetailsWithSubprocesses: function (processRecord, grid) {
+    showNodesDetailsWithSubprocesses: function (processRecord, grid, parentProcessPanel) {
         var me = this;
         var extendedProcessNodesModel = Ext.ModelManager.getModel('Bpm.monitorprocesses.model.ExtendedProcessNodes');
+        var parentProcessModel = Ext.ModelManager.getModel('Bpm.monitorprocesses.model.ParentProcess');
 
         Ext.Ajax.request({
             url: Ext.String.format('../../api/bpm/runtime/process/instance/{0}/nodeswithsubprocessinfo', processRecord.get('processId')),
@@ -285,6 +288,69 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
             }
         })
+        
+        Ext.Ajax.request({
+        	url: Ext.String.format('../../api/bpm/runtime/process/instance/{0}/parent', processRecord.get('processId')),
+        	method: 'GET',
+        	success: function (option) {
+        	
+        		var panelItems = new Ext.util.MixedCollection();
+				if(option.responseText) {
+				
+					var response = Ext.JSON.decode(option.responseText),
+                    	reader = Bpm.monitorprocesses.model.ParentProcess.getProxy().getReader(),
+						resultSet = reader.readRecords(response),
+						record = resultSet.records[0];
+				
+					panelItems.add(Ext.create("Ext.form.field.Display", {
+							fieldLabel: Uni.I18n.translate('mdc.process.parentProcessInstanceId', 'MDC', 'Parent process instance id'),
+							style: '{word-break: break-word; word-wrap: break-word;}',
+							flex: 1,
+							labelWidth: 200,
+							htmlEncode: false,
+							value: '<a>' + record.get('processInstanceId') + '</a>',
+							listeners: {
+								afterrender: function(view) {
+									view.getEl().on('click', function() {
+										var router = me.getController('Uni.controller.history.Router');
+										var route = router.getRoute('workspace/multisenseprocesses');
+										route.forwardInNewTab(null, {processInstanceId: [record.get('processInstanceId')], searchInAllProcesses: true});
+									});
+								}
+							}
+						}
+					));
+					panelItems.add(Ext.create("Ext.form.field.Display", {
+							fieldLabel: Uni.I18n.translate('mdc.process.parentProcessName', 'MDC', 'Parent process name'),
+							style: '{word-break: break-word; word-wrap: break-word;}',
+							flex: 1,
+							labelWidth: 200,
+							value: record.get('processName')
+						}
+					));
+					parentProcessPanel.removeAll();
+					parentProcessPanel.items = panelItems;
+					parentProcessPanel.doLayout();
+				} else {
+					panelItems.add(Ext.create("Ext.Component", {
+                    height: 40,
+                    autoEl: {
+                        html: Uni.I18n.translate('mdc.process.noParentProcess', 'MDC', 'The specified process has no parent process'),
+                        tag: 'span',
+                        style: {
+                            top: '2em !important',
+                            fontStyle: 'italic',
+                            color: '#999'
+								}
+							}
+						}
+					));
+					parentProcessPanel.removeAll();
+					parentProcessPanel.items = panelItems;
+					parentProcessPanel.doLayout();
+				}
+            }
+        })
     },
     
     showVariablesPreviewExtendedForStatus: function (selectionModel, record) {
@@ -296,6 +362,9 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         var me = this;
 
         panel.setTitle(Ext.String.format(Uni.I18n.translate('mdc.process.node.variablesTitle', 'MDC', '{0} ({1}) variables'),
+            record.get('nodeInfo.name'), record.get('nodeInfo.type')));
+            
+        subprocessPanel.setTitle(Ext.String.format(Uni.I18n.translate('mdc.process.node.subprocessesTitle', 'MDC', '{0} ({1}) subprocesses'),
             record.get('nodeInfo.name'), record.get('nodeInfo.type')));
 
         var panelItems = new Ext.util.MixedCollection(), subprocessPanelItems = new Ext.util.MixedCollection();
@@ -331,11 +400,12 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         
         if(record.get('childSubprocessLog.childProcessInstanceId')) {
         	subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
-                        fieldLabel: 'Child process instance id',
+                        fieldLabel: Uni.I18n.translate('mdc.process.node.childProcessInstanceId', 'MDC', 'Child process instance id'),
                         style: '{word-break: break-word; word-wrap: break-word;}',
                         flex: 1,
                         labelWidth: 200,
-                        value: record.get('childSubprocessLog.childProcessInstanceId'),
+                        htmlEncode: false,
+                        value: '<a>' + record.get('childSubprocessLog.childProcessInstanceId') + '</a>',
                         listeners: {
                         	afterrender: function(view) {
                         		view.getEl().on('click', function() {
@@ -348,14 +418,28 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                     }
                 ));
             subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
-                        fieldLabel: 'Child process name',
+                        fieldLabel: Uni.I18n.translate('mdc.process.node.childProcessName', 'MDC', 'Child process name'),
                         style: '{word-break: break-word; word-wrap: break-word;}',
                         flex: 1,
                         labelWidth: 200,
                         value: record.get('childSubprocessLog.processName')
                     }
                 ));        
-        }
+        } else {
+			subprocessPanelItems.add(Ext.create("Ext.Component", {
+                    height: 40,
+                    autoEl: {
+                        html: Uni.I18n.translate('mdc.process.node.noChildProcessInNode', 'MDC', 'No child process started in this node'),
+                        tag: 'span',
+                        style: {
+                            top: '2em !important',
+                            fontStyle: 'italic',
+                            color: '#999'
+                        }
+                    }
+                }
+            ));
+		}
 
         panel.removeAll();
         subprocessPanel.removeAll();

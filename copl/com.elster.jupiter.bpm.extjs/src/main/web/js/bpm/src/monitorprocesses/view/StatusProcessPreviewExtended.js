@@ -78,16 +78,39 @@ Ext.define('Bpm.monitorprocesses.view.StatusProcessPreviewExtended', {
             		items:[]
         		},
         		{
-	            	xtype: 'panel',
-            		flex: 1,
-            		itemId: 'child-process-preview-panel',
-            		margin: '0 0 0 20',
-            		frame: true,
-            		autoScroll: true,
-            		header : {
-		                height : 32
-	            	},
-    	        	items:[]
+        			xtype: 'container',
+        			flex: 1,
+            		layout: {
+        			type: 'hbox',
+        			align: 'stretch'
+    				},
+    				items: [
+	        			{
+	            			xtype: 'panel',
+            				flex: 1,
+	            			itemId: 'child-process-preview-panel',
+            				margin: '0 0 0 20',
+            				frame: true,
+            				autoScroll: true,
+            				header : {
+				                height : 32
+	            			},
+	    	        		items:[]
+    	    			},
+    	    			{
+	            			xtype: 'panel',
+	            			title: Uni.I18n.translate('mdc.process.node.parentProcessTitle', 'MDC', 'Parent process'),
+            				flex: 1,
+	            			itemId: 'parent-process-preview-panel',
+            				margin: '0 0 0 20',
+            				frame: true,
+            				autoScroll: true,
+            				header : {
+				                height : 32
+	            			},
+	    	        		items:[]
+    	    			}
+    	    		]
         		}
         	]
         }

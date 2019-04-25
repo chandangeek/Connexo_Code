@@ -90,17 +90,6 @@ Ext.define('Mdc.processes.view.AllProcesses', {
                                         }
                                     ]
                                 },
-                                /*{
-                                    margin: '10 0 0 0',
-                                    title: Uni.I18n.translate('processes.processStatus.title', 'MDC', 'Status overview'),
-                                    itemId: 'status-process-tab',
-                                    items: [
-                                        {
-                                            xtype: 'bpm-status-process-preview',
-                                            itemId: 'all-process-status-preview'
-                                        }
-                                    ]
-                                },*/
                                 {
                                     margin: '10 0 0 0',
                                     title: Uni.I18n.translate('processes.processStatus.title', 'MDC', 'Status overview'),
