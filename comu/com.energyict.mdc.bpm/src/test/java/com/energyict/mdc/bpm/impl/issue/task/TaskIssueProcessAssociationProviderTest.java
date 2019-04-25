@@ -30,7 +30,6 @@ public class TaskIssueProcessAssociationProviderTest {
     public static void initialize() {
         inMemoryPersistence = InMemoryPersistence.defaultPersistence();
         inMemoryPersistence.initializeDatabase(TaskIssueProcessAssociationProvider.class.getSimpleName());
-       // inMemoryPersistence.initializeDatabase(IssueLifecycleProcessAssociationProvider.class.getSimpleName());
     }
 
     @AfterClass
@@ -41,19 +40,17 @@ public class TaskIssueProcessAssociationProviderTest {
     @Test
     public void testProviderType() {
         ProcessAssociationProvider provider = inMemoryPersistence.getTaskAssociationProvider();
-        assertEquals("task", provider.getType()); //vezi daca nu trebuie doar task
+        assertEquals("taskissue", provider.getType());
     }
 
     @Test
     public void testProviderPropertySpecNotAvailable() {
-        //ProcessAssociationProvider provider = inMemoryPersistence .getLifecycleAssociationProvider();
         ProcessAssociationProvider provider = inMemoryPersistence.getTaskAssociationProvider();
         assertFalse(provider.getPropertySpec("unavailable").isPresent());
     }
 
     @Test
     public void testProviderDeviceStatePropertySpec() {
-        //ProcessAssociationProvider provider = inMemoryPersistence.getLifecycleAssociationProvider();
         ProcessAssociationProvider provider = inMemoryPersistence.getTaskAssociationProvider();
         assertTrue(provider.getPropertySpec("issueReasons").isPresent());
 
@@ -65,13 +62,9 @@ public class TaskIssueProcessAssociationProviderTest {
         assertTrue(spec.getPossibleValues().isExhaustive());
         assertFalse(spec.getPossibleValues().isEditable());
 
-       // List<IssueLifecycleProcessAssociationProvider.IssueReasonInfo> values = spec.getPossibleValues().getAllValues();
         List<TaskIssueProcessAssociationProvider.IssueReasonInfo> values = spec.getPossibleValues().getAllValues();
-        //TASK_ISSUE_REASON_TITLE
          assertEquals("reason.task.failed", values.get(0).getId());
-         assertEquals("TaskFailed", values.get(0).getName());  // BasicTaskIssueRuleTemplate
+         assertEquals("TaskFailed", values.get(0).getName());
 
-       // assertEquals("reason.device.lifecycle.transition.failure", values.get(0).getId());
-       // assertEquals("DeviceLifecycleIssueReason", values.get(0).getName());
     }
 }
