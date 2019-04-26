@@ -199,6 +199,7 @@ public interface SearchableProperty {
      */
     void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions);
 
+    /* Specify operators available for property */
     default List<String> getAvailableOperators(){
         return Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code());
     };
