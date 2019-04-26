@@ -30,6 +30,8 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -60,6 +62,7 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPrope
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
@@ -72,6 +75,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationTask;
 
@@ -79,6 +83,8 @@ import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.joda.time.DateMidnight;
 
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -88,6 +94,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -166,6 +173,12 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private PropertyValueConverter propertyValueConverter;
     @Mock
     private UsagePointStateChangeRequest usagePointStateChangeRequest;
+    @Mock
+    private UsagePointInfoFactory usagePointInfoFactory;
+    @Mock
+    private ResourceHelper resourceHelper;
+
+
 
     @Before
     public void setUp1() {
@@ -579,6 +592,34 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         assertThat(response.getStatus()).isEqualTo(200);
         verify(effectiveMetrologyConfigurationOnUsagePoint, times(1)).close(now);
+    }
+
+    @Test
+    public void testUnlinkMeterRoleFromUsagePoint() {
+        MeterRole meterRole = mock(MeterRole.class);
+        when(meterRole.getKey()).thenReturn("key1");
+        when(meterRole.getDisplayName()).thenReturn("test");
+        when(metrologyConfigurationService.findMeterRole("key1")).thenReturn(Optional.of(meterRole));
+
+        MeterRoleInfo meterRoleInfo = new MeterRoleInfo(meterRole);
+
+        UsagePointInfo info = getInfoWithMetrologyConfigurationAndMeters();
+        info.version = usagePoint.getVersion();
+        info.meterRoles = new ArrayList<>();
+        info.meterRoles.add(meterRoleInfo);
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
+
+        UsagePointMeterActivator linker = mock(UsagePointMeterActivator.class);
+        when(usagePoint.linkMeters()).thenReturn(linker);
+
+        when(usagePointInfoFactory.fullInfoFrom(any())).thenReturn(info);
+        when(resourceHelper.findMeterRoleOrThrowException(meterRoleInfo.id)).thenReturn(meterRole);
+
+        Response response = target("/usagepoints/"+USAGE_POINT_NAME+"/metrologyconfiguration/test/unlinkMeterRole/"+1555659900000L).request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        verify(linker).clear(any(), any());
+        verify(linker).complete();
     }
 
 

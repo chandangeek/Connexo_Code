@@ -34,6 +34,7 @@ import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
+import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -701,6 +702,30 @@ public class UsagePointResource {
         } catch (LocalizedException ex) {
             validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "metrologyConfiguration", ex.getMessageArgs())).validate();
         }
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Transactional
+    @Path("/{usagePointName}/metrologyconfiguration/{meterRoleName}/unlinkMeterRole/{timeStamp}")
+    public Response unlinkMeterRole(@PathParam("usagePointName") String usagePointName,
+                                    @PathParam("meterRoleName") String meterRoleName,
+                                    @PathParam("timeStamp") long timeStamp,
+                                    UsagePointInfo info) {
+
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
+        List<MeterRoleInfo> meterRoleInfos = info.meterRoles;
+        UsagePointMeterActivator linker = usagePoint.linkMeters();
+        for(MeterRoleInfo meterRoleInfo:meterRoleInfos){
+            if(meterRoleInfo.name.equals(meterRoleName)) {
+                linker.clear(Instant.ofEpochMilli(timeStamp),resourceHelper.findMeterRoleOrThrowException(meterRoleInfo.id));
+                linker.complete();
+                return Response.ok().build();
+            }
+        }
+        return Response.status(404).build();
     }
 
     @PUT
