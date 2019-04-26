@@ -24,9 +24,7 @@ import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -140,27 +138,6 @@ public class DynamicSearchResource {
                              @Context UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         InfoFactory infoFactory = infoFactoryService.getInfoFactoryFor(searchDomain);
-        List<?> domainObjects = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().from(jsonQueryParameters).find();
-
-        List searchResults = infoFactory.from(domainObjects);
-        return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
-    }
-
-    @POST
-    //@Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{domain}")
-    public Response doSearchPost(@PathParam("domain") String domainId,
-                                 @FormParam("page")Integer page,
-                                 @FormParam("start")Integer start,
-                                 @FormParam("limit")Integer limit,
-                                 @FormParam("filter")String filter) throws InvalidValueException {
-        SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        InfoFactory infoFactory = infoFactoryService.getInfoFactoryFor(searchDomain);
-        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(filter);
-        JsonQueryParameters jsonQueryParameters = new JsonQueryParameters(start,limit);
-        
         List<?> domainObjects = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().from(jsonQueryParameters).find();
 
         List searchResults = infoFactory.from(domainObjects);
