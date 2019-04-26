@@ -196,11 +196,6 @@ public enum SearchablePropertyOperator {
         public void appendCriteria(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, List<Object> values) throws InvalidValueException {
             criterionBuilder.in(values);
         }
-
-        /*@Override
-        public boolean isUnary() {
-            return true;
-        }*/
     }
     ;
 
