@@ -147,7 +147,6 @@ public class DynamicSearchResource {
     }
 
     @POST
-    //@Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{domain}")
