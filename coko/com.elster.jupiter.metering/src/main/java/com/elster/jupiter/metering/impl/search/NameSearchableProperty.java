@@ -11,10 +11,8 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
-import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.util.conditions.Condition;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -95,10 +93,5 @@ public class NameSearchableProperty implements SearchableUsagePointProperty {
     @Override
     public Condition toCondition(Condition specification) {
         return specification;
-    }
-
-    @Override
-    public List<String> getAvailableOperators(){
-        return Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code(), SearchablePropertyOperator.IN.code());
     }
 }

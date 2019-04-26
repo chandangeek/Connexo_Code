@@ -12,7 +12,6 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
-import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.Device;
@@ -20,7 +19,6 @@ import com.energyict.mdc.device.data.DeviceFields;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -119,8 +117,4 @@ public class SerialNumberSearchableProperty extends AbstractSearchableDeviceProp
         return this.toSqlFragment("dev.SERIALNUMBER", condition, now);
     }
 
-    @Override
-    public List<String> getAvailableOperators(){
-        return Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code(), SearchablePropertyOperator.IN.code());
-    }
 }

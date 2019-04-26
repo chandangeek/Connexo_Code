@@ -92,9 +92,4 @@ class SearchDomainExtensionSearchableProperty implements SearchableProperty {
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         searchableProperty.refreshWithConstrictions(constrictions);
     }
-
-    @Override
-    public List<String> getAvailableOperators(){
-        return searchableProperty.getAvailableOperators();
-    }
 }
