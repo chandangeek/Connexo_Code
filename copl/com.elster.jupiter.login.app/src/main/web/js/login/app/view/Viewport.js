@@ -94,6 +94,12 @@ Ext.define('Login.view.Viewport', {
                                     ui: 'action',
                                     action: 'login',
                                     itemId: 'loginButton'
+                                },
+                                {
+                                    text: 'test',
+                                    xtype: 'button',
+                                    ui: 'action',
+                                    itemId: 'testButton'
                                 }
                             ]
                         }
