@@ -7,6 +7,8 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.And;
@@ -32,6 +34,7 @@ import com.elster.jupiter.properties.TimeDurationValueFactory;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -65,6 +68,16 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     protected Thesaurus getThesaurus() {
         return thesaurus;
     }
+
+/*    @Override
+    public List<String> getAvailableOperators(){
+        return availableOperators;
+    }*/
+
+/*    public SearchableProperty setAvailableOperators(List<String> operators){
+        this.availableOperators = operators;
+        return this;
+    }*/
 
     protected abstract TranslationKey getNameTranslationKey();
 

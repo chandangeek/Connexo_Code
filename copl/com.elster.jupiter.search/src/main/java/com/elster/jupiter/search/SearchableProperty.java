@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ConsumerType;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -198,4 +199,7 @@ public interface SearchableProperty {
      */
     void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions);
 
+    default List<String> getAvailableOperators(){
+        return Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.NOT_EQUAL.code());
+    };
 }
