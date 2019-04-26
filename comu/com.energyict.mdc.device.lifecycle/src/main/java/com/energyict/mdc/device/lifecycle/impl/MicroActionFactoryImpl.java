@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.ActivateConnectionTasks;
@@ -63,6 +64,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile ServiceCallService serviceCallService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile DeviceService deviceService;
 
     // For OSGi purposes only
     public MicroActionFactoryImpl() {
@@ -71,7 +73,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
 
     // For unit testing purposes
     @Inject
-    public MicroActionFactoryImpl(NlsService nlsService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, TopologyService topologyService, ValidationService validationService, EstimationService estimationService, IssueService issueService, MetrologyConfigurationService metrologyConfigurationService) {
+    public MicroActionFactoryImpl(NlsService nlsService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, TopologyService topologyService, ValidationService validationService, EstimationService estimationService, IssueService issueService, MetrologyConfigurationService metrologyConfigurationService, DeviceService deviceService) {
         this();
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
@@ -81,6 +83,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
         this.setEstimationService(estimationService);
         this.setIssueService(issueService);
         this.setMetrologyConfigurationService(metrologyConfigurationService);
+        this.setDeviceService(deviceService);
     }
 
     @Reference
@@ -118,7 +121,6 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
         this.thesaurus = nlsService.getThesaurus(DeviceLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
@@ -127,6 +129,11 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
     @Reference
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Override
@@ -151,7 +158,7 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
                 return new StartCommunication(thesaurus);
             }
             case DISABLE_COMMUNICATION: {
-                return new DisableCommunication(thesaurus);
+                return new DisableCommunication(thesaurus, deviceService);
             }
             case DETACH_SLAVE_FROM_MASTER: {
                 return new DetachSlaveFromMaster(thesaurus, this.topologyService);

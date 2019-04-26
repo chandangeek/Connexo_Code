@@ -4,17 +4,17 @@
 
 package com.energyict.mdc.issue.devicelifecycle.impl.event;
 
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.ReadingQualityType;
-
-import org.osgi.service.event.EventConstants;
-
 import java.util.Map;
 
 public enum DeviceLifecycleEventDescription {
 
     TRANSITION_FAILURE("com/energyict/mdc/device/lifecycle/config/transition/FAILED", TransitionFailureEvent.class) {
+        @Override
+        public boolean matches(Map<?, ?> map) {
+            return super.matches(map);
+        }
+    },
+    TRANSITION_DONE("com/energyict/mdc/device/lifecycle/config/transition/DONE", TransitionDoneEvent.class) {
         @Override
         public boolean matches(Map<?, ?> map) {
             return super.matches(map);

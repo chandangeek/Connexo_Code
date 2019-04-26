@@ -7,10 +7,13 @@ package com.elster.jupiter.util.json.impl;
 import com.elster.jupiter.util.json.JsonDeserializeException;
 import com.elster.jupiter.util.json.JsonSerializeException;
 import com.elster.jupiter.util.json.JsonService;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import org.osgi.service.component.annotations.Component;
 
 import javax.inject.Inject;
+
 import java.io.IOException;
 
 @Component(name = "com.elster.jupiter.util.json", service = {JsonService.class})
@@ -20,6 +23,8 @@ public class JsonServiceImpl implements JsonService {
 
     @Inject
     public JsonServiceImpl() {
+        // supporting serialization of Java 8 time classes
+        objectMapper.registerModule(new JSR310Module());
     }
 
     @Override

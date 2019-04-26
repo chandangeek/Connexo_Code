@@ -85,4 +85,12 @@ public interface HsmProtocolService {
     KeyRenewalAgree2EGenerateResponse keyRenewalAgree2EGenerate(int securitySuite, int keyIDForAgreement, String privateEccSigningKeyLabel, String mdmStorageKeyLabel) throws HsmException;
 
     IrreversibleKey keyRenewalAgree2EFinalise(int securitySuite, int keyIDForAgree, byte[] serializedPrivateEccKey, byte[] ephemeralEccPubKeyForSmAgreementData, byte[] signature, String caCertificateLabel, Certificate[] certificateChain, byte[] otherInfo, String storageKeyLabel) throws HsmException;
+
+    KeyRenewalMBusResponse renewMBusUserKey(byte[] method7apdu, byte[] initializationVector, IrreversibleKey authKey, IrreversibleKey encrKey, IrreversibleKey defaultKey, int securitySuite) throws HsmException;
+    KeyRenewalMBusResponse renewMBusFuakWithGCM(String workingKeyLabel, IrreversibleKey defaultKey, byte[] mBusInitialVector) throws HsmException;
+    KeyRenewalMBusResponse renewMBusUserKeyWithGCM(IrreversibleKey encrKey, byte[] apduTemplate, byte[] eMeterIV, IrreversibleKey authKey, IrreversibleKey defaultKey, byte[] mbusIV, int securitySuite) throws HsmException;
+    MacResponse generateMacFirstBlock(IrreversibleKey firmwareUpdateAuthKey, byte[] clearData) throws HsmException;
+    MacResponse generateMacMiddleBlock(IrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] state) throws HsmException;
+    MacResponse generateMacLastBlock(IrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv, byte[] state) throws HsmException;
+    MacResponse generateMacSingleBlock(IrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv) throws HsmException;
 }

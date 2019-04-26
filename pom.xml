@@ -240,6 +240,11 @@
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.1.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-eclipse-plugin</artifactId>
 					<version>2.9</version>
 				</plugin>
@@ -337,19 +342,6 @@
 				</configuration>
 				<executions>
 					<execution>
-						<id>baseline</id>
-						<goals>
-							<goal>baseline</goal>
-						</goals>
-						<configuration>
-							<comparisonVersion>${baseline}</comparisonVersion>
-							<failOnError>true</failOnError>
-							<artifactRepoIds>
-								<artifactRepoId>eict-public</artifactRepoId>
-							</artifactRepoIds>
-						</configuration>
-					</execution>
-					<execution>
 						<id>bundle</id>
 						<goals>
 							<goal>bundle</goal>
@@ -408,29 +400,73 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>com.elster.plugin</groupId>
-				<artifactId>bundle-version-maven-plugin</artifactId>
-				<configuration>
-				  <acceptedPackages>
-					  <param>com.elster</param>
-					  <param>com.energyict</param>
-				  </acceptedPackages>
-				  <releasedVersion>${baseline}</releasedVersion>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>verify</phase>
-					<goals>
-						<goal>enforce</goal>
-					</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 
 	<profiles>
+		<profile>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<id>enforce-version</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.felix</groupId>
+						<artifactId>maven-bundle-plugin</artifactId>
+						<configuration>
+							<instructions>
+								<Bundle-Vendor>Elster</Bundle-Vendor>
+								<Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
+								<Git-SHA-1>${buildNumber}</Git-SHA-1>
+								<Git-branch>${scmBranch}</Git-branch>
+								<Build-timestamp>${timestamp}</Build-timestamp>
+								<_sources>${include.source}</_sources>
+								<_include>bnd.bnd</_include>
+							</instructions>
+							<supportedProjectTypes>
+								<supportedProjectType>bundle</supportedProjectType>
+							</supportedProjectTypes>
+							<obrRepository>none</obrRepository>
+						</configuration>
+						<executions>
+							<execution>
+								<id>baseline</id>
+								<goals>
+									<goal>baseline</goal>
+								</goals>
+								<configuration>
+									<comparisonVersion>${baseline}</comparisonVersion>
+									<failOnError>true</failOnError>
+									<artifactRepoIds>
+										<artifactRepoId>eict-public</artifactRepoId>
+									</artifactRepoIds>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>com.elster.plugin</groupId>
+						<artifactId>bundle-version-maven-plugin</artifactId>
+						<configuration>
+							<acceptedPackages>
+								<param>com.elster</param>
+								<param>com.energyict</param>
+							</acceptedPackages>
+							<releasedVersion>${baseline}</releasedVersion>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>enforce</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>coverage</id>
 			<build>
@@ -475,42 +511,38 @@
 				</plugins>
 			</build>
 		</profile>
-		<profile>
-			<id>release</id>
-			<properties>
-				<include.source>false</include.source>
-			</properties>
-		</profile>
-		<profile>
-			<id>javadoc</id>
-			<properties>
-				<javadoc.default.excluded.package.names>*.impl.*:*.internal.*:*.extjs.*:*.app.*:*.rest</javadoc.default.excluded.package.names>
-				<javadoc.excluded.package.names/>
-			</properties>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<configuration>
-							<excludePackageNames>${javadoc.default.excluded.package.names}:${javadoc.excluded.package.names}</excludePackageNames>
-							<failOnError>false</failOnError>
-							<author>false</author>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
+		<!-- Be aware that sencha-dev profile is not compatible with sencha-compile/build  -->
 		<profile>
 			<id>sencha-dev</id>
 			<build>
 				<plugins>
+					<plugin>
+						<artifactId>maven-clean-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>Deleting FE build folder</id>
+								<goals>
+									<goal>clean</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<excludeDefaultDirectories>false</excludeDefaultDirectories>
+							<filesets>
+								<fileset>
+									<directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+									<followSymlinks>false</followSymlinks>
+								</fileset>
+							</filesets>
+						</configuration>
+					</plugin>
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>build-helper-maven-plugin</artifactId>
 						<version>1.8</version>
 						<executions>
 							<execution>
-								<id>add-compiled-js</id>
+								<id>add-js-sources</id>
 								<phase>compile</phase>
 								<goals>
 									<goal>add-resource</goal>
@@ -539,18 +571,13 @@
 				</plugins>
 			</build>
 		</profile>
+		<!-- Be aware that sencha-dev profile is not compatible with sencha-compile/build  -->
 		<profile>
-			<id>sencha-compile</id>
-            <activation>
-                <property>
-                    <name>sencha.ext.dir</name>
-                </property>
-            </activation>
+			<id>sencha-build</id>
 			<build>
 				<plugins>
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
-						<version>3.1.0</version>
 						<executions>
 							<execution>
 								<id>Deleting FE build folder</id>
@@ -739,7 +766,6 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-clean-plugin</artifactId>
-						<version>2.5</version>
 						<configuration>
 							<filesets>
 								<fileset>

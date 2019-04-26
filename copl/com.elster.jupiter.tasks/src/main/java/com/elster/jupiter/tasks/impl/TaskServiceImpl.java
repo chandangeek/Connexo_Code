@@ -6,6 +6,7 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
@@ -85,6 +86,7 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
+    private volatile EventService eventService;
 
     private Thread schedulerThread;
     private volatile DataModel dataModel;
@@ -97,7 +99,7 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
 
     // For unit test purposes only
     @Inject
-    public TaskServiceImpl(OrmService ormService, Clock clock, MessageService messageService, QueryService queryService, TransactionService transactionService, CronExpressionParser cronExpressionParser, JsonService jsonService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, UserService userService, UpgradeService upgradeService) {
+    public TaskServiceImpl(OrmService ormService, Clock clock, MessageService messageService, QueryService queryService, TransactionService transactionService, CronExpressionParser cronExpressionParser, JsonService jsonService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, UserService userService, UpgradeService upgradeService, EventService eventService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -110,6 +112,7 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
         this.setThreadPrincipalService(threadPrincipalService);
         this.setUserService(userService);
         this.setUpgradeService(upgradeService);
+        this.setEventService(eventService);
         this.activate();
     }
 
@@ -129,6 +132,7 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(UserService.class).toInstance(userService);
+                bind(EventService.class).toInstance(eventService);
             }
         });
         upgradeService.register(
@@ -137,7 +141,8 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
                 InstallerImpl.class,
                 ImmutableMap.of(
                         Version.version(10, 3), V10_3SimpleUpgrader.class,
-                        Version.version(10, 4), V10_4SimpleUpgrader.class
+                        Version.version(10, 4), V10_4SimpleUpgrader.class,
+                        Version.version(10, 6), UpgraderV10_6.class
                 )
         );
     }
@@ -297,6 +302,11 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     void setDueTaskFetcher(DueTaskFetcher dueTaskFetcher) {

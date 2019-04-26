@@ -14,7 +14,7 @@
  * // add properties by one
  * var registry = Uni.property.controller.Registry;
  * registry.addProperty('CUSTOM_PROPERTY', 'App.view.property.Custom');
- *
+ *IssuesAndAlarmsLayerBuilder.java:
  * // or provide a config
  * registry.addProperties({
  *      'CUSTOM_1': 'App.view.property.Custom1',
@@ -28,6 +28,7 @@ Ext.define('Uni.property.controller.Registry', {
     requires: [
         'Uni.property.view.property.Text',
         'Uni.property.view.property.Combobox',
+        'Uni.property.view.property.DeviceGroupCombobox',
         'Uni.property.view.property.Textarea',
         'Uni.property.view.property.Password',
         'Uni.property.view.property.Hexstring',
@@ -66,7 +67,9 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.NoneOrTimeDuration',
         'Uni.property.view.property.UsagePoint',
         'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations',
-        'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions'
+        'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
+        'Uni.property.view.property.Recurrence',
+        'Uni.property.view.property.Task'
     ],
 
     /**
@@ -83,6 +86,7 @@ Ext.define('Uni.property.controller.Registry', {
         COMBOBOX: 'Uni.property.view.property.Combobox',
         DATE: 'Uni.property.view.property.Date',
         DEVICECONFIGURATIONLIST: 'Uni.property.view.property.deviceconfigurations.DeviceConfigurations',
+        DEVICEGROUPTYPE: 'Uni.property.view.property.DeviceGroupCombobox',
         METROLOGYCONFIGURATIONLIST: 'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations',
         LIFECYCLETRANSITION:'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
         DURATION: 'Uni.property.view.property.Period',
@@ -110,11 +114,13 @@ Ext.define('Uni.property.controller.Registry', {
         RECURRENCE_SELECTION_PROPS: 'Uni.property.view.property.RecurrenceSelectionProps',
         RADIO_GROUP: 'Uni.property.view.property.RadioGroup',
         READINGTYPE: 'Uni.property.view.property.Reference',
+        RECURRENCE: 'Uni.property.view.property.Recurrence',
         REFERENCE: 'Uni.property.view.property.Reference',
         REGISTER: 'Uni.property.view.property.Reference',
         RELATIVEPERIOD: 'Uni.property.view.property.RelativePeriod',
         RELATIVEPERIODWITHCOUNT: 'Uni.property.view.property.EventTime',
         SELECTIONGRID: 'Uni.property.view.property.SelectionGrid',
+        TASK: 'Uni.property.view.property.Task',
         TEXT: 'Uni.property.view.property.Text',
         TEXTAREA: 'Uni.property.view.property.Textarea',
         TEMPORALAMOUNT: 'Uni.property.view.property.Period',

@@ -4,6 +4,7 @@
 package com.energyict.mdc.autoreschedule.impl;
 
 import com.elster.jupiter.customtask.CustomTaskService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -29,6 +30,7 @@ public class AutoRescheduleTaskMessageHandlerFactory implements MessageHandlerFa
     private volatile CustomTaskService customTaskService;
     private volatile TaskService taskService;
     private volatile TransactionService transactionService;
+    private volatile EventService eventService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile Clock clock;
@@ -36,7 +38,7 @@ public class AutoRescheduleTaskMessageHandlerFactory implements MessageHandlerFa
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new AutoRescheduleTaskExecutor(customTaskService, transactionService, thesaurus, meteringGroupsService, communicationTaskService, clock));
+        return taskService.createMessageHandler(new AutoRescheduleTaskExecutor(customTaskService, eventService, transactionService, thesaurus, meteringGroupsService, communicationTaskService, clock));
     }
 
     @Reference
@@ -49,7 +51,11 @@ public class AutoRescheduleTaskMessageHandlerFactory implements MessageHandlerFa
         this.customTaskService = (CustomTaskService) customTaskService;
     }
 
-    /*@Reference
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+/*@Reference
     public void setThesaurus(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }*/

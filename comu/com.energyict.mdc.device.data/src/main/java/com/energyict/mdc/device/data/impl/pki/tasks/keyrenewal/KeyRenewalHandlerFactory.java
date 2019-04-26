@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl.pki.tasks.keyrenewal;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.nls.Layer;
@@ -40,6 +41,7 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
     private volatile BpmService bpmService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private volatile EventService eventService;
     private volatile Clock clock;
 
     // felix config properties
@@ -64,11 +66,12 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
                                     OrmService ormService,
                                     BpmService bpmService,
                                     Clock clock,
-                                    NlsService nlsService) {
+                                    NlsService nlsService, EventService eventService) {
         this();
         setTaskService(taskService);
         setOrmService(ormService);
         setBpmService(bpmService);
+        setEventService(eventService);
         setClock(clock);
         setNlsService(nlsService);
         activate(bundleContext);
@@ -112,6 +115,12 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
+
     @Activate
     public void activate(BundleContext bundleContext) {
         getTaskProperties(bundleContext);
@@ -125,7 +134,7 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new KeyRenewalTaskExecutor(ormService, bpmService, clock, keyRenewalBpmProcessDefinitionId,
+        return taskService.createMessageHandler(new KeyRenewalTaskExecutor(ormService, bpmService, eventService, clock, keyRenewalBpmProcessDefinitionId,
                 keyRenewalExpitationDays));
     }
 
@@ -136,7 +145,7 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
 
     @Override
     public TaskOccurrence runNow() {
-        return getTask().runNow(new KeyRenewalTaskExecutor(ormService, bpmService, clock, keyRenewalBpmProcessDefinitionId,
+        return getTask().runNow(new KeyRenewalTaskExecutor(ormService, bpmService, eventService, clock, keyRenewalBpmProcessDefinitionId,
                 keyRenewalExpitationDays));
     }
 

@@ -45,7 +45,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                             item.set('tooltip', Uni.I18n.translate('overview.widget.openDataCollectionIssues.dueToday', 'DSH', 'Due today'));
                             item.set('icon', '/apps/dsh/resources/images/widget/blocked.png');
                         } else {
-                            if (moment().add(1, 'day').endOf('day').isAfter(moment(dueDate))) {
+                            if (moment().add('day', 1).endOf('day').isAfter(moment(dueDate))) {
                                 item.set('tooltip', Uni.I18n.translate('overview.widget.openDataCollectionIssues.dueTomorrow', 'DSH', 'Due tomorrow'));
                                 item.set('icon', '/apps/dsh/resources/images/widget/inactive.png');
                             }

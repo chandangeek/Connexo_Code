@@ -4,6 +4,11 @@
 
 package com.elster.jupiter.users;
 
+import aQute.bnd.annotation.ProviderType;
+
+import java.util.List;
+
+@ProviderType
 public interface LdapUserDirectory extends UserDirectory {
 
     void setDirectoryUser(String directoryUser);
@@ -37,5 +42,16 @@ public interface LdapUserDirectory extends UserDirectory {
     String getBaseGroup();
 
     void setBaseGroup(String baseGroup);
+
+    String getGroupName();
+
+    void setGroupName(String groupName);
+
+    /**
+     * Applicable only when baseGroup is not null
+     *
+     * @return groups which are direct children of base group
+     */
+    List<LdapGroup> getLdapGroups();
 
 }

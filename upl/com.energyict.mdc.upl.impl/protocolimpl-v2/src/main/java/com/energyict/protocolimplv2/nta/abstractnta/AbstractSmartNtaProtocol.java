@@ -248,6 +248,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     public MeterTopology getMeterTopology() {
         if (this.meterTopology == null) {
             this.meterTopology = new MeterTopology(this, this.getCollectedDataFactory());
+            meterTopology.searchForSlaveDevices();
         }
         return meterTopology;
     }

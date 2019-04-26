@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
@@ -17,10 +18,12 @@ import static com.elster.jupiter.util.conditions.Where.where;
 class ScheduledUsagePointStateChangeHandler implements TaskExecutor {
 
     private final ServerUsagePointLifeCycleService lifeCycleService;
+    private final EventService eventService;
 
     @Inject
-    public ScheduledUsagePointStateChangeHandler(ServerUsagePointLifeCycleService lifeCycleService) {
+    public ScheduledUsagePointStateChangeHandler(ServerUsagePointLifeCycleService lifeCycleService, EventService eventService) {
         this.lifeCycleService = lifeCycleService;
+        this.eventService = eventService;
     }
 
     @Override
@@ -33,7 +36,7 @@ class ScheduledUsagePointStateChangeHandler implements TaskExecutor {
             try {
                 ((UsagePointStateChangeRequestImpl) changeRequest).execute();
             } catch (Exception ex) {
-                // TODO log
+                postFailEvent(eventService, taskOccurrence, ex.getLocalizedMessage());
             }
         }
         this.lifeCycleService.rescheduleExecutor();

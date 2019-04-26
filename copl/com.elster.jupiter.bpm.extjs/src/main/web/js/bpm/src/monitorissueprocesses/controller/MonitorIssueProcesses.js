@@ -91,7 +91,11 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         if(processRecord)
             me.getIssueProcessesGrid().getSelectionModel().select(processRecord);
     },
+    viewProcesses: function (deviceId, issueId, processId) {
 
+        var me = this;
+        me.showProcesses( issueId, processId);
+    },
     showProcesses:function (issueId, processId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
@@ -104,6 +108,10 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         if (router.queryParams.issueType === "devicelifecycle")
         {
             issueModel = 'Idl.model.Issue';
+        }
+        else if (router.queryParams.issueType === "task")
+        {
+            issueModel = 'Itk.model.Issue';
         }
         viewport.setLoading();
 

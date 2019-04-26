@@ -32,7 +32,7 @@ public class NoDowngradeFirmwareCheck implements FirmwareCheck {
     @Override
     public void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         Device device = deviceUtils.getDevice();
-        if (firmwareService.isFirmwareCheckActivatedForStatus(device.getDeviceType(), FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK, firmwareVersion.getFirmwareStatus())) {
+        if (firmwareService.isFirmwareCheckActivated(device.getDeviceType(), FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)) {
             if (!deviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
                 throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_FIRMWARE_NOT_READOUT);
             }
