@@ -294,11 +294,11 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     private void prepareExecutionPrivileges(ComTask comTask) {
         Set<ComTaskUserAction> userActions = new HashSet<>();
-        userActions.add(ComTaskUserAction.EXECUTE_COM_TASK_1);
+        userActions.add(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_1);
         when(comTask.getUserActions()).thenReturn(userActions);
         Set<Privilege> privileges = new HashSet<>();
         Privilege privilege = mock(Privilege.class);
-        when(privilege.getName()).thenReturn(ComTaskUserAction.EXECUTE_COM_TASK_1.getPrivilege());
+        when(privilege.getName()).thenReturn(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_1.getPrivilege());
         privileges.add(privilege);
         when(user.getPrivileges()).thenReturn(privileges);
     }
@@ -313,7 +313,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         Set<ComTaskUserAction> userActions = new HashSet<>();
-        userActions.add(ComTaskUserAction.EXECUTE_COM_TASK_1);
+        userActions.add(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_1);
         when(comTask.getUserActions()).thenReturn(userActions);
 
         when(user.getPrivileges()).thenReturn(Collections.emptySet());

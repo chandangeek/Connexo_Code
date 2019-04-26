@@ -234,10 +234,10 @@ class MdcAppPrivileges {
                 com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS,
 
                 // communication task execution
-                com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_COM_TASK_1,
-                com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_COM_TASK_2,
-                com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_COM_TASK_3,
-                com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_COM_TASK_4
+                com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_1,
+                com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_2,
+                com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_3,
+                com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_4
         );
     }
 }

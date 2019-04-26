@@ -12,10 +12,10 @@ import java.util.stream.Stream;
 
 public enum ComTaskExecutionLevelTranslationKeys implements TranslationKey {
 
-    LEVEL_1(ComTaskUserAction.EXECUTE_COM_TASK_1, "Level 1"),
-    LEVEL_2(ComTaskUserAction.EXECUTE_COM_TASK_2, "Level 2"),
-    LEVEL_3(ComTaskUserAction.EXECUTE_COM_TASK_3, "Level 3"),
-    LEVEL_4(ComTaskUserAction.EXECUTE_COM_TASK_4, "Level 4");
+    LEVEL_1(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_1, "Level 1"),
+    LEVEL_2(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_2, "Level 2"),
+    LEVEL_3(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_3, "Level 3"),
+    LEVEL_4(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_4, "Level 4");
 
     private final ComTaskUserAction level;
     private final String defaultFormat;

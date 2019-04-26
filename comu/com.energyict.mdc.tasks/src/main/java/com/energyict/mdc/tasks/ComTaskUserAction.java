@@ -9,10 +9,10 @@ import java.util.Optional;
 
 public enum ComTaskUserAction {
 
-    EXECUTE_COM_TASK_1(Privileges.Constants.EXECUTE_COM_TASK_1),
-    EXECUTE_COM_TASK_2(Privileges.Constants.EXECUTE_COM_TASK_2),
-    EXECUTE_COM_TASK_3(Privileges.Constants.EXECUTE_COM_TASK_3),
-    EXECUTE_COM_TASK_4(Privileges.Constants.EXECUTE_COM_TASK_4);
+    EXECUTE_SCHEDULE_PLAN_COM_TASK_1(Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_1),
+    EXECUTE_SCHEDULE_PLAN_COM_TASK_2(Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_2),
+    EXECUTE_SCHEDULE_PLAN_COM_TASK_3(Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_3),
+    EXECUTE_SCHEDULE_PLAN_COM_TASK_4(Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_4);
 
     private final String privilege;
 

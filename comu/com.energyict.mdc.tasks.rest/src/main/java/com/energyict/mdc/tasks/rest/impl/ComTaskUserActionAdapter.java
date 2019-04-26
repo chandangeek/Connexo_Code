@@ -11,10 +11,10 @@ public class ComTaskUserActionAdapter extends MapBasedXmlAdapter<ComTaskUserActi
 
     public ComTaskUserActionAdapter() {
         register("", null);
-        this.register(ComTaskUserAction.EXECUTE_COM_TASK_1);
-        this.register(ComTaskUserAction.EXECUTE_COM_TASK_2);
-        this.register(ComTaskUserAction.EXECUTE_COM_TASK_3);
-        this.register(ComTaskUserAction.EXECUTE_COM_TASK_4);
+        this.register(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_1);
+        this.register(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_2);
+        this.register(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_3);
+        this.register(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_4);
     }
 
     private void register(ComTaskUserAction action) {

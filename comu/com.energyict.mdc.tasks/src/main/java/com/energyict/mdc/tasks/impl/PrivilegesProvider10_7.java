@@ -16,10 +16,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_COM_TASK_1;
-import static com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_COM_TASK_2;
-import static com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_COM_TASK_3;
-import static com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_COM_TASK_4;
+import static com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_1;
+import static com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_2;
+import static com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_3;
+import static com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_4;
 
 public class PrivilegesProvider10_7 implements PrivilegesProvider {
 
@@ -40,6 +40,6 @@ public class PrivilegesProvider10_7 implements PrivilegesProvider {
         return Collections.singletonList(userService.createModuleResourceWithPrivileges(getModuleName(),
                 Privileges.RESOURCE_COMMUNICATION_TASK_EXECUTION.getKey(),
                 Privileges.RESOURCE_COMMUNICATION_TASK_EXECUTION_DESCRIPTION.getKey(),
-                Arrays.asList(EXECUTE_COM_TASK_1, EXECUTE_COM_TASK_2, EXECUTE_COM_TASK_3, EXECUTE_COM_TASK_4)));
+                Arrays.asList(EXECUTE_SCHEDULE_PLAN_COM_TASK_1, EXECUTE_SCHEDULE_PLAN_COM_TASK_2, EXECUTE_SCHEDULE_PLAN_COM_TASK_3, EXECUTE_SCHEDULE_PLAN_COM_TASK_4)));
     }
 }

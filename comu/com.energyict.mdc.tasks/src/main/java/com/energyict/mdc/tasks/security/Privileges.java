@@ -18,10 +18,10 @@ public enum Privileges implements TranslationKey {
             "Execute/plan/schedule communication tasks"),
 
     // Privileges
-    EXECUTE_COM_TASK_1(Constants.EXECUTE_COM_TASK_1, "Level 1"),
-    EXECUTE_COM_TASK_2(Constants.EXECUTE_COM_TASK_2, "Level 2"),
-    EXECUTE_COM_TASK_3(Constants.EXECUTE_COM_TASK_3, "Level 3"),
-    EXECUTE_COM_TASK_4(Constants.EXECUTE_COM_TASK_4, "Level 4");
+    EXECUTE_COM_TASK_1(Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_1, "Level 1"),
+    EXECUTE_COM_TASK_2(Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_2, "Level 2"),
+    EXECUTE_COM_TASK_3(Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_3, "Level 3"),
+    EXECUTE_COM_TASK_4(Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_4, "Level 4");
 
     private final String key;
     private final String description;
@@ -51,10 +51,10 @@ public enum Privileges implements TranslationKey {
     }
 
     public interface Constants {
-        String EXECUTE_COM_TASK_1 = "execute.com.task.level1";
-        String EXECUTE_COM_TASK_2 = "execute.com.task.level2";
-        String EXECUTE_COM_TASK_3 = "execute.com.task.level3";
-        String EXECUTE_COM_TASK_4 = "execute.com.task.level4";
+        String EXECUTE_SCHEDULE_PLAN_COM_TASK_1 = "execute.schedule.plan.com.task.level1";
+        String EXECUTE_SCHEDULE_PLAN_COM_TASK_2 = "execute.schedule.plan.com.task.level2";
+        String EXECUTE_SCHEDULE_PLAN_COM_TASK_3 = "execute.schedule.plan.com.task.level3";
+        String EXECUTE_SCHEDULE_PLAN_COM_TASK_4 = "execute.schedule.plan.com.task.level4";
     }
 
 }
