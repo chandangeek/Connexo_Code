@@ -13,4 +13,8 @@ public interface WebService {
     public boolean isInbound();
 
     public WebServiceProtocol getProtocol();
+
+    public default String getApplicationName(){
+        return "Application is not specified";
+    };
 }

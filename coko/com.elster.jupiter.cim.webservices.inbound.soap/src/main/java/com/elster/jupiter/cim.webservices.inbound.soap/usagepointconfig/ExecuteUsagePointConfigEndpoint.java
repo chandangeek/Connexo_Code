@@ -9,6 +9,7 @@ import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -27,7 +28,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
+public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort, WebServiceAplication {
     private static final String NOUN = "UsagePointConfig";
     private final EndPointHelper endPointHelper;
     private final ReplyTypeFactory replyTypeFactory;
@@ -153,5 +154,10 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
                 .get();
 
         return createResponse(retrieved, HeaderType.Verb.REPLY, usagePoints.size() > 1);
+    }
+
+    @Override
+    public String getApplication() {
+        return WebServiceApplicationName.INSIGHT.getName();
     }
 }

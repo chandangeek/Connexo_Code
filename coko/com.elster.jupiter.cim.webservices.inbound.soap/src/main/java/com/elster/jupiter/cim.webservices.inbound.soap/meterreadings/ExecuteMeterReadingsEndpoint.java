@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -62,7 +63,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
+public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort, WebServiceAplication {
     private static final String NOUN = "MeterReadings";
     private static final String GET_METER_READINGS_ITEM = "GetMeterReadings";
     private static final String READING_TYPES_LIST_ITEM = GET_METER_READINGS_ITEM + ".ReadingType";
@@ -601,4 +602,10 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         meterReadingsResponseMessageType.setPayload(meterReadingsPayloadType);
         return meterReadingsResponseMessageType;
     }
+
+    @Override
+    public String getApplication(){
+        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
+    }
+
 }

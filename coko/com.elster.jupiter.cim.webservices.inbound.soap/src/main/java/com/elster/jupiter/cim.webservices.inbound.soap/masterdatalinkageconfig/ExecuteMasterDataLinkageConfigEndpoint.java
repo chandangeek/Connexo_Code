@@ -7,6 +7,7 @@ package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -18,7 +19,7 @@ import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigR
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkageConfigPort {
+public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkageConfigPort, WebServiceAplication {
     static final String NOUN = "MasterDataLinkageConfig";
     private static final String UNSUPPORTED_OPERATION_MESSAGE = "Specified action is not supported. Only Create and Close actions are allowed";
 
@@ -84,5 +85,10 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
     @Override
     public MasterDataLinkageConfigResponseMessageType deleteMasterDataLinkageConfig(MasterDataLinkageConfigRequestMessageType message) throws FaultMessage {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
+    }
+
+    @Override
+    public String getApplication(){
+        return WebServiceApplicationName.MULTISENSE.getName();
     }
 }

@@ -15,6 +15,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -38,7 +39,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
+public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort , WebServiceAplication {
 
     private static final String GET_END_DEVICE_EVENTS = "GetEndDeviceEvents";
     private static final String METERS_ITEM = GET_END_DEVICE_EVENTS + ".Meters";
@@ -160,5 +161,10 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
         responseMessage.setReply(replyTypeFactory.okReplyType());
 
         return responseMessage;
+    }
+
+    @Override
+    public String getApplication(){
+        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
     }
 }
