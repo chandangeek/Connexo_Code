@@ -22,7 +22,7 @@ Ext.define('Uni.view.search.field.internal.Operator', {
         ["<=", '\u2264'],
         ["BETWEEN", Uni.I18n.translate('search.field.internal.between', 'UNI', 'Between')],
         ["NOTNULL", Uni.I18n.translate('search.field.internal.notEmpty', 'UNI', 'Not empty')],
-        ["IN", Uni.I18n.translate('search.field.internal.in', 'UNI', 'In')]
+        ["IN", Uni.I18n.translate('search.field.internal.in', 'UNI', 'IN')]
         //...
     ],
     config: {

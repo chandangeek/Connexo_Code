@@ -8,6 +8,10 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
   layout: 'fit',
   separator: ';',
 
+  fieldMaxWidth: 600,
+  lineHeight: 16,
+  lines: 10,
+
   requires: [
     'Ext.form.field.TextArea'
   ],
@@ -27,7 +31,15 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
   },
 
   setValue: function(value) {
-    this.getField().setValue(value);
+    var me = this;
+
+    if (!value) {
+      value = [];
+    }
+
+    this.getField().setValue(
+      value.join(me.separator + ' ')
+    );
   },
 
   getValue: function() {
@@ -68,13 +80,22 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
     paste.unshift(value.substring(0, el.selectionStart))
     paste.push(value.substring(el.selectionEnd, el.value.length))
 
-    this.setValue(paste
+    me.setValue(paste
       .map(function(piece) {
         return piece.trim();
       })
       .filter(Boolean)
-      .join(me.separator + ' ')
     );
+
+
+    const measure = Ext.util.TextMetrics.measure(
+      el,
+      paste.join(me.separator),
+      me.fieldMaxWidth
+    );
+
+    el.scrollTop = measure.height;
+
     event.preventDefault();
     event.stopPropagation();
   },
@@ -90,14 +111,11 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
     me.items = {
       xtype: 'textarea',
       itemId: 'filter-input',
-      minWidth: 500,
-      maxHeight: 500,
-      grow: true,
-      minGrow: 2,
-      maxGrow: 10,
+      minWidth: me.fieldMaxWidth,
+      height: (me.lines * me.lineHeight) + 8, // 8 - padding
+      grow: false,
       maxLength: 5000,
       allowBlank: !me.isFilterField,
-      // enforceMaxLength: true,
       validateOnBlur: false,
       validator: function() {
         if (me.getValue().length < me.maxCount) {
