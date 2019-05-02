@@ -9,7 +9,6 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -57,7 +56,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -280,7 +278,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
-        prepareExecutionPrivileges(comTask);
+        preparePrivileges(comTask, user);
 
 
         device.getComTaskExecutions().add(comTaskExecution);
@@ -292,17 +290,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         verify(comTaskExecution, times(1)).scheduleNow();
     }
 
-    private void prepareExecutionPrivileges(ComTask comTask) {
-        Set<ComTaskUserAction> userActions = new HashSet<>();
-        userActions.add(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_1);
-        when(comTask.getUserActions()).thenReturn(userActions);
-        Set<Privilege> privileges = new HashSet<>();
-        Privilege privilege = mock(Privilege.class);
-        when(privilege.getName()).thenReturn(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_1.getPrivilege());
-        privileges.add(privilege);
-        when(user.getPrivileges()).thenReturn(privileges);
-    }
-    
     @Test
     public void testRunComTaskFromExecutionWhenUserDoesNotHavePrivilegeToExecuteIt() throws Exception {
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
@@ -450,7 +437,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTask comTask = mockUserComTask(comTaskId);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(taskService.findComTask(comTaskId)).thenReturn(Optional.of(comTask));
-        prepareExecutionPrivileges(comTask);
+        preparePrivileges(comTask, user);
         return comTask;
     }
 

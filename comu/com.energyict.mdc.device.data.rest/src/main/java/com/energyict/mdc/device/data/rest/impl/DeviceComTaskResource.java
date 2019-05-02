@@ -73,10 +73,12 @@ public class DeviceComTaskResource {
     private final ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory;
     private final ComSessionInfoFactory comSessionInfoFactory;
     private final JournalEntryInfoFactory journalEntryInfoFactory;
+    private final ComTaskExecutionPrivilegeCheck comTaskExecutionPrivilegeCheck;
 
 
     @Inject
-    public DeviceComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, DeviceComTaskInfoFactory deviceComTaskInfoFactory, TaskService taskService, CommunicationTaskService communicationTaskService, TopologyService topologyService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, ComSessionInfoFactory comSessionInfoFactory, JournalEntryInfoFactory journalEntryInfoFactory) {
+    public DeviceComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, DeviceComTaskInfoFactory deviceComTaskInfoFactory, TaskService taskService, CommunicationTaskService communicationTaskService, TopologyService topologyService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, ComSessionInfoFactory comSessionInfoFactory, JournalEntryInfoFactory journalEntryInfoFactory,
+            ComTaskExecutionPrivilegeCheck comTaskExecutionPrivilegeCheck) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceComTaskInfoFactory = deviceComTaskInfoFactory;
@@ -86,6 +88,7 @@ public class DeviceComTaskResource {
         this.comTaskExecutionSessionInfoFactory = comTaskExecutionSessionInfoFactory;
         this.comSessionInfoFactory = comSessionInfoFactory;
         this.journalEntryInfoFactory = journalEntryInfoFactory;
+        this.comTaskExecutionPrivilegeCheck = comTaskExecutionPrivilegeCheck;
     }
 
     @GET
@@ -198,25 +201,18 @@ public class DeviceComTaskResource {
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         User user = (User) securityContext.getUserPrincipal();
         if (!comTaskExecutions.isEmpty()) {
-            if (canExecute(comTaskExecutions.get(0).getComTask(), user)) {
+            if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                 comTaskExecutions.forEach(ComTaskExecution::scheduleNow);
             }
         } else {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-            if (!comTaskEnablements.isEmpty() && canExecute(comTaskEnablements.get(0).getComTask(), user)) {
+            if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)) {
                 comTaskEnablements.forEach(runComTaskFromEnablement(device));
             }
         }
         return Response.ok().build();
     }
     
-    private boolean canExecute(ComTask comTask, User user) {
-        List<String> userActionNames = comTask.getUserActions().stream().map(ComTaskUserAction::getPrivilege)
-                .collect(Collectors.toList());
-        return user.getPrivileges().stream().map(Privilege::getName).filter(userActionNames::contains).findAny()
-                .isPresent();
-    }
-
     @PUT
     @Transactional
     @Path("/{comTaskId}/runnow")
@@ -234,12 +230,12 @@ public class DeviceComTaskResource {
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         User user = (User) securityContext.getUserPrincipal();
         if (!comTaskExecutions.isEmpty()) {
-            if (canExecute(comTaskExecutions.get(0).getComTask(), user)) {
+            if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                 comTaskExecutions.forEach(runComTaskFromExecutionNow());
             }
         } else {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-            if (!comTaskEnablements.isEmpty() && canExecute(comTaskEnablements.get(0).getComTask(), user)) {
+            if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)) {
                 comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
             }
         }
@@ -264,11 +260,11 @@ public class DeviceComTaskResource {
             for (Long comTaskId : info.comTaskIds) {
                 checkForNoActionsAllowedOnSystemComTask(comTaskId);
                 List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
-                if (!comTaskExecutions.isEmpty() && canExecute(comTaskExecutions.get(0).getComTask(), user)) {
+                if (!comTaskExecutions.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                     comTaskExecutions.forEach(runComTaskFromExecutionNow());
                 } else {
                     List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-                    if (!comTaskEnablements.isEmpty() && canExecute(comTaskEnablements.get(0).getComTask(), user)) {
+                    if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)) {
                         comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
                     }
                 }

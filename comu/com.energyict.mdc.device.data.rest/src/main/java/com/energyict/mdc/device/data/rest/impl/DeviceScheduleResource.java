@@ -10,6 +10,8 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.users.User;
+
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
@@ -31,8 +33,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,12 +48,14 @@ public class DeviceScheduleResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final TaskService taskService;
+    private final ComTaskExecutionPrivilegeCheck comTaskExecutionPrivilegeCheck;
 
     @Inject
-    public DeviceScheduleResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, TaskService taskService) {
+    public DeviceScheduleResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, TaskService taskService, ComTaskExecutionPrivilegeCheck comTaskExecutionPrivilegeCheck) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.taskService = taskService;
+        this.comTaskExecutionPrivilegeCheck = comTaskExecutionPrivilegeCheck;
     }
 
     @GET
@@ -127,33 +134,37 @@ public class DeviceScheduleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response createComTaskExecution(@PathParam("name") String name, DeviceSchedulesInfo schedulingInfo) {
+    public Response createComTaskExecution(@PathParam("name") String name, DeviceSchedulesInfo schedulingInfo, @Context SecurityContext securityContext) {
         // In this method, id == id of comtask
         checkForNoActionsAllowedOnSystemComTask(schedulingInfo.id);
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
+        User user = (User) securityContext.getUserPrincipal();
         for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {
-            if (comTaskEnablement.getComTask().getId() == schedulingInfo.id) {
-                if (schedulingInfo.schedule != null) {
-                    boolean comTaskExecutionExists = false;
-                    for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
-                        if (comTaskExecution.isAdHoc() && comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
-                            comTaskExecution.getUpdater().createNextExecutionSpecs(schedulingInfo.schedule.asTemporalExpression()).update();
-                            comTaskExecutionExists = true;
-                        } else if(comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
-                            return Response.status(Response.Status.BAD_REQUEST).build();
-                        }
+            if (comTaskEnablement.getComTask().getId() == schedulingInfo.id && !comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablement.getComTask(), user)) {
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+            }
+        }
+        for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {
+            if (comTaskEnablement.getComTask().getId() == schedulingInfo.id && schedulingInfo.schedule != null) {
+                boolean comTaskExecutionExists = false;
+                for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
+                    if (comTaskExecution.isAdHoc() && comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
+                        comTaskExecution.getUpdater().createNextExecutionSpecs(schedulingInfo.schedule.asTemporalExpression()).update();
+                        comTaskExecutionExists = true;
+                    } else if(comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
+                        return Response.status(Response.Status.BAD_REQUEST).build();
                     }
-                    if (!comTaskExecutionExists) {
-                        ComTaskExecutionBuilder builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression());
-                        if (comTaskEnablement.hasPartialConnectionTask()) {
-                            device.getConnectionTasks()
-                                    .stream()
-                                    .filter(x -> x.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
-                                    .forEach(builder::connectionTask);
-                        }
-                        builder.add();
+                }
+                if (!comTaskExecutionExists) {
+                    ComTaskExecutionBuilder builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression());
+                    if (comTaskEnablement.hasPartialConnectionTask()) {
+                        device.getConnectionTasks()
+                        .stream()
+                        .filter(x -> x.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
+                        .forEach(builder::connectionTask);
                     }
+                    builder.add();
                 }
             }
         }
@@ -165,10 +176,14 @@ public class DeviceScheduleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response updateComTaskExecution(@PathParam("name") String name, DeviceSchedulesInfo info) {
+    public Response updateComTaskExecution(@PathParam("name") String name, DeviceSchedulesInfo info, @Context SecurityContext securityContext) {
         // In this method, id == id of comtaskexec
         checkForNoActionsAllowedOnSystemComTaskExecutions(info.id);
         ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
+        User user = (User) securityContext.getUserPrincipal();
+        if (!comTaskExecutionPrivilegeCheck.canExecute(comTaskExecution.getComTask(), user)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         if(!(comTaskExecution.isScheduledManually())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
