@@ -252,21 +252,25 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response runnowForMultipleTasks(@PathParam("name") String name, RetriggerComTasksInfo info) {
+    public Response runnowForMultipleTasks(@PathParam("name") String name, RetriggerComTasksInfo info,
+            @Context SecurityContext securityContext) {
         if (info==null || info.device==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.name = name;
+        User user = (User) securityContext.getUserPrincipal();
         if (!info.comTaskIds.isEmpty()) {
             Device device = resourceHelper.lockDeviceOrThrowException(info.device);
             for (Long comTaskId : info.comTaskIds) {
                 checkForNoActionsAllowedOnSystemComTask(comTaskId);
                 List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
-                if (!comTaskExecutions.isEmpty()) {
+                if (!comTaskExecutions.isEmpty() && canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                     comTaskExecutions.forEach(runComTaskFromExecutionNow());
                 } else {
                     List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-                    comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
+                    if (!comTaskEnablements.isEmpty() && canExecute(comTaskEnablements.get(0).getComTask(), user)) {
+                        comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
+                    }
                 }
             }
         }
