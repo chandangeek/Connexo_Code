@@ -29,7 +29,7 @@ Ext.define('Est.estimationtasks.view.ActionMenu', {
             },
             {
                 itemId: 'run-estimation-task',
-                text: Uni.I18n.translate('estimationtasks.general.run', 'EST', 'RunNow'),
+                text: Uni.I18n.translate('estimationtasks.general.run', 'EST', 'Run'),
                 action: 'runEstimationTask',
                 section: this.SECTION_ACTION,
                 hidden: true
