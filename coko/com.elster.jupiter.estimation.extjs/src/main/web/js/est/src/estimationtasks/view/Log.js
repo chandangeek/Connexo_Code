@@ -52,8 +52,8 @@ Ext.define('Est.estimationtasks.view.Log', {
                     emptyComponent: {
                         xtype: 'uni-form-empty-message',
                         text: Ext.String.format(
-                            Uni.I18n.translate('estimationtasks.log.empty.list.item1', 'EST', "Estimation task '{0}' has started on {1} did not create any logs."),
-                            [me.task.get('name'),me.task.runStartedOn], false)
+                            Uni.I18n.translate('estimationtasks.log.empty.list.item1', 'EST', "Estimation task '{0}' has started on {1} did not create any logs.",
+                            [me.task.get('name'),me.runStartedOn], false))
                     }
                 }
             ]
