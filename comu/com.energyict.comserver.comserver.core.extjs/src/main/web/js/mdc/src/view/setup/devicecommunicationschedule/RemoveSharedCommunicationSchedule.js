@@ -48,7 +48,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.RemoveSharedCommunication
                             },
                             title: Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.title', 'MDC', 'No shared communication schedules found'),
                             reasons: [
-                                Uni.I18n.translate('deviceSharedCommunicationSchedules.remove.empty.list.item1', 'MDC', 'No communication tasks on this device have been scheduled with a shared communication schedule'),
+                                Uni.I18n.translate('deviceSharedCommunicationSchedules.remove.empty.list.item1', 'MDC', 'No communication tasks on this device have been scheduled with a shared communication schedule.'),
+                                Uni.I18n.translate('deviceSharedCommunicationSchedules.remove.empty.list.item2', 'MDC', 'No privilege to schedule some of communication tasks from a shared communication schedule.')
                             ],
                             stepItems: [
                                 {
