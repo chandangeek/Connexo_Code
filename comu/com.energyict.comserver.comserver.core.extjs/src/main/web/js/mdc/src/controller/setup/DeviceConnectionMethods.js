@@ -744,7 +744,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         connectionMethod.save({
             isNotEdit: true,
             success: function () {
-                if (connectionMethod.get('isDefault') === true) {
+                if (connectionMethod.get('isDefault') !== true) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.setAsDefault', 'MDC', 'Connection method set as default'));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.removeDefault', 'MDC', 'Connection method removed as default'));
