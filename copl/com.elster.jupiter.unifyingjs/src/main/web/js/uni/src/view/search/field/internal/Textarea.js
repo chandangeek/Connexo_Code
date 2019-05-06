@@ -87,11 +87,10 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
       .filter(Boolean)
     );
 
-
     const measure = Ext.util.TextMetrics.measure(
       el,
-      paste.join(me.separator),
-      me.fieldMaxWidth
+      paste.join(me.separator + ' '),
+      me.fieldMaxWidth - 28,
     );
 
     el.scrollTop = measure.height;
