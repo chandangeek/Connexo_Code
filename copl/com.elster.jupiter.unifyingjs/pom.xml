@@ -37,15 +37,73 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>domain.util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>extjs</artifactId>
+        </dependency>
     </dependencies>
+
+    <properties>
+        <sencha.ext.dir>${basedir}/../com.elster.jupiter.extjs/src/main/web/js/ext</sencha.ext.dir>
+        <js.dir>js/uni</js.dir>
+        <package.name>com.elster.jupiter.unifyingjs</package.name>
+    </properties>
 
     <profiles>
         <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/uni</js.dir>
-                <package.name>com.elster.jupiter.unifyingjs</package.name>
-            </properties>
+            <id>sencha-dev</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>sencha-compile</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target unless="skipSencha" if="js.dir">
+                                        <echo>Sencha build</echo>
+                                        <echo>Using Sencha CMD in ${sencha.cmd.dir}</echo>
+                                        <echo>Using Ext lib in ${sencha.ext.dir}</echo>
+                                        <property name="build.dir" value="${project.basedir}/src/main/web/${js.dir}/build"/>
+                                        <property name="build.temp.dir" value="${project.build.directory}/webtemp"/>
+                                        <property name="cmd.dir" value="${sencha.cmd.dir}"/>
+                                        <property name="ext.dir" value="${sencha.ext.dir}"/>
+                                        <ant antfile="build.xml" target="build" dir="./src/main/web/${js.dir}"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>sencha-deploy</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target unless="skipSencha" if="package.name">
+                                        <property name="cmd.dir" value="${sencha.cmd.dir}"/>
+                                        <property name="package.file"
+                                                  value="${project.basedir}/src/main/web/${js.dir}/build/${package.name}/${package.name}.pkg"/>
+                                        <available file="${package.file}" property="package.present"/>
+                                        <taskdef resource="com/sencha/ant/antlib.xml" classpath="${cmd.dir}/sencha.jar"
+                                                 loaderref="senchaloader"/>
+                                        <x-sencha-command>
+                                            package
+                                            add
+                                            ${package.file}
+                                        </x-sencha-command>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 

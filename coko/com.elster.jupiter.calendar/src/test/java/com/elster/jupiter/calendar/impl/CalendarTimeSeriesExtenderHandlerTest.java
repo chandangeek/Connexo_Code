@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.calendar.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
@@ -43,6 +44,8 @@ public class CalendarTimeSeriesExtenderHandlerTest {
 
     @Mock
     private ServerCalendarService calendarService;
+    @Mock
+    private EventService eventService;
     @Mock
     private DestinationSpec destinationSpec;
     @Mock
@@ -132,7 +135,7 @@ public class CalendarTimeSeriesExtenderHandlerTest {
     }
 
     private CalendarTimeSeriesExtenderHandler getInstance() {
-        return new CalendarTimeSeriesExtenderHandler(this.transactionService, this.calendarService);
+        return new CalendarTimeSeriesExtenderHandler(this.transactionService, this.calendarService, eventService);
     }
 
 }

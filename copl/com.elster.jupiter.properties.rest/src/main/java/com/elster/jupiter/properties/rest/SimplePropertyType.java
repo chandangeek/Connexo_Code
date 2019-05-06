@@ -41,7 +41,9 @@ public enum SimplePropertyType implements PropertyType {
     ASSIGN(String.class),
     ENDDEVICEEVENTTYPE(ListValueFactory.class),
     LIFECYCLESTATUSINDEVICETYPE(ListValueFactory.class),
+    DEVICEGROUPTYPE(ListValueFactory.class),
     RAISEEVENTPROPS(HasIdAndName.class),
+    RECURRENCE_SELECTION_PROPS(HasIdAndName.class),
     RELATIVEPERIODWITHCOUNT(ListValueFactory.class),
     BPM_PROCESS(HasIdAndName.class),
     WEB_SERVICES_ENDPOINT(HasIdAndName.class),
@@ -53,7 +55,9 @@ public enum SimplePropertyType implements PropertyType {
     NONE_OR_BIGDECIMAL(NoneOrBigDecimalValueFactory.class),
     NONE_OR_TIMEDURATION(NoneOrTimeDurationValueFactory.class),
     INTEGER(Integer.class),
-    LIFECYCLETRANSITION(ListValueFactory.class);
+    LIFECYCLETRANSITION(ListValueFactory.class),
+    TASK(ListValueFactory.class),
+    RECURRENCE(HasIdAndName.class);
 
 
     private Class typeClass;

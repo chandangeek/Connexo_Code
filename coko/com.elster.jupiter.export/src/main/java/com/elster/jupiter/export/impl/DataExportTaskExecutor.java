@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
@@ -52,24 +53,32 @@ class DataExportTaskExecutor implements TaskExecutor {
     private final LocalFileWriter localFileWriter;
     private final Clock clock;
     private final ThreadPrincipalService threadPrincipalService;
+    private final EventService eventService;
 
     DataExportTaskExecutor(IDataExportService dataExportService,
                            TransactionService transactionService,
                            LocalFileWriter localFileWriter,
                            Thesaurus thesaurus,
                            Clock clock,
-                           ThreadPrincipalService threadPrincipalService) {
+                           ThreadPrincipalService threadPrincipalService, EventService eventService) {
         this.dataExportService = dataExportService;
         this.transactionService = transactionService;
         this.localFileWriter = localFileWriter;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.threadPrincipalService = threadPrincipalService;
+        this.eventService = eventService;
     }
 
     @Override
     public void execute(TaskOccurrence occurrence) {
-        createOccurrence(occurrence);
+        try{
+            createOccurrence(occurrence);
+        } catch(Exception e){
+            postFailEvent(eventService, occurrence, e.getLocalizedMessage());
+            throw e;
+        }
+
     }
 
     @Override
@@ -90,6 +99,7 @@ class DataExportTaskExecutor implements TaskExecutor {
             if (is(errorMessage).emptyOrOnlyWhiteSpace()) {
                 errorMessage = ex.toString();
             }
+            postFailEvent(eventService, occurrence, errorMessage);
             throw ex;
         } finally {
             try (TransactionContext transactionContext = transactionService.getContext()) {

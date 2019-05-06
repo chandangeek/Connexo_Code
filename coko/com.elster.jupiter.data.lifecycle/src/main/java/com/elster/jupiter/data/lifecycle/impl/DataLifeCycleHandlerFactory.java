@@ -5,6 +5,7 @@
 package com.elster.jupiter.data.lifecycle.impl;
 
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.tasks.TaskService;
@@ -24,14 +25,16 @@ public class DataLifeCycleHandlerFactory implements MessageHandlerFactory {
 
     private volatile TaskService taskService;
     private volatile LifeCycleServiceImpl lifeCycleService;
+    private volatile EventService eventService;
 
     public DataLifeCycleHandlerFactory() {
     }
 
     @Inject
-    public DataLifeCycleHandlerFactory(TaskService taskService, LifeCycleService lifeCycleService) {
+    public DataLifeCycleHandlerFactory(TaskService taskService, LifeCycleService lifeCycleService, EventService eventService) {
         setTaskService(taskService);
         setLifeCycleService(lifeCycleService);
+        setEventService(eventService);
     }
 
     @Reference
@@ -44,8 +47,13 @@ public class DataLifeCycleHandlerFactory implements MessageHandlerFactory {
         this.lifeCycleService = (LifeCycleServiceImpl) lifeCycleService;
     }
 
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new LifeCycleTaskExecutor(lifeCycleService));
+        return taskService.createMessageHandler(new LifeCycleTaskExecutor(lifeCycleService, eventService));
     }
 }

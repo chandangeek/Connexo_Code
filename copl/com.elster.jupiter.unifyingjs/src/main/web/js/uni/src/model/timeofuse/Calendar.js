@@ -12,7 +12,8 @@ Ext.define('Uni.model.timeofuse.Calendar', {
         'Uni.model.timeofuse.Event',
         'Uni.model.timeofuse.DayType',
         'Uni.model.timeofuse.Period',
-        'Uni.model.timeofuse.DaysPerType'
+        'Uni.model.timeofuse.DaysPerType',
+        'Uni.model.timeofuse.SpecialDay'
     ],
 
 
@@ -68,6 +69,20 @@ Ext.define('Uni.model.timeofuse.Calendar', {
             getTypeDiscriminator: function (node) {
                 return 'Uni.model.timofuse.DaysPerType';
             }
+        },
+        {
+            name: 'recurrentSpecialDays',
+            type: 'hasMany',
+            model: 'Uni.model.timeofuse.SpecialDay',
+            associationKey: 'recurrentSpecialDays',
+            foreignKey: 'recurrentSpecialDays',
+        },
+        {
+            name: 'fixedSpecialDays',
+            type: 'hasMany',
+            model: 'Uni.model.timeofuse.SpecialDay',
+            associationKey: 'fixedSpecialDays',
+            foreignKey: 'fixedSpecialDays',
         }
     ],
 

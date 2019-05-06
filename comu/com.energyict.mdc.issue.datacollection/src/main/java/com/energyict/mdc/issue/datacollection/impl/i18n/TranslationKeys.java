@@ -66,7 +66,9 @@ public enum TranslationKeys implements TranslationKey {
     EVENT_TITLE_REGISTERED_FROM_GATEWAY("EventTitleRegisteredFromGateway", "Registered from gateway"),
     EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE("EventTitleDeviceCommunicationFailure", "Device communication failure"),
     EVENT_TITLE_UNABLE_TO_CONNECT("EventTitleUnableToConnect", "Unable to connect"),
-    EVENT_TITLE_CONNECTION_LOST("EventTitleConnectionLost", "Connection lost")
+    EVENT_TITLE_CONNECTION_LOST("EventTitleConnectionLost", "Connection lost"),
+
+    DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES(ModuleConstants.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, "Device lifecycle state in device type ")
     ;
 
     private final String key;

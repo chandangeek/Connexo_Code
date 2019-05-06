@@ -1,12 +1,9 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config;
 
-import java.util.EnumSet;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Models a number of tiny actions that will be executed by the
@@ -127,8 +124,7 @@ public enum MicroAction {
     /**
      * Cancels all running Service Calls on the device
      */
-    CANCEL_ALL_SERVICE_CALLS(MicroCategory.MONITORING)
-    ;
+    CANCEL_ALL_SERVICE_CALLS(MicroCategory.MONITORING);
 
     private MicroCategory category;
     private String conflictGroupKey;
@@ -149,17 +145,4 @@ public enum MicroAction {
     public Optional<String> getConflictGroupKey() {
         return Optional.ofNullable(this.conflictGroupKey);
     }
-
-    /**
-     * Gets the Set of {@link MicroCheck}s that are implied
-     * by this MicroAction and that therefore need to
-     * be included in the {@link AuthorizedTransitionAction}
-     * that uses this MicroAction.
-     *
-     * @return The Set of MicroCheck
-     */
-    public Set<MicroCheck> impliedChecks() {
-        return EnumSet.noneOf(MicroCheck.class);
-    }
-
 }

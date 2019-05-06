@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -258,11 +259,24 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         // Prepare request
         UsagePointConfigRequestMessageType usagePointConfigRequest = usagePointConfigMessageFactory
                 .createUsagePointConfigRequestMessageType();
+        usagePointConfigRequest.setHeader(new HeaderType());
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).changeUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
                 "Element 'Payload' is required.");
+    }
+
+    @Test
+    public void testNoHeader() throws Exception {
+        // Prepare request
+        UsagePointConfigRequestMessageType usagePointConfigRequest = usagePointConfigMessageFactory
+                .createUsagePointConfigRequestMessageType();
+
+        // Business method & assertions
+        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).changeUsagePointConfig(usagePointConfigRequest),
+                MessageSeeds.MISSING_ELEMENT.getErrorCode(),
+                "Element 'Header' is required.");
     }
 
     @Test
@@ -855,6 +869,23 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).changeUsagePointConfig(usagePointConfigRequest),
                 null,
                 "ErrorMessage");
+    }
+
+    @Test
+    public void testAsync() throws Exception {
+        // Prepare request
+        UsagePointConfig usagePointConfig = new UsagePointConfig();
+        ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePointInfo
+                = createUsagePoint("\t\n\r ", USAGE_POINT_NAME, PhaseCode.S_1, UsagePointConnectedKind.LOGICALLY_DISCONNECTED);
+        usagePointConfig.getUsagePoint().add(usagePointInfo);
+        UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
+        usagePointConfigRequest.getHeader().setAsyncReplyFlag(true);
+
+        // Execute
+        getInstance(ExecuteUsagePointConfigEndpoint.class).changeUsagePointConfig(usagePointConfigRequest);
+
+        // Assert service call
+        verify(serviceCall).requestTransition(com.elster.jupiter.servicecall.DefaultState.PENDING);
     }
 
     private ch.iec.tc57._2011.usagepointconfig.UsagePoint createUsagePoint(String mRID, String name, PhaseCode phaseCode,

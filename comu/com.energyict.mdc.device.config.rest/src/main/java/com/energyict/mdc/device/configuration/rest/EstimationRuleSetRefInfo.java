@@ -8,9 +8,12 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EstimationRuleSetRefInfo {
 
     public long id;
@@ -19,8 +22,14 @@ public class EstimationRuleSetRefInfo {
     public int numberOfRules = 0;
     public long version;
     public VersionInfo<Long> parent;
+    public boolean isEstimationRuleSetActive = false;
     
     public EstimationRuleSetRefInfo() {
+    }
+
+    public EstimationRuleSetRefInfo(EstimationRuleSet estimationRuleSet, DeviceConfiguration deviceConfiguration, boolean isEstimationRuleSetActive) {
+        this(estimationRuleSet, deviceConfiguration);
+        this.isEstimationRuleSetActive = isEstimationRuleSetActive;
     }
 
     public EstimationRuleSetRefInfo(EstimationRuleSet estimationRuleSet, DeviceConfiguration deviceConfiguration) {

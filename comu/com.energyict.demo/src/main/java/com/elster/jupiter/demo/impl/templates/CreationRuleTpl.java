@@ -17,7 +17,8 @@ public enum CreationRuleTpl implements Template<CreationRule, IssueRuleBuilder> 
     CANNOT_ESTIMATE_SUSPTECTS("Create issue when suspects can't be estimated","CANNOT_ESTIMATE_DATA", "reason.cant.estimate.data", DueInType.DAY, 0L, IssueRuleBuilder.BASIC_DATA_VALIDATION_RULE_TEMPLATE, Priority.DEFAULT, true),
     CANNOT_ESTIMATE_USAGEPOINTDATA("Create issue when usage point data suspects can't be estimated","CANNOT_ESTIMATE_USAGEPOINT_DATA", "reason.cant.estimate.usagepoint.data", DueInType.DAY, 0L, IssueRuleBuilder.USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE, Priority.DEFAULT, true),
     DEVICE_ALARM("Tampering", "END_DEVICE_EVENT_CREATED", "Tampering", DueInType.DAY, 0L, IssueRuleBuilder.BASIC_DEVICE_ALARM_RULE_TEMPLATE, Priority.get(30,30), true),
-    DEVICELIFECYCLE_FAILED_TRANSITION("Device lifecycle failed transition", "TRANSITION_FAILURE", "Device lifecycle failed transition", DueInType.DAY, 0L, IssueRuleBuilder.DEVICELIFECYCLE_ISSUE_RULE_TEMPLATE, Priority.get(30,30), true)
+    DEVICELIFECYCLE_FAILED_TRANSITION("Device lifecycle failed transition", "TRANSITION_FAILURE", "reason.device.lifecycle.transition.failure", DueInType.DAY, 0L, IssueRuleBuilder.DEVICELIFECYCLE_ISSUE_RULE_TEMPLATE, Priority.get(30,30), true),
+    TASK_FAILED("Task failed", "TASK_FAILURE", "Task failed", DueInType.DAY, 0L, IssueRuleBuilder.TASK_ISSUE_RULE_TEMPLATE, Priority.get(30,30), true),
     ;
 
     private static final String BASIC_DATA_COLLECTION_RULE_TEMPLATE = "BasicDataCollectionRuleTemplate";

@@ -15,6 +15,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
@@ -58,6 +59,10 @@ public class Dsmr40Messaging extends Dsmr23Messaging {
 
         // Dsmr 2.3 security related messages not supported in Dmsr 4.0
         supportedMessages.remove(this.get(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL));
+
+        //Definable LoadProfile category
+        supportedMessages.add(this.get(LoadProfileMessage.CONFIGURE_CAPTURE_DEFINITION));
+        supportedMessages.add(this.get(LoadProfileMessage.CONFIGURE_CAPTURE_PERIOD));
 
         return supportedMessages;
     }

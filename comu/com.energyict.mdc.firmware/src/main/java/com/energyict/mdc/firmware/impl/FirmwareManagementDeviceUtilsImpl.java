@@ -30,6 +30,7 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     private final TaskService taskService;
 
     private Device device;
-    private Optional<ComTaskExecution> firmwareComTaskExecution;
+    private ComTaskExecution firmwareComTaskExecution;
     private List<DeviceMessage> firmwareMessages;
     private Map<DeviceMessageId, Optional<ProtocolSupportedFirmwareOptions>> uploadOptionsCache;
 
@@ -96,10 +97,9 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     private void initFirmwareComTaskExecution() {
-        this.firmwareComTaskExecution = this.taskService
-                .findFirmwareComTask()
-                .map(ct -> this.device.getComTaskExecutions().stream().filter(cte -> cte.executesComTask(ct)).findFirst())
-                .orElse(Optional.empty());
+        firmwareComTaskExecution = taskService.findFirmwareComTask()
+                .flatMap(ct -> this.device.getComTaskExecutions().stream().filter(cte -> cte.executesComTask(ct)).findFirst())
+                .orElse(null);
     }
 
     private void compareAndSwapUploadMessage(Map<FirmwareType, DeviceMessage> uploadMessages, DeviceMessage candidate) {
@@ -111,6 +111,11 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
                 uploadMessages.put(key, candidate);
             }
         }
+    }
+
+    @Override
+    public Device getDevice() {
+        return device;
     }
 
     @Override
@@ -167,15 +172,11 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
         if (firmwareVersionPropertySpec.isPresent()) {
             String name = firmwareVersionPropertySpec.get().getName();
-
-            Optional<DeviceMessageAttribute> firmwareVersionMessageAttr = message.getAttributes().stream()
+            return message.getAttributes().stream()
                     .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
                     .filter(attr -> name.equals(attr.getName()))
-                    .findFirst();
-
-            return firmwareVersionMessageAttr.isPresent() ?
-                    Optional.of((FirmwareVersion) firmwareVersionMessageAttr.get().getValue()) :
-                    Optional.empty();
+                    .findFirst()
+                    .map(deviceMessageAttribute -> (FirmwareVersion) deviceMessageAttribute.getValue());
         } else {
             if (DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())) {
                 Optional<DeviceMessage> uploadMessage = getUploadMessageForActivationMessage(message);
@@ -200,7 +201,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public boolean firmwareUploadTaskIsBusy() {
-        return this.firmwareComTaskExecution
+        return getFirmwareComTaskExecution()
                 .map(ComTaskExecution::getStatus)
                 .map(BUSY_TASK_STATUSES::contains)
                 .orElse(false);
@@ -216,7 +217,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public boolean firmwareUploadTaskIsFailed() {
-        return this.firmwareComTaskExecution
+        return getFirmwareComTaskExecution()
                 .map(ComTaskExecution::isLastExecutionFailed)
                 .orElse(false);
     }
@@ -235,7 +236,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public Optional<ComTaskExecution> getFirmwareComTaskExecution() {
-        return this.firmwareComTaskExecution;
+        return Optional.ofNullable(firmwareComTaskExecution);
     }
 
     @Override
@@ -260,7 +261,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public List<DeviceMessage> getFirmwareMessages() {
-        return this.firmwareMessages;
+        return firmwareMessages;
     }
 
     @Override
@@ -300,6 +301,23 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     public boolean firmwareTaskIsScheduled() {
         Optional<ComTaskExecution> firmwareComTaskExecution = getFirmwareComTaskExecution();
         return firmwareComTaskExecution.isPresent() && firmwareComTaskExecution.get().getNextExecutionTimestamp() != null;
+    }
+
+    @Override
+    public boolean isReadOutAfterLastFirmwareUpgrade() {
+        Set<DeviceMessageStatus> badStatuses = EnumSet.of(DeviceMessageStatus.CANCELED, DeviceMessageStatus.FAILED);
+        Optional<Instant> lastUpgrade = getFirmwareMessages().stream()
+                .filter(message -> !badStatuses.contains(message.getStatus()))
+                .map(DeviceMessage::getReleaseDate)
+                .max(Comparator.naturalOrder());
+        Optional<Instant> lastReadOut = device.getComTaskExecutions().stream()
+                .filter(ComTaskExecution::isConfiguredToReadStatusInformation)
+                .map(ComTaskExecution::getLastSuccessfulCompletionTimestamp)
+                .filter(Objects::nonNull)
+                .max(Comparator.naturalOrder());
+        return lastReadOut
+                .filter(readOut -> !lastUpgrade.isPresent() || readOut.isAfter(lastUpgrade.get()))
+                .isPresent();
     }
 
     private Optional<ComTaskExecution> getComTaskExecutionToCheckTheFirmwareVersion(Device device) {

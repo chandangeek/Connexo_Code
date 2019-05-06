@@ -13,6 +13,8 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
@@ -21,6 +23,7 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
+import com.elster.jupiter.properties.rest.DeviceGroupPropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
 import com.elster.jupiter.properties.rest.RaiseEventPropertyFactory;
 import com.elster.jupiter.properties.rest.RelativePeriodWithCountPropertyFactory;
@@ -41,7 +44,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import org.json.JSONException;
@@ -66,6 +68,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+//import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
+
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
         property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
         service = {CreationRuleTemplate.class, BasicDeviceAlarmRuleTemplate.class},
@@ -77,6 +81,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public static final String TRIGGERING_EVENTS = NAME + ".triggeringEvents";
     public static final String CLEARING_EVENTS = NAME + ".clearingEvents";
     public static final String THRESHOLD = NAME + ".threshold";
+    public static final String DEVICE_IN_GROUP = NAME + ".deviceInGroup";
     public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES = NAME + ".deviceLifecyleInDeviceTypes";
     private static final String SEPARATOR = ":";
     private static final int DEFAULT_NUMERICAL_VALUE = 0;
@@ -84,9 +89,9 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private static final String RAISE_EVENT_PROPS_DEFAULT_VALUE = "0:0:0";
     private static final List<String> RAISE_EVENT_PROPS_POSSIBLE_VALUES = Arrays.asList("0:0:0", "1:0:0", "1:0:1", "1:1:0", "1:1:1");
 
-    private List<DeviceLifeCycleInDeviceTypeInfo> deviceLifeCycleInDeviceTypes = new ArrayList<>();
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile TimeService timeService;
 
     //for OSGI
@@ -94,7 +99,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
     @Inject
-    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService) {
+    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, MeteringGroupsService meteringGroupsService) {
         this();
         setDeviceAlarmService(deviceAlarmService);
         setNlsService(nlsService);
@@ -103,6 +108,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         setTimeService(timeService);
+        setMeteringGroupService(meteringGroupsService);
         activate();
     }
 
@@ -145,6 +151,11 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         this.timeService = timeService;
     }
 
+    @Reference
+    public void setMeteringGroupService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
     @Override
     public String getName() {
         return BasicDeviceAlarmRuleTemplate.NAME;
@@ -161,7 +172,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         List<CreationRule> alarmCreationRules = DeviceAlarmUtil.getAlarmCreationRules(issueService);
 
         for (CreationRule alarmCreationRule:alarmCreationRules) {
-            if(((List)(alarmCreationRule.getProperties().get(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)))
+            if(((List)(alarmCreationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)))
                         .stream()
                         .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo)propertySpec).getDeviceType().getId() == deviceTypeId)
                         .findFirst().isPresent())
@@ -194,6 +205,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "\teval( event.logOnSameAlarm(\"@{" + RAISE_EVENT_PROPS + "}\") == true )\n" +
                 "\teval( event.checkOccurrenceConditions(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + TRIGGERING_EVENTS + "}\") == true )\n" +
                 "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
+                "\teval( event.isDeviceInGroup(\"@{" + DEVICE_IN_GROUP + "}\") == true )\n" +
                 "then\n" +
                 "\tSystem.out.println(\"Processing triggering event device alarm based on rule template number @{ruleId} logged on same alarm\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
@@ -205,6 +217,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "\teval( event.logOnSameAlarm(\"@{" + RAISE_EVENT_PROPS + "}\") == false )\n" +
                 "\teval( event.checkOccurrenceConditions(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + TRIGGERING_EVENTS + "}\") == true )\n" +
                 "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
+                "\teval( event.isDeviceInGroup(\"@{" + DEVICE_IN_GROUP + "}\") == true )\n" +
                 "then\n" +
                 "\tSystem.out.println(\"Processing triggering event device alarm based on rule template number @{ruleId} create new alarm\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, false);\n" +
@@ -234,14 +247,12 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        if(deviceLifeCycleInDeviceTypes.isEmpty()) {
-            clearAndRecalculateCache();
-        }
-        DeviceLifeCycleInDeviceTypeInfo[] deviceLifeCycleInDeviceTypepossibleValues = deviceLifeCycleInDeviceTypes.stream().toArray(DeviceLifeCycleInDeviceTypeInfo[]::new);
+
         RaiseEventPropsInfo[] raiseEventPropsPossibleValues = RAISE_EVENT_PROPS_POSSIBLE_VALUES.stream()
                 .map(RaiseEventPropsInfo::new)
                 .toArray(RaiseEventPropsInfo[]::new);
-
+        DeviceGroupInfo[] deviceGroupPossibleValues = meteringGroupsService.findEndDeviceGroups().stream()
+                .map(DeviceGroupInfo::new).toArray(DeviceGroupInfo[]::new);
         builder.add(propertySpecService
                 .specForValuesOf(new EventTypeInfoValueFactory())
                 .named(TRIGGERING_EVENTS, TranslationKeys.TRIGGERING_EVENTS)
@@ -256,12 +267,20 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .markMultiValued(",")
                 .finish());
         builder.add(propertySpecService
+                .specForValuesOf(new DeviceGroupInfoValueFactory())
+                .named(DEVICE_IN_GROUP, TranslationKeys.DEVICE_IN_GROUP)
+                .fromThesaurus(this.getThesaurus())
+                .markMultiValued(";")
+                .addValues(deviceGroupPossibleValues)
+                .markExhaustive(PropertySelectionMode.LIST)
+                .finish());
+        builder.add(propertySpecService
                 .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory())
                 .named(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .markMultiValued(";")
-                .addValues(deviceLifeCycleInDeviceTypepossibleValues)
+                .addValues(deviceConfigurationService.getDeviceLifeCycleInDeviceTypeInfoPossibleValues())
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
         builder.add(propertySpecService
@@ -327,15 +346,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return OpenDeviceAlarm.class.cast(openIssue);
         }
         return openIssue;
-    }
-
-    public void clearAndRecalculateCache() {
-        deviceLifeCycleInDeviceTypes.clear();
-        deviceConfigurationService.findAllDeviceTypes()
-                .find().stream()
-                .sorted(Comparator.comparing(DeviceType::getId))
-                .forEach(deviceType -> deviceLifeCycleInDeviceTypes.add(new DeviceLifeCycleInDeviceTypeInfo(deviceType, deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
-                        .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), deviceLifeCycleConfigurationService)));
     }
 
     private class EventTypeInfoValueFactory implements ValueFactory<HasIdAndName>, EndDeviceEventTypePropertyFactory {
@@ -555,6 +565,72 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             result = 31 * result + deviceType.hashCode();
             result = 31 * result + states.hashCode();
             return result;
+        }
+    }
+
+    private class DeviceGroupInfoValueFactory implements ValueFactory<DeviceGroupInfo>, DeviceGroupPropertyFactory {
+        @Override
+        public DeviceGroupInfo fromStringValue(String stringValue) {
+
+            EndDeviceGroup deviceGroup = meteringGroupsService.findEndDeviceGroup(Long.parseLong(stringValue)).orElse(null);
+            return new DeviceGroupInfo(meteringGroupsService.findEndDeviceGroup(Long.parseLong(stringValue)).orElse(null));
+        }
+
+        @Override
+        public String toStringValue(DeviceGroupInfo object) {
+            return String.valueOf(object.getId());
+        }
+
+        @Override
+        public Class<DeviceGroupInfo> getValueType() {
+            return DeviceGroupInfo.class;
+        }
+
+        @Override
+        public DeviceGroupInfo valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(DeviceGroupInfo object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, DeviceGroupInfo value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            } else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, DeviceGroupInfo value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            } else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+    }
+
+    static class DeviceGroupInfo extends HasIdAndName {
+
+        private EndDeviceGroup deviceGroup;
+
+        DeviceGroupInfo(EndDeviceGroup deviceGroup) {
+            this.deviceGroup = deviceGroup;
+        }
+
+        @Override
+        public String getId() {
+            return String.valueOf(deviceGroup.getId());
+        }
+
+        @Override
+        public String getName() {
+            return deviceGroup.getName();
         }
     }
 

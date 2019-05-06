@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -122,19 +123,19 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .longSpec()
                         .named(MeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName(), TranslationKeys.CALLS_SUCCESS)
                         .describedAs(TranslationKeys.CALLS_SUCCESS)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .longSpec()
                         .named(MeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName(), TranslationKeys.CALLS_ERROR)
                         .describedAs(TranslationKeys.CALLS_ERROR)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .longSpec()
                         .named(MeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName(), TranslationKeys.CALLS_EXPECTED)
                         .describedAs(TranslationKeys.CALLS_EXPECTED)
                         .fromThesaurus(thesaurus)
@@ -193,16 +194,19 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
                     .number()
                     .map(MeterConfigMasterDomainExtension.FieldNames.CALLS_SUCCESS.javaName())
                     .notNull()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
             table.column(MeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.databaseName())
                     .number()
                     .map(MeterConfigMasterDomainExtension.FieldNames.CALLS_FAILED.javaName())
                     .notNull()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
             table.column(MeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.databaseName())
                     .number()
                     .map(MeterConfigMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName())
                     .notNull()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
             table.column(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName())
                     .varChar()

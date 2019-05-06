@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.topology.impl.kpi;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.tasks.TaskService;
@@ -27,6 +28,7 @@ public class RegisteredDevicesKpiCalculatorFactory implements MessageHandlerFact
     private volatile TaskService taskService;
     private volatile RegisteredDevicesKpiService registeredDevicesKpiService;
     private volatile TopologyService topologyService;
+    private volatile EventService eventService;
     private volatile DeviceService deviceService;
 
     // For OSGi framework only
@@ -34,17 +36,18 @@ public class RegisteredDevicesKpiCalculatorFactory implements MessageHandlerFact
 
     // For unit testing purposes only
     @Inject
-    public RegisteredDevicesKpiCalculatorFactory(TaskService taskService, RegisteredDevicesKpiService registeredDevicesKpiService, Clock clock, TopologyService topologyService, DeviceService deviceService) {
+    public RegisteredDevicesKpiCalculatorFactory(TaskService taskService, RegisteredDevicesKpiService registeredDevicesKpiService, EventService eventService, Clock clock, TopologyService topologyService, DeviceService deviceService) {
         this();
         this.setTaskService(taskService);
         this.setRegisteredDevicesKpiService(registeredDevicesKpiService);
+        this.setEventService(eventService);
         this.setDeviceService(deviceService);
     }
 
     @Override
     public MessageHandler newMessageHandler() {
         return this.taskService.createMessageHandler(
-                new RegisteredDevicesKpiCalculator(registeredDevicesKpiService, deviceService, topologyService));
+                new RegisteredDevicesKpiCalculator(registeredDevicesKpiService, eventService, deviceService, topologyService));
     }
 
     @Reference
@@ -60,6 +63,11 @@ public class RegisteredDevicesKpiCalculatorFactory implements MessageHandlerFact
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference

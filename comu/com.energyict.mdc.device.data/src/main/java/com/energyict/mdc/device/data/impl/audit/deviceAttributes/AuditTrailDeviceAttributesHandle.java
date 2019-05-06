@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -33,6 +34,7 @@ public class AuditTrailDeviceAttributesHandle implements AuditTrailDecoderHandle
     private volatile OrmService ormService;
     private volatile ServerDeviceService serverDeviceService;
     private volatile MeteringService meteringService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile Thesaurus thesaurus;
 
     @SuppressWarnings("unused") // for OSGI
@@ -55,6 +57,11 @@ public class AuditTrailDeviceAttributesHandle implements AuditTrailDecoderHandle
     }
 
     @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
     }
@@ -71,6 +78,6 @@ public class AuditTrailDeviceAttributesHandle implements AuditTrailDecoderHandle
 
     @Override
     public AuditDecoder getAuditDecoder(AuditTrailReference reference) {
-        return new AuditTrailDeviceAtributesDecoder(ormService, thesaurus, meteringService, serverDeviceService).init(reference);
+        return new AuditTrailDeviceAtributesDecoder(ormService, thesaurus, meteringService, serverDeviceService, deviceLifeCycleConfigurationService).init(reference);
     }
 }

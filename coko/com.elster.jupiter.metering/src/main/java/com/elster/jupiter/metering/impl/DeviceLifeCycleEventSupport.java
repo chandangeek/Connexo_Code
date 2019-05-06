@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterTransitionWrapper;
 import com.elster.jupiter.metering.MeteringService;
 
 import org.osgi.service.component.annotations.Component;
@@ -67,7 +68,9 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
                 EventType.METER_UPDATED,
                 EventType.METER_DELETED,
                 EventType.METERREADING_CREATED,
-                EventType.READINGS_DELETED);
+                EventType.READINGS_DELETED,
+                EventType.METER_LINKED,
+                EventType.METER_UNLINKED);
     }
 
     @Override
@@ -85,6 +88,12 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
             @Override
             public Optional<CurrentState> extractFrom(LocalEvent event, FiniteStateMachine finiteStateMachine, MeteringService meteringService) {
                 return this.currentStateFor((EndDevice) event.getSource(), finiteStateMachine);
+            }
+        },
+        METER_LINK_UNLINK(EnumSet.of(EventType.METER_LINKED, EventType.METER_UNLINKED)) {
+            @Override
+            public Optional<CurrentState> extractFrom(LocalEvent event, FiniteStateMachine finiteStateMachine, MeteringService meteringService) {
+                return this.currentStateFor((MeterTransitionWrapper) event.getSource(), finiteStateMachine);
             }
         },
         METER_READING(EnumSet.of(EventType.METERREADING_CREATED)) {
@@ -122,6 +131,13 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
                 // Device's state is not managed by a life cycle or not managed by the specified state machine
                 return Optional.empty();
             }
+        }
+        protected Optional<CurrentState> currentStateFor(MeterTransitionWrapper endDeviceWrapper, FiniteStateMachine finiteStateMachine) {
+            Optional<CurrentState> currentState = currentStateFor( endDeviceWrapper.getMeter(), finiteStateMachine);
+            if (currentState.isPresent() ) {
+                currentState.get().transitionTime = endDeviceWrapper.getInstant();
+            }
+            return currentState;
         }
 
         protected Optional<CurrentState> currentStateFor(MeterReadingStorer.EventSource eventSource, FiniteStateMachine finiteStateMachine, MeteringService meteringService) {

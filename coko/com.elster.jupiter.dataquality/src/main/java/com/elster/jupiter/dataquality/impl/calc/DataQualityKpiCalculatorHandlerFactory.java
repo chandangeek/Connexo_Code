@@ -7,6 +7,7 @@ package com.elster.jupiter.dataquality.impl.calc;
 import com.elster.jupiter.dataquality.DataQualityKpiService;
 import com.elster.jupiter.dataquality.impl.ServerDataQualityKpiService;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
@@ -45,6 +46,7 @@ public class DataQualityKpiCalculatorHandlerFactory implements MessageHandlerFac
     private volatile UserService userService;
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
+    private volatile EventService eventService;
     private volatile Clock clock;
     private User user;
 
@@ -55,7 +57,7 @@ public class DataQualityKpiCalculatorHandlerFactory implements MessageHandlerFac
     @Override
     public MessageHandler newMessageHandler() {
         return this.taskService.createMessageHandler(
-                new DataQualityKpiCalculatorHandler(this, getUser()));
+                new DataQualityKpiCalculatorHandler(this, eventService, getUser()));
     }
 
     public User getUser() {
@@ -128,6 +130,11 @@ public class DataQualityKpiCalculatorHandlerFactory implements MessageHandlerFac
     @Reference
     public void setEstimationService(EstimationService estimationService) {
         this.estimationService = estimationService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Override

@@ -488,6 +488,17 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
     }
 
+    protected ComTaskExecution createComTaskExecutionWithConnectionTaskAndSetNextAndLastExecTimeStamp(ConnectionTask<?, ?> connectionTask, Instant nextExecutionTimeStamp, Instant lastExecutionTimeStamp) {
+        ComTaskExecution comTaskExecution = createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextExecutionTimeStamp, comTaskEnablement1);
+        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        if (lastExecutionTimeStamp != null) {
+            comTaskExecutionUpdater.forceLastExecutionStartTimestamp(lastExecutionTimeStamp);
+        }
+        comTaskExecutionUpdater.update();
+
+        return comTaskExecution;
+    }
+
     protected ComTaskExecution createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(ConnectionTask<?, ?> connectionTask, Instant nextExecutionTimeStamp) {
         return createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(connectionTask, nextExecutionTimeStamp, comTaskEnablement1);
     }

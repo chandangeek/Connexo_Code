@@ -1,8 +1,4 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-var https = require("https"),
+var https = require('https'),
     zlib = require('zlib'),
     path = require('path'),
     fs = require('fs');
@@ -58,24 +54,24 @@ function getSizeAtVersion(version, path) {
         op = {},
 
         req = https.request({
-            host: 'raw.github.com',
-            port: 443,
-            path: '/timrwood/moment/' + version + path
-        }, function (res) {
-            res.setEncoding('utf8');
-            res.on('data', function (chunk) {
-                data += chunk;
-            });
-            res.on('end', function (e) {
-                zlib.gzip(data, function (error, result) {
-                    op.version = version;
-                    op.gzip = result.length;
-                    op.original = data.length;
-                    resolved++;
-                    check();
-                });
+        host: 'raw.github.com',
+        port: 443,
+        path: '/timrwood/moment/' + version + path
+    }, function (res) {
+        res.setEncoding('utf8');
+        res.on('data', function (chunk) {
+            data += chunk;
+        });
+        res.on('end', function (e) {
+            zlib.gzip(data, function (error, result) {
+                op.version = version;
+                op.gzip = result.length;
+                op.original = data.length;
+                resolved++;
+                check();
             });
         });
+    });
 
     req.on('error', function (e) {
         console.log('problem with request: ' + e.message);
@@ -86,15 +82,15 @@ function getSizeAtVersion(version, path) {
 }
 
 function getRemote() {
-    var old_versions = '1.0.1 1.1.0 1.1.1 1.1.2 1.2.0 1.3.0 1.4.0'.split(' '),
-        new_versions = '1.5.0 1.5.1 1.6.0 1.6.1 1.7.0 1.7.1'.split(' '),
+    var oldVersions = '1.0.1 1.1.0 1.1.1 1.1.2 1.2.0 1.3.0 1.4.0'.split(' '),
+        newVersions = '1.5.0 1.5.1 1.6.0 1.6.1 1.7.0 1.7.1'.split(' '),
         i;
 
-    for (i = 0; i < old_versions.length; i++) {
-        getSizeAtVersion(old_versions[i], '/moment.min.js');
+    for (i = 0; i < oldVersions.length; i++) {
+        getSizeAtVersion(oldVersions[i], '/moment.min.js');
     }
-    for (i = 0; i < new_versions.length; i++) {
-        getSizeAtVersion(new_versions[i], '/min/moment.min.js');
+    for (i = 0; i < newVersions.length; i++) {
+        getSizeAtVersion(newVersions[i], '/min/moment.min.js');
     }
 }
 
@@ -115,6 +111,7 @@ function getLocal() {
         });
     });
 }
+
 
 
 module.exports = function (grunt) {
