@@ -15,7 +15,6 @@ import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
-import com.elster.jupiter.issue.rest.response.device.DeviceGroupInfo;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -44,7 +43,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -178,9 +176,6 @@ public class IssueResourceHelper {
                     .map(id -> meteringGroupService.findEndDeviceGroup(id).orElse(null))
                     .filter(devGroup -> devGroup != null)
                     .forEach(filter::addDeviceGroup);
-            List<DeviceGroupInfo> deviceGroupInfos = new ArrayList<>();
-            filter.getDeviceGroups().stream().forEach(dev-> deviceGroupInfos.add(new DeviceGroupInfo(dev)));
-            deviceGroupInfos.stream().forEach(devInfo -> devInfo.devices.stream().forEach(id -> meteringService.findEndDeviceById(id).ifPresent(filter::addDevice)));
         }
 
         if (jsonFilter.hasProperty(IssueRestModuleConst.USAGEPOINT)) {
