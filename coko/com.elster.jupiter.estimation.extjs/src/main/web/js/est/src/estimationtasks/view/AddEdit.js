@@ -251,7 +251,8 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                         valueField: 'id',
                                         listeners: {
                                             focus: function () {
-                                                Ext.ComponentQuery.query('estimationtasks-addedit #period').setValue(true);
+                                                Ext.ComponentQuery.query('estimationtasks-addedit #period')[0].setValue(true);
+                                                Console.log(Ext.ComponentQuery.query('estimationtasks-addedit #period')[0].setValue(true));
                                             }
                                         }
                                     }
