@@ -16,6 +16,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.inject.Module;
@@ -190,21 +191,19 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-            Column contextReference = (Column)(table.getColumn(LoadProfileOneVersionedDomainExtension.FieldNames.DEVICE_REF.databaseName()).get());
+            Column deviceColumn = table
+                    .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
+                    .number()
+                    .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
+                    .notNull()
+                    .add();
             table
                     .foreignKey(FK_CPS_DEVICE_VER)
-                    .on(contextReference)
+                    .on(deviceColumn)
                     .references(getContextClass())
                     .map(LoadProfileOneVersionedDomainExtension.FieldNames.DEVICE_REF.javaName())
                     .add();
-
-            return Collections.singletonList(
-                    table
-                        .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
-                        .number()
-                        .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
-                        .notNull()
-                        .add());
+            return Collections.singletonList(deviceColumn);
         }
 
         @Override
@@ -230,5 +229,8 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
         public String contextForeignKeyName() {
             return "FK_CPS_DEVICE_VER";
         }
+
+        @Override
+        public Class getContextClass() { return Device.class;}
     }
 }
