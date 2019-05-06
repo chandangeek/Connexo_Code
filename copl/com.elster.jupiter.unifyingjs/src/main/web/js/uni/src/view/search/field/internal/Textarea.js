@@ -153,7 +153,7 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
           text: Uni.I18n.translate(
             'search.field.internal.textarea.text',
             'UNI',
-            'Multiple values canbe inserted, divided by separator.<br /> {0} - Item separator',
+            'Multiple values can be inserted, divided by separator<br /> {0} - Item separator',
             [me.separator]
           ),
           maxWidth: 150
