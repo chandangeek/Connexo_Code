@@ -15,7 +15,9 @@ import com.energyict.mdc.protocol.api.DeviceMessageFile;
 public class DeviceMessageFilePropertyValueConverter implements PropertyValueConverter {
 
     @Override
-    public boolean canProcess(PropertySpec propertySpec) { return propertySpec != null && DeviceMessageFile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()); }
+    public boolean canProcess(PropertySpec propertySpec) {
+        //return propertySpec != null && propertySpec.getValueFactory().getValueType().isAssignableFrom(DeviceMessageFile.class); Lau 1
+       return propertySpec != null && com.energyict.mdc.upl.properties.DeviceMessageFile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()); } //Lau2
 
 
     @Override
