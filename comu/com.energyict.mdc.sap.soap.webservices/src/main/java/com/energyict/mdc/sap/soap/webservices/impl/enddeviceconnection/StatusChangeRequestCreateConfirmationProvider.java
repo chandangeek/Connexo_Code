@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCreateConfirmation;
@@ -29,7 +30,7 @@ import java.util.Optional;
         service = {StatusChangeRequestCreateConfirmation.class, OutboundSoapEndPointProvider.class}, immediate = true,
         property = {"name=" + StatusChangeRequestCreateConfirmation.SAP_STATUS_CHANGE_REQUEST_CREATE_CONFIRMATION})
 public class StatusChangeRequestCreateConfirmationProvider implements StatusChangeRequestCreateConfirmation,
-        OutboundSoapEndPointProvider {
+        OutboundSoapEndPointProvider, WebServiceAplication {
 
     private final Map<String, SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut> ports =
             new HashMap<>();
@@ -77,5 +78,10 @@ public class StatusChangeRequestCreateConfirmationProvider implements StatusChan
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS))
                 .smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(
                         confirmationMessage.getConfirmationMessage());
+    }
+
+    @Override
+    public String getApplication(){
+        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

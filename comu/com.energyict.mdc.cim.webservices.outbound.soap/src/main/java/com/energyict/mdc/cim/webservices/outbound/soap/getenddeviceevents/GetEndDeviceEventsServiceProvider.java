@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyGetEndDeviceEventsWebService;
 
@@ -38,7 +39,7 @@ import java.util.List;
         service = {ReplyGetEndDeviceEventsWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + ReplyGetEndDeviceEventsWebService.NAME})
-public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEventsWebService, OutboundSoapEndPointProvider {
+public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEventsWebService, OutboundSoapEndPointProvider, WebServiceAplication {
 
     private static final String NOUN = "GetEndDeviceEvents";
     private static final String RESOURCE_WSDL = "/getenddeviceevents/GetEndDeviceEvents.wsdl";
@@ -142,5 +143,10 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
 
     private boolean isValidPortService(GetEndDeviceEventsPort port, EndPointConfiguration endPointConfiguration) {
         return endPointConfiguration.getUrl().toLowerCase().contains(((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(port))).getRequestContext().get(Message.ENDPOINT_ADDRESS)).toLowerCase());
+    }
+
+    @Override
+    public String getApplication(){
+        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

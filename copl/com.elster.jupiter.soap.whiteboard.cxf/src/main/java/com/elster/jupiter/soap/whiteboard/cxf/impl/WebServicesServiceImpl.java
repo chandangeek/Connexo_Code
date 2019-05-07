@@ -186,9 +186,10 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
                     }
 
                     if (provider instanceof OutboundSoapEndPointProvider) {
-                        if (((OutboundSoapEndPointProvider)provider) instanceof WebServiceAplication){
-                            WebServiceAplication tmpProvider = (WebServiceAplication)((OutboundSoapEndPointProvider)provider).get();
-                            return tmpProvider.getApplication();
+                        if (provider instanceof WebServiceAplication){
+                            return ((WebServiceAplication) provider).getApplication();
+                            /*WebServiceAplication tmpProvider = (WebServiceAplication)provider;
+                            return tmpProvider.getApplication();*/
                         }
                     }
 
@@ -242,9 +243,10 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
                 }
 
                 if (provider instanceof OutboundSoapEndPointProvider) {
-                    if (((OutboundSoapEndPointProvider)provider).get() instanceof WebServiceAplication){
-                        WebServiceAplication tmpProvider = (WebServiceAplication)((OutboundSoapEndPointProvider)provider).get();
-                        return tmpProvider.getApplication();
+                    if ((provider) instanceof WebServiceAplication){
+                        return ((WebServiceAplication) provider).getApplication();
+                        /*WebServiceAplication tmpProvider = (WebServiceAplication)((OutboundSoapEndPointProvider)provider).get();
+                        return tmpProvider.getApplication();*/
                     }
                 }
 

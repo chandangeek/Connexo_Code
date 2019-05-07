@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
@@ -54,7 +55,7 @@ import java.util.concurrent.ConcurrentHashMap;
         service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"name=" + ReplyMeterConfigWebService.NAME})
-public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, TranslationKeyProvider {
+public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, TranslationKeyProvider , WebServiceAplication {
 
     private static final String COMPONENT_NAME = "SIM";
     private static final String NOUN = "MeterConfig";
@@ -285,4 +286,8 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
                 .containsKey(Message.ENDPOINT_ADDRESS);
     }
 
+    @Override
+    public String getApplication(){
+        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
+    }
 }
