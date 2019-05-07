@@ -227,7 +227,7 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
 
         @Override
         public String contextForeignKeyName() {
-            return "FK_CPS_DEVICE_VER";
+            return FK_CPS_DEVICE_VER;
         }
 
         @Override
