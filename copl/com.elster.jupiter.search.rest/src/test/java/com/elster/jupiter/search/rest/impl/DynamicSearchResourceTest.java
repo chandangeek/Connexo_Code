@@ -6,6 +6,7 @@ package com.elster.jupiter.search.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
@@ -289,9 +290,23 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
         when(searchService.search(any(SearchDomain.class))).thenReturn(searchBuilder);
 
-
         Response response = target("/search/com.devices").request(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).post(entity);
+
+        /* Check arguments passed to Finder.from() method */
+        ArgumentCaptor<Finder> argument = ArgumentCaptor.forClass(Finder.class);
+        verify(finder).from((QueryParameters) argument.capture());
+        assertThat(((QueryParameters)argument.getValue()).getStart().get()).isEqualTo(0);
+        assertThat(((QueryParameters)argument.getValue()).getLimit().get()).isEqualTo(100);
+
+        /* Check response */
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(3);
+        assertThat(model.<String>get("$.searchResults[0].name")).isEqualTo("SPE01000001");
+        assertThat(model.<String>get("$.searchResults[1].name")).isEqualTo("SPE01000002");
+        assertThat(model.<String>get("$.searchResults[2].name")).isEqualTo("SPE01000003");
+
     }
 
     interface DeviceType extends HasId, HasName { }

@@ -35,14 +35,7 @@ public class JsonQueryParameters implements QueryParameters {
     private static final String EXTJS_FIELD = "property";
     private static final String EXTJS_LIKE = "like";
 
-    private MultivaluedMap<String, String> queryParameters = new MultivaluedHashMap<>();
-
-    public JsonQueryParameters (Integer start, Integer limit){
-        this.start = start;
-        this.limit = limit;
-        queryParameters.add("start",start.toString());
-        queryParameters.add("limit",limit.toString());
-    }
+    private final MultivaluedMap<String, String> queryParameters;
 
     /**
      * @summary Paging parameter denoting the index of the first element in the total list to be returned in the answer.
@@ -62,6 +55,13 @@ public class JsonQueryParameters implements QueryParameters {
         queryParameters = uriInfo.getQueryParameters();
     }
 
+    public JsonQueryParameters(Integer start, Integer limit) {
+        this.start = start;
+        this.limit = limit;
+        queryParameters = new MultivaluedHashMap<>();
+        queryParameters.add("start",start.toString());
+        queryParameters.add("limit",limit.toString());
+    }
     /**
      * @summary Paging parameter denoting the index of the first element in the total list to be returned in the answer.
      * To get a paged answer, make sure you always specify both paging parameters <i>start</i> <b>and</b> <i>limit</i>
