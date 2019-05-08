@@ -709,23 +709,17 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    @Path("/{usagePointName}/metrologyconfiguration/{meterRoleName}/unlinkMeterRole/{timeStamp}")
+    @Path("/{usagePointName}/metrologyconfiguration/{key}/unlink")
     public Response unlinkMeterRole(@PathParam("usagePointName") String usagePointName,
-                                    @PathParam("meterRoleName") String meterRoleName,
-                                    @PathParam("timeStamp") long timeStamp,
-                                    UsagePointInfo info) {
+                                    @PathParam("key") String key,
+                                    long timeStamp) {
 
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
-        List<MeterRoleInfo> meterRoleInfos = info.meterRoles;
         UsagePointMeterActivator linker = usagePoint.linkMeters();
-        for(MeterRoleInfo meterRoleInfo:meterRoleInfos){
-            if(meterRoleInfo.name.equals(meterRoleName)) {
-                linker.clear(Instant.ofEpochMilli(timeStamp),resourceHelper.findMeterRoleOrThrowException(meterRoleInfo.id));
-                linker.complete();
-                return Response.ok().build();
-            }
-        }
-        return Response.status(404).build();
+        linker.clear(Instant.ofEpochMilli(timeStamp),resourceHelper.findMeterRoleOrThrowException(key));
+        linker.complete();
+
+        return Response.ok().build();
     }
 
     @PUT
