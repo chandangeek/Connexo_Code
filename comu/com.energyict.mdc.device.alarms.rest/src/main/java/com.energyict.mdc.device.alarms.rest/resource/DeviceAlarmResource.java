@@ -686,7 +686,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
 
         if (jsonFilter.hasProperty(DeviceAlarmRestModuleConst.DEVICE_GROUP)) {
             jsonFilter.getLongList(DeviceAlarmRestModuleConst.DEVICE_GROUP).stream()
-                    .map(id -> getMeteringGroupService().findEndDeviceGroup(id).orElse(null))
+                    .map(id -> getMeteringGroupService().findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)))
                     .filter(devGroup -> devGroup != null)
                     .forEach(filter::addDeviceGroup);
         }

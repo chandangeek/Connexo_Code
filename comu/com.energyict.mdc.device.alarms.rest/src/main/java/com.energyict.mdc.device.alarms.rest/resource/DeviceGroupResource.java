@@ -9,6 +9,9 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 
+import com.energyict.mdc.device.alarms.security.Privileges;
+
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -23,6 +26,7 @@ public class DeviceGroupResource extends BaseAlarmResource{
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM,Privileges.Constants.ASSIGN_ALARM,Privileges.Constants.CLOSE_ALARM,Privileges.Constants.COMMENT_ALARM,Privileges.Constants.ACTION_ALARM})
     public PagedInfoList getDeviceGroups(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithNameInfo> infos = getMeteringGroupService().findEndDeviceGroups()
                 .stream()

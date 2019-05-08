@@ -173,7 +173,7 @@ public class IssueResourceHelper {
 
         if (jsonFilter.hasProperty(IssueRestModuleConst.DEVICE_GROUP)) {
             jsonFilter.getLongList(IssueRestModuleConst.DEVICE_GROUP).stream()
-                    .map(id -> meteringGroupService.findEndDeviceGroup(id).orElse(null))
+                    .map(id -> meteringGroupService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)))
                     .filter(devGroup -> devGroup != null)
                     .forEach(filter::addDeviceGroup);
         }

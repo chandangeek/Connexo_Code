@@ -4,11 +4,13 @@
 
 package com.elster.jupiter.issue.rest.impl.resource;
 
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -23,6 +25,7 @@ public class DeviceGroupResource extends BaseResource{
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getDeviceGroups(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithNameInfo> infos = getMeteringGroupsService().findEndDeviceGroups()
                 .stream()

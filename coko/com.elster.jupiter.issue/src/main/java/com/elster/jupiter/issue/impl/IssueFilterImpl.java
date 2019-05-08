@@ -16,6 +16,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -138,7 +140,7 @@ public class IssueFilterImpl implements IssueFilter {
 
     @Override
     public List<EndDevice> getDevices() {
-        return new ArrayList<>(this.devices);
+        return ImmutableList.copyOf(this.devices);
     }
 
     @Override

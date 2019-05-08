@@ -15,6 +15,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -165,5 +166,7 @@ public class DeviceAlarmFilter {
         this.deviceGroups.add(deviceGroup);
     }
 
-    public List<EndDeviceGroup> getDeviceGroups() { return this.deviceGroups; }
+    public List<EndDeviceGroup> getDeviceGroups() {
+        return ImmutableList.copyOf(this.deviceGroups);
+    }
 }
