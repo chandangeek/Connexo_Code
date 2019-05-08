@@ -9,7 +9,8 @@ import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.service.IssueBuilder;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.ManualIssueBuilder;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
@@ -18,7 +19,7 @@ import com.elster.jupiter.users.User;
 import java.time.Instant;
 import java.util.Optional;
 
-public class IssueBuilderImpl implements IssueBuilder {
+public class ManualIssueBuilderImpl implements ManualIssueBuilder {
 
     private final DataModel dataModel;
     private final User user;
@@ -30,62 +31,67 @@ public class IssueBuilderImpl implements IssueBuilder {
     private Instant dueDate;
     private IssueStatus status;
     private boolean overdue;
+    private IssueType type;
 
 
-    public IssueBuilderImpl(User user, DataModel dataModel) {
+    public ManualIssueBuilderImpl(User user, DataModel dataModel) {
         this.user = user;
         this.dataModel = dataModel;
     }
 
     @Override
-    public IssueBuilder withReason(IssueReason reason) {
+    public ManualIssueBuilder withReason(IssueReason reason) {
         this.reason = reason;
         return this;
     }
 
     @Override
-    public IssueBuilder withPriority(Priority priority) {
+    public ManualIssueBuilder withPriority(Priority priority) {
         this.priority = priority;
         return this;
     }
 
     @Override
-    public IssueBuilder withDevice(EndDevice device) {
+    public ManualIssueBuilder withDevice(EndDevice device) {
         this.device = device;
         return this;
     }
 
     @Override
-    public IssueBuilder withUsagePoint(UsagePoint usagePoint) {
+    public ManualIssueBuilder withUsagePoint(UsagePoint usagePoint) {
         this.usagePoint = usagePoint;
         return this;
     }
 
     @Override
-    public IssueBuilder withComment(String comment) {
+    public ManualIssueBuilder withComment(String comment) {
         this.comment = comment;
         return this;
     }
 
     @Override
-    public IssueBuilder withDueDate(Instant dueDate) {
+    public ManualIssueBuilder withDueDate(Instant dueDate) {
         this.dueDate = dueDate;
         return this;
     }
 
     @Override
-    public IssueBuilder withStatus(IssueStatus status) {
+    public ManualIssueBuilder withStatus(IssueStatus status) {
         this.status = status;
         return this;
     }
 
     @Override
-    public IssueBuilder withOverdue(boolean overdue) {
+    public ManualIssueBuilder withOverdue(boolean overdue) {
         this.overdue = overdue;
         return this;
     }
 
-
+    @Override
+    public ManualIssueBuilder withType(IssueType type) {
+        this.type = type;
+        return this;
+    }
 
     @Override
     public Issue create() {
@@ -96,6 +102,7 @@ public class IssueBuilderImpl implements IssueBuilder {
         Optional.ofNullable(dueDate).ifPresent(issue::setDueDate);
         Optional.ofNullable(device).ifPresent(issue::setDevice);
         Optional.ofNullable(usagePoint).ifPresent(issue::setUsagePoint);
+        Optional.ofNullable(type).ifPresent(issue::setType);
         issue.setOverdue(overdue);
         issue.save();
         Optional.ofNullable(comment).ifPresent(comm -> issue.addComment(comm, user));

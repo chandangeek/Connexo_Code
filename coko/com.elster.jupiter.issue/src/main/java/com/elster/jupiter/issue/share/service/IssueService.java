@@ -37,10 +37,11 @@ import java.util.Optional;
 public interface IssueService {
 
     String COMPONENT_NAME = "ISU";
+    String MANUAL_ISSUE_TYPE = "manual";
 
     Optional<? extends Issue> findIssue(long id);
 
-    IssueBuilder newIssueBuilder(User user);
+    ManualIssueBuilder newIssueBuilder(User user);
 
     Optional<OpenIssue> findOpenIssue(long id);
 

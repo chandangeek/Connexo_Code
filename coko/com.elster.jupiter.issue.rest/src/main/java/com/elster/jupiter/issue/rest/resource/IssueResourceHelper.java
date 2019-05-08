@@ -26,11 +26,12 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueBuilder;
+import com.elster.jupiter.issue.share.service.ManualIssueBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -218,6 +219,7 @@ public class IssueResourceHelper {
                     filter.addIssueType(issueService.findIssueType(IssueTypes.DATA_COLLECTION.getName()).orElse(null));
                     filter.addIssueType(issueService.findIssueType(IssueTypes.DATA_VALIDATION.getName()).orElse(null));
                     filter.addIssueType(issueService.findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).orElse(null));
+                    filter.addIssueType(issueService.findIssueType(IssueTypes.MANUAL.getName()).orElse(null));
                 } else if (jsonFilter.getString(IssueRestModuleConst.APPLICATION).compareToIgnoreCase("INS") == 0) {
                     filter.addIssueType(issueService.findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).orElse(null));
                 }
@@ -262,8 +264,10 @@ public class IssueResourceHelper {
     }
 
     public Issue createNewIssue(AddIssueRequest request, User user) {
-        IssueBuilder issueBuilder = issueService.newIssueBuilder(user);
-        Issue issue = issueBuilder.withReason(issueService.findReason(request.getReasonId()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "reasonId")))
+        ManualIssueBuilder issueBuilder = issueService.newIssueBuilder(user);
+
+        Issue issue = issueBuilder.withReason(getReason(request.getReasonId()))
+                .withType(issueService.findIssueType(IssueTypes.MANUAL.getName()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "type")))
                 .withStatus(issueService.findStatus(request.getStatusId()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "statusId")))
                 .withPriority(Priority.fromStringValue(request.getPriority()))
                 .withDevice(meteringService.findEndDeviceByMRID(request.getDeviceMrid()).orElse(null))
@@ -273,4 +277,30 @@ public class IssueResourceHelper {
                 .create();
         return issue;
     }
+
+    private IssueReason getReason(String reason) {
+        return issueService.findReason(reason).isPresent() ? issueService.findReason(reason).get() :
+                issueService.createReason(reason, issueService.findIssueType(IssueTypes.MANUAL.getName()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "type")), new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return reason;
+                    }
+
+                    @Override
+                    public String getDefaultFormat() {
+                        return "Manual issue reason";
+                    }
+                }, new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return reason;
+                    }
+
+                    @Override
+                    public String getDefaultFormat() {
+                        return "Manual issue reason";
+                    }
+                });
+    }
+
 }

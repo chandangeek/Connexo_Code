@@ -9,7 +9,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.issue.impl.IssueBuilderImpl;
+import com.elster.jupiter.issue.impl.ManualIssueBuilderImpl;
 import com.elster.jupiter.issue.impl.IssueFilterImpl;
 import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
@@ -51,7 +51,7 @@ import com.elster.jupiter.issue.share.entity.NotUniqueKeyException;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
-import com.elster.jupiter.issue.share.service.IssueBuilder;
+import com.elster.jupiter.issue.share.service.ManualIssueBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
@@ -458,8 +458,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
-    public IssueBuilder newIssueBuilder(User user) {
-        return new IssueBuilderImpl(user, dataModel);
+    public ManualIssueBuilder newIssueBuilder(User user) {
+        return new ManualIssueBuilderImpl(user, dataModel);
     }
 
     @Override

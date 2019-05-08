@@ -12,7 +12,7 @@ public enum IssueTypes {
     DEVICE_ALARM("ALM", "devicealarm"),
     DEVICE_LIFECYCLE("DLI", "devicelifecycle"),
     USAGEPOINT_DATA_VALIDATION("UVI", "usagepointdatavalidation"),
-    MANUAL("MAN", "manualdeviceissue"),
+    MANUAL("ISU", "manual"),
     NA ("NA", "notapplicable");
 
     private final String prefix;
@@ -37,7 +37,7 @@ public enum IssueTypes {
             case "datavalidation" : return IssueTypes.DATA_VALIDATION;
             case "devicealarm" : return IssueTypes.DEVICE_ALARM;
             case "devicelifecycle" : return IssueTypes.DEVICE_LIFECYCLE;
-            case "manualdeviceissue" : return IssueTypes.MANUAL;
+            case "manual" : return IssueTypes.MANUAL;
             case "usagepointdatavalidation" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
             default:return IssueTypes.NA;
         }
@@ -50,7 +50,7 @@ public enum IssueTypes {
             case "DCI" : return IssueTypes.DATA_COLLECTION;
             case "DLI" : return IssueTypes.DEVICE_LIFECYCLE;
             case "DVI" : return IssueTypes.DATA_VALIDATION;
-            case "MAN" : return IssueTypes.MANUAL;
+            case "ISU" : return IssueTypes.MANUAL;
             case "UVI" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
 
             default:return IssueTypes.NA;

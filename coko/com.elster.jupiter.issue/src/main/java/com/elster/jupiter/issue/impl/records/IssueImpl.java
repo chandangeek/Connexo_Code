@@ -14,6 +14,7 @@ import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.UnsupportedStatusChangeException;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -42,6 +43,8 @@ public class IssueImpl extends EntityImpl implements Issue {
     private Instant dueDate;
     private Reference<IssueReason> reason = ValueReference.absent();
     private Reference<IssueStatus> status = ValueReference.absent();
+
+    private Reference<IssueType> type = ValueReference.absent();
     private Priority priority;
 
     private boolean overdue;
@@ -313,6 +316,15 @@ public class IssueImpl extends EntityImpl implements Issue {
         this.usagePoint.set(usagePoint);
     }
 
+    @Override
+    public IssueType getType() {
+        return this.type.orNull();
+    }
+
+    @Override
+    public void setType(IssueType type) {
+        this.type.set(type);
+    }
     /*
     public void setMember(T member) {
         this.member.set(member);

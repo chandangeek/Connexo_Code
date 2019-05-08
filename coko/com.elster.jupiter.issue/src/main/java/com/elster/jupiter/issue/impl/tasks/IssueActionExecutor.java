@@ -40,6 +40,9 @@ public class IssueActionExecutor implements Runnable {
     @Override
     public void run() {
         CreationRule rule = issue.getRule();
+        if (rule == null) {
+            return;
+        }
 
         for (CreationRuleAction action : rule.getActions()){
             if (action.getPhase() == phase) {
