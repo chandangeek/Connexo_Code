@@ -730,12 +730,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         if (connectionMethod.hasOwnProperty('action')) {
             connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection()[0];
         }
+        console.log("before first if else"+connectionMethod.get('isDefault'));
         connectionMethod.beginEdit();
-        if (connectionMethod.get('isDefault') != true) {
-            connectionMethod.set('isDefault', true);
-        } else {
+        if (connectionMethod.get('isDefault') === true) {
             connectionMethod.set('isDefault', false);
+        } else {
+            connectionMethod.set('isDefault', true);
         }
+        console.log("after first if else"+connectionMethod.get('isDefault'));
         if (connectionMethod.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('nextExecutionSpecs', null);
         }
@@ -744,12 +746,16 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         connectionMethod.save({
             isNotEdit: true,
             success: function () {
-                if (connectionMethod.get('isDefault') == true) {
+                console.log("before second if else"+connectionMethod.get('isDefault'));
+                if (connectionMethod.get('isDefault') === true) {
+                    console.log("inside second if"+connectionMethod.get('isDefault'));
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.removeDefault', 'MDC', 'Connection method removed as default'));
                 } else {
+                    console.log("inside second else"+connectionMethod.get('isDefault'));
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.setAsDefault', 'MDC', 'Connection method set as default'));
                 }
                 router.getRoute().forward();
+                console.log("after all if else"+connectionMethod.get('isDefault'));
             },
             failure: function () {
                 connectionMethod.reject();
