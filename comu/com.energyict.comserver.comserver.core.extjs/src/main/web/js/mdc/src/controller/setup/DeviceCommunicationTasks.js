@@ -243,7 +243,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         return Ext.create('Mdc.model.DeviceConnectionMethod', {
             id: 0,
             name: Uni.I18n.translate('deviceCommunicationTask.defaultWithCount', 'MDC', 'Default ({0})', defaultConnectionMethodName),
-            isDefault: true
+            isDefault: false
         });
     },
 
