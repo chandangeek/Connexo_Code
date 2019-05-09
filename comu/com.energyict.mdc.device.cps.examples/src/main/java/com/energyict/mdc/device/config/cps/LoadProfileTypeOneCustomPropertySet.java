@@ -16,6 +16,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.inject.Module;
@@ -39,6 +40,7 @@ public class LoadProfileTypeOneCustomPropertySet implements CustomPropertySet<Ch
 
     public static final String TABLE_NAME = "RVK_CPS_CHANNEL_ONE";
     public static final String FK_CPS_CHANNEL_ONE = "FK_CPS_CHANNEL_ONE";
+    public static final String FK_CPS_DEVICE_ONE = "FK_CPS_DEVICE_ONE";
 
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceService deviceService;
@@ -190,13 +192,31 @@ public class LoadProfileTypeOneCustomPropertySet implements CustomPropertySet<Ch
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+            Column deviceColumn = table
+                    .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
+                    .number()
+                    .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
+                    .notNull()
+                    .add();
+            table
+                    .foreignKey(FK_CPS_DEVICE_ONE)
+                    .on(deviceColumn)
+                    .references(getContextClass())
+                    .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE_REF.javaName())
+                    .add();
             return Collections.singletonList(
-                    table
-                        .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
-                        .number()
-                        .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
-                        .notNull()
-                        .add());
+                    deviceColumn
+            );
+        }
+
+        @Override
+        public String contextForeignKeyName() {
+            return FK_CPS_DEVICE_ONE;
+        }
+
+        @Override
+        public Class getContextClass() {
+            return Device.class;
         }
 
         @Override
