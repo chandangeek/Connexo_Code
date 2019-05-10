@@ -72,13 +72,13 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
     }
 
     @Inject
-    public BasicTaskIssueRuleTemplate(TaskIssueService taskIssueService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService) {
+    public BasicTaskIssueRuleTemplate(TaskIssueService taskIssueService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, TaskService taskService) {
         this();
         setTaskIssueService(taskIssueService);
         setNlsService(nlsService);
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
-
+        setTaskService(taskService);
 
         activate();
     }
