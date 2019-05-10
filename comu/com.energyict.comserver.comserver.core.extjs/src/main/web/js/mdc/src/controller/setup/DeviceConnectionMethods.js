@@ -214,6 +214,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
     previewDeviceConnectionMethod: function () {
         var connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection();
+
         Ext.suspendLayouts();
         if (connectionMethod.length == 1) {
             this.getConnectionMethodActionMenu().record = connectionMethod[0];
@@ -730,14 +731,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         if (connectionMethod.hasOwnProperty('action')) {
             connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection()[0];
         }
-        console.log("before first if else"+connectionMethod.get('isDefault'));
         connectionMethod.beginEdit();
         if (connectionMethod.get('isDefault') === true) {
             connectionMethod.set('isDefault', false);
+            localStorage.setItem('isDefault', true);
         } else {
             connectionMethod.set('isDefault', true);
+            localStorage.setItem('isDefault', false);
         }
-        console.log("after first if else"+connectionMethod.get('isDefault'));
         if (connectionMethod.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('nextExecutionSpecs', null);
         }
@@ -745,17 +746,15 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         connectionMethod.getProxy().setExtraParam('deviceId', me.deviceId);
         connectionMethod.save({
             isNotEdit: true,
-            success: function () {
-                console.log("before second if else"+connectionMethod.get('isDefault'));
-                if (connectionMethod.get('isDefault') === true) {
-                    console.log("inside second if"+connectionMethod.get('isDefault'));
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.removeDefault', 'MDC', 'Connection method removed as default'));
-                } else {
-                    console.log("inside second else"+connectionMethod.get('isDefault'));
+            success: function (data) {
+
+                if (localStorage.getItem("isDefault") == "false") {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.setAsDefault', 'MDC', 'Connection method set as default'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.removeDefault', 'MDC', 'Connection method removed as default'));
+
                 }
                 router.getRoute().forward();
-                console.log("after all if else"+connectionMethod.get('isDefault'));
             },
             failure: function () {
                 connectionMethod.reject();
