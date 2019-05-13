@@ -17,6 +17,7 @@ import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueFilter;
+import com.elster.jupiter.issue.share.entity.DeviceGroupNotFoundException;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -27,6 +28,7 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -173,7 +175,7 @@ public class IssueResourceHelper {
 
         if (jsonFilter.hasProperty(IssueRestModuleConst.DEVICE_GROUP)) {
             jsonFilter.getLongList(IssueRestModuleConst.DEVICE_GROUP).stream()
-                    .map(id -> meteringGroupService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)))
+                    .map(id -> meteringGroupService.findEndDeviceGroup(id).orElseThrow(() -> new DeviceGroupNotFoundException(thesaurus, id)))
                     .filter(devGroup -> devGroup != null)
                     .forEach(filter::addDeviceGroup);
         }

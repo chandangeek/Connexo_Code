@@ -26,6 +26,7 @@ import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.DeviceGroupNotFoundException;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
@@ -686,7 +687,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
 
         if (jsonFilter.hasProperty(DeviceAlarmRestModuleConst.DEVICE_GROUP)) {
             jsonFilter.getLongList(DeviceAlarmRestModuleConst.DEVICE_GROUP).stream()
-                    .map(id -> getMeteringGroupService().findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)))
+                    .map(id -> getMeteringGroupService().findEndDeviceGroup(id).orElseThrow(() -> new DeviceGroupNotFoundException(getThesaurus(), id)))
                     .filter(devGroup -> devGroup != null)
                     .forEach(filter::addDeviceGroup);
         }
