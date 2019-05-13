@@ -7,6 +7,7 @@ Ext.define('Wss.controller.Webservices', {
 
     views: [
         'Wss.view.Setup',
+        'Wss.view.History',
         'Uni.view.window.Confirmation',
         'Wss.view.Add',
         'Wss.view.LandingPage',
@@ -63,6 +64,17 @@ Ext.define('Wss.controller.Webservices', {
             store = me.getStore('Wss.store.Endpoints');
 
         view = Ext.widget('webservices-setup', {
+            router: me.getController('Uni.controller.history.Router')
+        });
+        me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    showWebservicesHistoryOverview: function () {
+        var me = this,
+            view,
+            store = me.getStore('Wss.store.Endpoints');
+
+        view = Ext.widget('webservices-history', {
             router: me.getController('Uni.controller.history.Router')
         });
         me.getApplication().fireEvent('changecontentevent', view);
