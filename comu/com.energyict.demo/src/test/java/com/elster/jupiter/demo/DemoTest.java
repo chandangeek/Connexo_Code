@@ -51,6 +51,8 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.issue.task.impl.TaskIssueModule;
+import com.elster.jupiter.issue.task.impl.templates.BasicTaskIssueRuleTemplate;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -453,7 +455,8 @@ public class DemoTest {
                 new SyntheticLoadProfileImportModule(),
                 new MeteringImportsModule(),
                 new MeteringZoneModule(),
-                new IssueDeviceLifecycleModule()
+                new IssueDeviceLifecycleModule(),
+                new TaskIssueModule()
         );
 
         doPreparations();
@@ -770,7 +773,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
-        assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(7);
+        assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(8);
     }
 
     @Test
@@ -930,6 +933,7 @@ public class DemoTest {
         AbstractDeviceAlarmTemplate alarmTemplate = injector.getInstance(BasicDeviceAlarmRuleTemplate.class);
         UsagePointDataValidationIssueCreationRuleTemplate usagePointIssueTemplate = injector.getInstance(UsagePointDataValidationIssueCreationRuleTemplate.class);
         DeviceLifecycleIssueCreationRuleTemplate deviceLifecycleIssueCreationRuleTemplate = injector.getInstance(DeviceLifecycleIssueCreationRuleTemplate.class);
+        BasicTaskIssueRuleTemplate basicTaskIssueRuleTemplate = injector.getInstance(BasicTaskIssueRuleTemplate.class);
 
         IssueServiceImpl issueService = (IssueServiceImpl) injector.getInstance(IssueService.class);
         issueService.addCreationRuleTemplate(template);
@@ -937,6 +941,7 @@ public class DemoTest {
         issueService.addCreationRuleTemplate(alarmTemplate);
         issueService.addCreationRuleTemplate(usagePointIssueTemplate);
         issueService.addCreationRuleTemplate(deviceLifecycleIssueCreationRuleTemplate);
+        issueService.addCreationRuleTemplate(basicTaskIssueRuleTemplate);
     }
 
     private void fixEstimators(PropertySpecService propertySpecService, TimeService timeService) {
