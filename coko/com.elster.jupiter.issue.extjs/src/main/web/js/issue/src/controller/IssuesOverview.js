@@ -11,6 +11,7 @@ Ext.define('Isu.controller.IssuesOverview', {
 
     models: [
         'Isu.model.IssuesFilter',
+        'Isu.model.IssueUsagePoints',
         'Isu.model.IssueAssignee',
         'Isu.model.IssueWorkgroupAssignee',
         'Isu.model.IssueReason',

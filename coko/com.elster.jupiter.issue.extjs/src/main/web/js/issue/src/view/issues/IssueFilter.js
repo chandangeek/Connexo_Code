@@ -15,12 +15,14 @@ Ext.define('Isu.view.issues.IssueFilter', {
         'Isu.store.IssueAssignees',
         'Isu.store.Devices',
         'Isu.store.DueDate',
-        'Isu.store.IssueReasons'
+        'Isu.store.IssueReasons',
+        'Isu.store.IssueUsagePoints'
     ],
 
     initComponent: function () {
         var me = this;
-
+        // var usagePointsStore = Ext.getStore('Isu.issue.store.IssueUsagePoints') || Ext.create('Isu.issue.store.IssueUsagePoints');
+        // usagePointsStore.getProxy().setExtraParam('nameOnly', true);
         me.filters = [
             {
                 type: 'text',
@@ -125,6 +127,29 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 store: 'Isu.store.Devices',
                 queryMode: 'remote',
                 queryParam: 'like',
+                queryCaching: false,
+                minChars: 0,
+                loadStore: false,
+                setFilterValue: me.comboSetFilterValue,
+                getParamValue: me.comboGetParamValue,
+                forceSelection: false,
+                hidden: me.isOverviewFilter,
+                listeners: {
+                    expand: {
+                        fn: me.comboLimitNotification
+                    }
+                }
+            },
+            {
+                type: 'combobox',
+                itemId: 'issue-usagePoints-filter',
+                dataIndex: 'usagePoints',
+                emptyText: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
+                displayField: 'name',
+                valueField: 'name',
+                store: 'Isu.store.IssueUsagePoints',
+                queryMode: 'remote',
+                queryParam: 'name',
                 queryCaching: false,
                 minChars: 0,
                 loadStore: false,
