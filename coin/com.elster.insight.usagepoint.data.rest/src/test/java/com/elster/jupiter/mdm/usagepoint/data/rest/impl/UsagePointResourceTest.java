@@ -604,11 +604,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         UsagePointMeterActivator linker = mock(UsagePointMeterActivator.class);
         when(usagePoint.linkMeters()).thenReturn(linker);
 
-        long timeStamp = 1555659900000L;
-        Response response = target("/usagepoints/"+USAGE_POINT_NAME+"/metrologyconfiguration/key1/unlink/").request().put(Entity.json(timeStamp));
+        Instant timeStamp = Instant.ofEpochMilli(1555659900000L);
+        Response response = target("/usagepoints/"+USAGE_POINT_NAME+"/meterroles/key1/unlink/").request().put(Entity.json(timeStamp));
         assertThat(response.getStatus()).isEqualTo(200);
 
-        verify(linker).clear(Instant.ofEpochMilli(timeStamp), meterRole);
+        verify(linker).clear(timeStamp, meterRole);
         verify(linker).complete();
     }
 
