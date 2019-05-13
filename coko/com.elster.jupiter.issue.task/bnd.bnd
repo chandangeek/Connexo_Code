@@ -1,0 +1,4 @@
+-classpath: target/classes 
+-dsannotations: *
+Private-Package: com.elster.jupiter.issue.task.impl.*, com.elster.jupiter.issue.task.event
+Export-Package: com.elster.jupiter.issue.task, com.elster.jupiter.issue.task.entity

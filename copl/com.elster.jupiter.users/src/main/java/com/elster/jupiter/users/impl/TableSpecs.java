@@ -30,6 +30,7 @@ import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     USR_RESOURCE {
+        @Override
         void addTo(DataModel dataModel) {
             Table<Resource> table = dataModel.addTable(name(), Resource.class);
             table.map(ResourceImpl.class);
@@ -56,6 +57,7 @@ public enum TableSpecs {
         }
     },
     USR_PRIVILEGE {
+        @Override
         void addTo(DataModel dataModel) {
             Table<Privilege> table = dataModel.addTable(name(), Privilege.class);
             table.map(ImmutableMap.of(
@@ -115,6 +117,7 @@ public enum TableSpecs {
         }
     },
     USR_GROUP {
+        @Override
         void addTo(DataModel dataModel) {
             Table<Group> table = dataModel.addTable(name(), Group.class);
             table.map(GroupImpl.class);
@@ -128,6 +131,7 @@ public enum TableSpecs {
         }
     },
     USR_WORKGROUP {
+        @Override
         void addTo(DataModel dataModel) {
             Table<WorkGroup> table = dataModel.addTable(name(), WorkGroup.class);
             table.map(WorkGroupImpl.class);
@@ -158,12 +162,14 @@ public enum TableSpecs {
             table.column("SECURITY").varChar().map("securityProtocol").add();
             table.column("BASE_USER").varChar().map("baseUser").add();
             table.column("BASE_GROUP").varChar().map("baseGroup").add();
+            table.column("GROUP_NAME").varChar().map("groupName").add();
             table.addAuditColumns();
             table.primaryKey("USR_PK_USERDIRECTORY").on(idColumn).add();
             table.unique("IDS_U_UDNAME").on(domain).add();
         }
     },
     USR_USER {
+        @Override
         void addTo(DataModel dataModel) {
             Table<User> table = dataModel.addTable(name(), User.class);
             table.map(UserImpl.class);
@@ -189,6 +195,7 @@ public enum TableSpecs {
         }
     },
     USR_PRIVILEGEINGROUP {
+        @Override
         void addTo(DataModel dataModel) {
             Table<PrivilegeInGroup> table = dataModel.addTable(name(), PrivilegeInGroup.class);
             table.map(PrivilegeInGroup.class);
@@ -217,6 +224,7 @@ public enum TableSpecs {
         }
     },
     USR_USERINWORKGROUP {
+        @Override
         void addTo(DataModel dataModel) {
             Table<UsersInWorkGroup> table = dataModel.addTable(name(), UsersInWorkGroup.class);
             table.map(UsersInWorkGroup.class);
@@ -241,6 +249,7 @@ public enum TableSpecs {
         }
     },
     USR_USERINGROUP {
+        @Override
         void addTo(DataModel dataModel) {
             Table<UserInGroup> table = dataModel.addTable(name(), UserInGroup.class);
             table.map(UserInGroup.class);

@@ -27,7 +27,42 @@ Ext.define('Fwc.model.FirmwareManagementOptions', {
               name: 'checkOptions',
               type: 'auto',
               useNull: true
+        },
+        {
+              name: 'masterOptions',
+              persist: false,
+              mapping:  function (data) {
+                   var masterData = {};
+                   if (data && data.checkOptions) {
+                      if (data.checkOptions['MASTER_FIRMWARE_CHECK']) return data.checkOptions['MASTER_FIRMWARE_CHECK'];
+                   }else{
+                      return null;
+                   }
+              }
+        },
+        {
+              name: 'currOptions',
+              persist: false,
+              mapping:  function (data) {
+                   var masterData = {};
+                   if (data && data.checkOptions) {
+                      if (data.checkOptions['CURRENT_FIRMWARE_CHECK']) return data.checkOptions['CURRENT_FIRMWARE_CHECK'];
+                   }else{
+                      return null;
+                   }
+              }
+        },
+        {
+              name: 'targetOptions',
+              persist: false,
+              mapping:  function (data) {
+                   if (data && data.checkOptions && data.checkOptions['TARGET_FIRMWARE_STATUS_CHECK']) {
+                      return data.checkOptions['TARGET_FIRMWARE_STATUS_CHECK'];
+                   }
+                   return null;
+              }
         }
+
         ],
     associations: [
            {type: 'hasMany',

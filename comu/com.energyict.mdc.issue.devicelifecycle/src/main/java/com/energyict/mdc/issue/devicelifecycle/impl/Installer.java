@@ -97,7 +97,9 @@ class Installer implements FullInstaller {
                 IssueDeviceLifecycleService.COMPONENT_NAME,
                 Layer.DOMAIN,
                 whereCorrelationId()
-                        .isEqualTo(DeviceLifecycleEventDescription.TRANSITION_FAILURE.getTopic()));
+                        .isEqualTo(DeviceLifecycleEventDescription.TRANSITION_FAILURE.getTopic())
+                        .or(whereCorrelationId().isEqualTo(DeviceLifecycleEventDescription.TRANSITION_DONE.getTopic()))
+        );
     }
     private void run(Runnable runnable, String explanation, Logger logger) {
         doTry(

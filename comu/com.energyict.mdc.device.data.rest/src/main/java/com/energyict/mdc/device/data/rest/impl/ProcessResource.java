@@ -61,7 +61,8 @@ public class ProcessResource {
         DEVICE("device", "deviceId"),
         ALARM("devicealarm", "alarmId"),
         DATA_COLLECTION_ISSUE("datacollectionissue", "issueId"),
-        ISSUE_TYPE_NAME("devicelifecycleissue", "issueLifecycleId");
+        ISSUE_TYPE_NAME("devicelifecycleissue", "issueLifecycleId"),
+        TASK_ISSUE("taskissue", "issueTaskId");
 
         private final String variableId;
         private final String type;
@@ -409,6 +410,21 @@ public class ProcessResource {
                     }
                     String issueReason = issueOptional.get().getReason().getKey();
                     if (!allowedLifecycleIssueReasons.contains(issueReason)) {
+                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_CONSISTENT, info.getObjectName());
+                        return false;
+                    }
+                    return true;
+                };
+            case TASK_ISSUE:
+                Set<String> allowedTaskIssueReasons = getSetOfValueIds(definition, DeviceResource.PROCESS_TASK_ISSUE_STATES);
+                return info -> {
+                    Optional<? extends Issue> issueOptional = issueService.findIssue(Long.parseLong(info.getValue()));
+                    if (!issueOptional.isPresent()) {
+                        errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_FOUND, info.getObjectName());
+                        return false;
+                    }
+                    String issueReason = issueOptional.get().getReason().getKey();
+                    if (!allowedTaskIssueReasons.contains(issueReason)) {
                         errors.addError(MessageSeeds.OBJECTS_FILTERED_NOT_CONSISTENT, info.getObjectName());
                         return false;
                     }

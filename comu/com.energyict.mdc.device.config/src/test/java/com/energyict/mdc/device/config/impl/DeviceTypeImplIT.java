@@ -166,14 +166,29 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void testFindDeviceTypeAfterCreation() {
         String deviceTypeName = "testFindDeviceTypeAfterCreation";
+
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceTypeByName(deviceTypeName)).isEmpty();
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceType(0)).isEmpty();
+
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
 
-        // Business method
-        Optional<DeviceType> deviceType2 = inMemoryPersistence.getDeviceConfigurationService().findDeviceTypeByName(deviceTypeName);
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceTypeByName(deviceTypeName)).contains(deviceType);
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceType.getId())).contains(deviceType);
+    }
 
-        // Asserts
-        assertThat(deviceType2.isPresent()).isTrue();
+    @Test
+    @Transactional
+    public void testFindAndLockDeviceTypeAfterCreation() {
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testFindAndLockDeviceTypeAfterCreation", this.deviceProtocolPluggableClass);
+        deviceType.setDescription("For testing purposes only");
+
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findAndLockDeviceType(0)).isEmpty();
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findAndLockDeviceType(0, 1)).isEmpty();
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findAndLockDeviceType(deviceType.getId())).contains(deviceType);
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findAndLockDeviceType(deviceType.getId(), deviceType.getVersion())).contains(deviceType);
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findAndLockDeviceType(deviceType.getId(), deviceType.getVersion() - 1)).isEmpty();
+        assertThat(inMemoryPersistence.getDeviceConfigurationService().findAndLockDeviceType(0, deviceType.getVersion())).isEmpty();
     }
 
     @Test

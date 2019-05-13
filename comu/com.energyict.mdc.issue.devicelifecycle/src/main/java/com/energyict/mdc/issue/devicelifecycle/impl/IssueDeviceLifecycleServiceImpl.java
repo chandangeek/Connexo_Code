@@ -52,6 +52,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -257,6 +258,36 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
             issueEager = Issue.class;
         }
         return DefaultFinder.of(mainClass, condition, dataModel, issueEager, IssueStatus.class, EndDevice.class, User.class,  IssueReason.class, IssueType.class);
+    }
+
+
+    @Override
+    public Finder<? extends IssueDeviceLifecycle> findIssues(DeviceLifecycleIssueFilter filter, Class<?>... eagers) {
+        Condition condition = buildConditionFromFilter(filter);
+        List<Class<?>> eagerClasses = determineMainApiClass(filter);
+        if (eagers == null) {
+            eagerClasses.addAll(Arrays.asList(IssueStatus.class, User.class, IssueReason.class, IssueType.class));
+        } else {
+            eagerClasses.addAll(Arrays.asList(eagers));
+        }
+        return DefaultFinder.of((Class<IssueDeviceLifecycle>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses
+                .size()]));
+    }
+
+    private List<Class<?>> determineMainApiClass(DeviceLifecycleIssueFilter filter) {
+        List<Class<?>> eagerClasses = new ArrayList<>();
+        List<IssueStatus> statuses = filter.getStatuses();
+        if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
+            eagerClasses.add(OpenIssueDeviceLifecycle.class);
+            eagerClasses.add(OpenIssue.class);
+        } else if (!statuses.isEmpty() && statuses.stream().allMatch(IssueStatus::isHistorical)) {
+            eagerClasses.add(HistoricalIssueDeviceLifecycle.class);
+            eagerClasses.add(HistoricalIssue.class);
+        } else {
+            eagerClasses.add(IssueDeviceLifecycle.class);
+            eagerClasses.add(Issue.class);
+        }
+        return eagerClasses;
     }
 
     private Condition buildConditionFromFilter(DeviceLifecycleIssueFilter filter) {

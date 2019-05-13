@@ -4,7 +4,15 @@ import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmIrreversibleKey;
 import com.elster.jupiter.hsm.model.keys.HsmKey;
 import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.crypto.*;
+import com.energyict.mdc.upl.crypto.DataAndAuthenticationTag;
+import com.energyict.mdc.upl.crypto.EEKAgreeResponse;
+import com.energyict.mdc.upl.crypto.HsmProtocolService;
+import com.energyict.mdc.upl.crypto.IrreversibleKey;
+import com.energyict.mdc.upl.crypto.KeyRenewalAgree2EGenerateResponse;
+import com.energyict.mdc.upl.crypto.KeyRenewalMBusResponse;
+import com.energyict.mdc.upl.crypto.MacResponse;
+
+import com.atos.worldline.jss.api.custom.energy.Energy;
 import com.energyict.protocol.exceptions.HsmException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -17,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 
 @Component(name = "com.energyict.mdc.protocol.pluggable.upl.hsmservice", service = {HsmProtocolService.class}, immediate = true)
-public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
+public class UPLHsmProtocolServiceImpl implements HsmProtocolService {
 
     private volatile com.elster.jupiter.hsm.HsmProtocolService actual;
 
@@ -194,7 +202,8 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
     }
 
     @Override
-    public boolean verifyFramecounterHMAC(byte[] serverSysT, byte[] clientSysT, byte[] challenge, long framecounter, IrreversibleKey gak, byte[] challengeResponse) throws HsmException {
+    public boolean verifyFramecounterHMAC(byte[] serverSysT, byte[] clientSysT, byte[] challenge, long framecounter, IrreversibleKey gak, byte[] challengeResponse) throws
+            HsmException {
         try {
             return actual.verifyFramecounterHMAC(serverSysT, clientSysT, challenge, framecounter, adaptUplKeyToHsmKey(gak), challengeResponse);
         } catch (HsmBaseException e) {
@@ -203,7 +212,8 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
     }
 
     @Override
-    public EEKAgreeResponse eekAgreeSender1e1s(int securitySuite, String hesSignatureKeyLabel, Certificate[] deviceKeyAgreementKeyCertChain, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmException {
+    public EEKAgreeResponse eekAgreeSender1e1s(int securitySuite, String hesSignatureKeyLabel, Certificate[] deviceKeyAgreementKeyCertChain, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws
+            HsmException {
         try {
             com.elster.jupiter.hsm.model.response.protocols.EEKAgreeResponse eekAgreeResponse = actual.eekAgreeSender1e1s(securitySuite, hesSignatureKeyLabel, deviceKeyAgreementKeyCertChain, deviceCaCertificateLabel, kdfOtherInfo, storageKeyLabel);
             return adaptHsmEEKAgreeResponseToUplValue(eekAgreeResponse);
@@ -241,6 +251,72 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
             throw new HsmException(e);
         }
     }
+
+    public final KeyRenewalMBusResponse renewMBusUserKey(byte[] apdu, byte[] initializationVector, IrreversibleKey authKey, IrreversibleKey encrKey, IrreversibleKey defaultKey, int securitySuite) throws
+            HsmException {
+
+        try {
+            com.elster.jupiter.hsm.model.response.protocols.KeyRenewalMBusResponse keyRenewalMBusResponse = actual.renewMBusUserKey(apdu, initializationVector, adaptUplKeyToHsmKey(authKey), adaptUplKeyToHsmKey(encrKey), adaptUplKeyToHsmKey(defaultKey), securitySuite);
+            return adaptKeyRenewalMBusResponseToUplValue(keyRenewalMBusResponse);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+
+    }
+
+    public final KeyRenewalMBusResponse renewMBusFuakWithGCM(String workingKeyLabel, IrreversibleKey defaultKey, byte[] mBusInitialVector) throws HsmException {
+        try {
+            com.elster.jupiter.hsm.model.response.protocols.KeyRenewalMBusResponse keyRenewalMBusResponse = actual.renewMBusFuakWithGCM(workingKeyLabel, adaptUplKeyToHsmKey(defaultKey), mBusInitialVector);
+            return adaptKeyRenewalMBusResponseToUplValue(keyRenewalMBusResponse);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+
+    }
+
+    public KeyRenewalMBusResponse renewMBusUserKeyWithGCM(IrreversibleKey encrKey, byte[] apduTemplate, byte[] eMeterIV, IrreversibleKey authKey, IrreversibleKey defaultKey, byte[] mbusIV, int securitySuite) throws HsmException {
+        try {
+            com.elster.jupiter.hsm.model.response.protocols.KeyRenewalMBusResponse keyRenewalMBusResponse = actual.renewMBusUserKeyWithGCM(adaptUplKeyToHsmKey(encrKey), apduTemplate, eMeterIV, adaptUplKeyToHsmKey(authKey), adaptUplKeyToHsmKey(defaultKey), mbusIV, securitySuite);
+            return adaptKeyRenewalMBusResponseToUplValue(keyRenewalMBusResponse);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+
+    public MacResponse generateMacFirstBlock(IrreversibleKey firmwareUpdateAuthKey, byte[] clearData) throws HsmException{
+        try {
+            com.elster.jupiter.hsm.model.response.protocols.MacResponse macResponse = actual.generateMacFirstBlock(adaptUplKeyToHsmKey(firmwareUpdateAuthKey), clearData);
+            return adaptMacResponseToUplValue(macResponse);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+    public MacResponse generateMacMiddleBlock(IrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] state) throws HsmException{
+        try {
+            com.elster.jupiter.hsm.model.response.protocols.MacResponse macResponse = actual.generateMacMiddleBlock(adaptUplKeyToHsmKey(firmwareUpdateAuthKey), clearData, state);
+            return adaptMacResponseToUplValue(macResponse);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+    public MacResponse generateMacLastBlock(IrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv, byte[] state) throws HsmException{
+        try {
+            com.elster.jupiter.hsm.model.response.protocols.MacResponse macResponse = actual.generateMacLastBlock(adaptUplKeyToHsmKey(firmwareUpdateAuthKey), clearData, icv, state);
+            return adaptMacResponseToUplValue(macResponse);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+
+    public MacResponse generateMacSingleBlock(IrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv) throws HsmException{
+        try {
+            com.elster.jupiter.hsm.model.response.protocols.MacResponse macResponse = actual.generateMacSingleBlock(adaptUplKeyToHsmKey(firmwareUpdateAuthKey), clearData, icv);
+            return adaptMacResponseToUplValue(macResponse);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
+
 
     private HsmIrreversibleKey adaptUplKeyToHsmKey(IrreversibleKey irreversibleKey) {
         return new HsmIrreversibleKey(irreversibleKey.getEncryptedKey(), irreversibleKey.getKeyLabel());
@@ -324,4 +400,42 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService{
         };
     }
 
+    private KeyRenewalMBusResponse adaptKeyRenewalMBusResponseToUplValue(com.elster.jupiter.hsm.model.response.protocols.KeyRenewalMBusResponse keyRenewalMBusResponse) {
+        return new KeyRenewalMBusResponse() {
+            @Override
+            public byte[] getSmartMeterKey() {
+                return keyRenewalMBusResponse.getSmartMeterKey();
+            }
+
+            @Override
+            public byte[] getAuthenticationTag() {
+                return keyRenewalMBusResponse.getAuthenticationTag();
+            }
+
+            @Override
+            public byte[] getMbusDeviceKey() {
+                return keyRenewalMBusResponse.getMbusDeviceKey();
+            }
+
+            @Override
+            public IrreversibleKey getMdmSmWK() {
+                return adaptHsmKeyToUplKey(keyRenewalMBusResponse.getMdmSmWK());
+            }
+
+            @Override
+            public byte[] getMBusAuthTag() {
+                return keyRenewalMBusResponse.getMBusAuthTag();
+            }
+        };
+    }
+
+    private MacResponse adaptMacResponseToUplValue(com.elster.jupiter.hsm.model.response.protocols.MacResponse macResponse) {
+        return new MacResponse() {
+            @Override
+            public byte[] getData() {return macResponse.getData();}
+
+            @Override
+            public byte[] getInitVector() {return macResponse.getInitVector();}
+        };
+    }
 }

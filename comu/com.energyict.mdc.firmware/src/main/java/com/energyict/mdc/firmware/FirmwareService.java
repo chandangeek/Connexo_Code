@@ -143,5 +143,8 @@ public interface FirmwareService {
 
     List<? extends FirmwareVersion> getOrderedFirmwareVersions(DeviceType deviceType);
 
+    /**
+     * @param kPermutation Should be obtained for the whole list of firmware versions on current deviceType, ordered by rank desc.
+     */
     void reorderFirmwareVersions(DeviceType deviceType, KPermutation kPermutation);
 }

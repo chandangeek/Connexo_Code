@@ -32,7 +32,6 @@ public class TransitionFailureEvent extends DeviceLifecycleEvent {
     private static final String COLON_SEPARATOR = ":";
     private static final String DASH_SEPARATOR = "-";
     private static final String SEMI_COLON_SEPARATOR = ";";
-    private int ruleId;
 
 
     @Inject
@@ -93,11 +92,5 @@ public class TransitionFailureEvent extends DeviceLifecycleEvent {
 
     private List<String> parseRawInputToList(String rawInput, String delimiter) {
         return Arrays.stream(rawInput.split(delimiter)).map(String::trim).collect(Collectors.toList());
-    }
-
-
-
-    private void setCreationRule(int ruleId){
-        this.ruleId = ruleId;
     }
 }

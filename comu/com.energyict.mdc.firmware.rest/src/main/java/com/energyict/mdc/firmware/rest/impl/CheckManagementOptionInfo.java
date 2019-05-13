@@ -4,22 +4,34 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareStatus;
 
 import java.util.EnumSet;
 
 public class CheckManagementOptionInfo {
-    public EnumSet<FirmwareStatus> activatedFor;
+    public boolean activated;
+    public EnumSet<FirmwareStatus> statuses;
 
     public CheckManagementOptionInfo() {
-        this.activatedFor = EnumSet.noneOf(FirmwareStatus.class);
+        // for the case where firmware management is off
     }
 
-    public CheckManagementOptionInfo(EnumSet<FirmwareStatus> activatedFor) {
-        this.activatedFor = activatedFor;
+    public CheckManagementOptionInfo(boolean activated, EnumSet<FirmwareStatus> statuses) {
+        this.activated = activated;
+        this.statuses = statuses;
     }
 
-    public EnumSet<FirmwareStatus> getActivatedFor() {
-        return activatedFor;
+    public CheckManagementOptionInfo(FirmwareManagementOptions config, FirmwareCheckManagementOption check) {
+        this(config.isActivated(check), config.getStatuses(check));
+    }
+
+    public boolean isActivated() {
+        return activated;
+    }
+
+    public EnumSet<FirmwareStatus> getStatuses() {
+        return statuses;
     }
 }
