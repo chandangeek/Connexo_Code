@@ -5,7 +5,7 @@
 Ext.define('Wss.model.webservice.History', {
   extend: 'Ext.data.Model',
   requires: [
-    'Wss.model.Webservice',
+    'Wss.model.Endpoint',
   ],
 
   fields: [
@@ -16,11 +16,11 @@ Ext.define('Wss.model.webservice.History', {
 
   hasOne: [
     {
-        model: 'Wss.model.Webservice',
-        associationKey: 'webservice',
-        name: 'webservice',
-        getterName: 'getWebservice',
-        setterName: 'setWebservice'
+        model: 'Wss.model.Endpoint',
+        associatedName: 'endpoint',
+        associationKey: 'endpoint',
+        getterName: 'getEndpoint',
+        setterName: 'setEndpoint'
     },
   ],
 });

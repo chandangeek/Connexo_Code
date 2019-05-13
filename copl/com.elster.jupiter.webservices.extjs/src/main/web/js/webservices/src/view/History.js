@@ -9,7 +9,8 @@ Ext.define('Wss.view.History', {
   store: null,
 
   requires: [
-    'Wss.view.HistoryTopFilter'
+    'Wss.view.HistoryTopFilter',
+    'Wss.view.webservice.HistoryGrid'
   ],
 
   initComponent: function () {
@@ -18,11 +19,13 @@ Ext.define('Wss.view.History', {
     me.content = {
         ui: 'large',
         title: Uni.I18n.translate('webservices.webserviceHistory', 'WSS', 'Web service history'),
-        items: [{
-          xtype: 'text',
-          text: 'Sample VerticalTextItem',
-          degrees: 90
-        }],
+        items: [
+          {
+            xtype: 'wss-webservice-history-grid',
+            itemId: 'wss-webservice-history-grid',
+            router: me.router,
+          }
+        ],
         dockedItems: [
           {
             dock: 'top',

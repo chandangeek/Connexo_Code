@@ -16,6 +16,7 @@ Ext.define('Wss.controller.Webservices', {
     stores: [
         'Wss.store.Endpoints',
         'Wss.store.Webservices',
+        'Wss.store.webservice.History',
         'Wss.store.LogLevels',
         'Wss.store.AuthenticationMethods',
         'Wss.store.Logs',
@@ -24,6 +25,7 @@ Ext.define('Wss.controller.Webservices', {
     models: [
         'Wss.model.Endpoint',
         'Wss.model.Webservice',
+        'Wss.model.webservice.History',
         'Wss.model.Log'
     ],
 
@@ -72,8 +74,9 @@ Ext.define('Wss.controller.Webservices', {
     showWebservicesHistoryOverview: function () {
         var me = this,
             view,
-            store = me.getStore('Wss.store.Endpoints');
+            store = me.getStore('Wss.store.webservice.History');
 
+        store.load();
         view = Ext.widget('webservices-history', {
             router: me.getController('Uni.controller.history.Router')
         });

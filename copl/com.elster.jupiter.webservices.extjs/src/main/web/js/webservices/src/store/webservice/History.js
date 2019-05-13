@@ -7,12 +7,12 @@ Ext.define('Wss.store.webservice.History', {
   model: 'Wss.model.webservice.History',
   autoLoad: false,
   proxy: {
-      type: 'rest',
-      url: '/api/ws/webservice/history',
-      timeout: 120000,
-      reader: {
-          type: 'json',
-          root: 'webServices'
-      }
+    type: 'rest',
+    url: '/api/ws/webservice/history',
+    timeout: 120000,
+    reader: {
+        type: 'json',
+        root: 'occurences'
+    }
   }
 });
