@@ -200,6 +200,10 @@ public class CalendarImpl implements ServerCalendar {
         this.category.set(category);
     }
 
+    void setEventSet(EventSet eventSet) {
+        this.eventSet.set(eventSet);
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) {
