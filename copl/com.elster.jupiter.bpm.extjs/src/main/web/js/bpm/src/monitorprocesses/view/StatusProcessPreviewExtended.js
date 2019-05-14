@@ -99,7 +99,7 @@ Ext.define('Bpm.monitorprocesses.view.StatusProcessPreviewExtended', {
     	    			},
     	    			{
 	            			xtype: 'panel',
-	            			title: Uni.I18n.translate('mdc.process.node.parentProcessTitle', 'MDC', 'Parent process'),
+	            			title: Uni.I18n.translate('bpm.process.node.parentProcessTitle', 'BPM', 'Parent process'),
             				flex: 1,
 	            			itemId: 'parent-process-preview-panel',
             				margin: '0 0 0 20',
