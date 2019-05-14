@@ -10,7 +10,6 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
     alias: 'widget.issue-manually-creation-rules-item',
     itemId: 'issue-manually-creation-rules-item',
     title: Uni.I18n.translate('issue.administration.assignment', 'ISU', 'Issue assignment rules'),
-    layout: 'medium',
     defaults: {
         labelWidth: 260,
         width: 600,
@@ -28,7 +27,8 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     required: true,
                     allowBlank: false,
                     displayField: 'name',
-                    valueField: 'id'
+                    valueField: 'id',
+                    name: 'deviceMrid'
                },
                {
                     xtype: 'combobox',
@@ -37,7 +37,8 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     required: true,
                     allowBlank: false,
                     displayField: 'name',
-                    valueField: 'uid'
+                    valueField: 'uid',
+                    name: 'reasonId'
                },
                {
                   xtype: 'fieldcontainer',
@@ -136,7 +137,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                         {
                             itemId: 'dueDateValues',
                             xtype: 'container',
-                            name: 'dueDateValues',
+                            name: 'dueDate',
                             margin: '30 0 10 0',
                             layout: {
                                 type: 'hbox'
@@ -192,7 +193,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     emptyText: Uni.I18n.translate('general.provideComment','ISU','Provide a comment (optionally)'),
                     height: 160
                },
-               {
+ /*              {
                     itemId: 'actionsAtCreationTimeHeader',
                     xtype: 'displayfield',
                     htmlEncode: false,
@@ -238,7 +239,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     fieldLabel: Uni.I18n.translate('general.comment', 'ISU', 'Comment'),
                     emptyText: Uni.I18n.translate('general.provideComment','ISU','Provide a comment (optionally)'),
                     height: 160
-               },
+               },*/
                {
                     xtype: 'fieldcontainer',
                     ui: 'actions',
