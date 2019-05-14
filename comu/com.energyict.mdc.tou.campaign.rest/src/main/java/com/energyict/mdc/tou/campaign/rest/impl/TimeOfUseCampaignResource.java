@@ -23,6 +23,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
@@ -61,13 +62,14 @@ public class TimeOfUseCampaignResource {
     private final ServiceCallService serviceCallService;
     private final ExceptionFactory exceptionFactory;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final TaskService taskService;
 
     @Inject
     public TimeOfUseCampaignResource(TimeOfUseCampaignService timeOfUseCampaignService, TimeOfUseCampaignInfoFactory timeOfUseCampaignInfoFactory,
                                      Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory,
                                      DeviceTypeAndOptionsInfoFactory deviceTypeAndOptionsInfoFactory, DeviceInCampaignInfoFactory deviceInCampaignInfoFactory,
                                      DeviceService deviceService, ServiceCallService serviceCallService, ExceptionFactory exceptionFactory,
-                                     DeviceConfigurationService deviceConfigurationService) {
+                                     DeviceConfigurationService deviceConfigurationService, TaskService taskService) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.timeOfUseCampaignInfoFactory = timeOfUseCampaignInfoFactory;
         this.thesaurus = thesaurus;
@@ -78,6 +80,7 @@ public class TimeOfUseCampaignResource {
         this.serviceCallService = serviceCallService;
         this.exceptionFactory = exceptionFactory;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.taskService = taskService;
     }
 
     @GET
@@ -220,6 +223,18 @@ public class TimeOfUseCampaignResource {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, deviceTypeId));
         DeviceTypeAndOptionsInfo deviceTypeAndOptionsInfo = deviceTypeAndOptionsInfoFactory.create(deviceType);
         return Response.ok(deviceTypeAndOptionsInfo).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/comtasks")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
+    public Response getComTasks(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithNameInfo> comTasks = new ArrayList<>();
+        taskService.findAllComTasks().stream()
+                .forEach(comTask -> comTasks.add(new IdWithNameInfo(comTask.getId(), comTask.getName())));
+        return Response.ok(comTasks).build();
     }
 
     public Long getCurrentCampaignVersion(long id) {
