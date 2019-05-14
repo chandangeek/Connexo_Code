@@ -1,10 +1,11 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -12,10 +13,9 @@ import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.data.SecurityAccessor;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -33,18 +33,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link SecurityPropertiesAreValid} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-16 (13:12)
+ * Tests the {@link SecurityPropertiesAreValid} component
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertiesAreValidTest {
 
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private Device device;
+    @Mock
+    private State state;
 
     @Test
     public void validPropertiesWhenHavingKeyAccessorsForAllPropertySpecs() {
@@ -91,7 +89,7 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -134,7 +132,7 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -182,7 +180,7 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -230,13 +228,12 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
-
 
     @Test
     public void invalidPropertiesWhenMissingKeyAccessorTypesForRequiredPropertySpecs() {
@@ -274,15 +271,15 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
-    public void invalidPropertiesWhenHavingIncomleteKeyAccessor() {
+    public void invalidPropertiesWhenHavingIncompleteKeyAccessor() {
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         SecurityPropertySet notUsedSecurityPropertySet = mock(SecurityPropertySet.class);
         SecurityPropertySet usedSecurityPropertySet = mock(SecurityPropertySet.class);
@@ -326,15 +323,16 @@ public class SecurityPropertiesAreValidTest {
         SecurityPropertiesAreValid microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     private SecurityPropertiesAreValid getTestInstance() {
-        return new SecurityPropertiesAreValid(this.thesaurus);
+        SecurityPropertiesAreValid securityPropertiesAreValid = new SecurityPropertiesAreValid();
+        securityPropertiesAreValid.setThesaurus(this.thesaurus);
+        return securityPropertiesAreValid;
     }
-
 }

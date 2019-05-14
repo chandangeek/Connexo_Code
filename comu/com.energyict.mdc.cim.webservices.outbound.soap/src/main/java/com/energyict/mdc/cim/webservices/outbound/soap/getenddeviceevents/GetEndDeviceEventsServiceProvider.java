@@ -9,7 +9,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.energyict.mdc.cim.webservices.inbound.soap.ReplyGetEndDeviceEventsWebService;
+import com.energyict.mdc.cim.webservices.outbound.soap.ReplyGetEndDeviceEventsWebService;
 
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;

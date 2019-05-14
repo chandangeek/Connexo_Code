@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
@@ -11,16 +11,11 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -28,6 +23,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
@@ -37,17 +38,13 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link AllLoadProfileDataCollected} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-15 (10:05)
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AllLoadProfileDataCollectedTest {
 
     private final long meterId = 4554361215L;
 
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private Device device;
     @Mock
@@ -68,6 +65,8 @@ public class AllLoadProfileDataCollectedTest {
     private ReadingType channelReadingType1;
     @Mock
     private ReadingType channelReadingType2;
+    @Mock
+    private State state;
 
     @Before
     public void setup() {
@@ -87,7 +86,7 @@ public class AllLoadProfileDataCollectedTest {
         when(this.device.getLoadProfiles()).thenReturn(Collections.emptyList());
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -103,11 +102,11 @@ public class AllLoadProfileDataCollectedTest {
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(lp1, lp2));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -123,11 +122,11 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(nextTimeStamp);
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp, state);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     private LoadProfile getMockedLoadProfile(Device device, Instant lastReadingTimestamp) {
@@ -152,7 +151,6 @@ public class AllLoadProfileDataCollectedTest {
         return device;
     }
 
-
     @Test
     public void deviceWithOneLoadProfileOkOtherNokTest() {
         Device device = getMockedDevice();
@@ -167,11 +165,11 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(okNextTimeStamp, nokNextTimeStamp);
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp, state);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -187,7 +185,7 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(okNextTimeStamp);
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp, state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -205,14 +203,16 @@ public class AllLoadProfileDataCollectedTest {
         when(meterChannel1.getNextDateTime(lastReadingTimestamp)).thenReturn(effectiveTimestamp);
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, effectiveTimestamp, state);
 
         // Asserts
         assertThat(violation).isEmpty();
     }
 
     private AllLoadProfileDataCollected getTestInstance() {
-        return new AllLoadProfileDataCollected(this.thesaurus, meteringService);
+        AllLoadProfileDataCollected allLoadProfileDataCollected = new AllLoadProfileDataCollected();
+        allLoadProfileDataCollected.setThesaurus(this.thesaurus);
+        allLoadProfileDataCollected.setMeteringService(this.meteringService);
+        return allLoadProfileDataCollected;
     }
-
 }

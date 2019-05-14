@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.calendar.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -29,10 +30,12 @@ public class CalendarTimeSeriesExtenderHandler implements TaskExecutor {
 
     private final TransactionService transactionService;
     private final ServerCalendarService calendarService;
+    private final EventService eventService;
 
-    public CalendarTimeSeriesExtenderHandler(TransactionService transactionService, ServerCalendarService calendarService) {
+    public CalendarTimeSeriesExtenderHandler(TransactionService transactionService, ServerCalendarService calendarService, EventService eventService) {
         this.transactionService = transactionService;
         this.calendarService = calendarService;
+        this.eventService = eventService;
     }
 
     @Override
@@ -54,9 +57,11 @@ public class CalendarTimeSeriesExtenderHandler implements TaskExecutor {
         private long currentCount;
         private long successCount;
         private long failureCount;
+        private TaskOccurrence occurrence;
 
         private Worker(TaskOccurrence taskOccurrence) {
             this.logger = Logger.getAnonymousLogger();
+            this.occurrence = taskOccurrence;
             this.handler = taskOccurrence.createTaskLogHandler().asHandler();
             this.logger.addHandler(handler);
         }
@@ -101,9 +106,11 @@ public class CalendarTimeSeriesExtenderHandler implements TaskExecutor {
                 stopWatch.stop();
                 this.successCount++;
             } catch (RuntimeException e) {
+                String errorMsg = "Failure to extend calendar " + calendar.getId() + ": " + e.getLocalizedMessage();
+                postFailEvent(eventService, occurrence, errorMsg);
                 this.failureCount++;
                 try (TransactionContext context = transactionService.getContext()) {
-                    this.logger.log(Level.SEVERE, e, () -> "Failure to extend calendar " + calendar.getId() + ": " + e.getMessage());
+                    this.logger.log(Level.SEVERE, e, () -> errorMsg);
                     context.commit();
                 }
             } finally {

@@ -6,6 +6,7 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:msg="http://iec.ch/TC57/2011/schema/message"
            xmlns:obj="http://iec.ch/TC57/2011/MeterConfig#"
+           xmlns:obj2="http://iec.ch/TC57/2011/GetMeterConfig#"
            targetNamespace="http://iec.ch/TC57/2011/MeterConfigMessage"
            elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.0">
     <!-- Base Message Definitions -->
@@ -14,10 +15,32 @@
     <!-- CIM Information Object Definition -->
     <xs:import namespace="http://iec.ch/TC57/2011/MeterConfig#"
                schemaLocation="MeterConfig.xsd"/>
+    <xs:import namespace="http://iec.ch/TC57/2011/GetMeterConfig#"
+               schemaLocation="GetMeterConfig.xsd"/>
     <!-- PayloadType Definition -->
     <xs:complexType name="MeterConfigPayloadType">
         <xs:sequence>
             <xs:element ref="obj:MeterConfig"/>
+            <xs:element name="OperationSet" type="msg:OperationSet" minOccurs="0"/>
+            <xs:element name="Compressed" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>For compressed and/or binary, uuencoded
+                        payloads
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Format" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Hint as to format of payload, e.g. XML, RDF, SVF, BINARY,
+                        PDF, ...
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="GetMeterConfigPayloadType">
+        <xs:sequence>
+            <xs:element ref="obj2:GetMeterConfig" minOccurs="0"/>
             <xs:element name="OperationSet" type="msg:OperationSet" minOccurs="0"/>
             <xs:element name="Compressed" type="xs:string" minOccurs="0">
                 <xs:annotation>
@@ -54,6 +77,14 @@
                         minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:complexType name="GetMeterConfigResponseMessageType">
+        <xs:sequence>
+            <xs:element name="Header" type="msg:HeaderType"/>
+            <xs:element name="Reply" type="msg:ReplyType"/>
+            <xs:element name="Payload" type="tns:GetMeterConfigPayloadType"
+                        minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
     <!-- EventMessageType -->
     <xs:complexType name="MeterConfigEventMessageType">
         <xs:sequence>
@@ -80,6 +111,8 @@
                 type="tns:MeterConfigRequestMessageType"/>
     <xs:element name="DeleteMeterConfig"
                 type="tns:MeterConfigRequestMessageType"/>
+    <xs:element name="GetMeterConfig"
+                type="tns:MeterConfigRequestMessageType"/>
     <xs:element name="CreatedMeterConfig"
                 type="tns:MeterConfigEventMessageType"/>
     <xs:element name="ChangedMeterConfig"
@@ -89,6 +122,8 @@
     <xs:element name="ClosedMeterConfig"
                 type="tns:MeterConfigEventMessageType"/>
     <xs:element name="DeletedMeterConfig"
+                type="tns:MeterConfigEventMessageType"/>
+    <xs:element name="ReplyMeterConfig"
                 type="tns:MeterConfigEventMessageType"/>
     <xs:element name="MeterConfigResponseMessage"
                 type="tns:MeterConfigResponseMessageType"/>

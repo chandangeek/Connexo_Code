@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.importers.impl.attributes.protocols.Protoco
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.customattributes.CustomAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.certificatesimport.DeviceCertificatesImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.deviceeventsimport.DeviceEventsImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.activation.DeviceActivationDeactivationImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.commission.DeviceCommissioningImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.decommission.DeviceDecommissioningImportFactory;
@@ -69,6 +70,15 @@ public enum TranslationKeys implements TranslationKey {
     CERTIFICATES_IMPORT_RESULT_SUCCESS_WITH_WARN("CertificatesImportResultSuccessWithWarn", "Finished successfully with (some) notes. {0} certificates of {1} devices processed successfully of which {2} certificates contain a note."),
     CERTIFICATE_NO_SUCH_KEY_ACCESSOR_TYPE( "CertificateNoSuchKeyAccessorType", "Can''t process certificate {0}. The security key that starts with X is not available."),
 
+    DEVICE_EVENTS_IMPORT_RESULT_NO_EVENTS_WERE_PROCESSED("DeviceEventsResultNoEventsWereProcessed", "Failed to complete, no events have been processed."),
+    DEVICE_EVENTS_IMPORT_RESULT_FAIL("DeviceEventsImportResultFail", "Failed to complete. {0} import events of {1} devices processed successfully."),
+    DEVICE_EVENTS_IMPORT_RESULT_FAIL_WITH_ERRORS("DeviceEventsResultFailWithErrors", "Failed to complete. {0} events of {1} devices processed successfully, {2} events of {3} devices skipped due to errors."),
+    DEVICE_EVENTS_IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS("DeviceEventsResultFailWithWarnAndErrors", "Failed to complete. {0} events of {1} devices processed successfully of which {2} events contain a note, {3} events of {4} devices skipped due to errors."),
+    DEVICE_EVENTS_IMPORT_RESULT_FAIL_WITH_WARN("DeviceEventsResultFailWithWarn", "Failed to complete. {0} events of {1} devices processed successfully of which {2} events contain a note."),
+    DEVICE_EVENTS_IMPORT_RESULT_SUCCESS("DeviceEventsImportResultSuccess", "Finished successfully. {0} events of {1} device(s) processed successfully."),
+    DEVICE_EVENTS_IMPORT_RESULT_SUCCESS_WITH_ERRORS("DeviceEventsImportResultSuccessWithErrors", "Finished successfully with (some) failures. {0} events of {1} devices processed successfully, {2} events of {3} devices skipped due to errors."),
+    DEVICE_EVENTS_IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("DeviceEventsImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and notes. {0} readings of {1} devices processed successfully of which {2} events contain a note, {3} events of {4} devices skipped due to errors."),
+    DEVICE_EVENTS_IMPORT_RESULT_SUCCESS_WITH_WARN("DeviceEventsImportResultSuccessWithWarn", "Finished successfully with (some) notes. {0} events of {1} devices processed successfully of which {2} events contain a note."),
 
     // Properties translations
     DEVICE_DATA_IMPORTER_DELIMITER("delimiter", "Delimiter"),
@@ -93,6 +103,7 @@ public enum TranslationKeys implements TranslationKey {
     //Translations for importer names
     DEVICE_READINGS_IMPORTER(DeviceReadingsImporterFactory.NAME, "Device readings importer [STD]"),
     DEVICE_SHIPMENT_IMPORTER(DeviceShipmentImporterFactory.NAME, "Devices shipment importer [STD]"),
+    DEVICE_EVENTS_IMPORTER(DeviceEventsImporterFactory.NAME, "Devices events importer [STD]"),
     SECURE_DEVICE_SHIPMENT_IMPORTER(SecureDeviceShipmentImporterFactory.NAME, "Secure device shipment importer [STD]"),
     SECURE_HSM_DEVICE_SHIPMENT_IMPORTER(SecureHSMDeviceShipmentImporterFactory.NAME, "Secure HSM device shipment importer [STD]"),
     SECURE_DEVICE_KEY_IMPORTER(SecureDeviceKeyImporterFactory.NAME, "Secured device key importer [STD]"),

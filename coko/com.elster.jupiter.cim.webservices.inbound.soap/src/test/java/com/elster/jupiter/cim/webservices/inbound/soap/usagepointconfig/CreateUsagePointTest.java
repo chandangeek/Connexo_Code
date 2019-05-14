@@ -73,6 +73,7 @@ import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -186,6 +187,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(metrologyConfigurationService.findMetrologyConfiguration(METROLOGY_CONFIGURATION_NAME)).thenReturn(Optional.of(metrologyConfiguration));
         when(metrologyConfiguration.getName()).thenReturn(METROLOGY_CONFIGURATION_NAME);
         when(metrologyConfiguration.getContracts()).thenReturn(Arrays.asList(billing, information, check));
+        when(metrologyConfiguration.isActive()).thenReturn(true);
         when(effectiveMC.getChannelsContainer(billing, NOW)).thenReturn(Optional.of(billingContainer));
         when(effectiveMC.getChannelsContainer(information, NOW)).thenReturn(Optional.empty());
         when(effectiveMC.getChannelsContainer(check, NOW)).thenReturn(Optional.of(billingContainer));
@@ -269,11 +271,23 @@ public class CreateUsagePointTest extends AbstractMockActivator {
     public void testNoPayload() throws Exception {
         // Prepare request
         UsagePointConfigRequestMessageType usagePointConfigRequest = usagePointConfigMessageFactory.createUsagePointConfigRequestMessageType();
+        usagePointConfigRequest.setHeader(new HeaderType());
 
         // Business method & assertions
         assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
                 "Element 'Payload' is required.");
+    }
+
+    @Test
+    public void testNoHeader() throws Exception {
+        // Prepare request
+        UsagePointConfigRequestMessageType usagePointConfigRequest = usagePointConfigMessageFactory.createUsagePointConfigRequestMessageType();
+
+        // Business method & assertions
+        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+                MessageSeeds.MISSING_ELEMENT.getErrorCode(),
+                "Element 'Header' is required.");
     }
 
     @Test
@@ -878,6 +892,25 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
                 null,
                 "ErrorMessage");
+    }
+
+    @Test
+    public void testAsync() throws Exception {
+        // Prepare request
+        UsagePointConfig usagePointConfig = new UsagePointConfig();
+        ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePointInfo = createUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME, null,
+                true, false, ServiceKind.WATER, null, UsagePointConnectedKind.PHYSICALLY_DISCONNECTED);
+        setMetrologyConfiguration(usagePointInfo, METROLOGY_CONFIGURATION_NAME);
+        usagePointConfig.getUsagePoint().add(usagePointInfo);
+        UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
+        usagePointConfigRequest.getHeader().setTimestamp(null);
+        usagePointConfigRequest.getHeader().setAsyncReplyFlag(true);
+
+        // Execute
+        getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest);
+
+        // Assert service call
+        verify(serviceCall).requestTransition(com.elster.jupiter.servicecall.DefaultState.PENDING);
     }
 
     private ch.iec.tc57._2011.usagepointconfig.UsagePoint createUsagePoint(String mRID, String name, Instant creationDate,

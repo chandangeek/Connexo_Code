@@ -15,6 +15,14 @@ Ext.define('Idl.view.TransitionGrid', {
             flex: 1
         },
         {
+            text: Uni.I18n.translate('general.title.creationDate', 'IDL', 'Creation date'),
+            dataIndex: 'modTime',
+            flex: 1,
+            renderer: function (value) {
+                return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
+            }
+        },
+        {
             text: Uni.I18n.translate('general.transition', 'IDL', 'Transition'),
             dataIndex: 'transition',
             flex: 1

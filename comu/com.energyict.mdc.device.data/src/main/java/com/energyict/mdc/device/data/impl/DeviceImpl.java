@@ -1057,7 +1057,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void store(MeterReading meterReading) {
-        this.meter.getOptional().ifPresent(meter -> meter.store(QualityCodeSystem.MDC, meterReading));
+        this.store(meterReading, null);
+    }
+
+    @Override
+    public void store(MeterReading meterReading, Instant readingDate) {
+        this.meter.getOptional().ifPresent(meter -> meter.store(QualityCodeSystem.MDC, meterReading, readingDate));
     }
 
     @Override
@@ -3115,11 +3120,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
         private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
             super(scheduledConnectionTaskProvider.get());
+            this.getScheduledConnectionTask().setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
             this.getScheduledConnectionTask().initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool());
             if (partialOutboundConnectionTask.getNextExecutionSpecs() != null) {
                 this.getScheduledConnectionTask().setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
             }
-            this.getScheduledConnectionTask().setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
             this.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         }
 

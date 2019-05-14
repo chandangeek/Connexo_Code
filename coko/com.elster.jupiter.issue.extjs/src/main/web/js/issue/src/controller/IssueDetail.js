@@ -34,7 +34,7 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel,
             widget;
 
-        if (issueType === 'datacollection') {
+        if (issueType === 'datacollection' || issueType ==='devicelifecycle' || issueType ==='task') {
             processStore.getProxy().setUrl(id);
             processStore.load(function (records) {
             });
@@ -61,10 +61,14 @@ Ext.define('Isu.controller.IssueDetail', {
              issueModel = 'Imt.datavalidation.model.Issue';
 
              */
-        } else if(issueType ==='devicelifecycle') {
+        } else if (issueType === 'devicelifecycle') {
             widgetXtype = 'device-lifecycle-issue-detail';
-            issueModel='Idl.model.Issue';
+            issueModel = 'Idl.model.Issue';
             me.transitionStore = 'Idl.store.TransitionStore';
+        } else if (issueType === 'task') {
+            widgetXtype = 'task-issue-detail';
+            issueModel = 'Itk.model.Issue';
+            me.taskStore = 'Itk.store.OccurrenceStore';
         } else {
             widgetXtype = me.widgetXtype;
             issueModel = me.issueModel;
@@ -117,6 +121,9 @@ Ext.define('Isu.controller.IssueDetail', {
         }
         if ((issueType === 'devicelifecycle')) {
             me.addTransitionBlocksWidget(widget);
+        }
+        if ((issueType === 'task')) {
+            me.addTaskOccurrenceWidget(widget);
         }
     },
 
@@ -202,7 +209,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
                 commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && me.canComment());
-                if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle')) {
+                if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task')) {
                     me.loadTimeline(commentsStore);
                 }
                 me.constructComments(commentsView, commentsStore);
@@ -211,7 +218,7 @@ Ext.define('Isu.controller.IssueDetail', {
             }
         });
         if (router.queryParams.addComment) {
-            if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle')) {
+            if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task')) {
                 this.showCommentForm();
             } else {
                 this.showCommentFormValidation();
@@ -442,8 +449,8 @@ Ext.define('Isu.controller.IssueDetail', {
                 break;
             case 'reason.unregistered.device':
                 form = Ext.widget('meter-registration-issue-details-form', {
-                   itemId: 'meter-registration-issue-details-form',
-                   router: router
+                    itemId: 'meter-registration-issue-details-form',
+                    router: router
                 });
                 break;
             default:
@@ -517,7 +524,7 @@ Ext.define('Isu.controller.IssueDetail', {
                             deviceType: rec.raw.device.name,
                             cause: block.cause,
                             from: block.from.name,
-                            failedStateChange: 'From '+block.from.name+' to '+block.to.name,
+                            failedStateChange: 'From ' + block.from.name + ' to ' + block.to.name,
                             deviceLifecycle: block.lifecycle.name,
                             transition: block.transition.name
                         }, block))
@@ -526,6 +533,44 @@ Ext.define('Isu.controller.IssueDetail', {
 
                 if (data.length) {
                     store = Ext.create(me.transitionStore, {data: data});
+                    panel.getView().bindStore(store);
+                }
+            }
+        }, me, {
+            single: true
+        });
+    },
+
+    addTaskOccurrenceWidget: function (widget) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        me.getApplication().on('issueLoad', function (rec) {
+            var panel = widget.down('#task-issue-detail-container');
+
+            if (rec.raw.taskOccurrences && panel) {
+                var data = [],
+                    store, taskOccurenceWidget;
+
+                rec.raw.taskOccurrences.map(function (taskOccurrence) {
+                    data.push(Ext.apply({}, {
+                        triggerTime: taskOccurrence.triggerTime,
+                        startDate: taskOccurrence.startDate,
+                        enddate: taskOccurrence.enddate,
+                        status: taskOccurrence.status,
+                        errorMessage: taskOccurrence.errorMessage,
+                        failureTime: taskOccurrence.failureTime
+                    }, taskOccurrence))
+                });
+                if (data.length) {
+                    store = Ext.create(me.taskStore, {
+                        data: data,
+                        sorters: [
+                            {
+                                property: 'startDate',
+                                direction: 'DESC'
+                            }
+                        ],});
                     panel.getView().bindStore(store);
                 }
             }
@@ -548,7 +593,9 @@ Ext.define('Isu.controller.IssueDetail', {
         } else if (issueType === 'datavalidation') {
             issueModel = 'Idv.model.Issue';
         } else if (issueType === 'devicelifecycle') {
-            issueModel = 'Idv.model.Issue';
+            issueModel = 'Idl.model.Issue';
+        }else if (issueType === 'task') {
+            issueModel = 'Itk.model.Issue';
         }
         else {
             issueModel = me.issueModel;
@@ -586,6 +633,9 @@ Ext.define('Isu.controller.IssueDetail', {
 
         if ((issueType === 'devicelifecycle')) {
             me.addTransitionBlocksWidget(widget);
+        }
+        if ((issueType === 'task')) {
+            me.addTaskOccurrenceWidget(widget);
         }
     },
 

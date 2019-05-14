@@ -34,6 +34,9 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor1;
     }
 
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {return keyAccessorTypeExtractor;}
+    protected LoadProfileExtractor getLoadProfileExtractor () {return loadProfileExtractor;}
+
     @Override
     public DeviceMessageSupport getDeviceMessageSupport() {
         if (dsmr23MbusMessaging == null) {

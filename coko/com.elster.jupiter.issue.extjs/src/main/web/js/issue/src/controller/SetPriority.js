@@ -35,7 +35,7 @@ Ext.define('Isu.controller.SetPriority', {
 
         var widget = Ext.widget('issue-set-priority', {
             router: router,
-            returnLink: router.getRoute(router.currentRoute.replace(fromDetails ? '/setpriority' : '/view/setpriority', '')).buildUrl({}, me.queryParams)
+            returnLink: router.getRoute(router.currentRoute.replace(fromDetails ? '/setpriority' : '/view/setpriority', '')).buildUrl({}, router.queryParams)
         });
         viewport.setLoading();
 
@@ -45,6 +45,8 @@ Ext.define('Isu.controller.SetPriority', {
             issueModel = me.getModel('Idv.model.Issue');
         } else if (issueType == 'devicelifecycle') {
             issueModel = me.getModel('Idl.model.Issue');
+        }else if (issueType == 'task') {
+            issueModel = me.getModel('Itk.model.Issue');
         }
         else {
             issueModel = me.getModel(me.issueModel);

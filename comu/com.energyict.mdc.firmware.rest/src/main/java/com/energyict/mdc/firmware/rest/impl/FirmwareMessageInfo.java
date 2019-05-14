@@ -56,7 +56,7 @@ public class FirmwareMessageInfo {
 
         @JsonUnwrapped
         public PropertyInfo propertyInfo;
-        public boolean canBeOverridden;
+        public Boolean canBeOverridden;
 
         PropertyInfoWithEditableOption(PropertyInfo propertyInfo){
             this(propertyInfo, true);

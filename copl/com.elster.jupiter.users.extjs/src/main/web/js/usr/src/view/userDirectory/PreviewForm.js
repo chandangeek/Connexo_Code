@@ -60,12 +60,17 @@ Ext.define('Usr.view.userDirectory.PreviewForm', {
                                                     itemId: 'usr-user-directory-user-base-dn',
                                                     fieldLabel: Uni.I18n.translate('userDirectories.baseUser', 'USR', 'User base DN')
                                                 },
+												{
+                                                    xtype: 'displayfield',
+                                                    name: 'groupName',
+                                                    itemId: 'usr-user-directory-user-group-dn',
+                                                    fieldLabel: Uni.I18n.translate('userDirectories.groupDN', 'USR', 'Group DN')
+                                                },
                                                 {
                                                     xtype: 'displayfield',
                                                     name: 'baseGroup',
                                                     itemId: 'usr-user-directory-group-base-dn',
                                                     fieldLabel: Uni.I18n.translate('userDirectories.baseGroup', 'USR', 'Group base DN'),
-                                                    hidden: true
                                                 },
                                                 {
                                                     xtype: 'displayfield',

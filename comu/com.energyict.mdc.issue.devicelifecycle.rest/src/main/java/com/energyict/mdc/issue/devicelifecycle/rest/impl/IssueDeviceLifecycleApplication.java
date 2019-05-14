@@ -18,6 +18,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycleService;
 
 import com.google.common.collect.ImmutableSet;
@@ -44,6 +45,7 @@ public class IssueDeviceLifecycleApplication extends Application {
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceService deviceService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -93,6 +95,11 @@ public class IssueDeviceLifecycleApplication extends Application {
     public void setLicense(License license) {
     }
 
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -114,6 +121,7 @@ public class IssueDeviceLifecycleApplication extends Application {
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
             bind(deviceService).to(DeviceService.class);
+            bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(DeviceLifecycleIssueInfoFactory.class).to(DeviceLifecycleIssueInfoFactory.class);

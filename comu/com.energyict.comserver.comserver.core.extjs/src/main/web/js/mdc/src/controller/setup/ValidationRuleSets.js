@@ -272,6 +272,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             case 'removeRuleSet':
                 me.removeValidationRuleSet(record);
                 break;
+            case 'changeRuleSetState':
+                me.changeRuleSetStatus(record);
+                break;
             default:
                 window.location.href = '#/administration/validation/rulesets/' + record.getId();
                 break;
@@ -433,6 +436,27 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 single: true
             });
         }
+    },
+
+    changeRuleSetStatus: function (record) {
+        var me = this,
+            isActive = record.get('isValidationRuleSetActive');
+
+        Ext.Ajax.request({
+
+            url: '../../api/dtc/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigId) + '/validationrulesets/' + record.getId() + '/status',
+            jsonData: Ext.merge(record.getRecordData(), {parent: me.getValidationRuleSetsOverview().deviceConfiguration.getRecordData()}, {isValidationRuleSetActive: !isActive}),
+            method: 'PUT',
+            success: function () {
+                me.getValidationRuleSetsGrid().getStore().reload({
+                    callback: function () {
+                        me.getApplication().fireEvent('acknowledge', isActive ?
+                            Uni.I18n.translate('device.dataValidation.ruleSet.deactivated', 'MDC', 'Validation rule set deactivated') :
+                            Uni.I18n.translate('device.dataValidation.ruleSet.activated', 'MDC', 'Validation rule set activated'));
+                    }
+                });
+            },
+        });
     }
 
 

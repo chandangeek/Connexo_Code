@@ -176,4 +176,33 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
         verify(deviceConfiguration, never()).removeValidationRuleSet(validationRuleSet1);
     }
 
+    @Test
+    public void testChangeValidationRuleSetStatus() throws Exception {
+        final boolean active = true;
+        when(validationRuleSet1.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        when(validationRuleSet2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
+        when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceConfiguration(DEVICE_CONFIGURATION_ID)).thenReturn(Optional.of(deviceConfiguration));
+
+        when(validationRuleSet1.getId()).thenReturn(RULESET_ID_1);
+        when(validationRuleSet1.getVersion()).thenReturn(OK_VERSION);
+        doReturn(Optional.of(validationRuleSet1)).when(validationService).getValidationRuleSet(RULESET_ID_1);
+        doReturn(Optional.of(validationRuleSet1)).when(validationService).findAndLockValidationRuleSetByIdAndVersion(RULESET_ID_1, OK_VERSION);
+
+        ValidationRuleSetInfo info = new ValidationRuleSetInfo();
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(DEVICE_CONFIGURATION_ID, OK_VERSION);
+        info.isValidationRuleSetActive = active;
+
+        Response responseInactiveValidation = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/" + RULESET_ID_1 + "/status")
+                .request()
+                .header(APPLICATION_HEADER_PARAM, QualityCodeSystem.MDC.name())
+                .build(HttpMethod.PUT, Entity.json(info)).invoke();
+        assertThat(responseInactiveValidation.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(deviceConfiguration).setValidationRuleSetStatus(validationRuleSet1, active);
+
+    }
+
 }

@@ -12,6 +12,7 @@ import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationTask;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
@@ -63,17 +64,19 @@ class EstimationTaskExecutor implements TaskExecutor {
     private final TimeService timeService;
 
     private final TransactionService transactionService;
+    private final EventService eventService;
     private final ThreadPrincipalService threadPrincipalService;
     private final User user;
 
     public EstimationTaskExecutor(IEstimationService estimationService, ValidationService validationService,
                                   MeteringService meteringService, TimeService timeService,
-                                  TransactionService transactionService, ThreadPrincipalService threadPrincipalService, User user) {
+                                  TransactionService transactionService, EventService eventService, ThreadPrincipalService threadPrincipalService, User user) {
         this.estimationService = estimationService;
         this.validationService = validationService;
         this.meteringService = meteringService;
         this.timeService = timeService;
         this.transactionService = transactionService;
+        this.eventService = eventService;
         this.threadPrincipalService = threadPrincipalService;
         this.user = user;
     }
@@ -93,6 +96,7 @@ class EstimationTaskExecutor implements TaskExecutor {
             try {
                 tryExecute(occurrence, taskLogger);
             } catch (Exception e) {
+                postFailEvent(eventService, occurrence, e.getLocalizedMessage());
                 transactionService.run(() -> loggingContext.severe(taskLogger, e));
             } finally {
                 transactionService.run(() -> getEstimationTask(occurrence).updateLastRun(occurrence.getTriggerTime()));

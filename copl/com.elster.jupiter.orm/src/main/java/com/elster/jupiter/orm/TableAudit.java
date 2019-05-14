@@ -25,6 +25,8 @@ public interface TableAudit {
 
     Table getTouchTable();
 
+    boolean getForceReverseReferenceMap();
+
     @ProviderType
     interface Builder {
 
@@ -37,6 +39,8 @@ public interface TableAudit {
         Builder contextReferenceColumn(String... contextReferenceColumns);
 
         Builder reverseReferenceMap(String reverseReferenceMap);
+
+        Builder forceReverseReferenceMap(boolean forceReverseReferenceMap);
 
         TableAudit build();
     }

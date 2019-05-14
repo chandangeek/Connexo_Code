@@ -32,6 +32,7 @@ public enum TranslationKeys implements TranslationKey {
     RAISE_EVENT_PROPS(ModuleConstants.RAISE_EVENT_PROPS, "On new raise event"),
     TRIGGERING_EVENTS(ModuleConstants.TRIGGERING_EVENTS, "Raised on event types"),
     CLEARING_EVENTS(ModuleConstants.CLEARING_EVENTS, "Cleared on event types"),
+    DEVICE_IN_GROUP(ModuleConstants.DEVICE_IN_GROUP, "Device group"),
     DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES(ModuleConstants.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, "Device lifecycle state in device type "),
     ALARM_RELATIVE_PERIOD_CATEGORY(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY, "Device alarm"),
     ALARM_REASON_UNKNOWN(ModuleConstants.ALARM_REASON_UNKNOWN, "Alarm Reason Unknown"),

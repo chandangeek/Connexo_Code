@@ -7,30 +7,24 @@ package com.energyict.mdc.issue.devicelifecycle.impl.templates;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycleService;
 import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate;
 import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueUtil;
 import com.energyict.mdc.issue.devicelifecycle.impl.VetoDeviceLifecycleTransitionDeleteException;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.issue.devicelifecycle.impl.templates.RemoveTransitionTopicHandler", service = TopicHandler.class, immediate = true)
 public class RemoveTransitionTopicHandler implements TopicHandler{
     private IssueService issueService;
     private IssueDeviceLifecycleService issueDeviceLifecycleService;
-    //private DeviceAlarmService deviceAlarmService;
 
     public RemoveTransitionTopicHandler() {
     }

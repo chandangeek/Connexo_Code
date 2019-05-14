@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -22,17 +23,25 @@ public class DataCollectionKpiCalculatorHandler implements TaskExecutor {
     private final DataCollectionKpiService dataCollectionKpiService;
     private final ConnectionTaskReportService connectionTaskReportService;
     private final CommunicationTaskReportService communicationTaskReportService;
+    private final EventService eventService;
 
-    public DataCollectionKpiCalculatorHandler(DataCollectionKpiService dataCollectionKpiService, ConnectionTaskReportService connectionTaskReportService, CommunicationTaskReportService communicationTaskReportService) {
+    public DataCollectionKpiCalculatorHandler(DataCollectionKpiService dataCollectionKpiService, ConnectionTaskReportService connectionTaskReportService, CommunicationTaskReportService communicationTaskReportService, EventService eventService) {
         super();
         this.dataCollectionKpiService = dataCollectionKpiService;
         this.connectionTaskReportService = connectionTaskReportService;
         this.communicationTaskReportService = communicationTaskReportService;
+        this.eventService = eventService;
     }
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
-        KpiType.calculatorForRecurrentPayload(taskOccurrence, new ServiceProvider()).calculateAndStore();
+        try{
+            KpiType.calculatorForRecurrentPayload(taskOccurrence, new ServiceProvider()).calculateAndStore();
+        } catch (Exception e){
+            postFailEvent(eventService, taskOccurrence, e.getLocalizedMessage());
+            throw e;
+        }
+
     }
 
     private class ServiceProvider implements KpiType.ServiceProvider {

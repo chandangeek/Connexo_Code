@@ -4,7 +4,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -40,6 +40,7 @@ public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
     private final ThreadPrincipalService threadPrincipalService;
     private final TransactionService transactionService;
     private final MeteringService meteringService;
+    private final MeteringGroupsService meteringGroupsService;
     private final TopologyService topologyService;
     private final DeviceService deviceService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -64,6 +65,7 @@ public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
     public  CreateNetworkTopologyCommand(ThreadPrincipalService threadPrincipalService,
                                          TransactionService transactionService,
                                          MeteringService meteringService,
+                                         MeteringGroupsService meteringGroupsService,
                                          TopologyService topologyService,
                                          DeviceService deviceService,
                                          DeviceConfigurationService deviceConfigurationService,
@@ -82,6 +84,7 @@ public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
         this.threadPrincipalService = threadPrincipalService;
         this.transactionService = transactionService;
         this.meteringService = meteringService;
+        this.meteringGroupsService = meteringGroupsService;
         this.topologyService = topologyService;
         this.deviceService = deviceService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -127,7 +130,7 @@ public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
                     .havingLevels(levelCount)
                     .havingGraphLayerBuilder(new DeviceLifeCycleStatusGraphLayerBuilder(deviceLifeCycleService))
                     .havingGraphLayerBuilder(new CommunicationStatusLayerBuilder(engineConfigurationService, schedulingService, connectionTaskService, communicationTaskService, clock))
-                    .havingGraphLayerBuilder(new IssuesAndAlarmsLayerBuilder(meteringService,issueService, issueCreationService, deviceAlarmService, deviceService, nlsService, timeService, clock, injector))
+                    .havingGraphLayerBuilder(new IssuesAndAlarmsLayerBuilder(meteringService, meteringGroupsService, issueService, issueCreationService, deviceAlarmService, deviceService, nlsService, timeService, clock, injector))
                     .buildTopology(gateway.get());
         }
 

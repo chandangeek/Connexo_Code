@@ -116,4 +116,11 @@ public class MetrologyContractValidationRuleSetResolverTest {
         assertThat(resolvedValidationRuleSets.get(validationRuleSet1)).isEqualTo(rangeSet1);
         assertThat(resolvedValidationRuleSets.get(validationRuleSet2)).isEqualTo(rangeSet2);
     }
+
+    @Test
+    public void testResolverNotFittedToHandleRuleSetStatus() {
+        //Rule set status can only be resolved by an MDC resolver
+        MetrologyContractValidationRuleSetResolver ruleSetResolver = new MetrologyContractValidationRuleSetResolver();
+        assertThat(ruleSetResolver.canHandleRuleSetStatus()).isFalse();
+    }
 }
