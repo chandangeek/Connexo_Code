@@ -16,9 +16,10 @@ public class AddIssueRequest {
     private String deviceMrid;
     private String usagePointMrid;
     private String comment;
-    private String title;
     private long dueDate;
-    private boolean overdue;
+    private long assignToUserId;
+    private long assignToWorkgroupId;
+    private String assignComment;
 
     public String getReasonId() {
         return reasonId;
@@ -68,14 +69,6 @@ public class AddIssueRequest {
         this.comment = comment;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public long getDueDate() {
         return dueDate;
     }
@@ -84,11 +77,27 @@ public class AddIssueRequest {
         this.dueDate = dueDate;
     }
 
-    public boolean isOverdue() {
-        return overdue;
+    public long getAssignToUserId() {
+        return assignToUserId;
     }
 
-    public void setOverdue(boolean overdue) {
-        this.overdue = overdue;
+    public void setAssignToUserId(long assignToUserId) {
+        this.assignToUserId = assignToUserId;
+    }
+
+    public long getAssignToWorkgroupId() {
+        return assignToWorkgroupId;
+    }
+
+    public void setAssignToWorkgroupId(long assignToWorkgroupId) {
+        this.assignToWorkgroupId = assignToWorkgroupId;
+    }
+
+    public String getAssignComment() {
+        return assignComment;
+    }
+
+    public void setAssignComment(String assignComment) {
+        this.assignComment = assignComment;
     }
 }

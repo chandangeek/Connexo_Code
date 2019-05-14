@@ -25,6 +25,10 @@ public interface ManualIssueBuilder {
     ManualIssueBuilder withComment(String comment);
     ManualIssueBuilder withDueDate(Instant dueDate);
     ManualIssueBuilder withOverdue(boolean overdue);
+    ManualIssueBuilder withAssignToUser(Long assignToUserId);
+    ManualIssueBuilder withAssignToWorkgroup(Long assignToWorkgroupId);
+    ManualIssueBuilder withAssignComment(String assignComment);
+
     Issue create();
 
 }

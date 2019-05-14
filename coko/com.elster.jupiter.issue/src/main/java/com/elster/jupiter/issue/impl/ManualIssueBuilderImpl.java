@@ -32,6 +32,9 @@ public class ManualIssueBuilderImpl implements ManualIssueBuilder {
     private IssueStatus status;
     private boolean overdue;
     private IssueType type;
+    private Long assignToUserId;
+    private Long assignToWorkgroupId;
+    private String assignComment;
 
 
     public ManualIssueBuilderImpl(User user, DataModel dataModel) {
@@ -88,6 +91,24 @@ public class ManualIssueBuilderImpl implements ManualIssueBuilder {
     }
 
     @Override
+    public ManualIssueBuilder withAssignToUser(Long assignToUserId) {
+        this.assignToUserId = assignToUserId;
+        return this;
+    }
+
+    @Override
+    public ManualIssueBuilder withAssignToWorkgroup(Long assignToWorkgroupId) {
+        this.assignToWorkgroupId = assignToWorkgroupId;
+        return this;
+    }
+
+    @Override
+    public ManualIssueBuilder withAssignComment(String assignComment) {
+        this.assignComment = assignComment;
+        return this;
+    }
+
+    @Override
     public ManualIssueBuilder withType(IssueType type) {
         this.type = type;
         return this;
@@ -106,6 +127,8 @@ public class ManualIssueBuilderImpl implements ManualIssueBuilder {
         issue.setOverdue(overdue);
         issue.save();
         Optional.ofNullable(comment).ifPresent(comm -> issue.addComment(comm, user));
+        issue.assignTo(assignToUserId, assignToWorkgroupId);
+        Optional.ofNullable(assignComment).ifPresent(assignComment -> issue.addComment(assignComment, user));
         return issue;
     }
 }
