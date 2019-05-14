@@ -626,7 +626,8 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public DataDropper dataDropper(String tableName, Logger logger) {
-        return new DataDropperImpl(this, tableName, logger);
+        return getSqlDialect().hasPartitioning() ? new PartitionDataDropperImpl(this, tableName, logger):
+            new DataDropperImpl(this, tableName, logger);
     }
 
     @Override
