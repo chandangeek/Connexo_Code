@@ -34,7 +34,7 @@ Ext.define('Isu.controller.CreationManualRule', {
     },
 
     createNewManuallyIssue: function () {
-        var widget = Ext.widget('issue-manually-creation-rules-item');
+        var widget = Ext.widget('issue-manually-creation-rules-item-add');
         this.getApplication().fireEvent('changecontentevent', widget);
 
     },
@@ -43,5 +43,6 @@ Ext.define('Isu.controller.CreationManualRule', {
        var me = this,
            form = me.getForm(),
            record = form.getRecord();
+           //debugger;
     }
 });
