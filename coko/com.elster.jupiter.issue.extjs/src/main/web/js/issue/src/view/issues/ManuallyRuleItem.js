@@ -9,7 +9,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
     ],
     alias: 'widget.issue-manually-creation-rules-item',
     itemId: 'issue-manually-creation-rules-item',
-    title: Uni.I18n.translate('issue.administration.assignment', 'ISU', 'Issue assignment rules'),
+    title: Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue'),
     defaults: {
         labelWidth: 260,
         width: 600,
@@ -17,8 +17,8 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
     },
     initComponent: function () {
         var me = this;
+        me.title = Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue');
 
-        me.title = Uni.I18n.translate('issue.administration.assignment', 'ISU', 'Issue assignment rules');
         me.items = [
                {
                     xtype: 'combobox',

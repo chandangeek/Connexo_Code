@@ -17,11 +17,17 @@ Ext.define('Isu.controller.CreationManualRule', {
         'Isu.view.issues.ManuallyRuleItem'
     ],
 
-    refs: [],
+    refs: [{
+           ref: 'page',
+              selector: 'issue-manually-creation-rules-item-add'
+           }, {
+              ref: 'form',
+              selector: 'issue-manually-creation-rules-item-add issue-manually-creation-rules-item'
+           }],
 
     init: function () {
         this.control({
-            'issue-manually-creation-rules-item button[action=saveIssueAction]': {
+            'issue-manually-creation-rules-item-add issue-manually-creation-rules-item button[action=saveIssueAction]': {
                 click: this.saveAction
             }
         });
@@ -34,5 +40,8 @@ Ext.define('Isu.controller.CreationManualRule', {
     },
 
     saveAction: function (){
+       var me = this,
+           form = me.getForm(),
+           record = form.getRecord();
     }
 });
