@@ -1,8 +1,6 @@
 package com.elster.jupiter.hsm.impl.config;
 
 
-import com.elster.jupiter.hsm.impl.config.HsmJssConfigLoader;
-
 import com.atos.worldline.jss.configuration.RawConfiguration;
 import com.atos.worldline.jss.configuration.RawFunctionTimeout;
 import com.atos.worldline.jss.configuration.RawHsm;
@@ -14,7 +12,8 @@ import com.google.common.collect.ImmutableList;
 
 import java.io.InputStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class HsmJssConfigLoaderITest {
 
@@ -37,7 +36,7 @@ public class HsmJssConfigLoaderITest {
         assertEquals(2, cfg.getRawHsms().size());
         RawHsm expectedRawHsm1 = RawHsm.builder().id(1).name("HSM1").type("ASM7.6a").description("").host("10.0.0.84").port(9000).moduleId(0).secure(false).state(HSMState.ENABLED).protocol("KS").build();
         assertEquals(expectedRawHsm1, cfg.getRawHsms().get(0));
-        RawHsm expectedRawHsm2 = RawHsm.builder().id(2).name("HSM2").type("ASM7.6a").description("").host("10.0.0.85").port(9000).moduleId(0).secure(false).protocol("KS").build();
+        RawHsm expectedRawHsm2 = RawHsm.builder().id(2).name("HSM2").type("ASM7.6a").description("").host("10.0.0.85").port(9000).moduleId(0).secure(false).state(null).protocol("KS").build();
         assertEquals(expectedRawHsm2, cfg.getRawHsms().get(1));
 
         // check Labels

@@ -43,6 +43,18 @@ public class CalendarBuilderImpl implements CalendarService.CalendarBuilder {
     }
 
     @Override
+    public CalendarService.CalendarBuilder category(Category category) {
+        this.calendarImpl.setCategory(category);
+        return this;
+    }
+
+    @Override
+    public CalendarService.CalendarBuilder eventSet(EventSet eventSet) {
+        this.calendarImpl.setEventSet(eventSet);
+        return this;
+    }
+
+    @Override
     public CalendarService.CalendarBuilder name(String name) {
         this.calendarImpl.setName(name);
         return this;

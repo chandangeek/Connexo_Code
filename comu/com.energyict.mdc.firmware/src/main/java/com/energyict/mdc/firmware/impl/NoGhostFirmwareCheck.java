@@ -46,6 +46,7 @@ public class NoGhostFirmwareCheck implements FirmwareCheck {
         return dataModel.stream(ActivatedFirmwareVersion.class)
                 .join(FirmwareVersion.class)
                 .filter(Where.where(ActivatedFirmwareVersionImpl.Fields.DEVICE.fieldName()).isEqualTo(device))
+                .filter(Where.where(ActivatedFirmwareVersionImpl.Fields.INTERVAL.fieldName()).isEffective())
                 .filter(Where.where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName() + '.' + FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).in(checkedTypes))
                 .anyMatch(Where.where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName() + '.' + FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.GHOST));
     }
