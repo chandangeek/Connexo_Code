@@ -74,7 +74,14 @@ Ext.define('Isu.controller.history.Administration', {
                     controller: 'Isu.controller.Overview',
                     action: 'showIssuesOverview',
                     privileges: Isu.privileges.Issue.viewAdminDevice
-                }
+                },
+                newmanuallyissue: {
+                    title: Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue'),
+                    route: 'newmanuallyissue',
+                    controller: 'Isu.controller.CreationManualRule',
+                    action: 'createNewManuallyIssue',
+                    privileges: Isu.privileges.Issue.viewAdminDevice
+                },
             }
         },
         administration : {
