@@ -1066,7 +1066,7 @@ public class TableImpl<T> implements Table<T> {
     }
 
     Optional<Column> partitionColumn() {
-        return partitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
+        return partitionColumn;
     }
 
     @Override
