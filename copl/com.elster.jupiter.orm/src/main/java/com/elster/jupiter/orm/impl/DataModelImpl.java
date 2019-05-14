@@ -618,9 +618,11 @@ public class DataModelImpl implements DataModel {
     }
 
     public void createPartitions(Instant upTo, Logger logger) {
-        getTables().stream()
-                .filter(table -> table.getPartitionMethod() == PartitionMethod.RANGE)
-                .forEach(table -> partitionCreator(table.getName(), logger).create(upTo));
+        if (getSqlDialect().hasPartitioning()) {
+            getTables().stream()
+                    .filter(table -> table.getPartitionMethod() == PartitionMethod.RANGE)
+                    .forEach(table -> partitionCreator(table.getName(), logger).create(upTo));
+        }
     }
 
 
