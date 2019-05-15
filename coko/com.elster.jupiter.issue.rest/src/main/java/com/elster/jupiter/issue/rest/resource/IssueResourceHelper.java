@@ -271,9 +271,12 @@ public class IssueResourceHelper {
                 .withStatus(issueService.findStatus(request.getStatusId()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "statusId")))
                 .withPriority(Priority.fromStringValue(request.getPriority()))
                 .withDevice(meteringService.findEndDeviceByMRID(request.getDeviceMrid()).orElse(null))
-                .withDueDate(Instant.ofEpochSecond(request.getDueDate()))
-                .withOverdue(request.isOverdue())
+                .withDueDate(request.getDueDate() > 0 ? Instant.ofEpochSecond(request.getDueDate()): null)
+                .withOverdue(false)
                 .withComment(request.getComment())
+                .withAssignToUser(request.getAssignToUserId() > 0 ? request.getAssignToUserId(): null)
+                .withAssignToWorkgroup(request.getAssignToWorkgroupId() > 0 ? request.getAssignToWorkgroupId(): null)
+                .withAssignComment(request.getAssignComment())
                 .create();
         return issue;
     }

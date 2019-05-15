@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueSnoozeHandlerFactory;
 import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.issue.security.PrivilegesProviderV10_7;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -53,9 +54,12 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final TaskService taskService;
     private final UserService userService;
     private final EndPointConfigurationService endPointConfigurationService;
+    private final PrivilegesProviderV10_7 privilegesProviderV10_7;
+
 
     @Inject
-    public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, TaskService taskService, UserService userService, EndPointConfigurationService endPointConfigurationService) {
+    public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, TaskService taskService, UserService userService, EndPointConfigurationService endPointConfigurationService,
+                     PrivilegesProviderV10_7 privilegesProviderV10_7) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.userService = userService;
@@ -63,6 +67,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         this.messageService = messageService;
         this.taskService = taskService;
         this.endPointConfigurationService = endPointConfigurationService;
+        this.privilegesProviderV10_7 = privilegesProviderV10_7;
     }
 
     @Override
@@ -95,6 +100,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 logger
         );
         userService.addModulePrivileges(this);
+        userService.addModulePrivileges(privilegesProviderV10_7);
     }
 
     @Override
