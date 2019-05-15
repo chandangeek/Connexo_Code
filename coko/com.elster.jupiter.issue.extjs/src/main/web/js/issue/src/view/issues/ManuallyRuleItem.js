@@ -47,6 +47,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     allowBlank: false,
                     displayField: 'name',
                     valueField: 'id',
+                    editable: true,
                     name: 'reasonId',
                     queryMode: 'local'
                },
@@ -204,7 +205,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                   queryMode: 'local',
                   valueField: 'id',
                   displayField: 'name',
-                  allowBlank: false,
+                  name: 'assignToWorkgroupId',
                   store: 'Isu.store.IssueWorkgroupAssignees',
                   emptyText: Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned'),
                   msgTarget: 'under',
@@ -219,14 +220,18 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                   xtype: 'combobox',
                   itemId: 'mi-user-issue-assignee',
                   fieldLabel: Uni.I18n.translate('general.user', 'ISU', 'User'),
-                  name: 'userId',
+                  name: 'assignToUserId',
                   valueField: 'id',
                   displayField: 'name',
-                  allowBlank: false,
                   editable: false,
                   store: 'Isu.store.UserList',
                   emptyText: Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned'),
-                  msgTarget: 'under'
+                  msgTarget: 'under',
+                  listeners: {
+                     render: function () {
+                        this.store.load();
+                     }
+                  }
                },
                {
                     itemId: 'comment',

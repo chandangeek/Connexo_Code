@@ -39,10 +39,10 @@ Ext.define('Isu.controller.CreationManualRule', {
             page = me.getPage(),
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('issue-manually-creation-rules-item-add',{
-                returnLink: router.getRoute('workspace/toucampaigns').buildUrl()
+                returnLink: router.getRoute('workspace/issuesoverview').buildUrl()
             });
         var manualIssue = Ext.create('Isu.model.ManuallyRuleItem'),
-        dependencies = ['Isu.store.IssueDevices', 'Isu.store.IssueReasons','Isu.store.IssueWorkgroupAssignees','Isu.store.UserList'],
+        dependencies = ['Isu.store.IssueDevices', 'Isu.store.IssueReasons'],
         dependenciesCounter = dependencies.length,
         onDependenciesLoaded = function () {
             dependenciesCounter--;
@@ -70,30 +70,23 @@ Ext.define('Isu.controller.CreationManualRule', {
        var record = form.getRecord();
        record.beginEdit();
        var urgency = record.get('priority.urgency');
-       var impact = record.get('priority.urgency');
+       var impact = record.get('priority.impact');
        if ( urgency !== undefined && impact !== undefined ) record.set('priority' , urgency + ':' + impact);
        if (form.down('#dueDateTrigger')) {
-            var dueDateNumber = form.down('[name=dueIn.number]').getValue();
-            var dueDateType = form.down('[name=dueIn.type]').getValue();
-
-            if (dueDateNumber && dueDateType){
-                switch(dueDateType){
-                    default:
-                      dueDateNumber *= 3600 * 24;
-                }
-            }else{
-                dueDateNumber = null;
-            }
-
-            record.set('dueDate', dueDateNumber);
+        if (form.down('#dueDateTrigger')) {
+            record.set('dueIn', {
+                number: form.down('[name=dueIn.number]').getValue(),
+                type: form.down('[name=dueIn.type]').getValue()
+            });
         } else {
             record.set('dueIn', null);
+        }
        }
        record.endEdit();
        record.save({
             backUrl: page.returnLink,
             success: function (record, operation) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.campaigns.addSuccess', 'TOU', 'ToU calendar campaign added'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('isu.manually.addSuccess', 'ISU', 'New manually issue added'));
                 if (page.rendered) {
                     window.location.href = page.returnLink;
                 }

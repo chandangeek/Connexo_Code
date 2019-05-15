@@ -28,7 +28,7 @@ Ext.define('Isu.model.ManuallyRuleItem', {
         {
             name: 'priority',
             type: 'text',
-            defaultValue: '25:25'
+            defaultValue: '25:5'
         },
         {
             name: 'dueDate',
@@ -45,7 +45,17 @@ Ext.define('Isu.model.ManuallyRuleItem', {
             name: 'statusId',
             type: 'text',
             defaultValue: 'status.open'
-        }
+        },
+        {
+            name: 'assignToWorkgroupId',
+            type: 'int',
+            defaultValue: -1
+        },
+        {
+            name: 'assignToUserId',
+            type: 'int',
+            defaultValue: -1
+        },
 
     ],
 
