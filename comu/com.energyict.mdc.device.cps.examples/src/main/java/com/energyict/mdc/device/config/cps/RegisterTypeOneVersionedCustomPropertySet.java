@@ -16,6 +16,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.inject.Module;
@@ -39,6 +40,7 @@ public class RegisterTypeOneVersionedCustomPropertySet implements CustomProperty
 
     public static final String TABLE_NAME = "RVK_CPS_REGISTER_VER";
     public static final String FK_CPS_DEVICE_VER = "FK_CPS_REGISTER_VER";
+    public static final String FK_REGISTER_DEVICE_VER = "FK_REGISTER_DEVICE_VER";
 
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceService deviceService;
@@ -203,13 +205,31 @@ public class RegisterTypeOneVersionedCustomPropertySet implements CustomProperty
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+            Column deviceColumn =  table
+                    .column(RegisterTypeOneVersionedDomainExtension.FieldNames.DEVICE.databaseName())
+                    .number()
+                    .map(RegisterTypeOneVersionedDomainExtension.FieldNames.DEVICE.javaName())
+                    .notNull()
+                    .add();
+            table
+                    .foreignKey(FK_REGISTER_DEVICE_VER)
+                    .on(deviceColumn)
+                    .references(getContextClass())
+                    .map(RegisterTypeOneVersionedDomainExtension.FieldNames.DEVICE_REF.javaName())
+                    .add();
             return Collections.singletonList(
-                    table
-                        .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
-                        .number()
-                        .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
-                        .notNull()
-                        .add());
+                    deviceColumn
+            );
+        }
+
+        @Override
+        public String contextForeignKeyName() {
+            return FK_REGISTER_DEVICE_VER;
+        }
+
+        @Override
+        public Class getContextClass() {
+            return Device.class;
         }
 
         @Override

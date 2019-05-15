@@ -92,6 +92,7 @@ public abstract class DeviceLifecycleEvent implements IssueEvent {
         Optional<CreationRule> rule = issueService.getIssueCreationService().findCreationRuleById(ruleId);
         if(rule.isPresent()){
             filter.setRule(rule.get());
+            getEndDevice().ifPresent(filter::setDevice);
             new ArrayList<String>(){{
                 add(IssueStatus.OPEN);
                 add(IssueStatus.IN_PROGRESS);
