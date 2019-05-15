@@ -16,8 +16,16 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.startedOn', 'WSS', 'Started on'),
-                dataIndex: 'timestampDisplay',
-                flex: 1.5
+                dataIndex: 'startDate',
+                flex: 1.5,
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({
+                        endpointId: record.getEndpoint().get('id')
+                    });
+                    var date = value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+
+                    return '<a href="' + url + '">' + date + '</a>';
+                }
             },
             {
                 header: Uni.I18n.translate('general.endpoint', 'WSS', 'Web service endpoint'),

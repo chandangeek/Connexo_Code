@@ -31,6 +31,7 @@ Ext.define('Wss.controller.Webservices', {
 
     refs: [
         {ref: 'preview', selector: 'webservices-preview'},
+        {ref: 'historyPreview', selector: 'webservices-webservice-history-preview'},
         {ref: 'addForm', selector: '#addForm'},
         {ref: 'propertyForm', selector: 'endpoint-add property-form'},
         {ref: 'landingPageForm', selector: 'webservice-landing-page webservices-preview-form form'},
@@ -56,6 +57,9 @@ Ext.define('Wss.controller.Webservices', {
             },
             '#add-webservice-endpoint': {
                 click: this.goToAddView
+            },
+            'webservices-history wss-webservice-history-grid': {
+                select: this.showHistoryPreview
             }
         });
     },
@@ -82,6 +86,25 @@ Ext.define('Wss.controller.Webservices', {
         });
         me.getApplication().fireEvent('changecontentevent', view);
     },
+
+    // setDefaultSort: function () {
+    //     var me = this,
+    //         store = me.getStore('Wss.store.webservice.History'),
+    //         sorting = store.getProxy().extraParams['sort'];
+
+    //     if (sorting === undefined) { // set default filters
+    //         sorting = [];
+    //         sorting.push({
+    //             property: 'status',
+    //             direction: Uni.component.sort.model.Sort.DESC
+    //         });
+    //         sorting.push({
+    //             property: 'startDate',
+    //             direction: Uni.component.sort.model.Sort.DESC
+    //         });
+    //         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+    //     }
+    // },
 
     showAddWebserviceEndPoint: function () {
         var me = this,
@@ -238,6 +261,15 @@ Ext.define('Wss.controller.Webservices', {
         if (preview.down('webservices-action-menu')) {
             preview.down('webservices-action-menu').record = record;
         }
+    },
+
+    showHistoryPreview: function (selectionModel, record) {
+        var me = this,
+            preview = me.getHistoryPreview(),
+            previewForm = preview.down('webservices-webservice-history-form');
+
+        previewForm.loadRecord(record);
+        previewForm.setTitle(Uni.DateTime.formatDateTimeShort(record.get('startDate')));
     },
 
     chooseAction: function (menu, item) {

@@ -32,9 +32,9 @@ Ext.define('Wss.view.webservice.HistoryPreviewContainer', {
         };
 
         me.previewComponent = {
-            frame: true,
             xtype: 'webservices-webservice-history-form',
-            itemId: 'webservices-webservice-history-form'
+            itemId: 'webservices-webservice-history-form',
+            frame: true
         };
 
         me.callParent(arguments);

@@ -9,8 +9,14 @@ Ext.define('Wss.model.webservice.History', {
   ],
 
   fields: [
-      {name: 'startDateTime', type: 'date'},
-      {name: 'endDateTime', type: 'date'},
+      {
+        name: 'startDate',
+        type: 'date',
+        convert: function (value) {
+          return new Date(value);
+        }
+      },
+      {name: 'duration', type: 'number'},
       {name: 'status', type: 'string'}
   ],
 
