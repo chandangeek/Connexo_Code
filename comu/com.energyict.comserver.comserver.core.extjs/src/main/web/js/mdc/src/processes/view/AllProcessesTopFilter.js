@@ -111,6 +111,21 @@ Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
         ];
 
         me.callParent(arguments);
+        me.initActions();
+    },
+    
+    initActions: function () {
+        var me = this,
+            applyButton = me.down('button[action=applyAll]');
+
+        applyButton.on('click', me.allProcessesApplyFilters, me);
+    },
+    
+    allProcessesApplyFilters: function() {
+    	var me = this;
+    	me.clearFilter('processInstanceId');
+    	me.clearFilter('searchInAllProcesses');
+    	me.applyFilters();
     },
 
     comboSetFilterValue: function (value) {
