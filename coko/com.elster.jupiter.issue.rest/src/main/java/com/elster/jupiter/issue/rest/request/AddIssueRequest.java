@@ -16,7 +16,7 @@ public class AddIssueRequest {
     private String deviceMrid;
     private String usagePointMrid;
     private String comment;
-    private long dueDate;
+    private DueInInfo dueDate;
     private long assignToUserId;
     private long assignToWorkgroupId;
     private String assignComment;
@@ -69,11 +69,11 @@ public class AddIssueRequest {
         this.comment = comment;
     }
 
-    public long getDueDate() {
+    public DueInInfo getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(long dueDate) {
+    public void setDueDate(DueInInfo dueDate) {
         this.dueDate = dueDate;
     }
 

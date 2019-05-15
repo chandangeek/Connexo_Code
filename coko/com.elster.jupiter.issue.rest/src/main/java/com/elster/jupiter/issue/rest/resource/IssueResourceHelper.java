@@ -19,6 +19,7 @@ import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -271,7 +272,7 @@ public class IssueResourceHelper {
                 .withStatus(issueService.findStatus(request.getStatusId()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "statusId")))
                 .withPriority(Priority.fromStringValue(request.getPriority()))
                 .withDevice(meteringService.findEndDeviceByMRID(request.getDeviceMrid()).orElse(null))
-                .withDueDate(request.getDueDate() > 0 ? Instant.ofEpochSecond(request.getDueDate()): null)
+                .withDueDate(request.getDueDate() == null? null: Instant.ofEpochMilli(DueInType.fromString(request.getDueDate().getType()).dueValueFor(request.getDueDate().getNumber())))
                 .withOverdue(false)
                 .withComment(request.getComment())
                 .withAssignToUser(request.getAssignToUserId() > 0 ? request.getAssignToUserId(): null)
