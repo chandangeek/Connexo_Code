@@ -19,26 +19,36 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
         var me = this;
         me.title = Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue');
 
-        me.items = [
+        me.items = [{
+                    xtype: 'uni-form-error-message',
+                    itemId: 'form-errors',
+                    name: 'form-errors',
+                    margin: '0 0 10 0',
+                    hidden: true
+               },
                {
                     xtype: 'combobox',
                     fieldLabel: Uni.I18n.translate('general.title.isudevice', 'ISU', 'Device'),
                     store: 'Isu.store.IssueDevices',
+                    forceSelection: true,
                     required: true,
                     allowBlank: false,
                     displayField: 'name',
                     valueField: 'id',
-                    name: 'deviceMrid'
+                    name: 'deviceMrid',
+                    queryMode: 'local',
                },
                {
                     xtype: 'combobox',
-                    fieldLabel: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue type'),
-                    store: 'Isu.store.IssueTypes',
+                    fieldLabel: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue reason'),
+                    store: 'Isu.store.IssueReasons',
+                    forceSelection: true,
                     required: true,
                     allowBlank: false,
                     displayField: 'name',
-                    valueField: 'uid',
-                    name: 'reasonId'
+                    valueField: 'id',
+                    name: 'reasonId',
+                    queryMode: 'local'
                },
                {
                   xtype: 'fieldcontainer',
@@ -49,7 +59,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                      {
                         xtype: 'label',
                         itemId: 'priority-label',
-                        text: ''
+                        text: 'Low (30)'
                      }
                   ]
                },
@@ -119,13 +129,15 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                                 {
                                     itemId: 'noDueDate',
                                     boxLabel: Uni.I18n.translate('issueCreationRules.noDueDate', 'ISU', 'No due date'),
-                                    inputValue: true
+                                    inputValue: false,
+                                    checked: true
                                 },
                                 {
                                     itemId: 'dueIn',
                                     boxLabel: Uni.I18n.translate('general.title.dueIn', 'ISU', 'Due in'),
-                                    inputValue: false,
-                                    margin: '7 0 0 0'
+                                    inputValue: true,
+                                    margin: '7 0 0 0',
+                                    checked: false
                                 }
                             ],
                             listeners: {
@@ -186,23 +198,6 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     ]
                },
                {
-                    itemId: 'comment',
-                    xtype: 'textareafield',
-                    name: 'comment',
-                    fieldLabel: Uni.I18n.translate('general.comment', 'ISU', 'Comment'),
-                    emptyText: Uni.I18n.translate('general.provideComment','ISU','Provide a comment (optionally)'),
-                    height: 160
-               },
- /*              {
-                    itemId: 'actionsAtCreationTimeHeader',
-                    xtype: 'displayfield',
-                    htmlEncode: false,
-                    style: {
-                       margin: '0 0 0 50px'
-                    },
-                    value: '<span style="font-size:15px;font-weight:bold">' + Uni.I18n.translate('issues.actionsAtCreationTime', 'ISU', 'Actions performed at creation time') + '</span>'
-               },
-               {
                   xtype: 'combobox',
                   itemId: 'mi-workgroup-issue-assignee',
                   fieldLabel: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
@@ -232,6 +227,23 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                   store: 'Isu.store.UserList',
                   emptyText: Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned'),
                   msgTarget: 'under'
+               },
+               {
+                    itemId: 'comment',
+                    xtype: 'textareafield',
+                    name: 'comment',
+                    fieldLabel: Uni.I18n.translate('general.comment', 'ISU', 'Comment'),
+                    emptyText: Uni.I18n.translate('general.provideComment','ISU','Provide a comment (optionally)'),
+                    height: 160
+               },
+ /*              {
+                    itemId: 'actionsAtCreationTimeHeader',
+                    xtype: 'displayfield',
+                    htmlEncode: false,
+                    style: {
+                       margin: '0 0 0 50px'
+                    },
+                    value: '<span style="font-size:15px;font-weight:bold">' + Uni.I18n.translate('issues.actionsAtCreationTime', 'ISU', 'Actions performed at creation time') + '</span>'
                },
                {
                     itemId: 'actionsAtCreationTimeComment',
@@ -264,7 +276,6 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
 
             ];
 
-        //me.changePriority();
         me.callParent(arguments);
 
     },

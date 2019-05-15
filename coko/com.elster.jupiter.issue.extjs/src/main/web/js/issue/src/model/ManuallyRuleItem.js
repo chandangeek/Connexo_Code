@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+Ext.define('Isu.model.ManuallyRuleItem', {
+    extend: 'Ext.data.Model',
+    fields: [
+        {
+            name: 'deviceMrid',
+            type: 'text'
+        },
+        {
+            name: 'reasonId',
+            type: 'text'
+        },
+        {
+            name: 'priority.urgency',
+            persist: false,
+            type: 'text',
+            defaultValue: 25
+        },
+        {
+             name: 'priority.impact',
+             persist: false,
+             type: 'text',
+             defaultValue: 5
+        },
+        {
+            name: 'priority',
+            type: 'text',
+            defaultValue: '25:25'
+        },
+        {
+            name: 'dueDate',
+            type: 'date',
+            dateFormat: 'time',
+            defaultValue: 0,
+        },
+        {
+            name: 'comment',
+            type: 'text',
+            defaultValue: null
+        },
+        {
+            name: 'statusId',
+            type: 'text',
+            defaultValue: 'status.open'
+        }
+
+    ],
+
+    proxy: {
+        type: 'rest',
+        api: {
+            create: '/api/isu/issues/add'
+        },
+        reader: {
+            type: 'json',
+        }
+    }
+});
