@@ -110,8 +110,8 @@ abstract class ComTaskImpl implements ComTask {
     private Instant createTime;
     @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
-    @SuppressWarnings("unused") // Managed by ORM
-    private boolean systemTask;
+    //@SuppressWarnings("unused") // Managed by ORM
+   // private boolean systemTask;
 
     /**
      * Keeps track of the maximum number of tries a ComTask may execute before failing
@@ -282,7 +282,7 @@ abstract class ComTaskImpl implements ComTask {
         }
     }
 
-    @Override
+    /*@Override
     public Boolean getSystemTask() {
         return systemTask;
     }
@@ -290,7 +290,7 @@ abstract class ComTaskImpl implements ComTask {
     @Override
     public void setSystemTask(Boolean systemTask) {
         this.systemTask = systemTask;
-    }
+    }*/
 
     @Override
     public void delete() {

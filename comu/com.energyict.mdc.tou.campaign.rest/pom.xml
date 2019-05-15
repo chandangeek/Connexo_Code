@@ -93,10 +93,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.tasks</artifactId>
-        </dependency>
+        </dependency>-->
 <!--Tests-->
         <dependency>
             <groupId>com.energyict</groupId>

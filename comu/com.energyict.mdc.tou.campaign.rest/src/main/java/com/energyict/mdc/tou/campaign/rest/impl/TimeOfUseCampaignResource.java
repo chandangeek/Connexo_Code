@@ -19,11 +19,12 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.tasks.TaskService;
+//import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
@@ -46,7 +47,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/toucampaigns")
@@ -62,14 +65,14 @@ public class TimeOfUseCampaignResource {
     private final ServiceCallService serviceCallService;
     private final ExceptionFactory exceptionFactory;
     private final DeviceConfigurationService deviceConfigurationService;
-    private final TaskService taskService;
+    //private final TaskService taskService;
 
     @Inject
     public TimeOfUseCampaignResource(TimeOfUseCampaignService timeOfUseCampaignService, TimeOfUseCampaignInfoFactory timeOfUseCampaignInfoFactory,
                                      Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory,
                                      DeviceTypeAndOptionsInfoFactory deviceTypeAndOptionsInfoFactory, DeviceInCampaignInfoFactory deviceInCampaignInfoFactory,
                                      DeviceService deviceService, ServiceCallService serviceCallService, ExceptionFactory exceptionFactory,
-                                     DeviceConfigurationService deviceConfigurationService, TaskService taskService) {
+                                     DeviceConfigurationService deviceConfigurationService/*, TaskService taskService*/) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.timeOfUseCampaignInfoFactory = timeOfUseCampaignInfoFactory;
         this.thesaurus = thesaurus;
@@ -80,7 +83,7 @@ public class TimeOfUseCampaignResource {
         this.serviceCallService = serviceCallService;
         this.exceptionFactory = exceptionFactory;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.taskService = taskService;
+        //this.taskService = taskService;
     }
 
     @GET
@@ -225,17 +228,25 @@ public class TimeOfUseCampaignResource {
         return Response.ok(deviceTypeAndOptionsInfo).build();
     }
 
-    @GET
+    /*@GET
     @Transactional
     @Path("/comtasks")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
-    public Response getComTasks(@BeanParam JsonQueryParameters queryParameters) {
-        List<IdWithNameInfo> comTasks = new ArrayList<>();
+    public Response getComTasks(@QueryParam("type") long deviceTypeId) {
+        Set<IdWithNameInfo> comTasks = new HashSet<>();
+
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(deviceTypeId)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, deviceTypeId));
+
+        List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
+        deviceType.getConfigurations().stream().forEach(cnf -> comTaskEnablements.addAll(cnf.getComTaskEnablements()));
+        comTaskEnablements.stream().forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));*/
+        /*List<IdWithNameInfo> comTasks = new ArrayList<>();
         taskService.findAllComTasks().stream()
-                .forEach(comTask -> comTasks.add(new IdWithNameInfo(comTask.getId(), comTask.getName())));
-        return Response.ok(comTasks).build();
-    }
+                .forEach(comTask -> comTasks.add(new IdWithNameInfo(comTask.getId(), comTask.getName())));*/
+        //return Response.ok().build();
+    //}
 
     public Long getCurrentCampaignVersion(long id) {
         return timeOfUseCampaignService.getCampaign(id).map(TimeOfUseCampaign::getVersion).orElse(null);
