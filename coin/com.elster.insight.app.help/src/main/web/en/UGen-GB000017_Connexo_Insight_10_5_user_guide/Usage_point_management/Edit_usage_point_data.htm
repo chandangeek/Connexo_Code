@@ -1,0 +1,454 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Edit usage point data</title>
+
+    <link rel="stylesheet" href="Usage_point_management.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "5.0_11";
+    </script>
+    <meta name="brsprev" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Usage_point_management/Add_usage_points.htm">
+    <meta name="brsnext" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Usage_point_management/Flag_a_usage_point.htm">
+    <meta name="topic-breadcrumbs" content="Usage point management"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic">Edit usage point data</p>
+    <p dir="ltr" class="FM_Body">You can edit different groups of data of a usage point to correct mistakes or to align it with a changed situation. You can either make changes to multiple usage
+        points at once or to one single usage point at a time.</p>
+    <p dir="ltr" class="FM_H4Topic">Edit usage points with a csv file</p>
+    <p dir="ltr" class="FM_Body">You can edit multiple usage points by importing a csv file with existing usage points containing adjusted attributes. This is done with the Connexo import framework in
+        the Connexo Admin application. For detailed information on import services, refer to the Connexo Admin user guide. Remember that you need specific <a
+                href="javascript:BSSCPopup('../../Glo$$aryPopup$/privilege.htm');" id="GLPOPUPEditResp1011">
+            <script type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+            FilePopupInit('GLPOPUPEditResp1011');</script>
+            privilege</a>s to access the Connexo Admin application and to edit usage points in bulk.
+    </p>
+    <p dir="ltr" class="FM_Body">See also <a href="Add_usage_points.htm#XREF_76892_Import_usage"><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span
+            class="FM_blue_crossreference">Import usage points with a csv file”</span></a>.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_84510_Edit_usage_point"></a>Edit usage point attributes</p>
+    <p dir="ltr" class="FM_Body">Edit the attributes of a single usage point to keep the usage point’s information up to date. You must have sufficient privileges to edit the different (custom)
+        attribute sets.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Open a usage point using the search page.</p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">More attributes</span>&#160;in <span class="FM_UIRef">Usage point summary</span>&#160;or click <span class="FM_UIRef">Usage point attributes</span>&#160;in
+        the vertical navigation bar to the left to open the <span class="FM_UIRef">Usage point attributes</span> page.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; There are two procedures to edit the usage point’s attributes.</p>
+    <p dir="ltr" class="FM_ListNumber2">a. Click the <span class="FM_UIRef">Actions</span>&#160;button and select the section you want to edit. First two items are fixed. They are <span
+            class="FM_UIRef">General information</span>&#160;and <span class="FM_UIRef">Technical information</span>. The other items represent the custom attribute sets in the second column of the
+        page. They are sorted alphabetically by name.</p>
+    <p dir="ltr" class="FM_ListNumber2">b. Click the pencil icon <img alt="inset_0_2.png" id="image69" src="../../assets/inset_0_2.png" style="max-width: 100% ;height: auto"/>.</p>
+    <p dir="ltr" class="FM_Indent">The widget switches to edit mode. You can edit only one group of attributes at the same time.</p>
+    <p dir="ltr" class="FM_Indent">In <span class="FM_UIRef">General information</span>&#160;you can’t edit <span class="FM_UIRef">MRID</span>, <span class="FM_UIRef">Service category</span>, <span
+            class="FM_UIRef">Created</span>&#160;and <span class="FM_UIRef">Type of usage point</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Edit the applicable fields.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Save</span> to confirm your changes.</p>
+    <p dir="ltr" class="FM_Indent">The panel switches back to view mode and the page reloads to show the updated information. In case of errors, the panel remains in edit mode and you are asked to
+        make the necessary corrections before saving again.</p>
+    <p dir="ltr" class="FM_Indent">Click <span class="FM_UIRef">Cancel</span> to discard your changes.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_62692_Link_a_metrology"></a>Link a metrology configuration to a usage point</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Link an existing metrology configuration to a usage point to define how data is calculated, including validation and estimation and also how many meters must be activated. A metrology configuration can only be linked to a usage point that is in a pre-operational stage in its life cycle.</span>
+    </p>
+    <p dir="ltr" class="FM_Body">It is possible t<span class="FM_change_bar">o link a metrology configuration during creation of the usage point. See </span><a
+            href="Add_usage_points.htm#XREF_57648_Add_a_single_usage"><span class="FM_change_bar"></span><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span
+            class="FM_blue_crossreference">Add a single usage point”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar">. Afterwards, you can unlink and link another metrology configuration to the usage point.</span>
+    </p>
+    <p dir="ltr" class="FM_PProcedure" style="font-family : 'Lato Light'; font-weight : normal; color   : #686868;"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Open a usage point without linked metrology configuration using the search page.</p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; C<span class="FM_change_bar">lick the link </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Link metrology configuration</span><span
+            class="FM_change_bar"> i</span>n the <span class="FM_UIRef">Metrology configuration</span>&#160;widget on the usage point overview page or click the button <span class="FM_change_bar"
+                                                                                                                                                                              style="font-family : Lato; font-weight : bold; ">Link metrology configuration</span><span
+            class="FM_change_bar">&#160;</span>on the <span class="FM_UIRef">Metrology configuration</span> page.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; In the first step of the <span class="FM_UIRef">Li</span><span class="FM_change_bar">nk metrology configuration</span>&#160;wizard, select a metrology
+        configuration from the drop-down.</p>
+    <p dir="ltr" class="FM_Indent">The drop-down contains only the active metrology configurations that have no custom attribute sets or custom attribute sets for which you have view or edit <a
+            href="javascript:BSSCPopup('../../Glo$$aryPopup$/privilege.htm');" id="GLPOPUPEditResp1012">
+        <script type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+        FilePopupInit('GLPOPUPEditResp1012');</script>
+        privilege</a>s. In addition to these constraints, the metrology configurations in the drop-down list must be compatible with the completed attributes for the current usage point.
+    </p>
+    <p dir="ltr" class="FM_Indent">If there are no metrology configurations available to you, then you can’t proceed with this procedure.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">In </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Start date</span><span
+            class="FM_change_bar">, specify an activation date and time for the metrology configuration.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">If gaps are allowed:</span></p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">Metrology configuration activation date is later than or equal to the usage point creation date.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">In case of linking to a usage point with meters, the metrology configuration activation date must be later than or equal to the meter activation date in the meter data collection system.</span>
+            </p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">If gaps aren’t allowed, then the metrology configuration will only be linked to a usage point with meters:</span></p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">Metrology configuration activation date is later than or equal to the usage point creation date.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">Metrology configuration activation date is later than or equal to the meter activation date in the meter data collection system.</span>
+            </p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">Meters must be specified for all the meter roles that are needed for the calculation of the active purposes of the current metrology configuration.</span>
+            </p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">All meters must be in operational stage starting from the metrology configuration activate date until an infinite date in the future.</span>
+            </p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; in <span class="FM_UIRef">Purposes</span>, you see the pur<span class="FM_change_bar">poses that are available for the metrology configuration appear on the page. The required ones are selected and can’t be edited. The optional ones can be selected if needed.</span>
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_Indent">If the selected metrology configuration has custom attribute sets then the corresponding additional steps appear in the wizard menu on the left. There is one extra
+        step per custom attribute set. They are sorted alphabetically by name. </p>
+    <p dir="ltr" class="FM_Indent">The custom attributes that are marked as required are required in the custom attribute set or they are required for calculation by required purposes of the metrology
+        configuration.</p>
+    <p dir="ltr" class="FM_ListNumber1">7. &#160; Click <span class="FM_UIRef">Next</span> to go to the next custom attribute set to complete its attributes.</p>
+    <p dir="ltr" class="FM_ListNumber1">8. &#160; Click <span class="FM_UIRef">Add</span> after completing the last step of the wizard.</p>
+    <p dir="ltr" class="FM_Indent">The selected metrology configuration is now associated with the current usage point.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_35290_Unlink_a_linked"></a>Unlink a linked metrology configuration and link another one</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">When the usage point is in a pre-operational stage of its life cycle, it is possible to unlink the linked metrology configuration from the usage point. </span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can then link another metrology configuration. You will only be able to choose from metrology configurations that have the same meter roles as the meter roles that have been specified on the usage point. So, if a meter is linked to the production meter role on a usage point, then the list of available metrology configurations will contain only metrology configurations with the production meter role. The match must be exact. For instance, if you have a usage point with two meters and two meter roles (production and consumption) and you want to add a metrology configuration with only the consumption meter role, then you will need to remove the production meters first.</span>
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Open a usage point with a linked metrology configuration.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar"
+                                                                                                 style="font-family : Lato; font-weight : bold; ">Metrology configuration</span><span
+            class="FM_change_bar"> in the vertical navigation bar on the left.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the button </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Unlink metrology configuration</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">You are now ready to link another metrology configuration. See </span><a href="#XREF_62692_Link_a_metrology"><span
+            class="FM_change_bar"></span><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">Link a metrology configuration to a usage point”</span><span
+            class="FM_change_bar"></span></a><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Be aware that data won’t be available on the current usage point until another metrology configuration is linked.</span></p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_31995_View_history_of"></a>View history of linked metrology configurations</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can see current and historical metrology configurations of a usage point to understand what reading types have been collected and will continue to be collected.</span>
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Open a usage point landing page.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">History</span><span
+            class="FM_change_bar"> in the vertical navigation bar on the left.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the tab </span><span class="FM_change_bar"
+                                                                                                         style="font-family : Lato; font-weight : bold; ">Metrology configurations</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The table shows all metrology configurations that have been linked to the current usage point. The currently linked meter is indicated in the column </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Current</span><span class="FM_change_bar">. In </span><span class="FM_change_bar"
+                                                                                                                                               style="font-family : Lato; font-weight : bold; ">Period</span><span
+            class="FM_change_bar">&#160;you can see during what period the metrology configuration was linked. You can click the metrology configuration name to see its landing page. </span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">In the details pane, you can click the process ID’s - if there are any - to see their details on the running processes page. The details pane also shows the active purposes of the current metrology configuration and their reading types. Click the info icon next to each item to see more details about the reading type.</span>
+    </p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_34870_Link_meters_on_a"></a>Link meters on a usage point with a defined metrology configuration</p>
+    <p dir="ltr" class="FM_Body">Add meters to a usage point with a de<span class="FM_change_bar">fined metrology configuration so that the usage point can be activated and enter the operational stage of its life cycle. In this case, the usage point must be in the pre-operational stage of its life cycle and its linked metrology configuration can have a date in the past or in the future.</span>
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Open a usage point with a defined metrology configuration but without set meters.</p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click the link </span><span class="FM_change_bar"
+                                                                                                          style="font-family : Lato; font-weight : bold; ">Link meters </span><span
+            class="FM_change_bar">in the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Metrology configuration </span><span class="FM_change_bar">widget on the usage point overview page or click the button </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Link meters </span><span class="FM_change_bar">on the </span><span class="FM_change_bar"
+                                                                                                                                                      style="font-family : Lato; font-weight : bold; ">Metrology configuration</span><span
+            class="FM_change_bar">&#160;page of t</span>he current usage point.</p>
+    <p dir="ltr" class="FM_Indent">For each of the meter roles that are defined on the metrology configuration of the usage point you can select a meter.</p>
+    <p dir="ltr" class="FM_Indent">If meters have been<span class="FM_change_bar">&#160;set earlier for this usage point’s metrology configuration, then you can make modifications</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Start typing the meter name in <span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Meter</span> next to the corresponding
+        meter role.</p>
+    <p dir="ltr" class="FM_Indent">The list is populated as you are typing. You can even type the middle part of an meter name. A maximum of 50 items is shown in the list. Keep typing to narrow down
+        your filter if you don’t see the needed meter yet. Wildcards are not needed.</p>
+    <p dir="ltr" class="FM_Indent">Meters with the <span class="FM_UIRef">Decommissioned</span>&#160;or <span class="FM_UIRef">Deleted</span> status aren’t included in the list.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Select the needed meter.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Specify the needed activ<span class="FM_change_bar">ation date and time in </span><span class="FM_change_bar"
+                                                                                                                                          style="font-family : Lato; font-weight : bold; ">Activation date</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The meter data will be available on the selected usage point starting from the specified date and time.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">By default, the activation date equals the date when the metrology configuration has been linked to the usage point. When a meter is selected, the activation date is updated to the meter’s activation date in the meter data collection system. You can specify another activation date taking into account the following restrictions:</span>
+    </p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">If gaps are allowed (See </span><a
+            href="../Metrology_configuration/Understand_the_metrology_configuration_landing_page.htm#XREF_17531_View_the_metrology"><span class="FM_change_bar"></span><span
+            class="FM_blue_crossreference">“View the metrology configuration landing page”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar">.),</span></p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">Meter activation date on usage point must be later than or equal to the creation date of the usage point.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">The selected meters must be in the operational stage starting from the activation of the metrology configuration.</span></p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">If gaps aren’t allowed,</span></p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">Meter activation date on usage point must be later than or equal to the creation date of the usage point.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">The selected meters must be in the operational stage starting from the activation of the metrology configuration until an infinite date in the future.</span>
+            </p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar">Meters must be specified for all of the meter roles that are needed for the calculation of the active purposes of the selected metrology configuration.</span>
+            </p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; Click <span class="FM_UIRef">Save</span>.</p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The linked meters are now shown in the </span><span class="FM_change_bar"
+                                                                                                                   style="font-family : Lato; font-weight : bold; ">Meter roles</span><span
+            class="FM_change_bar">&#160;table and the list of meters will remain visible even if there isn’t any metrology configuration linked to the usage point anymore. </span></p>
+    <p dir="ltr" class="FM_Indent">If the selected meter is already linked to another usage point, then you need to confirm this before the meters can be saved. The confirmation message indicates with
+        what usage point(s) and in what role(s) the meter is already linked.</p>
+    <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet1">The same meter can’t be set for different meter roles of the same metrology configuration.</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1"><a href="javascript:BSSCPopup('../../Glo$$aryPopup$/reading type.htm');" id="GLPOPUPEditResp1013">
+                <script type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+                FilePopupInit('GLPOPUPEditResp1013');</script>
+                Reading type</a>s provided by the meter must match the reading type patterns of the inputs of the meter role.
+            </p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1">Additional custom validation checks may be in place. Custom validation checks are implemented by your Connexo delivery team.</p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_11043_Link_meters_on_a"></a>Link meters on a usage point without a defined metrology configuration</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Add meters to a usage point without a defined metrology configuration so that the usage point can be prepared to enter the operational stage of its life cycle. In this case, the usage point can be in the pre-operational or operational stage of its life cycle.</span>
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Open a usage point without a linked metrology configuration.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click the button </span><span class="FM_change_bar"
+                                                                                                            style="font-family : Lato; font-weight : bold; ">Link meters </span><span
+            class="FM_change_bar">on the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Metrology configuration</span><span class="FM_change_bar">&#160;page of the current usage point.</span>
+    </p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">If meters have been set earlier for this usage point’s metrology configuration, then you can make modifications.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Start typing the meter role name in </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Meter role</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">You can select any meter role that is available in the system.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The list is populated as you are typing. You can even type the middle part of an meter name. A maximum of 50 items is shown in the list. Keep typing to narrow down your filter if you don’t see the needed meter yet. Wildcards are not needed.</span>
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Start typing the meter name in </span><span class="FM_change_bar"
+                                                                                                                          style="font-family : Lato; font-weight : bold; ">Meter</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The list is populated as you are typing.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">Meters with the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Decommissioned</span><span
+            class="FM_change_bar">&#160;or </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Deleted</span><span class="FM_change_bar"> status aren’t included in the list.</span>
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; <span class="FM_change_bar">Select the needed meter.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">Specify a meter for each meter role.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; <span class="FM_change_bar">Specify an activation date and time in </span><span class="FM_change_bar"
+                                                                                                                                  style="font-family : Lato; font-weight : bold; ">Activation date</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">This simply indicates the date of linking the meter to the usage point.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The meter activation date must be later than or equal to the creation date of the usage point.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">7. &#160; <span class="FM_change_bar">If needed, click the plus icon in the column </span><span class="FM_change_bar"
+                                                                                                                                        style="font-family : Lato; font-weight : bold; ">Actions</span><span
+            class="FM_change_bar">&#160;to add a new row and add an extra meter role, meter and activation date.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">8. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Save</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The linked meters are now shown in the </span><span class="FM_change_bar"
+                                                                                                                   style="font-family : Lato; font-weight : bold; ">Meter roles</span><span
+            class="FM_change_bar">&#160;table. </span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">If the selected meter is already linked to another usage point, then you need to confirm this before the meters can be saved. The confirmation message indicates with what usage point(s) and in what role(s) the meter is already linked.</span>
+    </p>
+    <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">The same meter can’t be set for different meter roles of the same metrology configuration.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar"><a href="javascript:BSSCPopup('../../Glo$$aryPopup$/reading type.htm');" id="GLPOPUPEditResp1014"><script
+                    type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+            FilePopupInit('GLPOPUPEditResp1014');</script>Reading type</a>s provided by the meter must match the reading type patterns of the inputs of the meter role.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1"><span
+                    class="FM_change_bar">Additional custom validation checks may be in place. Custom validation checks are implemented by your Connexo delivery team.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1">When<span class="FM_change_bar">&#160;linking a metrology configuration, the list of available metrology configurations will be limited to those that have all of the roles that have already been configured on the usage point.</span>
+            </p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_48094_Unlink_a_meter_on"></a>Unlink a meter on a usage point with a defined metrology configuration</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can unlink a meter from a usage point with defined metrology configuration to replace it with another meter - if needed.</span></p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Open a usage point with a defined metrology configuration with linked meters.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click the button </span><span class="FM_change_bar"
+                                                                                                            style="font-family : Lato; font-weight : bold; ">Link meters </span><span
+            class="FM_change_bar">on the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Metrology configuration</span><span class="FM_change_bar">&#160;page of the current usage point.</span>
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the remove icon <img alt="Remove2.png" id="image70" src="../../assets/Remove2.png"
+                                                                                                         style="max-width: 100% ;height: auto"/> to unlink the meter.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Save</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The meter is no longer shown in the table and another meter can be entered for the selected meter role.</span></p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_97201_View_history_of"></a>View history of linked meters on a usage point</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can see what meters have been linked to the current usage point over time.</span></p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Open a usage point landing page.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">History</span><span
+            class="FM_change_bar"> in the vertical navigation bar on the left.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the tab </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Meters</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span
+            class="FM_change_bar">The table shows all meters that have been linked to the current usage point. The currently linked meter is indicated in the column </span><span class="FM_change_bar"
+                                                                                                                                                                                  style="font-family : Lato; font-weight : bold; ">Current</span><span
+            class="FM_change_bar">. In </span><span class="FM_UIRef">Period</span><span class="FM_change_bar">&#160;you can see during what period the meter was linked. You can also see the associated meter role and the eventual ongoing processes. Of course, you can see the name of the meter itself and even click on it to see its landing page. In the details pane, you can click the process ID’s - if there are any - to see their details on the running processes page.</span>
+    </p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_27605_Add_a_calendar_to"></a>Add a calendar to a usage point manually</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">If you have sufficient <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/privilege.htm');" id="GLPOPUPEditResp1015"><script
+            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+    FilePopupInit('GLPOPUPEditResp1015');</script>privilege</a>s, you can add a time of use calendar to a usage point in order to use the calendar for calculating data on the usage point. The available calendar categories and calendars are determined by the metrology configuration.</span>
+    </p>
+    <p dir="ltr" class="FM_PProcedure" style="font-family : 'Lato Light'; font-weight : normal; color   : #686868;"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Open a usage point using </span><span class="FM_change_bar"
+                                                                                                                         style="font-family : Lato; font-weight : bold; ">Search</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Calendars</span><span
+            class="FM_change_bar"> in the vertical navigation bar on the left.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the button </span><span class="FM_change_bar"
+                                                                                                            style="font-family : Lato; font-weight : bold; ">Add calendar</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Select a category in </span><span class="FM_change_bar"
+                                                                                                                style="font-family : Lato; font-weight : bold; ">Category</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The selected category determines what calendars are available from the combobox in </span><span class="FM_change_bar"
+                                                                                                                                                               style="font-family : Lato; font-weight : bold; ">Calendar</span><span
+            class="FM_change_bar">. Categories that have no calendars aren’t shown in the list.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; <span class="FM_change_bar">Select a calendar in </span><span class="FM_change_bar"
+                                                                                                                style="font-family : Lato; font-weight : bold; ">Calendar</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">Only active calendars are shown. </span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">If calendar events are used in the formula of the metrology configuration, then it is verified that the calendar events are matching. Calendars with non-matching event sets aren’t shown in the list.</span>
+    </p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">Multiple calendars from different categories can be linked at the same time to the same usage point.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; <span class="FM_change_bar">Specify the calendar’s activation date in </span><span class="FM_change_bar"
+                                                                                                                                     style="font-family : Lato; font-weight : bold; ">Activate calendar</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">You can’t pick a date in the past. So, calculated results won’t change anymore.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">7. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Add</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">If the calendar has all events that are mentioned in the formulas of the metrology configuration, it is duly added to the list of linked calendars.</span>
+    </p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">If a calendar of the same category was active and linked with the current usage point, then the ‘old’ calendar gets an end date which is identical to the activation date of the newly added calendar. The newly added calendar will become active on the specified date.</span>
+    </p>
+    <p dir="ltr" class="FM_H4Topic"><span class="FM_change_bar" style="font-size  : 11.0pt; "><a name="XREF_87366_Add_calendars_to"></a></span>Add calendars to multiple usage points in bulk</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">If you have sufficient <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/privilege.htm');" id="GLPOPUPEditResp1016"><script
+            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+    FilePopupInit('GLPOPUPEditResp1016');</script>privilege</a>s, you can add a time of use calendar to multiple usage points at the same time to quickly set up a new batch of usage points.</span></p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Open </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Search</span><span
+            class="FM_change_bar"> and specify the needed search criteria.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Execute the search.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the button </span><span class="FM_change_bar"
+                                                                                                            style="font-family : Lato; font-weight : bold; ">Bulk actions</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">In step one, choose if you want to do your bulk action on all of the usage points that are included in your search results or on a limited list of usage points that are selected from that list.</span>
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Next</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; <span class="FM_change_bar">In step two, select the action that you want to make. Select </span><span class="FM_change_bar"
+                                                                                                                                                        style="font-family : Lato; font-weight : bold; ">Add calendar</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">7. &#160; <span class="FM_change_bar">Select a category in </span><span class="FM_change_bar"
+                                                                                                                style="font-family : Lato; font-weight : bold; ">Category</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">The selected category determines what calendars are available from the combobox in </span><span class="FM_change_bar"
+                                                                                                                                                               style="font-family : Lato; font-weight : bold; ">Calendar</span><span
+            class="FM_change_bar">. Categories that have no calendars aren’t shown in the list.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">8. &#160; <span class="FM_change_bar">Select a calendar in </span><span class="FM_change_bar"
+                                                                                                                style="font-family : Lato; font-weight : bold; ">Calendar</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">Only active calendars are shown. </span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">If calendar events are used in the formula of the metrology configuration, then it is verified that the calendar events are matching. Calendars with non-matching event sets aren’t shown in the list.</span>
+    </p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">Multiple calendars with different categories can be linked at the same time to the same usage point.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">9. &#160; <span class="FM_change_bar">Specify the calendar’s activation date in </span><span class="FM_change_bar"
+                                                                                                                                     style="font-family : Lato; font-weight : bold; ">Activate calendar</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">You can’t pick a date in the past. So, calculated results won’t change anymore.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">10. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Next</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">11. &#160; <span class="FM_change_bar">In step four, click </span><span class="FM_change_bar"
+                                                                                                                style="font-family : Lato; font-weight : bold; ">Confirm</span><span
+            class="FM_change_bar">&#160;to execute the action. Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Cancel</span><span class="FM_change_bar">&#160;to make no changes to the selected usage points.</span>
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">12. &#160; <span class="FM_change_bar">In step five, the result of the executed action is shown.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">13. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Finish</span><span
+            class="FM_change_bar"> to finish the bulk action wizard.</span></p>
+</div>
+</body>
+</html>

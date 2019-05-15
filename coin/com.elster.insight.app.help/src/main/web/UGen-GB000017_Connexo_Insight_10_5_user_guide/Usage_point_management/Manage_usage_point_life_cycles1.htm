@@ -1,0 +1,740 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Manage usage point life cycles</title>
+
+    <link rel="stylesheet" href="Usage_point_management.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "5.0_18";
+    </script>
+    <meta name="brsprev" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Usage_point_management/Manage_usage_point_life_cycles.htm">
+    <meta name="brsnext" value="UGen-GB000017_Connexo_Insight_10_5_user_guide/Usage_point_management/Manage_states_on_a_usage_point_life_cycle.htm">
+    <meta name="topic-breadcrumbs" content="Usage point management"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic"><a name="XREF_75686_Manage_usage_point"></a>Manage usage point life cycles</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can add new <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/usage point life cycle.htm');" id="GLPOPUPManaResp1011"><script
+            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+    FilePopupInit('GLPOPUPManaResp1011');</script>usage point life cycle</a>s and edit or remove existing ones. You can determine what usage point life cycle is default for newly created usage points. For each usage point life cycle you are able to see and manage the associated <a
+            href="javascript:BSSCPopup('../../Glo$$aryPopup$/state.htm');" id="GLPOPUPManaResp1012"><script
+            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+    FilePopupInit('GLPOPUPManaResp1012');</script>state</a>s and <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/transition.htm');" id="GLPOPUPManaResp1013"><script
+            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+    FilePopupInit('GLPOPUPManaResp1013');</script>transition</a>s. Usage point life cycles are managed in </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Administration</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_H4Topic">View usage point life cycles</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can view a list of all usage point life cycles that can be associated with usage points in <span data-name="MDM_App"
+                                                                                                                                                                  data-val="Connexo Insight"
+                                                                                                                                                                  data-showval="TRUE"
+                                                                                                                                                                  data-format="MDM_App">Connexo Insight</span>. One of the shown usage point life cycles is marked as the default one for newly created usage points. By viewing the usage point life cycles you understand what actions are needed to go through all of the different states.</span>
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Administration</span><span
+            class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage point life cycle management</span><span class="FM_change_bar">&#160;&gt; </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage point life cycles</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The available life cycles are shown in a table sorted by name. Scroll to see all usage point life cycles. Details of the selected usage point life cycle are shown in the details pane below.</span>
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click a usage point life cycle’s name to open its landing page with full details.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">On the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Overview</span><span class="FM_change_bar">&#160;page, you can see the usage point life cycle’s name, default status and a summary of its states and transitions.</span>
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">States</span><span
+            class="FM_change_bar"> to see the usage point life cycle’s states.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Transitions</span><span
+            class="FM_change_bar"> to see the usage point life cycle’s transitions.</span></p>
+    <p dir="ltr" class="FM_H4Topic">Out-of-the-box usage point life cycles in <span data-name="MDM_App" data-val="Connexo Insight" data-showval="TRUE" data-format="MDM_App">Connexo Insight</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">There is one out-of-the-box usage point life cycle in <span data-name="MDM_App" data-val="Connexo Insight" data-showval="TRUE"
+                                                                                                                         data-format="MDM_App">Connexo Insight</span>&#160;which is typical for most usage points. You are free to create additional usage point life cycles if they are needed. See </span><a
+            href="#XREF_90898_Add_a_usage_point"><span class="FM_change_bar"></span><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">Add a usage point life cycle”</span><span
+            class="FM_change_bar"></span></a><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The out-of-the-box usage point life cycle is called </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Standard usage point life cycle</span><span
+            class="FM_change_bar">. After the Connexo installation, this usage point life cycle is marked as the default one.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Standard usage point life cycle</span><span
+            class="FM_change_bar">&#160;has four states and six transitions. In a pre-operational stage (</span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Under construction</span><span
+            class="FM_change_bar">) the usage point can be installed as an active or inactive usage point (</span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Install active</span><span
+            class="FM_change_bar">, </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Install inactive</span><span class="FM_change_bar">). While being suspended, the usage point can be activated and from the operational stage it can be deactivated. From the operational state, the usage point can be parked in a post-operational stage (</span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Demolish</span><span class="FM_change_bar">).</span></p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table11" border-collapse="collapse" style="max-width: 100% ;height: auto">
+            <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: Standard usage point li<span class="FM_change_bar" style="font-style : normal; ">f</span>e cycle.
+            </caption>
+            <tr class="tr73">
+                <td class="td13">
+                    <p dir="ltr" class="FM_CGraphicCell"><img alt="Insight_Device-state-diagram_woActions_updated_1.png" id="image78"
+                                                              src="../../assets/Insight_Device-state-diagram_woActions_updated_1.png" style="max-width: 100% ;height: auto"/>&nbsp;</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar"></span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Out-of-box <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/state.htm');" id="GLPOPUPManaResp1014"><script
+            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+    FilePopupInit('GLPOPUPManaResp1014');</script>state</a>s in </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Standard usage point life cycle</span><span
+            class="FM_change_bar">. Also see </span><a href="Manage_states_on_a_usage_point_life_cycle.htm#XREF_23753_Manage_states_on_a"><span class="FM_change_bar"></span><span
+            class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference"></span><span
+            class="FM_change_bar">Manage states on a usage point life cycle</span><span class="FM_blue_crossreference">”</span><span class="FM_change_bar"></span></a><span
+            class="FM_change_bar"></span></p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">State</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Under construction</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The usage point is created but not yet configured. For example, a building has been erected and a cable is available but it is still being configured, certified or it hasn’t got any meters linked with it yet. So, there isn’t any consumption.</span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">From this state, two transitions are possible:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Install active.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Install inactive.</span></p>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Active</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">A usage point will spend most of its lifetime in this state. It is constructed, installed and fully functional. All communications are in place and meters are installed. It is now possible to collect data and to validate, estimate, edit and export this data.</span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">From this state, two transitions are possible:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Demolish.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Deactivate.</span></p>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Inactive</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">A usage point can be deactivated temporarily due to a customer relocation, a meter replacement process or another cause.</span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">From this state, two transitions are possible:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Demolish.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Activate.</span></p>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Demolished</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">This is the final state for a usage point. The usage point doesn’t exist anymore, for example, as a result of the destruction of the building in which it was installed. There aren’t any further transitions from this state.</span>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Out-of-the-box transitions in </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Standard usage point life cycle</span><span
+            class="FM_change_bar">&#160;including associated <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/pretransition check.htm');" id="GLPOPUPManaResp1015"><script
+            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+    FilePopupInit('GLPOPUPManaResp1015');</script>pretransition check</a>s and auto actions. Also see </span><a href="Manage_transitions_on_a_usage_point_life_cycle.htm#XREF_33146_Manage_transitions"><span
+            class="FM_change_bar"></span><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference"></span><span class="FM_change_bar">Manage transitions on a usage point life cycle</span><span
+            class="FM_blue_crossreference">”</span><span class="FM_change_bar"></span></a><span class="FM_change_bar">.</span></p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Transition</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Install active</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The usage point moves from a pre-operational stage to an operational stage where it is configured and ready to collect data.</span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The following pretransition checks are done to enable this transition:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Meters must be specified for all the roles.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">The metrology configuration must be defined.</span></p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Additional pretransition checks are configurable:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All data validated.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All data valid.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">No running service calls.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">No active processes.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Linked meters are activated.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Linked meters have initial read.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All the meters are decommissioned.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"></p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The following auto actions are done if the <a
+                            href="javascript:BSSCPopup('../../Glo$$aryPopup$/pretransition check.htm');" id="GLPOPUPManaResp1016"><script
+                            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+                    FilePopupInit('GLPOPUPManaResp1016');</script>pretransition check</a>s are successful:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Set connection state</span><span class="FM_change_bar">: Connection state is changed into </span><span
+                                    class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Connected</span><span class="FM_change_bar">. This action is needed because a usage point doesn’t have a connection state right after creation in its pre-operational stage. This transition allows the automatic update of the connection state during a usage point life cycle.</span>
+                            </p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Additional auto actions are configurable:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Close all issues.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Reset validation results.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Cancel all service calls.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Force validation and estimation.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Remove from static usage point groups.</p>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Install inactive</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The usage point moves from a pre-operational stage to a suspended stage where it is configured and but not yet ready to collect data. It is on hold.</span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The following pretransition checks are done to enable this transition:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Meters must be specified for all the roles.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">The metrology configuration must be defined.</span></p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Additional pretransition checks are configurable:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All data validated.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All data valid.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">No running serivce calls.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">No active processes.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Linked meters are activated.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Linked meters have initial read.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All the meters are decommissioned.</p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The following auto actions are done if the <a
+                            href="javascript:BSSCPopup('../../Glo$$aryPopup$/pretransition check.htm');" id="GLPOPUPManaResp1017"><script
+                            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+                    FilePopupInit('GLPOPUPManaResp1017');</script>pretransition check</a>s are successful:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Set connection state</span><span class="FM_change_bar">: Connection state is changed into </span><span
+                                    class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Connected</span><span class="FM_change_bar">. This action is needed because a usage point doesn’t have a connection state right after creation in its pre-operational stage. This transition allows the automatic update of the connection state during a usage point life cycle.</span>
+                            </p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Additional auto actions are configurable:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Close all issues.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Reset validation results.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Cancel all service calls.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Force validation and estimation.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Remove from static usage point groups.</p>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Deactivate</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The usage point becomes temporarily inactive, for example due to a customer relocation or technical issues such as a meter replacement procedure.</span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">There aren’t any pretransition checks for this transition. The following pretransition checks can be configured:</span>
+                    </p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Meters must be specified for all the roles.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">The metrology configuration must be defined.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All data validated.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All data valid.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">No running service calls.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">No active processes.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Linked meters are activated.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Linked meters have initial read.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All the meters are decommissioned.</p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">There aren’t any auto actions for this transition. The following auto actions can be configured:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Set connection state.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Close all issues.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Reset validation results.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Cancel all service calls.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Force validation and estimation.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Remove from static usage point groups.</p>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Activate</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The usage point becomes active again after resolution of the issues that prevented its use.</span></p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">There aren’t any pretransition checks for this transition. The following pretransition checks can be configured:</span>
+                    </p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Meters must be specified for all the roles.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">The metrology configuration must be defined.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All data validated.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All data valid.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">No running service calls.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">No active processes.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Linked meters are activated.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Linked meters have initial read.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All the meters are decommissioned.</p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">There aren’t any auto actions for this transition. The following auto actions can be configured:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Set connection state.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Close all issues.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Reset validation results.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Cancel all service calls.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Force validation and estimation.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Remove from static usage point groups.</p>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Demolish from active</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The usage point becomes permanently unusable, for example after destruction of the building in which it was installed. The usage point was still active before being demolished.</span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">There aren’t any pretransition checks for this transition. The following pretransition checks can be configured:</span>
+                    </p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Meters must be specified for all the roles.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">The metrology configuration must be defined.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All data validated.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All data valid.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">No running service calls.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">No active processes.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Linked meters are activated.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Linked meters have initial read.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All the meters are decommissioned.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Meters are specified for all the roles.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Metrology configuration is defined.</p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">There aren’t any auto actions for this transition. The following auto actions can be selected optionally:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Reset validation results.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Set connection state.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Close all issues.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Cancel all service calls.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Force validation and estimation.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Remove from static usage point groups.</p>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Demolish from inactive</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The usage point becomes permanently unusable, for example after destruction of the building in which it was installed. The usage point was already temporarily inactive before being demolished.</span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">There aren’t any pretransition checks for this transition. The following pretransition checks can be configured:</span>
+                    </p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Meters must be specified for all the roles.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">The metrology configuration must be defined.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All data validated.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All data valid.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">No running service calls.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">No active processes.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Linked meters are activated.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Linked meters have initial read.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">All the meters are decommissioned.</p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">There aren’t any auto actions for this transition. The following auto actions can be configured:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Set connection state.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Close all issues.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Reset validation results.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Cancel all service calls.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Force validation and estimation.</p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1">Remove from static usage point groups.</p>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">&#160;</span></p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_90898_Add_a_usage_point"></a>Add a usage point life cycle</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can add a usage point life cycle to support usage points with a life cycle that is different than the configuration of existing usage point life cycles in <span
+            data-name="MDM_App" data-val="Connexo Insight" data-showval="TRUE" data-format="MDM_App">Connexo Insight</span>.</span></p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Administration</span><span
+            class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage point life cycle management</span><span class="FM_change_bar">&#160;&gt; </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage point life cycles</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar"
+                                                                                                 style="font-family : Lato; font-weight : bold; ">Add usage point life cycle</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The </span><span class="FM_UIRef">Add usage point life cycle</span><span class="FM_change_bar"> page appears.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Enter a name for the new life cycle.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The chosen name must be unique. </span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">By default, the new usage point life cycle has the same states and transitions as the default usage point life cycle.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Add</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The new usage point life cycle is now listed in the overview table.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; <span class="FM_change_bar">Make the needed changes to the states and <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/transition.htm');"
+                                                                                                                           id="GLPOPUPManaResp1018"><script
+            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+    FilePopupInit('GLPOPUPManaResp1018');</script>transition</a>s of your new usage point life cycle.</span></p>
+    <p dir="ltr" class="FM_H4Topic">Clone a usage point life cycle</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can clone an existing usage point life cycle to make the creation of a new usage point life cycle easier and quicker by basing it on the configuration of an existing one.</span>
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Administration</span><span
+            class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage point life cycle management</span><span class="FM_change_bar">&#160;&gt; </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage point life cycles</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Select the usage point life cycle that has the <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/state.htm');"
+                                                                                                                                id="GLPOPUPManaResp1019"><script
+            type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+    FilePopupInit('GLPOPUPManaResp1019');</script>state</a>s and transitions you want to start from to create your new usage point life cycle.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the action icon <img alt="Usage_point_management00015.png" id="image79"
+                                                                                                         src="../../assets/Usage_point_management00015.png" style="max-width: 100% ;height: auto"/>&#160;at the end of the row or the actions button in the details pane and select </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Clone</span><span class="FM_change_bar">. As all other actions on usage point cycles, </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Clone</span><span class="FM_change_bar">&#160;is also available from the actions button on the usage point life cycle’s landing page.</span>
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Clone</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The new usage point life cycle is now listed in the overview table.</span></p>
+    <p dir="ltr" class="FM_H4Topic">Edit a usage point life cycle</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can edit an existing usage point life cycle to correct eventual mistakes or to make it match your current needs. You will only be able to edit the name of the usage point life cycle. If you also want to edit the associated states and transitions, then you must open the life cycle’s landing page. See </span><a
+            href="Manage_states_on_a_usage_point_life_cycle.htm#XREF_57227_Edit_a_state_on_a"><span class="FM_change_bar"></span><span class="FM_blue_crossreference">“</span><span
+            class="FM_CR_URL"></span><span class="FM_blue_crossreference">Edit a state on a usage point life cycle”</span><span class="FM_change_bar"></span></a><span
+            class="FM_change_bar">&#160;and </span><a href="Manage_transitions_on_a_usage_point_life_cycle.htm#XREF_81477_Edit_a_transition"><span class="FM_change_bar"></span><span
+            class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">Edit a transition on a usage point life cycle”</span><span
+            class="FM_change_bar"></span></a><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Administration</span><span
+            class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage point life cycle management</span><span class="FM_change_bar">&#160;&gt; </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage point life cycles</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Select the usage point life cycle that you want to edit.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Edit the field </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Name</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Save</span><span
+            class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_H4Topic">Remove a usage point life cycle</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">You can remove a usage point life cycle that is no longer relevant. A usage point life cycle can only be removed if it is no longer associated with any usage point.</span>
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Administration</span><span
+            class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage point lifec ycle management</span><span class="FM_change_bar">&#160;&gt; </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage point life cycles</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Select the usage point life cycle that you want to remove.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the action icon <img alt="Usage_point_management00016.png" id="image80"
+                                                                                                         src="../../assets/Usage_point_management00016.png" style="max-width: 100% ;height: auto"/>&#160;at the end of the row or the actions button in the details pane and select </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Remove</span><span class="FM_change_bar">. As all other actions on usage point cycles, </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Remove</span><span class="FM_change_bar">&#160;is also available from the actions button on the usage point life cycle’s landing page.</span>
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; <span class="FM_change_bar">Click </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Remove</span><span
+            class="FM_change_bar"> to confirm removal of the usage point life cycle.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The removed usage point life cycle is no longer listed in the overview table. </span></p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_64578_Mark_a_usage_point"></a>Mark a usage point life cycle as default</p>
+    <p dir="ltr" class="FM_Body">You can mark a usage point life cycle as the default one. A new usage point that is added to<span class="FM_change_bar">&#160;<span data-name="MDM_App"
+                                                                                                                                                                     data-val="Connexo Insight"
+                                                                                                                                                                     data-showval="TRUE"
+                                                                                                                                                                     data-format="MDM_App">Connexo Insight</span> will automatically use the default usage point life cycle.</span>
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;<span class="FM_change_bar">Go to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Administration</span><span
+            class="FM_change_bar">&#160;&gt; </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage point life cycle management</span><span class="FM_change_bar">&#160;&gt; </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Usage point life cycles</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Select the usage point life cycle that you want to mark as the default one.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; <span class="FM_change_bar">Click the action icon <img alt="Usage_point_management00017.png" id="image81"
+                                                                                                         src="../../assets/Usage_point_management00017.png" style="max-width: 100% ;height: auto"/>&#160;at the end of the row or the actions button in the details pane and select </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Set as default</span><span class="FM_change_bar">. As all other actions on usage point cycles, </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Set as default</span><span class="FM_change_bar">&#160;is also available from the actions button on the usage point life cycle’s landing page.</span>
+    </p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The value in the field </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Default</span><span
+            class="FM_change_bar">&#160;is changed to </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Yes</span><span class="FM_change_bar">&#160;and an icon <img
+            alt="defaultItem.png" id="image82" src="../../assets/defaultItem.png" style="max-width: 100% ;height: auto"/>&#160;is added in the column </span><span class="FM_change_bar"
+                                                                                                                                                                   style="font-family : Lato; font-weight : bold; ">Default</span><span
+            class="FM_change_bar">&#160;of the defaulted usage point life cycle.</span></p>
+</div>
+</body>
+</html>
