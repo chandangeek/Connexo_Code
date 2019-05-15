@@ -15,6 +15,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
         width: 600,
         msgTarget: 'under'
     },
+    newReasonId: '12222e48-9afb-4c76-a41e-d3c40f16ac76',
     initComponent: function () {
         var me = this;
         me.title = Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue');
@@ -39,17 +40,15 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     queryMode: 'local',
                },
                {
+                    itemId: 'issueReason',
                     xtype: 'combobox',
-                    fieldLabel: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue reason'),
-                    store: 'Isu.store.IssueReasons',
-                    forceSelection: true,
+                    name: 'reason',
+                    fieldLabel: Uni.I18n.translate('general.title.issueReason', 'ISU', 'Issue reason'),
                     required: true,
-                    allowBlank: false,
+                    store: 'Isu.store.IssueReasons',
+                    queryMode: 'local',
                     displayField: 'name',
-                    valueField: 'id',
-                    editable: true,
-                    name: 'reasonId',
-                    queryMode: 'local'
+                    valueField: 'id'
                },
                {
                   xtype: 'fieldcontainer',
