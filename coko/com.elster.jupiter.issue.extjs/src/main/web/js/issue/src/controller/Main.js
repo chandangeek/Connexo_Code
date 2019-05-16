@@ -106,7 +106,7 @@ Ext.define('Isu.controller.Main', {
                     {
                         text: Uni.I18n.translate('workspace.issues.newManuallyIssue', 'ISU', 'Create issue'),
                         itemId: 'new-manually-issue-item',
-                        href: router.getRoute('workspace/newmanuallyissue').buildUrl()
+                        href: router.getRoute('workspace/newissuemanually').buildUrl()
                     }
                 ]
             });

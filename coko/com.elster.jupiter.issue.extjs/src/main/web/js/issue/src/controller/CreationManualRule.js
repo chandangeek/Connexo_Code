@@ -69,10 +69,18 @@ Ext.define('Isu.controller.CreationManualRule', {
            reasonEditedValue = comboReason.getRawValue(),
            reason = comboReason.store.find('name', reasonEditedValue);
 
+       errorMessage.hide();
+
+       if (!form.isValid() || reasonEditedValue.trim() != '') {
+            errorMessage.show();
+            if (reasonEditedValue.trim() != '') comboReason.markInvalid('This field is required');
+            return;
+       }
+
        form.updateRecord();
 
        var record = form.getRecord();
-       record.beginEdit();
+
        if(reason === -1 && reasonEditedValue.trim() != ''){
             var value = reasonEditedValue.trim();
             var id = value.toLowerCase().replace (/ /g, '.');
@@ -97,11 +105,11 @@ Ext.define('Isu.controller.CreationManualRule', {
                 record.set('dueIn', null);
             }
        }
-       record.endEdit();
+
        record.save({
             backUrl: page.returnLink,
             success: function (record, operation) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('isu.manually.addSuccess', 'ISU', 'New manually issue added'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('isu.manually.addSuccess', 'ISU', 'New manual issue added'));
                 if (page.rendered) {
                     window.location.href = page.returnLink;
                 }

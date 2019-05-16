@@ -13,6 +13,8 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
     defaults: {
         labelWidth: 260,
         width: 600,
+        validateOnChange: false,
+        validateOnBlur: false,
         msgTarget: 'under'
     },
     newReasonId: '12222e48-9afb-4c76-a41e-d3c40f16ac76',
@@ -48,6 +50,8 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     store: 'Isu.store.IssueReasons',
                     queryMode: 'local',
                     displayField: 'name',
+                    validateOnBlur: false,
+                    validateOnChange: false,
                     valueField: 'id'
                },
                {
