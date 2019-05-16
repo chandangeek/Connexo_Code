@@ -42,7 +42,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                {
                     itemId: 'issueReason',
                     xtype: 'combobox',
-                    name: 'reason',
+                    name: 'reasonId',
                     fieldLabel: Uni.I18n.translate('general.title.issueReason', 'ISU', 'Issue reason'),
                     required: true,
                     store: 'Isu.store.IssueReasons',
