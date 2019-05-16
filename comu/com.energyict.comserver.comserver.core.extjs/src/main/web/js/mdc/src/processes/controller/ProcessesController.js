@@ -157,7 +157,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
             /* For status preview */
             if(me.getProcessStatusPreviewExtendedTab()){
-            	this.showNodesDetailsWithSubprocesses(process, this.getProcessStatusPreviewExtendedGrid(), this.getParentProcessPreviewExtendedPanel());
+            	this.showNodesDetailsWithSubprocesses(process, this.getProcessStatusPreviewExtendedGrid(), this.getParentProcessPreviewExtendedPanel(), this.getChildProcessPreviewExtendedPanel(), this.getStatusVariablesPreviewExtendedPanel());
             } else {
             	this.showNodesDetails(process, this.getProcessStatusPreviewGrid());
             }
@@ -268,10 +268,15 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         panel.doLayout();
     },
     
-    showNodesDetailsWithSubprocesses: function (processRecord, grid, parentProcessPanel) {
+    showNodesDetailsWithSubprocesses: function (processRecord, grid, parentProcessPanel, childProcessPanel, variablesValuesPanel) {
         var me = this;
         var extendedProcessNodesModel = Ext.ModelManager.getModel('Bpm.monitorprocesses.model.ExtendedProcessNodes');
         var parentProcessModel = Ext.ModelManager.getModel('Bpm.monitorprocesses.model.ParentProcess');
+
+		grid.setLoading(true);
+		parentProcessPanel.setLoading(true);
+		childProcessPanel.setLoading(true);
+		variablesValuesPanel.setLoading(true);
 
         Ext.Ajax.request({
             url: Ext.String.format('../../api/bpm/runtime/process/instance/{0}/nodeswithsubprocessinfo', processRecord.get('processId')),
@@ -284,6 +289,9 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                 if (grid){
                     grid.reconfigure(record.list());
                     grid.getSelectionModel().select(0);
+                    grid.setLoading(false);
+                    childProcessPanel.setLoading(false);
+					variablesValuesPanel.setLoading(false);
                 }
 
             }
@@ -349,6 +357,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 					parentProcessPanel.items = panelItems;
 					parentProcessPanel.doLayout();
 				}
+				parentProcessPanel.setLoading(false);
             }
         })
     },

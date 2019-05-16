@@ -46,8 +46,11 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
 		{ref: 'historyParentProcessPreviewExtendedPanel', selector: '#history-process-status-preview-extended #parent-process-preview-panel'}
     ],
 
+	sourceApplication: null,
+
     init: function () {
         var me = this;
+        me.sourceApplication = Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'];
         me.control({
             'bpm-monitor-processes-main-view': {
                 initComponents: this.initComponents,
@@ -131,7 +134,7 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
 
         me.getOpenTasksDisplay().setValue((openTasksValue.length > 0) ? openTasksValue : Uni.I18n.translate('bpm.process.noOpenTasks', 'BPM', 'None'));
         if (me.getRunningProcessStatusPreviewExtendedTab()) {
-        	me.showNodesDetailsWithSubprocesses(record, me.getRunningProcessNodesExtendedGrid(), me.getRunningParentProcessPreviewExtendedPanel());
+        	me.showNodesDetailsWithSubprocesses(record, me.getRunningProcessNodesExtendedGrid(), me.getRunningParentProcessPreviewExtendedPanel(), me.getRunningChildProcessPreviewExtendedPanel(), me.getRunningStatusVariablesPreviewExtendedPanel());
         } else {
         	me.showNodesDetails(record, me.getRunningProcessNodesGrid());
         }
@@ -149,7 +152,7 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
         previewHistoryDetails.setTitle(record.get('name'));
         previewHistoryDetailsForm.loadRecord(record);
         if (me.getHistoryProcessStatusPreviewExtendedTab()) {
-        	me.showNodesDetailsWithSubprocesses(record, me.getHistoryProcessNodesExtendedGrid(), me.getHistoryParentProcessPreviewExtendedPanel());
+        	me.showNodesDetailsWithSubprocesses(record, me.getHistoryProcessNodesExtendedGrid(), me.getHistoryParentProcessPreviewExtendedPanel(), me.getHistoryChildProcessPreviewExtendedPanel(), me.getHistoryStatusVariablesPreviewExtendedPanel());
         } else {
         	me.showNodesDetails(record, me.getHistoryProcessNodesGrid());
         }
@@ -180,10 +183,15 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
         })
     },
     
-    showNodesDetailsWithSubprocesses: function (processRecord, grid, parentProcessPanel) {
+    showNodesDetailsWithSubprocesses: function (processRecord, grid, parentProcessPanel, childProcessPanel, variablesValuesPanel) {
         var me = this;
         var extendedProcessNodesModel = Ext.ModelManager.getModel('Bpm.monitorprocesses.model.ExtendedProcessNodes');
         var parentProcessModel = Ext.ModelManager.getModel('Bpm.monitorprocesses.model.ParentProcess');
+
+		grid.setLoading(true);
+		parentProcessPanel.setLoading(true);
+		childProcessPanel.setLoading(true);
+		variablesValuesPanel.setLoading(true);
 
         Ext.Ajax.request({
             url: Ext.String.format('../../api/bpm/runtime/process/instance/{0}/nodeswithsubprocessinfo', processRecord.get('processId')),
@@ -196,6 +204,9 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
                 if (grid){
                     grid.reconfigure(record.list());
                     grid.getSelectionModel().select(0);
+                    grid.setLoading(false);
+                    childProcessPanel.setLoading(false);
+					variablesValuesPanel.setLoading(false);
                 }
 
             }
@@ -213,25 +224,37 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
                     	reader = Bpm.monitorprocesses.model.ParentProcess.getProxy().getReader(),
 						resultSet = reader.readRecords(response),
 						record = resultSet.records[0];
+						
+					if(me.sourceApplication == 'MDC') {
 				
-					panelItems.add(Ext.create("Ext.form.field.Display", {
-							fieldLabel: Uni.I18n.translate('bpm.process.parentProcessInstanceId', 'BPM', 'Parent process instance id'),
-							style: '{word-break: break-word; word-wrap: break-word;}',
-							flex: 1,
-							labelWidth: 200,
-							htmlEncode: false,
-							value: '<a>' + record.get('processInstanceId') + '</a>',
-							listeners: {
-								afterrender: function(view) {
-									view.getEl().on('click', function() {
-										var router = me.getController('Uni.controller.history.Router');
-										var route = router.getRoute('workspace/multisenseprocesses');
-										route.forwardInNewTab(null, {processInstanceId: [record.get('processInstanceId')], searchInAllProcesses: true});
-									});
+						panelItems.add(Ext.create("Ext.form.field.Display", {
+								fieldLabel: Uni.I18n.translate('bpm.process.parentProcessInstanceId', 'BPM', 'Parent process instance id'),
+								style: '{word-break: break-word; word-wrap: break-word;}',
+								flex: 1,
+								labelWidth: 200,
+								htmlEncode: false,
+								value: '<a>' + record.get('processInstanceId') + '</a>',
+								listeners: {
+									afterrender: function(view) {
+										view.getEl().on('click', function() {
+											var router = me.getController('Uni.controller.history.Router');
+											var route = router.getRoute('workspace/multisenseprocesses');
+											route.forwardInNewTab(null, {processInstanceId: [record.get('processInstanceId')], searchInAllProcesses: true});
+										});
+									}
 								}
 							}
-						}
-					));
+						));
+					} else {
+						panelItems.add(Ext.create("Ext.form.field.Display", {
+								fieldLabel: Uni.I18n.translate('bpm.process.parentProcessInstanceId', 'BPM', 'Parent process instance id'),
+								style: '{word-break: break-word; word-wrap: break-word;}',
+								flex: 1,
+								labelWidth: 200,
+								value: record.get('processInstanceId')
+							}
+						));
+					}
 					panelItems.add(Ext.create("Ext.form.field.Display", {
 							fieldLabel: Uni.I18n.translate('bpm.process.parentProcessName', 'BPM', 'Parent process name'),
 							style: '{word-break: break-word; word-wrap: break-word;}',
@@ -261,6 +284,7 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
 					parentProcessPanel.items = panelItems;
 					parentProcessPanel.doLayout();
 				}
+				parentProcessPanel.setLoading(false);
             }
         })
     },
@@ -368,24 +392,36 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
         }
         
         if(record.get('childSubprocessLog.childProcessInstanceId')) {
-        	subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
-                        fieldLabel: Uni.I18n.translate('bpm.process.node.childProcessInstanceId', 'BPM', 'Child process instance id'),
-                        style: '{word-break: break-word; word-wrap: break-word;}',
-                        flex: 1,
-                        labelWidth: 200,
-                        htmlEncode: false,
-                        value: '<a>' + record.get('childSubprocessLog.childProcessInstanceId') + '</a>',
-                        listeners: {
-                        	afterrender: function(view) {
-                        		view.getEl().on('click', function() {
-                        			var router = me.getController('Uni.controller.history.Router');
-                        			var route = router.getRoute('workspace/multisenseprocesses');
-                        			route.forwardInNewTab(null, {processInstanceId: [record.get('childSubprocessLog.childProcessInstanceId')], searchInAllProcesses: true});
-                        		});
+        	if(me.sourceApplication == 'MDC') {
+        		subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
+                        	fieldLabel: Uni.I18n.translate('bpm.process.node.childProcessInstanceId', 'BPM', 'Child process instance id'),
+                        	style: '{word-break: break-word; word-wrap: break-word;}',
+                        	flex: 1,
+                        	labelWidth: 200,
+                        	htmlEncode: false,
+                        	value: '<a>' + record.get('childSubprocessLog.childProcessInstanceId') + '</a>',
+                        	listeners: {
+	                        	afterrender: function(view) {
+                        			view.getEl().on('click', function() {
+	                        			var router = me.getController('Uni.controller.history.Router');
+                        				var route = router.getRoute('workspace/multisenseprocesses');
+                        				route.forwardInNewTab(null, {processInstanceId: [record.get('childSubprocessLog.childProcessInstanceId')], searchInAllProcesses: true});
+                        			});
+                        		}
                         	}
-                        }
-                    }
-                ));
+                    	}
+                	));
+                } else {
+                	subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
+                        	fieldLabel: Uni.I18n.translate('bpm.process.node.childProcessInstanceId', 'BPM', 'Child process instance id'),
+                        	style: '{word-break: break-word; word-wrap: break-word;}',
+                        	flex: 1,
+                        	labelWidth: 200,
+                        	htmlEncode: false,
+                        	value: record.get('childSubprocessLog.childProcessInstanceId')
+                    	}
+                	));
+                }
             subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
                         fieldLabel: Uni.I18n.translate('bpm.process.node.childProcessName', 'BPM', 'Child process name'),
                         style: '{word-break: break-word; word-wrap: break-word;}',
