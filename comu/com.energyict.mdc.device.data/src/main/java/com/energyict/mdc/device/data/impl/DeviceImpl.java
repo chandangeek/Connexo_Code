@@ -423,6 +423,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     } else if (!(partialConnectionTask instanceof PartialConnectionInitiationTask) && (partialConnectionTask instanceof PartialOutboundConnectionTask && !outboundTaskIdList.contains(partialConnectionTask.getId()))) {
                         ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = this.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask);
                         deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, scheduledConnectionTaskBuilder);
+                        scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(((PartialOutboundConnectionTask) partialConnectionTask).getNextExecutionSpecs().getTemporalExpression());
                         scheduledConnectionTaskBuilder.add();
                     } else if (partialConnectionTask instanceof PartialConnectionInitiationTask) {
                         ConnectionInitiationTaskBuilder partialConnectionTaskBuilder = this.getConnectionInitiationTaskBuilder((PartialConnectionInitiationTask) partialConnectionTask);
@@ -3120,11 +3121,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
         private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
             super(scheduledConnectionTaskProvider.get());
-            this.getScheduledConnectionTask().setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
             this.getScheduledConnectionTask().initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool());
             if (partialOutboundConnectionTask.getNextExecutionSpecs() != null) {
                 this.getScheduledConnectionTask().setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
             }
+            this.getScheduledConnectionTask().setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
             this.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         }
 
