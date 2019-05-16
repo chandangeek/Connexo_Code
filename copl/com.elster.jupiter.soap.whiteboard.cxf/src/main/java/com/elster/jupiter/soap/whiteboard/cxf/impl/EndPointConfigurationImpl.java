@@ -14,6 +14,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -307,6 +308,15 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
+    public Finder<EndPointOccurrence> getOccurrences(Boolean sort) {
+        return DefaultFinder.of(EndPointOccurrence.class,
+                Where.where(EndPointOccurrenceImpl.Fields.endPointConfiguration.fieldName())
+                        .isEqualTo(this), dataModel).sorted(EndPointLogImpl.Fields.timestamp.fieldName(), sort);
+
+    }
+
+
+    @Override
     public List<EndPointProperty> getProperties() {
         return Collections.unmodifiableList(properties);
     }
@@ -360,5 +370,10 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public EndPointOccurrence createEndPointOccurence(Instant startTime, String request){
+        new EndPointOccurrenceImpl(startTime,)
     }
 }

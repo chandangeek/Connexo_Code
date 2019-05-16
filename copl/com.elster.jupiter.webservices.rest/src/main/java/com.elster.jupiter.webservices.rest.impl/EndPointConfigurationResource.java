@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.webservices.rest.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -12,7 +14,10 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointConfigurationImpl;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointOccurrenceImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 import com.elster.jupiter.util.Checks;
 
@@ -35,7 +40,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
-
+import com.elster.jupiter.orm.OrmService;
 /**
  * Resource to manage end point configurations
  */
@@ -48,15 +53,26 @@ public class EndPointConfigurationResource {
     private final WebServicesService webServicesService;
     private final EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory;
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
+    private final EndpointConfigurationOccurrenceInfoFactorty endpointConfigurationOccurrenceInfoFactorty;
+    private final OrmService ormService;
 
     @Inject
-    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory, WebServicesService webServicesService, EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory,ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory) {
+    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService,
+                                         EndPointConfigurationInfoFactory endPointConfigurationInfoFactory,
+                                         ExceptionFactory exceptionFactory,
+                                         WebServicesService webServicesService,
+                                         EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory,
+                                         ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory,
+                                         EndpointConfigurationOccurrenceInfoFactorty endpointConfigurationOccurrenceInfoFactorty,
+                                         OrmService ormService) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.webServicesService = webServicesService;
         this.endpointConfigurationLogInfoFactory = endpointConfigurationLogInfoFactory;
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
+        this.endpointConfigurationOccurrenceInfoFactorty = endpointConfigurationOccurrenceInfoFactorty;
+        this.ormService = ormService;
     }
 
     @GET
@@ -197,6 +213,49 @@ public class EndPointConfigurationResource {
                 .collect(toList());
         return PagedInfoList.fromPagedList("logs", endpointConfigurationLogs, queryParameters);
     }
+
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/occurrences")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    public PagedInfoList getAllOccurrences(/*@PathParam("id") long id,*/ @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
+        /*EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));*/
+
+        List<EndpointConfigurationOccurrenceInfo> endpointConfigurationOccurrences = findEndPointOccurences()
+                .from(queryParameters)
+                .stream()
+                .map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo))
+                .collect(toList());
+        return PagedInfoList.fromPagedList("occurrences", endpointConfigurationOccurrences, queryParameters);
+    }
+
+
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{id}/occurrences")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    public PagedInfoList getAllOccurrencesForEndPoint(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+        EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
+
+        List<EndpointConfigurationOccurrenceInfo> endpointConfigurationOccurrences = endPointConfiguration.getOccurrences(true)
+                .from(queryParameters)
+                .stream()
+                .map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, null))
+                .collect(toList());
+        return PagedInfoList.fromPagedList("occurrences", endpointConfigurationOccurrences, queryParameters);
+    }
+
+
+
+    public Finder<EndPointOccurrenceImpl> findEndPointOccurences() {
+        return DefaultFinder.of(EndPointOccurrenceImpl.class, ormService.getDataModel(WebServicesService.COMPONENT_NAME).get())
+                .defaultSortColumn(EndPointOccurrenceImpl.Fields.startTime.fieldName());
+    }
+
 
     private void validatePayload(EndPointConfigurationInfo info) {
         validateBasicPayload(info);

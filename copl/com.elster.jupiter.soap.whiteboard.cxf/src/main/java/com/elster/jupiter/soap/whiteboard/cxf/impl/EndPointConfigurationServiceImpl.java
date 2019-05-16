@@ -162,6 +162,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         this.dataModel.register(this.getModule());
     }
 
+
     @Override
     public InboundEndPointConfigBuilder newInboundEndPointConfiguration(String name, String webServiceName, String url) {
         InboundEndPointConfigurationImpl instance = dataModel.getInstance(InboundEndPointConfigurationImpl.class);

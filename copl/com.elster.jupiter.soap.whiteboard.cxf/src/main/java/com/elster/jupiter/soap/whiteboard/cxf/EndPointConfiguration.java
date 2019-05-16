@@ -11,6 +11,7 @@ import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -111,10 +112,13 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
      */
     Finder<EndPointLog> getLogs();
 
+    Finder<EndPointOccurrence> getOccurrences(Boolean sort);
+
     List<EndPointProperty> getProperties();
 
     Map<String, Object> getPropertiesWithValue();
 
     void setProperties(Map<String, Object> map);
 
+    EndPointOccurrence createEndPointOccurence(Instant startTime, String request);
 }
