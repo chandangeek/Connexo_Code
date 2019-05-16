@@ -64,23 +64,38 @@ Ext.define('Isu.controller.CreationManualRule', {
            page = me.getPage(),
            form = me.getForm(),
            errorMessage = form.down('uni-form-error-message'),
-           baseForm = form.getForm();
+           baseForm = form.getForm(),
+           comboReason = form.down('#issueReason'),
+           reasonEditedValue = comboReason.getRawValue(),
+           reason = comboReason.store.find('name', reasonEditedValue);
 
        form.updateRecord();
+
        var record = form.getRecord();
        record.beginEdit();
+       if(reason === -1 && reasonEditedValue.trim() != ''){
+            var value = reasonEditedValue.trim();
+            var id = value.toLowerCase().replace (/ /g, '.');
+            var rec = {
+                id: id,
+                name: value
+            };
+            comboReason.store.add(rec);
+            comboReason.setValue(comboReason.store.getAt(comboReason.store.count()-1).get('id'));
+            record.set('reasonId', id)
+       }
        var urgency = record.get('priority.urgency');
        var impact = record.get('priority.impact');
        if ( urgency !== undefined && impact !== undefined ) record.set('priority' , urgency + ':' + impact);
        if (form.down('#dueDateTrigger')) {
-        if (form.down('#dueDateTrigger')) {
-            record.set('dueIn', {
-                number: form.down('[name=dueIn.number]').getValue(),
-                type: form.down('[name=dueIn.type]').getValue()
-            });
-        } else {
-            record.set('dueIn', null);
-        }
+            if (form.down('#dueDateTrigger')) {
+                record.set('dueIn', {
+                    number: form.down('[name=dueIn.number]').getValue(),
+                    type: form.down('[name=dueIn.type]').getValue()
+                });
+            } else {
+                record.set('dueIn', null);
+            }
        }
        record.endEdit();
        record.save({
