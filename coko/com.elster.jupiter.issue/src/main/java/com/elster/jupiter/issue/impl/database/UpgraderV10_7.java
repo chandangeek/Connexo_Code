@@ -40,8 +40,13 @@ public class UpgraderV10_7 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 7));
+        this.addManualIssueType();
         userService.addModulePrivileges(privilegesProviderV10_7);
         this.upgradeAllIssue();
+    }
+
+    private void addManualIssueType() {
+        issueService.createIssueType(IssueService.MANUAL_ISSUE_TYPE, TranslationKeys.MANUAL_ISSUE_TYPE, IssueService.COMPONENT_NAME);
     }
 
     private void upgradeAllIssue() {
