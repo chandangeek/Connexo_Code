@@ -29,4 +29,10 @@ public final class RequestHelper {
     public static final String USER = "user";
     public static final String DUEDATE = "dueDate";
     public static final String PRIORITYTOTAL = "priorityTotal";
+    public static final String DEVICE = "device_id";
+    public static final String USAGEPOINT = "usagePoint_id";
+    public static final String CREATIONDATE = "createDateTime";
+    public static final String ISSUEID = "id";
+
+
 }

@@ -16,6 +16,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.model.IssueWorkgroupAssignee',
         'Isu.model.IssueReason',
         'Isu.model.Device',
+        'Isu.model.IssueUsagePoints',
         'Uni.component.sort.model.Sort'
     ],
 
@@ -26,6 +27,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.store.IssueAssignees',
         'Isu.store.IssueWorkgroupAssignees',
         'Isu.store.IssueReasons',
+        'Isu.store.IssueUsagePoints',
         'Isu.store.Devices',
         'Isu.store.IssueGrouping',
         'Isu.store.Groups',

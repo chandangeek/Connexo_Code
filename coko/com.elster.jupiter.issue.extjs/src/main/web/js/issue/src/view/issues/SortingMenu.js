@@ -22,22 +22,22 @@ Ext.define('Isu.view.issues.SortingMenu', {
         {
             itemId: 'issues-sorting-menu-item-by-creation-date',
             text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation Date'),
-            action: 'creationDate'
+            action: 'createDateTime'
         },
         {
             itemId: 'issues-sorting-menu-item-by-issueId',
             text: Uni.I18n.translate('general.title.issueId', 'ISU', 'Id'),
-            action: 'issueId'
+            action: 'id'
         },
         {
             itemId: 'issues-sorting-menu-item-by-usagePoint',
             text: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
-            action: 'usagePoint'
+            action: 'usagePoint_id'
         },
         {
             itemId: 'issues-sorting-menu-item-by-device',
             text: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
-            action: 'device'
+            action: 'device_id'
         }
     ]
 });
