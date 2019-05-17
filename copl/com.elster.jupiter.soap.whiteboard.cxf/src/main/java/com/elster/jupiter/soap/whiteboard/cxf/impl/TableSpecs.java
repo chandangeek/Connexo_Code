@@ -180,6 +180,11 @@ public enum TableSpecs {
                     .notNull().
                     map(EndPointOccurrenceImpl.Fields.status.fieldName())
                     .add();
+            table.column("APPLICATIONNAME")
+                    .varChar()
+                    .notNull().
+                    map(EndPointOccurrenceImpl.Fields.applicationName.fieldName())
+                    .add();
 
             Column endPointColumn = table.column("ENDPOINTCFG").number().notNull().conversion(NUMBER2LONG).add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();

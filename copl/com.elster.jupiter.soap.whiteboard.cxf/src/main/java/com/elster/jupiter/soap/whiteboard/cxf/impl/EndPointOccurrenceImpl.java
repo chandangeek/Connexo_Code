@@ -14,6 +14,7 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
     //WebService webService;
     private Reference<EndPointConfiguration> endPointConfiguration = Reference.empty();
     String status;
+    String applicationName;
 
     public enum Fields {
         startTime("startTime"),
@@ -21,7 +22,8 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
         requestName("requestName"),
         webService("webService"),
         endPointConfiguration("endPointConfiguration"),
-        status("status");
+        status("status"),
+        applicationName("applicationName");
 
         private final String javaFieldName;
 
@@ -41,12 +43,14 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
     public EndPointOccurrenceImpl(Instant startTime,
                                   String requestName,
                                   WebService webService,
-                                  String endPointName)
+                                  String endPointName,
+                                  String applicationName)
     {
         this.startTime = startTime;
         this.requestName = requestName;
         this.webService = webService;
         this.endPointName = endPointName;
+        this.applicationName = applicationName;
 
     }
 
@@ -75,6 +79,11 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
     public String getStatus(){
         return status;
     };
+    @Override
+    public String getApplicationName(){
+        return status;
+    };
+
 
     @Override
     public EndPointConfiguration getEndPointConfiguration(){
@@ -103,6 +112,10 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
 
     public void setStatus(String status){
         this.status = status;
+    };
+
+    public void setApplicationName(String applicationName){
+        this.applicationName = applicationName;
     };
 
 
