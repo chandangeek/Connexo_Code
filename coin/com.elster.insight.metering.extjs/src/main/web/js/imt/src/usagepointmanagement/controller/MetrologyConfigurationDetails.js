@@ -21,13 +21,18 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
     ],
 
     views: [
-        'Imt.usagepointmanagement.view.metrologyconfiguration.Details'
+        'Imt.usagepointmanagement.view.metrologyconfiguration.Details',
+        'Imt.usagepointmanagement.view.metrologyconfiguration.UnlinkMeter'
     ],
 
     refs: [
         {
             ref: 'page',
             selector: 'usage-point-metrology-configuration-details'
+        },
+        {
+            ref: 'unlinkMeterForm',
+            selector: '#unlinkMeter'
         }
     ],
     usagePoint: null,
@@ -42,6 +47,9 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             },
             'usage-point-metrology-configuration-details #unlink-metrology-configuration-button': {
                 click: this.unlinkMetrologyConfiguration
+            },
+            '#unlinkMeter #unlink-meter-button': {
+                click: this.unlinkSaveButton   
             }
         });
     },
@@ -118,6 +126,58 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             },
             callback: function () {
                 mainView.setLoading(false);
+            }
+        });
+    },
+
+    unlinkMeter: function (usagePointname, meterRoleId, meterName) {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            router = me.getController('Uni.controller.history.Router'),
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
+
+        usagePointsController.loadUsagePoint(usagePointname, {
+            success: function (types, usagePoint) {
+                me.usagePoint = usagePoint;
+                me.getApplication().fireEvent('changecontentevent', Ext.widget('unlink-meter', {
+                    router: router,
+                    usagePoint: usagePoint,
+                    meterRoleId: meterRoleId,
+                    meterName: meterName,
+                }));
+                me.getApplication().fireEvent('unlinkMeterLoaded', meterName)
+            },
+            failure: function () {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
+    unlinkSaveButton: function(btn) {
+        var me = this;
+            unlinkTime = this.getUnlinkMeterForm().down('#unlink-meter-date').down('#unlink-date-on').getValue().getTime();
+
+        Ext.Ajax.request({
+            url: '/'+ encodeURIComponent(btn.usagePointName) +'/meterroles/'+ encodeURIComponent(btn.meterRoleId) +'/unlink',
+            method: 'POST',
+            jsonData: {
+                instant: unlinkTime
+            },
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.calendarAdded', 'IMT', "Meter '{0}' will be unlinked on '{1}'.", [btn.meterName, new Date(unlinkTime).toLocaleDateString()]));
+                me.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars').forward();
+            },
+            failure: function (response) {
+                var responseText = Ext.decode(response.responseText, true);
+                if (responseText && Ext.isArray(responseText.errors)) {
+                    me.getForm().form.markInvalid(responseText.errors);
+                    me.getForm().down('#form-errors').show();
+                    var fromTimeError = Ext.Array.findBy(responseText.errors, function (item) { return item.id == 'fromTime';});
+                    if(fromTimeError) {
+                        me.getForm().down('#error-label').setText(fromTimeError.msg);
+                        me.getForm().down('#error-label').show();
+                    }
+                }
             }
         });
     }

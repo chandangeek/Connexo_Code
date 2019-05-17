@@ -233,6 +233,21 @@ Ext.define('Imt.controller.History', {
                                     controller: 'Imt.usagepointsetup.controller.MetrologyConfig',
                                     action: 'showActivateMeters',
                                     privileges: Imt.privileges.UsagePoint.admin
+                                },
+                                unlinkmeter: {
+                                    title: Uni.I18n.translate('general.unlinkMeter', 'IMT', 'Unlink meter'),
+                                    route: 'unlink/{meterRoleId}/{meterName}',
+                                    controller: 'Imt.usagepointmanagement.controller.MetrologyConfigurationDetails',
+                                    action: 'unlinkMeter',
+                                    privileges: Imt.privileges.UsagePoint.admin,
+                                    callback: function (route) {
+                                        this.getApplication().on('unlinkMeterLoaded', function (meterName) {
+                                            route.setTitle(Uni.I18n.translate('general.tooltip.unlinkx', 'IMT', "Unlink '{0}'", [meterName]));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
                                 }
                             }
                         },
