@@ -143,7 +143,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
             {
                 type: 'combobox',
                 itemId: 'issue-usagePoints-filter',
-                dataIndex: 'usagePoints',
+                dataIndex: 'usagePoints_id',
                 emptyText: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
                 displayField: 'name',
                 valueField: 'name',
@@ -162,7 +162,22 @@ Ext.define('Isu.view.issues.IssueFilter', {
                         fn: me.comboLimitNotification
                     }
                 }
-            }
+            },
+            {
+                type: 'interval',
+                itemId: 'issue-creationDate-filter',
+                dataIndex: 'startInterval',
+                dataIndexFrom: 'startIntervalFrom',
+                dataIndexTo: 'startIntervalTo',
+                text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date')  + '<span class="white-circle-filter-btn"></span>',
+                hidden: me.isOverviewFilter
+            },
+            {
+                type: 'numeric',
+                dataIndex: 'priority',
+                itemId: 'isu-priority-filter',
+                text: Uni.I18n.translate('general.title.priority', 'ISU', 'Priority') + '<span class="white-circle-filter-btn"></span>'
+            },
         ];
 
         me.callParent(arguments);
