@@ -120,6 +120,10 @@ public enum TableSpecs {
                     .conversion(CLOB2STRING)
                     .map(EndPointLogImpl.Fields.stacetrace.fieldName())
                     .add();
+            table.column("OCCURRENCEID")
+                    .number()
+                    .map(EndPointLogImpl.Fields.occurrenceid.fieldName())
+                    .add();
             table.primaryKey("SCS_PK_ENDPOINT_LOG").on(idColumn).add();
             table.autoPartitionOn(timestampColumn, LifeCycleClass.WEBSERVICES);
 

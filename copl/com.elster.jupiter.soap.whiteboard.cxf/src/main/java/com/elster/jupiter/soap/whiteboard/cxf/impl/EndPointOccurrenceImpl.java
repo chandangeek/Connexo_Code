@@ -20,7 +20,7 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
         startTime("startTime"),
         endTime("endTime"),
         requestName("requestName"),
-        webService("webService"),
+        //webService("webService"),
         endPointConfiguration("endPointConfiguration"),
         status("status"),
         applicationName("applicationName");
@@ -42,15 +42,13 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
 
     public EndPointOccurrenceImpl(Instant startTime,
                                   String requestName,
-                                  WebService webService,
-                                  String endPointName,
-                                  String applicationName)
+                                  String applicationName,
+                                  EndPointConfiguration endPointConfiguration)
     {
         this.startTime = startTime;
         this.requestName = requestName;
-        this.webService = webService;
-        this.endPointName = endPointName;
         this.applicationName = applicationName;
+        this.endPointConfiguration.set(endPointConfiguration);
 
     }
 
@@ -67,14 +65,7 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
     public String getRequest(){
         return requestName;
     };
-    @Override
-    public WebService getWebService(){
-        return webService;
-    };
-    @Override
-    public String getWebServiceEndPointName(){
-        return endPointName;
-    };
+
     @Override
     public String getStatus(){
         return status;
@@ -100,14 +91,6 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
 
     public void setRequest(String requestName){
         this.requestName = requestName;
-    };
-
-    public void  setWebService(WebService webService){
-        this.webService = webService;
-    };
-
-    public  void setWebServiceEndPointName(String endPointName){
-        this.endPointName = endPointName;
     };
 
     public void setStatus(String status){

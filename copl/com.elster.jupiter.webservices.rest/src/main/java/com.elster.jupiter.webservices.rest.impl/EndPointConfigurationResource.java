@@ -236,12 +236,12 @@ public class EndPointConfigurationResource {
         /*EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));*/
 
-        List<EndpointConfigurationOccurrenceInfo> endpointConfigurationOccurrences = findEndPointOccurences()
+        /*List<EndpointConfigurationOccurrenceInfo> endpointConfigurationOccurrences = findEndPointOccurences()
                 .from(queryParameters)
                 .stream()
                 .filter(epco -> epco.getEndPointConfiguration().)
                 .map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo))
-                .collect(toList());
+                .collect(toList());*/
 
         List<EndPointOccurrence> endPointOccurrences = getEndPointOccurrences(queryParameters, filter, applicationName);
         List<EndpointConfigurationOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.

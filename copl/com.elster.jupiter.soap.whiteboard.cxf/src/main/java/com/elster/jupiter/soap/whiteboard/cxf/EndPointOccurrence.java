@@ -5,8 +5,7 @@ public interface EndPointOccurrence {
     Instant getStartTime();
     Instant getEndTime();
     String getRequest();
-    WebService getWebService();
-    String getWebServiceEndPointName();
     String getStatus();
     EndPointConfiguration getEndPointConfiguration();
+    String getApplicationName();
 }

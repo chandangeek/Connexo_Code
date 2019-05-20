@@ -34,6 +34,11 @@ public interface EndPointLog {
     String getStackTrace();
 
     /**
+     * Get id of related occurrence.
+     */
+    Integer getOccurrenceId();
+
+    /**
      * Removes a log entry from the system
      */
     void delete();
