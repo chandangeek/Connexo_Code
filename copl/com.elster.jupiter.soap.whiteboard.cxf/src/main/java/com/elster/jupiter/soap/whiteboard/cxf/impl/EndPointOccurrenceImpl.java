@@ -3,11 +3,14 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 
 import java.time.Instant;
 
 public class EndPointOccurrenceImpl implements EndPointOccurrence {
+
+    public long id;
     Instant startTime;
     Instant endTime;
     String requestName;
@@ -100,6 +103,16 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
     public void setApplicationName(String applicationName){
         this.applicationName = applicationName;
     };
+
+    @Override
+    public void log(LogLevel logLevel, String message){
+        getEndPointConfiguration().log(logLevel, message);
+    }
+
+    @Override
+    public void log(String message, Exception exception){
+        getEndPointConfiguration().log(message, exception);
+    }
 
 
 }

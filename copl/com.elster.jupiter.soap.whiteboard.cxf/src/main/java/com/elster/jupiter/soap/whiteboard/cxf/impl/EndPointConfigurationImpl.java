@@ -274,6 +274,26 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
+    public void log(LogLevel logLevel, String message, long occurrenceId) {
+        if (this.logLevel.compareTo(logLevel) > -1) {
+            if (transactionService.isInTransaction()) {
+                doLog(logLevel, message, occurrenceId);
+            } else {
+                try (TransactionContext context = transactionService.getContext()) {
+                    doLog(logLevel, message, occurrenceId);
+                    context.commit();
+                }
+            }
+        }
+    }
+
+    private void doLog(LogLevel logLevel, String message, long occurrenceId) {
+        EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
+                .init(this, message, logLevel, clock.instant(), occurrenceId);
+        log.save();
+    }
+
+    @Override
     public void log(String message, Exception exception) {
         if (transactionService.isInTransaction()) {
             doLog(message, exception);
@@ -288,6 +308,24 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     private void doLog(String message, Exception exception) {
         EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
                 .init(this, message, stackTrace2String(exception), LogLevel.SEVERE, clock.instant());
+        log.save();
+    }
+
+    @Override
+    public void log(String message, Exception exception, long occurrenceId) {
+        if (transactionService.isInTransaction()) {
+            doLog(message, exception, occurrenceId);
+        } else {
+            try (TransactionContext context = transactionService.getContext()) {
+                doLog(message, exception, occurrenceId);
+                context.commit();
+            }
+        }
+    }
+
+    private void doLog(String message, Exception exception, long occurrenceId) {
+        EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
+                .init(this, message, stackTrace2String(exception), LogLevel.SEVERE, clock.instant(), occurrenceId);
         log.save();
     }
 

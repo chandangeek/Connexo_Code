@@ -96,6 +96,8 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
      */
     void log(LogLevel logLevel, String message);
 
+    void log(LogLevel logLevel, String message, long occurrenceId);
+
     /**
      * Log an entry for this end point (config). As real endpoints are runtime objects without persistent end, logging is done on the config instead.
      * An exception will always be logged on level SEVERE
@@ -104,6 +106,8 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
      * @param exception The exception to log
      */
     void log(String message, Exception exception);
+
+    void log(String message, Exception exception, long occurrenceId);
 
     /**
      * Retrieve a finder of logs of all end point entries. List is sorted, most recent message comes first.

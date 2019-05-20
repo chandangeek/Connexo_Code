@@ -36,7 +36,7 @@ public interface EndPointLog {
     /**
      * Get id of related occurrence.
      */
-    Integer getOccurrenceId();
+    long getOccurrenceId();
 
     /**
      * Removes a log entry from the system

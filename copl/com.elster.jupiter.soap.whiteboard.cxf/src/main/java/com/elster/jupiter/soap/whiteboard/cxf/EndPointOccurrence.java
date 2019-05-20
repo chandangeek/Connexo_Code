@@ -8,4 +8,6 @@ public interface EndPointOccurrence {
     String getStatus();
     EndPointConfiguration getEndPointConfiguration();
     String getApplicationName();
+    void log(LogLevel logLevel, String message);
+    void log(String message, Exception exception);
 }

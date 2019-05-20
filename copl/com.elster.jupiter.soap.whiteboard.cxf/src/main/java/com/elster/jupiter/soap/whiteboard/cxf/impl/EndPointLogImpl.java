@@ -58,7 +58,7 @@ public class EndPointLogImpl implements EndPointLog, HasId {
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String message;
     private String stackTrace;
-    private Integer occurrenceid;
+    private long occurrenceid;
 
     EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, LogLevel logLevel, Instant timestamp) {
         this.timestamp = timestamp;
@@ -68,7 +68,7 @@ public class EndPointLogImpl implements EndPointLog, HasId {
         return this;
     }
 
-    EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, LogLevel logLevel, Instant timestamp, Integer occurrenceid) {
+    EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, LogLevel logLevel, Instant timestamp, long occurrenceid) {
         init(endPointConfiguration, message, logLevel, timestamp);
         this.occurrenceid = occurrenceid;
         return this;
@@ -80,7 +80,7 @@ public class EndPointLogImpl implements EndPointLog, HasId {
         return this;
     }
 
-    EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, String stacetrace, LogLevel logLevel, Instant timestamp, Integer occurrenceid) {
+    EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, String stacetrace, LogLevel logLevel, Instant timestamp, long occurrenceid) {
         init(endPointConfiguration, message, stacetrace, logLevel, timestamp);
         this.occurrenceid = occurrenceid;
         return this;
@@ -124,7 +124,7 @@ public class EndPointLogImpl implements EndPointLog, HasId {
     }
 
     @Override
-    public Integer getOccurrenceId(){
+    public long getOccurrenceId(){
         return this.occurrenceid;
     }
 
