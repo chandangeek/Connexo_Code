@@ -69,29 +69,23 @@ public class DataDropperImpl implements DataDropper {
 
     private void deleteRows() throws SQLException {
         Optional<String> columnName = getReferenceColumnName();
-        if (columnName.isPresent()) {
+        if (columnName.isPresent() && hasColumn(columnName.get())) {
             long upToMillis = upTo.toEpochMilli();
-            long totalNbOfRowsToDelete = getTotalNbOfRowsToDelete(columnName, upToMillis);
-            deleteRowsInBatch(columnName, upToMillis, totalNbOfRowsToDelete);
+            long totalNbOfRowsToDelete = getTotalNbOfRowsToDelete(columnName.get(), upToMillis);
+            deleteRowsInBatch(columnName.get(), upToMillis, totalNbOfRowsToDelete);
         } else {
             logger.warning("Cannot delete rows from table " + tableName + "! No reference column found!");
         }
     }
 
-    private long getTotalNbOfRowsToDelete(Optional<String> columnName, long upToMillis) throws SQLException {
+    private long getTotalNbOfRowsToDelete(String columnName, long upToMillis) throws SQLException {
         long totalNbOfRowsToDelete = 0;
         try (Connection connection = dataModel.getConnection(false)) {
-            try (PreparedStatement columnSearchPs = columnSearchSql(tableName, columnName.get()).prepare(connection)) {
-                try (ResultSet columnSearchRs = columnSearchPs.executeQuery()) {
-                    if (columnSearchRs.next() && columnName.get().equalsIgnoreCase(columnSearchRs.getString(1))) {
-                        try (PreparedStatement countSt = countRowsSql(tableName, columnName.get(), upToMillis).prepare(connection)) {
-                            try (ResultSet rs = countSt.executeQuery()) {
-                                if (rs.next()) {
-                                    totalNbOfRowsToDelete = rs.getLong(1);
-                                    logger.info("Found " + totalNbOfRowsToDelete + " rows to be deleted from " + tableName);
-                                }
-                            }
-                        }
+            try (PreparedStatement countSt = countRowsSql(tableName, columnName, upToMillis).prepare(connection)) {
+                try (ResultSet rs = countSt.executeQuery()) {
+                    if (rs.next()) {
+                        totalNbOfRowsToDelete = rs.getLong(1);
+                        logger.info("Found " + totalNbOfRowsToDelete + " rows to be deleted from " + tableName);
                     }
                 }
             }
@@ -99,16 +93,17 @@ public class DataDropperImpl implements DataDropper {
         return totalNbOfRowsToDelete;
     }
 
-    private void deleteRowsInBatch(Optional<String> columnName, long upToMillis, long totalNbOfRowsToDelete) throws SQLException {
+    private void deleteRowsInBatch(String columnName, long upToMillis, long totalNbOfRowsToDelete) throws SQLException {
         while (totalNbOfRowsToDelete > 0) {
             long nbOfRowsToBeDeleted = Math.min(totalNbOfRowsToDelete, BATCH_SIZE);
             try (Connection connection = dataModel.getConnection(true)) {
-                try (PreparedStatement deleteSt = deleteRowsSql(tableName, columnName.get(), upToMillis, nbOfRowsToBeDeleted).prepare(connection)) {
+                try (PreparedStatement deleteSt = deleteRowsSql(tableName, columnName, upToMillis, nbOfRowsToBeDeleted).prepare(connection)) {
                     int nbOfDeletedRows = deleteSt.executeUpdate();
-                    logger.info("Deleted " + nbOfRowsToBeDeleted + " rows from table " + tableName + " containing entries with " + columnName.get() +
+                    logger.info("Deleted " + nbOfRowsToBeDeleted + " rows from table " + tableName + " containing entries with " + columnName +
                             " up to " + Instant.ofEpochMilli(upToMillis));
-                    if (nbOfDeletedRows == 0)
+                    if (nbOfDeletedRows == 0) {
                         return;
+                    }
                 }
             }
             totalNbOfRowsToDelete -= nbOfRowsToBeDeleted;
@@ -119,6 +114,14 @@ public class DataDropperImpl implements DataDropper {
     private Optional<String> getReferenceColumnName() {
         return Stream.of(TABLE_REF_COLUMN, IDS_TABLE_REF_COLUMN, JOURNAL_TABLE_REF_COLUMN)
                 .map(f -> f.apply(dataModel, tableName)).filter(Optional::isPresent).map(Optional::get).findFirst();
+    }
+
+    private boolean hasColumn(String columnName) throws SQLException {
+        try (Connection connection = dataModel.getConnection(false)) {
+            try (ResultSet resultSet = connection.getMetaData().getColumns(connection.getCatalog(), connection.getSchema(), tableName, columnName)) {
+                return resultSet.next();
+            }
+        }
     }
 
     private SqlBuilder deleteRowsSql(String tableName, String columnName, long untilDate, long untilRowNum) {
@@ -140,17 +143,6 @@ public class DataDropperImpl implements DataDropper {
         builder.append(columnName);
         builder.append(" <= ");
         builder.addLong(until);
-        return builder;
-    }
-
-    private SqlBuilder columnSearchSql(String tableName, String columnName) {
-        SqlBuilder builder = new SqlBuilder("SELECT column_name FROM user_tab_cols ");
-        builder.append(" WHERE table_name = '");
-        builder.append(tableName);
-        builder.append("'");
-        builder.append(" AND column_name = '");
-        builder.append(columnName);
-        builder.append("'");
         return builder;
     }
 
