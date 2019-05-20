@@ -17,7 +17,7 @@ Ext.define('Isu.model.IssueUsagePoints', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/usagepoints',
+        url: '/api/idu/usagepointgroups/usagepoints',
         reader: {
             type: 'json',
             root: 'usagePoints'

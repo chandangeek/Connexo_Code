@@ -145,14 +145,10 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 itemId: 'issue-usagePoints-filter',
                 dataIndex: 'usagePoints_id',
                 emptyText: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
-                displayField: 'name',
-                valueField: 'name',
-                store: 'Isu.store.IssueUsagePoints',
                 queryMode: 'remote',
                 queryParam: 'name',
+                store: 'Isu.store.IssueUsagePoints',
                 queryCaching: false,
-                minChars: 0,
-                loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
                 forceSelection: false,
@@ -169,14 +165,18 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 dataIndex: 'startInterval',
                 dataIndexFrom: 'startIntervalFrom',
                 dataIndexTo: 'startIntervalTo',
-                text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date')  + '<span class="white-circle-filter-btn"></span>',
+                setFilterValue: me.comboSetFilterValue,
+                getParamValue: me.comboGetParamValue,
+                text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date') ,
                 hidden: me.isOverviewFilter
             },
             {
                 type: 'numeric',
                 dataIndex: 'priority',
                 itemId: 'isu-priority-filter',
-                text: Uni.I18n.translate('general.title.priority', 'ISU', 'Priority') + '<span class="white-circle-filter-btn"></span>'
+                setFilterValue: me.comboSetFilterValue,
+                getParamValue: me.comboGetParamValue,
+                text: Uni.I18n.translate('general.title.priority', 'ISU', 'Priority')
             },
         ];
 
