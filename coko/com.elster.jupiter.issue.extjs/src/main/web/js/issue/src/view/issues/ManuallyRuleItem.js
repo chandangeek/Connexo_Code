@@ -40,6 +40,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     valueField: 'id',
                     name: 'deviceMrid',
                     queryMode: 'local',
+                    itemId: 'deviceId'
                },
                {
                     itemId: 'issueReason',
