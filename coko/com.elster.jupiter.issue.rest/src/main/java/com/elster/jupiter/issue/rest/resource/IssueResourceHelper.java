@@ -268,7 +268,7 @@ public class IssueResourceHelper {
         ManualIssueBuilder issueBuilder = issueService.newIssueBuilder(user);
 
         Issue issue = issueBuilder.withReason(getReason(request.getReasonId()))
-                .withType(issueService.findIssueType(IssueTypes.MANUAL.getName()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "type")))
+                .withType(getIssueType())
                 .withStatus(issueService.findStatus(request.getStatusId()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "statusId")))
                 .withPriority(Priority.fromStringValue(request.getPriority()))
                 .withDevice(meteringService.findEndDeviceByMRID(request.getDeviceMrid()).orElse(null))
@@ -283,28 +283,14 @@ public class IssueResourceHelper {
     }
 
     private IssueReason getReason(String reason) {
-        return issueService.findReason(reason).isPresent() ? issueService.findReason(reason).get() :
-                issueService.createReason(reason, issueService.findIssueType(IssueTypes.MANUAL.getName()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "type")), new TranslationKey() {
-                    @Override
-                    public String getKey() {
-                        return reason;
-                    }
+        if (reason == null || reason.isEmpty()) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "reasonId");
+        }
+        return issueService.findOrCreateReason(reason, getIssueType());
+    }
 
-                    @Override
-                    public String getDefaultFormat() {
-                        return "Manual issue reason";
-                    }
-                }, new TranslationKey() {
-                    @Override
-                    public String getKey() {
-                        return reason;
-                    }
-
-                    @Override
-                    public String getDefaultFormat() {
-                        return "Manual issue reason";
-                    }
-                });
+    private IssueType getIssueType() {
+        return issueService.findIssueType(IssueTypes.MANUAL.getName()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "issue type"));
     }
 
 }
