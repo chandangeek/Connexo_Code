@@ -216,25 +216,27 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                   listeners: {
                      render: function () {
                         this.store.load();
+                     },
+                     change: function (combo, newValue) {
+                        this.up('#issue-manually-creation-rules-item').down('#mi-user-issue-assignee').fireEvent('workgroupChanged', newValue);
+                     },
+                     select: function (combo, newValue) {
+                        this.up('#issue-manually-creation-rules-item').down('#mi-user-issue-assignee').fireEvent('workgroupChanged', newValue[0].get('id'));
                      }
                   }
                },
                {
-                  xtype: 'combobox',
+                  xtype: 'issues-user-assignee-combo',
                   itemId: 'mi-user-issue-assignee',
                   fieldLabel: Uni.I18n.translate('general.user', 'ISU', 'User'),
                   name: 'assignToUserId',
+                  queryMode: 'local',
                   valueField: 'id',
                   displayField: 'name',
                   editable: false,
                   store: 'Isu.store.UserList',
                   emptyText: Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned'),
-                  msgTarget: 'under',
-                  listeners: {
-                     render: function () {
-                        this.store.load();
-                     }
-                  }
+                  msgTarget: 'under'
                },
                {
                     itemId: 'comment',
