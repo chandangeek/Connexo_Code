@@ -71,9 +71,9 @@ Ext.define('Isu.controller.CreationManualRule', {
 
        errorMessage.hide();
 
-       if (!form.isValid() || reasonEditedValue.trim() != '') {
+       if (!form.isValid() || reasonEditedValue.trim() == '') {
             errorMessage.show();
-            if (reasonEditedValue.trim() != '') comboReason.markInvalid('This field is required');
+            if (reasonEditedValue.trim() == '') comboReason.markInvalid('This field is required');
             return;
        }
 
