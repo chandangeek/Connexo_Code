@@ -60,6 +60,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -133,6 +134,7 @@ public class InMemoryPersistence {
     private HttpService httpService;
     private MeteringZoneService meteringZoneService;
     private DataModel dataModel;
+    private DeviceService deviceService;
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
@@ -242,6 +244,7 @@ public class InMemoryPersistence {
         this.searchService = mock(SearchService.class);
         this.timeService = mock(TimeService.class);
         this.httpService = mock(HttpService.class);
+        this.deviceService = mock(DeviceService.class);
         dataModel = mock(DataModel.class);
     }
 
@@ -286,6 +289,7 @@ public class InMemoryPersistence {
             bind(PropertyValueInfoService.class).toInstance(mock(PropertyValueInfoService.class));
             bind(MdcPropertyValueConverterFactory.class).toInstance(mock(MdcPropertyValueConverterFactory.class));
             bind(DataModel.class).toInstance(dataModel);
+            bind(DeviceService.class).toInstance(deviceService);
         }
     }
 }

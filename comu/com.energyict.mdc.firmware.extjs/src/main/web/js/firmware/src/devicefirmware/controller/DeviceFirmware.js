@@ -189,7 +189,16 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                                 htmlEncode: false,
                                 itemId: 'errorsText',
                                 value: htmlText,
-                                padding: '0 50'
+                                padding: '0 50',
+                                listeners:{
+                                		afterrender:function(){
+                                		   var me = this;
+                                		   this.el.hover(function(e){
+                                		       if (this.querySelector("div").getAttribute("data-qtip")) this.querySelector("div").removeAttribute("data-qtip");
+                                		       me.el.removeAllListeners();
+                                           });
+                                		}
+                                }
                             });
                             confirmationWindow.insert(1, fieldContainer);
                             confirmationWindow.show({

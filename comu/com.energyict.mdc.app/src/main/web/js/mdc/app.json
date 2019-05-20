@@ -26,6 +26,7 @@
     "com.elster.jupiter.servicecall.extjs@10.6.0",
     "com.elster.jupiter.appserver.extjs@10.6.0",
     "com.energyict.mdc.issue.devicelifecycle.extjs@10.6.0",
-    "com.energyict.mdc.tou.campaign.extjs@10.6.0"
+    "com.energyict.mdc.tou.campaign.extjs@10.6.0",
+    "com.elster.jupiter.issue.task.extjs@10.6.0"
   ]
 }

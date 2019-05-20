@@ -41,6 +41,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DefaultMicroCheck;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -181,6 +182,8 @@ public class DeviceLifeCycleServiceImplTest {
     private ServiceCallService serviceCallService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private DeviceService deviceService;
 
     @Before
     public void initializeMocks() {
@@ -223,6 +226,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         when(this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
         when(ormService.newDataModel(eq(DeviceLifeCycleService.COMPONENT_NAME), anyString())).thenReturn(dataModel);
+        when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.of(device));
     }
 
     @Test
@@ -888,6 +892,6 @@ public class DeviceLifeCycleServiceImplTest {
         return new DeviceLifeCycleServiceImpl(nlsService, threadPrincipleService, propertySpecService,
                 microActionFactory, deviceLifeCycleConfigurationService, userService, Clock.systemDefaultZone(),
                 licenseService, meteringService, eventService, transactionService, upgradeService,
-                topologyService, multiElementDeviceService, validationService, meteringZoneService, serviceCallService, ormService);
+                topologyService, multiElementDeviceService, validationService, meteringZoneService, serviceCallService, ormService, deviceService);
     }
 }

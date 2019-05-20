@@ -29,5 +29,6 @@ public class UpgraderV10_6 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 6));
         EventType.TRANSITION_FAILED.install(eventService);
         EventType.DEVICE_LIFECYCLE_TRASITION_DELETE.install(eventService);
+        EventType.TRANSITION_DONE.install(eventService);
     }
 }

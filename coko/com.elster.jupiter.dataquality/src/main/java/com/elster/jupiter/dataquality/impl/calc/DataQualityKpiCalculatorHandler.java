@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.dataquality.impl.calc;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -20,12 +21,14 @@ class DataQualityKpiCalculatorHandler implements TaskExecutor {
     private final DataQualityServiceProvider serviceProvider;
     private final TransactionService transactionService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final EventService eventService;
     private final User user;
 
-    DataQualityKpiCalculatorHandler(DataQualityServiceProvider serviceProvider, User user) {
+    DataQualityKpiCalculatorHandler(DataQualityServiceProvider serviceProvider, EventService eventService, User user) {
         this.serviceProvider = serviceProvider;
         this.transactionService = serviceProvider.transactionService();
         this.threadPrincipalService = serviceProvider.threadPrincipalService();
+        this.eventService = eventService;
         this.user = user;
     }
 
@@ -40,7 +43,8 @@ class DataQualityKpiCalculatorHandler implements TaskExecutor {
             // task has been cancelled
             return;
         }
-        threadPrincipalService.runAs(user, () -> runCalculator(taskOccurrence), Locale.getDefault());
+            threadPrincipalService.runAs(user, () -> runCalculator(taskOccurrence), Locale.getDefault());
+
     }
 
     private void runCalculator(TaskOccurrence occurrence) {
@@ -50,6 +54,7 @@ class DataQualityKpiCalculatorHandler implements TaskExecutor {
                 DataQualityKpiCalculator kpiCalculator = KpiType.calculatorForRecurrentPayload(serviceProvider, occurrence, logger);
                 kpiCalculator.calculateAndStore();
             } catch (Exception e) {
+                postFailEvent(eventService, occurrence, e.getLocalizedMessage());
                 transactionService.run(() -> loggingContext.severe(logger, e));
             }
         }

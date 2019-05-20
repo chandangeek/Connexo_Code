@@ -231,7 +231,7 @@ public class InMemoryPersistence {
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class);
         this.licenseService = mock(LicenseService.class);
-        this.thesaurus = mock(Thesaurus.class);
+        this.thesaurus = NlsModule.SimpleThesaurus.from(new FirmwareServiceImpl().getKeys());
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         when(this.principal.getName()).thenReturn(testName);
         this.httpService = mock(HttpService.class);

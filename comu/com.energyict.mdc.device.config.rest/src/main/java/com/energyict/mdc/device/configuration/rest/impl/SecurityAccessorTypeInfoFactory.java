@@ -5,7 +5,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
@@ -53,6 +52,7 @@ public class SecurityAccessorTypeInfoFactory {
             info.importCapability =  securityAccessorType.getHsmKeyType().getImportCapability();
             info.renewCapability = securityAccessorType.getHsmKeyType().getRenewCapability();
             info.keySize =  securityAccessorType.getHsmKeyType().getKeySize();
+            info.isReversible = securityAccessorType.getHsmKeyType().isReversible();
         }
         return info;
     }
