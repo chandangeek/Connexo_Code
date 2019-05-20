@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.AddIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
+import com.elster.jupiter.issue.rest.request.BulkAddIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkSnoozeRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
@@ -485,6 +486,21 @@ public class IssueResource extends BaseResource {
         User performer = (User) securityContext.getUserPrincipal();
         ActionInfo response = new ActionInfo();
         response.addSuccess(issueResourceHelper.createNewIssue(request, performer).getId());
+        return entity(response).build();
+    }
+
+    @POST
+    @Transactional
+    @Path("/bulkadd")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADD_ISSUE)
+    public Response addIssues(BulkAddIssueRequest request, @Context SecurityContext securityContext) {
+        User performer = (User) securityContext.getUserPrincipal();
+        ActionInfo response = new ActionInfo();
+        for (AddIssueRequest addIssueRequest : request.getIssues()) {
+            response.addSuccess(issueResourceHelper.createNewIssue(addIssueRequest, performer).getId());
+        }
         return entity(response).build();
     }
 
