@@ -65,6 +65,6 @@ public class EndPointConfigurationOccurrenceFinderBuilderImpl  implements EndPoi
 
     @Override
     public Finder<EndPointOccurrence> build() {
-        return DefaultFinder.of(FileImportOccurrence.class, condition, dataModel, ImportSchedule.class);
+        return DefaultFinder.of(EndPointOccurrence.class, condition, dataModel/*, ImportSchedule.class*/);
     }
 }
