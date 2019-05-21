@@ -24,7 +24,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-//import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
@@ -228,7 +228,7 @@ public class TimeOfUseCampaignResource {
         return Response.ok(deviceTypeAndOptionsInfo).build();
     }
 
-    /*@GET
+    @GET
     @Transactional
     @Path("/comtasks")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
@@ -241,12 +241,13 @@ public class TimeOfUseCampaignResource {
 
         List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
         deviceType.getConfigurations().stream().forEach(cnf -> comTaskEnablements.addAll(cnf.getComTaskEnablements()));
-        comTaskEnablements.stream().forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));*/
+        comTaskEnablements.stream().forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
         /*List<IdWithNameInfo> comTasks = new ArrayList<>();
         taskService.findAllComTasks().stream()
                 .forEach(comTask -> comTasks.add(new IdWithNameInfo(comTask.getId(), comTask.getName())));*/
-        //return Response.ok().build();
-    //}
+        String f;
+        return Response.ok(comTasks).build();
+    }
 
     public Long getCurrentCampaignVersion(long id) {
         return timeOfUseCampaignService.getCampaign(id).map(TimeOfUseCampaign::getVersion).orElse(null);

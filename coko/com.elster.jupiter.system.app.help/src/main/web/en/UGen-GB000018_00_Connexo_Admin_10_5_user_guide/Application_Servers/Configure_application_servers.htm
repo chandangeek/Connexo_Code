@@ -1,0 +1,173 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Configure application servers</title>
+
+    <link rel="stylesheet" href="Application_Servers.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "6.0_5";
+    </script>
+    <meta name="brsprev" value="UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Application_Servers/Monitor_application_server_load.htm">
+    <meta name="brsnext" value="UGen-GB000018_00_Connexo_Admin_10_5_user_guide/Application_Servers/Manage_services_on_application_server.htm">
+    <meta name="topic-breadcrumbs" content="Application Servers"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H2Section">Configure application servers</p>
+
+    <p dir="ltr" class="FM_H3SectionTopic">Manage application servers</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_33773_Add_an_application"></a>Add an application server</p>
+    <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+    <p dir="ltr" class="FM_Body">When you create an application server you need to stop and restart the Connexo instance that will execute that application server.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Application server</span>&#160;&gt; <span class="FM_UIRef">Application servers</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Add application server</span> and complete the following fields:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style="width: 25cm; max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><a name="XREF_84292_Parameter"></a>Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Name</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Name of the server that the application runs on.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Export path</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Default path to store exported files and data. The path can be overruled in the export task configuration.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Import path</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Default path to import data from. The path can be overruled in the import service configuration.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><a href="javascript:BSSCPopup('../../Glo$$aryPopup$/message services.htm');" id="GLPOPUPConfResp1011">
+                        <script type="text/javascript">if (typeof(FilePopupInit) != 'function') FilePopupInit = new Function();
+                        FilePopupInit('GLPOPUPConfResp1011');</script>
+                        Message services</a></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="display:inline">Select the message services that need to be executed by the application server by removing those that do not need to be
+                        executed. This can be done by clicking the remove icon <img alt="Application_Servers00022.png" id="image40" src="../../assets/Application_Servers00022.png"
+                                                                                    style="max-width: 100% ;height: auto"/>.</p>
+                    <p dir="ltr" class="FM_CellBody">Change the number of threads or the status of the service by clicking the value.</p>
+                    <p dir="ltr" class="FM_CellBody">Message services can be added when you click <span class="FM_UIRef">Add message services</span>.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Import services</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="display:inline">By default all configured import services are added to the application server. Remove import services by clicking the remove
+                        icon <img alt="Application_Servers00023.png" id="image41" src="../../assets/Application_Servers00023.png" style="max-width: 100% ;height: auto"/>, add import services by
+                        clicking <span class="FM_UIRef">Add import services</span>.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1" style="display:inline">4. &#160; Click the actions icon <img alt="masterActions_26.png" id="image42" src="../../assets/masterActions_26.png"
+                                                                                                     style="max-width: 100% ;height: auto"/>&#160;and select <span class="FM_UIRef">Activate</span>.</p>
+    <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+    <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+    <p dir="ltr" class="FM_BodyGrey">When you activate an application server this server becomes available in the application instead of being activated as such.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_38485_Edit_application"></a>Edit application server</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Application server &gt; Application servers.</span></p>
+    <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Click the actions icon <img alt="masterActions_27.png" id="image43" src="../../assets/masterActions_27.png"
+                                                                                                     style="max-width: 100% ;height: auto"/>&#160;next to the application server you want to edit and
+        select <span class="FM_UIRef">Edit</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Change the application server parameters </p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Add, edit or remove message and import services.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Save</span>.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_11730_Edit_and_remove"></a>Remove application servers</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Application server</span>&#160;&gt; <span class="FM_UIRef">Application servers</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1" style="display:inline">2. &#160; Click the actions icon <img alt="masterActions_28.png" id="image44" src="../../assets/masterActions_28.png"
+                                                                                                     style="max-width: 100% ;height: auto"/>&#160;and select <span class="FM_UIRef">Remove</span>&#160;to
+        delete the application server. Click <span class="FM_UIRef">Remove</span> in the dialogue that appears.</p>
+</div>
+</body>
+</html>
