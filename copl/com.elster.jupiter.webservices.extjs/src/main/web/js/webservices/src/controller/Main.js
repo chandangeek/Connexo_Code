@@ -65,5 +65,38 @@ Ext.define('Wss.controller.Main', {
                 calendarItem
             );
         }
+
+        if (Uni.Auth.hasPrivilegeInApp('privilege.view.webservices', 'SYS')) {
+            var menuItem = Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.workspace', 'WSS', 'Workspace'),
+                portal: 'workspace',
+                glyph: 'settings'
+            });
+
+            Uni.store.MenuItems.add(menuItem);
+
+            var calendarItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.webServices', 'WSS', 'Web services'),
+                portal: 'workspace',
+                items: [
+                    {
+                        text: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Web service endpoints'),
+                        href: '#/workspace/webserviceendpoints',
+                        hidden: !(Uni.Auth.hasPrivilegeInApp('privilege.view.webservices', 'SYS')),
+                        route: 'webserviceendpoints'
+                    },
+                    {
+                        text: Uni.I18n.translate('webservices.webserviceHistory', 'WSS', 'Web service history'),
+                        href: '#/workspace/webservicehistory',
+                        hidden: !(Uni.Auth.hasPrivilegeInApp('privilege.view.webservices', 'SYS')),
+                        route: 'webservicehistory'
+                    }
+                ]
+            });
+
+            Uni.store.PortalItems.add(
+                calendarItem
+            );
+        }
     }
 });

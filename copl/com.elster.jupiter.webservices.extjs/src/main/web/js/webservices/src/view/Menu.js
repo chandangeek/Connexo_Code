@@ -26,6 +26,13 @@ Ext.define('Wss.view.Menu', {
                 text: Uni.I18n.translate('general.logging', 'WSS', 'Logging'),
                 itemId: 'wenservoces-logs-link',
                 href: me.router.getRoute('administration/webserviceendpoints/view/logs').buildUrl({endpointId: me.record.get('id')})
+            },
+            {
+                text: Uni.I18n.translate('general.history', 'WSS', 'History'),
+                itemId: 'wenservoces-history-link',
+                href: me.router
+                    .getRoute('administration/webserviceendpoints/view/history')
+                    .buildUrl({endpointId: me.record.get('id')})
             }
 
         ];

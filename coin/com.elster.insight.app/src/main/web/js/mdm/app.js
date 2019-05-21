@@ -62,7 +62,10 @@ Ext.onReady(function () {
             name: 'Isu',
             path: '../../apps/isu/src'
         },
-
+        {
+            name: 'Wss',
+            path: '../../apps/wss/src'
+        },
     ];
 
     loader.initPackages(packages);
@@ -77,7 +80,7 @@ Ext.onReady(function () {
             localStorage.setItem('X-AUTH-TOKEN',response.getResponseHeader('X-AUTH-TOKEN'));
         }
     });
-    
+
     loader.onReady(function () {
 
         var onDependenciesLoad = function () {
@@ -93,7 +96,7 @@ Ext.onReady(function () {
                 'X-CONNEXO-APPLICATION-NAME': 'INS', // a function that return the main application
                 'Authorization': 'Bearer ' + localStorage.getItem('X-AUTH-TOKEN')
             };
-        
+
         // <debug>
         Ext.Loader.setConfig({
             enabled: true

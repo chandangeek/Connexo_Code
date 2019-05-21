@@ -32,7 +32,9 @@ Ext.define('MdmApp.controller.Main', {
         'Est.privileges.EstimationConfiguration',
         'Imt.privileges.UsagePointGroup',
         'Yfn.privileges.Yellowfin',
-        'Yfn.controller.Main'
+        'Yfn.controller.Main',
+        'Wss.privileges.Webservices',
+        'Wss.controller.Main'
     ],
 
     applicationTitle: 'Connexo Insight',
@@ -68,11 +70,12 @@ Ext.define('MdmApp.controller.Main', {
         'Fim.controller.Main',
         'Est.main.controller.Main',
         'Dxp.controller.Main',
-        'Yfn.controller.Main'
+        'Yfn.controller.Main',
+        'Wss.controller.Main'
     ],
     init: function () {
         var router = this.getController('Uni.controller.history.Router');
-        
+
         // default route redirect
         router.initRoute('default', {
             redirect: this.defaultToken.slice(1, this.defaultToken.length),
