@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.request.AddIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
+import com.elster.jupiter.issue.rest.request.BulkAddIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
@@ -439,10 +440,9 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testAddIssue() {
-        AddIssueRequest request = new AddIssueRequest();
         OpenIssue issue = getDefaultIssue();
         when(securityContext.getUserPrincipal()).thenReturn(mock(User.class));
-        when(issueService.findReason(any(String.class))).thenReturn(Optional.of(mock(IssueReason.class)));
+        when(issueService.findOrCreateReason(any(String.class), any(IssueType.class))).thenReturn(mock(IssueReason.class));
         when(issueService.findIssueType(any(String.class))).thenReturn(Optional.of(mock(IssueType.class)));
         when(issueService.findStatus(any(String.class))).thenReturn(Optional.of(mock(IssueStatus.class)));
         when(meteringService.findEndDeviceByMRID(any(String.class))).thenReturn(Optional.of(mock(EndDevice.class)));
@@ -461,8 +461,42 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         when(manualIssueBuilder.create()).thenReturn(issue);
         when(issueService.newIssueBuilder(any(User.class))).thenReturn(manualIssueBuilder);
 
+        AddIssueRequest request = new AddIssueRequest();
+        request.setReasonId("reason");
         Entity<AddIssueRequest> json = Entity.json(request);
         Response response = target("issues/add").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testAddIssues() {
+        OpenIssue issue = getDefaultIssue();
+        when(securityContext.getUserPrincipal()).thenReturn(mock(User.class));
+        when(issueService.findOrCreateReason(any(String.class), any(IssueType.class))).thenReturn(mock(IssueReason.class));
+        when(issueService.findIssueType(any(String.class))).thenReturn(Optional.of(mock(IssueType.class)));
+        when(issueService.findStatus(any(String.class))).thenReturn(Optional.of(mock(IssueStatus.class)));
+        when(meteringService.findEndDeviceByMRID(any(String.class))).thenReturn(Optional.of(mock(EndDevice.class)));
+        ManualIssueBuilder manualIssueBuilder = mock(ManualIssueBuilder.class);
+        when(manualIssueBuilder.withReason(any(IssueReason.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withType(any(IssueType.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withStatus(any(IssueStatus.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withPriority(any(Priority.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withDevice(any(EndDevice.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withDueDate(any(Instant.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withOverdue(false)).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withComment(any(String.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withAssignToUser(any(Long.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withAssignToWorkgroup(any(Long.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withAssignComment(any(String.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.create()).thenReturn(issue);
+        when(issueService.newIssueBuilder(any(User.class))).thenReturn(manualIssueBuilder);
+
+        AddIssueRequest request = new AddIssueRequest();
+        request.setReasonId("reason");
+        BulkAddIssueRequest bulkRequest = new BulkAddIssueRequest();
+        bulkRequest.setIssues(Arrays.asList(request, request));
+        Entity<BulkAddIssueRequest> json = Entity.json(bulkRequest);
+        Response response = target("issues/bulkadd").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
