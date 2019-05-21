@@ -39,7 +39,7 @@ Ext.define('Isu.controller.CreationManualRule', {
             page = me.getPage(),
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('issue-manually-creation-rules-item-add',{
-                returnLink: router.getRoute('workspace/issuesoverview').buildUrl()
+                returnLink: router.getRoute('workspace/issues').buildUrl()
             });
         var manualIssue = Ext.create('Isu.model.ManuallyRuleItem'),
         dependencies = ['Isu.store.IssueDevices', 'Isu.store.IssueReasons'],
