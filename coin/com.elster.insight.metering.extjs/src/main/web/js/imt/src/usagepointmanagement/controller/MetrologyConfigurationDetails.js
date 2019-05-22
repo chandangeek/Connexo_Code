@@ -164,7 +164,7 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
                 timeStamp: unlinkTime
             },
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.calendarAdded', 'IMT', "Meter '{0}' will be unlinked on '{1}'.", [btn.meterName, new Date(unlinkTime).toLocaleDateString()]));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.calendarAdded', 'IMT', "Meter '{0}' will be unlinked on '{1}'.", [btn.meterName, new Date(unlinkTime).toLocaleString()]));
                 me.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars').forward();
             },
             failure: function (response) {

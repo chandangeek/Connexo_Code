@@ -49,13 +49,14 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.UnlinkMeter', {
                                     allowBlank: true,
                                     value: new Date(),
                                     editable: false,
+                                    minValue: new Date(),
                                     format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                 },
                                 hoursConfig: {
                                     fieldLabel: Uni.I18n.translate('general.lowercase.at', 'IMT', 'at'),
                                     labelWidth: 10,
                                     margin: '0 0 0 10',
-                                    value: new Date().getHours()
+                                    value: new Date().getHours(),
                                 },
                                 minutesConfig: {
                                     width: 55,
