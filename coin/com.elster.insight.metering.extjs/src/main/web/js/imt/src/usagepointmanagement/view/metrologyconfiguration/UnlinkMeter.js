@@ -49,7 +49,6 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.UnlinkMeter', {
                                     allowBlank: true,
                                     value: new Date(),
                                     editable: false,
-                                    minValue: new Date(),
                                     format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                 },
                                 hoursConfig: {
