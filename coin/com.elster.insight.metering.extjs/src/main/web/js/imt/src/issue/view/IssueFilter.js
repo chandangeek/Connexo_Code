@@ -15,7 +15,8 @@ Ext.define('Imt.issue.view.IssueFilter', {
         'Isu.store.IssueAssignees',
         'Imt.issue.store.UsagePoints',
         'Isu.store.DueDate',
-        'Isu.store.IssueReasons'
+        'Isu.store.IssueReasons',
+        'Isu.store.DeviceGroups'
     ],
 
     initComponent: function () {
@@ -140,7 +141,17 @@ Ext.define('Imt.issue.view.IssueFilter', {
                         fn: me.comboLimitNotification
                     }
                 }
-            }
+            },
+            {
+                type: 'combobox',
+                itemId: 'issue-deviceGroup-filter',
+                dataIndex: 'deviceGroup',
+                emptyText: Uni.I18n.translate('general.deviceGroup', 'IMT', 'Device Group'),
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Isu.store.DeviceGroups',
+                multiSelect: true,
+            },
         ];
 
         me.callParent(arguments);
