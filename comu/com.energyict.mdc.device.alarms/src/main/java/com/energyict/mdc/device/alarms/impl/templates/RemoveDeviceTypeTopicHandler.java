@@ -43,7 +43,7 @@ public class RemoveDeviceTypeTopicHandler implements TopicHandler{
         List<CreationRule> alarmCreationRules = DeviceAlarmUtil.getAlarmCreationRules(issueService);
         boolean deviceTypeInUse = alarmCreationRules.stream()
                 .map(rule -> (List)rule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES))
-                .filter(list -> !list.isEmpty())
+                .filter(list -> list != null && !list.isEmpty())
                 .flatMap(Collection::stream)
                 .anyMatch(info ->  ((DeviceLifeCycleInDeviceTypeInfo)info).getDeviceTypeId() == deviceType.getId());
         if(deviceTypeInUse) {
