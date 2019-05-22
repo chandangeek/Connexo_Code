@@ -509,11 +509,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             }
 
             var jsonData = [];
-            for (var i = 0; i < mDeviceIds.length; i++){
-                var data = record.data;
-                data.deviceMrid = mDeviceIds[i];
+            Ext.each(mDeviceIds, function (item) {
+                var data = Ext.clone(record.data);
+                data.deviceMrid = item;
                 jsonData.push(data);
-            }
+            });
 
             Ext.Ajax.request({
                 url: manualIssueBulk,
