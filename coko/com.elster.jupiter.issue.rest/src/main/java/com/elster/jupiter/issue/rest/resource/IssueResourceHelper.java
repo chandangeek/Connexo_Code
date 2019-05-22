@@ -272,7 +272,7 @@ public class IssueResourceHelper {
                 .withType(getIssueType())
                 .withStatus(issueService.findStatus(request.statusId).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "statusId")))
                 .withPriority(Priority.fromStringValue(request.priority))
-                .withDevice(meteringService.findEndDeviceByMRID(request.deviceMrid).orElse(null))
+                .withDevice(meteringService.findEndDeviceById(request.deviceId).orElse(null))
                 .withDueDate(request.dueDate == null? null: Instant.ofEpochMilli(DueInType.fromString(request.dueDate.getType()).dueValueFor(request.dueDate.getNumber())))
                 .withOverdue(false)
                 .withComment(request.comment)
