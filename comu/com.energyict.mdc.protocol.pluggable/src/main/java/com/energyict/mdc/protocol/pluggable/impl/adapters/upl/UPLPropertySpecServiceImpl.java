@@ -15,7 +15,7 @@ import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.meterdata.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.*;
 import com.energyict.obis.ObisCode;
