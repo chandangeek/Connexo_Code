@@ -22,7 +22,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         'Mdc.store.CommunicationSchedulesWithoutPaging',
         'Mdc.store.DeviceConfigurations',
         'Mdc.store.BulkDeviceConfigurations',
-        'Cfg.zones.store.ZoneTypes'
+        'Cfg.zones.store.ZoneTypes',
+        'Isu.store.IssueDevices',
+        'Isu.store.IssueReasons',
+        'Isu.store.DueinTypes',
+        'Isu.store.IssueWorkgroupAssignees',
+        'Isu.store.UserList'
     ],
     refs: [
         {
@@ -100,8 +105,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         {
             ref: 'deviceZoneForm',
             selector: 'add-to-zone-panel #device-zone-add-form'
+        },
+        {
+            ref: 'manualIssueForm',
+            selector: 'issue-manually-creation-rules-item-add issue-manually-creation-rules-item'
         }
-
     ],
 
     init: function () {
@@ -452,7 +460,81 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     wizard.setLoading(false);
                 }
             });
-        } else if (me.operation != 'changeconfig') {
+        } else if (me.operation == 'createmanualissue') {
+            var mDeviceIds = [];
+            var manualIssueBulk = '/api/isu/issues/bulkadd';
+            if (me.allDevices) {
+                var store = me.getDevicesGrid().getStore();
+                var deviceData = store.getProxy().getReader().jsonData;
+                if (deviceData && deviceData.searchResults){
+                    Ext.each(deviceData.searchResults, function (item) {
+                        mDeviceIds.push(item.id);
+                    });
+                }
+            } else {
+                mDeviceIds = deviceIds;
+            }
+            var form = me.getManualIssueForm(),
+               comboReason = form.down('#issueReason'),
+               reasonEditedValue = comboReason.getRawValue(),
+               reason = comboReason.store.find('name', reasonEditedValue);
+
+            form.updateRecord();
+
+            var record = form.getRecord();
+
+            if(reason === -1 && reasonEditedValue.trim() != ''){
+                var value = reasonEditedValue.trim();
+                var id = value.toLowerCase().replace (/ /g, '.');
+                var rec = {
+                    id: id,
+                    name: value
+                };
+                comboReason.store.add(rec);
+                comboReason.setValue(comboReason.store.getAt(comboReason.store.count()-1).get('id'));
+                record.set('reasonId', id)
+            }
+            var urgency = record.get('priority.urgency');
+            var impact = record.get('priority.impact');
+            if ( urgency !== undefined && impact !== undefined ) record.set('priority' , urgency + ':' + impact);
+            if (form.down('#dueDateTrigger')) {
+                if (form.down('#dueDateTrigger')) {
+                    record.set('dueIn', {
+                        number: form.down('[name=dueIn.number]').getValue(),
+                        type: form.down('[name=dueIn.type]').getValue()
+                    });
+                } else {
+                    record.set('dueIn', null);
+                }
+            }
+
+            var jsonData = [];
+            for (var i = 0; i < mDeviceIds.length; i++){
+                var data = record.data;
+                data.deviceMrid = mDeviceIds[i];
+                jsonData.push(data);
+            }
+
+            Ext.Ajax.request({
+                url: manualIssueBulk,
+                method: 'POST',
+                jsonData: jsonData,
+                timeout: 180000,
+                success: function (response) {
+                    statusPage.showChangeDeviceConfigSuccess(
+                        me.buildFinalMessage()
+                    );
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                },
+
+                failure: function () {
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                }
+            });
+        }
+        else if (me.operation != 'changeconfig') {
             Ext.each(me.schedules, function (item) {
                 scheduleIds.push(item.getId());
             });
@@ -794,6 +876,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             changeDeviceConfigForm = nextCmp.down('#change-device-configuration'),
                             currentConfigField = nextCmp.down('#current-device-config-selection');
 
+                        nextCmp.down('#issue-manually-creation-rules-item-add-bulk').hide();
                         nextCmp.down('#device-zone-add-panel').hide();
                         nextCmp.down('#select-schedules-panel').hide();
                         nextCmp.down('#bulk-start-processes-panel').hide();
@@ -829,6 +912,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             wizard.setLoading(false);
                         });
                     } else if(me.operation == 'startprocess') {
+                        nextCmp.down('#issue-manually-creation-rules-item-add-bulk').hide();
                         nextCmp.down('#select-schedules-panel').hide();
                         nextCmp.down('#change-device-configuration').hide();
                         nextCmp.down('#device-zone-add-panel').hide();
@@ -839,6 +923,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
                     }
                     else if(me.operation == 'addToZone' || me.operation == 'removeFromZone'){
+                        nextCmp.down('#issue-manually-creation-rules-item-add-bulk').hide();
                         nextCmp.down('#select-schedules-panel').hide();
                         nextCmp.down('#change-device-configuration').hide();
                         nextCmp.down('#bulk-start-processes-panel').hide();
@@ -848,8 +933,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             nextCmp.down('#device-zone-add-panel').show();
                         });
                     }
+                     else if(me.operation == 'createmanualissue'){
+                        nextCmp.down('#issue-manually-creation-rules-item-add-bulk').show();
+                        nextCmp.down('#select-schedules-panel').hide();
+                        nextCmp.down('#change-device-configuration').hide();
+                        nextCmp.down('#bulk-start-processes-panel').hide();
+                        nextCmp.down('#device-zone-add-panel').hide();
+                    }
                      else {
                         nextCmp.down('#select-schedules-panel').show();
+                        nextCmp.down('#issue-manually-creation-rules-item-add-bulk').hide();
                         nextCmp.down('#change-device-configuration').hide();
                         nextCmp.down('#bulk-start-processes-panel').hide();
                         nextCmp.down('#device-zone-add-panel').hide();
@@ -945,7 +1038,17 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         me.validation = false;
                     }
 
-                } else if (me.operation != 'changeconfig') {
+                } else if (me.operation == 'createmanualissue') {
+                    var form = currentCmp.down('#issue-manually-creation-rules-item-add-bulk').down('form');
+                    var comboReason = form.down('#issueReason');
+                    var reasonEditedValue = comboReason.getRawValue();
+                    var errorPanel = currentCmp.down('#step3-errors');
+                    if ( reasonEditedValue.trim() == '') {
+                        errorPanel.show();
+                        comboReason.markInvalid('This field is required');
+                        me.validation = false;
+                    }
+                }else if (me.operation != 'changeconfig') {
                     me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
                     errorPanel = currentCmp.down('#step3-errors');
                     me.validation = me.schedules.length;
@@ -1046,7 +1149,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             errorPanel && errorPanel.show();
             if (errorContainer && !errorContainer.isVisible()) {
 
-                if (me.operation == 'addToZone' || me.operation == 'removeFromZone')
+                if (me.operation == 'addToZone' || me.operation == 'removeFromZone' || me.operation == 'createmanualissue')
                     errorContainer.hide();
                 else {
                     errorContainer.show();
@@ -1086,6 +1189,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     break;
                 case 'removeFromZone' : {
                     title = Uni.I18n.translate('searchItems.bulk.removeFromZone', 'MDC', 'Remove from zone')
+                }
+                    break;
+                case 'createmanualissue' : {
+                    title = Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue')
                 }
                     break;
             }
@@ -1143,6 +1250,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 case 'removeFromZone':
                     pattern = Uni.I18n.translate('searchItems.bulk.removeFromZone.confirmMsg', 'MDC', 'Unlink all devices from zone "{0}" (if linked)?');
                     titleText = Ext.String.format(pattern, me.zoneName, false);
+                    break;
+                case 'createmanualissue':
+                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmMsg', 'ISU', 'Create issues for all devices?');
                     break;
             }
         } else {
@@ -1217,6 +1327,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         'Unlink {0}  of {0} devices');
 
                     titleText = Uni.I18n.translate('searchItems.bulk.removeZoneToDevices.confirmMsg1', 'MDC', "{0} from zone '{1}'?", [pattern, me.zoneName]);
+                    break;
+                case 'createmanualissue':
+                    pattern = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmMsg', 'ISU', 'Create issues for {0} devices?');
+                    titleText = Ext.String.format(pattern, me.devices.length, false);
                     break;
             }
         }

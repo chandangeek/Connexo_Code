@@ -20,7 +20,6 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
     newReasonId: '12222e48-9afb-4c76-a41e-d3c40f16ac76',
     initComponent: function () {
         var me = this;
-        me.title = Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue');
 
         me.items = [{
                     xtype: 'uni-form-error-message',
@@ -34,13 +33,14 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     fieldLabel: Uni.I18n.translate('general.title.isudevice', 'ISU', 'Device'),
                     store: 'Isu.store.IssueDevices',
                     forceSelection: true,
-                    required: true,
+                    required: !me.bulkAction,
                     allowBlank: false,
                     displayField: 'name',
                     valueField: 'id',
                     name: 'deviceMrid',
                     queryMode: 'local',
-                    itemId: 'deviceId'
+                    itemId: 'deviceId',
+                    hidden: me.bulkAction
                },
                {
                     itemId: 'issueReason',
@@ -219,10 +219,10 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                         this.store.load();
                      },
                      change: function (combo, newValue) {
-                        this.up('#issue-manually-creation-rules-item').down('#mi-user-issue-assignee').fireEvent('workgroupChanged', newValue);
+                        this.up('form').down('#mi-user-issue-assignee').fireEvent('workgroupChanged', newValue);
                      },
                      select: function (combo, newValue) {
-                        this.up('#issue-manually-creation-rules-item').down('#mi-user-issue-assignee').fireEvent('workgroupChanged', newValue[0].get('id'));
+                        this.up('form').down('#mi-user-issue-assignee').fireEvent('workgroupChanged', newValue[0].get('id'));
                      }
                   }
                },
@@ -268,6 +268,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     ui: 'actions',
                     fieldLabel: ' ',
                     defaultType: 'button',
+                    hidden: me.bulkAction,
                     items: [
                         {
                             itemId: 'actionOperation',
