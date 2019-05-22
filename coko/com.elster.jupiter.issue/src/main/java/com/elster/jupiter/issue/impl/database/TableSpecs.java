@@ -441,7 +441,7 @@ public enum TableSpecs {
             Column userRefIdColumn = table.column(ISSUE_COLUMN_USER_ID).number().conversion(NUMBER2LONG).add();
             Column workGroupRefIdColumn = table.column(ISSUE_COLUMN_WORKGROUP_ID).number().conversion(NUMBER2LONG).add().since(Version.version(10, 3));
             table.column(ISSUE_COLUMN_OVERDUE).map("overdue").number().conversion(NUMBER2BOOLEAN).notNull().add();
-            Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull().upTo(Version.version(10, 6)).add();
+            Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull().upTo(Version.version(10, 7)).add();
             Column ruleRefIdColumnNullable = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).previously(ruleRefIdColumn).add();
             Column urgencyColumn = table.column(ISSUE_COLUMN_URGENCY)
                     .map("priority.urgency")

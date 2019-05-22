@@ -18,7 +18,7 @@ import java.util.List;
 public class ManualIssueInfoFactory implements InfoFactory<Issue> {
 
     public ManualIssueInfoFactory() {
-
+        // For OSGI purpose
     }
 
     @Override

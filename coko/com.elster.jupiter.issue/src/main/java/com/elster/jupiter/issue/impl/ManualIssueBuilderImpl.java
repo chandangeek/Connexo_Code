@@ -91,14 +91,9 @@ public class ManualIssueBuilderImpl implements ManualIssueBuilder {
     }
 
     @Override
-    public ManualIssueBuilder withAssignToUser(Long assignToUserId) {
-        this.assignToUserId = assignToUserId;
-        return this;
-    }
-
-    @Override
-    public ManualIssueBuilder withAssignToWorkgroup(Long assignToWorkgroupId) {
-        this.assignToWorkgroupId = assignToWorkgroupId;
+    public ManualIssueBuilder withAssignToUserAndWorkgroup(Long userId, Long workgroupId) {
+        this.assignToUserId = userId;
+        this.assignToWorkgroupId = workgroupId;
         return this;
     }
 

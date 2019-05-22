@@ -12,9 +12,12 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
 
+@ProviderType
 public interface ManualIssueBuilder {
     ManualIssueBuilder withReason(IssueReason reason);
     ManualIssueBuilder withType(IssueType type);
@@ -25,8 +28,7 @@ public interface ManualIssueBuilder {
     ManualIssueBuilder withComment(String comment);
     ManualIssueBuilder withDueDate(Instant dueDate);
     ManualIssueBuilder withOverdue(boolean overdue);
-    ManualIssueBuilder withAssignToUser(Long assignToUserId);
-    ManualIssueBuilder withAssignToWorkgroup(Long assignToWorkgroupId);
+    ManualIssueBuilder withAssignToUserAndWorkgroup(Long userId, Long workgroupId);
     ManualIssueBuilder withAssignComment(String assignComment);
 
     Issue create();

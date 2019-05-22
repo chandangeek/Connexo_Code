@@ -42,22 +42,22 @@ public class UpgraderV10_7 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, version(10, 7));
         this.addManualIssueType();
         userService.addModulePrivileges(privilegesProviderV10_7);
-        this.upgradeAllIssue();
+        this.upgradeAllIssues();
     }
 
     private void addManualIssueType() {
         issueService.createIssueType(IssueService.MANUAL_ISSUE_TYPE, TranslationKeys.MANUAL_ISSUE_TYPE, IssueService.COMPONENT_NAME);
     }
 
-    private void upgradeAllIssue() {
+    private void upgradeAllIssues() {
         try (Connection connection = this.dataModel.getConnection(true)) {
-            this.upgradeAllIssue(connection);
+            this.upgradeAllIssues(connection);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
 
-    private void upgradeAllIssue(Connection connection) {
+    private void upgradeAllIssues(Connection connection) {
         String[] sqlStatements = {
                 "CREATE OR REPLACE VIEW ISU_ISSUE_ALL AS SELECT * FROM ISU_ISSUE_OPEN UNION SELECT * FROM ISU_ISSUE_HISTORY"};
         for (String sqlStatement : sqlStatements) {

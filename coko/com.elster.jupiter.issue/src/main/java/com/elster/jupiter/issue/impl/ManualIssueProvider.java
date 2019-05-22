@@ -15,12 +15,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.issue.ManualIssueProvider",
+@Component(name = "com.elster.jupiter.issue.impl.ManualIssueProvider",
         service = {IssueProvider.class},
-        property = "name=" + ManualIssueProvider.COMPONENT_NAME,
+        property = "name=" + ManualIssueProvider.NAME,
         immediate = true)
 public class ManualIssueProvider implements IssueProvider {
-    static final String COMPONENT_NAME = "ManualIssueProvider";
+    static final String NAME = "ManualIssueProvider";
 
     private volatile IssueService issueService;
 

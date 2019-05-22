@@ -478,28 +478,14 @@ public class IssueResource extends BaseResource {
 
     @POST
     @Transactional
-    @Path("/add")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADD_ISSUE)
-    public Response addIssue(AddIssueRequest request, @Context SecurityContext securityContext) {
-        User performer = (User) securityContext.getUserPrincipal();
-        ActionInfo response = new ActionInfo();
-        response.addSuccess(issueResourceHelper.createNewIssue(request, performer).getId());
-        return entity(response).build();
-    }
-
-    @POST
-    @Transactional
     @Path("/bulkadd")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADD_ISSUE)
-    public Response addIssues(BulkAddIssueRequest request, @Context SecurityContext securityContext) {
-        User performer = (User) securityContext.getUserPrincipal();
+    public Response addIssues(BulkAddIssueRequest request) {
         ActionInfo response = new ActionInfo();
         for (AddIssueRequest addIssueRequest : request.getIssues()) {
-            response.addSuccess(issueResourceHelper.createNewIssue(addIssueRequest, performer).getId());
+            response.addSuccess(issueResourceHelper.createNewIssue(addIssueRequest).getId());
         }
         return entity(response).build();
     }

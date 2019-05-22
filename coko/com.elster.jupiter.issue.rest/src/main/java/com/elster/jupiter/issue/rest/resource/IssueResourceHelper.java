@@ -264,20 +264,20 @@ public class IssueResourceHelper {
         }).collect(Collectors.toList());
     }
 
-    public Issue createNewIssue(AddIssueRequest request, User user) {
+    public Issue createNewIssue(AddIssueRequest request) {
+        User user = ((User) securityContext.getUserPrincipal());
         ManualIssueBuilder issueBuilder = issueService.newIssueBuilder(user);
 
-        Issue issue = issueBuilder.withReason(getReason(request.getReasonId()))
+        Issue issue = issueBuilder.withReason(getReason(request.reasonId))
                 .withType(getIssueType())
-                .withStatus(issueService.findStatus(request.getStatusId()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "statusId")))
-                .withPriority(Priority.fromStringValue(request.getPriority()))
-                .withDevice(meteringService.findEndDeviceByMRID(request.getDeviceMrid()).orElse(null))
-                .withDueDate(request.getDueDate() == null? null: Instant.ofEpochMilli(DueInType.fromString(request.getDueDate().getType()).dueValueFor(request.getDueDate().getNumber())))
+                .withStatus(issueService.findStatus(request.statusId).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "statusId")))
+                .withPriority(Priority.fromStringValue(request.priority))
+                .withDevice(meteringService.findEndDeviceByMRID(request.deviceMrid).orElse(null))
+                .withDueDate(request.dueDate == null? null: Instant.ofEpochMilli(DueInType.fromString(request.dueDate.getType()).dueValueFor(request.dueDate.getNumber())))
                 .withOverdue(false)
-                .withComment(request.getComment())
-                .withAssignToUser(request.getAssignToUserId() > 0 ? request.getAssignToUserId(): null)
-                .withAssignToWorkgroup(request.getAssignToWorkgroupId() > 0 ? request.getAssignToWorkgroupId(): null)
-                .withAssignComment(request.getAssignComment())
+                .withComment(request.comment)
+                .withAssignToUserAndWorkgroup(request.assignToUserId > 0 ? request.assignToUserId: null, request.assignToWorkgroupId > 0 ? request.assignToWorkgroupId: null)
+                .withAssignComment(request.assignComment)
                 .create();
         return issue;
     }
@@ -290,7 +290,7 @@ public class IssueResourceHelper {
     }
 
     private IssueType getIssueType() {
-        return issueService.findIssueType(IssueTypes.MANUAL.getName()).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "issue type"));
+        return issueService.findIssueType(IssueTypes.MANUAL.getName()).orElseThrow(() -> new IllegalStateException("Manual issue type is not found"));
     }
 
 }
