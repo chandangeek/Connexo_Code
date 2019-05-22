@@ -36,12 +36,12 @@ Ext.define('Isu.controller.CreationManualRule', {
 
     createNewManuallyIssue: function () {
         var me = this,
-            page = me.getPage(),
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('issue-manually-creation-rules-item-add',{
-                returnLink: router.getRoute('workspace/issues').buildUrl()
+                returnLink: router.getRoute('workspace/issues').buildUrl(),
+                router: router
             });
-        var manualIssue = Ext.create('Isu.model.ManuallyRuleItem'),
+        /*var manualIssue = Ext.create('Isu.model.ManuallyRuleItem'),
         dependencies = ['Isu.store.IssueDevices', 'Isu.store.IssueReasons'],
         dependenciesCounter = dependencies.length,
         onDependenciesLoaded = function () {
@@ -50,12 +50,12 @@ Ext.define('Isu.controller.CreationManualRule', {
                 widget.down('issue-manually-creation-rules-item').loadRecord(manualIssue);
                 widget.setLoading(false);
             }
-        };
+        };*/
         this.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading();
+        /*widget.setLoading();
         Ext.Array.each(dependencies, function (store) {
             me.getStore(store).load(onDependenciesLoaded);
-        });
+        });*/
 
     },
 

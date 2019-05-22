@@ -15,7 +15,13 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
         'Uni.util.FormErrorMessage',
         'Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid',
         'Bpm.startprocess.view.StartProcess',
-        'Mdc.view.setup.searchitems.bulk.ZoneSelectionPanel'
+        'Mdc.view.setup.searchitems.bulk.ZoneSelectionPanel',
+        'Isu.store.IssueDevices',
+        'Isu.store.IssueReasons',
+        'Isu.store.DueinTypes',
+        'Isu.store.IssueWorkgroupAssignees',
+        'Isu.store.UserList',
+        'Isu.view.issues.AddManuallyRuleItem'
     ],
 
     title: Uni.I18n.translate('searchItems.bulk.step3title', 'MDC', 'Step 3: Action details'),
@@ -188,7 +194,14 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
             {
                 xtype: 'add-to-zone-panel',
                 itemId: 'device-zone-add-panel',
+            },
+            {
+                xtype: 'issue-manually-creation-rules-item-add',
+                itemId: 'issue-manually-creation-rules-item-add-bulk',
+                title: '',
+                bulkAction: true
             }
+
         ];
         me.callParent(arguments);
     },
