@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
@@ -32,6 +33,7 @@ public class IssueFilterImpl implements IssueFilter {
     private Set<EndDevice> devices = new HashSet<>();
     private List<EndDeviceGroup> deviceGroups = new ArrayList<>();
     private List<UsagePoint> usagePoints = new ArrayList<>();
+    private List<UsagePointGroup> usagePointGroup = new ArrayList<>();
     private List<User> assignees = new ArrayList<>();
     private List<WorkGroup> workGroupAssignees = new ArrayList<>();
     private List<DueDateRange> dueDates = new ArrayList<>();
@@ -84,6 +86,18 @@ public class IssueFilterImpl implements IssueFilter {
     public void addUsagePoint(UsagePoint usagePoint) {
         if (usagePoint != null) {
             this.usagePoints.add(usagePoint);
+        }
+    }
+
+    @Override
+    public List<UsagePointGroup> getUsagePointGroups() {
+        return this.usagePointGroup;
+    }
+
+    @Override
+    public void addUsagePointGroup(UsagePointGroup usagePointGroup) {
+        if (usagePointGroup != null) {
+            this.usagePointGroup.add(usagePointGroup);
         }
     }
 

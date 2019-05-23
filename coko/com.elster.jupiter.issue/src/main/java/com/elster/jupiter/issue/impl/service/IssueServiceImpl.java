@@ -57,6 +57,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -765,6 +766,13 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 .reduce(Condition.FALSE, Condition::or);
     }
 
+    private Condition getUsagePointGroupSearchCondition(Collection<UsagePointGroup> usagePointGroups) {
+        return usagePointGroups.stream()
+                .map(usagePointGroup -> ListOperator.IN.contains(usagePointGroup.toSubQuery("id"), "usagePoint"))
+                .map(Condition.class::cast)
+                .reduce(Condition.FALSE, Condition::or);
+    }
+
     private Condition buildConditionFromFilter(IssueFilter filter) {
         Condition condition = Condition.TRUE;
         //filter by issue id
@@ -817,6 +825,12 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         if (!filter.getUsagePoints().isEmpty()) {
             condition = condition.and(where("usagePoint").in(filter.getUsagePoints()));
         }
+
+        //filter by usagepoint
+        if (!filter.getUsagePointGroups().isEmpty()) {
+            condition = condition.and(getUsagePointGroupSearchCondition(filter.getUsagePointGroups()));
+        }
+
         //filter by statuses
         if (!filter.getStatuses().isEmpty()) {
             condition = condition.and(where("status").in(filter.getStatuses()));

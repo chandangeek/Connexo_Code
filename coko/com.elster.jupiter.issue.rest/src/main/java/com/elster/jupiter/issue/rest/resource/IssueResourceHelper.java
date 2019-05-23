@@ -24,6 +24,7 @@ import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.IssueTypes;
+import com.elster.jupiter.issue.share.entity.UsagePointGroupNotFoundException;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -183,6 +184,13 @@ public class IssueResourceHelper {
         if (jsonFilter.hasProperty(IssueRestModuleConst.USAGEPOINT)) {
             meteringService.findUsagePointByName(jsonFilter.getString(IssueRestModuleConst.USAGEPOINT))
                     .ifPresent(filter::addUsagePoint);
+        }
+
+        if (jsonFilter.hasProperty(IssueRestModuleConst.USAGEPOINT_GROUPS)) {
+            jsonFilter.getLongList(IssueRestModuleConst.USAGEPOINT_GROUPS).stream()
+                    .map(id -> meteringGroupService.findUsagePointGroup(id).orElseThrow(() -> new UsagePointGroupNotFoundException(thesaurus, id)))
+                    .filter(upGroup -> upGroup != null)
+                    .forEach(filter::addUsagePointGroup);
         }
 
         if (jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().allMatch(s -> s == null)) {

@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
@@ -36,6 +37,8 @@ public interface IssueFilter {
 
     void addUsagePoint(UsagePoint usagePoint);
 
+    void addUsagePointGroup(UsagePointGroup usagePointGroup);
+
     void setIssueReason(IssueReason issueReason);
 
     void setPriority(Priority priority);
@@ -57,6 +60,8 @@ public interface IssueFilter {
     List<EndDevice> getDevices();
 
     List<EndDeviceGroup> getDeviceGroups();
+
+    List<UsagePointGroup> getUsagePointGroups();
 
     List<UsagePoint> getUsagePoints();
 
