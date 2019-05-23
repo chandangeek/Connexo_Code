@@ -24,7 +24,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
@@ -39,6 +38,7 @@ import java.util.Optional;
 import static com.elster.jupiter.util.Checks.is;
 
 //public class IssueImpl<T extends HasId & IdentifiedObject> extends EntityImpl implements Issue {
+@NotManualIssueRuleIsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
 public class IssueImpl extends EntityImpl implements Issue {
     private Instant dueDate;
     private Reference<IssueReason> reason = ValueReference.absent();
@@ -56,7 +56,6 @@ public class IssueImpl extends EntityImpl implements Issue {
     private Reference<EndDevice> device = ValueReference.absent();
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     //private Reference<T> member = ValueReference.absent(); // TODO - make IssueImpl abstract and implement DeviceIssueImpl and UsagePointIssueImpl and make getDevice and getUsagePoint Deprecated
-    //@IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<CreationRule> rule = ValueReference.absent();
 
     private final IssueService issueService;
