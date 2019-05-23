@@ -472,7 +472,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     });
                 }
             } else {
-                mDeviceIds = deviceIds;
+                Ext.each(me.devices, function (item) {
+                    mDeviceIds.push(item.getId());
+                });
             }
             var form = me.getManualIssueForm(),
                comboReason = form.down('#issueReason'),
@@ -509,16 +511,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             }
 
             var jsonData = [];
-            for (var i = 0; i < mDeviceIds.length; i++){
-                var data = record.data;
-                data.deviceMrid = mDeviceIds[i];
+            Ext.each(mDeviceIds, function (item) {
+                var data = Ext.clone(record.data);
+                data.deviceId = item;
                 jsonData.push(data);
-            }
+            });
 
             Ext.Ajax.request({
                 url: manualIssueBulk,
                 method: 'POST',
-                jsonData: jsonData,
+                jsonData: {"issues": jsonData},
                 timeout: 180000,
                 success: function (response) {
                     statusPage.showChangeDeviceConfigSuccess(

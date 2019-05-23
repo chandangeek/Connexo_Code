@@ -37,7 +37,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     allowBlank: false,
                     displayField: 'name',
                     valueField: 'id',
-                    name: 'deviceMrid',
+                    name: 'deviceId',
                     queryMode: 'local',
                     itemId: 'deviceId',
                     hidden: me.bulkAction

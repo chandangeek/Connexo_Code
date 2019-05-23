@@ -106,17 +106,18 @@ Ext.define('Isu.controller.CreationManualRule', {
             }
        }
 
-       record.save({
-            backUrl: page.returnLink,
-            success: function (record, operation) {
+        Ext.Ajax.request({
+            url: record.getProxy().url,
+            method: 'POST',
+            jsonData: {"issues": new Array( record.data )},
+            success: function (response) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('isu.manually.addSuccess', 'ISU', 'New manual issue added'));
                 if (page.rendered) {
                     window.location.href = page.returnLink;
                 }
             },
-            failure: function (record, operation) {
-                var responseText = Ext.decode(operation.response.responseText, true);
-
+            failure: function (response) {
+                var responseText = Ext.decode(response.responseText, true);
                 if (page.rendered && responseText && responseText.errors) {
                     Ext.suspendLayouts();
                     baseForm.markInvalid(responseText.errors);

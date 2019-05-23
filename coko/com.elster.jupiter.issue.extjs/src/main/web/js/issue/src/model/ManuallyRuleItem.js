@@ -6,8 +6,8 @@ Ext.define('Isu.model.ManuallyRuleItem', {
     extend: 'Ext.data.Model',
     fields: [
         {
-            name: 'deviceMrid',
-            type: 'text'
+            name: 'deviceId',
+            type: 'long'
         },
         {
             name: 'reasonId',
@@ -61,11 +61,9 @@ Ext.define('Isu.model.ManuallyRuleItem', {
 
     proxy: {
         type: 'rest',
-        api: {
-            create: '/api/isu/issues/add'
-        },
+        url: '/api/isu/issues/bulkadd',
         reader: {
-            type: 'json',
+            type: 'json'
         }
     }
 });
