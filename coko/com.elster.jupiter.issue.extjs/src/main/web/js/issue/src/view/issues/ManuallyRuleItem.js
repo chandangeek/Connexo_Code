@@ -18,6 +18,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
         msgTarget: 'under'
     },
     newReasonId: '12222e48-9afb-4c76-a41e-d3c40f16ac76',
+    deviceId: null,
     initComponent: function () {
         var me = this;
 
@@ -40,7 +41,18 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     name: 'deviceId',
                     queryMode: 'local',
                     itemId: 'deviceId',
-                    hidden: me.bulkAction
+                    hidden: me.bulkAction,
+                    listeners: {
+                       afterrender: function () {
+                          if (me.deviceId){
+                              var device = this.store.find('name', me.deviceId);
+                              if (device !== -1){
+                                  this.setRawValue(me.deviceId);
+                                  this.setValue(this.store.getAt(device).get('id'));
+                              }
+                          }
+                       }
+                    }
                },
                {
                     itemId: 'issueReason',

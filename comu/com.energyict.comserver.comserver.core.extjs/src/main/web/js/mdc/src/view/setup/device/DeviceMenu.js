@@ -38,12 +38,6 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         privileges: Mdc.privileges.Device.viewDeviceData,
                         itemId: 'device-history-link',
                         href: '#/devices/' + encodeURIComponent(deviceId) + '/history'
-                    },
-                    {
-                        text: Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue'),
-                        privileges: Isu.privileges.Issue.viewAdminDevice,
-                        itemId: 'device-issue-link',
-                        href: '#/workspace/newissuemanually'
                     }
                 ]
             };

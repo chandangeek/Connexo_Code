@@ -37,9 +37,18 @@ Ext.define('Isu.controller.CreationManualRule', {
     createNewManuallyIssue: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            widget = Ext.widget('issue-manually-creation-rules-item-add',{
-                returnLink: router.getRoute('workspace/issues').buildUrl(),
-                router: router
+            returnLink = router.getRoute('workspace/issues').buildUrl(),
+            deviceId = null;
+
+        if (router.arguments && router.arguments.deviceId){
+            deviceId = router.arguments.deviceId;
+            returnLink = router.getRoute('devices').buildUrl({'deviceId' : deviceId});
+        }
+
+        var widget = Ext.widget('issue-manually-creation-rules-item-add',{
+                returnLink: returnLink,
+                router: router,
+                deviceId: deviceId
             });
         /*var manualIssue = Ext.create('Isu.model.ManuallyRuleItem'),
         dependencies = ['Isu.store.IssueDevices', 'Isu.store.IssueReasons'],
