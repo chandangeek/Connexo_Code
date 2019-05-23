@@ -458,8 +458,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
-    public ManualIssueBuilder newIssueBuilder(User user) {
-        return new ManualIssueBuilderImpl(user, dataModel);
+    public ManualIssueBuilder newIssueBuilder() {
+        return new ManualIssueBuilderImpl((User)threadPrincipalService.getPrincipal(), dataModel);
     }
 
     @Override

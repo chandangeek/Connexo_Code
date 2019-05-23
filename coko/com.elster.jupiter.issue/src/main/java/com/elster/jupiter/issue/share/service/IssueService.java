@@ -41,7 +41,7 @@ public interface IssueService {
 
     Optional<? extends Issue> findIssue(long id);
 
-    ManualIssueBuilder newIssueBuilder(User user);
+    ManualIssueBuilder newIssueBuilder();
 
     Optional<OpenIssue> findOpenIssue(long id);
 

@@ -265,8 +265,7 @@ public class IssueResourceHelper {
     }
 
     public Issue createNewIssue(AddIssueRequest request) {
-        User user = ((User) securityContext.getUserPrincipal());
-        ManualIssueBuilder issueBuilder = issueService.newIssueBuilder(user);
+        ManualIssueBuilder issueBuilder = issueService.newIssueBuilder();
 
         Issue issue = issueBuilder.withReason(getReason(request.reasonId))
                 .withType(getIssueType())

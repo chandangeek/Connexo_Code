@@ -36,8 +36,12 @@ import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
+import com.jayway.jsonpath.JsonModel;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -439,13 +443,14 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
     }
 
     @Test
-    public void testAddIssues() {
-        OpenIssue issue = getDefaultIssue();
+    public void testAddIssues() throws IOException {
+        OpenIssue issue1 = getDefaultIssue();
+        OpenIssue issue2 = mockIssue(2L, getDefaultReason(), getDefaultStatus(), getDefaultAssignee(), getDefaultDevice(), getDefaultUsagePoint());
         when(securityContext.getUserPrincipal()).thenReturn(mock(User.class));
         when(issueService.findOrCreateReason(any(String.class), any(IssueType.class))).thenReturn(mock(IssueReason.class));
         when(issueService.findIssueType(any(String.class))).thenReturn(Optional.of(mock(IssueType.class)));
         when(issueService.findStatus(any(String.class))).thenReturn(Optional.of(mock(IssueStatus.class)));
-        when(meteringService.findEndDeviceByMRID(any(String.class))).thenReturn(Optional.of(mock(EndDevice.class)));
+        when(meteringService.findEndDeviceById(any(Long.class))).thenReturn(Optional.of(mock(EndDevice.class)));
         ManualIssueBuilder manualIssueBuilder = mock(ManualIssueBuilder.class);
         when(manualIssueBuilder.withReason(any(IssueReason.class))).thenReturn(manualIssueBuilder);
         when(manualIssueBuilder.withType(any(IssueType.class))).thenReturn(manualIssueBuilder);
@@ -457,8 +462,8 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         when(manualIssueBuilder.withComment(any(String.class))).thenReturn(manualIssueBuilder);
         when(manualIssueBuilder.withAssignToUserAndWorkgroup(any(Long.class), any(Long.class))).thenReturn(manualIssueBuilder);
         when(manualIssueBuilder.withAssignComment(any(String.class))).thenReturn(manualIssueBuilder);
-        when(manualIssueBuilder.create()).thenReturn(issue);
-        when(issueService.newIssueBuilder(any(User.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.create()).thenReturn(issue1, issue2);
+        when(issueService.newIssueBuilder()).thenReturn(manualIssueBuilder);
 
         AddIssueRequest request = new AddIssueRequest();
         request.reasonId = "reason";
@@ -466,7 +471,12 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         bulkRequest.setIssues(Arrays.asList(request, request));
         Entity<BulkAddIssueRequest> json = Entity.json(bulkRequest);
         Response response = target("issues/bulkadd").request().post(json);
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.data.success[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.data.success[1].id")).isEqualTo(2);
+
     }
 
     private void assertDefaultIssueMap(Map<?, ?> issueMap) {
