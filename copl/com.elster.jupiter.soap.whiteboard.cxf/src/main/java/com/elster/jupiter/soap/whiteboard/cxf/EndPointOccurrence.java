@@ -1,7 +1,9 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
+
 import java.time.Instant;
 
 public interface EndPointOccurrence {
+    long getId();
     Instant getStartTime();
     Instant getEndTime();
     String getRequest();

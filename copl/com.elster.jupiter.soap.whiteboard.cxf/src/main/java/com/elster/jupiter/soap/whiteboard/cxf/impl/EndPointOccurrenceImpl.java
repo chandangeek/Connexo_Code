@@ -5,12 +5,14 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
+import com.elster.jupiter.util.HasId;
 
+import javax.inject.Inject;
 import java.time.Instant;
 
-public class EndPointOccurrenceImpl implements EndPointOccurrence {
+public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
 
-    public long id;
+    private long id;
     Instant startTime;
     Instant endTime;
     String requestName;
@@ -20,6 +22,7 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
     String applicationName;
 
     public enum Fields {
+        ID("id"),
         startTime("startTime"),
         endTime("endTime"),
         requestName("requestName"),
@@ -39,6 +42,7 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
         }
     }
 
+    @Inject
     public EndPointOccurrenceImpl(){
 
     }
@@ -54,6 +58,9 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence {
         this.endPointConfiguration.set(endPointConfiguration);
 
     }
+
+    @Override
+    public long getId(){return this.id;}
 
     @Override
     public Instant getStartTime(){

@@ -274,22 +274,22 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public void log(LogLevel logLevel, String message, long occurrenceId) {
+    public void log(LogLevel logLevel, String message, EndPointOccurrence occurrence) {
         if (this.logLevel.compareTo(logLevel) > -1) {
             if (transactionService.isInTransaction()) {
-                doLog(logLevel, message, occurrenceId);
+                doLog(logLevel, message, occurrence);
             } else {
                 try (TransactionContext context = transactionService.getContext()) {
-                    doLog(logLevel, message, occurrenceId);
+                    doLog(logLevel, message, occurrence);
                     context.commit();
                 }
             }
         }
     }
 
-    private void doLog(LogLevel logLevel, String message, long occurrenceId) {
+    private void doLog(LogLevel logLevel, String message, EndPointOccurrence occurrence) {
         EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
-                .init(this, message, logLevel, clock.instant(), occurrenceId);
+                .init(this, message, logLevel, clock.instant(), occurrence);
         log.save();
     }
 
@@ -312,20 +312,20 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public void log(String message, Exception exception, long occurrenceId) {
+    public void log(String message, Exception exception, EndPointOccurrence occurrence) {
         if (transactionService.isInTransaction()) {
-            doLog(message, exception, occurrenceId);
+            doLog(message, exception, occurrence);
         } else {
             try (TransactionContext context = transactionService.getContext()) {
-                doLog(message, exception, occurrenceId);
+                doLog(message, exception, occurrence);
                 context.commit();
             }
         }
     }
 
-    private void doLog(String message, Exception exception, long occurrenceId) {
+    private void doLog(String message, Exception exception, EndPointOccurrence occurrence) {
         EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
-                .init(this, message, stackTrace2String(exception), LogLevel.SEVERE, clock.instant(), occurrenceId);
+                .init(this, message, stackTrace2String(exception), LogLevel.SEVERE, clock.instant(), occurrence);
         log.save();
     }
 

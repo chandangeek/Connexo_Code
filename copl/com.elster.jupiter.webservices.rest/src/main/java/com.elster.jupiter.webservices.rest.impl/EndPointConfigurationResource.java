@@ -16,10 +16,9 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointConfigurationImpl;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointOccurrenceImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 import com.elster.jupiter.util.Checks;
 
@@ -216,9 +215,11 @@ public class EndPointConfigurationResource {
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
 
+        /* Logs contains actions not related to occurrence. */
         List<EndpointConfigurationLogInfo> endpointConfigurationLogs = endPointConfiguration.getLogs()
                 .from(queryParameters)
                 .stream()
+                .filter(log -> !log.getOccurrence().isPresent())
                 .map(endpointConfigurationLogInfoFactory::from)
                 .collect(toList());
         return PagedInfoList.fromPagedList("logs", endpointConfigurationLogs, queryParameters);
@@ -242,15 +243,35 @@ public class EndPointConfigurationResource {
                 .filter(epco -> epco.getEndPointConfiguration().)
                 .map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo))
                 .collect(toList());*/
-
+        System.out.println("getAllOccurrences!!!!"+filter);
         List<EndPointOccurrence> endPointOccurrences = getEndPointOccurrences(queryParameters, filter, applicationName);
         List<EndpointConfigurationOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
                                                          stream().
                                                          map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo)).
                                                          collect(toList());
 
-        return PagedInfoList.fromPagedList("occurrences", endPointOccurrencesInfo, queryParameters);
+        return PagedInfoList.fromPagedList("occurrences", endPointOccurrencesInfo , queryParameters);
     }
+
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/occurrences/{id}")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    public EndpointConfigurationOccurrenceInfo getOccurrence(@PathParam("id") long id, @Context UriInfo uriInfo) {
+
+        DataModel dataModel = ormService.getDataModel("WebServicesService"/*WebServicesService.COMPONENT_NAME*/).get();
+        Optional<EndPointOccurrence> epOcc = dataModel.mapper(EndPointOccurrence.class)
+                .getUnique("id", id);
+
+
+        return epOcc
+               .map(epc -> endpointConfigurationOccurrenceInfoFactorty.from(epc, uriInfo))
+               .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
+
+    }
+
+
 
 
     /*public EndPointConfigurationOccurrenceFinderBuilder getEndPointConfigurationOccurrenceFinderBuilder(String applicationName) {
@@ -268,7 +289,7 @@ public class EndPointConfigurationResource {
     private List<EndPointOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName) {
         //EndPointConfigurationOccurrenceFinderBuilder finderBuilder = getEndPointConfigurationOccurrenceFinderBuilder(applicationName);
 
-        DataModel dataModel = ormService.getDataModel(WebServicesService.COMPONENT_NAME).get();
+        DataModel dataModel = ormService.getDataModel("WebServicesService"/*WebServicesService.COMPONENT_NAME*/).get();
         EndPointConfigurationOccurrenceFinderBuilder finderBuilder =  new EndPointConfigurationOccurrenceFinderBuilderImpl(dataModel, Condition.TRUE);
 
         if (applicationName != null && !applicationName.isEmpty()){
@@ -309,13 +330,22 @@ public class EndPointConfigurationResource {
         return finderBuilder.build().from(queryParameters).find();
     }
 
+    private List<EndPointOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters) {
+
+        DataModel dataModel = ormService.getDataModel("WebServicesService").get();
+        EndPointConfigurationOccurrenceFinderBuilder finderBuilder =  new EndPointConfigurationOccurrenceFinderBuilderImpl(dataModel, Condition.TRUE);
+
+        return finderBuilder.build().from(queryParameters).find();
+    }
+
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("/{id}/occurrences")
+    @Path("/{epId}/occurrences")
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public PagedInfoList getAllOccurrencesForEndPoint(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
-        EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
+    public PagedInfoList getAllOccurrencesForEndPoint(@PathParam("epId") long epId, @BeanParam JsonQueryParameters queryParameters) {
+        System.out.println("getAllOccurrencesForEndPoint !!!!"+epId);
+        EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(epId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
 
         List<EndpointConfigurationOccurrenceInfo> endpointConfigurationOccurrences = endPointConfiguration.getOccurrences(true)
@@ -326,12 +356,23 @@ public class EndPointConfigurationResource {
         return PagedInfoList.fromPagedList("occurrences", endpointConfigurationOccurrences, queryParameters);
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/occurrences/{id}/log")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    public PagedInfoList getLogForOccurrence(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
 
+        System.out.println("getLogForOccurrence !!!!"+id);
+        DataModel dataModel = ormService.getDataModel("WebServicesService").get();
+        OccurrenceLogFinderBuilder finderBuilder =  new OccurrenceLogFinderBuilderImpl(dataModel, Condition.TRUE);
 
-    public Finder<EndPointOccurrenceImpl> findEndPointOccurences() {
-        return DefaultFinder.of(EndPointOccurrenceImpl.class, ormService.getDataModel(WebServicesService.COMPONENT_NAME).get())
-                .defaultSortColumn(EndPointOccurrenceImpl.Fields.startTime.fieldName());
+        finderBuilder.withOccurrenceId(id);
+
+        List<EndPointLog> logs = finderBuilder.build().from(queryParameters).find();
+
+        return PagedInfoList.fromPagedList("logs", logs, queryParameters);
     }
+
 
 
     private void validatePayload(EndPointConfigurationInfo info) {

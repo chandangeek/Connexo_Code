@@ -18,6 +18,7 @@ import com.elster.jupiter.users.Group;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
@@ -85,6 +86,64 @@ public enum TableSpecs {
             table.primaryKey("PK_WS_ENDPOINT").on(id).add();
         }
     },
+    WS_ENDPOINT_OCCURRENCE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EndPointOccurrence> table = dataModel.addTable(this.name(), EndPointOccurrence.class);
+            table.map(EndPointOccurrenceImpl.class);
+            table.since(version(10, 7));
+
+            Column idColumn = table.addAutoIdColumn();
+
+            Column endPoint = table.column("ENDPOINTCFG").number().notNull().add();
+            table.foreignKey("FK_WS_ENDPOINT_OCCURANCE")
+                    .references(WS_ENDPOINTCFG.name())
+                    .on(endPoint)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(EndPointOccurrenceImpl.Fields.endPointConfiguration.fieldName())
+                    .add();
+
+            Column startTimeColumn = table.column("STARTTIME")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .notNull()
+                    .map(EndPointOccurrenceImpl.Fields.startTime.fieldName())
+                    .add();
+
+            table.column("ENDTIME")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .notNull()
+                    .map(EndPointOccurrenceImpl.Fields.endTime.fieldName())
+                    .add();
+
+            table.column("REQUESTNAME")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(EndPointOccurrenceImpl.Fields.requestName.fieldName())
+                    .add();
+
+            table.column("STATUS")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(EndPointOccurrenceImpl.Fields.status.fieldName())
+                    .add();
+            table.column("APPLICATIONNAME")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(EndPointOccurrenceImpl.Fields.applicationName.fieldName())
+                    .add();
+
+            //Column endPointColumn = table.column("ENDPOINTCFG").number().notNull().conversion(NUMBER2LONG).add();
+            //Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            //table.column("VALUE").varChar(SHORT_DESCRIPTION_LENGTH).map("stringValue").add();
+
+
+            table.primaryKey("PK_WS_ENDPOINT_OCCURRENCE").on(idColumn).add();
+            //table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
+
+        }
+    },
     WS_ENDPOINT_LOG {
         @Override
         void addTo(DataModel dataModel) {
@@ -120,9 +179,13 @@ public enum TableSpecs {
                     .conversion(CLOB2STRING)
                     .map(EndPointLogImpl.Fields.stacetrace.fieldName())
                     .add();
-            table.column("OCCURRENCEID")
-                    .number()
-                    .map(EndPointLogImpl.Fields.occurrenceid.fieldName())
+            Column occurrence = table.column("OCCURRENCEID").number().add();
+
+            table.foreignKey("FK_WS_OCCURRENCE")
+                    .references(WS_ENDPOINT_OCCURRENCE.name())
+                    .on(occurrence)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(EndPointLogImpl.Fields.occurrence.fieldName())
                     .add();
             table.primaryKey("SCS_PK_ENDPOINT_LOG").on(idColumn).add();
             table.autoPartitionOn(timestampColumn, LifeCycleClass.WEBSERVICES);
@@ -142,76 +205,8 @@ public enum TableSpecs {
             table.foreignKey("FK_WS_ENDPOINT_PROPS").references(WS_ENDPOINTCFG.name())
                     .onDelete(DeleteRule.CASCADE).map("endPointCfg").reverseMap("properties").composition().on(endPointColumn).add();
         }
-    },
-    WS_ENDPOINT_OCCURANCE {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<EndPointOccurrence> table = dataModel.addTable(this.name(), EndPointOccurrence.class);
-            table.map(EndPointOccurrenceImpl.class);
+    };
 
-            Column idColumn = table.addAutoIdColumn();
-
-            Column endPoint = table.column("ENDPOINTCFG").number().notNull().add();
-            table.foreignKey("FK_WS_ENDPOINT_OCCURANCE")
-                    .references(WS_ENDPOINTCFG.name())
-                    .on(endPoint)
-                    .onDelete(DeleteRule.CASCADE)
-                    .map(EndPointOccurrenceImpl.Fields.endPointConfiguration.fieldName())
-                    .add();
-
-            Column startTimeColumn = table.column("STARTTIME")
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .notNull()
-                    .map(EndPointOccurrenceImpl.Fields.startTime.fieldName())
-                    .add();
-
-            table.column("ENDTIME")
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .notNull()
-                    .map(EndPointOccurrenceImpl.Fields.endTime.fieldName())
-                    .add();
-
-            table.column("REQUESTNAME")
-                    .number()
-                    .varChar(MAX_STRING_LENGTH)
-                    .map(EndPointOccurrenceImpl.Fields.requestName.fieldName())
-                    .add();
-
-            table.column("STATUS")
-                    .varChar()
-                    .notNull().
-                    map(EndPointOccurrenceImpl.Fields.status.fieldName())
-                    .add();
-            table.column("APPLICATIONNAME")
-                    .varChar()
-                    .notNull().
-                    map(EndPointOccurrenceImpl.Fields.applicationName.fieldName())
-                    .add();
-
-            Column endPointColumn = table.column("ENDPOINTCFG").number().notNull().conversion(NUMBER2LONG).add();
-            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("VALUE").varChar(SHORT_DESCRIPTION_LENGTH).map("stringValue").add();
-
-
-            table.primaryKey("PK_WS_ENDPOINT_OCCURANCE").on(idColumn).add();
-            table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
-
-            table.foreignKey("FK_WS_ENDPOINT_PROPS").references(WS_ENDPOINTCFG.name())
-                    .onDelete(DeleteRule.CASCADE).map("endPointCfg").reverseMap("properties").composition().on(endPointColumn).add();
-
-            /*
-            Instant startTime;
-    Instant endTime;
-    String requestName;
-    WebService webService;
-    String endPointName;
-    String status;
-            */
-        }
-    },
-    ;
 
     abstract void addTo(DataModel component);
 

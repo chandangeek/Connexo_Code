@@ -20,11 +20,14 @@ public class EndpointConfigurationOccurrenceInfoFactorty {
         EndpointConfigurationOccurrenceInfo info = new EndpointConfigurationOccurrenceInfo();
         /*info.logLevel = thesaurus.getString(endPointLog.getLogLevel().getKey(), endPointLog.getLogLevel()
                 .getDefaultFormat());*/
+        info.id = endPointOccurrence.getId();
         info.startTime = endPointOccurrence.getStartTime();
         info.endTime = endPointOccurrence.getEndTime();
         info.status = endPointOccurrence.getStatus();
-        if (uriInfo != null)
-        info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointOccurrence.getEndPointConfiguration(), uriInfo);
+        info.request = endPointOccurrence.getRequest();
+        info.applicationName = endPointOccurrence.getApplicationName();
+        /*if (uriInfo != null && endPointOccurrence.getEndPointConfiguration() != null)
+        info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointOccurrence.getEndPointConfiguration(), uriInfo);*/
 
 
         return info;

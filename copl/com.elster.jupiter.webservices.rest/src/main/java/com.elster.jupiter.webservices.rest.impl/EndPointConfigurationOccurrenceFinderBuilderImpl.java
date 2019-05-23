@@ -3,7 +3,9 @@ package com.elster.jupiter.webservices.rest.impl;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointConfigurationImpl;
 import com.elster.jupiter.util.conditions.Condition;
 
 import com.google.common.collect.Range;
@@ -65,6 +67,8 @@ public class EndPointConfigurationOccurrenceFinderBuilderImpl  implements EndPoi
 
     @Override
     public Finder<EndPointOccurrence> build() {
-        return DefaultFinder.of(EndPointOccurrence.class, condition, dataModel/*, ImportSchedule.class*/);
+
+        return DefaultFinder.of(EndPointOccurrence.class, this.dataModel)
+                .defaultSortColumn("startTime");//return DefaultFinder.of(EndPointOccurrence.class, condition, dataModel/*, ImportSchedule.class*/);
     }
 }

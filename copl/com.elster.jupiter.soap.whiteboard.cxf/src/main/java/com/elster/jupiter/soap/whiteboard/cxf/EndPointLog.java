@@ -7,6 +7,7 @@ package com.elster.jupiter.soap.whiteboard.cxf;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Models a log entry created for an end point
@@ -34,9 +35,9 @@ public interface EndPointLog {
     String getStackTrace();
 
     /**
-     * Get id of related occurrence.
+     * Get related occurrence.
      */
-    long getOccurrenceId();
+    Optional<EndPointOccurrence> getOccurrence();
 
     /**
      * Removes a log entry from the system
