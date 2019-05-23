@@ -109,7 +109,7 @@ Ext.define('Isu.controller.CreationManualRule', {
         Ext.Ajax.request({
             url: record.getProxy().url,
             method: 'POST',
-            jsonData: {"issues": new Array( record.getRecordData() )},
+            jsonData: {"issues": new Array( record.data )},
             success: function (response) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('isu.manually.addSuccess', 'ISU', 'New manual issue added'));
                 if (page.rendered) {
