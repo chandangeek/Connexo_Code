@@ -923,6 +923,13 @@ Ext.define('Imt.controller.History', {
                         }
                     }
                 },
+                insightprocesses: {
+                        title: Uni.I18n.translate('general.insightprocesses', 'IMT', 'Processes'),
+                        route: 'insightprocesses',
+                        privileges: Bpm.privileges.BpmManagement.viewProcesses,
+                        controller: 'Imt.processes.controller.WorkspaceProcesses',
+                        action: 'showAllProcessesInsight'
+                },
                 issuesoverview: {
                     title: Uni.I18n.translate('workspace.issuesOverview', 'IMT', 'Issues overview'),
                     route: 'issuesoverview',

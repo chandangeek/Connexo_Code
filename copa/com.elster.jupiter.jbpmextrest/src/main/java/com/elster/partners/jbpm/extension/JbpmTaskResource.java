@@ -700,23 +700,21 @@ public class JbpmTaskResource {
                 .valueOf(String.valueOf(value).replace("\"", "").replaceAll("\'", ""));
         
         EntityManager em = emf.createEntityManager();
-        String queryString = null;
+        String queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION , v.VALUE, v.VARIABLEID"
+                + " from processinstancelog p"
+                + " LEFT JOIN (select count(*) as VARCOUNT, v1.PROCESSINSTANCEID as VPID from VARIABLEINSTANCELOG v1"
+                + " where v1.VARIABLEID in ('alarmId', 'issueId', 'deviceId', 'usagePointId')"
+                + " group by v1.PROCESSINSTANCEID) ON VPID = p.PROCESSINSTANCEID"
+                + " LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID and VARCOUNT = 1 and v.VARIABLEID in ('alarmId', 'issueId', 'deviceId', 'usagePointId')";
         if (searchInAllProcesses) {
-            queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION , v.VALUE, v.VARIABLEID"
-                    + " from processinstancelog p"
-                    + " LEFT JOIN (select count(*) as VARCOUNT, v1.PROCESSINSTANCEID as VPID from VARIABLEINSTANCELOG v1"
-                    + " where v1.VARIABLEID in ('alarmId', 'issueId', 'deviceId', 'usagePointId')"
-                    + " group by v1.PROCESSINSTANCEID) ON VPID = p.PROCESSINSTANCEID"
-                    + " LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID and VARCOUNT = 1 and v.VARIABLEID in ('alarmId', 'issueId', 'deviceId', 'usagePointId')";
             queryString += addProcessInstanceIdFilterToQuery(filterProperties);
             queryString += addSortingToQuery(sortingProperties);
         } else {
-            queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION , v.VALUE, v.VARIABLEID "
-                    + "from processinstancelog p "
-                    + "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID "
-                    + "where ( v.VARIABLEID in ('issueId','alarmId') "
-                    + "or v.VARIABLEID = 'deviceId' and (select count(*) from VARIABLEINSTANCELOG v1 where v1.PROCESSINSTANCEID = v.PROCESSINSTANCEID and VARIABLEID in ('alarmId', 'issueId'))=0) ";
-            queryString += addFilterToQuery(filterProperties, false);
+            String filterToQuery = addFilterToQuery(filterProperties, false).trim();
+            if (filterToQuery.startsWith("AND") || filterToQuery.startsWith("and") || filterToQuery.startsWith("And")) {
+                filterToQuery = "WHERE " + filterToQuery.substring(3);
+            }
+            queryString += filterToQuery;
             queryString += addSortingToQuery(sortingProperties);
         }
 

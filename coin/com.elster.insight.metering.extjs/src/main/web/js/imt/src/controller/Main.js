@@ -21,6 +21,7 @@ Ext.define('Imt.controller.Main', {
         'Imt.dynamicprivileges.UsagePoint',
         'Imt.dynamicprivileges.Stores',
         'Imt.processes.controller.MonitorProcesses',
+        'Imt.processes.controller.WorkspaceProcesses',
         'Imt.servicecalls.controller.ServiceCalls',
         'Imt.metrologyconfiguration.controller.View',
         'Imt.usagepointsetup.controller.MetrologyConfig',
@@ -63,6 +64,7 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointhistory.controller.CasVersionEdit',
         'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersions',
         'Imt.processes.controller.MonitorProcesses',
+        'Imt.processes.controller.WorkspaceProcesses',
         'Imt.usagepointmanagement.controller.Attributes',
         'Imt.usagepointsetup.controller.MetrologyConfig',
         'Imt.purpose.controller.Purpose',
@@ -288,6 +290,31 @@ Ext.define('Imt.controller.Main', {
                     }
                 ]
             }));
+        }
+		
+		if (Bpm.privileges.BpmManagement.canViewProcesses()){
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                        text: Uni.I18n.translate('general.workspace', 'IMT', 'Workspace'),
+                        glyph: 'workspace',
+                        portal: 'workspace',
+                        index: 30
+                    }));
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.allprocesses', 'IMT', 'Processes'),
+                portal: 'workspace',
+                route: 'insightprocesses',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.allprocesses', 'IMT', 'Processes'),
+                        itemId: 'insight-workspace-all-processes',
+                        privileges: Bpm.privileges.BpmManagement.viewProcesses,
+                        href: '#/workspace/insightprocesses',
+                        route: 'insightprocesses'
+                    }
+                ]
+                })
+            );
         }
 
         if (Imt.privileges.TaskManagement.canView()) {

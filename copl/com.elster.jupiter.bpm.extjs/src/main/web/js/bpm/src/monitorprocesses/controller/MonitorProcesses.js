@@ -225,36 +225,26 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
 						resultSet = reader.readRecords(response),
 						record = resultSet.records[0];
 						
-					if(me.sourceApplication == 'MDC') {
 				
-						panelItems.add(Ext.create("Ext.form.field.Display", {
-								fieldLabel: Uni.I18n.translate('bpm.process.parentProcessInstanceId', 'BPM', 'Parent process instance id'),
-								style: '{word-break: break-word; word-wrap: break-word;}',
-								flex: 1,
-								labelWidth: 200,
-								htmlEncode: false,
-								value: '<a>' + record.get('processInstanceId') + '</a>',
-								listeners: {
-									afterrender: function(view) {
-										view.getEl().on('click', function() {
-											var router = me.getController('Uni.controller.history.Router');
-											var route = router.getRoute('workspace/multisenseprocesses');
-											route.forwardInNewTab(null, {processInstanceId: [record.get('processInstanceId')], searchInAllProcesses: true});
-										});
-									}
+					panelItems.add(Ext.create("Ext.form.field.Display", {
+							fieldLabel: Uni.I18n.translate('bpm.process.parentProcessInstanceId', 'BPM', 'Parent process instance id'),
+							style: '{word-break: break-word; word-wrap: break-word;}',
+							flex: 1,
+							labelWidth: 200,
+							htmlEncode: false,
+							value: '<a>' + record.get('processInstanceId') + '</a>',
+							listeners: {
+								afterrender: function(view) {
+									view.getEl().on('click', function() {
+										var router = me.getController('Uni.controller.history.Router');
+										var route = router.getRoute(me.getPathToSubprocessView(me.sourceApplication));
+										route.forwardInNewTab(null, {processInstanceId: [record.get('processInstanceId')], searchInAllProcesses: true});
+									});
 								}
 							}
-						));
-					} else {
-						panelItems.add(Ext.create("Ext.form.field.Display", {
-								fieldLabel: Uni.I18n.translate('bpm.process.parentProcessInstanceId', 'BPM', 'Parent process instance id'),
-								style: '{word-break: break-word; word-wrap: break-word;}',
-								flex: 1,
-								labelWidth: 200,
-								value: record.get('processInstanceId')
-							}
-						));
-					}
+						}
+					));
+					
 					panelItems.add(Ext.create("Ext.form.field.Display", {
 							fieldLabel: Uni.I18n.translate('bpm.process.parentProcessName', 'BPM', 'Parent process name'),
 							style: '{word-break: break-word; word-wrap: break-word;}',
@@ -288,6 +278,16 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
             }
         })
     },
+	
+	getPathToSubprocessView: function (application, record) {
+		var path = '';
+		if(application == 'MDC') {
+			path = 'workspace/multisenseprocesses';
+		} else if (application == 'INS') {
+			path = 'workspace/insightprocesses';
+		}
+		return path;
+	},
 
     showVariablesPreviewForRunning: function (selectionModel, record) {
         var me = this;
@@ -392,36 +392,25 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
         }
         
         if(record.get('childSubprocessLog.childProcessInstanceId')) {
-        	if(me.sourceApplication == 'MDC') {
-        		subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
-                        	fieldLabel: Uni.I18n.translate('bpm.process.node.childProcessInstanceId', 'BPM', 'Child process instance id'),
-                        	style: '{word-break: break-word; word-wrap: break-word;}',
-                        	flex: 1,
-                        	labelWidth: 200,
-                        	htmlEncode: false,
-                        	value: '<a>' + record.get('childSubprocessLog.childProcessInstanceId') + '</a>',
-                        	listeners: {
-	                        	afterrender: function(view) {
-                        			view.getEl().on('click', function() {
-	                        			var router = me.getController('Uni.controller.history.Router');
-                        				var route = router.getRoute('workspace/multisenseprocesses');
-                        				route.forwardInNewTab(null, {processInstanceId: [record.get('childSubprocessLog.childProcessInstanceId')], searchInAllProcesses: true});
-                        			});
-                        		}
-                        	}
-                    	}
-                	));
-                } else {
-                	subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
-                        	fieldLabel: Uni.I18n.translate('bpm.process.node.childProcessInstanceId', 'BPM', 'Child process instance id'),
-                        	style: '{word-break: break-word; word-wrap: break-word;}',
-                        	flex: 1,
-                        	labelWidth: 200,
-                        	htmlEncode: false,
-                        	value: record.get('childSubprocessLog.childProcessInstanceId')
-                    	}
-                	));
-                }
+       		subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
+                       	fieldLabel: Uni.I18n.translate('bpm.process.node.childProcessInstanceId', 'BPM', 'Child process instance id'),
+                       	style: '{word-break: break-word; word-wrap: break-word;}',
+                       	flex: 1,
+                       	labelWidth: 200,
+                       	htmlEncode: false,
+                       	value: '<a>' + record.get('childSubprocessLog.childProcessInstanceId') + '</a>',
+                       	listeners: {
+                        	afterrender: function(view) {
+                       			view.getEl().on('click', function() {
+                        			var router = me.getController('Uni.controller.history.Router');
+                       				var route = router.getRoute(me.getPathToSubprocessView(me.sourceApplication));
+                       				route.forwardInNewTab(null, {processInstanceId: [record.get('childSubprocessLog.childProcessInstanceId')], searchInAllProcesses: true});
+                       			});
+                       		}
+                       	}
+                   	}
+               	));
+
             subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
                         fieldLabel: Uni.I18n.translate('bpm.process.node.childProcessName', 'BPM', 'Child process name'),
                         style: '{word-break: break-word; word-wrap: break-word;}',
