@@ -16,7 +16,7 @@ Ext.define('Imt.issue.view.IssueFilter', {
         'Imt.issue.store.UsagePoints',
         'Isu.store.DueDate',
         'Isu.store.IssueReasons',
-        'Isu.store.DeviceGroups'
+        'Imt.usagepointgroups.store.UsagePointGroups'
     ],
 
     initComponent: function () {
@@ -144,12 +144,12 @@ Ext.define('Imt.issue.view.IssueFilter', {
             },
             {
                 type: 'combobox',
-                itemId: 'issue-deviceGroup-filter',
-                dataIndex: 'deviceGroup',
-                emptyText: Uni.I18n.translate('general.deviceGroup', 'IMT', 'Device Group'),
+                itemId: 'issue-usagePointGroup-filter',
+                dataIndex: 'usagePointGroup',
+                emptyText: Uni.I18n.translate('general.usagePointGroup', 'IMT', 'Usage point group'),
                 displayField: 'name',
                 valueField: 'id',
-                store: 'Isu.store.DeviceGroups',
+                store: 'Imt.usagepointgroups.store.UsagePointGroups',
                 multiSelect: true,
             },
         ];
