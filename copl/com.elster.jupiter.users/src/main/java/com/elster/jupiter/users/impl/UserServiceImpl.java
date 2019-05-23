@@ -940,6 +940,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         }
     }
 
+    public Optional<User> findUserIgnoreStatus(String authenticationName) {
+        return findUserIgnoreStatus(authenticationName, null);
+    }
+
     private Optional<User> findUserIgnoreStatus(String authenticationName, String domain) {
         Condition authenticationNameCondition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
         Condition userDirectoryCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", domain == null ? findDefaultUserDirectory().getDomain() : domain);

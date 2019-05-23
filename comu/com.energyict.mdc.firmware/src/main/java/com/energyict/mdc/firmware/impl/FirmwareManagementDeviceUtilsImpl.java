@@ -30,6 +30,7 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
@@ -78,18 +79,19 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     private void initFirmwareMessages() {
-        Map<FirmwareType, DeviceMessage> uploadMessages = new HashMap<>();
+        Map<FirmwareType, List<DeviceMessage>> uploadMessages = new HashMap<>();
         Map<String, DeviceMessage> activationMessages = new HashMap<>();
         // only firmware upgrade, no revoked messages and only one message for each firmware type
         this.device.getMessages().stream().filter(candidate -> candidate.getSpecification().getCategory().getId() == this.deviceMessageSpecificationService.getFirmwareCategory().getId()
                 && !DeviceMessageStatus.CANCELED.equals(candidate.getStatus())).forEach(candidate -> {
             if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
-                compareAndSwapUploadMessage(uploadMessages, candidate);
+                gatherAllUploadMessages(uploadMessages, candidate);
             } else {
                 activationMessages.put(candidate.getTrackingId(), candidate);
             }
         });
-        this.firmwareMessages.addAll(uploadMessages.values());
+        for (List<DeviceMessage> messages : uploadMessages.values())
+            this.firmwareMessages.addAll(messages);
         this.firmwareMessages.addAll(this.firmwareMessages.stream()
                 .map(message -> activationMessages.get(String.valueOf(message.getId())))
                 .filter(Objects::nonNull)
@@ -102,13 +104,14 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
                 .orElse(null);
     }
 
-    private void compareAndSwapUploadMessage(Map<FirmwareType, DeviceMessage> uploadMessages, DeviceMessage candidate) {
+    private void gatherAllUploadMessages(Map<FirmwareType, List<DeviceMessage>> uploadMessages, DeviceMessage candidate) {
         Optional<FirmwareVersion> version = getFirmwareVersionFromMessage(candidate);
         if (version.isPresent()) {
             FirmwareType key = version.get().getFirmwareType();
-            DeviceMessage oldMessage = uploadMessages.get(key);
-            if (oldMessage == null || !oldMessage.getReleaseDate().isAfter(candidate.getReleaseDate())) {
-                uploadMessages.put(key, candidate);
+            if(uploadMessages.containsKey(key)) {
+                uploadMessages.get(key).add(candidate);
+            } else {
+                uploadMessages.put(key, new ArrayList<>(Arrays.asList(candidate)));
             }
         }
     }
