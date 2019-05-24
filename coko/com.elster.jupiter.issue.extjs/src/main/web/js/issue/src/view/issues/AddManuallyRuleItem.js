@@ -43,6 +43,15 @@ Ext.define('Isu.view.issues.AddManuallyRuleItem', {
             dependenciesCounter--;
             if (!dependenciesCounter) {
                 me.down('issue-manually-creation-rules-item').loadRecord(manualIssue);
+                if (me.deviceId){
+                    var deviceIdCombo =  me.down('issue-manually-creation-rules-item').child('#deviceId');
+                    var device = deviceIdCombo.store.find('name', me.deviceId);
+                    if (device !== -1){
+                        deviceIdCombo.setRawValue(me.deviceId);
+                        deviceIdCombo.setValue(deviceIdCombo.store.getAt(device).get('id'));
+                    }
+
+                }
                 me.setLoading(false);
             }
         };
