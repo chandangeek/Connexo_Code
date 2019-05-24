@@ -2,17 +2,17 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Wss.store.webservice.History', {
+Ext.define('Wss.store.endpoint.Occurrence', {
   extend: 'Ext.data.Store',
-  model: 'Wss.model.webservice.History',
+  model: 'Wss.model.endpoint.Occurrence',
   autoLoad: false,
   proxy: {
     type: 'rest',
-    url: '/api/ws/webservice/history',
+    url: '/api/ws/endpointconfigurations/occurrences/',
     timeout: 120000,
     reader: {
         type: 'json',
-        root: 'occurences'
+        root: 'occurrences'
     }
   }
 });

@@ -9,7 +9,7 @@ Ext.define('Wss.view.History', {
   store: null,
 
   requires: [
-    'Wss.store.webservice.History',
+    'Wss.store.endpoint.Occurrence',
     'Wss.view.HistoryTopFilter',
     'Wss.view.webservice.HistoryPreviewContainer'
   ],
@@ -30,7 +30,7 @@ Ext.define('Wss.view.History', {
         dockedItems: [
           {
             dock: 'top',
-            store: 'Wss.store.webservice.History',
+            store: 'Wss.store.endpoint.Occurrence',
             xtype: 'mss-view-history-history-topfilter',
             itemId: 'mss-view-history-history-topfilter'
           },

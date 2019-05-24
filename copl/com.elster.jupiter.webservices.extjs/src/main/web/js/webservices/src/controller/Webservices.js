@@ -17,7 +17,7 @@ Ext.define('Wss.controller.Webservices', {
     stores: [
         'Wss.store.Endpoints',
         'Wss.store.Webservices',
-        'Wss.store.webservice.History',
+        'Wss.store.endpoint.Occurrence',
         'Wss.store.LogLevels',
         'Wss.store.AuthenticationMethods',
         'Wss.store.Logs',
@@ -26,7 +26,7 @@ Ext.define('Wss.controller.Webservices', {
     models: [
         'Wss.model.Endpoint',
         'Wss.model.Webservice',
-        'Wss.model.webservice.History',
+        'Wss.model.endpoint.Occurrence',
         'Wss.model.Log'
     ],
 
@@ -79,7 +79,7 @@ Ext.define('Wss.controller.Webservices', {
     showWebservicesHistoryOverview: function () {
         var me = this,
             view,
-            store = me.getStore('Wss.store.webservice.History');
+            store = me.getStore('Wss.store.endpoint.Occurrence');
 
         store.load();
         view = Ext.widget('webservices-history', {
@@ -90,7 +90,7 @@ Ext.define('Wss.controller.Webservices', {
 
     showWebserviceHistory: function (endpointId) {
         var me = this;
-        var store = me.getStore('Wss.store.webservice.History');
+        var store = me.getStore('Wss.store.endpoint.Occurrence');
 
         me.getModel('Wss.model.Endpoint').load(endpointId, {
             success: function (record) {
@@ -106,7 +106,7 @@ Ext.define('Wss.controller.Webservices', {
 
     // setDefaultSort: function () {
     //     var me = this,
-    //         store = me.getStore('Wss.store.webservice.History'),
+    //         store = me.getStore('Wss.store.endpoint.Occurrence'),
     //         sorting = store.getProxy().extraParams['sort'];
 
     //     if (sorting === undefined) { // set default filters

@@ -5,7 +5,7 @@
 Ext.define('Wss.view.webservice.HistoryGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.wss-webservice-history-grid',
-    store: 'Wss.store.webservice.History',
+    store: 'Wss.store.endpoint.Occurrence',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
@@ -16,43 +16,49 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.startedOn', 'WSS', 'Started on'),
-                dataIndex: 'startDate',
+                dataIndex: 'startTime',
                 flex: 1.5,
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({
-                        endpointId: record.getEndpoint().get('id')
+                        endpointId: 1, // record.getEndpoint().get('id')
                     });
                     var date = value ? Uni.DateTime.formatDateTimeShort(value) : '-';
 
                     return '<a href="' + url + '">' + date + '</a>';
                 }
             },
-            {
-                header: Uni.I18n.translate('general.endpoint', 'WSS', 'Web service endpoint'),
-                dataIndex: 'endpoint',
-                renderer: function(value, metaData, record) {
-                    var endpoint = record.getEndpoint();
-                    var url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({
-                        endpointId: endpoint.get('id')
-                    });
-                    var webservice = endpoint.get('webServiceName');
-                    return '<a href="' + url + '">' + Ext.String.htmlEncode(webservice) + '</a>';
-                },
-                flex: 1
-            },
+            // {
+            //     header: Uni.I18n.translate('general.endpoint', 'WSS', 'Web service endpoint'),
+            //     dataIndex: 'endpoint',
+            //     renderer: function(value, metaData, record) {
+            //         var endpoint = record.getEndpoint();
+            //         var url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({
+            //             endpointId: endpoint.get('id')
+            //         });
+            //         var webservice = endpoint.get('webServiceName');
+            //         return '<a href="' + url + '">' + Ext.String.htmlEncode(webservice) + '</a>';
+            //     },
+            //     flex: 1
+            // },
             {
                 header: Uni.I18n.translate('general.application', 'WSS', 'Application'),
-                dataIndex: 'endpoint',
+                dataIndex: 'applicationName',
                 renderer: function(value, metaData, record) {
-                    return record.getEndpoint().get('application');
+                    return value;
                 },
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.type', 'WSS', 'Type'),
-                dataIndex: 'endpoint',
+                header: Uni.I18n.translate('general.duration', 'WSS', 'Duration'),
+                renderer: function (value, metaData, record) {
+                    return Uni.util.String.formatDuration(record.get('startTime') - record.get('endTime'));
+                }
+            },
+            {
+                header: Uni.I18n.translate('general.status', 'WSS', 'Status'),
+                dataIndex: 'status',
                 renderer: function(value, metaData, record) {
-                    return record.getEndpoint().get('type');
+                    return value;
                 },
                 flex: 1
             }
