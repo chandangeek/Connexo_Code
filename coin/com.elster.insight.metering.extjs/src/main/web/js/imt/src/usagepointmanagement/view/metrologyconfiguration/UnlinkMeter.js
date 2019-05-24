@@ -15,7 +15,6 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.UnlinkMeter', {
     router: null,
     usagePoint: null,
     meterName: null,
-    meterRoleId: null,
     initComponent: function() {
        var me = this;
        me.content = [
@@ -76,7 +75,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.UnlinkMeter', {
                                 text: Uni.I18n.translate('general.button.unlink', 'IMT', 'Unlink'),
                                 ui: 'action',
                                 meterName: me.meterName,
-                                meterRoleId: me.meterRoleId,
+                                meterRoles: me.usagePoint.get('meterRoles'),
                                 usagePointName: me.usagePoint.get('name')
                             },
                             {

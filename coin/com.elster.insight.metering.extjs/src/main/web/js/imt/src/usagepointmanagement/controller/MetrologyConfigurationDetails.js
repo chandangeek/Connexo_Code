@@ -130,7 +130,7 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
         });
     },
 
-    unlinkMeter: function (usagePointname, meterRoleId, meterName) {
+    unlinkMeter: function (usagePointname, meterName) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
@@ -142,10 +142,9 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('unlink-meter', {
                     router: router,
                     usagePoint: usagePoint,
-                    meterRoleId: meterRoleId,
                     meterName: meterName,
                 }));
-                me.getApplication().fireEvent('unlinkMeterLoaded', meterName)
+                me.getApplication().fireEvent('unlinkMeterPageLoaded', meterName)
             },
             failure: function () {
                 viewport.setLoading(false);
@@ -155,14 +154,15 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
 
     unlinkSaveButton: function(btn) {
         var me = this;
-            unlinkTime = this.getUnlinkMeterForm().down('#unlink-meter-date').down('#unlink-date-on').getValue().getTime();
+            unlinkTime = this.getUnlinkMeterForm().down('#unlink-meter-date').down('#unlink-date-on').getValue().getTime(),
+            meterRoleId = _.find(btn.meterRoles, function(meterRole) {
+                return meterRole.meter === btn.meterName;
+            });
 
         Ext.Ajax.request({
-            url: '/api/udr/usagepoints/'+ btn.usagePointName +'/meterroles/'+ btn.meterRoleId +'/unlink',
+            url: '/api/udr/usagepoints/'+ btn.usagePointName +'/meterroles/'+ meterRoleId.id +'/unlink',
             method: 'PUT',
-            jsonData: {
-                timeStamp: unlinkTime
-            },
+            params: unlinkTime,
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.calendarAdded', 'IMT', "Meter '{0}' will be unlinked on '{1}'.", [btn.meterName, new Date(unlinkTime).toLocaleString()]));
                 me.getController('Uni.controller.history.Router').getRoute('usagepoints/view/calendars').forward();

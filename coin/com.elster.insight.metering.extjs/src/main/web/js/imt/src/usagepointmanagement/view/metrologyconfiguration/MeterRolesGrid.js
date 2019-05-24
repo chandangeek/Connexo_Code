@@ -56,7 +56,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
                 privileges: Imt.privileges.UsagePoint.admin,
                 tooltip: Uni.I18n.translate('general.tooltip.unlink', 'IMT', 'Unlink'),
                 handler: function(grid, rowIndex, colIndex, item, e, record) {
-                    me.router.getRoute('usagepoints/view/metrologyconfiguration/unlinkmeter').forward({meterName: record.get('meter'), meterRoleId: record.get('id') });
+                    me.router.getRoute('usagepoints/view/metrologyconfiguration/unlinkmeter').forward({ meterName: record.get('meter') });
                 }
             }
         ];
