@@ -117,7 +117,8 @@ public class TopIssuesResource extends BaseResource {
         return issueType.equals(IssueTypes.DATA_COLLECTION) ||
                 issueType.equals(IssueTypes.DATA_VALIDATION) ||
                 issueType.equals(IssueTypes.DEVICE_LIFECYCLE) ||
-                issueType.equals(IssueTypes.TASK);
+                issueType.equals(IssueTypes.TASK) ||
+                issueType.equals(IssueTypes.MANUAL);
     }
 
 }
