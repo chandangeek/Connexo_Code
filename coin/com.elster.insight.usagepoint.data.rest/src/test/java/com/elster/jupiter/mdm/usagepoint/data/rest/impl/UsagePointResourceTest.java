@@ -589,29 +589,24 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testUnlinkMeterRoleFromUsagePoint() {
+
+        Meter meter1 = mock(Meter.class);
+        when(meter1.getName()).thenReturn("meter1");
+        when(meteringService.findMeterByName("meter1")).thenReturn(Optional.of(meter1));
+
         MeterRole meterRole = mock(MeterRole.class);
         when(meterRole.getKey()).thenReturn("key1");
-        when(meterRole.getDisplayName()).thenReturn("test");
         when(metrologyConfigurationService.findMeterRole("key1")).thenReturn(Optional.of(meterRole));
-
-        MeterRoleInfo meterRoleInfo = new MeterRoleInfo(meterRole);
-
-        UsagePointInfo info = getInfoWithMetrologyConfigurationAndMeters();
-        info.version = usagePoint.getVersion();
-        info.meterRoles = new ArrayList<>();
-        info.meterRoles.add(meterRoleInfo);
-        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
 
         UsagePointMeterActivator linker = mock(UsagePointMeterActivator.class);
         when(usagePoint.linkMeters()).thenReturn(linker);
 
-        when(usagePointInfoFactory.fullInfoFrom(any())).thenReturn(info);
-        when(resourceHelper.findMeterRoleOrThrowException(meterRoleInfo.id)).thenReturn(meterRole);
-
-        Response response = target("/usagepoints/"+USAGE_POINT_NAME+"/metrologyconfiguration/test/unlinkMeterRole/"+1555659900000L).request().put(Entity.json(info));
+        Long timeStamp = 1555659900000L;
+        System.out.println(Entity.json(timeStamp));
+        Response response = target("/usagepoints/"+USAGE_POINT_NAME+"/meterroles/key1/unlink/").request().put(Entity.json(timeStamp));
         assertThat(response.getStatus()).isEqualTo(200);
 
-        verify(linker).clear(any(), any());
+        verify(linker).clear(Instant.ofEpochMilli(timeStamp), meterRole);
         verify(linker).complete();
     }
 
