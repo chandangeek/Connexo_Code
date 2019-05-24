@@ -90,7 +90,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
             throw new ProcessorException(MessageSeeds.PRE_TRANSITION_CHECKS_FAILED, data.getLineNumber(),
                     ex.getViolations()
                             .stream()
-                            .map(violation -> getContext().getDeviceLifeCycleService().getName(violation.getCheck()))
+                            .map(violation -> violation.getCheck().getName())
                             .distinct()
                             .collect(Collectors.joining(", ")));
         }

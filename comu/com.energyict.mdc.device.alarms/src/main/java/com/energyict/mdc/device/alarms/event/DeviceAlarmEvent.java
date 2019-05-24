@@ -17,6 +17,8 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.RelativePeriod;
@@ -47,6 +49,10 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
+
+import static com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate.DEVICE_IN_GROUP;
 
 public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     protected static final Logger LOGGER = Logger.getLogger(DeviceAlarmEvent.class.getName());
@@ -54,6 +60,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     private final DeviceAlarmService deviceAlarmService;
     private final IssueService issueService;
     private final MeteringService meteringService;
+    private final MeteringGroupsService meteringGroupsService;
     private final DeviceService deviceService;
     private final Thesaurus thesaurus;
     private final TimeService timeService;
@@ -72,10 +79,11 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     private static final String COMMA_SEPARATOR = ",";
     private static final String SEMI_COLON_SEPARATOR = ";";
 
-    public DeviceAlarmEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus, TimeService timeService, Clock clock, Injector injector) {
+    public DeviceAlarmEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, MeteringGroupsService meteringGroupsService,  DeviceService deviceService, Thesaurus thesaurus, TimeService timeService, Clock clock, Injector injector) {
         this.deviceAlarmService = deviceAlarmService;
         this.issueService = issueService;
         this.meteringService = meteringService;
+        this.meteringGroupsService = meteringGroupsService;
         this.deviceService = deviceService;
         this.thesaurus = thesaurus;
         this.timeService = timeService;
@@ -186,6 +194,19 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                         parseRawInputToList(valueSet.get(2), COMMA_SEPARATOR).stream()
                                 .map(String::trim)
                                 .mapToLong(Long::parseLong).boxed().collect(Collectors.toList()).contains(this.getDevice().getState().getId()));
+    }
+
+    public boolean isDeviceInGroup(String groups) {
+        if (groups.isEmpty() || ("@{" + DEVICE_IN_GROUP + "}").equals(groups)) {
+            return true;
+        }
+        Optional<EndDevice> endDevice = getEndDevice();
+        if (!endDevice.isPresent()) {
+            return false;
+        }
+        return parseRawInputToList(groups, SEMI_COLON_SEPARATOR).stream().mapToLong(Long::parseLong).boxed()
+                .map(id -> meteringGroupsService.findEndDeviceGroup(id)).filter(Optional::isPresent)
+                .map(Optional::get).anyMatch(group -> group.isMember(endDevice.get(), Instant.now()));
     }
 
     private void setCreationRule(int ruleId){

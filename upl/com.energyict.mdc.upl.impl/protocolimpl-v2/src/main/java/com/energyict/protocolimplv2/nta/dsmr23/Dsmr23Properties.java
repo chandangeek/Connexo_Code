@@ -15,7 +15,7 @@ public class Dsmr23Properties extends DlmsProperties {
 
     public static final String OLD_MBUS_DISCOVERY = "OldMbusDiscovery";
     public static final String FRAME_COUNTER_LIMIT = "FrameCounterLimit";
-    public static final String REPLAY_ATTACK_PREVENTION = "ReplayAttackPrevention";
+
 
     public boolean getOldMbusDiscovery() {
         return parseBooleanProperty(OLD_MBUS_DISCOVERY, false);
@@ -26,7 +26,7 @@ public class Dsmr23Properties extends DlmsProperties {
     }
 
     public boolean replayAttackPreventionEnabled(){
-       return parseBooleanProperty(REPLAY_ATTACK_PREVENTION, false);
+       return getProperties().<Boolean>getTypedProperty(DlmsConfigurationSupport.REPLAY_ATTACK_PREVENTION, false);
     }
 
     //added while porting KaifaProperties from EIServer, since it seems it was forgotten when Dsmr23Properties was ported

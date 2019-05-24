@@ -15,6 +15,7 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -78,6 +79,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -1085,6 +1087,24 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         }
         QueryExecutor<DeviceConfiguration> query = dataModel.query(DeviceConfiguration.class);
         return query.select(ListOperator.IN.contains("id", deviceConfigIds));
+    }
+
+    private List<DeviceLifeCycleInDeviceTypeInfo> deviceLifeCycleInDeviceTypes = new ArrayList<>();
+
+    @Override
+    public DeviceLifeCycleInDeviceTypeInfo[] getDeviceLifeCycleInDeviceTypeInfoPossibleValues() {
+        //TODO: this chaange was a quick fix before release but we should device if we move this code back to templates to we keep it here and we find another way to not reload the data from DB each time, but only when needed
+        clearAndRecalculateCache();
+        return deviceLifeCycleInDeviceTypes.stream().toArray(DeviceLifeCycleInDeviceTypeInfo[]::new);
+    }
+
+    public void clearAndRecalculateCache() {
+        deviceLifeCycleInDeviceTypes.clear();
+        findAllDeviceTypes()
+                .find().stream()
+                .sorted(Comparator.comparing(DeviceType::getId))
+                .forEach(deviceType -> deviceLifeCycleInDeviceTypes.add(new DeviceLifeCycleInDeviceTypeInfo(deviceType, deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
+                        .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), deviceLifeCycleConfigurationService)));
     }
 
 }

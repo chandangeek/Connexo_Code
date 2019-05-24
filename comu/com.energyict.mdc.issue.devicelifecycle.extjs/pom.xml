@@ -16,6 +16,8 @@
 
     <properties>
          <baseline>(,${project.version})</baseline>
+        <js.dir>js/idl</js.dir>
+        <package.name>${project.groupId}.${project.artifactId}</package.name>
     </properties>
 
     <dependencies>
@@ -57,15 +59,5 @@
             <artifactId>comserver.core.extjs</artifactId>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/idl</js.dir>
-                <package.name>${project.groupId}.${project.artifactId}</package.name>
-            </properties>
-        </profile>
-    </profiles>
 
 </project>

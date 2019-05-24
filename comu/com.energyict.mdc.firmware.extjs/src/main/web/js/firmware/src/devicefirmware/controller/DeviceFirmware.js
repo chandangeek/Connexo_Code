@@ -104,6 +104,9 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                     failure: function (record, resp) {
                         errorMsg.show();
                         container.setLoading(false);
+                    },
+                    callback: function () {
+                        if (record.getProxy().extraParams && record.getProxy().extraParams['force']) delete record.getProxy().extraParams['force'];
                     }
         });
     },
@@ -139,8 +142,6 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
         propertyForm.updateRecord();
         record.propertiesStore = messageSpec.properties();
-
-        record.getProxy().setExtraParam('force', false);
 
         record.save({
             success: function () {
@@ -188,7 +189,16 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                                 htmlEncode: false,
                                 itemId: 'errorsText',
                                 value: htmlText,
-                                padding: '0 50'
+                                padding: '0 50',
+                                listeners:{
+                                		afterrender:function(){
+                                		   var me = this;
+                                		   this.el.hover(function(e){
+                                		       if (this.querySelector("div").getAttribute("data-qtip")) this.querySelector("div").removeAttribute("data-qtip");
+                                		       me.el.removeAllListeners();
+                                           });
+                                		}
+                                }
                             });
                             confirmationWindow.insert(1, fieldContainer);
                             confirmationWindow.show({

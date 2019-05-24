@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Fwc.view.firmware.Grid', {
@@ -161,11 +161,8 @@ Ext.define('Fwc.view.firmware.Grid', {
             xtype: 'uni-actioncolumn',
             itemId: 'uni-actioncolumn',
             width: 120,
-            isDisabled: function(view, rowIndex, colIndex, item, record) {
-                return !Mdc.privileges.DeviceType.canAdministrate()
-                    || (record.getAssociatedData().firmwareStatus
-                    && record.getAssociatedData().firmwareStatus.id === 'deprecated'
-                    );
+            isDisabled: function() {
+                return !Mdc.privileges.DeviceType.canAdministrate();
             },
             menu: {
                 xtype: 'firmware-action-menu',

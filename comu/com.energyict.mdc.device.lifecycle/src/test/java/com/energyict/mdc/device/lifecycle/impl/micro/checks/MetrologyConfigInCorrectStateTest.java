@@ -1,19 +1,23 @@
 /*
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
-
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -22,23 +26,17 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MetrologyConfigInCorrectStateTest {
-
+    private static final String INSIGHT_LICENSE = "INS";
     private MetrologyConfigurationInCorrectStateIfAny checkObject;
 
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private Device device;
     @Mock
@@ -49,66 +47,63 @@ public class MetrologyConfigInCorrectStateTest {
     private MeterActivation meterActivation;
     @Mock
     private UsagePoint usagePoint;
-
+    @Mock
+    private LicenseService licenseService;
 
     @Before
-    public void setUp(){
-        checkObject = new MetrologyConfigurationInCorrectStateIfAny(thesaurus);
+    public void setUp() {
+        when(licenseService.getLicensedApplicationKeys()).thenReturn(Collections.singletonList(INSIGHT_LICENSE));
+        checkObject = new MetrologyConfigurationInCorrectStateIfAny(licenseService);
+        checkObject.setThesaurus(thesaurus);
 
         device = mockDevice();
         usagePoint = mockUsagePoint();
         meterActivation = mockMeterActivation();
     }
 
-
-    @Test(expected = IllegalArgumentException.class)
-    public void callEvaluateWithoutStateArgument(){
-        checkObject.evaluate(device, Instant.EPOCH);
-    }
-
     @Test
-    public void stageIsNotPresent(){
+    public void stageIsNotPresent() {
         when(state.getStage()).thenReturn(Optional.empty());
 
-        Optional<DeviceLifeCycleActionViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertFalse(result.isPresent());
+        assertThat(result).isEmpty();
     }
 
     @Test
-    public void stageIsOperational(){
+    public void stageIsOperational() {
         when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
 
-        Optional<DeviceLifeCycleActionViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertFalse(result.isPresent());
+        assertThat(result).isEmpty();
     }
 
     @Test
-    public void noMeterActivation(){
+    public void noMeterActivation() {
         when(device.getMeterActivation(Instant.EPOCH)).thenReturn(Optional.empty());
 
-        Optional<DeviceLifeCycleActionViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertFalse(result.isPresent());
+        assertThat(result).isEmpty();
     }
 
     @Test
-    public void noUsagePoint(){
+    public void noUsagePoint() {
         when(meterActivation.getUsagePoint()).thenReturn(Optional.empty());
 
-        Optional<DeviceLifeCycleActionViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertFalse(result.isPresent());
+        assertThat(result).isEmpty();
     }
 
     @Test
     public void noActiveMetrologyConfiguration() {
         when(usagePoint.getEffectiveMetrologyConfiguration(Instant.EPOCH)).thenReturn(Optional.empty());
 
-        Optional<DeviceLifeCycleActionViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertFalse(result.isPresent());
+        assertThat(result).isEmpty();
     }
 
 
@@ -120,16 +115,25 @@ public class MetrologyConfigInCorrectStateTest {
         when(usagePointState.getStage()).thenReturn(Optional.of(usagePointStage));
         when(usagePointStage.getName()).thenReturn(UsagePointStage.POST_OPERATIONAL.getKey());
 
-        Optional<DeviceLifeCycleActionViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertFalse(result.isPresent());
+        assertThat(result).isEmpty();
     }
 
     @Test
-    public void actionViolationConditionsAreMet(){
-        Optional<DeviceLifeCycleActionViolation> result = checkObject.evaluate(device, Instant.EPOCH, state);
+    public void actionViolationConditionsAreMet() {
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
 
-        assertTrue(result.isPresent());
+        assertThat(result).isPresent();
+    }
+
+    @Test
+    public void noInsightLicense() {
+        when(licenseService.getLicensedApplicationKeys()).thenReturn(Collections.emptyList());
+
+        Optional<ExecutableMicroCheckViolation> result = checkObject.execute(device, Instant.EPOCH, state);
+
+        assertThat(result).isEmpty();
     }
 
     private MeterActivation mockMeterActivation() {

@@ -6,6 +6,7 @@ package com.energyict.mdc.autoreschedule.impl;
 import com.elster.jupiter.customtask.CustomTaskOccurrence;
 import com.elster.jupiter.customtask.CustomTaskService;
 import com.elster.jupiter.customtask.CustomTaskStatus;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -16,11 +17,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 
 import java.time.Clock;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AutoRescheduleTaskExecutor implements TaskExecutor {
     private final CustomTaskService customTaskService;
+    private final EventService eventService;
     private final TransactionService transactionService;
     private final MeteringGroupsService meteringGroupsService;
     private final CommunicationTaskService communicationTaskService;
@@ -29,11 +30,12 @@ public class AutoRescheduleTaskExecutor implements TaskExecutor {
     private static final Logger LOGGER = Logger.getLogger(AutoRescheduleTaskExecutor.class.getName());
 
     AutoRescheduleTaskExecutor(CustomTaskService customTaskService,
-                               TransactionService transactionService,
+                               EventService eventService, TransactionService transactionService,
                                Thesaurus thesaurus,
                                MeteringGroupsService meteringGroupsService,
                                CommunicationTaskService communicationTaskService, Clock clock) {
         this.customTaskService = customTaskService;
+        this.eventService = eventService;
         this.transactionService = transactionService;
         this.meteringGroupsService = meteringGroupsService;
         this.communicationTaskService = communicationTaskService;
@@ -55,11 +57,14 @@ public class AutoRescheduleTaskExecutor implements TaskExecutor {
         try {
             doExecute(customTaskOccurrence, occurrenceLogger);
         } catch (Throwable t) {
+            postFailEvent(eventService, occurrence, t.getLocalizedMessage());
             try (TransactionContext context = transactionService.getContext()) {
                 endTask(customTaskOccurrence, CustomTaskStatus.FAILED);
                 context.commit();
             } finally {
-                LOGGER.severe("Error while executing task \"" + AutoRescheduleTaskFactory.DISPLAY_NAME + "\": " + t);
+                String errorMsg = "Error while executing task \"" + AutoRescheduleTaskFactory.DISPLAY_NAME + "\": " + t;
+                postFailEvent(eventService, occurrence, errorMsg);
+                LOGGER.severe(errorMsg);
                 t.printStackTrace();
             }
         }

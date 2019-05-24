@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -31,7 +32,6 @@ public class TransitionFailureEvent extends DeviceLifecycleEvent {
     private static final String COLON_SEPARATOR = ":";
     private static final String DASH_SEPARATOR = "-";
     private static final String SEMI_COLON_SEPARATOR = ";";
-    private int ruleId;
 
 
     @Inject
@@ -66,8 +66,14 @@ public class TransitionFailureEvent extends DeviceLifecycleEvent {
     }
 
     public boolean logOnSameIssue(String check) {
-        return Integer.parseInt(check) == 1;
-        //return Boolean.valueOf(true);
+        List<String> values = parseRawInputToList(check, COLON_SEPARATOR);
+        if (values.size() != 2) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
+                    "Device Life Cycle in Device Type",
+                    String.valueOf(2),
+                    String.valueOf(values.size()));
+        }
+        return Integer.parseInt(values.get(0)) == 1;
     }
 
     public boolean checkConditions(int ruleId, String deviceLifecycleTransitionProps) {
@@ -86,11 +92,5 @@ public class TransitionFailureEvent extends DeviceLifecycleEvent {
 
     private List<String> parseRawInputToList(String rawInput, String delimiter) {
         return Arrays.stream(rawInput.split(delimiter)).map(String::trim).collect(Collectors.toList());
-    }
-
-
-
-    private void setCreationRule(int ruleId){
-        this.ruleId = ruleId;
     }
 }

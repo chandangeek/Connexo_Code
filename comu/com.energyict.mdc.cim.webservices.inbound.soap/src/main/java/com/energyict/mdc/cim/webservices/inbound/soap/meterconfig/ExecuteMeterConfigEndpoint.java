@@ -15,7 +15,11 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
+
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
+																	
+																						 
+																					  
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
@@ -42,6 +46,7 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.HeaderType.Verb;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -102,8 +107,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort ,WebServiceAp
             MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
             if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                 // call asynchronously
-                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(
-                        getReplyAddress(requestMessage, MessageSeeds.UNABLE_TO_CREATE_DEVICE));
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                 createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                         OperationEnum.CREATE);
                 context.commit();
@@ -161,8 +165,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort ,WebServiceAp
             MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
             if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                 // call asynchronously
-                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(
-                        getReplyAddress(requestMessage, MessageSeeds.UNABLE_TO_CHANGE_DEVICE));
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                 createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                         OperationEnum.UPDATE);
                 context.commit();
@@ -189,30 +192,25 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort ,WebServiceAp
                     e.getLocalizedMessage(), e.getErrorCode());
         }
     }
-
-    private String getReplyAddress(MeterConfigRequestMessageType requestMessage, MessageSeeds errorMessage) throws FaultMessage {
-        String replyAddress = requestMessage.getHeader().getReplyAddress();
-        if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
-            throw faultMessageFactory.meterConfigFaultMessage(null, errorMessage,
-                    MessageSeeds.NO_REPLY_ADDRESS);
-        }
-        return replyAddress;
-    }
+  
 
     private EndPointConfiguration getOutboundEndPointConfiguration(String url) throws FaultMessage {
-        EndPointConfiguration endPointConfig = endPointConfigurationService.findEndPointConfigurations().stream()
-                .filter(EndPointConfiguration::isActive)
-                .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
-                .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url)).findFirst()
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null,
-                        MessageSeeds.NO_END_POINT_WITH_URL, url));
-        if (!webServicesService.isPublished(endPointConfig)) {
-            webServicesService.publishEndPoint(endPointConfig);
-        }
-        if (!webServicesService.isPublished(endPointConfig)) {
-            throw faultMessageFactory
-                    .meterConfigFaultMessageSupplier(null, MessageSeeds.NO_PUBLISHED_END_POINT_WITH_URL, url).get();
-        }
+		EndPointConfiguration endPointConfig=null;
+		if (!Checks.is(url).emptyOrOnlyWhiteSpace()) {
+			endPointConfig = endPointConfigurationService.findEndPointConfigurations().stream()
+					.filter(EndPointConfiguration::isActive)
+					.filter(endPointConfiguration -> !endPointConfiguration.isInbound())
+					.filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url)).findFirst()
+					.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null,
+							MessageSeeds.NO_END_POINT_WITH_URL, url));
+			if (!webServicesService.isPublished(endPointConfig)) {
+				webServicesService.publishEndPoint(endPointConfig);
+			}
+			if (!webServicesService.isPublished(endPointConfig)) {
+				throw faultMessageFactory
+						.meterConfigFaultMessageSupplier(null, MessageSeeds.NO_PUBLISHED_END_POINT_WITH_URL, url).get();
+			}
+		}
         return endPointConfig;
     }
 
@@ -296,14 +294,14 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort ,WebServiceAp
     }
 
     @Override
-    public MeterConfigResponseMessageType getMeterConfig(MeterConfigRequestMessageType getMeterConfigRequestMessage) throws FaultMessage {
+    public MeterConfigResponseMessageType getMeterConfig(MeterConfigRequestMessageType meterConfigRequestMessageType) throws FaultMessage {
         endPointHelper.setSecurityContext();
         try (TransactionContext context = transactionService.getContext()) {
-            MeterConfig meterConfig = getMeterConfigRequestMessage.getPayload().getMeterConfig();
+            MeterConfig meterConfig = meterConfigRequestMessageType.getPayload().getMeterConfig();
             //get mrid or name of device
-            if (Boolean.TRUE.equals(getMeterConfigRequestMessage.getHeader().isAsyncReplyFlag())) {
+            if (Boolean.TRUE.equals(meterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
                 // call asynchronously
-                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(getMeterConfigRequestMessage, MessageSeeds.UNABLE_TO_GET_DEVICE));
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
                 createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET);
                 context.commit();
                 return createQuickResponseMessage(HeaderType.Verb.REPLY);

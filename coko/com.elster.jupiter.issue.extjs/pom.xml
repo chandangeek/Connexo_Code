@@ -43,14 +43,9 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/issue</js.dir>
-                <package.name>com.elster.jupiter.issue.extjs</package.name>
-            </properties>
-        </profile>
-    </profiles>
+    <properties>
+        <js.dir>js/issue</js.dir>
+        <package.name>com.elster.jupiter.issue.extjs</package.name>
+    </properties>
 
 </project>

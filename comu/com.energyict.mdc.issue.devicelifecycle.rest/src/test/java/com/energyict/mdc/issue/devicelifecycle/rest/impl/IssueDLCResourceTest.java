@@ -8,7 +8,6 @@ package com.energyict.mdc.issue.devicelifecycle.rest.impl;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycle;
 
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
@@ -16,9 +15,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class IssueDLCResourceTest extends DeviceLifecycleIssueApplicationTest {
