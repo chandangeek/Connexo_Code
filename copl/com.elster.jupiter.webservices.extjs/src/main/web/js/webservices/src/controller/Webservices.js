@@ -11,7 +11,8 @@ Ext.define('Wss.controller.Webservices', {
         'Uni.view.window.Confirmation',
         'Wss.view.Add',
         'Wss.view.LandingPage',
-        'Wss.view.LoggingPage'
+        'Wss.view.LoggingPage',
+        'Wss.view.endpoint.History'
     ],
     stores: [
         'Wss.store.Endpoints',
@@ -85,6 +86,22 @@ Ext.define('Wss.controller.Webservices', {
             router: me.getController('Uni.controller.history.Router')
         });
         me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    showWebserviceHistory: function (endpointId) {
+        var me = this;
+        var store = me.getStore('Wss.store.webservice.History');
+
+        me.getModel('Wss.model.Endpoint').load(endpointId, {
+            success: function (record) {
+                var view = Ext.widget('webservice-history', {
+                    router: me.getController('Uni.controller.history.Router'),
+                    record: record
+                });
+                me.getApplication().fireEvent('changecontentevent', view);
+                me.getApplication().fireEvent('endpointload', record.get('name'));
+            }
+        });
     },
 
     // setDefaultSort: function () {
@@ -334,7 +351,6 @@ Ext.define('Wss.controller.Webservices', {
                     jsonData: {
                         version: record.get('version')
                     },
-
 
                     success: function () {
                     record.set('active', toState);
