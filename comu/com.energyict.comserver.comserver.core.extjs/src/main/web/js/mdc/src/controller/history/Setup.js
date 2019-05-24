@@ -1316,6 +1316,13 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'regdevices',
                             controller: 'Mdc.registereddevices.controller.RegisteredDevices',
                             action: 'showRegisteredDevicesOnGateway'
+                        },
+                        newissuemanually: {
+                                title: Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue'),
+                                route: 'newissuemanually',
+                                controller: 'Isu.controller.CreationManualRule',
+                                action: 'createNewManuallyIssue',
+                                privileges: Isu.privileges.Issue.viewAdminDevice
                         }
                     }
                 }

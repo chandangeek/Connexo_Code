@@ -17,6 +17,7 @@ Ext.define('Isu.view.issues.AddManuallyRuleItem', {
     returnLink: null,
     action: null,
     bulkAction: false,
+    deviceId: null,
 
     initComponent: function () {
         var me = this;
@@ -28,7 +29,8 @@ Ext.define('Isu.view.issues.AddManuallyRuleItem', {
                 ui: 'large',
                 bulkAction: me.bulkAction,
                 returnLink: me.returnLink,
-                action: me.action
+                action: me.action,
+                deviceId: me.deviceId
             }
         ];
 
