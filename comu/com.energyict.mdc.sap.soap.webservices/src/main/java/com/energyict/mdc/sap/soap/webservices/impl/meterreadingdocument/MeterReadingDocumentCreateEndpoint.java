@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmartMeterMeterReadingDocumentERPCreateRequestEIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMsg;
@@ -10,7 +11,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreater
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class MeterReadingDocumentCreateEndpoint implements SmartMeterMeterReadingDocumentERPCreateRequestEIn {
+public class MeterReadingDocumentCreateEndpoint implements SmartMeterMeterReadingDocumentERPCreateRequestEIn, WebServiceAplication {
 
     private final ServiceCallCommands serviceCallCommands;
 
@@ -25,5 +26,10 @@ public class MeterReadingDocumentCreateEndpoint implements SmartMeterMeterReadin
                 serviceCallCommands.createServiceCallAndTransition(MeterReadingDocumentCreateRequestMessage.builder()
                         .from(requestMessage)
                         .build()));
+    }
+
+    @Override
+    public String getApplication(){
+        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

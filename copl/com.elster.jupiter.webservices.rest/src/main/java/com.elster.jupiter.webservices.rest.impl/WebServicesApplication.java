@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -46,6 +47,7 @@ public class WebServicesApplication extends Application implements MessageSeedPr
     private volatile TransactionService transactionService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile OrmService ormService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -96,6 +98,9 @@ public class WebServicesApplication extends Application implements MessageSeedPr
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setOrmService(OrmService ormService){this.ormService = ormService;}
+
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
@@ -125,6 +130,8 @@ public class WebServicesApplication extends Application implements MessageSeedPr
             bind(EndPointConfigurationInfoFactory.class).to(EndPointConfigurationInfoFactory.class);
             bind(WebServicesInfoFactory.class).to(WebServicesInfoFactory.class);
             bind(EndpointConfigurationLogInfoFactory.class).to(EndpointConfigurationLogInfoFactory.class);
+            bind(EndpointConfigurationOccurrenceInfoFactorty.class).to(EndpointConfigurationOccurrenceInfoFactorty.class);
+            bind(ormService).to(OrmService.class);
             bind(webServicesService).to(WebServicesService.class);
             bind(transactionService).to(TransactionService.class);
             bind(thesaurus).to(Thesaurus.class);

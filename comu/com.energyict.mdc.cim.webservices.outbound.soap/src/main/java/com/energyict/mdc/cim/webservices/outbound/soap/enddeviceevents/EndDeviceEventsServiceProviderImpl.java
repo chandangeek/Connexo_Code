@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
@@ -44,7 +45,7 @@ import java.util.logging.Logger;
         service = {EndDeviceEventsServiceProvider.class, IssueWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + EndDeviceEventsServiceProvider.NAME})
-public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServiceProvider, IssueWebServiceClient, OutboundSoapEndPointProvider {
+public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServiceProvider, IssueWebServiceClient, OutboundSoapEndPointProvider, WebServiceAplication {
 
     private static final Logger LOGGER = Logger.getLogger(EndDeviceEventsServiceProviderImpl.class.getName());
     private static final String END_DEVICE_EVENTS = "EndDeviceEvents";
@@ -243,5 +244,10 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
         name.setNameType(nameType);
         name.setName(endDevice.getName());
         return name;
+    }
+
+    @Override
+    public String getApplication(){
+        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

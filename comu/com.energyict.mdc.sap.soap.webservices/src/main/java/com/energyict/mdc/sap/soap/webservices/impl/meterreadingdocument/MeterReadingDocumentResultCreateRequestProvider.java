@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentResult;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -27,7 +28,7 @@ import java.util.Optional;
         service = {MeterReadingDocumentResult.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterReadingDocumentResult.SAP_METER_READING_DOCUMENT_RESULT})
-public class MeterReadingDocumentResultCreateRequestProvider implements MeterReadingDocumentResult, OutboundSoapEndPointProvider {
+public class MeterReadingDocumentResultCreateRequestProvider implements MeterReadingDocumentResult, OutboundSoapEndPointProvider, WebServiceAplication {
 
     private final Map<String, MeterReadingDocumentERPResultCreateRequestEOut> ports = new HashMap<>();
 
@@ -72,5 +73,10 @@ public class MeterReadingDocumentResultCreateRequestProvider implements MeterRea
         Optional.ofNullable(ports.get(resultMessage.getUrl()))
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS))
                 .meterReadingDocumentERPResultCreateRequestEOut(resultMessage.getResultMessage());
+    }
+
+    @Override
+    public String getApplication(){
+        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

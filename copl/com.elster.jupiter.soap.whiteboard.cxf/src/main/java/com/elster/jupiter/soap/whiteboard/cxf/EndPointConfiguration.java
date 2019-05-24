@@ -11,6 +11,7 @@ import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +96,8 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
      */
     void log(LogLevel logLevel, String message);
 
+    void log(LogLevel logLevel, String message, EndPointOccurrence occurrence);
+
     /**
      * Log an entry for this end point (config). As real endpoints are runtime objects without persistent end, logging is done on the config instead.
      * An exception will always be logged on level SEVERE
@@ -104,6 +107,8 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
      */
     void log(String message, Exception exception);
 
+    void log(String message, Exception exception, EndPointOccurrence occurrence);
+
     /**
      * Retrieve a finder of logs of all end point entries. List is sorted, most recent message comes first.
      *
@@ -111,10 +116,13 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
      */
     Finder<EndPointLog> getLogs();
 
+    Finder<EndPointOccurrence> getOccurrences(Boolean sort);
+
     List<EndPointProperty> getProperties();
 
     Map<String, Object> getPropertiesWithValue();
 
     void setProperties(Map<String, Object> map);
 
+    EndPointOccurrence createEndPointOccurence(Instant startTime, String request);
 }

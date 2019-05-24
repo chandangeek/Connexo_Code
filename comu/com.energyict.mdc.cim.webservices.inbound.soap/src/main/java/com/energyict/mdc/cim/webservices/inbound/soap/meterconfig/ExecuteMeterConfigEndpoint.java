@@ -10,6 +10,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -50,7 +51,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
+public class ExecuteMeterConfigEndpoint implements MeterConfigPort ,WebServiceAplication {
 
     private static final String NOUN = "MeterConfig";
     private static final String METER_ITEM = NOUN + ".Meter";
@@ -315,5 +316,10 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         } catch (VerboseConstraintViolationException e) {
             throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG_EVENTS, e.getLocalizedMessage());
         }
+    }
+
+    @Override
+    public String getApplication(){
+        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

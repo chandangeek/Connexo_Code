@@ -14,6 +14,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -273,6 +274,26 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
+    public void log(LogLevel logLevel, String message, EndPointOccurrence occurrence) {
+        if (this.logLevel.compareTo(logLevel) > -1) {
+            if (transactionService.isInTransaction()) {
+                doLog(logLevel, message, occurrence);
+            } else {
+                try (TransactionContext context = transactionService.getContext()) {
+                    doLog(logLevel, message, occurrence);
+                    context.commit();
+                }
+            }
+        }
+    }
+
+    private void doLog(LogLevel logLevel, String message, EndPointOccurrence occurrence) {
+        EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
+                .init(this, message, logLevel, clock.instant(), occurrence);
+        log.save();
+    }
+
+    @Override
     public void log(String message, Exception exception) {
         if (transactionService.isInTransaction()) {
             doLog(message, exception);
@@ -287,6 +308,24 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     private void doLog(String message, Exception exception) {
         EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
                 .init(this, message, stackTrace2String(exception), LogLevel.SEVERE, clock.instant());
+        log.save();
+    }
+
+    @Override
+    public void log(String message, Exception exception, EndPointOccurrence occurrence) {
+        if (transactionService.isInTransaction()) {
+            doLog(message, exception, occurrence);
+        } else {
+            try (TransactionContext context = transactionService.getContext()) {
+                doLog(message, exception, occurrence);
+                context.commit();
+            }
+        }
+    }
+
+    private void doLog(String message, Exception exception, EndPointOccurrence occurrence) {
+        EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
+                .init(this, message, stackTrace2String(exception), LogLevel.SEVERE, clock.instant(), occurrence);
         log.save();
     }
 
@@ -305,6 +344,15 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
                         .isEqualTo(this), dataModel).sorted(EndPointLogImpl.Fields.timestamp.fieldName(), false);
 
     }
+
+    @Override
+    public Finder<EndPointOccurrence> getOccurrences(Boolean sort) {
+        return DefaultFinder.of(EndPointOccurrence.class,
+                Where.where(EndPointOccurrenceImpl.Fields.endPointConfiguration.fieldName())
+                        .isEqualTo(this), dataModel).sorted(EndPointOccurrenceImpl.Fields.startTime.fieldName(), sort);
+
+    }
+
 
     @Override
     public List<EndPointProperty> getProperties() {
@@ -360,5 +408,10 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public EndPointOccurrence createEndPointOccurence(Instant startTime, String request){
+        return  new EndPointOccurrenceImpl();//JUST IN CASE.PROBABLY WILL BE REMOVED
     }
 }

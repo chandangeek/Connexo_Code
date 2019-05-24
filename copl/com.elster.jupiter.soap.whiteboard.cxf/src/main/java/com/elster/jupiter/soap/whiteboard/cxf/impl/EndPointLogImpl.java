@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.HasId;
 
@@ -16,6 +17,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Created by bvn on 3/1/16.
@@ -27,7 +29,8 @@ public class EndPointLogImpl implements EndPointLog, HasId {
         logLevel("logLevel"),
         endPointConfiguration("endPointConfiguration"),
         message("message"),
-        stacetrace("stackTrace");
+        stacetrace("stackTrace"),
+        occurrence("occurrence");
 
         private final String javaFieldName;
 
@@ -57,6 +60,7 @@ public class EndPointLogImpl implements EndPointLog, HasId {
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String message;
     private String stackTrace;
+    private Reference<EndPointOccurrence> occurrence = Reference.empty();
 
     EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, LogLevel logLevel, Instant timestamp) {
         this.timestamp = timestamp;
@@ -66,9 +70,21 @@ public class EndPointLogImpl implements EndPointLog, HasId {
         return this;
     }
 
+    EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, LogLevel logLevel, Instant timestamp, EndPointOccurrence occurrence) {
+        init(endPointConfiguration, message, logLevel, timestamp);
+        this.occurrence.set(occurrence);
+        return this;
+    }
+
     EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, String stacetrace, LogLevel logLevel, Instant timestamp) {
         init(endPointConfiguration, message, logLevel, timestamp);
         this.stackTrace = stacetrace;
+        return this;
+    }
+
+    EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, String stacetrace, LogLevel logLevel, Instant timestamp, EndPointOccurrence occurrence) {
+        init(endPointConfiguration, message, stacetrace, logLevel, timestamp);
+        this.occurrence.set(occurrence);
         return this;
     }
 
@@ -107,6 +123,11 @@ public class EndPointLogImpl implements EndPointLog, HasId {
         } else {
             Save.CREATE.save(this.dataModel, this, Save.Create.class);
         }
+    }
+
+    @Override
+    public Optional<EndPointOccurrence> getOccurrence(){
+        return this.occurrence.getOptional();
     }
 
     @Override

@@ -20,6 +20,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
@@ -67,7 +68,7 @@ import java.util.stream.Stream;
         service = {DataExportWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkCreateRequestProvider.NAME})
-public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilsTmeSersERPItmBulkCrteReqMsg> {
+public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilsTmeSersERPItmBulkCrteReqMsg> implements WebServiceAplication {
     static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateRequest_C_Out";
     private static final QName QNAME = new QName("urn:webservices.wsdl.soap.sap.mdc.energyict.com:utilitiestimeseriesbulkcreaterequest",
             "UtilitiesTimeSeriesERPItemBulkCreateRequest_E_OutService");
@@ -267,5 +268,10 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         typeCode.setValue(code);
         status.setUtilitiesTimeSeriesItemTypeCode(typeCode);
         return status;
+    }
+
+    @Override
+    public String getApplication(){
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
 }
