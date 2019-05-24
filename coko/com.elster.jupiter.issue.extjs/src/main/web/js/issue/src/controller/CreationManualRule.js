@@ -42,7 +42,7 @@ Ext.define('Isu.controller.CreationManualRule', {
 
         if (router.arguments && router.arguments.deviceId){
             deviceId = router.arguments.deviceId;
-            returnLink = router.getRoute('devices').buildUrl({'deviceId' : deviceId});
+            returnLink = router.getRoute('devices').buildUrl() + '/' + deviceId;
         }
 
         var widget = Ext.widget('issue-manually-creation-rules-item-add',{
@@ -50,21 +50,7 @@ Ext.define('Isu.controller.CreationManualRule', {
                 router: router,
                 deviceId: deviceId
             });
-        /*var manualIssue = Ext.create('Isu.model.ManuallyRuleItem'),
-        dependencies = ['Isu.store.IssueDevices', 'Isu.store.IssueReasons'],
-        dependenciesCounter = dependencies.length,
-        onDependenciesLoaded = function () {
-            dependenciesCounter--;
-            if (!dependenciesCounter) {
-                widget.down('issue-manually-creation-rules-item').loadRecord(manualIssue);
-                widget.setLoading(false);
-            }
-        };*/
         this.getApplication().fireEvent('changecontentevent', widget);
-        /*widget.setLoading();
-        Ext.Array.each(dependencies, function (store) {
-            me.getStore(store).load(onDependenciesLoaded);
-        });*/
 
     },
 

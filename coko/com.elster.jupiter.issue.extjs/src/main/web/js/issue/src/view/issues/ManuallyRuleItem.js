@@ -41,18 +41,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     name: 'deviceId',
                     queryMode: 'local',
                     itemId: 'deviceId',
-                    hidden: me.bulkAction,
-                    listeners: {
-                       afterrender: function () {
-                          if (me.deviceId){
-                              var device = this.store.find('name', me.deviceId);
-                              if (device !== -1){
-                                  this.setRawValue(me.deviceId);
-                                  this.setValue(this.store.getAt(device).get('id'));
-                              }
-                          }
-                       }
-                    }
+                    hidden: me.bulkAction
                },
                {
                     itemId: 'issueReason',
@@ -259,22 +248,6 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     emptyText: Uni.I18n.translate('general.provideComment','ISU','Provide a comment (optionally)'),
                     height: 160
                },
- /*              {
-                    itemId: 'actionsAtCreationTimeHeader',
-                    xtype: 'displayfield',
-                    htmlEncode: false,
-                    style: {
-                       margin: '0 0 0 50px'
-                    },
-                    value: '<span style="font-size:15px;font-weight:bold">' + Uni.I18n.translate('issues.actionsAtCreationTime', 'ISU', 'Actions performed at creation time') + '</span>'
-               },
-               {
-                    itemId: 'actionsAtCreationTimeComment',
-                    xtype: 'textareafield',
-                    fieldLabel: Uni.I18n.translate('general.comment', 'ISU', 'Comment'),
-                    emptyText: Uni.I18n.translate('general.provideComment','ISU','Provide a comment (optionally)'),
-                    height: 160
-               },*/
                {
                     xtype: 'fieldcontainer',
                     ui: 'actions',
