@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.MeteringService;
@@ -30,12 +31,13 @@ public class EstimationHandlerFactory implements MessageHandlerFactory {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
     private volatile MeteringService meteringService;
+    private volatile EventService eventService;
 
     private User user;
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new EstimationTaskExecutor(estimationService, validationService, meteringService, timeService, transactionService, threadPrincipalService, getUser()));
+        return taskService.createMessageHandler(new EstimationTaskExecutor(estimationService, validationService, meteringService, timeService, transactionService, eventService, threadPrincipalService, getUser()));
     }
 
     @Reference
@@ -71,6 +73,11 @@ public class EstimationHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference

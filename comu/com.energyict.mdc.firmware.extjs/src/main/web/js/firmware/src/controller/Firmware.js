@@ -299,7 +299,8 @@ Ext.define('Fwc.controller.Firmware', {
                                     me.getContainer().down('firmware-edit #firmware-min-meter-version-common').hide();
                                }
                                if (!Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
-                                    me.getContainer().down('firmware-edit #firmware-min-communication-version-common').hide();
+                                   if(me.getContainer().down('firmware-edit #firmware-min-communication-version-common'))
+                                       me.getContainer().down('firmware-edit #firmware-min-communication-version-common').hide();
                                }
                           }
                     });
@@ -328,12 +329,12 @@ Ext.define('Fwc.controller.Firmware', {
 
                     if (firmware.getFirmwareType().getId() === 'caConfigImage') {
                         me.getFirmwareForm().down('#text-image-identifier').hide();
-                        me.getFirmwareForm().down('#text-firmware-version').setFieldLabel(
-                            Uni.I18n.translate('general.versionImageIdentifier', 'FWC', 'Version/Image identifier'));
+                        if (me.getFirmwareForm().down('#text-firmware-version'))
+                            me.getFirmwareForm().down('#text-firmware-version').setFieldLabel(Uni.I18n.translate('general.versionImageIdentifier', 'FWC', 'Version/Image identifier'));
                     } else {
                         me.getFirmwareForm().down('#text-image-identifier').show();
-                        me.getFirmwareForm().down('#text-firmware-version').setFieldLabel(
-                            Uni.I18n.translate('general.version', 'FWC', 'Version'));
+                        if (me.getFirmwareForm().down('#text-firmware-version'))
+                            me.getFirmwareForm().down('#text-firmware-version').setFieldLabel(Uni.I18n.translate('general.version', 'FWC', 'Version'));
                     }
 
                 },
@@ -431,6 +432,13 @@ Ext.define('Fwc.controller.Firmware', {
         form.down('uni-form-error-message').hide();
         form.getForm().clearInvalid();
         record = form.updateRecord().getRecord();
+
+        if (form.xtype == 'firmware-form-edit-ghost') {
+            record.setFirmwareStatus(form.down('firmware-status').getStore()
+                .findRecord('id', form.down('firmware-status')
+                .getValue().firmwareStatus)
+            );
+        }
         var input = form.down('firmware-field-file').button.fileInputEl.dom,
             file = input.files[0],
             backUrl = form.router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl(),
@@ -759,13 +767,15 @@ Ext.define('Fwc.controller.Firmware', {
             router = this.getController('Uni.controller.history.Router'),
             form = me.getFirmwareOptionsEditForm(),
             allowedOptionsError = form.down('#allowedOptionsError'),
-            backUrl = router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl();
+            backUrl = router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl(),
+            formGroupErrorItem = form.down('#masterOptionsError');
 
         this.tab2Activate = 0;
         if (!form.updateRecord()){
-            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors.title', 'FWC', 'Couldn\'t perform your action'),
-                 Uni.I18n.translate('firmware.specs.save.validationError', 'FWC', 'You must select at least one item in the group'));
+            if (formGroupErrorItem) formGroupErrorItem.show();
             return;
+        }else{
+            if (formGroupErrorItem) formGroupErrorItem.hide();
         }
         allowedOptionsError.removeAll();
         form.getRecord().save({

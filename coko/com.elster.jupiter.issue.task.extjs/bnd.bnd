@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.elster.jupiter.issue.task.extjs
+Export-Package: !com.elster.jupiter.issue.task.extjs
+-include: -../development.bnd

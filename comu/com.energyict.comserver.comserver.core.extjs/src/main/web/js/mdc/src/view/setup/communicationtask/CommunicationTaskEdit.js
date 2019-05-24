@@ -176,6 +176,9 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                         value: 3,
                         maxValue: 10,
                         minValue: 1,
+                        listeners: {
+                            blur: me.numberFieldValidation
+                        }
                     },
 
                     {
@@ -224,6 +227,14 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
 
         me.callParent(arguments);
         me.setEdit(me.isEdit(), me.returnLink);
+    },
+
+    numberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue || value > field.maxValue) {
+            field.setValue(field.minValue);
+        }
     }
 });
 

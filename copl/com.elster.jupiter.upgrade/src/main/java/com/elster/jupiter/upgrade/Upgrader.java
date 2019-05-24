@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 
 import aQute.bnd.annotation.ConsumerType;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -37,6 +38,15 @@ public interface Upgrader {
             Logger.getLogger(name)
                     .severe("Exception during upgrade by " + name + System.lineSeparator() +
                             "Failed statement: " + sql);
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    default <T> T executeQuery(DataModel dataModel, String sql, SqlExceptionThrowingFunction<ResultSet, T> resultMapper) {
+        try (Connection connection = dataModel.getConnection(false);
+             Statement statement = connection.createStatement()) {
+            return executeQuery(statement, sql, resultMapper);
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }

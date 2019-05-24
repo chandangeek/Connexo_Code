@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
@@ -24,10 +25,11 @@ public class DataExportMessageHandlerFactory implements MessageHandlerFactory {
     private volatile TransactionService transactionService;
     private volatile Clock clock;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile EventService eventService;
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new DataExportTaskExecutor(dataExportService, transactionService, dataExportService.getLocalFileWriter(), dataExportService.getThesaurus(), clock, threadPrincipalService));
+        return taskService.createMessageHandler(new DataExportTaskExecutor(dataExportService, transactionService, dataExportService.getLocalFileWriter(), dataExportService.getThesaurus(), clock, threadPrincipalService, eventService));
     }
 
     @Reference
@@ -53,5 +55,10 @@ public class DataExportMessageHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 }

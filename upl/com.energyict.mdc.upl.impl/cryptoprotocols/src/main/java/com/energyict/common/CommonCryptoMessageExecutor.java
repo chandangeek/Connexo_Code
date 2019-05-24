@@ -1,17 +1,18 @@
 package com.energyict.common;
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.FrameCounterCache;
 import com.energyict.protocol.exception.DeviceConfigurationException;
@@ -22,8 +23,11 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newMasterKeyAttributeName;
 
 /**
  * Copyrights EnergyICT
@@ -105,7 +109,19 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
         return new IrreversibleKeyImpl(irreversibleKeyAndLabel).toBase64ByteArray();
     }
 
- /*   *//** //TODO: ServiceKey not supported atm in Connexo
+    public void changeHLSSecretUsingServiceKey(OfflineDeviceMessage offlineDeviceMessage){
+        //TODO: ServiceKey not supported atm in Connexo
+    }
+
+    public void changeAuthenticationKeyUsingServiceKey(OfflineDeviceMessage offlineDeviceMessage){
+        //TODO: ServiceKey not supported atm in Connexo
+    }
+
+    public void changeEncryptionKeyUsingServiceKey(OfflineDeviceMessage offlineDeviceMessage){
+        //TODO: ServiceKey not supported atm in Connexo
+    }
+
+    /* ** //TODO: ServiceKey not supported atm in Connexo
      * Writing of the global keys (AK and EK) must be combined.
      * Returns the results {@link CollectedMessage}s for the messages.
      *//*
@@ -433,4 +449,5 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
             throw new ProtocolException("DlmsCache instance (" + dlmsCache.getClass().toString() + ") should implement interface FrameCounterCache.");
         }
     }
+
 }

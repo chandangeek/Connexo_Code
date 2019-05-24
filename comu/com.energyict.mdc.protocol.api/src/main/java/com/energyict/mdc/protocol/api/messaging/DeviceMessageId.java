@@ -665,6 +665,10 @@ public enum DeviceMessageId {
     InstallWirelessMbusDevices(24017),
     ScanAndInstallWiredMbusDeviceForGivenMeterIdentification(24018),
     InstallWirelessMbusDeviceForGivenMeterIdentification(24019),
+    MBUS_TRANSFER_FUAK(24020),
+    MBUS_TRANSFER_P2KEY(24021),
+    MBUS_ESMR5_FIRMWARE_UPGRADE(24022),
+    MBUS_READ_DETAILED_VERSION_INFORMATION_TAG(24023),
 
     OPUS_CONFIGURATION_SET_OS_NUMBER(25001),
     OPUS_CONFIGURATION_SET_PASSWORD(25002),

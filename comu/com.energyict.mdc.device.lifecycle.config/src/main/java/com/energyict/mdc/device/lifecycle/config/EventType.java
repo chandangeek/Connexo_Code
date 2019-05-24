@@ -8,7 +8,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import static com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService.EVENT_NAMESPACE;
 
@@ -51,6 +50,27 @@ public enum EventType {
                     .withProperty("modTime", ValueType.LONG, "modTime")
                     .create();
         };
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
+
+    TRANSITION_DONE("transition/DONE"){
+
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(DeviceLifeCycleConfigurationService.COMPONENT_NAME)
+                    .category("Crud")
+                    .scope("System")
+                    .withProperty("device", ValueType.LONG, "device")
+                    .withProperty("lifecycle", ValueType.LONG, "lifecycle")
+                    .withProperty("modTime", ValueType.LONG, "modTime")
+                    .create();
+        }
+
         @Override
         EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
             return eventTypeBuilder.shouldPublish();

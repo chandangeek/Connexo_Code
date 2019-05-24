@@ -38,6 +38,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DefaultMicroCheck;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
@@ -113,6 +114,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private volatile MeteringZoneService meteringZoneService;
     private volatile ServiceCallService serviceCallService;
     private volatile DeviceMicroCheckFactoryImpl deviceMicroCheckFactory;
+    private volatile DeviceService deviceService;
 
     // For OSGi purposes
     public DeviceLifeCycleServiceImpl() {
@@ -138,7 +140,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                                       ValidationService validationService,
                                       MeteringZoneService meteringZoneService,
                                       ServiceCallService serviceCallService,
-                                      OrmService ormService) {
+                                      OrmService ormService,
+                                      DeviceService deviceService) {
         this();
         setNlsService(nlsService);
         setThreadPrincipalService(threadPrincipalService);
@@ -158,6 +161,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         setMeteringZoneService(meteringZoneService);
         setServiceCallService(serviceCallService);
         setOrmService(ormService);
+        this.setDeviceService(deviceService);
         activate();
     }
 
@@ -249,6 +253,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(DeviceLifeCycleService.COMPONENT_NAME, "Device Life Cycle checks & actions");
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Activate
@@ -396,12 +405,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
             if (action instanceof AuthorizedTransitionAction) {
                 AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) action;
                 ActionDoesNotRelateToDeviceStateException exception = new ActionDoesNotRelateToDeviceStateException(transitionAction, device, this.thesaurus, MessageSeeds.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
-                postEvent(action, device, exception.getLocalizedMessage());
+                postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
                 throw exception;
             } else {
                 AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) action;
                 ActionDoesNotRelateToDeviceStateException exception = new ActionDoesNotRelateToDeviceStateException(businessProcessAction, device, this.thesaurus, MessageSeeds.BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
-                postEvent(action, device, exception.getLocalizedMessage());
+                postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
                 throw exception;
             }
         }
@@ -442,7 +451,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 .collect(Collectors.toSet());
         if (!missingRequiredPropertySpecNames.isEmpty()) {
             RequiredMicroActionPropertiesException exception = new RequiredMicroActionPropertiesException(this.thesaurus, MessageSeeds.MISSING_REQUIRED_PROPERTY_VALUES, missingRequiredPropertySpecNames);
-            postEvent(action, device, exception.getLocalizedMessage());
+            postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
             throw exception;
         }
     }
@@ -471,7 +480,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         if (lastStateChangeTimestamp.isPresent() && !effectiveTimestamp.isAfter(lastStateChangeTimestamp.get())) {
             EffectiveTimestampNotAfterLastStateChangeException exception = new EffectiveTimestampNotAfterLastStateChangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE,
                     device, effectiveTimestamp, lastStateChangeTimestamp.get(), getLongDateFormatForCurrentUser());
-            postEvent(action, device, exception.getLocalizedMessage());
+            postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
             throw exception;
         }
     }
@@ -487,7 +496,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         if (!range.contains(effectiveTimestamp)) {
             EffectiveTimestampNotInRangeException exception = new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE,
                     lowerBound, upperBound, getLongDateFormatForCurrentUser());
-            postEvent(action, device, exception.getLocalizedMessage());
+            postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
             throw exception;
         }
     }
@@ -579,7 +588,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 .collect(Collectors.toList());
         if (!violations.isEmpty()) {
             MultipleMicroCheckViolationsException exception = new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
-            postEvent(action, device, exception.getLocalizedMessage());
+            postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
             throw exception;
         }
     }
@@ -588,7 +597,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         action.getActions()
                 .stream()
                 .map(this.microActionFactory::from)
-                .forEach(a -> this.execute(a, device, effectiveTimestamp, properties));
+                .forEach(a ->
+                        deviceService
+                                .findDeviceById(device.getId())
+                                .ifPresent(modDevice ->
+                                        this.execute(a, modDevice, effectiveTimestamp, properties))
+                );
     }
 
     private void execute(ServerMicroAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
@@ -608,6 +622,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                             Collections.emptyMap())
                     .publish();
         });
+        postEventForTransitionDone(device);
+
     }
 
     @Override
@@ -671,12 +687,17 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         return amrSystem.findMeter(String.valueOf(device.getId())).map(EndDevice.class::cast);
     }
 
-    private void postEvent(AuthorizedAction action, Device device, String cause) {
+    private void postEventForTransitionFailed(AuthorizedAction action, Device device, String cause) {
         if(transactionService.isInTransaction()){
             transactionService.rollback();
         }
         eventService.postEvent(EventType.TRANSITION_FAILED.topic(),
                 TransitionFailedEventInfo.forFailure(action, device, cause, Instant.now(clock)));
+
+    }
+
+    private void postEventForTransitionDone(Device device) {
+        eventService.postEvent(EventType.TRANSITION_DONE.topic(), TransitionDoneEventInfo.forDevice(device, Instant.now(clock)));
 
     }
 

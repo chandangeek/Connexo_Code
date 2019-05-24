@@ -213,7 +213,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                        combobox.hide();
                        combobox.nextSibling('uni-default-button').hide();
                        combobox.up('fieldcontainer').add({
-                                                      itemId: cbxId + '-dispfld',
+                                                      itemId: cbxId + '-common-dispfld',
                                                       xtype: 'displayfield',
                                                       value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
                                                       fieldStyle: 'color: red'

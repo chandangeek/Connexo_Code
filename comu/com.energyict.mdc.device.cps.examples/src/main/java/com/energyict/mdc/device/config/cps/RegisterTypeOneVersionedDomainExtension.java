@@ -11,8 +11,10 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.data.Device;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -27,7 +29,8 @@ public class RegisterTypeOneVersionedDomainExtension extends AbstractVersionedPe
         TEST_ATTRIBUTE_STRING("testString", "test_string"),
         TEST_ATTRIBUTE_ENUM_NUMBER("testEnumNumber", "test_enum_number"),
         TEST_ATTRIBUTE_ENUM_STRING("testEnumString", "test_enum_string"),
-        TEST_ATTRIBUTE_BOOLEAN("testBoolean", "test_boolean");
+        TEST_ATTRIBUTE_BOOLEAN("testBoolean", "test_boolean"),
+        DEVICE_REF("deviceRef", "device");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -47,6 +50,7 @@ public class RegisterTypeOneVersionedDomainExtension extends AbstractVersionedPe
     }
 
     private Reference<RegisterSpec> registerSpec = Reference.empty();
+    private Reference<Device> deviceRef = ValueReference.absent();
 
     private BigDecimal device;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")

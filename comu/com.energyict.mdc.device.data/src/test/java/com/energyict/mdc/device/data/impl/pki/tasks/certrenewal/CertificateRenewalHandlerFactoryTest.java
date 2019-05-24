@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl.pki.tasks.certrenewal;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -59,6 +60,8 @@ public class CertificateRenewalHandlerFactoryTest {
     @Mock
     private TaskOccurrence taskOccurrence;
     @Mock
+    private EventService eventService;
+    @Mock
     private Clock clock;
 
     @Before
@@ -75,47 +78,47 @@ public class CertificateRenewalHandlerFactoryTest {
 
     @Test
     public void testGetCertificateRenewalProcessDefinitionProperty() {
-        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
+        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService, eventService);
         verify(bundleContext, times(1)).getProperty(CERTIFICATE_RENEWAL_PROCESS_DEFINITION_PROPERTY);
     }
 
     @Test (expected = PropertyValueRequiredException.class)
     public void testNoCertificateRenewalProcessDefinitionProperty() {
         when(bundleContext.getProperty(CERTIFICATE_RENEWAL_PROCESS_DEFINITION_PROPERTY)).thenReturn(null);
-        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
+        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService, eventService);
         verify(bundleContext, times(1)).getProperty(CERTIFICATE_RENEWAL_PROCESS_DEFINITION_PROPERTY);
     }
 
     @Test
     public void testGetCertificateRenewalDaysTillExpirationProperty() {
-        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
+        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService, eventService);
         verify(bundleContext, times(1)).getProperty(CERTIFICATE_DAYS_TILL_EXPIRATION_PROPERTY);
     }
 
     @Test (expected = PropertyValueRequiredException.class)
     public void testNoCertificateRenewalDaysTillExpirationProperty() {
         when(bundleContext.getProperty(CERTIFICATE_DAYS_TILL_EXPIRATION_PROPERTY)).thenReturn(null);
-        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
+        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService, eventService);
         verify(bundleContext, times(1)).getProperty(CERTIFICATE_DAYS_TILL_EXPIRATION_PROPERTY);
     }
 
     @Test
     public void testGetCertificateRenewalTask() {
-        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
+        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService, eventService);
         certificateRenewalHandlerFactory.getTask();
         verify(taskService, times(1)).getRecurrentTask(CERTIFICATE_RENEWAL_TASK_NAME);
     }
 
     @Test
     public void testRunCertificateRenewalTask() {
-        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
+        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService, eventService);
         certificateRenewalHandlerFactory.runNow();
         verify(recurrentTask, times(1)).runNow(any(CertificateRenewalTaskExecutor.class));
     }
 
     @Test
     public void testCertificateRenewalTaskDeactivate() {
-        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
+        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService, eventService);
         certificateRenewalHandlerFactory.deactivate();
         assertThat(certificateRenewalHandlerFactory.getCertRenewalBpmProcessDefinitionId()).isNull();
         assertThat(certificateRenewalHandlerFactory.getCertRenewalExpitationDays()).isNull();
@@ -123,7 +126,7 @@ public class CertificateRenewalHandlerFactoryTest {
 
     @Test
     public void testCertificateRenewalTaskActivate() {
-        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService);
+        certificateRenewalHandlerFactory = new CertificateRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService, eventService);
         assertThat(certificateRenewalHandlerFactory.getCertRenewalBpmProcessDefinitionId()).isEqualTo(CERTIFICATE_RENEWAL_PROCESS_DEFINITION_VALUE);
         assertThat(certificateRenewalHandlerFactory.getCertRenewalExpitationDays()).isEqualTo(Integer.parseInt(CERTIFICATE_DAYS_TILL_EXPIRATION_VALUE));
     }

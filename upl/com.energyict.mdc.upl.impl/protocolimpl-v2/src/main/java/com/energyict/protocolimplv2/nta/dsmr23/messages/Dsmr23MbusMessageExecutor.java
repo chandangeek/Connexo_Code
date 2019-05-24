@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
@@ -139,6 +140,10 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
 
     private void doDecommission(OfflineDeviceMessage pendingMessage) throws IOException {
         getMBusClient(pendingMessage.getDeviceSerialNumber()).deinstallSlave();
+    }
+
+    protected void setCryptoserverMbusEncryptionKeys(OfflineDeviceMessage pendingMessage) throws IOException {
+        throw new IOException("Received message to renew MBus keys using the Cryptoserver, but Cryptoserver usage is not supported in this protocol");
     }
 
     protected void setMbusEncryptionKeys(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -335,5 +340,9 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
     private enum MbusCorrectedMode {
         USE_CORRECTED_MODE,
         USE_UNCORRECTED_MODE
+    }
+
+    protected ObisCode getMbusClientObisCode(String serialNumber) throws IOException {
+        return getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode();
     }
 }

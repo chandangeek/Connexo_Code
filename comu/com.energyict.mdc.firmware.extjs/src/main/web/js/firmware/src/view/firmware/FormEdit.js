@@ -106,7 +106,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                                             combobox.hide();
                                             combobox.nextSibling('uni-default-button').hide();
                                             combobox.up('fieldcontainer').add({
-                                                  itemId: 'firmware-min-meter-version-dispfld',
+                                                  itemId: 'firmware-min-communication-version-common-dispfld',
                                                   xtype: 'displayfield',
                                                   value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
                                                   fieldStyle: 'color: red'
@@ -180,7 +180,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                                             combobox.hide();
                                             combobox.nextSibling('uni-default-button').hide();
                                             combobox.up('fieldcontainer').add({
-                                                  itemId: 'firmware-min-communication-version-dispfld',
+                                                  itemId: 'firmware-min-communication-version-common-dispfld',
                                                   xtype: 'displayfield',
                                                   value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
                                                   fieldStyle: 'color: red'
