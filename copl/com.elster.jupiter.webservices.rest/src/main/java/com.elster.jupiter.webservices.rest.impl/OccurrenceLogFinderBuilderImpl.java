@@ -25,16 +25,18 @@ public class OccurrenceLogFinderBuilderImpl implements  OccurrenceLogFinderBuild
     }
 
 
-    public OccurrenceLogFinderBuilder withOccurrenceId(long occurrenceId){
+    public OccurrenceLogFinderBuilder withOccurrenceId(EndPointOccurrence epoc){
         /*if (occur)
         {*/
-            this.condition = this.condition.and(where("occurrence").isEqualTo(occurrenceId));
+            this.condition = this.condition.and(where("occurrence").isEqualTo(epoc));
         //}
         return this;
 
     };
 
     public Finder<EndPointLog> build(){
-        return DefaultFinder.of(EndPointLog.class, condition, dataModel/*, ImportSchedule.class*/);
+        return DefaultFinder.of(EndPointLog.class,  condition, dataModel)
+                .defaultSortColumn("timestamp");
+        //return DefaultFinder.of(EndPointLog.class, condition, dataModel/*, ImportSchedule.class*/);
     };
 }

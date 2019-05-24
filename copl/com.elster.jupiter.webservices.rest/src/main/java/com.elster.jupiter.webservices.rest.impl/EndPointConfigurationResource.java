@@ -363,10 +363,19 @@ public class EndPointConfigurationResource {
     public PagedInfoList getLogForOccurrence(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
 
         System.out.println("getLogForOccurrence !!!!"+id);
+
+
+
         DataModel dataModel = ormService.getDataModel("WebServicesService").get();
+        Optional<EndPointOccurrence> epOcc = dataModel.mapper(EndPointOccurrence.class)
+                .getUnique("id", id);
+
         OccurrenceLogFinderBuilder finderBuilder =  new OccurrenceLogFinderBuilderImpl(dataModel, Condition.TRUE);
 
-        finderBuilder.withOccurrenceId(id);
+        if(epOcc.isPresent()){
+            finderBuilder.withOccurrenceId(epOcc.get());
+        }
+
 
         List<EndPointLog> logs = finderBuilder.build().from(queryParameters).find();
 

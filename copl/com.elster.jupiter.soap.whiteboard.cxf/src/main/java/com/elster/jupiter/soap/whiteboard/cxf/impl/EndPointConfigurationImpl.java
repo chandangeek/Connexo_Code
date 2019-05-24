@@ -349,7 +349,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     public Finder<EndPointOccurrence> getOccurrences(Boolean sort) {
         return DefaultFinder.of(EndPointOccurrence.class,
                 Where.where(EndPointOccurrenceImpl.Fields.endPointConfiguration.fieldName())
-                        .isEqualTo(this), dataModel).sorted(EndPointLogImpl.Fields.timestamp.fieldName(), sort);
+                        .isEqualTo(this), dataModel).sorted(EndPointOccurrenceImpl.Fields.startTime.fieldName(), sort);
 
     }
 
