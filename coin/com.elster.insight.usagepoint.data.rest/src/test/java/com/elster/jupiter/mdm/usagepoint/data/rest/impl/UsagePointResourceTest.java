@@ -602,8 +602,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.linkMeters()).thenReturn(linker);
 
         Long timeStamp = 1555659900000L;
-        System.out.println(Entity.json(timeStamp));
-        Response response = target("/usagepoints/"+USAGE_POINT_NAME+"/meterroles/key1/unlink/").request().put(Entity.json(timeStamp));
+
+        Response response = target("/usagepoints/"+USAGE_POINT_NAME+"/meterroles/key1/unlink/"+timeStamp).request().put(Entity.json(timeStamp));
         assertThat(response.getStatus()).isEqualTo(200);
 
         verify(linker).clear(Instant.ofEpochMilli(timeStamp), meterRole);
