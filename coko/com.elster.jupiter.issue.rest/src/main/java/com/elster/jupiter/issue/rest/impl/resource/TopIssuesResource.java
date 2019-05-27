@@ -104,7 +104,7 @@ public class TopIssuesResource extends BaseResource {
                         and(conditionStatus).
                         and(conditionUser.
                                 or(conditionNullUser.
-                                        and(conditionWG))), 1, 5, Order.ascending(PRIORITYTOTAL));
+                                        and(conditionWG))), 1, 5, Order.descending(PRIORITYTOTAL));
         return new
 
                 TopIssuesInfo(issues, issueTotalUserAssignedCount, issueTotalWorkGroupAssignedCount);
