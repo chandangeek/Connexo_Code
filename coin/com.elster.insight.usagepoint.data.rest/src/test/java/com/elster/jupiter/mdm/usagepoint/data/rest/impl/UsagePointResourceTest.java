@@ -30,6 +30,8 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -88,6 +90,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -166,6 +169,12 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private PropertyValueConverter propertyValueConverter;
     @Mock
     private UsagePointStateChangeRequest usagePointStateChangeRequest;
+    @Mock
+    private UsagePointInfoFactory usagePointInfoFactory;
+    @Mock
+    private ResourceHelper resourceHelper;
+
+
 
     @Before
     public void setUp1() {
@@ -579,6 +588,29 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         assertThat(response.getStatus()).isEqualTo(200);
         verify(effectiveMetrologyConfigurationOnUsagePoint, times(1)).close(now);
+    }
+
+    @Test
+    public void testUnlinkMeterRoleFromUsagePoint() {
+
+        Meter meter1 = mock(Meter.class);
+        when(meter1.getName()).thenReturn("meter1");
+        when(meteringService.findMeterByName("meter1")).thenReturn(Optional.of(meter1));
+
+        MeterRole meterRole = mock(MeterRole.class);
+        when(meterRole.getKey()).thenReturn("key1");
+        when(metrologyConfigurationService.findMeterRole("key1")).thenReturn(Optional.of(meterRole));
+
+        UsagePointMeterActivator linker = mock(UsagePointMeterActivator.class);
+        when(usagePoint.linkMeters()).thenReturn(linker);
+
+        Long timeStamp = 1555659900000L;
+
+        Response response = target("/usagepoints/"+USAGE_POINT_NAME+"/meterroles/key1/unlink/"+timeStamp).request().put(Entity.json(timeStamp));
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        verify(linker).clear(Instant.ofEpochMilli(timeStamp), meterRole);
+        verify(linker).complete();
     }
 
 
