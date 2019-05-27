@@ -13,7 +13,8 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
     'Wss.store.endpoint.Occurrence',
     'Wss.view.HistoryTopFilter',
     'Wss.view.webservice.HistoryPreviewContainer',
-    'Wss.view.endpoint.OccurrenceForm'
+    'Wss.view.endpoint.OccurrenceForm',
+    'Wss.view.endpoint.OccurrenceGrid'
   ],
 
   initComponent: function () {
@@ -42,6 +43,9 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
             xtype: 'webservice-history-occurence-form',
             record: me.occurrence,
             frame: true,
+          },
+          {
+            xtype: 'webservice-history-occurrence-grid',
           }
         ]
     };
