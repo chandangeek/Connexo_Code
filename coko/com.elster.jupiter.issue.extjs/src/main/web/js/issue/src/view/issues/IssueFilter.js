@@ -141,10 +141,10 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 }
             },
             {
-                type: 'combobox',
+                type: 'customnumeric',
                 itemId: 'issue-usagePoints-filter',
                 dataIndex: 'usagePoints_id',
-                emptyText: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
+                text: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
                 displayField: 'name',
                 valueField: 'name',
                 store: 'Isu.store.IssueUsagePoints',
@@ -169,15 +169,15 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 dataIndex: 'startInterval',
                 dataIndexFrom: 'startIntervalFrom',
                 dataIndexTo: 'startIntervalTo',
-                text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date')  + '<span class="white-circle-filter-btn"></span>',
+                text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
                 hidden: me.isOverviewFilter
             },
             {
                 type: 'numeric',
                 dataIndex: 'priority',
                 itemId: 'isu-priority-filter',
-                text: Uni.I18n.translate('general.title.priority', 'ISU', 'Priority') + '<span class="white-circle-filter-btn"></span>'
-            },
+                text: Uni.I18n.translate('general.title.priority', 'ISU', 'Priority')
+            }
         ];
 
         me.callParent(arguments);
