@@ -154,6 +154,7 @@ public class DeviceBuilder {
                         .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), 
 			MessageSeeds.UNABLE_TO_CHANGE_DEVICE_STATE, statusValue.orElse("")));
                 executableAction.execute(effectiveDate, Collections.emptyList());
+                changedDevice = findDeviceByMRID(meter, changedDevice.getmRID());
                 updateDevice(changedDevice);
                 changedDevice = findDeviceByMRID(meter, changedDevice.getmRID());
             }
