@@ -1892,6 +1892,7 @@ public enum TableSpecs {
             Column readingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
             Column actual = table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
+            table.partitionOn(timestampColumn);
             table.column("COMMENTS").varChar(4000).map("comment").add();
             table.primaryKey("PK_MTR_READINGQUALITY").on(idColumn).add();
             table.foreignKey("FK_MTR_RQ_CHANNEL")
