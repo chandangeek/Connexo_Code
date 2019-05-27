@@ -69,7 +69,10 @@ Ext.define('Isu.controller.IssueDetail', {
             widgetXtype = 'task-issue-detail';
             issueModel = 'Itk.model.Issue';
             me.taskStore = 'Itk.store.OccurrenceStore';
-        } else {
+        } else if(issueType ==='manual'){
+            widgetXtype = 'data-collection-issue-detail';
+            issueModel='Idl.model.Issue';
+         } else {
             widgetXtype = me.widgetXtype;
             issueModel = me.issueModel;
         }
