@@ -39,19 +39,22 @@ Ext.define('Isu.view.issues.AddManuallyRuleItem', {
         var manualIssue = Ext.create('Isu.model.ManuallyRuleItem'),
         dependencies = ['Isu.store.IssueDevices', 'Isu.store.IssueReasons'],
         dependenciesCounter = dependencies.length,
+        manualIssueForm = me.down('issue-manually-creation-rules-item'),
         onDependenciesLoaded = function () {
             dependenciesCounter--;
             if (!dependenciesCounter) {
-                me.down('issue-manually-creation-rules-item').loadRecord(manualIssue);
+                manualIssueForm.loadRecord(manualIssue);
                 if (me.deviceId){
-                    var deviceIdCombo =  me.down('issue-manually-creation-rules-item').child('#deviceId');
+                    var deviceIdCombo =  manualIssueForm.child('#deviceId');
                     var device = deviceIdCombo.store.find('name', me.deviceId);
                     if (device !== -1){
                         deviceIdCombo.setRawValue(me.deviceId);
                         deviceIdCombo.setValue(deviceIdCombo.store.getAt(device).get('id'));
                     }
-
                 }
+                var dueInTypeField = manualIssueForm.down('[name=dueIn.type]');
+                 dueInTypeField.setValue(dueInTypeField.getStore().getAt(0).get('name'));
+
                 me.setLoading(false);
             }
         };
