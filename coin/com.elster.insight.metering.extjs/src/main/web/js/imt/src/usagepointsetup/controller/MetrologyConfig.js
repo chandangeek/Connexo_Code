@@ -76,8 +76,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
             page = me.getPage(),
             usagePoint = btn.usagePoint,
             meterActivations = me.getMetersForm().getValue(),
-            confirmationMessage = Uni.I18n.translate('metrologyconfiguration.general.activate.confirmation.bodyOne', 'IMT', "If you have unlinked a meter it wouldn't be displayed on usage point history page. Use this option if the meter has been linked by mistake.")
-            + '<br />'
+            confirmationMessage = '<p>' + Uni.I18n.translate('metrologyconfiguration.general.activate.confirmation.bodyOne', 'IMT', "If you have unlinked a meter it wouldn't be displayed on usage point history page. Use this option if the meter has been linked by mistake.") + '</p>'
             + Uni.I18n.translate('metrologyconfiguration.general.activate.confirmation.bodyTwo', 'IMT', 'To keep meter history after unlinking use the action on metrology configuration page.');
 
         meterActivations = _.filter(meterActivations, function (meterActivation) {
@@ -157,7 +156,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                     usagePoint.activateMeters(callback, failure);
                 } else if (button === 'cancel') {
                     if (page) {
-                        window.location.href = page.returnLink;
+                        window.location.href = "#/usagepoints/Test/metrologyconfiguration/activatemeters";
                     }
                 }
             }

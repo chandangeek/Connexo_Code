@@ -163,19 +163,22 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             url: '/api/udr/usagepoints/'+ btn.usagePointName +'/meterroles/'+ meterRoleId.id +'/unlink/' + unlinkTime,
             method: 'PUT',
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.unlinkMeter.success.message', 'IMT', "Meter '{0}' will be unlinked on '{1}'.", [btn.meterName, new Date(unlinkTime).toLocaleString()]));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.unlinkMeter.success.message', 'IMT', 'Meter {0} will be unlinked on {1}.', [btn.meterName, Uni.DateTime.formatDateTimeShort(unlinkTime)], false));
                 me.getController('Uni.controller.history.Router').getRoute('usagepoints/view/metrologyconfiguration').forward();
             },
             failure: function (response) {
-                var responseText = Ext.decode(response.responseText, true);
-                if (responseText && Ext.isArray(responseText.errors)) {
-                    me.getForm().form.markInvalid(responseText.errors);
-                    me.getForm().down('#form-errors').show();
-                    var fromTimeError = Ext.Array.findBy(responseText.errors, function (item) { return item.id == 'fromTime';});
-                    if(fromTimeError) {
-                        me.getForm().down('#error-label').setText(fromTimeError.msg);
-                        me.getForm().down('#error-label').show();
+                var code = response.status;
+
+                if (response.status === 400) {
+                    var response = Ext.decode(response.responseText, true),
+                    title = Uni.I18n.translate('general.error.title', 'IMT', 'Couldn\'t perform your action'),
+                    msg = _.take(response.errors).msg;
+
+                    if (Ext.isEmpty(msg)) {
+                        msg = Uni.I18n.translate('general.error.unknown', 'IMT', 'Unknown error occurred');
                     }
+
+                    me.getApplication().getController('Uni.controller.Error').showError(title, msg, code);
                 }
             }
         });

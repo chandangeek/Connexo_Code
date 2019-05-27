@@ -20,7 +20,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.UnlinkMeter', {
        me.content = [
            {
                 xtype: 'form',
-                title: Uni.I18n.translate('general.tooltip.unlinkx', 'IMT', "Unlink '{0}'", [me.meterName]),
+                title: Uni.I18n.translate('general.tooltip.unlink.meter', 'IMT', "Unlink '{0}'", [me.meterName]),
                 itemId: 'unlink-meter-form',
                 ui: 'large',
                 width: '100%',

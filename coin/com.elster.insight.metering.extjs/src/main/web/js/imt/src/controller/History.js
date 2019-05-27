@@ -242,7 +242,7 @@ Ext.define('Imt.controller.History', {
                                     privileges: Imt.privileges.UsagePoint.admin,
                                     callback: function (route) {
                                         this.getApplication().on('unlinkMeterPageLoaded', function (meterName) {
-                                            route.setTitle(Uni.I18n.translate('general.tooltip.unlinkx', 'IMT', "Unlink '{0}'", [meterName]));
+                                            route.setTitle(Uni.I18n.translate('general.tooltip.unlink.meter', 'IMT', "Unlink '{0}'", [meterName]));
                                             return true;
                                         }, {single: true});
 
