@@ -14,10 +14,7 @@ import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-
-
 import com.energyict.mdc.device.config.DeviceType;
-
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionServiceImpl;
@@ -26,6 +23,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,9 +52,8 @@ public class RemoveDeviceTypeTopicHandler implements TopicHandler{
         boolean deviceTypeInUse = validationCreationRules.stream()
                 .map(rule -> (List)rule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES))
                 .filter(list -> list != null && !list.isEmpty())
-                .map(list -> list.get(0))
-                .map(rule -> (DeviceLifeCycleInDeviceTypeInfo) rule)
-                .anyMatch(info ->  info.getDeviceTypeId() == deviceType.getId());
+                .flatMap(Collection::stream)
+                .anyMatch(info ->  ((DeviceLifeCycleInDeviceTypeInfo)info).getDeviceTypeId() == deviceType.getId());
 
         if(deviceTypeInUse) {
             throw new VetoDeviceTypeDeleteException(issueDataCollectionService.thesaurus(), deviceType);

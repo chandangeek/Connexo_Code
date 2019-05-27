@@ -102,7 +102,7 @@ public class ServiceCallCommands {
         meterConfigMasterDomainExtension.setActualNumberOfSuccessfulCalls(0l);
         meterConfigMasterDomainExtension.setActualNumberOfFailedCalls(0l);
         meterConfigMasterDomainExtension.setExpectedNumberOfCalls(Long.valueOf(meterConfig.getMeter().size()));
-        meterConfigMasterDomainExtension.setCallbackURL(outboundEndPointConfiguration.getUrl());
+        setCallBackUrl(meterConfigMasterDomainExtension, outboundEndPointConfiguration);
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
                 .origin("MultiSense")
@@ -115,7 +115,14 @@ public class ServiceCallCommands {
 
         return parentServiceCall;
     }
-
+    
+    private void setCallBackUrl(MeterConfigMasterDomainExtension meterConfigMasterDomainExtension,
+            EndPointConfiguration outboundEndPointConfiguration) {
+        if (outboundEndPointConfiguration != null) {
+            meterConfigMasterDomainExtension.setCallbackURL(outboundEndPointConfiguration.getUrl());
+        }
+    }
+    
     private ServiceCall createMeterConfigChildCall(ServiceCall parent, OperationEnum operation,
                                                    Meter meter, List<SimpleEndDeviceFunction> simpleEndDeviceFunction) throws FaultMessage {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.METER_CONFIG);

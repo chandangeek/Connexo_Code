@@ -62,7 +62,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -137,11 +136,14 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        Stream.of(DefaultLifeCycleTranslationKey.values()).forEach(keys::add);
-        Stream.of(DefaultState.values()).forEach(keys::add);
-        Stream.of(EndDeviceStageTranslationKey.values()).forEach(keys::add);
-        return keys;
+        return Stream.of(
+                DefaultLifeCycleTranslationKey.values(),
+                DefaultState.values(),
+                EndDeviceStageTranslationKey.values(),
+                DeviceAuthorizedActionMicroCheckUsageImpl.UnknownCheckTranslationKey.values()
+        )
+                .flatMap(Arrays::stream)
+                .collect(Collectors.toList());
     }
 
     @Override

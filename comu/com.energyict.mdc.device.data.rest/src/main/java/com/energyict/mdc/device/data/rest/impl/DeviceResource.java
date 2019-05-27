@@ -129,6 +129,7 @@ public class DeviceResource {
     private static final String DEVICE_ASSOCIATION = "device";
     static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
     static final String PROCESS_LIFECYCLE_ISSUE_STATES = "lifecycleIssueStates";
+    static final String PROCESS_TASK_ISSUE_STATES = "taskIssueStates";
     private final DeviceService deviceService;
     private final TopologyService topologyService;
     private final MultiElementDeviceService multiElementDeviceService;

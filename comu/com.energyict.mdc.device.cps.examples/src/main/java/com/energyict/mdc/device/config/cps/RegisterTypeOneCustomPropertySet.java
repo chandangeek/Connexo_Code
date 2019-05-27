@@ -206,21 +206,21 @@ public class RegisterTypeOneCustomPropertySet implements CustomPropertySet<Regis
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-            Column contextReference = (Column)(table.getColumn(RegisterTypeOneDomainExtension.FieldNames.DEVICE.databaseName()).get());
+            Column deviceColumn = table
+                    .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
+                    .number()
+                    .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
+                    .notNull()
+                    .add();
             table
                     .foreignKey("FK_REGISTER_DEVICE_ONE")
-                    .on(contextReference)
+                    .on(deviceColumn)
                     .references(getContextClass())
                     .map(RegisterTypeOneDomainExtension.FieldNames.DEVICE_REF.javaName())
                     .add();
-
             return Collections.singletonList(
-                    table
-                            .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
-                            .number()
-                            .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
-                            .notNull()
-                            .add());
+                    deviceColumn
+            );
         }
 
         @Override

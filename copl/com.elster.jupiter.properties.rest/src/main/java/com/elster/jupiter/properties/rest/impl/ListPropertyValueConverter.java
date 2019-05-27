@@ -10,12 +10,14 @@ import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
+import com.elster.jupiter.properties.rest.DeviceGroupPropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleTransitionPropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
 import com.elster.jupiter.properties.rest.MetrologyConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
+import com.elster.jupiter.properties.rest.TaskPropertyFacory;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,6 +51,12 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
         }
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof DeviceLifeCycleTransitionPropertyFactory) {
             return SimplePropertyType.LIFECYCLETRANSITION;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof TaskPropertyFacory) {
+            return SimplePropertyType.TASK;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof DeviceGroupPropertyFactory) {
+            return SimplePropertyType.DEVICEGROUPTYPE;
         }
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndDeviceEventTypePropertyFactory) {
             return SimplePropertyType.ENDDEVICEEVENTTYPE;

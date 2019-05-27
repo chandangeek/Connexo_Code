@@ -29,7 +29,7 @@ public class RegisterTypeOneDomainExtension extends AbstractPersistentDomainExte
         TEST_ATTRIBUTE_ENUM_NUMBER("testEnumNumber", "test_enum_number"),
         TEST_ATTRIBUTE_ENUM_STRING("testEnumString", "test_enum_string"),
         TEST_ATTRIBUTE_BOOLEAN("testBoolean", "test_boolean"),
-        DEVICE_REF("deviceRef", "device"),;
+        DEVICE_REF("deviceRef", "device");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
