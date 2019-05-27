@@ -149,21 +149,12 @@ Ext.define('Uni.view.widget.WorkList', {
                 tooltip: me.getTooltip(workItem, item),
                 href: me.getHref(workItem, item),
                 icon: me.getIcon(workItem, item),
-                iconTooltip: me.getIconTooltip(workItem, item),
-                priority: item.priority.urgency + item.priority.impact
+                iconTooltip: me.getIconTooltip(workItem, item)
             });
         });
 
         itemsStore = Ext.create('Ext.data.Store', {
-            fields: ['title', 'tooltip', 'href', 'icon', 'iconTooltip', 'priority'],
-            sorters: [{
-                sorterFn: function(o1, o2){
-                    if(o1.get('priority') == o2.get('priority')) {
-                        return 0
-                    }
-                    return o1.get('priority') < o2.get('priority') ? 1 : -1;
-                }
-            }],
+            fields: ['title', 'tooltip', 'href', 'icon', 'iconTooltip'],
             data: itemsData
         });
         dataview.bindStore(itemsStore);
