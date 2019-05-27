@@ -2,6 +2,7 @@ package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
 
 import aQute.bnd.annotation.ProviderType;
@@ -20,6 +21,8 @@ public interface EndPointConfigurationOccurrenceFinderBuilder {
     public EndPointConfigurationOccurrenceFinderBuilder withStatusIn(List<String> statuses);
 
     public EndPointConfigurationOccurrenceFinderBuilder withWebServiceName(String webServiceName);
+
+    public EndPointConfigurationOccurrenceFinderBuilder withEndPointConfiguration(EndPointConfiguration epc);
 
     public EndPointConfigurationOccurrenceFinderBuilder withStartTimeIn(Range<Instant> interval);
 

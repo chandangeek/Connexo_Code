@@ -52,6 +52,14 @@ public class EndPointConfigurationOccurrenceFinderBuilderImpl  implements EndPoi
     }
 
     @Override
+    public EndPointConfigurationOccurrenceFinderBuilder withEndPointConfiguration(EndPointConfiguration epc)
+    {
+        this.condition = this.condition.and(where("endPointConfiguration").isEqualTo(epc));
+        return this;
+    }
+
+
+    @Override
     public EndPointConfigurationOccurrenceFinderBuilder withStartTimeIn(Range<Instant> interval) {
 
         this.condition = this.condition.and(where("startTime").in(interval));
@@ -68,7 +76,7 @@ public class EndPointConfigurationOccurrenceFinderBuilderImpl  implements EndPoi
     @Override
     public Finder<EndPointOccurrence> build() {
 
-        return DefaultFinder.of(EndPointOccurrence.class, this.dataModel)
+        return DefaultFinder.of(EndPointOccurrence.class, this.condition, this.dataModel)
                 .defaultSortColumn("startTime");//return DefaultFinder.of(EndPointOccurrence.class, condition, dataModel/*, ImportSchedule.class*/);
     }
 }

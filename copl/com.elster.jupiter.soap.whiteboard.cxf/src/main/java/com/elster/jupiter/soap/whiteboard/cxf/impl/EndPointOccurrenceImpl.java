@@ -83,7 +83,7 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
     };
     @Override
     public String getApplicationName(){
-        return status;
+        return applicationName;
     };
 
 
