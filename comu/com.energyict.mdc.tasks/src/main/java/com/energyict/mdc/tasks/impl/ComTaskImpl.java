@@ -79,7 +79,8 @@ abstract class ComTaskImpl implements ComTask {
         NAME("name"),
         PROTOCOL_TASKS("protocolTasks"),
         STORE_DATE("storeData"),
-        MAX_NR_OF_TRIES("maxNrOfTries");
+        MAX_NR_OF_TRIES("maxNrOfTries"),
+        SYSTEM_TASK("systemTask");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {

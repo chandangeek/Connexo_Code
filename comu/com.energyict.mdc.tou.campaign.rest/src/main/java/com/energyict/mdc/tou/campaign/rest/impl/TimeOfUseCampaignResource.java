@@ -65,7 +65,6 @@ public class TimeOfUseCampaignResource {
     private final ServiceCallService serviceCallService;
     private final ExceptionFactory exceptionFactory;
     private final DeviceConfigurationService deviceConfigurationService;
-    //private final TaskService taskService;
 
     @Inject
     public TimeOfUseCampaignResource(TimeOfUseCampaignService timeOfUseCampaignService, TimeOfUseCampaignInfoFactory timeOfUseCampaignInfoFactory,
@@ -83,7 +82,6 @@ public class TimeOfUseCampaignResource {
         this.serviceCallService = serviceCallService;
         this.exceptionFactory = exceptionFactory;
         this.deviceConfigurationService = deviceConfigurationService;
-        //this.taskService = taskService;
     }
 
     @GET
@@ -234,6 +232,7 @@ public class TimeOfUseCampaignResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getComTasks(@QueryParam("type") long deviceTypeId) {
+
         Set<IdWithNameInfo> comTasks = new HashSet<>();
 
         DeviceType deviceType = deviceConfigurationService.findDeviceType(deviceTypeId)
@@ -241,11 +240,12 @@ public class TimeOfUseCampaignResource {
 
         List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
         deviceType.getConfigurations().stream().forEach(cnf -> comTaskEnablements.addAll(cnf.getComTaskEnablements()));
-        comTaskEnablements.stream().forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
-        /*List<IdWithNameInfo> comTasks = new ArrayList<>();
-        taskService.findAllComTasks().stream()
-                .forEach(comTask -> comTasks.add(new IdWithNameInfo(comTask.getId(), comTask.getName())));*/
-        String f;
+        comTaskEnablements.stream().forEach(comTaskEnb -> {
+            if(comTaskEnb.getComTask().getSystemTask()){
+                comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName()));
+            }
+        });
+
         return Response.ok(comTasks).build();
     }
 
