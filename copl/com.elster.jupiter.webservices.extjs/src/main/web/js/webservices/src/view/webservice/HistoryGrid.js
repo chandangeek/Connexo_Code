@@ -19,8 +19,10 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 dataIndex: 'startTime',
                 flex: 1.5,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({
-                        endpointId: 1, // record.getEndpoint().get('id')
+                    var route = 'administration/webserviceendpoints/view/history/occurrence';
+                    var url = me.router.getRoute(route).buildUrl({
+                        endpointId: 1, // record.getEndpoint().get('id'),
+                        occurenceId: record.get('id'),
                     });
                     var date = value ? Uni.DateTime.formatDateTimeShort(value) : '-';
 

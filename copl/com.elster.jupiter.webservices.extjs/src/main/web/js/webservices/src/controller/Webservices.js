@@ -12,7 +12,8 @@ Ext.define('Wss.controller.Webservices', {
         'Wss.view.Add',
         'Wss.view.LandingPage',
         'Wss.view.LoggingPage',
-        'Wss.view.endpoint.History'
+        'Wss.view.endpoint.History',
+        'Wss.view.endpoint.HistoryOccurrence',
     ],
     stores: [
         'Wss.store.Endpoints',
@@ -100,6 +101,28 @@ Ext.define('Wss.controller.Webservices', {
                 });
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.getApplication().fireEvent('endpointload', record.get('name'));
+            }
+        });
+    },
+
+    showWebserviceHistoryOccurrence: function (endpointId, occurenceId) {
+        var me = this;
+        var store = me.getStore('Wss.store.endpoint.Occurrence');
+
+        me.getModel('Wss.model.Endpoint').load(endpointId, {
+            success: function (endpoint) {
+                me.getModel('Wss.model.endpoint.Occurrence').load(occurenceId, {
+                    success: function (occurrence) {
+                        var view = Ext.widget('webservice-history-occurence', {
+                            router: me.getController('Uni.controller.history.Router'),
+                            endpoint,
+                            occurrence
+                        });
+                        me.getApplication().fireEvent('changecontentevent', view);
+                        me.getApplication().fireEvent('endpointload', endpoint.get('name'));
+                    },
+                });
+
             }
         });
     },
