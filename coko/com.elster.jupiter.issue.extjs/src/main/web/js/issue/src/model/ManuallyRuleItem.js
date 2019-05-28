@@ -31,10 +31,8 @@ Ext.define('Isu.model.ManuallyRuleItem', {
             defaultValue: '25:5'
         },
         {
-            name: 'dueDate',
-            type: 'date',
-            dateFormat: 'time',
-            defaultValue: 0,
+            name: 'dueIn',
+            type: 'auto'
         },
         {
             name: 'comment',

@@ -92,12 +92,12 @@ Ext.define('Isu.controller.CreationManualRule', {
        if ( urgency !== undefined && impact !== undefined ) record.set('priority' , urgency + ':' + impact);
        if (form.down('#dueDateTrigger')) {
             if (form.down('#dueDateTrigger')) {
-                record.set('dueIn', {
+                record.set('dueDate', {
                     number: form.down('[name=dueIn.number]').getValue(),
                     type: form.down('[name=dueIn.type]').getValue()
                 });
             } else {
-                record.set('dueIn', null);
+                record.set('dueDate', null);
             }
        }
 
