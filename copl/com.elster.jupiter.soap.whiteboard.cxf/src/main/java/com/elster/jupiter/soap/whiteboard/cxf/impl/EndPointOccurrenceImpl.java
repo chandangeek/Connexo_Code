@@ -22,7 +22,7 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
     private Reference<EndPointConfiguration> endPointConfiguration = Reference.empty();
     String status;
     String applicationName;
-    private byte[] payload;
+    private String payload;
 
     public enum Fields {
         ID("id"),
@@ -55,7 +55,7 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
                                   String requestName,
                                   String applicationName,
                                   EndPointConfiguration endPointConfiguration,
-                                  byte[] payload)
+                                  String payload)
     {
         this.startTime = startTime;
         this.requestName = requestName;
@@ -146,12 +146,12 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
     }
 
     @Override
-    public void setPayload(byte[] payload) {
+    public void setPayload(String payload) {
         this.payload = payload;
     }
 
     @Override
-    public byte[] getPayload() {
+    public String getPayload() {
         return this.payload;
     }
 }

@@ -135,8 +135,8 @@ public enum TableSpecs {
                     .map(EndPointOccurrenceImpl.Fields.applicationName.fieldName())
                     .add();
             table.column("PAYLOAD")
-                    .type("blob")
-                    .conversion(BLOB2BYTE)
+                    .type("CLOB")
+                    .conversion(CLOB2STRING)
                     .map(EndPointOccurrenceImpl.Fields.payload.fieldName())
                     .add();
 
