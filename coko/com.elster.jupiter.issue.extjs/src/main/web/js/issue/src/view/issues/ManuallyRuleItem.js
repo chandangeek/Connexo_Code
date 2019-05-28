@@ -67,7 +67,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                      {
                         xtype: 'label',
                         itemId: 'priority-label',
-                        text: Uni.I18n.translate('issue.priority.low', 'ISU', 'low') + '(' + defaultUrgency + defaultImpact + ')'
+                        text: Uni.I18n.translate('issue.priority.low', 'ISU', 'low') + '(' + (defaultUrgency + defaultImpact) + ')'
                      }
                   ]
                },
