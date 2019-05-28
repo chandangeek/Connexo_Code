@@ -120,9 +120,9 @@ public class ManualIssueBuilderImpl implements ManualIssueBuilder {
         Optional.ofNullable(usagePoint).ifPresent(issue::setUsagePoint);
         Optional.ofNullable(type).ifPresent(issue::setType);
         issue.setOverdue(overdue);
+        issue.assignTo(assignToUserId, assignToWorkgroupId);
         issue.save();
         Optional.ofNullable(comment).ifPresent(comm -> issue.addComment(comm, user));
-        issue.assignTo(assignToUserId, assignToWorkgroupId);
         Optional.ofNullable(assignComment).ifPresent(assignComment -> issue.addComment(assignComment, user));
         return issue;
     }
