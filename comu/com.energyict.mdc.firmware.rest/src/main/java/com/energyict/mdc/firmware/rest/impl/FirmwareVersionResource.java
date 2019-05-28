@@ -203,9 +203,8 @@ public class FirmwareVersionResource {
 
         FirmwareVersion firmwareVersion = resourceHelper.lockFirmwareVersionOrThrowException(id, version, fwVersion);
         firmwareVersion.setFirmwareVersion(fwVersion);
-        if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)){
-            firmwareVersion.setImageIdentifier(imageId);
-        }
+        firmwareVersion.setImageIdentifier(imageId);
+
         parseFirmwareStatusField(status).ifPresent(firmwareVersion::setFirmwareStatus);
         firmwareVersion.setMeterFirmwareDependency(meterFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(meterFWDependency));
         firmwareVersion.setCommunicationFirmwareDependency(comFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(comFWDependency));
