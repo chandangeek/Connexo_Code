@@ -25,4 +25,18 @@ public class EndpointConfigurationLogInfoFactory {
         info.timestamp = endPointLog.getTime();
         return info;
     }
+
+    public EndpointConfigurationLogInfo fromFull(EndPointLog endPointLog) {
+        EndpointConfigurationLogInfo info = new EndpointConfigurationLogInfo();
+        info.logLevel = thesaurus.getString(endPointLog.getLogLevel().getKey(), endPointLog.getLogLevel()
+                .getDefaultFormat());
+        info.message = endPointLog.getMessage();
+        info.timestamp = endPointLog.getTime();
+        info.id = endPointLog.getId();
+        info.endPointConfiguration = endPointLog.getEndPointConfiguration();
+        info.message = endPointLog.getMessage();
+        info.stackTrace = endPointLog.getStackTrace();
+        info.occurrence = endPointLog.getOccurrence().get();
+        return info;
+    }
 }

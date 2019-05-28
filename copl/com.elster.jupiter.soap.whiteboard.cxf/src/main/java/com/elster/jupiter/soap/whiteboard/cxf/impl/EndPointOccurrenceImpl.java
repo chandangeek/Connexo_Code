@@ -9,6 +9,7 @@ import com.elster.jupiter.util.HasId;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Objects;
 
 public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
 
@@ -82,7 +83,7 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
     };
     @Override
     public String getApplicationName(){
-        return status;
+        return applicationName;
     };
 
 
@@ -121,5 +122,22 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
         getEndPointConfiguration().log(message, exception);
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        EndPointOccurrenceImpl that = (EndPointOccurrenceImpl) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
 }

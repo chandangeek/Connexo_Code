@@ -15,6 +15,8 @@ import java.util.Optional;
  */
 @ProviderType
 public interface EndPointLog {
+    long getId();
+
     LogLevel getLogLevel();
 
     EndPointConfiguration getEndPointConfiguration();

@@ -12,8 +12,11 @@ public class EndpointConfigurationOccurrenceInfoFactorty {
     EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
 
     @Inject
-    public EndpointConfigurationOccurrenceInfoFactorty(Thesaurus thesaurus) {
+    public EndpointConfigurationOccurrenceInfoFactorty(Thesaurus thesaurus,
+                                                       EndPointConfigurationInfoFactory endPointConfigurationInfoFactory)
+    {
         this.thesaurus = thesaurus;
+        this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
     }
 
     public EndpointConfigurationOccurrenceInfo from(EndPointOccurrence endPointOccurrence, UriInfo uriInfo) {
@@ -26,9 +29,9 @@ public class EndpointConfigurationOccurrenceInfoFactorty {
         info.status = endPointOccurrence.getStatus();
         info.request = endPointOccurrence.getRequest();
         info.applicationName = endPointOccurrence.getApplicationName();
-        /*if (uriInfo != null && endPointOccurrence.getEndPointConfiguration() != null)
-        info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointOccurrence.getEndPointConfiguration(), uriInfo);*/
-
+        if (uriInfo != null && endPointOccurrence.getEndPointConfiguration() != null){
+            info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointOccurrence.getEndPointConfiguration(), uriInfo);
+        }
 
         return info;
     }

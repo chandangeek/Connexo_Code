@@ -7,6 +7,7 @@ package com.elster.jupiter.webservices.rest.impl;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -314,36 +315,49 @@ public class EndPointConfigurationResource {
         } else if (filter.hasProperty("finishedOnTo")) {
             finderBuilder.withEndTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
         }
+        /* Find endpoint by ID */
+        if (filter.hasProperty("webServiceEndPoint")) {
 
-        if (filter.hasProperty("webServiceName")) {
-            //List<Long> importServices = filter.getLongList("importService");
-            String webServiceName = filter.getString("webServiceName");
-            finderBuilder.withWebServiceName(webServiceName);
+            Long endPointId = filter.getLong("webServiceEndPoint");
+            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(endPointId)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
+
+            finderBuilder.withEndPointConfiguration(epc);
         }
+
         if (filter.hasProperty("status")) {
 
-            /*finderBuilder.withStatusIn(filter.getStringList("status")
+            finderBuilder.withStatusIn(filter.getStringList("status")
                     .stream()
-                    .map(Status::valueOf)
-                    .collect(Collectors.toList()));*/
+                    //.map(OccurenceStatus::valueOf)
+                    .collect(Collectors.toList()));
         }
-        return finderBuilder.build().from(queryParameters).find();
+
+        List<EndPointOccurrence> epocList = finderBuilder.build().from(queryParameters).find();
+
+        if(filter.hasProperty("type")){
+            String type = filter.getString("type");
+            epocList = epocList.stream().
+                       filter(epoc -> type.equals("Inbound") ? epoc.getEndPointConfiguration().isInbound() : !epoc.getEndPointConfiguration().isInbound()).collect(toList());
+        }
+        return epocList;
     }
 
+    /*
     private List<EndPointOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters) {
 
         DataModel dataModel = ormService.getDataModel("WebServicesService").get();
         EndPointConfigurationOccurrenceFinderBuilder finderBuilder =  new EndPointConfigurationOccurrenceFinderBuilderImpl(dataModel, Condition.TRUE);
 
         return finderBuilder.build().from(queryParameters).find();
-    }
+    }*/
 
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{epId}/occurrences")
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public PagedInfoList getAllOccurrencesForEndPoint(@PathParam("epId") long epId, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getAllOccurrencesForEndPoint(@PathParam("epId") long epId, @BeanParam JsonQueryParameters queryParameters,@Context UriInfo uriInfo) {
         System.out.println("getAllOccurrencesForEndPoint !!!!"+epId);
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(epId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
@@ -351,7 +365,7 @@ public class EndPointConfigurationResource {
         List<EndpointConfigurationOccurrenceInfo> endpointConfigurationOccurrences = endPointConfiguration.getOccurrences(true)
                 .from(queryParameters)
                 .stream()
-                .map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, null))
+                .map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo))
                 .collect(toList());
         return PagedInfoList.fromPagedList("occurrences", endpointConfigurationOccurrences, queryParameters);
     }
@@ -378,8 +392,11 @@ public class EndPointConfigurationResource {
 
 
         List<EndPointLog> logs = finderBuilder.build().from(queryParameters).find();
+        List<EndpointConfigurationLogInfo> logsInfo = logs.stream().
+                                                      map(log -> endpointConfigurationLogInfoFactory.fromFull(log)).
+                                                      collect(toList());
 
-        return PagedInfoList.fromPagedList("logs", logs, queryParameters);
+        return PagedInfoList.fromPagedList("logs", logsInfo, queryParameters);
     }
 
 

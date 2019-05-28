@@ -9,6 +9,6 @@ public class EndpointConfigurationOccurrenceInfo {
     public String status;
     public String request;
     public String applicationName;
-    EndPointConfigurationInfo endPointConfigurationInfo;
+    public EndPointConfigurationInfo endPointConfigurationInfo;
 
 }
