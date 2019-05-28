@@ -68,7 +68,7 @@ Ext.define('Isu.controller.CreationManualRule', {
 
        if (!form.isValid() || reasonEditedValue.trim() == '') {
             errorMessage.show();
-            if (reasonEditedValue.trim() == '') comboReason.markInvalid('This field is required');
+            if (reasonEditedValue.trim() == '') comboReason.markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
             return;
        }
 

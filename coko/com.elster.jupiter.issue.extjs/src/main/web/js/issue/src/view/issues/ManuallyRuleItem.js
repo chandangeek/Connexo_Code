@@ -21,6 +21,8 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
     deviceId: null,
     initComponent: function () {
         var me = this;
+        var defaultUrgency = 25;
+        var defaultImpact = 5;
 
         me.items = [{
                     xtype: 'uni-form-error-message',
@@ -65,7 +67,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                      {
                         xtype: 'label',
                         itemId: 'priority-label',
-                        text: 'Low (30)'
+                        text: Uni.I18n.translate('issue.priority.low', 'ISU', 'low') + '(' + defaultUrgency + defaultImpact + ')'
                      }
                   ]
                },
@@ -80,7 +82,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                         itemId: 'priority-urgency',
                         width: 92,
                         name: 'priority.urgency',
-                        value: 25,
+                        value: defaultUrgency,
                         minValue: 1,
                         maxValue: 50,
                         listeners: {
@@ -98,7 +100,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                         width: 157,
                         name: 'priority.impact',
                         fieldLabel: Uni.I18n.translate('general.impact', 'ISU', 'Impact'),
-                        value: 5,
+                        value: defaultImpact,
                         minValue: 1,
                         maxValue: 50,
                         margin: '0 0 0 20',

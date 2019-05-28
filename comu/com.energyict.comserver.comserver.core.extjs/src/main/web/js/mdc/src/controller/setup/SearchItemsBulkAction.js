@@ -471,6 +471,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     Ext.each(deviceData.searchResults, function (item) {
                         mDeviceIds.push(item.id);
                     });
+                    me.allDevicesCnt = mDeviceIds.length;
                 }
             } else {
                 Ext.each(me.devices, function (item) {
@@ -521,17 +522,18 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             Ext.Ajax.request({
                 url: manualIssueBulk,
                 method: 'POST',
-                jsonData: {"issues": jsonData},
+                jsonData: {'issues' : jsonData},
                 timeout: 180000,
                 success: function (response) {
-                    statusPage.showChangeDeviceConfigSuccess(
+                    statusPage.showIssueCreatedSuccess(
                         me.buildFinalMessage()
                     );
                     finishBtn.enable();
                     wizard.setLoading(false);
                 },
 
-                failure: function () {
+                failure: function (response) {
+                    statusPage.showIssueCreatedSuccess( Uni.I18n.translate('searchItems.bulk.createManualIssue.baseFailMsg', 'ISU',  "Issues cannot be created") );
                     finishBtn.enable();
                     wizard.setLoading(false);
                 }
@@ -714,6 +716,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
                 finalMessage = Uni.I18n.translate('searchItems.bulk.removeZoneToDevices.baseSuccessMsg1', 'MDC',
                     "Successfully removed zone '{0}' {1}", [me.zoneName, message]);
+                break;
+            case 'createmanualissue':
+                finalMessage = Uni.I18n.translatePlural('searchItems.bulk.successfullyAddedManualIssue', me.allDevices? me.allDevicesCnt : me.devices.length, 'MDC',
+                        "{0} issues were created",
+                        "{0} issue was created",
+                        "{0} issues were created"
+                    );
+
                 break;
         }
 
@@ -1129,11 +1139,24 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             progressBar = Ext.create('Ext.ProgressBar', {width: '50%'});
                             Ext.suspendLayouts();
                             nextCmp.removeAll(true);
+                            var progressBarText = '';
+                            switch (me.operation){
+                                case 'add':
+                                case 'addToZone':
+                                  progressBarText = Uni.I18n.translate('general.adding', 'MDC', 'Adding...');
+                                  break;
+                                case 'createmanualissue':
+                                   progressBarText = Uni.I18n.translate('searchItems.bulk.creatingBulkIssue', 'ISU', 'Creating {0} issues. Please wait...', me.allDevicesCnt, false);
+                                   break;
+                                default:
+                                   progressBarText = Uni.I18n.translate('general.removing', 'MDC', 'Removing...');
+                                   break;
+                            }
                             nextCmp.add(
                                 progressBar.wait({
                                     interval: 50,
                                     increment: 20,
-                                    text: (me.operation === 'add' || me.operation === 'addToZone'  ? Uni.I18n.translate('general.adding', 'MDC', 'Adding...') : Uni.I18n.translate('general.removing', 'MDC', 'Removing...'))
+                                    text: progressBarText
                                 })
                             );
                             Ext.resumeLayouts();
@@ -1256,7 +1279,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     titleText = Ext.String.format(pattern, me.zoneName, false);
                     break;
                 case 'createmanualissue':
-                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmMsg', 'ISU', 'Create issues for all devices?');
+                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmMsgAll', 'ISU', 'Create issues for all devices?');
                     break;
             }
         } else {
@@ -1333,8 +1356,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     titleText = Uni.I18n.translate('searchItems.bulk.removeZoneToDevices.confirmMsg1', 'MDC', "{0} from zone '{1}'?", [pattern, me.zoneName]);
                     break;
                 case 'createmanualissue':
-                    pattern = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmMsg', 'ISU', 'Create issues for {0} devices?');
-                    titleText = Ext.String.format(pattern, me.devices.length, false);
+                    pattern = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmMsg', 'ISU', 'Create issues for {0} devices?', me.devices.length, false);
                     break;
             }
         }
