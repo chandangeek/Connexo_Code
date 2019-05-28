@@ -94,11 +94,11 @@ Ext.onReady(function () {
         {
             name: 'Tou',
             path: '../../apps/tou/src'
+        },
+        {
+            name: 'Itk',
+            path: '../../apps/itk/src'
         }
-//        {
-//            name: 'PlaygroundApp',
-//            path: '../../apps/playground/app'
-//        }
     ];
 
     loader.initPackages(packages);

@@ -50,6 +50,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>events</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
 
@@ -81,11 +85,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>events</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

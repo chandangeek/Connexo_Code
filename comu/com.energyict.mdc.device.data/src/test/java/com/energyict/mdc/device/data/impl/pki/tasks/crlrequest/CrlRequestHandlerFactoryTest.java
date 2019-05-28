@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.pki.tasks.crlrequest;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -81,6 +82,9 @@ public class CrlRequestHandlerFactoryTest {
     private PublicKey publicKey;
     @Mock
     private NlsService nlsService;
+    @Mock
+    private EventService eventService;
+
     private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
     private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
 
@@ -105,7 +109,7 @@ public class CrlRequestHandlerFactoryTest {
         when(clock.instant()).thenReturn(Instant.now());
         when(caService.getLatestCRL(any(String.class))).thenReturn(Optional.empty());
         crlRequestHandlerFactory = new CrlRequestHandlerFactory(taskService, caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock, nlsService, transactionService);
-        executor = new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock, thesaurus, transactionService);
+        executor = new CrlRequestTaskExecutor(caService, crlRequestTaskPropertiesService, securityManagementService, deviceService, clock, thesaurus, transactionService, eventService);
     }
 
     @Test

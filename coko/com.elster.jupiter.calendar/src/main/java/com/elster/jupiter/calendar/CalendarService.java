@@ -73,6 +73,8 @@ public interface CalendarService {
 
     @ProviderType
     interface CalendarBuilder {
+        CalendarBuilder category(Category category);
+        CalendarBuilder eventSet(EventSet eventSet);
         CalendarBuilder name(String name);
         CalendarBuilder startYear(Year start);
         CalendarBuilder mRID(String mRID);

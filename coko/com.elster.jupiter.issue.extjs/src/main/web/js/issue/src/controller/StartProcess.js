@@ -35,6 +35,11 @@ Ext.define('Isu.controller.StartProcess', {
             issueModel = 'Idl.model.Issue';
             issueType = 'devicelifecycleissue';
         }
+        else if (router.queryParams.issueType === "task")
+        {
+            issueModel = 'Itk.model.Issue';
+            issueType = 'taskissue';
+        }
 
         Ext.ModelManager.getModel(issueModel).load(issueId, {
             success: function (issue) {
