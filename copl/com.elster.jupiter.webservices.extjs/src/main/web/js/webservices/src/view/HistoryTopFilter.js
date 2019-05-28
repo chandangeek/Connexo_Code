@@ -26,12 +26,11 @@ Ext.define('Wss.view.HistoryTopFilter', {
             },
             {
                 type: 'combobox',
-                dataIndex: 'webservice',
-                emptyText: Uni.I18n.translate('general.webService', 'WSS', 'Web service'),
-                multiSelect: true,
+                dataIndex: 'webServiceEndPoint',
+                emptyText: Uni.I18n.translate('general.webServiceEndpoint', 'WSS', 'Web service endpoint'),
                 displayField: 'name',
                 valueField: 'id',
-                store: 'Wss.store.Webservices'
+                store: 'Wss.store.Endpoints'
             },
             {
                 type: 'combobox',

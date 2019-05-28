@@ -33,7 +33,7 @@ Ext.define('Wss.model.endpoint.Occurrence', {
     {
         model: 'Wss.model.Endpoint',
         associatedName: 'endpoint',
-        associationKey: 'endpoint',
+        associationKey: 'endPointConfigurationInfo',
         getterName: 'getEndpoint',
         setterName: 'setEndpoint'
     },

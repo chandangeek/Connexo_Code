@@ -34,6 +34,7 @@ Ext.define('Wss.view.webservice.HistoryPreviewContainer', {
         me.previewComponent = {
             xtype: 'webservices-webservice-history-form',
             itemId: 'webservices-webservice-history-form',
+            router: me.router,
             frame: true
         };
 

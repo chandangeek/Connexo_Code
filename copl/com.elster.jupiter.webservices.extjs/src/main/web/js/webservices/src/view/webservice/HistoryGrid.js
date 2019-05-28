@@ -13,15 +13,16 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
     router: null,
     initComponent: function () {
         var me = this;
+
         me.columns = [
             {
                 header: Uni.I18n.translate('general.startedOn', 'WSS', 'Started on'),
                 dataIndex: 'startTime',
-                flex: 1.5,
+                flex: 1,
                 renderer: function (value, metaData, record) {
                     var route = 'administration/webserviceendpoints/view/history/occurrence';
                     var url = me.router.getRoute(route).buildUrl({
-                        endpointId: 1, // record.getEndpoint().get('id'),
+                        endpointId: record.getEndpoint().get('id'),
                         occurenceId: record.get('id'),
                     });
                     var date = value ? Uni.DateTime.formatDateTimeShort(value) : '-';
@@ -29,29 +30,38 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                     return '<a href="' + url + '">' + date + '</a>';
                 }
             },
-            // {
-            //     header: Uni.I18n.translate('general.endpoint', 'WSS', 'Web service endpoint'),
-            //     dataIndex: 'endpoint',
-            //     renderer: function(value, metaData, record) {
-            //         var endpoint = record.getEndpoint();
-            //         var url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({
-            //             endpointId: endpoint.get('id')
-            //         });
-            //         var webservice = endpoint.get('webServiceName');
-            //         return '<a href="' + url + '">' + Ext.String.htmlEncode(webservice) + '</a>';
-            //     },
-            //     flex: 1
-            // },
+            {
+                header: Uni.I18n.translate('general.endpoint', 'WSS', 'Web service endpoint'),
+                dataIndex: 'endpoint',
+                flex: 1,
+                renderer: function(value, metaData, record) {
+                    var endpoint = record.getEndpoint();
+                    var url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({
+                        endpointId: endpoint.get('id')
+                    });
+                    var webservice = endpoint.get('webServiceName');
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(webservice) + '</a>';
+                }
+            },
             {
                 header: Uni.I18n.translate('general.application', 'WSS', 'Application'),
                 dataIndex: 'applicationName',
-                renderer: function(value, metaData, record) {
-                    return value;
-                },
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.direction', 'WSS', 'Direction'),
+                dataIndex: 'endpoint',
+                flex: 1,
+                renderer: function(value, metaData, record) {
+                    const direction = record.getEndpoint().get('direction');
+                    return direction
+                        ? direction.localizedValue
+                        : '-'
+                }
+            },
+            {
                 header: Uni.I18n.translate('general.duration', 'WSS', 'Duration'),
+                flex: 1,
                 renderer: function (value, metaData, record) {
                     return Uni.util.String.formatDuration(record.get('startTime') - record.get('endTime'));
                 }
@@ -59,9 +69,6 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
             {
                 header: Uni.I18n.translate('general.status', 'WSS', 'Status'),
                 dataIndex: 'status',
-                renderer: function(value, metaData, record) {
-                    return value;
-                },
                 flex: 1
             }
         ];
@@ -89,7 +96,6 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                defaultPageSize: 50,
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate(
                     'webservices.history.pagingtoolbarbottom.itemsPerPage',

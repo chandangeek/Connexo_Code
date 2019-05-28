@@ -6,182 +6,82 @@ Ext.define('Wss.view.webservice.HistoryForm', {
     extend: 'Ext.form.Panel',
     frame: false,
     alias: 'widget.webservices-webservice-history-form',
-    // layout: {
-    //     type: 'column'
-    // },
     defaults: {
         xtype: 'displayfield',
         labelWidth: 250
     },
+
+    loadRecord: function(record) {
+        this.callParent(arguments);
+        var endpoint = record.getEndpoint();
+
+        this.getForm().setValues({
+            endpoint: endpoint,
+            webServiceName: endpoint.get('webServiceName'),
+            direction: endpoint.get('direction'),
+            logLevel: endpoint.get('logLevel')
+        });
+    },
+
     initComponent: function () {
         var me = this;
 
         me.items = [
             {
-                name: 'startDate',
+                name: 'endpoint',
+                fieldLabel: Uni.I18n.translate('general.webserviceEndpoint', 'WSS', 'Web service endpoint'),
+                renderer: function (value) {
+                    if (!value) {
+                        return '-';
+                    }
+
+                    return value.get('name');
+                }
+            },
+            {
+                name: 'webServiceName',
+                fieldLabel: Uni.I18n.translate('general.webservice', 'WSS', 'Web service')
+            },
+            {
+                name: 'request',
+                fieldLabel: Uni.I18n.translate('general.request', 'WSS', 'Request')
+            },
+            {
+                name: 'applicationName',
+                fieldLabel: Uni.I18n.translate('general.application', 'WSS', 'Application')
+            },
+            {
+                name: 'direction',
+                fieldLabel: Uni.I18n.translate('general.type', 'WSS', 'Type'),
+                renderer: function (value) {
+                    return value ? value.localizedValue : '-';
+                }
+            },
+            {
+                name: 'logLevel',
+                fieldLabel: Uni.I18n.translate('general.logLevel', 'WSS', 'Log level'),
+                renderer: function (value) {
+                    return value ? value.localizedValue : '-';
+                }
+            },
+            {
+                name: 'status',
+                fieldLabel: Uni.I18n.translate('general.status', 'WSS', 'Status')
+            },
+            {
+                name: 'startTime',
                 fieldLabel: Uni.I18n.translate('general.startedOn', 'WSS', 'Started on'),
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 }
             },
             {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.status', 'WSS', 'Status'),
-                name: 'active',
-                hidden: !me.isLandingPage,
+                name: 'endTime',
+                fieldLabel: Uni.I18n.translate('general.finishedOn', 'WSS', 'Finished on'),
                 renderer: function (value) {
-                    if (value === true) {
-                        return Uni.I18n.translate('general.active', 'WSS', 'Active');
-                    } else {
-                        return Uni.I18n.translate('general.inactive', 'WSS', 'Inactive');
-                    }
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 }
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.type', 'WSS', 'Type'),
-                name: 'direction',
-                renderer: function (value) {
-                    if (Ext.isEmpty(value)) {
-                        return '-';
-                    }
-                    return value.localizedValue;
-                }
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.webservice', 'WSS', 'Web service'),
-                name: 'webServiceName',
-                renderer: function (value) {
-                    var record = this.up().getRecord();
-                    if (record) {
-                        if (value && record.get('available')) {
-                            return value;
-                        } else if (value && !record.get('available')) {
-                            return value + ' (' + Uni.I18n.translate('general.notAvailable', 'WSS', 'not available') + ')' + '<span class="icon-warning" style="margin-left:5px; color:#eb5642;"></span>';
-                        }
-                    }
-                    return '-';
-                }
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.url', 'WSS', 'Url'),
-                name: 'url',
-                itemId: 'pathField'
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.url', 'WSS', 'Url'),
-                name: 'previewUrl',
-                hidden: true,
-                renderer: function (value) {
-                    if (Ext.isEmpty(value)) {
-                        this.hide();
-                        this.up().down('#pathField').show();
-                        return '-';
-                    } else {
-                        this.up().down('#pathField').hide();
-                        this.show();
-                        return value;
-                    }
-                }
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.logLevel', 'WSS', 'Log level'),
-                name: 'logLevel',
-                renderer: function (value) {
-                    return value.localizedValue;
-                }
-
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('webservices.traceRequests', 'WSS', 'Trace requests'),
-                name: 'tracing',
-                renderer: me.renderYesOrNo
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('webservices.traceRequestsFileName', 'WSS', 'Trace requests file name'),
-                name: 'traceFile',
-                renderer: function (value, field) {
-                    if (field.up('form').down('[name=tracing]').getValue() === '') {
-                        this.hide();
-                    } else {
-                        this.show();
-                    }
-                    return value;
-                }
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('webservices.httpCompression', 'WSS', 'HTTP compression'),
-                name: 'httpCompression',
-                renderer: me.renderYesOrNo
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('webservices.schemeValidation', 'WSS', 'Scheme validation'),
-                name: 'schemaValidation',
-                renderer: function (value, field) {
-                    var rec = field.up('form').getRecord();
-                    if (rec) {
-                        rec.get('type') === 'REST' ? this.hide() : this.show();
-                        if (value === true) {
-                            return Uni.I18n.translate('general.yes', 'WSS', 'Yes');
-                        } else {
-                            return Uni.I18n.translate('general.no', 'WSS', 'No')
-                        }
-                    }
-                }
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('webservices.authenticationRequired', 'WSS', 'Authentication'),
-                name: 'authenticationMethod',
-                renderer: function (value) {
-                    return !Ext.isEmpty(value) ? value.localizedValue : '';
-                }
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.userRole', 'WSS', 'User role'),
-                name: 'group',
-                renderer: function (value, field) {
-                    if (field.up('form').down('[name=authenticationMethod]').getValue().id === "BASIC_AUTHENTICATION" && Ext.isEmpty(value) && field.up('form').getRecord().get('direction').id === 'INBOUND') {
-                        this.show();
-                        return Uni.I18n.translate('endPointAdd.all', 'WSS', 'All');
-                    }
-                    else if (Ext.isEmpty(value)) {
-                        this.hide();
-                        return value;
-                    } else {
-                        this.show();
-                        return value.name;
-                    }
-                }
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.userName', 'WSS', 'Username'),
-                name: 'username',
-                renderer: function (value) {
-
-                    Ext.isEmpty(value) ? this.hide() : this.show();
-                    return value;
-                }
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.password', 'WSS', 'Password'),
-                name: 'password',
-                renderer: function (value) {
-                    Ext.isEmpty(value) ? this.hide() : this.show();
-                    return value;
-                }
-            },
+            }
         ];
 
         me.callParent(arguments);

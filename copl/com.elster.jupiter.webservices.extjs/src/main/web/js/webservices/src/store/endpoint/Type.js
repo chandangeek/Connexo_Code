@@ -6,7 +6,7 @@ Ext.define('Wss.store.endpoint.Type', {
   extend: 'Ext.data.Store',
   fields: ['value', 'display'],
   data : [
-      {"value":"inbound", "display": Uni.I18n.translate('general.inbound', 'WSS', 'Inbound') },
-      {"value":"outbound", "display": Uni.I18n.translate('general.outbound', 'WSS', 'Outbound') },
+    {"value":"INBOUND", "display": Uni.I18n.translate('general.inbound', 'WSS', 'Inbound') },
+    {"value":"OUTBOUND", "display": Uni.I18n.translate('general.outbound', 'WSS', 'Outbound') },
   ]
 });
