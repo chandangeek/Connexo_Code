@@ -80,12 +80,12 @@ Ext.define('Isu.controller.CreationManualRule', {
             var value = reasonEditedValue.trim();
             var id = value.toLowerCase().replace (/ /g, '.');
             var rec = {
-                id: id,
+                id: value,
                 name: value
             };
             comboReason.store.add(rec);
             comboReason.setValue(comboReason.store.getAt(comboReason.store.count()-1).get('id'));
-            record.set('reasonId', id)
+            record.set('reasonId', value)
        }
        var urgency = record.get('priority.urgency');
        var impact = record.get('priority.impact');

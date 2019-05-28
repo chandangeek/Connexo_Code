@@ -1043,11 +1043,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
                 } else if (me.operation == 'createmanualissue') {
                     var form = currentCmp.down('#issue-manually-creation-rules-item-add-bulk').down('form');
+                    var formErrorsManualIssue = form.down('#form-errors');
                     var comboReason = form.down('#issueReason');
                     var reasonEditedValue = comboReason.getRawValue();
-                    var errorPanel = currentCmp.down('#step3-errors');
+
                     if ( reasonEditedValue.trim() == '') {
-                        errorPanel.show();
+                        formErrorsManualIssue.show();
                         comboReason.markInvalid('This field is required');
                         me.validation = false;
                     }
