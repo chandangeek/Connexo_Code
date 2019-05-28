@@ -16,22 +16,23 @@ public class RetryDeviceInFirmwareCampaignExceptions {
     static final String DEVICE_IN_FIRMWARE_CAMPAIGN_STATE_CHANGE_TO_PENDING_NOT_ALLOWED = "DeviceInFirmwareCampaign.ChangeStatusNotallowed.fromCurrentState";
 
 
-    public static LocalizedException invalidState(Thesaurus thesaurus){
+    public static LocalizedException invalidState(Thesaurus thesaurus) {
         return new RetryDeviceInFirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_CAMPAIGN_STATUS_INVALID);
     }
 
-    public static LocalizedException transitionToPendingStateImpossible(Thesaurus thesaurus, DeviceInFirmwareCampaign deviceInFirmwareCampaign){
+    public static LocalizedException transitionToPendingStateImpossible(Thesaurus thesaurus, DeviceInFirmwareCampaign deviceInFirmwareCampaign) {
         return new RetryDeviceInFirmwareCampaignException(thesaurus, MessageSeeds.DEVICE_IN_FIRMWARE_CAMPAIGN_STATE_INVALID,
-                thesaurus.getString(deviceInFirmwareCampaign.getStatus().key(),deviceInFirmwareCampaign.getStatus().key()) ,
+                thesaurus.getString(deviceInFirmwareCampaign.getServiceCall().getState().getKey(), deviceInFirmwareCampaign.getServiceCall().getState().getKey()),
                 thesaurus.getString(FirmwareManagementDeviceStatus.Constants.PENDING, FirmwareManagementDeviceStatus.Constants.PENDING));
     }
 
 
-    private static class RetryDeviceInFirmwareCampaignException extends LocalizedException{
-        RetryDeviceInFirmwareCampaignException(Thesaurus thesaurus, MessageSeed messageSeed){
+    private static class RetryDeviceInFirmwareCampaignException extends LocalizedException {
+        RetryDeviceInFirmwareCampaignException(Thesaurus thesaurus, MessageSeed messageSeed) {
             super(thesaurus, messageSeed);
         }
-        RetryDeviceInFirmwareCampaignException(Thesaurus thesaurus, MessageSeed messageSeed,Object... args){
+
+        RetryDeviceInFirmwareCampaignException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
             super(thesaurus, messageSeed, args);
         }
     }

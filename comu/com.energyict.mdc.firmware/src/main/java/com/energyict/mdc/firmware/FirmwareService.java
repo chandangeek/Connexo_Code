@@ -5,14 +5,12 @@
 package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -84,25 +82,6 @@ public interface FirmwareService {
     ActivatedFirmwareVersion newActivatedFirmwareVersionFrom(Device device, FirmwareVersion firmwareVersion, Interval interval);
     PassiveFirmwareVersion newPassiveFirmwareVersionFrom(Device device, FirmwareVersion firmwareVersion, Interval interval);
 
-    // Firmware campaigns
-    Optional<FirmwareCampaign> getFirmwareCampaignById(long id);
-    Optional<FirmwareCampaign> findAndLockFirmwareCampaignByIdAndVersion(long id, long version);
-    Finder<FirmwareCampaign> getFirmwareCampaigns();
-    List<FirmwareCampaign> findFirmwareCampaigns(DeviceType deviceType);
-    FirmwareCampaign newFirmwareCampaign(DeviceType deviceType, EndDeviceGroup endDeviceGroup);
-    Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign);
-    DevicesInFirmwareCampaignFilter filterForDevicesInFirmwareCampaign();
-    Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter);
-
-    /**
-     * Returns the {@link FirmwareCampaign} that is linked with the given comtaskExecution
-     * @param comTaskExecution as a result of the firmware campaing
-     * @return the {@link FirmwareCampaign} that is linked with the given comtaskExecution
-     */
-    Optional<FirmwareCampaign> getFirmwareCampaign(ComTaskExecution comTaskExecution);
-
-    void cancelFirmwareCampaign(FirmwareCampaign firmwareCampaign);
-
     /**
      * Tries to cancel the current FirmwareComTaskExecution on the device if it was still pending.
      *
@@ -118,16 +97,6 @@ public interface FirmwareService {
         *
         */
     void resumeFirmwareUploadForDevice(Device device);
-
-    /**
-     * Tries to retry the current FirmwareComTaskExecution on the device if it was still pending.
-     *
-     * @param deviceInFirmwareCampaign for which to retry the firmware upload
-     * @return true if we did a retry, false if no action was required
-     */
-    boolean retryFirmwareUploadForDevice(DeviceInFirmwareCampaign deviceInFirmwareCampaign);
-
-    Optional<DeviceInFirmwareCampaign> getDeviceInFirmwareCampaignsForDevice(FirmwareCampaign firmwareCampaign, Device device);
 
     /**
      * Gets a utility class to manage the firmware on a single device
@@ -147,4 +116,6 @@ public interface FirmwareService {
      * @param kPermutation Should be obtained for the whole list of firmware versions on current deviceType, ordered by rank desc.
      */
     void reorderFirmwareVersions(DeviceType deviceType, KPermutation kPermutation);
+
+    FirmwareCampaignService getFirmwareCampaignService();
 }

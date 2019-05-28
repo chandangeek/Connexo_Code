@@ -27,19 +27,19 @@ public enum MessageSeeds implements MessageSeed {
 
     DEVICE_TYPE_NOT_FOUND(13, Keys.DEVICE_TYPE_NOT_FOUND, "No device type with id {0} could be found"),
     DEVICE_NOT_FOUND(14, Keys.DEVICE_NOT_FOUND, "No device {0} could be found"),
-    MAX_FILE_SIZE_EXCEEDED(15, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE/1024/1024 + " Mb"),
+    MAX_FILE_SIZE_EXCEEDED(15, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE / 1024 / 1024 + " Mb"),
     FILE_IO(16, Keys.FILE_IO, "Failure while doing IO on file"),
     FIRMWARE_CAMPAIGN_NOT_FOUND(17, Keys.FIRMWARE_CAMPAIGN_NOT_FOUND, "No firmware campaign with id {0} could be found"),
-        DEVICE_GROUP_NOT_FOUND(18, Keys.DEVICE_GROUP_NOT_FOUND, "No device group with id {0} could be found"),
+    DEVICE_GROUP_NOT_FOUND(18, Keys.DEVICE_GROUP_NOT_FOUND, "No device group with id {0} could be found"),
     FIRMWARE_VERSION_NOT_FOUND(19, Keys.FIRMWARE_VERSION_NOT_FOUND, "No firmware version with id {0} could be found"),
     FIRMWARE_VERSION_MISSING(20, Keys.FIRMWARE_VERSION_MISSING, "Firmware version is missing in the request"),
     FIRMWARE_ACTION_CHECK_VERSION(21, Keys.FIRMWARE_ACTION_CHECK_VERSION, "Check firmware version/image"),
 
     FIRMWARE_CAMPAIGN_STATUS_PROCESSING(50, Keys.FIRMWARE_CAMPAIGN_STATUS_PROCESSING, "Processing"),
-    FIRMWARE_CAMPAIGN_STATUS_SCHEDULED(51, Keys.FIRMWARE_CAMPAIGN_STATUS_SCHEDULED , "Scheduled"),
-    FIRMWARE_CAMPAIGN_STATUS_ONGOING(52, Keys.FIRMWARE_CAMPAIGN_STATUS_ONGOING , "Ongoing"),
-    FIRMWARE_CAMPAIGN_STATUS_COMPLETE(53, Keys.FIRMWARE_CAMPAIGN_STATUS_COMPLETE , "Complete"),
-    FIRMWARE_CAMPAIGN_STATUS_CANCELLED(54, Keys.FIRMWARE_CAMPAIGN_STATUS_CANCELLED , "Cancelled"),
+    FIRMWARE_CAMPAIGN_STATUS_SCHEDULED(51, Keys.FIRMWARE_CAMPAIGN_STATUS_SCHEDULED, "Scheduled"),
+    FIRMWARE_CAMPAIGN_STATUS_ONGOING(52, Keys.FIRMWARE_CAMPAIGN_STATUS_ONGOING, "Ongoing"),
+    FIRMWARE_CAMPAIGN_STATUS_COMPLETE(53, Keys.FIRMWARE_CAMPAIGN_STATUS_COMPLETE, "Complete"),
+    FIRMWARE_CAMPAIGN_STATUS_CANCELLED(54, Keys.FIRMWARE_CAMPAIGN_STATUS_CANCELLED, "Cancelled"),
 
     FIRMWARE_MANAGEMENT_DEVICE_STATUS_SUCCESS(101, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.SUCCESS, "Successful"),
     FIRMWARE_MANAGEMENT_DEVICE_STATUS_FAILED(102, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.FAILED, "Failed"),
@@ -60,13 +60,16 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE(1010, "comTaskNotFound", "Could not find communication task with id {0}"),
     FIRMWARE_ACTIVATION_DATE_IS_BEFORE_UPLOAD(1011, "FirmwareActivationDateIsBeforeUpload", "This date should be after the ''Upload file'' date"),
 
-    FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE (1012, "FirmwareCheckTaskConcurrentFail", "Failed to run ''{0}''"),
-    FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY (1013, "FirmwareCheckTaskConcurrentBody", "{0} has changed since the page was last updated."),
-    FIRMWARE_COMMUNICATION_TASK_NAME (1014, "FirmwareTaskName", "Firmware communication task"),
+    FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE(1012, "FirmwareCheckTaskConcurrentFail", "Failed to run ''{0}''"),
+    FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY(1013, "FirmwareCheckTaskConcurrentBody", "{0} has changed since the page was last updated."),
+    FIRMWARE_COMMUNICATION_TASK_NAME(1014, "FirmwareTaskName", "Firmware communication task"),
     NOT_ABLE_TO_CREATE_CAMPAIGN(1015, "NotAbleToCreateCampaign", "Not able to create a new firmware campaign from the specified information"),
     SECURITY_ACCESSOR_EXPIRED(1018, "SecurityAccessorExpired", "Security accessor expired."),
     SIGNATURE_VALIDATION_FAILED(1019, "SignatureValidationFailed", "Incorrect firmware file: image signature verification failed."),
-    ;
+
+    DEVICETYPE_WITH_ID_ISNT_FOUND(2000, "DeviceTypeWithIdIsntFound", "Device type with id {0} isn''t found."),
+    PROTOCOL_WITH_ID_ISNT_FOUND(2001, "ProtocolWithIdIsntFound", "Protocol supported firmware options with id ''{0}'' isn''t found.");
+
     private final int number;
     private final String key;
     private final String format;

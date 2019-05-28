@@ -6,6 +6,7 @@ package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignDomainExtension;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import javax.validation.ConstraintValidator;
@@ -17,13 +18,12 @@ import java.util.Optional;
 /**
  * This validator will check:
  * <ul>
- *     <li>If all given attributes exist on the DeviceMessageSpec</li>
- *     <li>If all attributes for the DeviceMessageSpec are present</li>
- *     <li>If all attributes are from the correct type</li>
+ * <li>If all given attributes exist on the DeviceMessageSpec</li>
+ * <li>If all attributes for the DeviceMessageSpec are present</li>
+ * <li>If all attributes are from the correct type</li>
  * </ul>
- *
  */
-public class FirmwareCampaignsAttributesValidator implements ConstraintValidator<HasValidFirmwareCampaignAttributes, FirmwareCampaignImpl> {
+public class FirmwareCampaignsAttributesValidator implements ConstraintValidator<HasValidFirmwareCampaignAttributes, FirmwareCampaignDomainExtension> {
 
     private boolean valid;
 
@@ -33,7 +33,7 @@ public class FirmwareCampaignsAttributesValidator implements ConstraintValidator
     }
 
     @Override
-    public boolean isValid(FirmwareCampaignImpl firmwareCampaign, ConstraintValidatorContext context) {
+    public boolean isValid(FirmwareCampaignDomainExtension firmwareCampaign, ConstraintValidatorContext context) {
         Optional<DeviceMessageSpec> firmwareMessageSpec = firmwareCampaign.getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
             List<PropertySpec> propertySpecs = firmwareMessageSpec.get().getPropertySpecs();
@@ -72,7 +72,7 @@ public class FirmwareCampaignsAttributesValidator implements ConstraintValidator
     }
 
     private void validatePropertyValues(Map<String, Object> properties, List<PropertySpec> propertySpecs, ConstraintValidatorContext context) {
-        for (Map.Entry<String, Object> entry: properties.entrySet()) {
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
             validatePropertyValue(entry.getKey(), entry.getValue(), propertySpecs, context);
         }
     }

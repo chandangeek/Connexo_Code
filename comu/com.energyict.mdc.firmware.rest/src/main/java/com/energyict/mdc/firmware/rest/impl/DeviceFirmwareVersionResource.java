@@ -10,6 +10,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.rest.impl.campaign.DeviceInFirmwareCampaignInfo;
 import com.energyict.mdc.firmware.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;

@@ -4,18 +4,17 @@
 
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.security.Privileges;
 
@@ -23,7 +22,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,29 +33,43 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final EventService eventService;
     private final MessageService messageService;
     private final UserService userService;
+    private final ServiceCallService serviceCallService;
+    private final CustomPropertySetService customPropertySetService;
+    private final FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller;
 
     @Inject
-    Installer(DataModel dataModel, EventService eventService, MessageService messageService, UserService userService) {
+    Installer(DataModel dataModel, EventService eventService, MessageService messageService, UserService userService,
+              ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService,
+              FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.messageService = messageService;
         this.userService = userService;
+        this.serviceCallService = serviceCallService;
+        this.customPropertySetService = customPropertySetService;
+        this.firmwareCampaignServiceCallLifeCycleInstaller = firmwareCampaignServiceCallLifeCycleInstaller;
     }
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        doTry(
-                "Create events subscriber",
-                this::createJupiterEventsSubscriber,
-                logger
-        );
+//        doTry(
+//                "Create events subscriber",
+//                this::createJupiterEventsSubscriber,
+//                logger
+//        );
         doTry(
                 "Create event types for FRM",
                 this::createEventTypesIfNotExist,
                 logger
         );
+        doTry(
+                "Create service call types",
+                firmwareCampaignServiceCallLifeCycleInstaller::createServiceCallTypes,
+                logger
+        );
         userService.addModulePrivileges(this);
+        Arrays.stream(EventType.values()).forEach(eventType -> eventType.createIfNotExists(eventService));
     }
 
     @Override
@@ -74,19 +86,16 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         return resources;
     }
 
-    private void createJupiterEventsSubscriber() {
-        Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
-        if (destinationSpec.isPresent()) {
-            DestinationSpec jupiterEvents = destinationSpec.get();
-            if (!jupiterEvents.getSubscribers().stream().anyMatch(s -> s.getName().equals(FirmwareCampaignHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER))) {
-                Condition or = Condition.FALSE;
-                for (FirmwareCampaignHandler.Handler handler : FirmwareCampaignHandler.Handler.values()) {
-                    or = or.or(DestinationSpec.whereCorrelationId().isEqualTo(handler.getTopic()));
-                }
-                jupiterEvents.subscribe(TranslationKeys.FIRMWARE_CAMPAIGNS_SUBSCRIBER, FirmwareService.COMPONENTNAME, Layer.DOMAIN, or);
-            }
-        }
-    }
+//    private void createJupiterEventsSubscriber() {
+//        Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
+//        if (destinationSpec.isPresent()) {
+//            DestinationSpec jupiterEvents = destinationSpec.get();
+//            if (jupiterEvents.getSubscribers().stream().noneMatch(s -> s.getName().equals(FirmwareCampaignHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER))) {
+//                Condition or = Condition.FALSE;
+//                jupiterEvents.subscribe(TranslationKeys.FIRMWARE_CAMPAIGNS_SUBSCRIBER, FirmwareService.COMPONENTNAME, Layer.DOMAIN, or);
+//            }
+//        }
+//    }
 
     private void createEventTypesIfNotExist() {
         for (EventType eventType : EventType.values()) {

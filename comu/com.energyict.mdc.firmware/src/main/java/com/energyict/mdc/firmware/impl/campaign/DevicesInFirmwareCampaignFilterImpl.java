@@ -1,9 +1,11 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.firmware.impl;
+package com.energyict.mdc.firmware.impl.campaign;
 
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Operator;
@@ -11,9 +13,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.BadFilterException;
 import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
-import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
-import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.tasks.ComTask;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  */
 public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCampaignFilter {
 
-    private FirmwareService firmwareService;
+    private FirmwareCampaignService firmwareCampaignService;
     private DeviceService deviceService;
 
     private Optional<Long> firmwareCampaignId = Optional.empty();
@@ -39,8 +39,8 @@ public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCam
      */
     private Set<String> statusKeys;
 
-    public DevicesInFirmwareCampaignFilterImpl(FirmwareService firmwareService, DeviceService deviceService) {
-        this.firmwareService = firmwareService;
+    public DevicesInFirmwareCampaignFilterImpl(FirmwareCampaignService firmwareCampaignService, DeviceService deviceService) {
+        this.firmwareCampaignService = firmwareCampaignService;
         this.deviceService = deviceService;
     }
 
@@ -69,12 +69,12 @@ public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCam
         if (!firmwareCampaignId.isPresent()) {
             return Condition.TRUE;
         }
-        if (firmwareService == null) {
+        if (firmwareCampaignService == null) {
             throw new IllegalStateException("FirmwareService is not set");
         }
-        FirmwareCampaign campaign = firmwareService.getFirmwareCampaignById(firmwareCampaignId.get())
-                .orElseThrow(() -> new BadFilterException(String.format("Campaign %d not found.", firmwareCampaignId.get())));
-        return Operator.EQUAL.compare(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName(), campaign);
+        ServiceCall campaignServiceCall = firmwareCampaignService.getFirmwareCampaignById(firmwareCampaignId.get())
+                .orElseThrow(() -> new BadFilterException(String.format("Campaign %d not found.", firmwareCampaignId.get()))).getServiceCall();
+        return Operator.EQUAL.compare(FirmwareCampaignItemDomainExtension.FieldNames.PARENT.databaseName(), campaignServiceCall);
     }
 
     private Condition conditionForDevice() {
@@ -90,27 +90,27 @@ public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCam
             if (!devices.get(0).isPresent()) {
                 throw new BadFilterException(String.format("Device %d not found.", deviceId));
             }
-            return Operator.EQUAL.compare(DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName(), devices.get(0).get());
+            return Operator.EQUAL.compare(FirmwareCampaignItemDomainExtension.FieldNames.DEVICE.databaseName(), devices.get(0).get());
         }
-        return ListOperator.IN.contains(DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName(), devices.stream().map(Optional::get).collect(Collectors.toList()));
+        return ListOperator.IN.contains(FirmwareCampaignItemDomainExtension.FieldNames.DEVICE.databaseName(), devices.stream().map(Optional::get).collect(Collectors.toList()));
     }
 
     private Condition conditionForStatus() {
-        List<FirmwareManagementDeviceStatus> statuses = getDeviceInFirmwareCampaignStatusOrdinals();
-        if (statuses.isEmpty() || statuses.size() == FirmwareManagementDeviceStatus.values().length) {
+        List<DefaultState> statuses = getDeviceInFirmwareCampaignStatusOrdinals();
+        if (statuses.isEmpty() || statuses.size() == DefaultState.values().length) {
             return Condition.TRUE;
         }
         if (statuses.size() == 1) {
-            return Operator.EQUAL.compare(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName(), statuses.get(0));
+            return Operator.EQUAL.compare(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.databaseName(), statuses.get(0));
         }
-        return ListOperator.IN.contains(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName(), statuses);
+        return ListOperator.IN.contains(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.databaseName(), statuses);//todo
     }
 
-    private List<FirmwareManagementDeviceStatus> getDeviceInFirmwareCampaignStatusOrdinals() {
-        List<FirmwareManagementDeviceStatus> statusOrdinals = new ArrayList<>();
+    private List<DefaultState> getDeviceInFirmwareCampaignStatusOrdinals() {
+        List<DefaultState> statusOrdinals = new ArrayList<>();
         if (this.statusKeys != null) {
-            for (FirmwareManagementDeviceStatus status : FirmwareManagementDeviceStatus.values()) {
-                if (this.statusKeys.contains(status.key())) {
+            for (DefaultState status : DefaultState.values()) {
+                if (this.statusKeys.contains(status.getKey())) {
                     statusOrdinals.add(status);
                 }
             }

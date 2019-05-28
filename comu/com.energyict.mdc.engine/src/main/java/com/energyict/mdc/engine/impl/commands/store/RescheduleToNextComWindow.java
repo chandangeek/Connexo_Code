@@ -40,7 +40,7 @@ public class RescheduleToNextComWindow extends RescheduleExecutionDeviceCommand 
         Instant startingPoint = getClock().instant();
         Optional<ComTaskExecution> firmwareComTaskExecution = scheduledJob.getComTaskExecutions().stream().filter(ComTaskExecution::isFirmware).findAny();
         if (firmwareComTaskExecution.isPresent()) {
-            Optional<FirmwareCampaign> firmwareCampaign = firmwareService.getFirmwareCampaign(firmwareComTaskExecution.get());
+            Optional<FirmwareCampaign> firmwareCampaign = firmwareService.getFirmwareCampaignService().getCampaignOn(firmwareComTaskExecution.get());
             if (firmwareCampaign.isPresent()) {
                 startingPoint = getComWindowAppliedStartDate(firmwareCampaign.get(), firmwareComTaskExecution.get().getNextExecutionTimestamp());
             }

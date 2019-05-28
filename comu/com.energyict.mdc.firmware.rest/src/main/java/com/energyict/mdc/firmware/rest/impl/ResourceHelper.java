@@ -20,12 +20,16 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
+import com.energyict.mdc.firmware.rest.impl.campaign.DeviceInFirmwareCampaignInfo;
+import com.energyict.mdc.firmware.rest.impl.campaign.DeviceInFirmwareCampaignInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.campaign.FirmwareCampaignInfo;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -49,13 +53,18 @@ public class ResourceHelper {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceService deviceService;
     private final FirmwareService firmwareService;
+    private final FirmwareCampaignService firmwareCampaignService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final Thesaurus thesaurus;
     private final SecurityManagementService securityManagementService;
     private final Clock clock;
+    private final DeviceInFirmwareCampaignInfoFactory deviceInFirmwareCampaignInfoFactory;
 
     @Inject
-    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, FirmwareService firmwareService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus, SecurityManagementService securityManagementService, Clock clock) {
+    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService,
+                          DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService,
+                          FirmwareService firmwareService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus,
+                          SecurityManagementService securityManagementService, Clock clock, DeviceInFirmwareCampaignInfoFactory deviceInFirmwareCampaignInfoFactory) {
         this.exceptionFactory = exceptionFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
@@ -65,6 +74,8 @@ public class ResourceHelper {
         this.thesaurus = thesaurus;
         this.securityManagementService = securityManagementService;
         this.clock = clock;
+        this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
+        this.deviceInFirmwareCampaignInfoFactory = deviceInFirmwareCampaignInfoFactory;
     }
 
     public DeviceType findDeviceTypeOrElseThrowException(long deviceTypeId) {
@@ -111,16 +122,16 @@ public class ResourceHelper {
     }
 
     public FirmwareCampaign findFirmwareCampaignOrThrowException(long id) {
-        return firmwareService.getFirmwareCampaignById(id)
+        return firmwareCampaignService.getFirmwareCampaignById(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_CAMPAIGN_NOT_FOUND, id));
     }
 
     public Long getCurrentFirmwareCampaignVersion(long id) {
-        return firmwareService.getFirmwareCampaignById(id).map(FirmwareCampaign::getVersion).orElse(null);
+        return firmwareCampaignService.getFirmwareCampaignById(id).map(FirmwareCampaign::getVersion).orElse(null);
     }
 
     public Optional<FirmwareCampaign> getLockedFirmwareCampaign(long id, long version) {
-        return firmwareService.findAndLockFirmwareCampaignByIdAndVersion(id, version);
+        return firmwareCampaignService.findAndLockFirmwareCampaignByIdAndVersion(id, version);
     }
 
     public FirmwareCampaign lockFirmwareCampaign(FirmwareCampaignInfo info) {
@@ -160,22 +171,22 @@ public class ResourceHelper {
     }
 
     public Optional<DeviceInFirmwareCampaignInfo> cancelDeviceInFirmwareCampaign(FirmwareCampaign campaign, Device device) {
-        Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareService.getDeviceInFirmwareCampaignsForDevice(campaign, device);
+        Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaign.isPresent()) {
             firmwareService.cancelFirmwareUploadForDevice(device);
             deviceInFirmwareCampaign.get().cancel();
-            return Optional.of(new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.get(), thesaurus));
+            return Optional.of(deviceInFirmwareCampaignInfoFactory.create(deviceInFirmwareCampaign.get().getDevice(), deviceInFirmwareCampaign.get().getServiceCall()));
         } else {
             return Optional.empty();
         }
     }
 
     public Optional<DeviceInFirmwareCampaignInfo> retryDeviceInFirmwareCampaign(FirmwareCampaign campaign, Device device) {
-        Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareService.getDeviceInFirmwareCampaignsForDevice(campaign, device);
+        Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaign.isPresent()) {
-            firmwareService.retryFirmwareUploadForDevice(deviceInFirmwareCampaign.get());
+            firmwareCampaignService.retryFirmwareUploadForDevice(deviceInFirmwareCampaign.get());
             deviceInFirmwareCampaign.get().retry();
-            return Optional.of(new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.get(), thesaurus));
+            return Optional.of(deviceInFirmwareCampaignInfoFactory.create(deviceInFirmwareCampaign.get().getDevice(), deviceInFirmwareCampaign.get().getServiceCall()));
         } else {
             return Optional.empty();
         }
@@ -239,7 +250,7 @@ public class ResourceHelper {
         }
     }
 
-    Optional<Long> getPropertyInfoValueLong(PropertyInfo propertyInfo) {
+    public Optional<Long> getPropertyInfoValueLong(PropertyInfo propertyInfo) {
         Object value = propertyInfo.getPropertyValueInfo().getValue();
         return this.convertObjectToLong(value);
     }

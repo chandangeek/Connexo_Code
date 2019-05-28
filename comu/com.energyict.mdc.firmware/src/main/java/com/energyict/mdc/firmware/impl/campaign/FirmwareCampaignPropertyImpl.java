@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.firmware.impl;
+package com.energyict.mdc.firmware.impl.campaign;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -11,17 +11,18 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
+import com.energyict.mdc.firmware.impl.MessageSeeds;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
-class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
+public class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
 
     public enum Fields {
-        CAMPAIGN ("campaign"),
-        KEY ("key"),
-        VALUE ("value"),
+        CAMPAIGN("campaign"),
+        KEY("key"),
+        VALUE("value"),
         ;
 
         private String name;
@@ -30,7 +31,7 @@ class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
             this.name = name;
         }
 
-        public String fieldName(){
+        public String fieldName() {
             return this.name;
         }
     }
@@ -58,7 +59,7 @@ class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
         this.dataModel = dataModel;
     }
 
-    FirmwareCampaignProperty init(FirmwareCampaign campaign, String key, String value){
+    FirmwareCampaignProperty init(FirmwareCampaign campaign, String key, String value) {
         this.campaign.set(campaign);
         this.key = key;
         this.value = value;
@@ -66,7 +67,7 @@ class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
     }
 
     @Override
-    public String getKey(){
+    public String getKey() {
         return this.key;
     }
 

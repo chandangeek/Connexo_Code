@@ -4,12 +4,14 @@
 
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
@@ -24,6 +26,8 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
@@ -45,13 +49,9 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
-import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
-import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaignStatus;
+import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
-import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -62,6 +62,9 @@ import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignCustomPropertySet;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemCustomPropertySet;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
 import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -80,6 +83,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -114,7 +119,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link FirmwareService} interface.
- *
  */
 @Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
 public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider, TranslationKeyProvider {
@@ -135,8 +139,16 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile UpgradeService upgradeService;
     private volatile TopologyService topologyService;
+    private volatile FirmwareCampaignServiceImpl firmwareCampaignService;
+    private volatile ServiceCallService serviceCallService;
+    private volatile OrmService ormService;
+    private volatile CustomPropertySetService customPropertySetService;
+    private volatile TransactionService transactionService;
+    private volatile RegisteredCustomPropertySet registeredCustomPropertySet;
 
+    private List<CustomPropertySet> customPropertySets = new ArrayList<>();
     private List<FirmwareCheck> firmwareChecks = new CopyOnWriteArrayList<>();
+
 
     // For OSGI
     public FirmwareServiceImpl() {
@@ -158,7 +170,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                                CommunicationTaskService communicationTaskService,
                                PropertySpecService propertySpecService,
                                UpgradeService upgradeService,
-                               TopologyService topologyService) {
+                               TopologyService topologyService,
+                               ServiceCallService serviceCallService,
+                               CustomPropertySetService customPropertySetService,
+                               BundleContext bundleContext,
+                               TransactionService transactionService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -175,7 +191,15 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         setPropertySpecService(propertySpecService);
         setUpgradeService(upgradeService);
         setTopologyService(topologyService);
-        activate();
+        setServiceCallService(serviceCallService);
+        setCustomPropertySetService(customPropertySetService);
+        setTransactionService(transactionService);
+        activate(bundleContext);
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 
     @Reference
@@ -206,6 +230,16 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Override
@@ -255,17 +289,26 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Override
     public boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType) {
-        if (deviceType.getDeviceProtocolPluggableClass().isPresent()){
+        if (deviceType.getDeviceProtocolPluggableClass().isPresent()) {
             DeviceProtocol deviceProtocol = deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol();
-            return deviceProtocol.getSupportedMessages().stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::from).anyMatch(dmid -> this.deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(dmid));
+            return deviceProtocol.getSupportedMessages()
+                    .stream()
+                    .map(DeviceMessageSpec::getId)
+                    .map(DeviceMessageId::from)
+                    .anyMatch(dmid -> this.deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(dmid));
         }
         return false;
     }
+
     @Override
-    public boolean isResumeFirmwareUploadEnabled(DeviceType deviceType){
-        if (deviceType.getDeviceProtocolPluggableClass().isPresent()){
+    public boolean isResumeFirmwareUploadEnabled(DeviceType deviceType) {
+        if (deviceType.getDeviceProtocolPluggableClass().isPresent()) {
             DeviceProtocol deviceProtocol = deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol();
-            return deviceProtocol.getSupportedMessages().stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::from).anyMatch(dmid -> this.deviceMessageSpecificationService.canResumeFirmwareUpload(dmid));
+            return deviceProtocol.getSupportedMessages()
+                    .stream()
+                    .map(DeviceMessageSpec::getId)
+                    .map(DeviceMessageId::from)
+                    .anyMatch(dmid -> this.deviceMessageSpecificationService.canResumeFirmwareUpload(dmid));
         }
         return false;
     }
@@ -276,7 +319,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Optional<DeviceMessageId> bestSuitableFirmwareUpgradeMessageId(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOption,FirmwareVersion firmwareVersion){
+    public Optional<DeviceMessageId> bestSuitableFirmwareUpgradeMessageId(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOption, FirmwareVersion firmwareVersion) {
         List<DeviceMessageId> deviceMessageIdList = getDeviceMessageIdList(deviceType, firmwareManagementOption);
         if (!deviceMessageIdList.isEmpty()) {
             if (firmwareVersion != null) {
@@ -466,90 +509,28 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Optional<FirmwareCampaign> getFirmwareCampaignById(long id) {
-        return dataModel.mapper(FirmwareCampaign.class).getOptional(id);
-    }
-
-    @Override
-    public Optional<FirmwareCampaign> findAndLockFirmwareCampaignByIdAndVersion(long id, long version) {
-        return dataModel.mapper(FirmwareCampaign.class).lockObjectIfVersion(version, id);
-    }
-
-    @Override
-    public Finder<FirmwareCampaign> getFirmwareCampaigns() {
-        return DefaultFinder.of(FirmwareCampaign.class, Condition.TRUE, dataModel).sorted(FirmwareCampaignImpl.Fields.STARTED_ON.fieldName(), false);
-    }
-
-    @Override
-    public List<FirmwareCampaign> findFirmwareCampaigns(DeviceType deviceType) {
-        return this.dataModel.mapper(FirmwareCampaign.class).find(FirmwareCampaignImpl.Fields.DEVICE_TYPE.fieldName(), deviceType);
-    }
-
-    @Override
-    public FirmwareCampaign newFirmwareCampaign(DeviceType deviceType, EndDeviceGroup endDeviceGroup) {
-        return dataModel.getInstance(FirmwareCampaignImpl.class).init(deviceType, endDeviceGroup);
-    }
-
-    @Override
-    public Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign) {
-        Condition condition = where(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName()).isEqualTo(firmwareCampaign);
-        return DefaultFinder.of(DeviceInFirmwareCampaign.class, condition, dataModel);
-    }
-
-    @Override
-    public DevicesInFirmwareCampaignFilter filterForDevicesInFirmwareCampaign() {
-        return new DevicesInFirmwareCampaignFilterImpl(this, deviceService);
-    }
-
-    @Override
-    public Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter) {
-        return DefaultFinder.of(DeviceInFirmwareCampaign.class, filter.getCondition(), dataModel);
-    }
-
-    public List<DeviceInFirmwareCampaignImpl> getDeviceInFirmwareCampaignsFor(Device device) {
-        return dataModel.query(DeviceInFirmwareCampaignImpl.class, FirmwareCampaign.class, Device.class)
-                .select(where(DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName()).isEqualTo(device).and(
-                        where(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName() + "." + FirmwareCampaignImpl.Fields.STATUS.fieldName()).isNotEqual(FirmwareCampaignStatus.COMPLETE)));
-    }
-
-    @Override
-    public Optional<FirmwareCampaign> getFirmwareCampaign(ComTaskExecution comTaskExecution) {
-        Optional<FirmwareCampaignImpl> firmwareCampaign = getDeviceInFirmwareCampaignsFor(comTaskExecution.getDevice())
-                .stream()
-                .filter(DeviceInFirmwareCampaignImpl::hasNonFinalStatus)
-                .map(DeviceInFirmwareCampaignImpl::getFirmwareCampaign)
-                .findAny();
-        return Optional.ofNullable(firmwareCampaign.orElse(null));
-    }
-
-    @Override
-    public void cancelFirmwareCampaign(FirmwareCampaign firmwareCampaign) {
-        ((FirmwareCampaignImpl) firmwareCampaign).cancel();
-    }
-
-    @Override
     public boolean cancelFirmwareUploadForDevice(Device device) {
         Optional<ComTaskExecution> fwComTaskExecution = getFirmwareComtaskExecution(device);
         return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution.get());
     }
 
     public void resumeFirmwareUploadForDevice(Device device) {
-            device.getMessagesByState(DeviceMessageStatus.PENDING)
-                    .stream()
-                    .filter(this::isItAFirmwareRelatedMessage)
-                    .forEach(x-> this.resume(device, x));
+        device.getMessagesByState(DeviceMessageStatus.PENDING)
+                .stream()
+                .filter(this::isItAFirmwareRelatedMessage)
+                .forEach(x -> this.resume(device, x));
     }
 
-    private void resume(Device device, DeviceMessage deviceMessage){
+    private void resume(Device device, DeviceMessage deviceMessage) {
         // "Cloning" the current message but with a resume attribute set to true
         Device.DeviceMessageBuilder deviceMessageBuilder = device
                 .newDeviceMessage(deviceMessage.getDeviceMessageId())
                 .setReleaseDate(deviceMessage.getReleaseDate())
                 .setTrackingId(deviceMessage.getTrackingId());
-        for (DeviceMessageAttribute attribute: deviceMessage.getAttributes()) {
-            if (attribute.getName().equals("FirmwareDeviceMessage.upgrade.resume")){
-                deviceMessageBuilder.addProperty("FirmwareDeviceMessage.upgrade.resume" , Boolean.TRUE);
-            }else {
+        for (DeviceMessageAttribute attribute : deviceMessage.getAttributes()) {
+            if (attribute.getName().equals("FirmwareDeviceMessage.upgrade.resume")) {
+                deviceMessageBuilder.addProperty("FirmwareDeviceMessage.upgrade.resume", Boolean.TRUE);
+            } else {
                 deviceMessageBuilder.addProperty(attribute.getName(), attribute.getValue());
             }
         }
@@ -558,19 +539,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         // revoking the previous message
         // deviceMessage.revoke();    ???? Revoking = Change status to DeviceMessageStatus.CANCELED ... can't we leave it as DeviceMessageStatus.FAILED
         // As revoking the message leads to canceling the deviceInFirmwareCampaign : see FirmwareCampaignHandler
-    }
-
-    @Override
-    public boolean retryFirmwareUploadForDevice(DeviceInFirmwareCampaign deviceInFirmwareCampaign) {
-        if (deviceInFirmwareCampaign.getFirmwareCampaign().getStatus() != FirmwareCampaignStatus.ONGOING) {
-            throw RetryDeviceInFirmwareCampaignExceptions.invalidState(this.thesaurus);
-        }
-        // retry
-        if (!deviceInFirmwareCampaign.getStatus().canTransitToStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING)) {
-            throw RetryDeviceInFirmwareCampaignExceptions.transitionToPendingStateImpossible(this.thesaurus, deviceInFirmwareCampaign);
-        }
-        ((DeviceInFirmwareCampaignImpl) deviceInFirmwareCampaign).retryFirmwareProcess();
-        return true;
     }
 
     private Optional<ComTaskExecution> getFirmwareComtaskExecution(Device device) {
@@ -600,12 +568,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 .stream()
                 .filter(this::isItAFirmwareRelatedMessage)
                 .forEach(DeviceMessage::revoke);
-    }
-
-    @Override
-    public Optional<DeviceInFirmwareCampaign> getDeviceInFirmwareCampaignsForDevice(FirmwareCampaign firmwareCampaign, Device device) {
-        return dataModel.mapper(DeviceInFirmwareCampaign.class)
-                .getUnique(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName(), firmwareCampaign, DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName(), device);
     }
 
     @Override
@@ -687,8 +649,15 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext bundleContext) {
         try {
+            customPropertySets.add(new FirmwareCampaignCustomPropertySet(thesaurus, propertySpecService, this));
+            customPropertySets.add(new FirmwareCampaignItemCustomPropertySet(thesaurus, propertySpecService, this));
+            customPropertySets.forEach(customPropertySetService::addCustomPropertySet);
+            dataModel = ormService.newDataModel(FirmwareService.COMPONENTNAME, "Firmware configuration");
+            for (TableSpecs spec : TableSpecs.values()) {
+                spec.addTo(dataModel);
+            }
             dataModel.register(new AbstractModule() {
                 @Override
                 protected void configure() {
@@ -708,8 +677,17 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(UserService.class).toInstance(userService);
                     bind(PropertySpecService.class).toInstance(propertySpecService);
                     bind(TopologyService.class).toInstance(topologyService);
+                    bind(ServiceCallService.class).toInstance(serviceCallService);
+                    bind(OrmService.class).toInstance(ormService);
+                    bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
+                    bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                    bind(TransactionService.class).toInstance(transactionService);
+                    bind(FirmwareCampaignService.class).to(FirmwareCampaignServiceImpl.class).in(Scopes.SINGLETON);
+
                 }
             });
+            registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(FirmwareCampaignCustomPropertySet.CUSTOM_PROPERTY_SET_ID).get();
+            firmwareCampaignService = dataModel.getInstance(FirmwareCampaignServiceImpl.class);
             upgradeService.register(
                     InstallIdentifier.identifier("MultiSense", FirmwareService.COMPONENTNAME),
                     dataModel,
@@ -718,13 +696,15 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                             version(10, 2), UpgraderV10_2.class,
                             version(10, 4), V10_4SimpleUpgrader.class,
                             version(10, 4, 1), V10_4_1SimpleUpgrader.class,
-                            version(10, 6), UpgraderV10_6.class
+                            version(10, 6), UpgraderV10_6.class,
+                            version(10, 7), UpgraderV10_7.class
                     ));
             addFirmwareCheck(dataModel.getInstance(StatusOfTargetFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(NoGhostFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(MinimumLevelFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(NoDowngradeFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(MasterHasLatestFirmwareCheck.class));
+            firmwareCampaignService.activate(bundleContext);
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -733,7 +713,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Deactivate
     public final void deactivate() {
+        customPropertySets.forEach(customPropertySetService::removeCustomPropertySet);
+        customPropertySets.clear();
         firmwareChecks.clear();
+        firmwareCampaignService.deactivate();
     }
 
     @Reference
@@ -758,10 +741,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(FirmwareService.COMPONENTNAME, "Firmware configuration");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
+        this.ormService = ormService;
     }
 
     @Reference
@@ -822,6 +802,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return this.dataModel;
     }
 
+    public OrmService getOrmService() {
+        return this.ormService;
+    }
+
     @Override
     public DeviceFirmwareHistory getFirmwareHistory(Device device) {
         return new DeviceFirmwareHistoryImpl(this, device);
@@ -861,7 +845,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     public void reorderFirmwareVersions(DeviceType deviceType, KPermutation kPermutation) {
         List<FirmwareVersionImpl> currentFirmwaresOrder = getOrderedFirmwareVersions(deviceType);
         if (!kPermutation.isPermutation(currentFirmwaresOrder)) {
-            throw new LocalizedException(thesaurus, MessageSeeds.INVALID_FIRMWARE_VERSIONS_PERMUTATION) {};
+            throw new LocalizedException(thesaurus, MessageSeeds.INVALID_FIRMWARE_VERSIONS_PERMUTATION) {
+            };
         }
         List<FirmwareVersionImpl> target = kPermutation.perform(currentFirmwaresOrder);
         int size = target.size();
@@ -877,5 +862,18 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         dataModel.mapper(FirmwareVersionImpl.class).update(toUpdate, FirmwareVersionImpl.Fields.RANK.fieldName());
         // need to validate the operation after changing ranks because objects are re-read from DB for validation
         dataModel.getInstance(FirmwareDependenciesValidator.class).validateDependencyRanks(toUpdate);
+    }
+
+    @Override
+    public FirmwareCampaignService getFirmwareCampaignService() {
+        return firmwareCampaignService;
+    }
+
+    public FirmwareCampaignServiceImpl getFirmwareCampaignServiceImpl() {
+        return firmwareCampaignService;
+    }
+
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet;
     }
 }

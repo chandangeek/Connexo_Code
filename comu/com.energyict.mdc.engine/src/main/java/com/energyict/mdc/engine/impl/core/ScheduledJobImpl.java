@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
@@ -80,7 +81,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(ComTaskExecution::isFirmware).findFirst();
         if (firmwareComTaskExecution.isPresent()) {
             ComTaskExecution comTaskExecution = firmwareComTaskExecution.get();
-            Optional<FirmwareCampaign> firmwareCampaign = getServiceProvider().firmwareService().getFirmwareCampaign(comTaskExecution);
+            Optional<FirmwareCampaign> firmwareCampaign = getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution);
             if (firmwareCampaign.isPresent()) {
                 comWindowToUse = firmwareCampaign.get().getComWindow();
             }
