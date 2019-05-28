@@ -336,9 +336,15 @@ public class EndPointConfigurationResource {
         List<EndPointOccurrence> epocList = finderBuilder.build().from(queryParameters).find();
 
         if(filter.hasProperty("type")){
-            String type = filter.getString("type");
-            epocList = epocList.stream().
-                       filter(epoc -> type.equals("Inbound") ? epoc.getEndPointConfiguration().isInbound() : !epoc.getEndPointConfiguration().isInbound()).collect(toList());
+            List<String> typeList = filter.getStringList("type");
+            if (typeList.contains("INBOUND") && !typeList.contains("OUTBOUND")){
+                epocList = epocList.stream().
+                        filter(epoc -> epoc.getEndPointConfiguration().isInbound()).collect(toList());
+
+            } else if  (typeList.contains("OUTBOUND") && !typeList.contains("INBOUND")) {
+                epocList = epocList.stream().
+                        filter(epoc -> !epoc.getEndPointConfiguration().isInbound()).collect(toList());
+            }
         }
         return epocList;
     }
