@@ -17,8 +17,8 @@ public class LoadProfilePropertyValueConverter implements PropertyValueConverter
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
       //  return propertySpec != null && LoadProfile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()); // not OK
-      //  return propertySpec!= null && propertySpec.getValueFactory().getValueType().isAssignableFrom(LoadProfile.class); // Lau - ok 1
-        return propertySpec!= null && com.energyict.mdc.upl.meterdata.LoadProfile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()); // Lau ok 2
+        return propertySpec!= null && propertySpec.getValueFactory().getValueType().isAssignableFrom(LoadProfile.class); // Lau - ok 1
+      //  return propertySpec!= null && com.energyict.mdc.upl.meterdata.LoadProfile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()); // Lau ok 2
     }
 
     @Override
@@ -28,7 +28,8 @@ public class LoadProfilePropertyValueConverter implements PropertyValueConverter
 
     @Override
     public Object convertInfoToValue(PropertySpec propertySpec, Object infoValue) {
-        return propertySpec.getValueFactory().fromStringValue(infoValue.toString());
+        return propertySpec.getValueFactory().fromStringValue(com.energyict.mdc.device.data.LoadProfile.class, infoValue.toString());
+        //return propertySpec.getValueFactory().fromStringValue(infoValue.toString());
     }
 
     @Override
