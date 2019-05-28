@@ -171,7 +171,7 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
 
                 if (response.status === 400) {
                     var response = Ext.decode(response.responseText, true),
-                    title = Uni.I18n.translate('general.error.title', 'IMT', 'Couldn\'t perform your action'),
+                    title = Uni.I18n.translate('general.error.title', 'IMT', 'Failed to unlink meter'),
                     msg = _.take(response.errors).msg;
 
                     if (Ext.isEmpty(msg)) {
