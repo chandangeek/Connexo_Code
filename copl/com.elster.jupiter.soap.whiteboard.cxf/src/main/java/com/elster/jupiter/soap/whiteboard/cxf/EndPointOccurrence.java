@@ -1,5 +1,4 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
-
 import java.time.Instant;
 
 public interface EndPointOccurrence {
@@ -12,4 +11,6 @@ public interface EndPointOccurrence {
     String getApplicationName();
     void log(LogLevel logLevel, String message);
     void log(String message, Exception exception);
+    void setPayload(byte[] payload);
+    byte[] getPayload();
 }

@@ -16,6 +16,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.users.Group;
 
+import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
@@ -132,6 +133,11 @@ public enum TableSpecs {
                     .varChar(NAME_LENGTH)
                     .notNull()
                     .map(EndPointOccurrenceImpl.Fields.applicationName.fieldName())
+                    .add();
+            table.column("PAYLOAD")
+                    .type("blob")
+                    .conversion(BLOB2BYTE)
+                    .map(EndPointOccurrenceImpl.Fields.payload.fieldName())
                     .add();
 
             //Column endPointColumn = table.column("ENDPOINTCFG").number().notNull().conversion(NUMBER2LONG).add();
