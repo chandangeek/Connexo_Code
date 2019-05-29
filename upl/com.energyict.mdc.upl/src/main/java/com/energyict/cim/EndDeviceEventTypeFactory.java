@@ -117,7 +117,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getTerminalOpenedEventType() {
-        return new EndDeviceEventType("0.12.141.39");
+        return new EndDeviceEventType("0.12.29.39");
     }
 
     public static EndDeviceEventType getReverseRunEventType() {
@@ -185,7 +185,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getTerminalCoverClosedEventType() {
-        return new EndDeviceEventType("0.12.141.16");
+        return new EndDeviceEventType("0.12.29.16");
     }
 
     public static EndDeviceEventType getStrongDCFieldDetectedEventType() {
