@@ -24,6 +24,7 @@ import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -80,6 +81,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfoFactory;
+import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -87,6 +89,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.TemporalAmountComparator;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationService;
@@ -122,7 +125,9 @@ import java.time.Month;
 import java.time.MonthDay;
 import java.time.Period;
 import java.time.Year;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -715,10 +720,25 @@ public class UsagePointResource {
                                     @PathParam("timeStamp") Long timeStamp) {
 
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
-        UsagePointMeterActivator linker = usagePoint.linkMeters();
-        linker.clear(Instant.ofEpochMilli(timeStamp), resourceHelper.findMeterRoleOrThrowException(key));
-        linker.complete();
+        Instant unlinkDate = Instant.ofEpochMilli(timeStamp);
 
+        for(MeterActivation meterActivation: usagePoint.getMeterActivations()){
+            if(meterActivation.getMeterRole().get().getKey().equals(key) & meterActivation.getInterval().getEnd()==null ){//if the device is unlinked - it disappears from meterActivations
+                if(meterActivation.getInterval().getStart().isBefore(unlinkDate) ) {
+                    UsagePointMeterActivator linker = usagePoint.linkMeters();
+                    linker.clear(unlinkDate, resourceHelper.findMeterRoleOrThrowException(key));
+                    linker.complete();
+                }else{
+                    throw exceptionFactory.newException(MessageSeeds.CANNOT_UNLINK_BEFORE_LINK_DATE);
+                }
+            }else{
+                throw exceptionFactory.newException(
+                        MessageSeeds.METER_CANNOT_BE_UNLINKED,
+                        meterActivation.getMeter().get().getName(),
+                        usagePoint.getName(), resourceHelper.formatDate(unlinkDate)
+                );
+            }
+        }
         return Response.ok().build();
     }
 
