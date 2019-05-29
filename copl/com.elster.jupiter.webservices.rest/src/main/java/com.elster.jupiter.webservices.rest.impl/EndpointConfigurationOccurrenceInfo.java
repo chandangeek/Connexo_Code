@@ -10,5 +10,6 @@ public class EndpointConfigurationOccurrenceInfo {
     public String request;
     public String applicationName;
     public EndPointConfigurationInfo endPointConfigurationInfo;
+    public String payload;
 
 }
