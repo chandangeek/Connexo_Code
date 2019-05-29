@@ -380,7 +380,8 @@ public class TableImpl<T> implements Table<T> {
         return getDataMapper(api);
     }
 
-    Class<?> getApi() {
+    @Override
+    public Class<?> getApi() {
         return api;
     }
 
