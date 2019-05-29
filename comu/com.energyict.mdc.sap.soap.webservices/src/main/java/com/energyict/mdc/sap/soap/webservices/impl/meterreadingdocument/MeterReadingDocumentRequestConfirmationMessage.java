@@ -43,7 +43,6 @@ public class MeterReadingDocumentRequestConfirmationMessage {
             } else {
                 confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage);
             }
-            MeterReadingDocumentRequestConfirmationMessage.this.url = requestMessage.getConfirmationURL();
             return this;
         }
 
@@ -53,7 +52,6 @@ public class MeterReadingDocumentRequestConfirmationMessage {
             } else {
                 confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed);
             }
-            MeterReadingDocumentRequestConfirmationMessage.this.url = requestMessage.getConfirmationURL();
             return this;
         }
 

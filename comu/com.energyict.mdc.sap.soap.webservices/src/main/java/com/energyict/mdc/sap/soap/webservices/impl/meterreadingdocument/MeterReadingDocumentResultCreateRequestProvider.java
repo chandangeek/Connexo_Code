@@ -69,8 +69,9 @@ public class MeterReadingDocumentResultCreateRequestProvider implements MeterRea
 
     @Override
     public void call(MeterReadingDocumentCreateResultMessage resultMessage) {
-        Optional.ofNullable(ports.get(resultMessage.getUrl()))
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS))
-                .meterReadingDocumentERPResultCreateRequestEOut(resultMessage.getResultMessage());
+        if (ports.isEmpty()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
+        }
+        ports.values().stream().findFirst().get().meterReadingDocumentERPResultCreateRequestEOut(resultMessage.getResultMessage());
     }
 }

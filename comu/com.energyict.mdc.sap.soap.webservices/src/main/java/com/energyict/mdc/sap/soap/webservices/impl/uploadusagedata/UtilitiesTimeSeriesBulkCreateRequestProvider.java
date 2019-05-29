@@ -131,7 +131,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
     @Override
     Optional<Consumer<UtilsTmeSersERPItmBulkCrteReqMsg>> getPort(EndPointConfiguration endPointConfiguration) {
-        return Optional.ofNullable(createRequestPorts.get(endPointConfiguration.getUrl()))
+        return Optional.ofNullable(createRequestPorts.values().stream().findFirst().get())
                 .map(port -> (Consumer<UtilsTmeSersERPItmBulkCrteReqMsg>) port::utilitiesTimeSeriesERPItemBulkCreateRequestEOut);
     }
 

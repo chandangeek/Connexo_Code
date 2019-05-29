@@ -109,7 +109,7 @@ public class ServiceCallCommands {
                     }
                 });
             }
-        } else if (message.getConfirmationURL() != null) {
+        } else {
             sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
@@ -245,8 +245,8 @@ public class ServiceCallCommands {
         MasterMeterReadingDocumentCreateRequestDomainExtension meterReadingDocumentDomainExtension =
                 new MasterMeterReadingDocumentCreateRequestDomainExtension();
         meterReadingDocumentDomainExtension.setRequestID(requestMessage.getId());
-        meterReadingDocumentDomainExtension.setConfirmationURL(requestMessage.getConfirmationURL());
-        meterReadingDocumentDomainExtension.setResultURL(requestMessage.getResultURL());
+        meterReadingDocumentDomainExtension.setConfirmationURL(" ");
+        meterReadingDocumentDomainExtension.setResultURL(" ");
         meterReadingDocumentDomainExtension.setBulk(requestMessage.isBulk());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()

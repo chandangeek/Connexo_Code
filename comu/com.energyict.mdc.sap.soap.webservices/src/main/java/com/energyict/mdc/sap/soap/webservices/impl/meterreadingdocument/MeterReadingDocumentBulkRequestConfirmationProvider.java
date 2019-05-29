@@ -69,8 +69,9 @@ public class MeterReadingDocumentBulkRequestConfirmationProvider implements Mete
 
     @Override
     public void call(MeterReadingDocumentRequestConfirmationMessage confirmationMessage) {
-        Optional.ofNullable(ports.get(confirmationMessage.getUrl()))
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS))
-                .smartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut(confirmationMessage.getBulkConfirmationMessage());
+        if (ports.isEmpty()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
+        }
+        ports.values().stream().findFirst().get().smartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut(confirmationMessage.getBulkConfirmationMessage());
     }
 }

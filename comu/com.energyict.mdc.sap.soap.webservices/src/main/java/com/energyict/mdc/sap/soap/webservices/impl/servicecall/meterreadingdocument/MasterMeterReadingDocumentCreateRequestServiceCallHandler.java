@@ -195,7 +195,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         MasterMeterReadingDocumentCreateResultDomainExtension masterDomainExtension = new MasterMeterReadingDocumentCreateResultDomainExtension();
         masterDomainExtension.setRequestUUID(UUID.randomUUID().toString());
         masterDomainExtension.setReferenceID(extension.getRequestID());
-        masterDomainExtension.setResultURL(extension.getResultURL());
+        masterDomainExtension.setResultURL(" ");
         masterDomainExtension.setBulk(extension.isBulk());
 
         ServiceCallBuilder serviceCallBuilder = getServiceCallTypeOrThrowException(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_RESULT)

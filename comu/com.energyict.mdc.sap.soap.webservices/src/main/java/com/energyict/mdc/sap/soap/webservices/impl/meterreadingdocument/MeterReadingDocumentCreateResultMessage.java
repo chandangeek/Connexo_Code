@@ -67,7 +67,6 @@ public class MeterReadingDocumentCreateResultMessage {
 
         public Builder from(ServiceCall parent, List<ServiceCall> children) {
             MasterMeterReadingDocumentCreateResultDomainExtension extension = parent.getExtensionFor(new MasterMeterReadingDocumentCreateResultCustomPropertySet()).get();
-            MeterReadingDocumentCreateResultMessage.this.url = extension.getResultURL();
             MeterReadingDocumentCreateResultMessage.this.bulk = extension.isBulk();
 
             if (bulk) {

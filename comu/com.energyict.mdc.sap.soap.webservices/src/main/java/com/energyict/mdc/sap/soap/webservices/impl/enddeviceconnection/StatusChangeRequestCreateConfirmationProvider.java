@@ -73,9 +73,10 @@ public class StatusChangeRequestCreateConfirmationProvider implements StatusChan
 
     @Override
     public void call(StatusChangeRequestCreateConfirmationMessage confirmationMessage) {
-        Optional.ofNullable(ports.get(confirmationMessage.getUrl()))
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS))
-                .smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(
-                        confirmationMessage.getConfirmationMessage());
+        if (ports.isEmpty()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
+        }
+        ports.values().stream().findFirst().get().smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(
+                confirmationMessage.getConfirmationMessage());
     }
 }

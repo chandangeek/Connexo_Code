@@ -38,8 +38,6 @@
    <xsd:complexType name="BusinessDocumentMessageHeader">
     <xsd:sequence>
      <xsd:element name="ID" minOccurs="0" type="BusinessDocumentMessageID"/>
-     <xsd:element name="ConfirmationURL" type="EndpointURL"/>
-     <xsd:element name="ResultURL" type="EndpointURL"/>
      <xsd:element name="UUID" minOccurs="0" type="UUID"/>
      <xsd:element name="ReferenceID" minOccurs="0" type="BusinessDocumentMessageID"/>
      <xsd:element name="ReferenceUUID" minOccurs="0" type="UUID"/>

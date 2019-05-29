@@ -69,8 +69,9 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider implements Mete
 
     @Override
     public void call(MeterReadingDocumentCreateResultMessage resultMessage) {
-        Optional.ofNullable(ports.get(resultMessage.getUrl()))
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS))
-                .meterReadingDocumentERPResultBulkCreateRequestEOut(resultMessage.getBulkResultMessage());
+        if (ports.isEmpty()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
+        }
+        ports.values().stream().findFirst().get().meterReadingDocumentERPResultBulkCreateRequestEOut(resultMessage.getBulkResultMessage());
     }
 }

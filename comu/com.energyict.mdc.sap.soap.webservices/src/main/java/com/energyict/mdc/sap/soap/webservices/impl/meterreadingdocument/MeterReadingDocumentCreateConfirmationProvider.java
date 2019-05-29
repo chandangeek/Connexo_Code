@@ -69,8 +69,9 @@ public class MeterReadingDocumentCreateConfirmationProvider implements MeterRead
 
     @Override
     public void call(MeterReadingDocumentRequestConfirmationMessage confirmationMessage) {
-        Optional.ofNullable(ports.get(confirmationMessage.getUrl()))
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS))
-                .smartMeterMeterReadingDocumentERPCreateConfirmationEOut(confirmationMessage.getConfirmationMessage());
+        if (ports.isEmpty()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
+        }
+        ports.values().stream().findFirst().get().smartMeterMeterReadingDocumentERPCreateConfirmationEOut(confirmationMessage.getConfirmationMessage());
     }
 }

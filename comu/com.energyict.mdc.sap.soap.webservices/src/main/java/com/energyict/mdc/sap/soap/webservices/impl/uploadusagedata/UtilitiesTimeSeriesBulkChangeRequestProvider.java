@@ -131,7 +131,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
 
     @Override
     Optional<Consumer<UtilsTmeSersERPItmBulkChgReqMsg>> getPort(EndPointConfiguration endPointConfiguration) {
-        return Optional.ofNullable(changeRequestPorts.get(endPointConfiguration.getUrl()))
+        return Optional.ofNullable(changeRequestPorts.values().stream().findFirst().get())
                 .map(port -> (Consumer<UtilsTmeSersERPItmBulkChgReqMsg>) port::utilitiesTimeSeriesERPItemBulkChangeRequestEOut);
     }
 
