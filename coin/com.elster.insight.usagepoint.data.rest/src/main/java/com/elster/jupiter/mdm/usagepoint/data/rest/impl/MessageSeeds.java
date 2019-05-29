@@ -78,7 +78,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_USAGE_POINT_WITH_MRID(73, Keys.NO_USAGE_POINT_WITH_MRID, "No usage point with mrid {0}"),
     METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER(74, "MetrologyContractNotLinkedToChannelsContainer", "Metrology contract with id {0} is not linked to any channels container"),
     NOTHING_TO_ESTIMATE(75, "nothing.is.estimated", "Estimation is not configured on this purpose of this usage point"),
-    NO_SUCH_METER_ROLE(76, "NoSuchMeterRole", "No such meter role with key {0}")
+    NO_SUCH_METER_ROLE(76, "NoSuchMeterRole", "No such meter role with key {0}"),
+    CANNOT_UNLINK_BEFORE_LINK_DATE(77,"InvalidDateOfUnlink", "Can''t unlink meter role before date of link."),
+    METER_CANNOT_BE_UNLINKED(78, "meter.cannot.be.unlinked", "Meter unlinking error. Because the metrology configration does not allow gaps, meter ''{0}'' cannot be unlinked from usage point ''{1}'' at {2}. This meter is required for the calculation of the active purposes of the metrology configuration.")
     ;
 
     private final int number;

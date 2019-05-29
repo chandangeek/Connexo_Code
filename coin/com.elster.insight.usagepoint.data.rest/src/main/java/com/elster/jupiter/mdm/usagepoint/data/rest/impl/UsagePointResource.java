@@ -715,10 +715,25 @@ public class UsagePointResource {
                                     @PathParam("timeStamp") Long timeStamp) {
 
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
-        UsagePointMeterActivator linker = usagePoint.linkMeters();
-        linker.clear(Instant.ofEpochMilli(timeStamp), resourceHelper.findMeterRoleOrThrowException(key));
-        linker.complete();
+        Instant unlinkDate = Instant.ofEpochMilli(timeStamp);
 
+        for(MeterActivation meterActivation: usagePoint.getMeterActivations()){
+            if(meterActivation.getMeterRole().get().getKey().equals(key) & meterActivation.getInterval().getEnd()==null ){//if the device is unlinked - it disappears from meterActivations
+                if(meterActivation.getInterval().getStart().isBefore(unlinkDate) ) {
+                    UsagePointMeterActivator linker = usagePoint.linkMeters();
+                    linker.clear(unlinkDate, resourceHelper.findMeterRoleOrThrowException(key));
+                    linker.complete();
+                }else{
+                    throw exceptionFactory.newException(MessageSeeds.CANNOT_UNLINK_BEFORE_LINK_DATE);
+                }
+            }else{
+                throw exceptionFactory.newException(
+                        MessageSeeds.METER_CANNOT_BE_UNLINKED,
+                        meterActivation.getMeter().get().getName(),
+                        usagePoint.getName(), resourceHelper.formatDate(unlinkDate)
+                );
+            }
+        }
         return Response.ok().build();
     }
 

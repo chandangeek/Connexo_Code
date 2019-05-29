@@ -30,8 +30,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTimeSlice;
-import com.elster.jupiter.fsm.StateTimeline;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -90,11 +89,11 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -603,6 +602,14 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         UsagePointMeterActivator linker = mock(UsagePointMeterActivator.class);
         when(usagePoint.linkMeters()).thenReturn(linker);
+
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getMeterRole()).thenReturn(Optional.of(meterRole));
+        when(meterActivation.getMeter()).thenReturn(Optional.of(meter1));
+
+        Interval interval = new Interval(new Date(1255659900000L), null);
+        when(meterActivation.getInterval()).thenReturn(interval);
+        when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
 
         Long timeStamp = 1555659900000L;
 
