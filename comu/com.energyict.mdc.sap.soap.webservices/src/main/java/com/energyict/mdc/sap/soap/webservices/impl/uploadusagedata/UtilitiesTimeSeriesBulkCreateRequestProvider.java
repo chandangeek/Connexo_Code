@@ -137,8 +137,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
     @Override
     public Service get() {
-        return new UtilitiesTimeSeriesERPItemBulkCreateRequestEOutService(
-                UtilitiesTimeSeriesERPItemBulkCreateRequestEOutService.class.getResource("/wsdl/sap/UtilitiesTimeSeriesERPItemBulkCreateRequest_E_OutService.wsdl"), QNAME);
+        return new UtilitiesTimeSeriesERPItemBulkCreateRequestEOutService();
     }
 
     @Override

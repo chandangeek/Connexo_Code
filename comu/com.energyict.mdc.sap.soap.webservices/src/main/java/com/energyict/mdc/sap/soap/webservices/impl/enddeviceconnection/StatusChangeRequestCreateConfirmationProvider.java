@@ -18,7 +18,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Singleton;
-import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,8 +61,7 @@ public class StatusChangeRequestCreateConfirmationProvider implements StatusChan
 
     @Override
     public Service get() {
-        return new SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOutService(
-                getService().getClassLoader().getResource(RESOURCE), new QName(NAMESPACE_URI, LOCAL_PART));
+        return new SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOutService();
     }
 
     @Override

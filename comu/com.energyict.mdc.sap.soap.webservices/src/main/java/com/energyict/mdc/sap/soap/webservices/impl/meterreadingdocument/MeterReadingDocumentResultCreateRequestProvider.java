@@ -17,7 +17,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,9 +56,7 @@ public class MeterReadingDocumentResultCreateRequestProvider implements MeterRea
 
     @Override
     public Service get() {
-        return new MeterReadingDocumentERPResultCreateRequestEOutService(
-                getService().getClassLoader().getResource(RESOURCE), new QName(NAMESPACE_URI, LOCAL_PART)
-        );
+        return new MeterReadingDocumentERPResultCreateRequestEOutService();
     }
 
     @Override
