@@ -33,6 +33,10 @@ public class EndpointConfigurationOccurrenceInfoFactorty {
             info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointOccurrence.getEndPointConfiguration(), uriInfo);
         }
 
+        if (endPointOccurrence.getPayload() != null){
+            info.payload = endPointOccurrence.getPayload();
+        }
+
         return info;
     }
 

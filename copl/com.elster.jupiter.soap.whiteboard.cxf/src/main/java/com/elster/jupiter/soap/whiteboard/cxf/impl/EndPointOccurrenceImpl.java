@@ -8,6 +8,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.util.HasId;
 
 import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -21,6 +22,7 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
     private Reference<EndPointConfiguration> endPointConfiguration = Reference.empty();
     String status;
     String applicationName;
+    private String payload;
 
     public enum Fields {
         ID("id"),
@@ -30,7 +32,8 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
         //webService("webService"),
         endPointConfiguration("endPointConfiguration"),
         status("status"),
-        applicationName("applicationName");
+        applicationName("applicationName"),
+        payload("payload");
 
         private final String javaFieldName;
 
@@ -51,12 +54,14 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
     public EndPointOccurrenceImpl(Instant startTime,
                                   String requestName,
                                   String applicationName,
-                                  EndPointConfiguration endPointConfiguration)
+                                  EndPointConfiguration endPointConfiguration,
+                                  String payload)
     {
         this.startTime = startTime;
         this.requestName = requestName;
         this.applicationName = applicationName;
         this.endPointConfiguration.set(endPointConfiguration);
+        this.payload = payload;
 
     }
 
@@ -140,4 +145,13 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
         return Objects.hash(id);
     }
 
+    @Override
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
+
+    @Override
+    public String getPayload() {
+        return this.payload;
+    }
 }
