@@ -23,6 +23,9 @@ public class EndpointConfigurationOccurrenceInfoFactorty {
         EndpointConfigurationOccurrenceInfo info = new EndpointConfigurationOccurrenceInfo();
         /*info.logLevel = thesaurus.getString(endPointLog.getLogLevel().getKey(), endPointLog.getLogLevel()
                 .getDefaultFormat());*/
+        System.out.println("PREPARE INFO OBJECT FOR OCCURRENCE id ="+endPointOccurrence.getId());
+        System.out.println("PAYLOAD = "+endPointOccurrence.getPayload());
+
         info.id = endPointOccurrence.getId();
         info.startTime = endPointOccurrence.getStartTime();
         info.endTime = endPointOccurrence.getEndTime();

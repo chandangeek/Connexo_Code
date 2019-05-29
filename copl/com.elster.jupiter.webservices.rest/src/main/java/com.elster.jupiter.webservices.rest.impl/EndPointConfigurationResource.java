@@ -265,7 +265,7 @@ public class EndPointConfigurationResource {
         Optional<EndPointOccurrence> epOcc = dataModel.mapper(EndPointOccurrence.class)
                 .getUnique("id", id);
 
-
+        System.out.println("GET OCCURRENCE with ID "+id);
         return epOcc
                .map(epc -> endpointConfigurationOccurrenceInfoFactorty.from(epc, uriInfo))
                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
