@@ -34,26 +34,6 @@ Ext.define('Wss.view.History', {
             xtype: 'mss-view-history-history-topfilter',
             itemId: 'mss-view-history-history-topfilter'
           },
-          {
-            xtype: 'filter-toolbar',
-            title: Uni.I18n.translate('webservices.filter.sort', 'WSS', 'Sort'),
-            name: 'sortitemspanel',
-            itemId: 'mss-view-history-sort-toolbar',
-            emptyText: Uni.I18n.translate('general.none','WSS','None'),
-            tools: [
-                {
-                    xtype: 'button',
-                    action: 'addSort',
-                    itemId: 'add-sort-btn',
-                    text: Uni.I18n.translate('general.history.addSort', 'FIM', 'Add sort'),
-                    // menu: {
-                    //     xtype: 'fim-history-sort-menu',
-                    //     itemId: 'menu-history-sort',
-                    //     name: 'addsortitemmenu'
-                    // }
-                }
-            ]
-        },
         ]
     };
 
