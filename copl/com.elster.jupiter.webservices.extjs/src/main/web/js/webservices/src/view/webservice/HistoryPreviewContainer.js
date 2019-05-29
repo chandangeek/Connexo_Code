@@ -28,13 +28,18 @@ Ext.define('Wss.view.webservice.HistoryPreviewContainer', {
         me.grid = {
             xtype: 'wss-webservice-history-grid',
             itemId: 'wss-webservice-history-grid',
-            router: me.router
+            endpoint: me.endpoint,
+            router: me.router,
+            store: Boolean(me.endpoint)
+              ? store = 'Wss.store.endpoint.EndpointOccurrence'
+              : store = 'Wss.store.endpoint.Occurrence'
         };
 
         me.previewComponent = {
             xtype: 'webservices-webservice-history-form',
             itemId: 'webservices-webservice-history-form',
             router: me.router,
+            endpoint: me.endpoint,
             frame: true
         };
 

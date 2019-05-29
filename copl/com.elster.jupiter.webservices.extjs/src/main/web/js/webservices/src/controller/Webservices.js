@@ -19,6 +19,7 @@ Ext.define('Wss.controller.Webservices', {
         'Wss.store.Endpoints',
         'Wss.store.Webservices',
         'Wss.store.endpoint.Occurrence',
+        'Wss.store.endpoint.EndpointOccurrence',
         'Wss.store.endpoint.OccurrenceLog',
         'Wss.store.LogLevels',
         'Wss.store.AuthenticationMethods',
@@ -61,7 +62,7 @@ Ext.define('Wss.controller.Webservices', {
             '#add-webservice-endpoint': {
                 click: this.goToAddView
             },
-            'webservices-history wss-webservice-history-grid': {
+            'wss-webservice-history-grid': {
                 select: this.showHistoryPreview
             }
         });
@@ -89,6 +90,8 @@ Ext.define('Wss.controller.Webservices', {
 
     showWebserviceHistory: function (endpointId) {
         var me = this;
+        var store = me.getStore('Wss.store.endpoint.EndpointOccurrence');
+        store.getProxy().setUrl(endpointId);
 
         me.setDefaultSort();
         me.getModel('Wss.model.Endpoint').load(endpointId, {
@@ -105,8 +108,10 @@ Ext.define('Wss.controller.Webservices', {
 
     showWebserviceHistoryOccurrence: function (endpointId, occurenceId) {
         var me = this;
-        var store = me.getStore('Wss.store.endpoint.OccurrenceLog');
-        store.getProxy().setUrl(occurenceId);
+        var store = me.getStore('Wss.store.endpoint.EndpointOccurrence');
+        var logStore = me.getStore('Wss.store.endpoint.OccurrenceLog');
+        store.getProxy().setUrl(endpointId);
+        logStore.getProxy().setUrl(occurenceId);
 
         me.getModel('Wss.model.Endpoint').load(endpointId, {
             success: function (endpoint) {

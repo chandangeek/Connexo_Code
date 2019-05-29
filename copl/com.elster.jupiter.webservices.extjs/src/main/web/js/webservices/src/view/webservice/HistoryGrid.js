@@ -31,9 +31,19 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 }
             },
             {
+                dataIndex: 'endTime',
+                hidden: !Boolean(me.endpoint),
+                header: Uni.I18n.translate('general.finishedOn', 'WSS', 'Finished on'),
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                }
+            },
+            {
                 header: Uni.I18n.translate('general.endpoint', 'WSS', 'Web service endpoint'),
                 dataIndex: 'endpoint',
                 flex: 1,
+                hidden: Boolean(me.endpoint),
                 renderer: function(value, metaData, record) {
                     var endpoint = record.getEndpoint();
                     var url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({
@@ -44,13 +54,15 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.application', 'WSS', 'Application'),
                 dataIndex: 'applicationName',
+                hidden: Boolean(me.endpoint),
+                header: Uni.I18n.translate('general.application', 'WSS', 'Application'),
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.direction', 'WSS', 'Direction'),
                 dataIndex: 'endpoint',
+                hidden: Boolean(me.endpoint),
+                header: Uni.I18n.translate('general.direction', 'WSS', 'Direction'),
                 flex: 1,
                 renderer: function(value, metaData, record) {
                     const direction = record.getEndpoint().get('direction');
@@ -60,15 +72,15 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.duration', 'WSS', 'Duration'),
                 flex: 1,
+                header: Uni.I18n.translate('general.duration', 'WSS', 'Duration'),
                 renderer: function (value, metaData, record) {
                     return Uni.util.String.formatDuration(record.get('startTime') - record.get('endTime'));
                 }
             },
             {
-                header: Uni.I18n.translate('general.status', 'WSS', 'Status'),
                 dataIndex: 'status',
+                header: Uni.I18n.translate('general.status', 'WSS', 'Status'),
                 flex: 1
             }
         ];

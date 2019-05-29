@@ -5,6 +5,7 @@
 Ext.define('Wss.view.HistoryTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'mss-view-history-history-topfilter',
+    endpoint: null,
 
     initComponent: function () {
         var me = this;
@@ -28,6 +29,7 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 type: 'combobox',
                 dataIndex: 'webServiceEndPoint',
                 emptyText: Uni.I18n.translate('general.webServiceEndpoint', 'WSS', 'Web service endpoint'),
+                hidden: Boolean(me.endpoint),
                 displayField: 'name',
                 valueField: 'id',
                 store: 'Wss.store.Endpoints'
@@ -45,6 +47,7 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 type: 'combobox',
                 dataIndex: 'type',
                 emptyText: Uni.I18n.translate('general.type', 'WSS', 'Type'),
+                hidden: Boolean(me.endpoint),
                 multiSelect: true,
                 displayField: 'display',
                 valueField: 'value',
