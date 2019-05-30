@@ -9,9 +9,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusCha
 @ProviderType
 public interface StatusChangeRequestCreateConfirmation {
 
-    String LOCAL_PART = "SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmation_E_OutService";
-    String NAMESPACE_URI = "urn:webservices.wsdl.soap.sap.mdc.energyict.com:smartmeterconnectionstatuschangerequestcreateconfirmation";
-    String RESOURCE = "/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmation_E_OutService.wsdl";
     String SAP_STATUS_CHANGE_REQUEST_CREATE_CONFIRMATION = "SapStatusChangeRequestCreateConfirmation";
 
     /**

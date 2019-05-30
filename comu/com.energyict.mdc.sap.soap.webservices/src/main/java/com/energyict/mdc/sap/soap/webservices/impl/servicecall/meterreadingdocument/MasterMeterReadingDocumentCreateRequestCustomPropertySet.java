@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 @Component(name = "MasterMeterReadingDocumentCreateRequestCustomPropertySet",
@@ -208,11 +209,13 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
                     .varChar()
                     .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.CONFIRMATION_URL.javaName())
                     .notNull()
+                    .upTo(version(10,7))
                     .add();
             table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.RESULT_URL.databaseName())
                     .varChar()
                     .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.RESULT_URL.javaName())
                     .notNull()
+                    .upTo(version(10,7))
                     .add();
             table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.BULK.databaseName())
                     .bool()
