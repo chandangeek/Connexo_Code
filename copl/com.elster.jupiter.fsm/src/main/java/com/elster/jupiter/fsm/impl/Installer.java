@@ -7,6 +7,10 @@ package com.elster.jupiter.fsm.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.Privileges;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -32,6 +36,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final DataModel dataModel;
     private final EventService eventService;
     private final FiniteStateMachineService finiteStateMachineService;
+    private volatile MessageService messageService;
     private final UserService userService;
 
     @Inject
@@ -49,6 +54,11 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         doTry(
                 "Create event types for FSM",
                 this::createEventTypes,
+                logger
+        );
+        doTry(
+                "Create destination spec",
+                this::createDestinationAndSubscriber,
                 logger
         );
         userService.addModulePrivileges(this);
@@ -75,4 +85,11 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         }
     }
 
+    private void createDestinationAndSubscriber() {
+        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(InitialStateActionsMessageHandlerFactory.DESTINATION_NAME, 60);
+        destinationSpec.save();
+        destinationSpec.activate();
+        destinationSpec.subscribe(TranslationKeys.SUBSCRIBER_NAME, FiniteStateMachineService.COMPONENT_NAME, Layer.DOMAIN);
+    }
 }

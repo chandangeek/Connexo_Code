@@ -12,6 +12,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -26,6 +27,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
 
 import com.google.common.collect.Sets;
 
@@ -84,6 +86,10 @@ public class ServiceCategoryImplTest {
     private UserService userService;
     @Mock
     private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private MessageService messageService;
+    @Mock
+    private JsonService jsonService;
 
     @Before
     public void setUp() {
@@ -127,7 +133,7 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, this.destinationSpec, () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService, userService, threadPrincipalService));
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, this.destinationSpec, () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService, userService, threadPrincipalService, messageService, jsonService));
         when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocation -> new UsagePointConnectionStateImpl(dataModel, thesaurus));
         State state = mock(State.class);
         when(state.isInitial()).thenReturn(true);
