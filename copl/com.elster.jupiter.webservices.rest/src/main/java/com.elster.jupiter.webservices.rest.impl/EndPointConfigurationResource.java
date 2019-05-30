@@ -245,7 +245,7 @@ public class EndPointConfigurationResource {
                 .map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo))
                 .collect(toList());*/
         System.out.println("getAllOccurrences!!!!"+filter);
-        List<EndPointOccurrence> endPointOccurrences = getEndPointOccurrences(queryParameters, filter, applicationName);
+        List<EndPointOccurrence> endPointOccurrences = getEndPointOccurrences(queryParameters, filter, applicationName, null);
         List<EndpointConfigurationOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
                                                          stream().
                                                          map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo)).
@@ -287,7 +287,7 @@ public class EndPointConfigurationResource {
 
 
 //    private List<FileImportOccurrence> getFileImportOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName, Long importServiceId) {
-    private List<EndPointOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName) {
+    private List<EndPointOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName, Long epId) {
         //EndPointConfigurationOccurrenceFinderBuilder finderBuilder = getEndPointConfigurationOccurrenceFinderBuilder(applicationName);
 
         DataModel dataModel = ormService.getDataModel("WebServicesService"/*WebServicesService.COMPONENT_NAME*/).get();
@@ -295,6 +295,12 @@ public class EndPointConfigurationResource {
 
         if (applicationName != null && !applicationName.isEmpty()){
             finderBuilder.withApplicationName(applicationName);
+        }
+
+        if (epId != null){
+            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(epId)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
+            finderBuilder.withEndPointConfiguration(epc);
         }
 
         if (filter.hasProperty("startedOnFrom")) {
@@ -363,17 +369,27 @@ public class EndPointConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{epId}/occurrences")
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public PagedInfoList getAllOccurrencesForEndPoint(@PathParam("epId") long epId, @BeanParam JsonQueryParameters queryParameters,@Context UriInfo uriInfo) {
+    public PagedInfoList getAllOccurrencesForEndPoint(@PathParam("epId") long epId,
+                                                      @BeanParam JsonQueryParameters queryParameters,
+                                                      @BeanParam JsonQueryFilter filter,
+                                                      @Context UriInfo uriInfo) {
         System.out.println("getAllOccurrencesForEndPoint !!!!"+epId);
-        EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(epId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
+/*        EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(epId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));*/
 
-        List<EndpointConfigurationOccurrenceInfo> endpointConfigurationOccurrences = endPointConfiguration.getOccurrences(true)
+        /*List<EndpointConfigurationOccurrenceInfo> endpointConfigurationOccurrences = endPointConfiguration.getOccurrences(true)
                 .from(queryParameters)
                 .stream()
                 .map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo))
-                .collect(toList());
-        return PagedInfoList.fromPagedList("occurrences", endpointConfigurationOccurrences, queryParameters);
+                .collect(toList());*/
+        List<EndPointOccurrence> endPointOccurrences = getEndPointOccurrences(queryParameters, filter, null, epId);
+        List<EndpointConfigurationOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
+                stream().
+                map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo)).
+                collect(toList());
+
+        return PagedInfoList.fromPagedList("occurrences", endPointOccurrencesInfo , queryParameters);
+        //return PagedInfoList.fromPagedList("occurrences", endpointConfigurationOccurrences, queryParameters);
     }
 
     @GET
