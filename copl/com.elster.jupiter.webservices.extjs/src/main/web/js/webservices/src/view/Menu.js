@@ -23,18 +23,17 @@ Ext.define('Wss.view.Menu', {
                 href: me.router.getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: me.record.get('id')})
             },
             {
-                text: Uni.I18n.translate('general.logging', 'WSS', 'Logging'),
-                itemId: 'wenservoces-logs-link',
-                href: me.router.getRoute('administration/webserviceendpoints/view/logs').buildUrl({endpointId: me.record.get('id')})
-            },
-            {
                 text: Uni.I18n.translate('general.history', 'WSS', 'History'),
                 itemId: 'wenservoces-history-link',
                 href: me.router
                     .getRoute('administration/webserviceendpoints/view/history')
                     .buildUrl({endpointId: me.record.get('id')})
-            }
-
+            },
+            {
+                text: Uni.I18n.translate('general.endpointStatusHistory', 'WSS', 'Endpoint status history'),
+                itemId: 'wenservoces-logs-link',
+                href: me.router.getRoute('administration/webserviceendpoints/view/status').buildUrl({endpointId: me.record.get('id')})
+            },
         ];
 
         me.callParent(arguments);

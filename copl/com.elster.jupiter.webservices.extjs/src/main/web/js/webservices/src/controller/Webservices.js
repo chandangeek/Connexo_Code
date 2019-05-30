@@ -11,7 +11,7 @@ Ext.define('Wss.controller.Webservices', {
         'Uni.view.window.Confirmation',
         'Wss.view.Add',
         'Wss.view.LandingPage',
-        'Wss.view.LoggingPage',
+        'Wss.view.endpoint.Status',
         'Wss.view.endpoint.History',
         'Wss.view.endpoint.HistoryOccurrence',
     ],
@@ -427,7 +427,7 @@ Ext.define('Wss.controller.Webservices', {
         });
     },
 
-    showLoggingPage: function (endpointId) {
+    showEndpointStatusHistory: function (endpointId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             view,
@@ -437,7 +437,7 @@ Ext.define('Wss.controller.Webservices', {
 
         me.getModel('Wss.model.Endpoint').load(endpointId, {
             success: function (record) {
-                view = Ext.widget('webservice-logging-page', {
+                view = Ext.widget('webservice-endpoint-status', {
                     router: router,
                     record: record
                 });
