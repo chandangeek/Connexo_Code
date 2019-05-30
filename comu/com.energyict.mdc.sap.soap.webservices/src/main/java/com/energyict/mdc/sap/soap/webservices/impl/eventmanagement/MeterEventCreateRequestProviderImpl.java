@@ -9,8 +9,8 @@ import com.energyict.mdc.sap.soap.webservices.MeterEventCreateRequestProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.SOAUtilitiesSmartMeterEventERPBulkCreateRequest;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.SOAUtilitiesSmartMeterEventERPBulkCreateRequestService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilitiesSmartMeterEventERPBulkCreateRequestEOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilitiesSmartMeterEventERPBulkCreateRequestEOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilsSmrtMtrEvtERPBulkCrteReqMsg;
 
 import org.osgi.service.component.annotations.Component;
@@ -19,7 +19,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Singleton;
-import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -30,9 +29,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
         property = {"name=" + MeterEventCreateRequestProvider.SAP_CREATE_UTILITIES_SMART_METER_EVENT})
 public class MeterEventCreateRequestProviderImpl implements MeterEventCreateRequestProvider, OutboundSoapEndPointProvider {
 
-    private final List<SOAUtilitiesSmartMeterEventERPBulkCreateRequest> endpoints = new CopyOnWriteArrayList<>();
-    private static final QName QNAME = new QName("http://dewa.gov.ae/AMI/Bulk", "SOA_UtilitiesSmartMeterEventERPBulkCreateRequestService");
-    private static final String RESOURCE = "/wsdl/sap/UtilitiesSmartMeterEventERPBulkCreateRequestService.wsdl";
+    private final List<UtilitiesSmartMeterEventERPBulkCreateRequestEOut> endpoints = new CopyOnWriteArrayList<>();
     private Thesaurus thesaurus;
 
     public MeterEventCreateRequestProviderImpl() {
@@ -45,23 +42,22 @@ public class MeterEventCreateRequestProviderImpl implements MeterEventCreateRequ
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addSOAUtilitiesSmartMeterEventERPBulkCreateRequest(SOAUtilitiesSmartMeterEventERPBulkCreateRequest out) {
+    public void addUtilitiesSmartMeterEventERPBulkCreateRequestEOut(UtilitiesSmartMeterEventERPBulkCreateRequestEOut out) {
         endpoints.add(out);
     }
 
-    public void removeSOAUtilitiesSmartMeterEventERPBulkCreateRequest(SOAUtilitiesSmartMeterEventERPBulkCreateRequest out) {
+    public void removeUtilitiesSmartMeterEventERPBulkCreateRequestEOut(UtilitiesSmartMeterEventERPBulkCreateRequestEOut out) {
         endpoints.removeIf(port -> out == port);
     }
 
     @Override
     public Service get() {
-        return new SOAUtilitiesSmartMeterEventERPBulkCreateRequestService(
-                getService().getClassLoader().getResource(RESOURCE), QNAME);
+        return new UtilitiesSmartMeterEventERPBulkCreateRequestEOutService();
     }
 
     @Override
     public Class getService() {
-        return SOAUtilitiesSmartMeterEventERPBulkCreateRequest.class;
+        return UtilitiesSmartMeterEventERPBulkCreateRequestEOut.class;
     }
 
     @Override
@@ -70,7 +66,7 @@ public class MeterEventCreateRequestProviderImpl implements MeterEventCreateRequ
             throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
         }
         endpoints.forEach(soapService -> soapService
-                .soaUtilitiesSmartMeterEventERPBulkCreateRequest(reqMsg));
+                .utilitiesSmartMeterEventERPBulkCreateRequestEOut(reqMsg));
     }
 
 

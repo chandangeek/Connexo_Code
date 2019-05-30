@@ -1,1046 +1,747 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions name="UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out"
-                  targetNamespace="urn:webservices.wsdl.soap.sap.mdc.energyict.com:utilitiestimeseriesbulkchangerequest"
-                  xmlns:p2="http://sap.com/xi/SAPGlobal20/Global"
-                  xmlns:p1="urn:webservices.wsdl.soap.sap.mdc.energyict.com:utilitiestimeseriesbulkchangerequest"
-                  xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
-                  xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
-                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-    <wsdl:documentation/>
-    <wsp:UsingPolicy wsdl:required="true"/>
-    <wsp:Policy wsu:Id="OP_UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out"/>
-    <wsdl:types>
-        <xsd:schema targetNamespace="http://sap.com/xi/IS-U/Global2" xmlns="http://sap.com/xi/IS-U/Global2"
-                    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-            <xsd:simpleType name="PhoneNumberSubscriberID">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">aa01b5b0ea3411dc9c8c0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Identifier</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="30"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="CountryCode">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a923ffe0ea3411dca0f20017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Code</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="2"/>
-                    <xsd:maxLength value="3"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="Indicator">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">Indicator is the representation of a situation that has exactly two
-                        mutually exclusive Boolean values.
-                    </xsd:documentation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">48065b00ea3311dca62d0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Indicator</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:boolean"/>
-            </xsd:simpleType>
-            <xsd:simpleType name="UtilitiesTimeSeriesItemTypeCode.Content">
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="4"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="AgencyIdentificationCode">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">An AgencyIdentificationCode is a code representation of the agency
-                        responsible for a code list or identifier scheme, respectively
-                    </xsd:documentation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">d3bf90f3eb8f11dcb2fc0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Code</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="3"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="PhoneNumberAreaID">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a979e810ea3411dcab2e0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Identifier</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="10"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="MeasureUnitCode">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">6aa61850ea2211dccc570017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Code</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="3"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="BusinessSystemID">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a5f247f0ea3411dccf150017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Identifier</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="60"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="Quantity.Content">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">QUANTITY is the non-monetary numerical declaration of a quantity in
-                        a specific unit of measure
-                    </xsd:documentation>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:decimal">
-                    <xsd:totalDigits value="31"/>
-                    <xsd:fractionDigits value="14"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="Amount.Content">
-                <xsd:restriction base="xsd:decimal">
-                    <xsd:totalDigits value="28"/>
-                    <xsd:fractionDigits value="6"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="ContactPersonInternalID.Content">
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="32"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="UtilitiesTimeSeriesID.Content">
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="18"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="PhoneNumberExtensionID">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a9c87d40ea3411dcafde0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Identifier</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="10"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="BusinessDocumentMessageID.Content">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">Unique identifier of a business document in a (technical) message
-                        that is issued by the sender business application
-                    </xsd:documentation>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="35"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="MEDIUM_Name.Content">
-                <xsd:restriction base="xsd:string">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="40"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="UUID.Content">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">Universally Unique Identifier</xsd:documentation>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:length value="36"/>
-                    <xsd:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="LANGUAGEINDEPENDENT_MEDIUM_Name">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a8da25a0ea3411dc98530017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Name</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:string">
-                    <xsd:minLength value="0"/>
-                    <xsd:maxLength value="40"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="LANGUAGEINDEPENDENT_LONG_Name">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a8b18f00ea3411dcc0cf0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Name</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:string">
-                    <xsd:minLength value="0"/>
-                    <xsd:maxLength value="80"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="GLOBAL_DateTime">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a5763a20ea3411dca0240017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">DateTime</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:dateTime">
-                    <xsd:pattern value="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(.[0-9]{1,7})?Z"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="BusinessScopeTypeCode.Content">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">Coded representation of the type of a BusinessScope
-                    </xsd:documentation>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="4"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="LanguageCode">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">d7cc1cd3ec7111dcc90e0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Code</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:language">
-                    <xsd:minLength value="2"/>
-                    <xsd:maxLength value="9"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="PartyStandardID.Content">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">Standardized identifier for a party, and the identification scheme
-                        used is controlled by an agency from the code list DE 3055
-                    </xsd:documentation>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="13"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="BusinessScopeID.Content">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">Identifier of a BusinessScope</xsd:documentation>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="36"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="PartyInternalID.Content">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">Proprietary identifier for a party</xsd:documentation>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="32"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="BusinessScopeInstanceID.Content">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">Identifier for the instance of a BusinessScope</xsd:documentation>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="36"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="CurrencyCode">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">43fc7cc0f50e11dca8560017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Code</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:length value="3"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:simpleType name="CountryDiallingCode">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a99b2bb0ea3411dc8a2c0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Code</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:restriction base="xsd:token">
-                    <xsd:minLength value="1"/>
-                    <xsd:maxLength value="10"/>
-                </xsd:restriction>
-            </xsd:simpleType>
-            <xsd:complexType name="Amount">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">1f6057e0ea1611dcc7930017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Amount</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="Amount.Content">
-                        <xsd:attribute name="currencyCode" type="CurrencyCode" use="required">
-                            <xsd:annotation>
-                                <xsd:appinfo source="http://sap.com/xi/TextID">b3e428c05c6b11d8b3a0f48b0a1174b2
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="BusinessScopeInstanceID">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a7531070ea3411dc9c3d0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Identifier</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="BusinessScopeInstanceID.Content">
-                        <xsd:attribute name="schemeID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="schemeAgencyID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="BusinessDocumentMessageHeaderParty">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">General information about a party that is responsible for sending
-                        or receiving a BusinessDocument at business application level
-                    </xsd:documentation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a5b90f80ea3411dcc7920017a44cb001</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:sequence>
-                    <xsd:element name="InternalID" type="PartyInternalID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">c35c9910954411d8b532d71b93cc14a9
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="StandardID" type="PartyStandardID" minOccurs="0" maxOccurs="unbounded">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">c35c9911954411d8a295d71b93cc14a9
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="ContactPerson" type="BusinessDocumentMessageHeaderPartyContactPerson"
-                                 minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">c35c9912954411d8a8bad71b93cc14a9
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="MEDIUM_Name">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a8fb9053ea3411dc949b0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Name</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="MEDIUM_Name.Content">
-                        <xsd:attribute name="languageCode" type="LanguageCode">
-                            <xsd:annotation>
-                                <xsd:appinfo source="http://sap.com/xi/TextID">d5b24bb0035b11da92f3e1fb0a135236
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="UtilitiesTimeSeriesID">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">de61bda10c9911dd84f40017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Identifier</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="UtilitiesTimeSeriesID.Content">
-                        <xsd:attribute name="schemeID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="schemeAgencyID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="UtilsTmeSersERPItmBulkChgReqMsg">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">UtilsTmeSersERPItmBulkChgReqMsg</xsd:documentation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">98f5857ac27811e0c17d00001e2b30eb</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:sequence>
-                    <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">2bf69a8b03a211e0cbb60027108804d8
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="UtilitiesTimeSeriesERPItemChangeRequestMessage"
-                                 type="UtilsTmeSersERPItmChgReqMsg" maxOccurs="unbounded">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">2bf69a8c03a211e088140027108804d8
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="EmailURI">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a84d7600ea3411dccf530017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">URI</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="xsd:anyURI">
-                        <xsd:attribute name="schemeID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="BusinessScopeTypeCode">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a7806200ea3411dc90680017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Code</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="BusinessScopeTypeCode.Content">
-                        <xsd:attribute name="listID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="listVersionID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="15"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="listAgencyID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="listAgencySchemeID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="listAgencySchemeAgencyID" type="AgencyIdentificationCode"/>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="BusinessDocumentMessageHeader">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">Business information from the perspective of the sender application
-                        for identifying a business document (instance) within a (technical) message
-                    </xsd:documentation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a53d01b0ea3411dc83a40017a44cb001</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:sequence>
-                    <xsd:element name="ID" type="BusinessDocumentMessageID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">151ee290954411d8c7ced71b93cc14a9
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="UUID" type="UUID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">b67db020f88911dbb090000bcd72d39c
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="ReferenceID" type="BusinessDocumentMessageID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">151ee291954411d8b641d71b93cc14a9
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="ReferenceUUID" type="UUID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">b67db021f88911db8135000bcd72d39c
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="CreationDateTime" type="GLOBAL_DateTime">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">151ee292954411d88b5dd71b93cc14a9
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="TestDataIndicator" type="Indicator" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">ae0e2460fa2411daa51d00143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="ReconciliationIndicator" type="Indicator" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">66b72c80fa2711dab3a500143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="SenderBusinessSystemID" type="BusinessSystemID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">33360820430811db825c00143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="RecipientBusinessSystemID" type="BusinessSystemID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">33378ec0430811dbbc8c00143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="SenderParty" type="BusinessDocumentMessageHeaderParty" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">151ee293954411d891b7d71b93cc14a9
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="RecipientParty" type="BusinessDocumentMessageHeaderParty" minOccurs="0"
-                                 maxOccurs="unbounded">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">151ee294954411d8ba26d71b93cc14a9
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="BusinessScope" type="BusinessScope" minOccurs="0" maxOccurs="unbounded">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">0173e590426e11dbb47d00143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="BusinessDocumentMessageHeaderPartyContactPerson">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">Contact person of a party that is responsible for sending or
-                        receiving a BusinessDocument
-                    </xsd:documentation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a6fade50ea3411dca3c10017a44cb001</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:sequence>
-                    <xsd:element name="InternalID" type="ContactPersonInternalID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">b4721400fa2511da86df00143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="OrganisationFormattedName" type="LANGUAGEINDEPENDENT_MEDIUM_Name" minOccurs="0"
-                                 maxOccurs="4">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">2ef17bd0fa2611daba6000143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="PersonFormattedName" type="LANGUAGEINDEPENDENT_LONG_Name" minOccurs="0"
-                                 maxOccurs="4">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">a64ca3c0fa2711daa02c00143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="PhoneNumber" type="PhoneNumber" minOccurs="0" maxOccurs="unbounded">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">a64ca3c1fa2711da95b800143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="FaxNumber" type="PhoneNumber" minOccurs="0" maxOccurs="unbounded">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">a64ca3c2fa2711daa4e400143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="EmailURI" type="EmailURI" minOccurs="0" maxOccurs="unbounded">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">a64ca3c3fa2711da8b6800143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="PartyInternalID">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">ed1e3bd0ec2c11dc93540017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Identifier</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="PartyInternalID.Content">
-                        <xsd:attribute name="schemeID">
-                            <xsd:annotation>
-                                <xsd:appinfo source="http://sap.com/xi/TextID">31113640313c11d892b8ef3e0a134a03
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="schemeAgencyID">
-                            <xsd:annotation>
-                                <xsd:appinfo source="http://sap.com/xi/TextID">31113641313c11d88183ef3e0a134a03
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="UUID">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a61f9980ea3411dcaa1e0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Identifier</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="UUID.Content">
-                        <xsd:attribute name="schemeID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="schemeAgencyID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="UtilsTmeSersERPItmChgReqMsg">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">UtilsTmeSersERPItmChgReqMsg</xsd:documentation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">7bdc25ae043d11e0cdb900001de63cf6</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:sequence>
-                    <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">31dc56e2039d11e08c250027108804d8
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="UtilitiesTimeSeries" type="UtilsTmeSersERPItmChgReqUtilsTmeSers">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">31dc56e3039d11e0c1b60027108804d8
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="UtilsTmeSersERPItmChgReqItm">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">UtilsTmeSersERPItmChgReqItm</xsd:documentation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">5fe63d4f043911e0a60d00001de63cf6</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:sequence>
-                    <xsd:element name="Amount" type="Amount" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">a78c9dd0696811dfbeda506313c7736c
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="Quantity" type="Quantity" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">a78c9dd1696811df8a3d506313c7736c
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="UTCValidityStartDateTime" type="GLOBAL_DateTime">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">a78c9dd2696811dfc94e506313c7736c
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="UTCValidityEndDateTime" type="GLOBAL_DateTime">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">a78c9dd3696811dfa385506313c7736c
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="ItemStatus" type="UtilsTmeSersERPItmChgReqItmSts" maxOccurs="unbounded">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">44477680699211dfa2d9506313c7736c
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="UtilitiesTimeSeriesItemTypeCode">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">49835231e98811dd81b6001e0b209e1e</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Code</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="UtilitiesTimeSeriesItemTypeCode.Content">
-                        <xsd:attribute name="listID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="listVersionID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="15"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="listAgencyID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="listAgencySchemeID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="listAgencySchemeAgencyID" type="AgencyIdentificationCode"/>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="PartyStandardID">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a72aa0e0ea3411dc90cc0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Identifier</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="PartyStandardID.Content">
-                        <xsd:attribute name="schemeAgencyID" use="required">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="3"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="UtilsTmeSersERPItmChgReqItmSts">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">Item Status: UtilsTmeSersERPItmChgReqItmSts</xsd:documentation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">56dc883c043811e0839700001de63cf6</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:sequence>
-                    <xsd:element name="UtilitiesTimeSeriesItemTypeCode" type="UtilitiesTimeSeriesItemTypeCode">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">d96ee410696911dfa5ba506313c7736c
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="PhoneNumber">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a824df60ea3411dc8b890017a44cb001</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:sequence>
-                    <xsd:element name="AreaID" type="PhoneNumberAreaID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">05afcf1031f711d7810ddb820a126fd1
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="SubscriberID" type="PhoneNumberSubscriberID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">05b155b031f711d7a7cbdb820a126fd1
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="ExtensionID" type="PhoneNumberExtensionID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">05b155b131f711d7b24bdb820a126fd1
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="CountryCode" type="CountryCode" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">05b155b231f711d7ced6db820a126fd1
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="CountryDiallingCode" type="CountryDiallingCode" minOccurs="0"/>
-                    <xsd:element name="CountryName" type="MEDIUM_Name" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">f9a35db0b2a611db99f1000bcd72d39c
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="BusinessScopeID">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a7bc0b70ea3411dc9f770017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Identifier</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="BusinessScopeID.Content">
-                        <xsd:attribute name="schemeID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="schemeAgencyID">
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="Quantity">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">1e923140ec6d11dc962d0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Quantity</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="Quantity.Content">
-                        <xsd:attribute name="unitCode" type="MeasureUnitCode"/>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="ContactPersonInternalID">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a7f543e0ea3411dca4df0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Identifier</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="ContactPersonInternalID.Content">
-                        <xsd:attribute name="schemeID">
-                            <xsd:annotation>
-                                <xsd:appinfo source="http://sap.com/xi/TextID">211056a0313b11d8983aef3e0a134a03
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="schemeAgencyID">
-                            <xsd:annotation>
-                                <xsd:appinfo source="http://sap.com/xi/TextID">211056a1313b11d89d4bef3e0a134a03
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="BusinessDocumentMessageID">
-                <xsd:annotation>
-                    <xsd:appinfo source="http://sap.com/xi/helperType">true</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a6886d70ea3411dca86a0017a44cb001</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/RepresentationTerm">Identifier</xsd:appinfo>
-                    <xsd:appinfo source="http://sap.com/esi/FixedValues">false</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:simpleContent>
-                    <xsd:extension base="BusinessDocumentMessageID.Content">
-                        <xsd:attribute name="schemeID">
-                            <xsd:annotation>
-                                <xsd:appinfo source="http://sap.com/xi/TextID">e8fd18a0954611d89e24d71b93cc14a9
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="schemeAgencyID">
-                            <xsd:annotation>
-                                <xsd:appinfo source="http://sap.com/xi/TextID">aa8e8aa1954511d88f1fd71b93cc14a9
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                            <xsd:simpleType>
-                                <xsd:restriction base="xsd:token">
-                                    <xsd:minLength value="1"/>
-                                    <xsd:maxLength value="60"/>
-                                </xsd:restriction>
-                            </xsd:simpleType>
-                        </xsd:attribute>
-                        <xsd:attribute name="schemeAgencySchemeAgencyID" type="AgencyIdentificationCode">
-                            <xsd:annotation>
-                                <xsd:appinfo source="http://sap.com/xi/TextID">aa8e8aa2954511d89ab7d71b93cc14a9
-                                </xsd:appinfo>
-                            </xsd:annotation>
-                        </xsd:attribute>
-                    </xsd:extension>
-                </xsd:simpleContent>
-            </xsd:complexType>
-            <xsd:complexType name="BusinessScope">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">Environment from which a message is sent</xsd:documentation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">a64f3500ea3411dc9dac0017a44cb001</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:sequence>
-                    <xsd:element name="TypeCode" type="BusinessScopeTypeCode">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">c598de40426d11dbcb6700143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="InstanceID" type="BusinessScopeInstanceID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">c598de41426d11db836300143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="ID" type="BusinessScopeID" minOccurs="0">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">c598de42426d11dbc18500143800ce46
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                </xsd:sequence>
-            </xsd:complexType>
-            <xsd:complexType name="UtilsTmeSersERPItmChgReqUtilsTmeSers">
-                <xsd:annotation>
-                    <xsd:documentation xml:lang="EN">UtilsTmeSersERPItmChgReqUtilsTmeSers</xsd:documentation>
-                    <xsd:appinfo source="http://sap.com/xi/VersionID">6d038da3343511e0915600001e13b213</xsd:appinfo>
-                </xsd:annotation>
-                <xsd:sequence>
-                    <xsd:element name="ID" type="UtilitiesTimeSeriesID">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">986a1372039c11e0add60027108804d8
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                    <xsd:element name="Item" type="UtilsTmeSersERPItmChgReqItm" minOccurs="0" maxOccurs="unbounded">
-                        <xsd:annotation>
-                            <xsd:appinfo source="http://sap.com/xi/TextID">986a1373039c11e085910027108804d8
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:element>
-                </xsd:sequence>
-            </xsd:complexType>
-        </xsd:schema>
-        <xsd:schema targetNamespace="http://sap.com/xi/SAPGlobal20/Global" xmlns:p1="http://sap.com/xi/IS-U/Global2"
-                    xmlns="http://sap.com/xi/SAPGlobal20/Global" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-            <xsd:import namespace="http://sap.com/xi/IS-U/Global2"/>
-            <xsd:element name="UtilitiesTimeSeriesERPItemBulkChangeRequest" type="p1:UtilsTmeSersERPItmBulkChgReqMsg"/>
-        </xsd:schema>
-    </wsdl:types>
-    <wsdl:message name="p3.UtilitiesTimeSeriesERPItemBulkChangeRequest">
-        <wsdl:documentation/>
-        <wsdl:part name="UtilitiesTimeSeriesERPItemBulkChangeRequest"
-                   element="p2:UtilitiesTimeSeriesERPItemBulkChangeRequest"/>
-    </wsdl:message>
-    <wsdl:portType name="UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out">
-        <wsdl:documentation/>
-        <wsdl:operation name="UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out">
-            <wsdl:documentation/>
-            <wsp:Policy>
-                <wsp:PolicyReference URI="#OP_UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out"/>
-            </wsp:Policy>
-            <wsdl:input message="p1:p3.UtilitiesTimeSeriesERPItemBulkChangeRequest"/>
-        </wsdl:operation>
-    </wsdl:portType>
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions targetNamespace="http://sap.com/xi/IS-U/Global2" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsoap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://sap.com/xi/IS-U/Global2" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:n1="http://sap.com/xi/SAPGlobal/Global" xmlns:n2="http://sap.com/xi/SAPGlobal20/Global">
+ <wsdl:documentation>
+  <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl"/>
+ </wsdl:documentation>
+ <wsp:UsingPolicy wsdl:required="true"/>
+ <wsp:Policy wsu:Id="OP_IF_OP_UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out">
+  <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">true</sapcomhnd:enableCommit>
+  <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">false</sapblock:enableBlocking>
+  <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">yes</saptrhnw05:required>
+  <saprmnw05:enableWSRM xmlns:saprmnw05="http://www.sap.com/NW05/soap/features/wsrm/">true</saprmnw05:enableWSRM>
+ </wsp:Policy>
+ <wsdl:types>
+  <xsd:schema targetNamespace="http://sap.com/xi/IS-U/Global2" xmlns="http://sap.com/xi/IS-U/Global2" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal20/Global">
+   <xsd:annotation>
+    <xsd:documentation>
+     <sprx:documentation version="1" baseURL="http://ldciemi.wdf.sap.corp:50057/sap/bc/esdt/docu/xsd_type?sap-client=300"/>
+    </xsd:documentation>
+   </xsd:annotation>
+   <xsd:simpleType name="AgencyIdentificationCode">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="3"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="Amount">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Amount</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="Amount.Content">
+      <xsd:attribute name="currencyCode" use="required" type="CurrencyCode"/>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="Amount.Content">
+    <xsd:restriction base="xsd:decimal">
+     <xsd:totalDigits value="28"/>
+     <xsd:fractionDigits value="6"/>
+     <xsd:maxInclusive value="9999999999999999999999.999999"/>
+     <xsd:minInclusive value="-9999999999999999999999.999999"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="BusinessDocumentMessageHeader">
+    <xsd:sequence>
+     <xsd:element name="ID" minOccurs="0" type="BusinessDocumentMessageID"/>
+     <xsd:element name="UUID" minOccurs="0" type="UUID"/>
+     <xsd:element name="ReferenceID" minOccurs="0" type="BusinessDocumentMessageID"/>
+     <xsd:element name="ReferenceUUID" minOccurs="0" type="UUID"/>
+     <xsd:element name="CreationDateTime" type="GLOBAL_DateTime"/>
+     <xsd:element name="TestDataIndicator" minOccurs="0" type="Indicator"/>
+     <xsd:element name="ReconciliationIndicator" minOccurs="0" type="Indicator"/>
+     <xsd:element name="SenderBusinessSystemID" minOccurs="0" type="BusinessSystemID"/>
+     <xsd:element name="RecipientBusinessSystemID" minOccurs="0" type="BusinessSystemID"/>
+     <xsd:element name="SenderParty" minOccurs="0" type="BusinessDocumentMessageHeaderParty"/>
+     <xsd:element name="RecipientParty" minOccurs="0" maxOccurs="unbounded" type="BusinessDocumentMessageHeaderParty"/>
+     <xsd:element name="BusinessScope" minOccurs="0" maxOccurs="unbounded" type="BusinessScope"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="BusinessDocumentMessageHeaderParty">
+    <xsd:sequence>
+     <xsd:element name="InternalID" minOccurs="0" type="PartyInternalID"/>
+     <xsd:element name="StandardID" minOccurs="0" maxOccurs="unbounded" type="PartyStandardID"/>
+     <xsd:element name="ContactPerson" minOccurs="0" type="BusinessDocumentMessageHeaderPartyContactPerson"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="BusinessDocumentMessageHeaderPartyContactPerson">
+    <xsd:sequence>
+     <xsd:element name="InternalID" minOccurs="0" type="ContactPersonInternalID"/>
+     <xsd:element name="OrganisationFormattedName" minOccurs="0" maxOccurs="4" type="LANGUAGEINDEPENDENT_MEDIUM_Name"/>
+     <xsd:element name="PersonFormattedName" minOccurs="0" maxOccurs="4" type="LANGUAGEINDEPENDENT_LONG_Name"/>
+     <xsd:element name="PhoneNumber" minOccurs="0" maxOccurs="unbounded" type="PhoneNumber"/>
+     <xsd:element name="FaxNumber" minOccurs="0" maxOccurs="unbounded" type="PhoneNumber"/>
+     <xsd:element name="EmailURI" minOccurs="0" maxOccurs="unbounded" type="EmailURI"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="BusinessDocumentMessageID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="BusinessDocumentMessageID.Content">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencySchemeAgencyID" type="AgencyIdentificationCode"/>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="BusinessDocumentMessageID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="35"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="BusinessScope">
+    <xsd:sequence>
+     <xsd:element name="TypeCode" type="BusinessScopeTypeCode"/>
+     <xsd:element name="InstanceID" minOccurs="0" type="BusinessScopeInstanceID"/>
+     <xsd:element name="ID" minOccurs="0" type="BusinessScopeID"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="BusinessScopeID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="BusinessScopeID.Content">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="BusinessScopeID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="36"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="BusinessScopeInstanceID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="BusinessScopeInstanceID.Content">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="BusinessScopeInstanceID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="36"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="BusinessScopeTypeCode">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="BusinessScopeTypeCode.Content">
+      <xsd:attribute name="listID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="listVersionID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="15"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="listAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="listAgencySchemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="listAgencySchemeAgencyID" type="AgencyIdentificationCode"/>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="BusinessScopeTypeCode.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="4"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="BusinessSystemID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="60"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="ContactPersonInternalID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="ContactPersonInternalID.Content">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="ContactPersonInternalID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="32"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="CountryCode">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="3"/>
+     <xsd:minLength value="2"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="CountryDiallingCode">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="10"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="CurrencyCode">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+     <xsd:length value="3"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="EmailURI">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>URI</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="xsd:anyURI">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:complexType name="ExchangeFaultData">
+    <xsd:sequence>
+     <xsd:element name="faultText" type="xsd:string"/>
+     <xsd:element name="faultUrl" minOccurs="0" type="xsd:string"/>
+     <xsd:element name="faultDetail" minOccurs="0" maxOccurs="unbounded" type="ExchangeLogData"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="ExchangeLogData">
+    <xsd:sequence>
+     <xsd:element name="severity" minOccurs="0" type="xsd:string"/>
+     <xsd:element name="text" type="xsd:string"/>
+     <xsd:element name="url" minOccurs="0" type="xsd:string"/>
+     <xsd:element name="id" minOccurs="0" type="xsd:string"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:simpleType name="GLOBAL_DateTime">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>DateTime</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:dateTime">
+     <xsd:pattern value="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(.[0-9]{1,7})?Z"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="Indicator">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Indicator</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:boolean"/>
+   </xsd:simpleType>
+   <xsd:simpleType name="LANGUAGEINDEPENDENT_LONG_Name">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Name</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+     <xsd:maxLength value="80"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="LANGUAGEINDEPENDENT_MEDIUM_Name">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Name</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+     <xsd:maxLength value="40"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="LanguageCode">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:language">
+     <xsd:maxLength value="9"/>
+     <xsd:minLength value="2"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="MEDIUM_Name">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Name</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="MEDIUM_Name.Content">
+      <xsd:attribute name="languageCode" type="LanguageCode"/>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="MEDIUM_Name.Content">
+    <xsd:restriction base="xsd:string">
+     <xsd:maxLength value="40"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="MeasureUnitCode">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="3"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="PartyInternalID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="PartyInternalID.Content">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="PartyInternalID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="32"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="PartyStandardID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="PartyStandardID.Content">
+      <xsd:attribute name="schemeAgencyID" use="required">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="3"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="PartyStandardID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="13"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="PhoneNumber">
+    <xsd:sequence>
+     <xsd:element name="AreaID" minOccurs="0" type="PhoneNumberAreaID"/>
+     <xsd:element name="SubscriberID" minOccurs="0" type="PhoneNumberSubscriberID"/>
+     <xsd:element name="ExtensionID" minOccurs="0" type="PhoneNumberExtensionID"/>
+     <xsd:element name="CountryCode" minOccurs="0" type="CountryCode"/>
+     <xsd:element name="CountryDiallingCode" minOccurs="0" type="CountryDiallingCode"/>
+     <xsd:element name="CountryName" minOccurs="0" type="MEDIUM_Name"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:simpleType name="PhoneNumberAreaID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="10"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="PhoneNumberExtensionID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="10"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="PhoneNumberSubscriberID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="30"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="Quantity">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Quantity</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="Quantity.Content">
+      <xsd:attribute name="unitCode" type="MeasureUnitCode"/>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="Quantity.Content">
+    <xsd:restriction base="xsd:decimal">
+     <xsd:totalDigits value="31"/>
+     <xsd:fractionDigits value="14"/>
+     <xsd:maxInclusive value="99999999999999999.99999999999999"/>
+     <xsd:minInclusive value="-99999999999999999.99999999999999"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="UUID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="UUID.Content">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="UUID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:length value="36"/>
+     <xsd:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="UtilitiesTimeSeriesID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="UtilitiesTimeSeriesID.Content">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="UtilitiesTimeSeriesID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="18"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="UtilitiesTimeSeriesItemTypeCode">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="UtilitiesTimeSeriesItemTypeCode.Content">
+      <xsd:attribute name="listID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="listVersionID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="15"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="listAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="listAgencySchemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="listAgencySchemeAgencyID" type="AgencyIdentificationCode"/>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="UtilitiesTimeSeriesItemTypeCode.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="4"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="UtilsTmeSersERPItmBulkChgReqMsg">
+    <xsd:sequence>
+     <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader"/>
+     <xsd:element name="UtilitiesTimeSeriesERPItemChangeRequestMessage" maxOccurs="unbounded" type="UtilsTmeSersERPItmChgReqMsg"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="UtilsTmeSersERPItmChgReqItm">
+    <xsd:sequence>
+     <xsd:element name="Amount" minOccurs="0" type="Amount"/>
+     <xsd:element name="Quantity" minOccurs="0" type="Quantity"/>
+     <xsd:element name="UTCValidityStartDateTime" type="GLOBAL_DateTime"/>
+     <xsd:element name="UTCValidityEndDateTime" type="GLOBAL_DateTime"/>
+     <xsd:element name="ItemStatus" maxOccurs="unbounded" type="UtilsTmeSersERPItmChgReqItmSts"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="UtilsTmeSersERPItmChgReqItmSts">
+    <xsd:sequence>
+     <xsd:element name="UtilitiesTimeSeriesItemTypeCode" type="UtilitiesTimeSeriesItemTypeCode"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="UtilsTmeSersERPItmChgReqMsg">
+    <xsd:sequence>
+     <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader"/>
+     <xsd:element name="UtilitiesTimeSeries" type="UtilsTmeSersERPItmChgReqUtilsTmeSers"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="UtilsTmeSersERPItmChgReqUtilsTmeSers">
+    <xsd:sequence>
+     <xsd:element name="ID" type="UtilitiesTimeSeriesID"/>
+     <xsd:element name="Item" minOccurs="0" maxOccurs="unbounded" type="UtilsTmeSersERPItmChgReqItm"/>
+    </xsd:sequence>
+   </xsd:complexType>
+  </xsd:schema>
+  <xsd:schema targetNamespace="http://sap.com/xi/SAPGlobal/Global" xmlns="http://sap.com/xi/SAPGlobal/Global" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal20/Global">
+   <xsd:import namespace="http://sap.com/xi/IS-U/Global2"/>
+   <xsd:annotation>
+    <xsd:documentation>
+     <sprx:documentation version="1" baseURL="http://ldciemi.wdf.sap.corp:50057/sap/bc/esdt/docu/xsd_type?sap-client=300"/>
+    </xsd:documentation>
+   </xsd:annotation>
+   <xsd:element name="StandardMessageFault">
+    <xsd:complexType>
+     <xsd:sequence>
+      <xsd:element name="standard" type="tns:ExchangeFaultData"/>
+     </xsd:sequence>
+    </xsd:complexType>
+   </xsd:element>
+  </xsd:schema>
+  <xsd:schema targetNamespace="http://sap.com/xi/SAPGlobal20/Global" xmlns="http://sap.com/xi/SAPGlobal20/Global" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal20/Global">
+   <xsd:import namespace="http://sap.com/xi/IS-U/Global2"/>
+   <xsd:annotation>
+    <xsd:documentation>
+     <sprx:documentation version="1" baseURL="http://ldciemi.wdf.sap.corp:50057/sap/bc/esdt/docu/xsd_type?sap-client=300"/>
+    </xsd:documentation>
+   </xsd:annotation>
+   <xsd:element name="UtilitiesTimeSeriesERPItemBulkChangeRequest" type="tns:UtilsTmeSersERPItmBulkChgReqMsg"/>
+  </xsd:schema>
+ </wsdl:types>
+ <wsdl:message name="UtilitiesTimeSeriesERPItemBulkChangeRequest">
+  <wsdl:part name="UtilitiesTimeSeriesERPItemBulkChangeRequest" element="n2:UtilitiesTimeSeriesERPItemBulkChangeRequest"/>
+ </wsdl:message>
+ <wsdl:message name="StandardMessageFault">
+  <wsdl:part name="StandardMessageFault" element="n1:StandardMessageFault"/>
+ </wsdl:message>
+ <wsdl:portType name="UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out">
+  <wsdl:documentation>
+   <sapdoc:sapdoc xmlns:sapdoc="urn:sap:esi:documentation">
+    <sapdoc:docitem applicationComponent="IS-U"/>
+   </sapdoc:sapdoc>
+  </wsdl:documentation>
+  <wsdl:operation name="UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out">
+   <wsp:Policy>
+    <wsp:PolicyReference URI="#OP_IF_OP_UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out"/>
+   </wsp:Policy>
+   <wsdl:input message="tns:UtilitiesTimeSeriesERPItemBulkChangeRequest"/>
+  </wsdl:operation>
+ </wsdl:portType>
     <wsdl:binding name="UtilitiesTimeSeriesERPItemBulkChangeRequest_E_OutBinding"
-                  type="p1:UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out">
+                  type="tns:UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"
                       xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
         <wsdl:operation name="UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out">
@@ -1052,12 +753,12 @@
         </wsdl:operation>
     </wsdl:binding>
     <wsdl:service name="UtilitiesTimeSeriesERPItemBulkChangeRequest_E_OutService">
-        <wsdl:port name="HTTP_Port" binding="p1:UtilitiesTimeSeriesERPItemBulkChangeRequest_E_OutBinding">
+        <wsdl:port name="HTTP_Port" binding="tns:UtilitiesTimeSeriesERPItemBulkChangeRequest_E_OutBinding">
             <soap:address
                     location="http://svpopd5db.evn-r3.energy-it.net:50100/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
                     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
         </wsdl:port>
-        <wsdl:port name="HTTPS_Port" binding="p1:UtilitiesTimeSeriesERPItemBulkChangeRequest_E_OutBinding">
+        <wsdl:port name="HTTPS_Port" binding="tns:UtilitiesTimeSeriesERPItemBulkChangeRequest_E_OutBinding">
             <soap:address
                     location="https://svpopd5db.evn-r3.energy-it.net:50101/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=UtilitiesTimeSeriesERPItemBulkChangeRequest_E_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
                     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
