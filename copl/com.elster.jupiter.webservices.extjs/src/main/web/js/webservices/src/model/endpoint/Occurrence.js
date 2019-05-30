@@ -26,7 +26,8 @@ Ext.define('Wss.model.endpoint.Occurrence', {
     },
     {name: 'applicationName', type: 'string'},
     {name: 'request', type: 'string'},
-    {name: 'status', type: 'string'}
+    {name: 'status', type: 'string'},
+    {name: 'payload', type: 'string'}
   ],
 
   hasOne: [

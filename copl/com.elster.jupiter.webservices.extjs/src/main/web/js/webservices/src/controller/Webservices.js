@@ -56,6 +56,9 @@ Ext.define('Wss.controller.Webservices', {
             'webservices-action-menu': {
                 click: this.chooseAction
             },
+            'webservices-endpoint-action-menu': {
+                click: this.chooseEndpointAction
+            },
             '#wss-no-webservice-endpoints-add-btn': {
                 click: this.goToAddView
             },
@@ -323,6 +326,21 @@ Ext.define('Wss.controller.Webservices', {
                 break;
             case 'edit':
                 me.editEndpoint(menu.record);
+        }
+    },
+
+    chooseEndpointAction: function (menu, item) {
+        switch (item.action) {
+            case 'view-payload':
+                var win = window.open();
+                var payload = Ext.String.htmlEncode(
+                    menu.record.get('payload')
+                );
+
+                win.document.write("<pre>" + payload + "</pre>");
+
+                win.focus();
+                break;
         }
     },
 

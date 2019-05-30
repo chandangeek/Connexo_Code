@@ -12,7 +12,7 @@ Ext.define('Wss.model.endpoint.OccurrenceLog', {
     {name: 'id', type: 'number'},
     { name: 'logLevel', type: 'string' },
     {
-      name: 'time',
+      name: 'timestamp',
       type: 'date',
       convert: function (value) {
         return new Date(value);

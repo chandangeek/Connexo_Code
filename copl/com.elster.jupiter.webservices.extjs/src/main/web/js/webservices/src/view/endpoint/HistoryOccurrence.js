@@ -14,7 +14,8 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
     'Wss.view.HistoryTopFilter',
     'Wss.view.webservice.HistoryPreviewContainer',
     'Wss.view.endpoint.OccurrenceForm',
-    'Wss.view.endpoint.OccurrenceGrid'
+    'Wss.view.endpoint.OccurrenceGrid',
+    'Wss.view.endpoint.ActionMenu'
   ],
 
   initComponent: function () {
@@ -38,10 +39,22 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
     me.content = {
         ui: 'large',
         title: Uni.I18n.translate('general.log', 'WSS', 'Log'),
+        tools: [
+          {
+              xtype: 'uni-button-action',
+              itemId: 'webservicePreviewMenuButton',
+              // privileges: Wss.privileges.Webservices.admin,
+              menu: {
+                  xtype: 'webservices-endpoint-action-menu',
+                  record: me.occurrence
+              }
+          }
+        ],
         items: [
           {
             xtype: 'webservice-history-occurence-form',
             record: me.occurrence,
+            router: me.router,
             frame: true,
           },
           {

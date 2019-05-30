@@ -14,8 +14,11 @@ Ext.define('Wss.view.endpoint.OccurrenceGrid', {
         var me = this;
         me.columns = [
             {
+                dataIndex: 'timestamp',
                 header: Uni.I18n.translate('general.timestamp', 'WSS', 'Timestamp'),
-                dataIndex: 'timestampDisplay',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                },
                 flex: 1.5
             },
             {
