@@ -36,6 +36,7 @@ import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +46,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -96,6 +98,7 @@ public class ServiceCategoryImplTest {
         serviceCategory = new ServiceCategoryImpl(dataModel, clock, thesaurus).init(ServiceKind.ELECTRICITY);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
+        when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.empty());
         when(validator.validate(any(), anyVararg())).thenReturn(Collections.emptySet());
     }
 

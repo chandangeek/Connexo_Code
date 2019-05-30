@@ -174,7 +174,7 @@ public class UsagePointImplTest {
         when(representation3.getDelegate()).thenReturn(user3);
         when(representation4.getDelegate()).thenReturn(user4);
         when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationMapper);
-
+        when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.empty());
         MessageBuilder messageBuilder = mock(MessageBuilder.class);
         when(this.destinationSpec.message(anyString())).thenReturn(messageBuilder);
         usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, this.destinationSpec, meterActivationProvider, accountabilityProvider,

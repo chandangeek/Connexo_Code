@@ -40,12 +40,13 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final UserService userService;
 
     @Inject
-    public Installer(DataModel dataModel, EventService eventService, FiniteStateMachineService finiteStateMachineService, UserService userService) {
+    public Installer(DataModel dataModel, EventService eventService, FiniteStateMachineService finiteStateMachineService, UserService userService, MessageService messageService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.finiteStateMachineService = finiteStateMachineService;
         this.userService = userService;
+        this.messageService = messageService;
     }
 
     @Override
