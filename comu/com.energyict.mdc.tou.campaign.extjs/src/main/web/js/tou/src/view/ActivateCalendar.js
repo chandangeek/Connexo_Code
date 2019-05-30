@@ -48,6 +48,7 @@ Ext.define('Tou.view.ActivateCalendar', {
                 required: true,
                 vertical: true,
                 allowBlank : true,
+                padding: '0 0 10 0',
                 defaults: {
                     name: me.groupName,
                     submitValue: false
@@ -58,21 +59,23 @@ Ext.define('Tou.view.ActivateCalendar', {
                         boxLabel: me.getOptionText('withoutActivation'),
                         name: me.groupName,
                         inputValue: 'withoutActivation',
-                        checked: false
+                        checked: false,
+                        margin: '5 0 5 0'
                     }, {
                         itemId: 'Immediately',
                         id: 'immediatelyRg',
                         boxLabel: me.getOptionText('immediately'),
                         name: me.groupName,
                         inputValue: 'immediately',
-                        checked: false
+                        checked: false,
+                        margin: '5 0 5 0'
                     }, {
                         itemId: 'ByDate',
                         id: 'onDateRg',
                         name: me.groupName,
                         boxLabel: me.getOptionText('onDate'),
                         inputValue: 'onDate',
-                        margin: '7 0 0 0'
+                        margin: '5 0 5 0'
                     }
                 ],
                 listeners: {
@@ -98,6 +101,9 @@ Ext.define('Tou.view.ActivateCalendar', {
             }, {
                 xtype: 'container',
                 height: '100%',
+                style: {
+                    margin: '0 0 -20 0'
+                },
                 layout: {
                     type: 'vbox',
                     pack: 'end'

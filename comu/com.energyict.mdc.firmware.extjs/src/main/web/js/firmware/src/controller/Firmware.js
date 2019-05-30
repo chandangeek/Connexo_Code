@@ -767,15 +767,11 @@ Ext.define('Fwc.controller.Firmware', {
             router = this.getController('Uni.controller.history.Router'),
             form = me.getFirmwareOptionsEditForm(),
             allowedOptionsError = form.down('#allowedOptionsError'),
-            backUrl = router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl(),
-            formGroupErrorItem = form.down('#masterOptionsError');
+            backUrl = router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl();
 
         this.tab2Activate = 0;
         if (!form.updateRecord()){
-            if (formGroupErrorItem) formGroupErrorItem.show();
             return;
-        }else{
-            if (formGroupErrorItem) formGroupErrorItem.hide();
         }
         allowedOptionsError.removeAll();
         form.getRecord().save({
