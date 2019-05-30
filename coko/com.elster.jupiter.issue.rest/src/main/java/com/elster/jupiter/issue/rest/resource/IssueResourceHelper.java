@@ -4,12 +4,10 @@
 
 package com.elster.jupiter.issue.rest.resource;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.MessageSeeds;
-import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
-import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
-import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
-import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.request.*;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
@@ -17,6 +15,7 @@ import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueFilter;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -26,6 +25,8 @@ import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -36,6 +37,9 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.sun.org.apache.xml.internal.utils.res.StringArrayWrapper;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -169,8 +173,54 @@ public class IssueResourceHelper {
         }
 
         if (jsonFilter.hasProperty(IssueRestModuleConst.USAGEPOINT)) {
-            meteringService.findUsagePointByName(jsonFilter.getString(IssueRestModuleConst.USAGEPOINT))
-                    .ifPresent(filter::addUsagePoint);
+            String usageString = jsonFilter.getComplexProperty(IssueRestModuleConst.USAGEPOINT);
+            JSONObject property = null;
+            String value = null;
+            String operator = null;
+            try {
+                property = new JSONObject(usageString);
+                value = property.getString(IssueRestModuleConst.CRITERIA);
+                operator = property.getString(IssueRestModuleConst.OPERATOR);
+            } catch (JSONException e) {
+
+            }
+            Finder<UsagePoint> finder = meteringService.getUsagePoints(new UsagePointFilter());
+            if(operator.equals("==")){
+                String finalValue = value;
+                finder.stream().filter(usagePoint -> usagePoint.getName().equals(finalValue)).forEach(filter::addUsagePoint);
+            }else if ( operator.equals("!=")){
+                String finalValue1 = value;
+                finder.stream().filter(usagePoint -> !usagePoint.getName().equals(finalValue1)).forEach(filter::addUsagePoint);
+            }
+//            meteringService.findUsagePointByName(jsonFilter.getString(value)).ifPresent(filter::addUsagePoint);
+        }
+
+        if (jsonFilter.hasProperty(IssueRestModuleConst.PRIORITY)){
+            String usageString = jsonFilter.getComplexProperty(IssueRestModuleConst.PRIORITY);
+            JSONObject property = null;
+
+            Integer value = null;
+            String operator = null;
+            try {
+                property = new JSONObject(usageString);
+                value = property.getInt(IssueRestModuleConst.CRITERIA);
+                operator = property.getString(IssueRestModuleConst.OPERATOR);
+            } catch (JSONException e) {
+
+            }
+            if ( operator.equals("==")){
+
+            }else if ( operator.equals("!=")){
+
+            }else if ( operator.equals("<")){
+
+            }else if ( operator.equals(">")){
+
+            }else if ( operator.equals("BETWEEN")){
+
+            }
+
+            filter.setPriority(Priority.fromStringValue(jsonFilter.getString(IssueRestModuleConst.PRIORITY)));
         }
 
         if (jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().allMatch(s -> s == null)) {

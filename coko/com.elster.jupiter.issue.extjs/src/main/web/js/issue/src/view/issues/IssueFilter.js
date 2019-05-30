@@ -21,8 +21,6 @@ Ext.define('Isu.view.issues.IssueFilter', {
 
     initComponent: function () {
         var me = this;
-        // var usagePointsStore = Ext.getStore('Isu.issue.store.IssueUsagePoints') || Ext.create('Isu.issue.store.IssueUsagePoints');
-        // usagePointsStore.getProxy().setExtraParam('nameOnly', true);
         me.filters = [
             {
                 type: 'text',
@@ -143,25 +141,11 @@ Ext.define('Isu.view.issues.IssueFilter', {
             {
                 type: 'customnumeric',
                 itemId: 'issue-usagePoints-filter',
-                dataIndex: 'usagePoints_id',
-                text: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
+                dataIndex: 'usagePoint',
                 displayField: 'name',
                 valueField: 'name',
                 store: 'Isu.store.IssueUsagePoints',
-                queryMode: 'remote',
-                queryParam: 'name',
-                queryCaching: false,
-                minChars: 0,
-                loadStore: false,
-                setFilterValue: me.comboSetFilterValue,
-                getParamValue: me.comboGetParamValue,
-                forceSelection: false,
-                hidden: me.isOverviewFilter,
-                listeners: {
-                    expand: {
-                        fn: me.comboLimitNotification
-                    }
-                }
+                text: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
             },
             {
                 type: 'interval',
@@ -169,8 +153,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 dataIndex: 'startInterval',
                 dataIndexFrom: 'startIntervalFrom',
                 dataIndexTo: 'startIntervalTo',
-                text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
-                hidden: me.isOverviewFilter
+                text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date')
             },
             {
                 type: 'numeric',

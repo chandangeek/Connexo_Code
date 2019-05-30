@@ -4,7 +4,20 @@
 
 Ext.define('Isu.store.IssueUsagePoints', {
     extend: 'Ext.data.Store',
-    model: 'Isu.model.IssueUsagePoints',
+    fields: [
+        'id',
+        'name'
+    ],
     pageSize: 50,
-    autoLoad: false
+    proxy: {
+        type: 'rest',
+        url: '/api/mtr/usagepoints',
+        start: 0,
+        limit: 50,
+        reader: {
+            type: 'json',
+            root: 'usagePoints'
+        }
+    }
+
 });

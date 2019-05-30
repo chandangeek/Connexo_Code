@@ -18,7 +18,10 @@ Ext.define('Isu.model.IssuesFilter', {
         'dueDate',
         'grouping',
         'sorting',
-        'usagePoints'
+        'usagePoint',
+        'startIntervalFrom',
+        'startIntervalTo',
+        'priority'
     ],
 
     proxy: {

@@ -84,6 +84,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import org.apache.commons.io.filefilter.ConditionalFileFilter;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
@@ -826,6 +827,20 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             }
             condition = condition.and(dueDateCondition);
         }
+
+        //filter by creation date
+        if (filter.getStartCreateTime() != null && filter.getEndCreateTime() != null){
+            Condition creationDate = Condition.FALSE;
+                creationDate = creationDate.or(where("createTime").isGreaterThanOrEqual(filter.getStartCreateTime()))
+                        .and(where("createTime").isLessThanOrEqual(filter.getEndCreateTime()));
+                condition = condition.and(creationDate);
+        }
+
+        //filter by priority
+        if (!filter.getPriorities().isEmpty()){
+            condition = condition.and(where("priorityTotal").in(filter.getPriorities()));
+        }
+
         return condition;
     }
 
