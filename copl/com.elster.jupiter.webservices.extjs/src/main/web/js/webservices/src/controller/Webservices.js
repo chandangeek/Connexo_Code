@@ -77,7 +77,8 @@ Ext.define('Wss.controller.Webservices', {
             store = me.getStore('Wss.store.Endpoints');
 
         view = Ext.widget('webservices-setup', {
-            router: me.getController('Uni.controller.history.Router')
+            router: me.getController('Uni.controller.history.Router'),
+            adminView: Uni.util.Application.getAppNamespace() === 'SystemApp'
         });
         me.getApplication().fireEvent('changecontentevent', view);
     },
@@ -86,7 +87,8 @@ Ext.define('Wss.controller.Webservices', {
         var me = this;
         me.setDefaultSort();
         var view = Ext.widget('webservices-history', {
-            router: me.getController('Uni.controller.history.Router')
+            router: me.getController('Uni.controller.history.Router'),
+            adminView: Uni.util.Application.getAppNamespace() === 'SystemApp'
         });
         me.getApplication().fireEvent('changecontentevent', view);
     },
@@ -101,7 +103,8 @@ Ext.define('Wss.controller.Webservices', {
             success: function (record) {
                 var view = Ext.widget('webservice-history', {
                     router: me.getController('Uni.controller.history.Router'),
-                    record: record
+                    record: record,
+                    adminView: Uni.util.Application.getAppNamespace() === 'SystemApp'
                 });
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.getApplication().fireEvent('endpointload', record.get('name'));
@@ -407,17 +410,18 @@ Ext.define('Wss.controller.Webservices', {
                 }
         });
     },
+
     showEndpointOverview: function (endpointId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             view;
 
-
         me.getModel('Wss.model.Endpoint').load(endpointId, {
             success: function (record) {
                 view = Ext.widget('webservice-landing-page', {
                     router: router,
-                    record: record
+                    record: record,
+                    adminView: Uni.util.Application.getAppNamespace() === 'SystemApp'
                 });
                 if (view.down('webservices-action-menu')) {
                     view.down('webservices-action-menu').record = record;

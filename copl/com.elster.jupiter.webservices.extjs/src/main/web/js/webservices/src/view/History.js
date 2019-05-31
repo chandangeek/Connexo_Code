@@ -24,7 +24,8 @@ Ext.define('Wss.view.History', {
           {
             xtype: 'webservices-webservice-history-preview',
             itemId: 'webservices-webservice-history-preview',
-            router: me.router,
+            adminView: me.adminView,
+            router: me.router
           }
         ],
         dockedItems: [
@@ -32,7 +33,8 @@ Ext.define('Wss.view.History', {
             dock: 'top',
             store: 'Wss.store.endpoint.Occurrence',
             xtype: 'mss-view-history-history-topfilter',
-            itemId: 'mss-view-history-history-topfilter'
+            itemId: 'mss-view-history-history-topfilter',
+            adminView: me.adminView,
           },
         ]
     };

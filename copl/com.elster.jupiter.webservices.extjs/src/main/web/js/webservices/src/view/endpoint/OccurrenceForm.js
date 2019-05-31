@@ -30,12 +30,12 @@ Ext.define('Wss.view.endpoint.OccurrenceForm', {
               fieldLabel: Uni.I18n.translate('general.webservice', 'WSS', 'Web service'),
               renderer: function (value) {
                 var record = me.getRecord();
+                var route = me.router.getRoute();
                 if (!value || !record) {
                   return '-';
                 }
-
-                var route = 'administration/webserviceendpoints/view';
-                var url = me.router.getRoute(route).buildUrl({
+                var basename = route.key.split('/').slice(0, 1).join('/');
+                var url = me.router.getRoute(basename + '/webserviceendpoints/view').buildUrl({
                     endpointId: record.getEndpoint().get('id')
                 });
 

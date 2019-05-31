@@ -20,7 +20,8 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 dataIndex: 'startTime',
                 flex: 1,
                 renderer: function (value, metaData, record) {
-                    var route = 'administration/webserviceendpoints/view/history/occurrence';
+                    var basename = me.adminView ? 'administration' : 'workspace';
+                    var route = basename + '/webserviceendpoints/view/history/occurrence';
                     var url = me.router.getRoute(route).buildUrl({
                         endpointId: record.getEndpoint().get('id'),
                         occurenceId: record.get('id'),
@@ -46,7 +47,8 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 hidden: Boolean(me.endpoint),
                 renderer: function(value, metaData, record) {
                     var endpoint = record.getEndpoint();
-                    var url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({
+                    var basename = me.adminView ? 'administration' : 'workspace';
+                    var url = me.router.getRoute(basename + '/webserviceendpoints/view').buildUrl({
                         endpointId: endpoint.get('id')
                     });
                     var webservice = endpoint.get('webServiceName');
@@ -55,7 +57,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
             },
             {
                 dataIndex: 'applicationName',
-                hidden: Boolean(me.endpoint),
+                hidden: Boolean(me.endpoint) || !me.adminView,
                 header: Uni.I18n.translate('general.application', 'WSS', 'Application'),
                 flex: 1
             },

@@ -48,6 +48,7 @@ Ext.define('Wss.view.webservice.HistoryForm', {
             },
             {
                 name: 'applicationName',
+                hidden: !me.adminView,
                 fieldLabel: Uni.I18n.translate('general.application', 'WSS', 'Application')
             },
             {

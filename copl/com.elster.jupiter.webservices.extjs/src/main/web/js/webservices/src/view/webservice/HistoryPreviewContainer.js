@@ -30,6 +30,7 @@ Ext.define('Wss.view.webservice.HistoryPreviewContainer', {
             itemId: 'wss-webservice-history-grid',
             endpoint: me.endpoint,
             router: me.router,
+            adminView: me.adminView,
             store: Boolean(me.endpoint)
               ? store = 'Wss.store.endpoint.EndpointOccurrence'
               : store = 'Wss.store.endpoint.Occurrence'
@@ -40,6 +41,7 @@ Ext.define('Wss.view.webservice.HistoryPreviewContainer', {
             itemId: 'webservices-webservice-history-form',
             router: me.router,
             endpoint: me.endpoint,
+            adminView: me.adminView,
             frame: true
         };
 

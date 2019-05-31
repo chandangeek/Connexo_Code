@@ -22,6 +22,7 @@ Ext.define('Wss.controller.history.Webservices', {
 
     init: function() {
         var me = this;
+        var namespace = Uni.util.Application.getAppNamespace();
         var webserviceendpoints = {
             title: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Web service endpoints'),
             privileges: Wss.privileges.Webservices.view,
@@ -105,8 +106,11 @@ Ext.define('Wss.controller.history.Webservices', {
             webservicehistory: webservicehistory
         };
 
-        me.routeConfig.administration.items = items;
-        me.routeConfig.workspace.items = items;
+        if (namespace === 'SystemApp') {
+            me.routeConfig.administration.items = items;
+        } else {
+            me.routeConfig.workspace.items = items;
+        }
 
         me.callParent(arguments);
     }

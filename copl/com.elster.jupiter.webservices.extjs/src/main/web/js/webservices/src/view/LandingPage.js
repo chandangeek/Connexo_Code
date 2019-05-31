@@ -48,6 +48,7 @@ Ext.define('Wss.view.LandingPage', {
                 },
                 {
                     xtype: 'uni-button-action',
+                    hidden: !me.adminView,
                     privileges: Wss.privileges.Webservices.admin,
                     margin: '20 0 0 0',
                     menu: {
