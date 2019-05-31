@@ -204,6 +204,8 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     var record = this.getForm().getRecord();
                     var checkOptions = {};
 
+                    var result = true;
+
                     var curFirmwareCheckOption =  me.down('#curFirmwareCheck');
 
                     var masterFirmwareCheckFinal = this.down("#masterFirmwareCheckFinal");
@@ -222,6 +224,12 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     var targetOptions = checkOptions["TARGET_FIRMWARE_STATUS_CHECK"]["statuses"] = [];
                     if (targetFirmwareCheckFinal && targetFirmwareCheckFinal.getValue()) targetOptions.push("FINAL");
                     if (targetFirmwareCheckTest && targetFirmwareCheckTest.getValue()) targetOptions.push("TEST");
+                    if (!targetOptions.length){
+                       me.down('#firmwareTargetOptionsError').show();
+                       result = false;
+                    }else{
+                       me.down('#firmwareTargetOptionsError').hide();
+                    }
 
 
                     checkOptions["MASTER_FIRMWARE_CHECK"] = {};
@@ -229,10 +237,15 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     var masterOptions = checkOptions["MASTER_FIRMWARE_CHECK"]["statuses"] = [];
                     if (masterFirmwareCheckFinal && masterFirmwareCheckFinal.getValue()) masterOptions.push("FINAL");
                     if (masterFirmwareCheckTest && masterFirmwareCheckTest.getValue()) masterOptions.push("TEST");
-                    if (masterFirmwareMainOption.getValue() && !masterOptions.length) return false;
-                    record.set("checkOptions", checkOptions);
+                    if (masterFirmwareMainOption.getValue() && !masterOptions.length){
+                        me.down('#masterOptionsError').show();
+                        result = false;
+                    }else{
+                       me.down('#masterOptionsError').hide();
+                    }
+                    if (result) record.set("checkOptions", checkOptions);
 
-                    return true;
+                    return result;
                 },
                 items: [
                     {
@@ -291,7 +304,6 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         columns: 1,
                         vertical: true,
                         fieldLabel: Uni.I18n.translate('general.firmwareTargetFileStatus', 'FWC', 'Target firmware status'),
-                        margin: '0 0 30 0',
                         items: [
                             {
                                 beforeSubTpl: '<span style="font-style:italic;color: grey;padding: 0 5px 5px 0;">' + Uni.I18n.translate('general.upload.fw.target.firm.status', 'FWC', 'Check if the uploaded firmware has this status') + '</span>',
@@ -305,6 +317,16 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 inputValue: 'targetFirmwareCheckTest',
                             }
                         ]
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'firmwareTargetOptionsError',
+                        padding: '-10 0 -10 0',
+                        fieldLabel: '&nbsp',
+                        hidden: true,
+                        renderer: function (value, field) {
+                            return '<span style="color:red;">' + Uni.I18n.translate('firmware.specs.save.validationError', 'FWC', 'You must select at least one item in the group') + '</span>';
+                        }
                     },
                     {
                         xtype: 'checkboxgroup',

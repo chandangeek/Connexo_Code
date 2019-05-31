@@ -19,6 +19,11 @@ enum MeasuringPeriodMapping {
     TWENTY_MINUTES(TimeAttribute.MINUTE20, 20),
     THIRTY_MINUTES(TimeAttribute.MINUTE30, 30),
     SIXTY_MINUTES(TimeAttribute.MINUTE60, 60),
+    TWO_HOURS(TimeAttribute.HOUR2, 60 * 2),
+    THREE_HOURS(TimeAttribute.HOUR3, 60 * 3),
+    FOUR_HOURS(TimeAttribute.HOUR4, 60 * 4),
+    SIX_HOURS(TimeAttribute.HOUR6, 60 * 6),
+    TWELVE_HOURS(TimeAttribute.HOUR12, 60 * 12),
     TWENTY_FOUR_HOURS(TimeAttribute.HOUR24, 60 * 24);
 
     private final TimeAttribute timeAttribute;
