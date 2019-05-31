@@ -160,6 +160,18 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cim.webservices.outbound.soap</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pubsub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tasks</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.engine.config</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -198,11 +210,6 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.engine.config</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.scheduling</artifactId>
             <scope>test</scope>
         </dependency>
@@ -214,11 +221,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.tasks</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

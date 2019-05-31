@@ -35,6 +35,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "ParentGetMeterReadingsServiceCallHandler";
+    /// TODO version update to v2.0 is required?
     public static final String VERSION = "v1.0";
 
     private final MeteringService meteringService;
@@ -56,6 +57,9 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Parent service call is switched to state " + newState.getDefaultFormat());
         switch (newState) {
+            case PENDING:
+//                serviceCall.findChildren().stream().forEach(child -> child.requestTransition(DefaultState.PENDING));
+                break;
             case ONGOING: // normally result collection is performed when state is changed PAUSED --> ONGOING
                 if (oldState == DefaultState.PAUSED) {
                     collectAndSendResult(serviceCall);
@@ -72,18 +76,29 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         }
     }
 
+    @Override
+    public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall subParentServiceCall, DefaultState oldState, DefaultState newState) {
+        /// TODO check why log doesn't works
+//        subParentServiceCall.log(LogLevel.FINE, "Service call is switched to state " + newState.getDefaultFormat());
+        ServiceCallTransitionUtils.resultTransition(parentServiceCall, true);
+    }
+
     private void collectAndSendResult(ServiceCall serviceCall) {
         ParentGetMeterReadingsDomainExtension extension = serviceCall.getExtension(ParentGetMeterReadingsDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
         Instant timePeriodStart = extension.getTimePeriodStart();
         Instant timePeriodEnd = extension.getTimePeriodEnd();
         String readingTypesString = extension.getReadingTypes();
-        String endDevicesString = extension.getEndDevices();
+        List<String> endDevicesMRIDs = serviceCall.findChildren().stream()
+                .map(c -> c.getExtension(SubParentGetMeterReadingsDomainExtension.class)
+                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"))
+                        .getEndDevice())
+                .collect(Collectors.toList());
         String source = extension.getSource();
         String callbackUrl = extension.getCallbackUrl();
 
         RangeSet<Instant> timeRangeSet =  getTimeRangeSet(timePeriodStart, timePeriodEnd);
-        List<EndDevice> getEndDevices = getEndDevices(endDevicesString, serviceCall);
+        List<EndDevice> endDevices = getEndDevices(endDevicesMRIDs, serviceCall);
         Set<String> readingTypesMRIDs = getReadingTypes(readingTypesString);
 
         MeterReadingsBuilder meterReadingsBuilder = readingBuilderProvider.get();
@@ -91,7 +106,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         serviceCall.log(LogLevel.FINE, MessageFormat.format("Result collection is started for source ''{0}'', time range {1}",
                 source, timeRangeSet));
         try {
-            meterReadings = meterReadingsBuilder.withEndDevices(getEndDevices)
+            meterReadings = meterReadingsBuilder.withEndDevices(endDevices)
                     .ofReadingTypesWithMRIDs(readingTypesMRIDs)
                     .inTimeIntervals(timeRangeSet)
                     .build();
@@ -150,8 +165,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         return Arrays.stream(readingTypesString.split(";")).collect(Collectors.toSet());
     }
 
-    private List<EndDevice> getEndDevices(String endDevicesString, ServiceCall serviceCall) {
-        List<String> endDevicesMRIDs = Arrays.asList(endDevicesString.split(";"));
+    private List<EndDevice> getEndDevices(List<String> endDevicesMRIDs, ServiceCall serviceCall) {
         List<EndDevice> existedEndDevices = meteringService.getEndDeviceQuery()
                 .select(where("MRID").in(endDevicesMRIDs));
         if (existedEndDevices == null || existedEndDevices.isEmpty()) {

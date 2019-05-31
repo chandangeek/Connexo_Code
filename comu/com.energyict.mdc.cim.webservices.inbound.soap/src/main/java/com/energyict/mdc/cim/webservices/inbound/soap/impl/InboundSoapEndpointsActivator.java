@@ -46,8 +46,13 @@ import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterCo
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ExecuteMeterReadingsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ComTaskExecutionServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.DeviceMessageServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -225,9 +230,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         dataModel = ormService.newDataModel(COMPONENT_NAME, "Multisense SOAP webservices");
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-                Version.version(10, 6), UpgraderV10_6.class
-        ));
+//        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
+//                Version.version(10, 6), UpgraderV10_6.class
+//        ));
+
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
 
         addConverter(new ObisCodePropertyValueConverter());
         registerHandlers();
@@ -241,9 +248,14 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     }
 
     private void registerHandlers() {
-        Map<String, Object> options = ImmutableMap.of("name", ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
         serviceCallService.addServiceCallHandler(dataModel.getInstance(ParentGetMeterReadingsServiceCallHandler.class),
-                options);
+                ImmutableMap.of("name", ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(SubParentGetMeterReadingsServiceCallHandler.class),
+                ImmutableMap.of("name", SubParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(ComTaskExecutionServiceCallHandler.class),
+                ImmutableMap.of("name", ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(DeviceMessageServiceCallHandler.class),
+                ImmutableMap.of("name", DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
     }
 
     private void addConverter(PropertyValueConverter converter) {
@@ -398,6 +410,16 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 
     @Reference(target = "(name=" + ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
     public void setParentGetMeterReadingsCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference(target = "(name=" + SubParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setSubParentGetMeterReadingsCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference(target = "(name=" + ChildGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setChildGetMeterReadingsCustomPropertySet(CustomPropertySet customPropertySet) {
         // PATCH; required for proper startup; do not delete
     }
 

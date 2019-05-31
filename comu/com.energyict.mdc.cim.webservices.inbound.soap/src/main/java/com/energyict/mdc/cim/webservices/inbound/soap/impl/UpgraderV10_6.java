@@ -17,7 +17,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands.ServiceCallTypes.GET_METER_READINGS;
+import static com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands.ServiceCallTypes.PARENT_GET_METER_READINGS;
 import static com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_ID;
 
 class UpgraderV10_6 implements Upgrader {
@@ -35,7 +35,7 @@ class UpgraderV10_6 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        serviceCallService.findServiceCallType(GET_METER_READINGS.getTypeName(), GET_METER_READINGS.getTypeVersion())
+        serviceCallService.findServiceCallType(PARENT_GET_METER_READINGS.getTypeName(), PARENT_GET_METER_READINGS.getTypeVersion())
                 .ifPresent(serviceCallType -> {
                     serviceCallType.getCustomPropertySets().stream()
                             .forEach(cps -> serviceCallType.removeCustomPropertySet(cps));

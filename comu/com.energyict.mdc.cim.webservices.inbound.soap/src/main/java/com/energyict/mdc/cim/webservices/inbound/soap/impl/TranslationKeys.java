@@ -5,7 +5,6 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
 
 public enum TranslationKeys implements TranslationKey {
@@ -28,11 +27,20 @@ public enum TranslationKeys implements TranslationKey {
     TO_DATE("toDate", "To date"),
     SOURCE("source", "Source"),
     CALLBACK_URL("callbackUrl", "Callback URL"),
+    CORRELATION_ID("corelationId", "Correlation Id"),
     TIME_PERIOD_START("timePeriodStart", "Time period start"),
     TIME_PERIOD_END("timePeriodEnd", "Time period end"),
     READING_TYPES("readingTypes", "Reading Types"),
-    END_DEVICES("endDevices", "End Devices"),
-    GMR_NAME(ParentGetMeterReadingsCustomPropertySet.PREFIX + ".name", "Get meter readings"),
+    LOAD_PROFILES("loadProfiles", "Load profiles"),
+    REGISTER_GROUP("registerGroup", "Register group"),
+    SCHEDULE_STRAGEGY("scheduleStrategy", "Schedule strategy"),
+    CONNECTION_METHOD("connectionMethod", "Connection method name"),
+    COMMUNICATION_TASK("communocationTask", "Communication task name"),
+    TRIGGER_DATE("triggerDate", "Trigger Date"),
+    END_DEVICE("endDevice", "End Device"),
+    PGMR_NAME("GM1.name", "Parent get meter readings"),
+    SGMR_NAME("GM2.name", "SubParent get meter readings"),
+    CGMR_NAME("GM3.name", "Child get meter readings"),
     READ_METER_CHANGE_MESSAGE_HANDLER(ReadMeterChangeMessageHandlerFactory.TASK_SUBSCRIBER,
                                       ReadMeterChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
     ;

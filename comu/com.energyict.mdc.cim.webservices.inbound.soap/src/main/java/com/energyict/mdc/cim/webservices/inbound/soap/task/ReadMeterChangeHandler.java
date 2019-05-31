@@ -70,8 +70,9 @@ public class ReadMeterChangeHandler implements MessageHandler {
         List<ServiceCall> childs = findAllChildren(parent);
         if (isLastChild(childs)) {
             if (hasAllChildrenStates(childs, DefaultState.SUCCESSFUL)) {
-                transitParentToResultState(parent, DefaultState.PAUSED);
-                transitParentToResultState(parent, DefaultState.ONGOING);
+                transitParentToResultState(parent, DefaultState.SUCCESSFUL);
+//                transitParentToResultState(parent, DefaultState.PAUSED);
+//                transitParentToResultState(parent, DefaultState.ONGOING);
             } else if (hasAllChildrenStates(childs, DefaultState.CANCELLED)) {
                 transitParentToResultState(parent, DefaultState.CANCELLED);
             } else if (hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {

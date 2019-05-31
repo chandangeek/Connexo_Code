@@ -24,6 +24,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 
+import ch.iec.tc57._2011.getmeterreadings.DataSource;
 import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
 import ch.iec.tc57._2011.getmeterreadings.EndDevice;
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
@@ -42,6 +43,7 @@ import ch.iec.tc57._2011.meterreadings.MeterReadings;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.base.Strings;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -185,6 +187,10 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
 
     private MeterReadingsResponseMessageType runAsyncMode(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage,
                                                   TransactionContext context) throws FaultMessage {
+        String corelationId = getMeterReadingsRequestMessage.getHeader().getCorrelationID();
+        if (corelationId != null) {
+            checkIsEmpty(corelationId, GET_METER_READINGS_ITEM +".Header.CorrelationID");
+        }
         String replyAddress = getMeterReadingsRequestMessage.getHeader().getReplyAddress();
         checkIfMissingOrIsEmpty(replyAddress, GET_METER_READINGS_ITEM +".Header.ReplyAddress");
         List<EndDevice> endDevices = getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getEndDevice();
@@ -210,17 +216,81 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         Set<ErrorType> errorTypes = getErrorTypes(notFoundDevicesMRIDs, notFoundDevicesNames, existedEndDevices,
                                                   notFoundRTMRIDs, notFoundRTNames, existedReadingTypes);
         publishOutboundEndPointConfiguration(replyAddress);
+        /// TODO check if only Registers or Load Profiles or Reading Types are present in request
         for (int i = 0; i < readings.size(); ++i) {
             Reading reading = readings.get(i);
             getTimeInterval(reading, i);
-            serviceCallCommands.createParentGetMeterReadingsServiceCall(reading.getSource(), replyAddress,
-                    reading.getTimePeriod(), existedEndDevices, existedReadingTypes);
+            String connectionMethod = reading.getConnectionMethod();
+            ScheduleStrategyEnum scheduleStrategy = getScheduleStrategy(reading.getScheduleStrategy());
+            /// TODO check that reading or loadProfile com task exists
+            /// TODO check that register group name or load profile name does exist
+            DataSourceTypeNameEnum dsTypeName = getDataSourceNameType(reading.getDataSource());
+            List<String> existedLoadProfiles = null;
+            List<String> existedRegisterGroups = null;;
+            List<String> dsNames = getDataSourceNames(reading.getDataSource());
+            if (dsTypeName != null && !dsNames.isEmpty()) {
+                if (dsTypeName == DataSourceTypeNameEnum.LOAD_PROFILE) {
+                    existedLoadProfiles = dsNames;
+                } else {
+                    existedRegisterGroups = dsNames;
+                }
+            }
+            serviceCallCommands.createParentGetMeterReadingsServiceCall(reading.getSource(), replyAddress, corelationId,
+                    reading.getTimePeriod(), existedEndDevices, existedReadingTypes, existedLoadProfiles,
+                    existedRegisterGroups, connectionMethod, scheduleStrategy);
         }
         context.commit();
 
         /// no meter readings on sync reply! It's built in parent service call
         MeterReadings meterReadings = null;
         return createMeterReadingsResponseMessageType(meterReadings, errorTypes);
+    }
+
+    // LoadProfile or RegisterGroup
+    private DataSourceTypeNameEnum getDataSourceNameType(List<DataSource> dataSources) throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
+        DataSourceTypeNameEnum dsNameType = null;
+        for (DataSource dataSource : dataSources) {
+            if (dataSource.getNameType() != null && !Strings.isNullOrEmpty(dataSource.getNameType().getName())) {
+                if (dsNameType != null && dsNameType != DataSourceTypeNameEnum.getByName(dataSource.getNameType().getName())) {
+                    /// TODO throw exception DifferentDataSources (see confluence)
+                    //throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_HEAD_END_INTERFACE_FOUND, "bla-bla").get();
+                    return null;
+                } else {
+                    dsNameType = DataSourceTypeNameEnum.getByName(dataSource.getNameType().getName());
+                    if (dsNameType == null) {
+                        /// TODO throw exception can't be null
+                        //throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_HEAD_END_INTERFACE_FOUND, "bla-bla").get();
+                        return null;
+                    }
+                }
+            }
+        }
+        return dsNameType;
+    }
+
+    /// TODO check existance of DataSourceName and throw exception
+    // 15min Electricity A+
+    private List<String> getDataSourceNames(List<DataSource> dataSources) throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
+        List<String> dsNames = new ArrayList<>();
+        for (DataSource dataSource : dataSources) {
+            String dsName = dataSource.getName(); // 15min Electricity A+
+            if (!Strings.isNullOrEmpty(dataSource.getName())) {
+                dsNames.add(dsName);
+            }
+        }
+        return dsNames;
+    }
+
+    private ScheduleStrategyEnum getScheduleStrategy(String scheduleStrategy) throws FaultMessage {
+        ScheduleStrategyEnum strategy = ScheduleStrategyEnum.RUN_NOW;
+        if (scheduleStrategy != null) {
+            strategy = ScheduleStrategyEnum.getByName(scheduleStrategy);
+            if (strategy == null) {
+                /// TODO throw exception: wrong schedule stategy + scheduleStrategy
+//                throw(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, END_DEVICE_LIST_ITEM)).get();
+            }
+        }
+        return strategy;
     }
 
     private MeterReadingsResponseMessageType createMeterReadingsResponseMessageType(MeterReadings meterReadings, Set<ErrorType> errorTypes) {
@@ -302,6 +372,8 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
             throw(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, READING_TYPES_LIST_ITEM).get());
         }
         checkSources(getMeterReadings.getReading(), async);
+        /// TODO add check of DataSource
+        /// TODO check ConnectionMethod?
     }
 
     private void checkSources(List<Reading> readings, boolean async) throws FaultMessage {

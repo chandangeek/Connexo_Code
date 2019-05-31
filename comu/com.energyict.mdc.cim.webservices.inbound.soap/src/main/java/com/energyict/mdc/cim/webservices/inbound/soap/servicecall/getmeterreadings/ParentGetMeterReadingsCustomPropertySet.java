@@ -41,7 +41,6 @@ import java.util.Set;
 public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySet<ServiceCall, ParentGetMeterReadingsDomainExtension> {
     public static final String CUSTOM_PROPERTY_SET_NAME = "ParentGetMeterReadingsCustomPropertySet";
     public static final String CUSTOM_PROPERTY_SET_ID = ParentGetMeterReadingsDomainExtension.class.getName();
-    public static final String PREFIX = "GMR";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -88,7 +87,7 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
 
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(TranslationKeys.GMR_NAME).format();
+        return this.thesaurus.getFormat(TranslationKeys.PGMR_NAME).format();
     }
 
     @Override
@@ -140,6 +139,11 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .stringSpec()
+                        .named(ParentGetMeterReadingsDomainExtension.FieldNames.CORRELATION_ID.javaName(), TranslationKeys.CORRELATION_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(ParentGetMeterReadingsDomainExtension.FieldNames.TIME_PERIOD_START.javaName(), TranslationKeys.TIME_PERIOD_START)
                         .fromThesaurus(thesaurus)
@@ -156,19 +160,34 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(ParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICES.javaName(), TranslationKeys.END_DEVICES)
+                        .named(ParentGetMeterReadingsDomainExtension.FieldNames.LOAD_PROFILES.javaName(), TranslationKeys.LOAD_PROFILES)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(ParentGetMeterReadingsDomainExtension.FieldNames.REGISTER_GROUPS.javaName(), TranslationKeys.REGISTER_GROUP)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRAGEGY.javaName(), TranslationKeys.SCHEDULE_STRAGEGY)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(ParentGetMeterReadingsDomainExtension.FieldNames.CONNECTION_METHOD.javaName(), TranslationKeys.CONNECTION_METHOD)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
     }
 
     private static class ParentGetMeterReadingsCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, ParentGetMeterReadingsDomainExtension> {
-        private static final String TABLE_NAME = PREFIX + "_METER_READINGS_SC_CPS";
-        private static final String FK = "FK_" + PREFIX + "_MRSCCPS_SC";
+        private static final String TABLE_NAME = "GMR_METER_READINGS_CPS_GM1";
+        private static final String FK = "FK_GMR_MRSCCPS_GM1";
 
         @Override
         public String componentName() {
-            return PREFIX;
+            return "GM1";
         }
 
         @Override
@@ -213,6 +232,10 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
                     .map(ParentGetMeterReadingsDomainExtension.FieldNames.CALLBACK_URL.javaName())
                     .notNull()
                     .add();
+            table.column(ParentGetMeterReadingsDomainExtension.FieldNames.CORRELATION_ID.databaseName())
+                    .varChar()
+                    .map(ParentGetMeterReadingsDomainExtension.FieldNames.CORRELATION_ID.javaName())
+                    .add();
             table.column(ParentGetMeterReadingsDomainExtension.FieldNames.TIME_PERIOD_START.databaseName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
@@ -228,9 +251,22 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
                     .map(ParentGetMeterReadingsDomainExtension.FieldNames.READING_TYPES.javaName())
                     .notNull()
                     .add();
-            table.column(ParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICES.databaseName())
+            table.column(ParentGetMeterReadingsDomainExtension.FieldNames.LOAD_PROFILES.databaseName())
                     .varChar()
-                    .map(ParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICES.javaName())
+                    .map(ParentGetMeterReadingsDomainExtension.FieldNames.LOAD_PROFILES.javaName())
+                    .add();
+            table.column(ParentGetMeterReadingsDomainExtension.FieldNames.REGISTER_GROUPS.databaseName())
+                    .varChar()
+                    .map(ParentGetMeterReadingsDomainExtension.FieldNames.REGISTER_GROUPS.javaName())
+                    .add();
+            table.column(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRAGEGY.databaseName())
+                    .varChar()
+                    .map(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRAGEGY.javaName())
+                    .notNull()
+                    .add();
+            table.column(ParentGetMeterReadingsDomainExtension.FieldNames.CONNECTION_METHOD.databaseName())
+                    .varChar()
+                    .map(ParentGetMeterReadingsDomainExtension.FieldNames.CONNECTION_METHOD.javaName())
                     .notNull()
                     .add();
         }
