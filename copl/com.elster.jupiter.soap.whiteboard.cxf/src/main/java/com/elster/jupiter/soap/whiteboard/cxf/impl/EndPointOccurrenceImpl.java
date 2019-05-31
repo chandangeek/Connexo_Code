@@ -57,12 +57,14 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
                                   Instant startTime,
                                   String requestName,
                                   String applicationName,
+                                  String status,
                                   EndPointConfiguration endPointConfiguration)
     {
         this.dataModel = dataModel;
         this.startTime = startTime;
         this.requestName = requestName;
         this.applicationName = applicationName;
+        this.status = status;
         this.endPointConfiguration.set(endPointConfiguration);
         this.payload = null;
     }
@@ -72,13 +74,16 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
                                   Instant startTime,
                                   String requestName,
                                   String applicationName,
+                                  String status,
                                   EndPointConfiguration endPointConfiguration,
+                                  /*add status!!!*/
                                   String payload)
     {
         this.dataModel = dataModel;
         this.startTime = startTime;
         this.requestName = requestName;
         this.applicationName = applicationName;
+        this.status = status;
         this.endPointConfiguration.set(endPointConfiguration);
         this.payload = payload;
     }
@@ -109,24 +114,32 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
         return applicationName;
     };
 
+    @Override
+    public String getPayload() {
+        return this.payload;
+    }
 
     @Override
     public EndPointConfiguration getEndPointConfiguration(){
         return endPointConfiguration.get();
     };
 
+    @Override
     public void  setStartTime(Instant startTime){
         this.startTime = startTime;
     };
 
+    @Override
     public void setEndTime(Instant endTime){
         this.endTime = endTime;
     };
 
+    @Override
     public void setRequest(String requestName){
         this.requestName = requestName;
     };
 
+    @Override
     public void setStatus(String status){
         this.status = status;
     };
@@ -168,10 +181,7 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
         this.payload = payload;
     }
 
-    @Override
-    public String getPayload() {
-        return this.payload;
-    }
+
 
     @Override
     public void save(){

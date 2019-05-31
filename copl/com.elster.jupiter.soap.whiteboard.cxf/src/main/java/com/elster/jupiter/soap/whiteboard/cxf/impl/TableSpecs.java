@@ -107,14 +107,14 @@ public enum TableSpecs {
             Column startTimeColumn = table.column("STARTTIME")
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .notNull()
+                    //.notNull()
                     .map(EndPointOccurrenceImpl.Fields.startTime.fieldName())
                     .add();
 
             table.column("ENDTIME")
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .notNull()
+                    //.notNull()
                     .map(EndPointOccurrenceImpl.Fields.endTime.fieldName())
                     .add();
 
@@ -126,7 +126,7 @@ public enum TableSpecs {
 
             table.column("STATUS")
                     .varChar(NAME_LENGTH)
-                    .notNull()
+                    //.notNull()
                     .map(EndPointOccurrenceImpl.Fields.status.fieldName())
                     .add();
             table.column("APPLICATIONNAME")
@@ -146,6 +146,7 @@ public enum TableSpecs {
 
 
             table.primaryKey("PK_WS_ENDPOINT_OCCURRENCE").on(idColumn).add();
+            //TO-DO UNCONMMET
             //table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
 
         }
