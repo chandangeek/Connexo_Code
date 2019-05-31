@@ -6,7 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
@@ -29,7 +29,7 @@ import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import java.util.List;
 
-public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndPointProp, WebServiceAplication {
+public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndPointProp, ApplicationSpecific {
     private static final String NOUN = "EndDeviceEvents";
     private static final String END_DEVICE_EVENT_ITEM = NOUN + ".EndDeviceEvent";
     private static final String PAYLOAD_ITEM = "Payload";
@@ -168,7 +168,7 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
 
     @Override
     public String getApplication(){
-        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }
 

@@ -5,7 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentRequestConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -28,7 +28,7 @@ import java.util.Optional;
         service = {MeterReadingDocumentRequestConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterReadingDocumentRequestConfirmation.SAP_METER_READING_DOCUMENT_REQUEST_CONFIRMATION})
-public class MeterReadingDocumentCreateConfirmationProvider implements MeterReadingDocumentRequestConfirmation, OutboundSoapEndPointProvider, WebServiceAplication {
+public class MeterReadingDocumentCreateConfirmationProvider implements MeterReadingDocumentRequestConfirmation, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     private final Map<String, SmartMeterMeterReadingDocumentERPCreateConfirmationEOut> ports = new HashMap<>();
 
@@ -77,6 +77,6 @@ public class MeterReadingDocumentCreateConfirmationProvider implements MeterRead
 
     @Override
     public String getApplication(){
-        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

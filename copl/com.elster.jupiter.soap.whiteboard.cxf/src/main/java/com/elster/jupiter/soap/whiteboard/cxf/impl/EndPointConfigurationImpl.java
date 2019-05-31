@@ -411,7 +411,30 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public EndPointOccurrence createEndPointOccurence(Instant startTime, String request){
-        return  new EndPointOccurrenceImpl();//JUST IN CASE.PROBABLY WILL BE REMOVED
+    public EndPointOccurrence createEndPointOccurrence(Instant startTime,
+                                                       String request,
+                                                       String requestName,
+                                                       String applicationName,
+                                                       EndPointConfiguration endPointConfiguration) {
+        return new EndPointOccurrenceImpl(dataModel,
+                startTime,
+                requestName,
+                applicationName,
+                endPointConfiguration);
+    }
+
+    @Override
+    public EndPointOccurrence createEndPointOccurrence(Instant startTime,
+                                                       String request,
+                                                       String requestName,
+                                                       String applicationName,
+                                                       EndPointConfiguration endPointConfiguration,
+                                                       String payload) {
+        return new EndPointOccurrenceImpl(dataModel,
+                startTime,
+                requestName,
+                applicationName,
+                endPointConfiguration,
+                payload);
     }
 }

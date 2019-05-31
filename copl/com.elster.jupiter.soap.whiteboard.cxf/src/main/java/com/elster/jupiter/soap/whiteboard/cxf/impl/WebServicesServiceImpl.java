@@ -21,7 +21,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.InboundRestEndPointFactoryImpl;
@@ -179,17 +179,15 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
                 public String getApplicationName() {
                     EndPointProvider provider = endPointFactory.getEndPointProvider();
                     if (provider instanceof InboundSoapEndPointProvider) {
-                        if (((InboundSoapEndPointProvider)provider).get() instanceof WebServiceAplication){
-                            WebServiceAplication tmpProvider = (WebServiceAplication)((InboundSoapEndPointProvider)provider).get();
+                        if (((InboundSoapEndPointProvider)provider).get() instanceof ApplicationSpecific){
+                            ApplicationSpecific tmpProvider = (ApplicationSpecific)((InboundSoapEndPointProvider)provider).get();
                             return tmpProvider.getApplication();
                         }
                     }
 
                     if (provider instanceof OutboundSoapEndPointProvider) {
-                        if (provider instanceof WebServiceAplication){
-                            return ((WebServiceAplication) provider).getApplication();
-                            /*WebServiceAplication tmpProvider = (WebServiceAplication)provider;
-                            return tmpProvider.getApplication();*/
+                        if (provider instanceof ApplicationSpecific){
+                            return ((ApplicationSpecific) provider).getApplication();
                         }
                     }
 
@@ -236,17 +234,15 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
             public String getApplicationName() {
                 EndPointProvider provider = e.getValue().getEndPointProvider();
                 if (provider instanceof InboundSoapEndPointProvider) {
-                    if (((InboundSoapEndPointProvider)provider).get() instanceof WebServiceAplication){
-                        WebServiceAplication tmpProvider = (WebServiceAplication)((InboundSoapEndPointProvider)provider).get();
+                    if (((InboundSoapEndPointProvider)provider).get() instanceof ApplicationSpecific){
+                        ApplicationSpecific tmpProvider = (ApplicationSpecific)((InboundSoapEndPointProvider)provider).get();
                         return tmpProvider.getApplication();
                     }
                 }
 
                 if (provider instanceof OutboundSoapEndPointProvider) {
-                    if ((provider) instanceof WebServiceAplication){
-                        return ((WebServiceAplication) provider).getApplication();
-                        /*WebServiceAplication tmpProvider = (WebServiceAplication)((OutboundSoapEndPointProvider)provider).get();
-                        return tmpProvider.getApplication();*/
+                    if ((provider) instanceof ApplicationSpecific) {
+                        return ((ApplicationSpecific) provider).getApplication();
                     }
                 }
 

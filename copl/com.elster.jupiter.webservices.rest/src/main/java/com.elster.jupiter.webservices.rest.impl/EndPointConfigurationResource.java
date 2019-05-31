@@ -286,7 +286,7 @@ public class EndPointConfigurationResource {
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
-        DataModel dataModel = ormService.getDataModel("WebServicesService"/*WebServicesService.COMPONENT_NAME*/).get();
+        DataModel dataModel = ormService.getDataModel(/*"WebServicesService"*/WebServicesService.COMPONENT_NAME).get();
         Optional<EndPointOccurrence> epOcc = dataModel.mapper(EndPointOccurrence.class)
                 .getUnique("id", id);
 
@@ -296,20 +296,6 @@ public class EndPointConfigurationResource {
                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
 
     }
-
-
-
-
-    /*public EndPointConfigurationOccurrenceFinderBuilder getEndPointConfigurationOccurrenceFinderBuilder(String applicationName) {
-        Condition condition = Condition.TRUE;
-        if (!"SYS".equalsIgnoreCase(applicationName)) {
-            condition = condition.and(Where.where("applicationName")
-                    .isEqualToIgnoreCase(applicationName));
-        }
-
-        return new EndPointConfigurationOccurrenceFinderBuilderImpl(dataModel, condition);
-    }*/
-
 
 //    private List<FileImportOccurrence> getFileImportOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName, Long importServiceId) {
     private List<EndPointOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName, Long epId) {
@@ -360,7 +346,6 @@ public class EndPointConfigurationResource {
 
             finderBuilder.withStatusIn(filter.getStringList("status")
                     .stream()
-                    //.map(OccurenceStatus::valueOf)
                     .collect(Collectors.toList()));
         }
 
@@ -380,16 +365,6 @@ public class EndPointConfigurationResource {
         return epocList;
     }
 
-    /*
-    private List<EndPointOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters) {
-
-        DataModel dataModel = ormService.getDataModel("WebServicesService").get();
-        EndPointConfigurationOccurrenceFinderBuilder finderBuilder =  new EndPointConfigurationOccurrenceFinderBuilderImpl(dataModel, Condition.TRUE);
-
-        return finderBuilder.build().from(queryParameters).find();
-    }*/
-
-
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{epId}/occurrences")
@@ -400,7 +375,6 @@ public class EndPointConfigurationResource {
                                                       @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                       @Context UriInfo uriInfo) {
         System.out.println("getAllOccurrencesForEndPoint !!!!"+epId);
-
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
@@ -410,8 +384,7 @@ public class EndPointConfigurationResource {
                 map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo)).
                 collect(toList());
 
-        return PagedInfoList.fromPagedList("occurrences", endPointOccurrencesInfo , queryParameters);
-        //return PagedInfoList.fromPagedList("occurrences", endpointConfigurationOccurrences, queryParameters);
+        return PagedInfoList.fromPagedList("occurrences", endPointOccurrencesInfo, queryParameters);
     }
 
     @GET
@@ -446,7 +419,6 @@ public class EndPointConfigurationResource {
 
         return PagedInfoList.fromPagedList("logs", logsInfo, queryParameters);
     }
-
 
 
     private void validatePayload(EndPointConfigurationInfo info) {

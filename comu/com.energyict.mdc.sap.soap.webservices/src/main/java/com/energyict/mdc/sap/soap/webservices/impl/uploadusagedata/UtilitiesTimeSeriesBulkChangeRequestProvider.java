@@ -20,7 +20,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
@@ -68,7 +68,7 @@ import java.util.stream.Stream;
         service = {DataExportWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkChangeRequestProvider.NAME})
-public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilsTmeSersERPItmBulkChgReqMsg> implements WebServiceAplication {
+public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilsTmeSersERPItmBulkChgReqMsg> implements ApplicationSpecific {
     static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkChangeRequest_C_Out";
     private static final QName QNAME = new QName("urn:webservices.wsdl.soap.sap.mdc.energyict.com:utilitiestimeseriesbulkchangerequest",
             "UtilitiesTimeSeriesERPItemBulkChangeRequest_E_OutService");
@@ -272,6 +272,6 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
 
     @Override
     public String getApplication(){
-        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

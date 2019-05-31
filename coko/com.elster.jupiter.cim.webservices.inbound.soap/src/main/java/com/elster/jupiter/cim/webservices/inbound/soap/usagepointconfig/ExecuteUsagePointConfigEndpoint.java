@@ -14,7 +14,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -36,7 +36,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort, WebServiceAplication{
+public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort, ApplicationSpecific {
     private static final String NOUN = "UsagePointConfig";
     private final EndPointHelper endPointHelper;
     private final ReplyTypeFactory replyTypeFactory;
@@ -243,6 +243,6 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort, We
 
     @Override
     public String getApplication() {
-        return WebServiceAplication.WebServiceApplicationName.INSIGHT.getName();
+        return ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName();
     }
 }

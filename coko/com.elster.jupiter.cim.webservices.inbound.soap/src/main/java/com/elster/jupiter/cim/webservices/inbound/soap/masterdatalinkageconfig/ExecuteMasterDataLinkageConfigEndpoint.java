@@ -13,7 +13,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -30,7 +30,7 @@ import javax.inject.Provider;
 
 import java.util.Optional;
 
-public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkageConfigPort, WebServiceAplication{
+public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkageConfigPort, ApplicationSpecific {
     static final String NOUN = "MasterDataLinkageConfig";
     private static final String UNSUPPORTED_OPERATION_MESSAGE = "Specified action is not supported. Only Create and Close actions are allowed";
 

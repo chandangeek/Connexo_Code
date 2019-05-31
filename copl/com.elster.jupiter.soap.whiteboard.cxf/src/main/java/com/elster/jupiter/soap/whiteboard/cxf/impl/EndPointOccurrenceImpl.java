@@ -1,5 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
@@ -23,13 +25,13 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
     String status;
     String applicationName;
     private String payload;
+    private DataModel dataModel;
 
     public enum Fields {
         ID("id"),
         startTime("startTime"),
         endTime("endTime"),
         requestName("requestName"),
-        //webService("webService"),
         endPointConfiguration("endPointConfiguration"),
         status("status"),
         applicationName("applicationName"),
@@ -51,18 +53,34 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
 
     }
 
-    public EndPointOccurrenceImpl(Instant startTime,
+    public EndPointOccurrenceImpl(DataModel dataModel,
+                                  Instant startTime,
+                                  String requestName,
+                                  String applicationName,
+                                  EndPointConfiguration endPointConfiguration)
+    {
+        this.dataModel = dataModel;
+        this.startTime = startTime;
+        this.requestName = requestName;
+        this.applicationName = applicationName;
+        this.endPointConfiguration.set(endPointConfiguration);
+        this.payload = null;
+    }
+
+
+    public EndPointOccurrenceImpl(DataModel dataModel,
+                                  Instant startTime,
                                   String requestName,
                                   String applicationName,
                                   EndPointConfiguration endPointConfiguration,
                                   String payload)
     {
+        this.dataModel = dataModel;
         this.startTime = startTime;
         this.requestName = requestName;
         this.applicationName = applicationName;
         this.endPointConfiguration.set(endPointConfiguration);
         this.payload = payload;
-
     }
 
     @Override
@@ -153,5 +171,14 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
     @Override
     public String getPayload() {
         return this.payload;
+    }
+
+    @Override
+    public void save(){
+        if (this.getId() > 0) {
+            Save.UPDATE.save(this.dataModel, this, Save.Update.class);
+        } else {
+            Save.CREATE.save(this.dataModel, this, Save.Create.class);
+        }
     }
 }

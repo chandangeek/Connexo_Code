@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
@@ -38,7 +38,7 @@ import java.util.stream.Stream;
         service = {InboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkChangeConfirmationReceiver.NAME})
-public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkChangeConfirmationEIn, WebServiceAplication {
+public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkChangeConfirmationEIn, ApplicationSpecific {
     static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkChangeConfirmation_C_In";
     private static final Set<String> FAILURE_CODES = ImmutableSet.of("5");
 
@@ -163,6 +163,6 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver implements Inboun
 
     @Override
     public String getApplication(){
-        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

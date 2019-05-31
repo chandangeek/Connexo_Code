@@ -13,4 +13,5 @@ public interface EndPointOccurrence {
     void log(String message, Exception exception);
     void setPayload(String payload);
     String getPayload();
+    void save();
 }

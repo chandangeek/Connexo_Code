@@ -5,7 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.eventmanagement;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.MeterEventCreateRequestProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -29,7 +29,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Component(name = MeterEventCreateRequestProvider.SAP_CREATE_UTILITIES_SMART_METER_EVENT,
         service = {MeterEventCreateRequestProvider.class, OutboundSoapEndPointProvider.class}, immediate = true,
         property = {"name=" + MeterEventCreateRequestProvider.SAP_CREATE_UTILITIES_SMART_METER_EVENT})
-public class MeterEventCreateRequestProviderImpl implements MeterEventCreateRequestProvider, OutboundSoapEndPointProvider, WebServiceAplication {
+public class MeterEventCreateRequestProviderImpl implements MeterEventCreateRequestProvider, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     private final List<SOAUtilitiesSmartMeterEventERPBulkCreateRequest> endpoints = new CopyOnWriteArrayList<>();
     private static final QName QNAME = new QName("http://dewa.gov.ae/AMI/Bulk", "SOA_UtilitiesSmartMeterEventERPBulkCreateRequestService");
@@ -76,6 +76,6 @@ public class MeterEventCreateRequestProviderImpl implements MeterEventCreateRequ
 
     @Override
     public String getApplication(){
-        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

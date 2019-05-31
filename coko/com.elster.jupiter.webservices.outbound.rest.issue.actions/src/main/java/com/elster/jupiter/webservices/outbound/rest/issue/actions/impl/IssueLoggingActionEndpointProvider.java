@@ -6,7 +6,7 @@ package com.elster.jupiter.webservices.outbound.rest.issue.actions.impl;
 
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 
@@ -22,7 +22,7 @@ import javax.ws.rs.client.WebTarget;
         service = {OutboundRestEndPointProvider.class},
         immediate = true,
         property = {"name=Issue logging"})
-public class IssueLoggingActionEndpointProvider implements OutboundRestEndPointProvider, WebServiceAplication {
+public class IssueLoggingActionEndpointProvider implements OutboundRestEndPointProvider, ApplicationSpecific {
 
     private volatile WebServicesService webServicesService;
 

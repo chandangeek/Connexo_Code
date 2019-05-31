@@ -5,7 +5,7 @@ package com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.EndDeviceConfigExtendedDataFactory;
 import com.elster.jupiter.metering.EndDeviceAttributesProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.events.LocalEvent;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
         service = {TopicHandler.class, StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + StateTransitionWebServiceClient.NAME})
-public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransitionWebServiceClient, OutboundSoapEndPointProvider, WebServiceAplication {
+public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransitionWebServiceClient, OutboundSoapEndPointProvider, ApplicationSpecific {
     private static final String NOUN = "EndDeviceConfig";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
@@ -249,6 +249,6 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
 
     @Override
     public String getApplication(){
-        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

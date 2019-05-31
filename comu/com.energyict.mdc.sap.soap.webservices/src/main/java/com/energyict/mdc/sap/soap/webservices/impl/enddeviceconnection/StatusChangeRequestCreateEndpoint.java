@@ -3,7 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestEIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg;
@@ -11,7 +11,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscha
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class StatusChangeRequestCreateEndpoint implements SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestEIn, WebServiceAplication {
+public class StatusChangeRequestCreateEndpoint implements SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestEIn, ApplicationSpecific {
 
     private final ServiceCallCommands serviceCallCommands;
 
@@ -29,6 +29,6 @@ public class StatusChangeRequestCreateEndpoint implements SmartMeterUtilitiesCon
 
     @Override
     public String getApplication(){
-        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

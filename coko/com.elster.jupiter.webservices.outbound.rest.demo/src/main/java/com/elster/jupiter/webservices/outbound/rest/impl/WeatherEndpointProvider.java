@@ -5,7 +5,7 @@
 package com.elster.jupiter.webservices.outbound.rest.impl;
 
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.webservices.outbound.rest.WeatherService;
 
@@ -21,7 +21,7 @@ import javax.ws.rs.client.WebTarget;
         service = {OutboundRestEndPointProvider.class},
         immediate = true,
         property = {"name=Open weather maps"})
-public class WeatherEndpointProvider implements OutboundRestEndPointProvider, WebServiceAplication {
+public class WeatherEndpointProvider implements OutboundRestEndPointProvider, ApplicationSpecific {
 
     private volatile WebServicesService webServicesService;
 

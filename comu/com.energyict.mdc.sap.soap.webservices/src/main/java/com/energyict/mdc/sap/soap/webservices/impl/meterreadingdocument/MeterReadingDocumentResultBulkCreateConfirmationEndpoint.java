@@ -3,7 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceAplication;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.MeterReadingDocumentERPResultBulkCreateConfirmationEIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.MtrRdngDocERPRsltBulkCrteConfMsg;
@@ -11,7 +11,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreatec
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class MeterReadingDocumentResultBulkCreateConfirmationEndpoint implements MeterReadingDocumentERPResultBulkCreateConfirmationEIn , WebServiceAplication {
+public class MeterReadingDocumentResultBulkCreateConfirmationEndpoint implements MeterReadingDocumentERPResultBulkCreateConfirmationEIn , ApplicationSpecific {
 
     private final ServiceCallCommands serviceCallCommands;
 
@@ -33,6 +33,6 @@ public class MeterReadingDocumentResultBulkCreateConfirmationEndpoint implements
 
     @Override
     public String getApplication(){
-        return WebServiceAplication.WebServiceApplicationName.MULTISENSE.getName();
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }
