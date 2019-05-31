@@ -16,6 +16,7 @@ import com.elster.jupiter.properties.rest.DeviceLifeCycleTransitionPropertyFacto
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
 import com.elster.jupiter.properties.rest.MetrologyConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.elster.jupiter.properties.rest.ServiceCallInfoPropertyFactory;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.properties.rest.TaskPropertyFacory;
 
@@ -60,6 +61,9 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
         }
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndDeviceEventTypePropertyFactory) {
             return SimplePropertyType.ENDDEVICEEVENTTYPE;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof ServiceCallInfoPropertyFactory) {
+            return SimplePropertyType.SERVICE_CALL;
         }
         return SimplePropertyType.LISTVALUE;
     }

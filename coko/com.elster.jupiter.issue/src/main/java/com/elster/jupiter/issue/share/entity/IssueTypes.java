@@ -13,6 +13,7 @@ public enum IssueTypes {
     DEVICE_LIFECYCLE("DLI", "devicelifecycle"),
     TASK("TKI", "task"),
     USAGEPOINT_DATA_VALIDATION("UVI", "usagepointdatavalidation"),
+    SERVICE_CALL_ISSUE("SEI", "servicecall"),
     NA ("NA", "notapplicable");
 
     private final String prefix;

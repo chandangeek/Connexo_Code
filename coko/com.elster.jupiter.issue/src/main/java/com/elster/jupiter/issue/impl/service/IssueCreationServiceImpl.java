@@ -142,9 +142,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public List<CreationRuleTemplate> getCreationRuleTemplates() {
-        List<CreationRuleTemplate> templates = new ArrayList<>();
-        templates.addAll(issueService.getCreationRuleTemplates().values());
-        return templates;
+        return new ArrayList<>(issueService.getCreationRuleTemplates().values());
     }
 
     @Override

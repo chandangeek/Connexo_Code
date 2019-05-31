@@ -91,9 +91,7 @@ public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
     public PagedInfoList getCreationRules(@BeanParam JsonQueryParameters queryParams) {
         IssueType alarmType = getIssueService().findIssueType("devicealarm").orElse(null);
         List<IssueReason> alarmReasons = getIssueService().query(IssueReason.class)
-                .select(where(ISSUE_TYPE).isEqualTo(alarmType))
-                .stream()
-                .collect(Collectors.toList());
+                .select(where(ISSUE_TYPE).isEqualTo(alarmType));
 
         Query<CreationRule> query =
                 getIssueService().getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
