@@ -4,9 +4,7 @@
 
 Ext.define('Isu.view.issues.ManualIssueDetailForm', {
     extend: 'Ext.form.Panel',
-    requires: [
-        'Mdc.privileges.Device'
-    ],
+    requires: [],
     alias: 'widget.manual-issue-detail-form',
     layout: 'column',
     defaults: {
