@@ -2,15 +2,14 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Isu.view.ManualIssueDetail', {
+Ext.define('Isu.view.issues.ManualIssueDetail', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.manual-issue-detail',
     requires: [
         'Isu.view.issues.DetailTop',
-        'Idv.view.DetailForm',
+        'Isu.view.issues.ManualIssueDetailForm',
         'Isu.view.issues.CommentsList',
-        'Uni.view.toolbar.PreviousNextNavigation',
-        'Idv.view.NonEstimatedDataGrid'
+        'Uni.view.toolbar.PreviousNextNavigation'
     ],
     router: null,
     issuesListLink: null,
@@ -41,11 +40,11 @@ Ext.define('Isu.view.ManualIssueDetail', {
             },
             {
                 xtype: 'issue-detail-top',
-                itemId: 'data-validation-issue-detail-top',
+                itemId: 'manual-issue-detail-top',
                 router: me.router
             },
             {
-                xtype: 'data-validation-issue-detail-form',
+                xtype: 'manual-issue-detail-form',
                 itemId: 'issue-detail-form',
                 router: me.router
             },

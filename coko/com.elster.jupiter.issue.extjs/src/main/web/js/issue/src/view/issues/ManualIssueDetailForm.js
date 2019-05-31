@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Isu.view.ManualIssueDetailForm', {
+Ext.define('Isu.view.issues.ManualIssueDetailForm', {
     extend: 'Ext.form.Panel',
     requires: [
         'Mdc.privileges.Device'
@@ -26,14 +26,25 @@ Ext.define('Isu.view.ManualIssueDetailForm', {
                 },
                 items: [
                     {
-                        itemId: 'data-validation-issue-id',
+                        itemId: 'manual-issue-id',
                         fieldLabel: Uni.I18n.translate('general.title.issueId', 'IDV', 'ID'),
                         name: 'issueId'
                     },
                     {
-                        itemId: 'data-validation-issue-detail-usage-point',
-                        fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'IDV', 'Usage point'),
-                        name: 'usage_point'
+                        itemId: 'manual-issue-reason',
+                        fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
+                        name: 'reason',
+                        renderer: function (value) {
+                            return value && value.name ? value.name : '-'
+                        }
+                    },
+                    {
+                        itemId: 'manual-issue-type',
+                        fieldLabel: Uni.I18n.translate('general.type', 'ISU', 'Type'),
+                        name: 'issueType',
+                        renderer: function (value) {
+                            return value && value.name ? value.name : '-'
+                        }
                     },
                     {
                         itemId: 'data-validation-issue-detail-device',

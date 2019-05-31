@@ -11,8 +11,8 @@ Ext.define('Isu.controller.IssueDetail', {
         'Bpm.monitorissueprocesses.store.AlarmProcesses',
         'Uni.util.FormEmptyMessage',
         'Isu.view.issues.EditCommentForm',
-        'Isu.model.ManualIssue',
-        'Isu.view.issues.ManualIssueDetail'
+        'Isu.view.issues.ManualIssueDetail',
+        'Isu.model.ManualIssue'
     ],
 
     stores: [
@@ -601,6 +601,8 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel = 'Idl.model.Issue';
         }else if (issueType === 'task') {
             issueModel = 'Itk.model.Issue';
+        }else if (issueType === 'manual') {
+             issueModel = 'Isu.model.ManualIssue';
         }
         else {
             issueModel = me.issueModel;
