@@ -46,7 +46,7 @@ public class UpgraderV10_7 implements Upgrader {
     }
 
     private void addManualIssueType() {
-        issueService.createIssueType(IssueService.MANUAL_ISSUE_TYPE, TranslationKeys.MANUAL_ISSUE_TYPE, IssueService.COMPONENT_NAME);
+        issueService.createIssueType(IssueService.MANUAL_ISSUE_TYPE, TranslationKeys.MANUAL_ISSUE_TYPE, IssueService.MANUAL_ISSUE_PREFIX);
     }
 
     private void upgradeAllIssues() {

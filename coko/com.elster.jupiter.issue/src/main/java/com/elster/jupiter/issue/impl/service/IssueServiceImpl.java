@@ -773,8 +773,15 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         if (filter.getIssueId().isPresent()) {
             String[] issueIdPart = filter.getIssueId().get().split("-");
             if (issueIdPart.length == 2) {
-                condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(issueIdPart[1])))
-                        .and(where("reason.issueType.prefix").isEqualTo(issueIdPart[0].toUpperCase()));
+                String issuePrefix = issueIdPart[0].toUpperCase();
+                if (IssueService.MANUAL_ISSUE_PREFIX.equals(issuePrefix)) {
+                    condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(issueIdPart[1])))
+                            .and(where("type").isNotNull())
+                            .and(where("type.prefix").isEqualTo(issuePrefix));
+                } else {
+                    condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(issueIdPart[1])))
+                            .and(where("reason.issueType.prefix").isEqualTo(issuePrefix));
+                }
             } else {
                 condition = condition.and(where("id").isEqualTo(0));
             }
@@ -821,12 +828,20 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             condition = condition.and(where("status").in(filter.getStatuses()));
         }
         //filter by issue types
+        List<IssueType> issueTypes;
         if (!filter.getIssueTypes().isEmpty()) {
-            condition = condition.and(where("reason.issueType").in(filter.getIssueTypes()));
+            issueTypes = filter.getIssueTypes();
         } else {
-            List<IssueType> issueTypes = getAllIssueTypes().stream()
+            issueTypes = getAllIssueTypes().stream()
                     .filter(issueType -> !issueType.getPrefix().equals("ALM")).collect(Collectors.toList());
-            condition = condition.and(where("reason.issueType").in(Collections.unmodifiableList(issueTypes)));
+        }
+        IssueType manualIssueType = issueTypes.stream().filter(type -> IssueService.MANUAL_ISSUE_TYPE.equals(type.getKey())).findFirst().orElse(null);
+        List<IssueType> nonManualIssueTypes = issueTypes.stream().filter(type -> !IssueService.MANUAL_ISSUE_TYPE.equals(type.getKey())).collect(Collectors.toList());
+        if (!nonManualIssueTypes.isEmpty()) {
+            condition = condition.and(where("type").isNull()).and(where("reason.issueType").in(nonManualIssueTypes));
+        }
+        if (manualIssueType != null) {
+            condition = condition.and(where("type").isEqualTo(manualIssueType));
         }
         //filter by due dates
         if (!filter.getDueDates().isEmpty()) {

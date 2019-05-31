@@ -35,6 +35,8 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 
+import static com.elster.jupiter.issue.share.service.IssueService.MANUAL_ISSUE_PREFIX;
+import static com.elster.jupiter.issue.share.service.IssueService.MANUAL_ISSUE_TYPE;
 import static com.elster.jupiter.util.Checks.is;
 
 //public class IssueImpl<T extends HasId & IdentifiedObject> extends EntityImpl implements Issue {
@@ -80,8 +82,10 @@ public class IssueImpl extends EntityImpl implements Issue {
     @Override
     public String getIssueId() {
         String prefix = DEFAULT_ISSUE_PREFIX;
-        if (this.reason.isPresent()) {
-            prefix = this.reason.get().getIssueType().getPrefix();
+        if (type.isPresent() && MANUAL_ISSUE_TYPE.equals(type.get().getKey())) {
+            prefix = MANUAL_ISSUE_PREFIX;
+        } else if (this.reason.isPresent()) {
+                prefix = this.reason.get().getIssueType().getPrefix();
         }
         return prefix + "-" + this.getId();
     }

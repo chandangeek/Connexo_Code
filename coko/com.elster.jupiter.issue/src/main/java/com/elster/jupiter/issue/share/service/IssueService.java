@@ -38,6 +38,7 @@ public interface IssueService {
 
     String COMPONENT_NAME = "ISU";
     String MANUAL_ISSUE_TYPE = "manual";
+    String MANUAL_ISSUE_PREFIX = "MCI";
 
     Optional<? extends Issue> findIssue(long id);
 

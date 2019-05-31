@@ -101,7 +101,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         );
         userService.addModulePrivileges(this);
         userService.addModulePrivileges(privilegesProviderV10_7);
-        issueService.createIssueType(IssueService.MANUAL_ISSUE_TYPE, TranslationKeys.MANUAL_ISSUE_TYPE, IssueService.COMPONENT_NAME);
+        issueService.createIssueType(IssueService.MANUAL_ISSUE_TYPE, TranslationKeys.MANUAL_ISSUE_TYPE, IssueService.MANUAL_ISSUE_PREFIX);
     }
 
     @Override
