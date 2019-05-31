@@ -155,6 +155,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         if (issueType.getPrefix().equals("ALM")) {
             IssueCreationService.CreationRuleActionBuilder actionBuilder = builder.newCreationRuleAction();
             actionBuilder.setPhase(CreationRuleActionPhase.fromString("CREATE"));
+
             Optional<IssueActionType> actionType = issueService.getIssueActionService().findActionType(3);
             //TODO figure out why 3 is not present
             actionType.ifPresent(issueActionType -> {

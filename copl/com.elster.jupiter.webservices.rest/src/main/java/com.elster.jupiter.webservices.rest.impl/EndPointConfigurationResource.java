@@ -15,12 +15,15 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 
 import javax.annotation.security.RolesAllowed;
@@ -35,13 +38,17 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.security.Principal;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -65,6 +72,7 @@ public class EndPointConfigurationResource {
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
     private final EndpointConfigurationOccurrenceInfoFactorty endpointConfigurationOccurrenceInfoFactorty;
     private final OrmService ormService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
     public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService,
@@ -74,7 +82,8 @@ public class EndPointConfigurationResource {
                                          EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory,
                                          ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory,
                                          EndpointConfigurationOccurrenceInfoFactorty endpointConfigurationOccurrenceInfoFactorty,
-                                         OrmService ormService) {
+                                         OrmService ormService,
+                                         ThreadPrincipalService threadPrincipalService) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
         this.exceptionFactory = exceptionFactory;
@@ -83,6 +92,7 @@ public class EndPointConfigurationResource {
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
         this.endpointConfigurationOccurrenceInfoFactorty = endpointConfigurationOccurrenceInfoFactorty;
         this.ormService = ormService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @GET
@@ -90,6 +100,7 @@ public class EndPointConfigurationResource {
     @Transactional
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
     public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams, @Context UriInfo uriInfo) {
+        System.out.println("getEndPointConfigurations APPLICATION NAME !!!!"+threadPrincipalService.getApplicationName());
         List<EndPointConfigurationInfo> infoList = endPointConfigurationService.findEndPointConfigurations()
                 .from(queryParams)
                 .stream()
@@ -227,6 +238,20 @@ public class EndPointConfigurationResource {
     }
 
 
+    private void checkApplicationPriviliges(String[] priviligeNames, String applicationName) {
+        /*TODO add check for name. IF it is not specified then return 403 */
+        Principal principal = threadPrincipalService.getPrincipal();
+        List privilegies = Arrays.asList(priviligeNames);
+        Set<Privilege> appPrivilegies = ((User) principal).getPrivileges(applicationName);
+        Optional<Privilege> neededPrivilege = appPrivilegies.stream()
+                .filter(privilege -> privilegies.contains(privilege.getName()))
+                .findFirst();
+
+        if (!neededPrivilege.isPresent()) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
+        }
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/occurrences")
@@ -235,16 +260,12 @@ public class EndPointConfigurationResource {
                                            @BeanParam JsonQueryFilter filter,
                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                            @Context UriInfo uriInfo) {
-        /*EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));*/
-
-        /*List<EndpointConfigurationOccurrenceInfo> endpointConfigurationOccurrences = findEndPointOccurences()
-                .from(queryParameters)
-                .stream()
-                .filter(epco -> epco.getEndPointConfiguration().)
-                .map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo))
-                .collect(toList());*/
         System.out.println("getAllOccurrences!!!!"+filter);
+
+        System.out.println("APPLICATION NAME !!!!"+threadPrincipalService.getApplicationName());
+        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        checkApplicationPriviliges(privileges, applicationName);
+
         List<EndPointOccurrence> endPointOccurrences = getEndPointOccurrences(queryParameters, filter, applicationName, null);
         List<EndpointConfigurationOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
                                                          stream().
@@ -259,7 +280,11 @@ public class EndPointConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/occurrences/{id}")
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public EndpointConfigurationOccurrenceInfo getOccurrence(@PathParam("id") long id, @Context UriInfo uriInfo) {
+    public EndpointConfigurationOccurrenceInfo getOccurrence(@PathParam("id") long id,
+                                                             @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                             @Context UriInfo uriInfo) {
+        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        checkApplicationPriviliges(privileges, applicationName);
 
         DataModel dataModel = ormService.getDataModel("WebServicesService"/*WebServicesService.COMPONENT_NAME*/).get();
         Optional<EndPointOccurrence> epOcc = dataModel.mapper(EndPointOccurrence.class)
@@ -372,16 +397,13 @@ public class EndPointConfigurationResource {
     public PagedInfoList getAllOccurrencesForEndPoint(@PathParam("epId") long epId,
                                                       @BeanParam JsonQueryParameters queryParameters,
                                                       @BeanParam JsonQueryFilter filter,
+                                                      @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                       @Context UriInfo uriInfo) {
         System.out.println("getAllOccurrencesForEndPoint !!!!"+epId);
-/*        EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(epId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));*/
 
-        /*List<EndpointConfigurationOccurrenceInfo> endpointConfigurationOccurrences = endPointConfiguration.getOccurrences(true)
-                .from(queryParameters)
-                .stream()
-                .map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo))
-                .collect(toList());*/
+        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        checkApplicationPriviliges(privileges, applicationName);
+
         List<EndPointOccurrence> endPointOccurrences = getEndPointOccurrences(queryParameters, filter, null, epId);
         List<EndpointConfigurationOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
                 stream().
@@ -396,10 +418,14 @@ public class EndPointConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/occurrences/{id}/log")
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public PagedInfoList getLogForOccurrence(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getLogForOccurrence(@PathParam("id") long id,
+                                             @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                             @BeanParam JsonQueryParameters queryParameters) {
 
         System.out.println("getLogForOccurrence !!!!"+id);
 
+        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        checkApplicationPriviliges(privileges, applicationName);
 
 
         DataModel dataModel = ormService.getDataModel("WebServicesService").get();
