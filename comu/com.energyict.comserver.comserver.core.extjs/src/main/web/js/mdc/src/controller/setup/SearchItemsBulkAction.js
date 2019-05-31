@@ -1060,7 +1060,21 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         formErrorsManualIssue.show();
                         comboReason.markInvalid('This field is required');
                         me.validation = false;
+                    }else{
+                        if (!formErrorsManualIssue.isHidden()) {
+                            formErrorsManualIssue.hide();
+                            form.getForm().clearInvalid();
+                        }
+
+                        me.validation = true;
+                        if (me.allDevices){
+                            me.allDevicesCnt = 0;
+                            var store = me.getDevicesGrid().getStore();
+                            var deviceData = store.getProxy().getReader().jsonData;
+                            if (deviceData && deviceData.searchResults) me.allDevicesCnt = deviceData.searchResults.length;
+                        }
                     }
+
                 }else if (me.operation != 'changeconfig') {
                     me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
                     errorPanel = currentCmp.down('#step3-errors');
@@ -1278,7 +1292,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     titleText = Ext.String.format(pattern, me.zoneName, false);
                     break;
                 case 'createmanualissue':
-                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmMsgAll', 'ISU', 'Create issues for all devices?');
+                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmPartDevicesMsg', 'ISU', 'Create issues for {0} devices?', me.allDevicesCnt, false);
                     break;
             }
         } else {
@@ -1355,7 +1369,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     titleText = Uni.I18n.translate('searchItems.bulk.removeZoneToDevices.confirmMsg1', 'MDC', "{0} from zone '{1}'?", [pattern, me.zoneName]);
                     break;
                 case 'createmanualissue':
-                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmMsg', 'ISU', 'Create issues for {0} devices?', me.devices.length, false);
+                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmPartDevicesMsg', 'ISU', 'Create issues for {0} devices?', me.devices.length, false);
                     break;
             }
         }
@@ -1403,6 +1417,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         'The selected devices will be unlinked from the chosen zone');
                 }
                 break;
+                case 'createmanualissue':
+                    bodyText = ' ';
+                    break;
         }
 
         message = {
