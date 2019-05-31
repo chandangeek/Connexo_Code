@@ -10,6 +10,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
+import com.elster.jupiter.util.streams.ExceptionThrowingRunnable;
 
 import java.sql.Connection;
 import java.util.logging.Logger;
@@ -51,7 +52,7 @@ final class InstallerDriver implements Migration {
                 .run(doInstall());
     }
 
-    private Runnable doInstall() {
+    private ExceptionThrowingRunnable<RuntimeException> doInstall() {
         return () -> {
                     installer.get().install(dataModelUpgrader, logger);
                     installAwareMigrationResolver.installed();

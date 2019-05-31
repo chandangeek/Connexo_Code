@@ -38,6 +38,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.streams.ExceptionThrowingRunnable;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -135,9 +136,9 @@ public class EstimationTaskExecutorTest {
             return null;
         }).when(threadPrincipleService).runAs(eq(estimationUser), any(Runnable.class), eq(Locale.getDefault()));
         doAnswer(invocationOnMock -> {
-            invocationOnMock.getArgumentAt(0, Runnable.class).run();
+            invocationOnMock.getArgumentAt(0, ExceptionThrowingRunnable.class).run();
             return null;
-        }).when(transactionService).run(any(Runnable.class));
+        }).when(transactionService).run(any(ExceptionThrowingRunnable.class));
     }
 
     private EstimationTask mockEstimationTask(EndDeviceGroup endDeviceGroup) {
@@ -226,7 +227,7 @@ public class EstimationTaskExecutorTest {
         executor.postExecute(occurrence);
 
         // Asserts
-        verify(transactionService).run(any(Runnable.class));
+        verify(transactionService).run(any(ExceptionThrowingRunnable.class));
         verify(transactionService).getContext();
         verify(transactionContext).commit();
         verify(transactionContext).close();
@@ -252,7 +253,7 @@ public class EstimationTaskExecutorTest {
         executor.postExecute(occurrence);
 
         // Asserts
-        verify(transactionService, times(2)).run(any(Runnable.class));
+        verify(transactionService, times(2)).run(any(ExceptionThrowingRunnable.class));
         verify(transactionService).getContext();
         verify(transactionContext, never()).commit();
         verify(transactionContext).close();
@@ -272,7 +273,7 @@ public class EstimationTaskExecutorTest {
         executor.postExecute(occurrence);
 
         // Asserts
-        verify(transactionService).run(any(Runnable.class));
+        verify(transactionService).run(any(ExceptionThrowingRunnable.class));
         verify(transactionService).getContext();
         verify(transactionContext).commit();
         verify(transactionContext).close();
@@ -293,7 +294,7 @@ public class EstimationTaskExecutorTest {
 
         // Asserts
         // Asserts
-        verify(transactionService).run(any(Runnable.class));
+        verify(transactionService).run(any(ExceptionThrowingRunnable.class));
         verify(transactionService).getContext();
         verify(transactionContext).commit();
         verify(transactionContext).close();

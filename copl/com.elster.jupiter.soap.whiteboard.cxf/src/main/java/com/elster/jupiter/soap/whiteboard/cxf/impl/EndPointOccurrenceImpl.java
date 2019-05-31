@@ -6,11 +6,9 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.util.HasId;
 
 import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -57,16 +55,9 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
                                   Instant startTime,
                                   String requestName,
                                   String applicationName,
-                                  String status,
                                   EndPointConfiguration endPointConfiguration)
     {
-        this.dataModel = dataModel;
-        this.startTime = startTime;
-        this.requestName = requestName;
-        this.applicationName = applicationName;
-        this.status = status;
-        this.endPointConfiguration.set(endPointConfiguration);
-        this.payload = null;
+        this(dataModel, startTime, requestName, applicationName, endPointConfiguration, null);
     }
 
 
@@ -74,16 +65,14 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
                                   Instant startTime,
                                   String requestName,
                                   String applicationName,
-                                  String status,
                                   EndPointConfiguration endPointConfiguration,
-                                  /*add status!!!*/
                                   String payload)
     {
         this.dataModel = dataModel;
         this.startTime = startTime;
         this.requestName = requestName;
         this.applicationName = applicationName;
-        this.status = status;
+        this.status = null; // TODO: add status
         this.endPointConfiguration.set(endPointConfiguration);
         this.payload = payload;
     }

@@ -6,20 +6,20 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
+import java.sql.SQLException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.sql.SQLException;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -45,7 +45,7 @@ public class ComSessionRootDeviceCommandTest {
     private ComServerDAOImpl mockComServerDAOButPerformTransactions() {
         final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
-        when(comServerDAO.executeTransaction(any(VoidTransaction.class)))
+        when(comServerDAO.executeTransaction(any(Transaction.class)))
             .thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
         return comServerDAO;
     }

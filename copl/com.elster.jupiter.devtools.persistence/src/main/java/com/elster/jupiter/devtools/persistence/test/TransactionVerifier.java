@@ -4,20 +4,15 @@
 
 package com.elster.jupiter.devtools.persistence.test;
 
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.streams.ExceptionThrowingRunnable;
+import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
+
 import com.google.common.collect.ImmutableList;
-import org.mockito.exceptions.Reporter;
-import org.mockito.exceptions.base.MockitoAssertionError;
-import org.mockito.internal.invocation.InvocationMatcher;
-import org.mockito.internal.invocation.finder.AllInvocationsFinder;
-import org.mockito.internal.verification.api.VerificationData;
-import org.mockito.invocation.Invocation;
-import org.mockito.verification.VerificationMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +21,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+
+import org.mockito.exceptions.Reporter;
+import org.mockito.exceptions.base.MockitoAssertionError;
+import org.mockito.internal.invocation.InvocationMatcher;
+import org.mockito.internal.invocation.finder.AllInvocationsFinder;
+import org.mockito.internal.verification.api.VerificationData;
+import org.mockito.invocation.Invocation;
+import org.mockito.verification.VerificationMode;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.spy;
@@ -40,15 +43,25 @@ public final class TransactionVerifier implements TransactionService {
     }
 
     @Override
-    public <T> T execute(Transaction<T> transaction) {
+    public <T, E extends Throwable> T execute(ExceptionThrowingSupplier<T, E> transaction) throws E {
         transactionMode.startTransaction();
         try {
-            T value = transaction.perform();
+            T value = transaction.get();
             transactionMode.commitTransaction();
             return value;
         } finally {
             transactionMode.endTransaction();
         }
+    }
+
+    @Override
+    public <R, E extends Throwable> R executeInIndependentTransaction(ExceptionThrowingSupplier<R, E> transaction) throws E {
+        return execute(transaction);
+    }
+
+    @Override
+    public <E extends Throwable> TransactionEvent runInIndependentTransaction(ExceptionThrowingRunnable<E> transaction) throws E {
+        return run(transaction);
     }
 
     @Override

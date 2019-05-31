@@ -9,6 +9,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.AbstractEndPointInitializer;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.ManagedEndpoint;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
@@ -34,6 +35,7 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
     private final String logDirectory;
     private final Provider<AuthorizationInInterceptor> authorizationInInterceptorProvider;
     private final Provider<AccessLogFeature> accessLogFeatureProvider;
+    private final AbstractEndPointInitializer endPointInitializer;
 
     private Server endpoint;
     private TracingFeature tracingFeature;
@@ -41,11 +43,12 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
     @Inject
     public InboundSoapEndPoint(SoapProviderSupportFactory soapProviderSupportFactory, @Named("LogDirectory") String logDirectory,
                                Provider<AuthorizationInInterceptor> authorizationInInterceptorProvider,
-                               Provider<AccessLogFeature> accessLogFeatureProvider) {
+                               Provider<AccessLogFeature> accessLogFeatureProvider, AbstractEndPointInitializer endPointInitializer) {
         this.soapProviderSupportFactory = soapProviderSupportFactory;
         this.logDirectory = logDirectory;
         this.authorizationInInterceptorProvider = authorizationInInterceptorProvider;
         this.accessLogFeatureProvider = accessLogFeatureProvider;
+        this.endPointInitializer = endPointInitializer;
     }
 
     InboundSoapEndPoint init(InboundSoapEndPointProvider endPointProvider, InboundEndPointConfiguration endPointConfiguration) {
@@ -73,7 +76,7 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
             FaultListener faultListener = (exception, description, message) -> logFault(endPointConfiguration, exception);
             svrFactory.getProperties(true).put(FaultListener.class.getName(), faultListener);
             svrFactory.setAddress(endPointConfiguration.getUrl());
-            svrFactory.setServiceBean(implementor);
+            svrFactory.setServiceBean(endPointInitializer.initializeInboundEndPoint(implementor, endPointConfiguration));
             if (endPointConfiguration.isTracing()) {
                 tracingFeature = new TracingFeature(logDirectory, endPointConfiguration.getTraceFile());
                 svrFactory.getFeatures().add(tracingFeature);

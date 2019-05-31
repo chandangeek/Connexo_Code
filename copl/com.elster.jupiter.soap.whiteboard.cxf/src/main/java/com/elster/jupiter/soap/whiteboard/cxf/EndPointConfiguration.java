@@ -126,14 +126,10 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
 
     EndPointOccurrence createEndPointOccurrence(Instant startTime,
                                                 String requestName,
-                                                String applicationName,
-                                                String status,
-                                                EndPointConfiguration endPointConfiguration);
+                                                String applicationName);
 
     EndPointOccurrence createEndPointOccurrence(Instant startTime,
                                                 String requestName,
                                                 String applicationName,
-                                                String status,
-                                                EndPointConfiguration endPointConfiguration,
                                                 String payload);
 }

@@ -16,10 +16,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.users.Group;
 
-import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
@@ -193,6 +191,7 @@ public enum TableSpecs {
                     .on(occurrence)
                     .onDelete(DeleteRule.CASCADE)
                     .map(EndPointLogImpl.Fields.occurrence.fieldName())
+                    .since(version(10, 7))
                     .add();
             table.primaryKey("SCS_PK_ENDPOINT_LOG").on(idColumn).add();
             table.autoPartitionOn(timestampColumn, LifeCycleClass.WEBSERVICES);

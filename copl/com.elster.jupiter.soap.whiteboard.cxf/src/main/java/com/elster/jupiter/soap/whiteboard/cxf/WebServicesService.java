@@ -78,4 +78,15 @@ public interface WebServicesService {
      */
     List<PropertySpec> getWebServicePropertySpecs(String webServiceName);
 
+    EndPointOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application);
+
+    EndPointOccurrence passOccurrence();
+
+    EndPointOccurrence failOccurrence(String message);
+
+    EndPointOccurrence failOccurrence(Exception exception);
+
+    EndPointOccurrence failOccurrence(String message, Exception exception);
+
+    EndPointOccurrence getOccurrence();
 }

@@ -62,52 +62,45 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
             password = policy.getPassword();
             newSession = true;
         } else {
-            fail("Authentication required", HttpURLConnection.HTTP_UNAUTHORIZED);
+            fail("Authentication required", "Authentication required", HttpURLConnection.HTTP_UNAUTHORIZED);
         }
         try {
             this.userService.findUser(userName).ifPresent(threadPrincipalService::set);
             Optional<User> user = userService.authenticateBase64(Base64Utility.encode((userName + ":" + password).getBytes()), request
                     .getRemoteAddr());
             if (!user.isPresent()) {
-                logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: invalid credentials");
-                fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
+                fail("Not authorized", "User " + userName + " denied access: invalid credentials", HttpURLConnection.HTTP_FORBIDDEN);
             }
             if (endPointConfiguration.getGroup().isPresent()) {
                 if (!user.get().isMemberOf(endPointConfiguration.getGroup().get())) {
-                    logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: not in role");
-                    fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
+                    fail("Not authorized", "User " + userName + " denied access: not in role", HttpURLConnection.HTTP_FORBIDDEN);
                 }
             }
-
-           request.setAttribute(USERPRINCIPAL, user.get());
-
-        } catch (
-                Fault e)
-
-        {
+            request.setAttribute(USERPRINCIPAL, user.get());
+        } catch (Fault e) {
             throw e;
-        } catch (
-                Exception e)
-
-        {
-            logInTransaction("Exception while logging in " + userName + ":", e);
-            fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
+        } catch (Exception e) {
+            fail("Not authorized", "Exception while logging in " + userName + ":", e, HttpURLConnection.HTTP_FORBIDDEN);
         }
-
     }
 
-    private void fail(String message, int statusCode) {
+    private void fail(String message, String detailedMessage, int statusCode) {
+        endPointConfiguration.log(LogLevel.WARNING, detailedMessage);
+        // TODO: create & fail occurrence + issue
+        doFail(message, statusCode);
+    }
+
+    private void fail(String message, String detailedMessage, Exception e, int statusCode) {
+        endPointConfiguration.log(detailedMessage, e);
+        // TODO: create & fail occurrence + issue
+        doFail(message, statusCode);
+    }
+
+
+    private void doFail(String message, int statusCode) {
         Fault fault = new Fault(message, Logger.getGlobal());
         fault.setStatusCode(statusCode);
         throw fault;
-    }
-
-    private void logInTransaction(LogLevel logLevel, String message) {
-        endPointConfiguration.log(logLevel, message);
-    }
-
-    private void logInTransaction(String message, Exception exception) {
-        endPointConfiguration.log(message, exception);
     }
 
     /**

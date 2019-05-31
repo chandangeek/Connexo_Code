@@ -4,13 +4,10 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
@@ -19,44 +16,18 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.InboundRestEndPointFactoryImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.OutboundRestEndPointFactoryImpl;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.ServletWrapper;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.soap.InboundSoapEndPointFactoryImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.soap.OutboundSoapEndPointFactoryImpl;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.upgrade.InstallIdentifier;
-import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.osgi.BundleWaiter;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.AbstractModule;
-import com.google.inject.Module;
-import com.google.inject.name.Names;
-import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
 
 import javax.inject.Inject;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.validation.MessageInterpolator;
-import java.io.File;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,90 +40,27 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by bvn on 4/29/16.
  */
-@Component(name = "com.elster.jupiter.soap.webservices.cxf", service = {WebServicesService.class}, immediate = true)
-public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.Startable {
+public class WebServicesServiceImpl implements WebServicesService {
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
 
-    private volatile ServiceRegistration<WebServicesService> registration;
+    private final DataModel dataModel;
+    private final EventService eventService;
+    private final TransactionService transactionService;
+    private final Clock clock;
+
     private Map<String, EndPointFactory> webServices = new ConcurrentHashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
-    private volatile SoapProviderSupportFactory soapProviderSupportFactory;
-    private volatile BundleContext bundleContext;
-    private volatile DataModel dataModel;
-    private volatile UpgradeService upgradeService;
-    private volatile EventService eventService;
-    private volatile Thesaurus thesaurus;
-    private volatile UserService userService;
-    private volatile TransactionService transactionService;
+    private ThreadLocal<EndPointOccurrence> occurrence = new ThreadLocal<>();
 
-    // OSGi
-    public WebServicesServiceImpl() {
-    }
-
-    @Inject // For test purposes only
-    public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService,
-                                  UpgradeService upgradeService, BundleContext bundleContext, EventService eventService,
-                                  UserService userService, NlsService nlsService, TransactionService transactionService) throws Exception {
-        setSoapProviderSupportFactory(soapProviderSupportFactory);
-        setOrmService(ormService);
-        setUpgradeService(upgradeService);
-        setEventService(eventService);
-        setNlsService(nlsService);
-        setUserService(userService);
-        setTransactionService(transactionService);
-        activate(bundleContext);
-    }
-
-    @Reference
-    public void setUpgradeService(UpgradeService upgradeService) {
-        this.upgradeService = upgradeService;
-    }
-
-    @Reference
-    public void setSoapProviderSupportFactory(SoapProviderSupportFactory soapProviderSupportFactory) {
-        this.soapProviderSupportFactory = soapProviderSupportFactory;
-    }
-
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.newDataModel("WebServicesService", "Injector for web services");
-        for (TableSpecs tableSpecs : TableSpecs.values()) {
-            tableSpecs.addTo(dataModel);
-        }
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setEventService(EventService eventService) {
+    @Inject
+    WebServicesServiceImpl(DataModel dataModel,
+                           EventService eventService,
+                           TransactionService transactionService,
+                           Clock clock) {
+        this.dataModel = dataModel;
         this.eventService = eventService;
-    }
-
-    @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Reference
-    public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
-    }
-
-    @Reference
-    public void setHttpService(HttpService httpService) {
-        HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet());
-        try {
-            httpService.registerServlet("/soap",servlet,null,null);
-        } catch (NamespaceException | ServletException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    @Reference
-    public void setConfiguration(WhiteBoardConfigurationProvider provider) {
+        this.clock = clock;
     }
 
     @Override
@@ -340,62 +248,6 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
         }
     }
 
-    @Activate
-    public void activate(BundleContext bundleContext) throws Exception {
-        this.bundleContext = bundleContext;
-        String logDirectory = this.bundleContext.getProperty("com.elster.jupiter.webservices.log.directory");
-        if (logDirectory == null) {
-            logDirectory = System.getProperty("java.io.tmpdir");
-        }
-        if (!logDirectory.endsWith(File.separator)) {
-            logDirectory = logDirectory + File.separator;
-        }
-        this.dataModel.register(this.getModule(logDirectory));
-        upgradeService.register(
-                InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),
-                dataModel,
-                Installer.class,
-                ImmutableMap.of(
-                        V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class,
-                        UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class
-                ));
-        Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
-        clazz.getAnnotations();
-        //BundleWaiter.wait(this, bundleContext, "org.glassfish.hk2.osgi-resource-locator");
-    }
-
-
-    @Override
-    public void start(BundleContext context) {
-        registration = bundleContext.registerService(WebServicesService.class, this, null);
-    }
-
-    @Deactivate
-    public void stop(BundleContext bundleContext) {
-        endpoints.values().stream().forEach(ManagedEndpoint::stop);
-        endpoints.clear();
-        if (registration != null) {
-            registration.unregister();
-        }
-    }
-
-    private Module getModule(String logDirectory) {
-        return new AbstractModule() {
-            @Override
-            public void configure() {
-                bind(DataModel.class).toInstance(dataModel);
-                bind(MessageInterpolator.class).toInstance(thesaurus);
-                bind(BundleContext.class).toInstance(bundleContext);
-                bind(SoapProviderSupportFactory.class).toInstance(soapProviderSupportFactory);
-                bind(EventService.class).toInstance(eventService);
-                bind(UserService.class).toInstance(userService);
-                bind(TransactionService.class).toInstance(transactionService);
-                bind(String.class).annotatedWith(Names.named("LogDirectory")).toInstance(logDirectory);
-                bind(WebServicesService.class).toInstance(WebServicesServiceImpl.this);
-            }
-        };
-    }
-
     @Override
     public List<PropertySpec> getWebServicePropertySpecs(String webServiceName) {
         final EndPointFactory endPointFactory = webServices.get(webServiceName);
@@ -421,77 +273,68 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
         try {
             endpoint.stop();
         } catch (Exception ex) {
-
+            // exception suppressed
         }
     }
 
-    @Reference(name = "ZInboundSoapEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addEndPoint(InboundSoapEndPointProvider provider, Map<String, Object> props) {
-        String alias = getName(props);
-        if (alias == null) {
-            return;
-        }
-        this.register(alias, provider);
+    // TODO: move to another service maybe
+
+    @Override
+    public EndPointOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application) {
+        validateOccurrenceNotPresent();
+        EndPointOccurrence tmp = transactionService.executeInIndependentTransaction(
+                () -> endPointConfiguration.createEndPointOccurrence(clock.instant(), requestName, application));
+        occurrence.set(tmp);
+        return tmp;
     }
 
-    public void removeEndPoint(InboundSoapEndPointProvider provider, Map<String, Object> props) {
-        String alias = getName(props);
-        if (alias != null) {
-            this.unregister(alias);
-        }
+    @Override
+    public EndPointOccurrence passOccurrence() {
+        EndPointOccurrence tmp = getOccurrence();
+        occurrence.remove();
+        return transactionService.executeInIndependentTransaction(() -> {
+            // TODO: pass occurrence
+            return tmp;
+        });
     }
 
-    @Reference(name = "ZInboundRestEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addEndPoint(InboundRestEndPointProvider provider, Map<String, Object> props) {
-        String alias = getName(props);
-        if (alias == null) {
-            return;
-        }
-        this.register(alias, provider);
+    @Override
+    public EndPointOccurrence failOccurrence(String message) {
+        return failOccurrence(message, null);
     }
 
-    public void removeEndPoint(InboundRestEndPointProvider provider, Map<String, Object> props) {
-        String alias = getName(props);
-        if (alias != null) {
-            this.unregister(alias);
-        }
+    @Override
+    public EndPointOccurrence failOccurrence(Exception exception) {
+        return failOccurrence(exception.getLocalizedMessage(), exception);
     }
 
-    @Reference(name = "ZOutboundSoapEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addEndPoint(OutboundSoapEndPointProvider provider, Map<String, Object> props) {
-        String alias = getName(props);
-        if (alias == null) {
-            return;
-        }
-        this.register(alias, provider);
+    @Override
+    public EndPointOccurrence failOccurrence(String message, Exception exception) {
+        EndPointOccurrence tmp = getOccurrence();
+        occurrence.remove();
+        return transactionService.executeInIndependentTransaction(() -> {
+            if (exception == null) {
+                tmp.log(LogLevel.SEVERE, message);
+            } else {
+                tmp.log(message, exception);
+            }
+            // TODO: fail occurrence
+            return tmp;
+        });
     }
 
-    public void removeEndPoint(OutboundSoapEndPointProvider provider, Map<String, Object> props) {
-        String alias = getName(props);
-        if (alias != null) {
-            this.unregister(alias);
+    @Override
+    public EndPointOccurrence getOccurrence() {
+        EndPointOccurrence tmp = occurrence.get();
+        if (tmp == null) {
+            throw new IllegalStateException("Web service occurrence isn't present.");
         }
+        return tmp;
     }
 
-    @Reference(name = "ZOutboundRestEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addEndPoint(OutboundRestEndPointProvider provider, Map<String, Object> props) {
-        String alias = getName(props);
-        if (alias == null) {
-            return;
-        }
-        this.register(alias, provider);
-    }
-
-    public void removeEndPoint(OutboundRestEndPointProvider provider, Map<String, Object> props) {
-        String alias = getName(props);
-        if (alias != null) {
-            this.unregister(alias);
+    private void validateOccurrenceNotPresent() {
+        if (occurrence.get() != null) {
+            throw new IllegalStateException("Web service occurrence is already present.");
         }
     }
-
-
-    private String getName(Map<String, Object> props) {
-        return props == null ? null : (String) props.get("name");
-    }
-
 }
