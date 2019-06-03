@@ -481,7 +481,7 @@ public class IssueResource extends BaseResource {
     @Path("/bulkadd")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADD_ISSUE)
+    @RolesAllowed(Privileges.Constants.CREATE_ISSUE)
     public Response addIssues(BulkAddIssueRequest request) {
         ActionInfo response = new ActionInfo();
         for (AddIssueRequest addIssueRequest : request.getIssues()) {

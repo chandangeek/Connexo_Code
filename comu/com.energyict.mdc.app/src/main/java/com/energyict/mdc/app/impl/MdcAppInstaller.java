@@ -213,7 +213,7 @@ public class MdcAppInstaller {
                     com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE,
                     com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE,
                     com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE,
-                    com.elster.jupiter.issue.security.Privileges.Constants.ADD_ISSUE,
+                    com.elster.jupiter.issue.security.Privileges.Constants.CREATE_ISSUE,
 
                     //Alarms
                     com.energyict.mdc.device.alarms.security.Privileges.Constants.ACTION_ALARM,
