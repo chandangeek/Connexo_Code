@@ -370,8 +370,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
 
     @Override
     public ComWindow getComWindow() {
-        return new ComWindow(PartialTime.fromSeconds(((Number) this.getUploadPeriodStart().getEpochSecond()).intValue()),
-                PartialTime.fromSeconds(((Number) this.getUploadPeriodEnd().getEpochSecond()).intValue()));
-
+        return new ComWindow((((Number)(this.getUploadPeriodStart().getEpochSecond()%86400)).intValue()),
+                (((Number) (this.getUploadPeriodEnd().getEpochSecond()%86400)).intValue()));
     }
 }

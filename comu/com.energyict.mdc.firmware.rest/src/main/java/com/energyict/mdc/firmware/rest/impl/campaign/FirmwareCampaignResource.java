@@ -118,6 +118,20 @@ public class FirmwareCampaignResource {
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
     }
 
+    @PUT
+    @Transactional
+    @Path("/{id}/cancel")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
+    public Response cancel(@PathParam("id") long id, FirmwareCampaignInfo firmwareCampaignInfo) {
+        FirmwareCampaign firmwareCampaign = firmwareCampaignService.findAndLockFirmwareCampaignByIdAndVersion(firmwareCampaignInfo.id, firmwareCampaignInfo.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(firmwareCampaignInfo.name)
+                        .withActualVersion(() -> getCurrentCampaignVersion(firmwareCampaignInfo.id))
+                        .supplier());
+        firmwareCampaign.cancel();
+        return Response.ok().build();
+    }
+
     @GET
     @Transactional
     @Path("/{id}/devices")

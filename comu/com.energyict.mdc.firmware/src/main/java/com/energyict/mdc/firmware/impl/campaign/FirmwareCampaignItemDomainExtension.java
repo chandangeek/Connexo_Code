@@ -37,6 +37,7 @@ import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
@@ -196,8 +197,13 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
             if (deviceAlreadyHasTheSameVersion()) {
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
-                FirmwareCampaign firmwareCampaign = getFirmwareCampaign();
-                prepareCommunicationTask(getDevice(), firmwareCampaign.getProperties(), firmwareCampaign.getFirmwareMessageSpec().get());
+                DeviceMessage deviceMess = getDevice().getMessages().stream()
+                        .filter(deviceMessage1 -> deviceMessage1.getSpecification().getCategory().getId()==9)
+                        .filter(deviceMessage1 -> deviceMessage1.getStatus().equals(DeviceMessageStatus.PENDING))
+                        .findFirst().orElse(null);
+             //   FirmwareCampaign firmwareCampaign = getFirmwareCampaign();
+               // prepareCommunicationTask(getDevice(), firmwareCampaign.getProperties(), firmwareCampaign.getFirmwareMessageSpec().get());
+              //  firmwareService.cancelFirmwareUploadForDevice(getDevice());
                 createFirmwareMessage(firmwareMessageId.get(), retry);
                 scheduleFirmwareTask();
             }
@@ -313,6 +319,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         }
         DeviceMessage firmwareMessage = deviceMessageBuilder.add();
         this.deviceMessage.set(firmwareMessage);
+        getServiceCall().update(this);
     }
 
     private void scheduleFirmwareTask() {

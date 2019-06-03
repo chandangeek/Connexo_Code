@@ -61,7 +61,10 @@ public enum MessageSeeds implements MessageSeed {
     ACTIVE_VERIFICATION_TASK_ISNT_FOUND(4003,"ActiveVerificationTaskIsntFound" ,"Active verification task isn''t found." , Level.WARNING),
     FIRMWARE_INSTALLATION_STARTED(4004,"FirmwareInstallationStarted" ,"Firmware installation started." , Level.INFO),
     VERIFICATION_COMPLETED(4005,"VerificationCompleted" , "Verification completed", Level.INFO),
-    VERIFICATION_SCHEDULED(4006,"VerificationScheduled" , "Verification scheduled", Level.INFO);
+    VERIFICATION_SCHEDULED(4006,"VerificationScheduled" , "Verification scheduled", Level.INFO),
+    FIRMWARE_INSTALLATION_COMPLETED(4007,"FirmwareInstallationCompleted" ,"Firmware installation completed." , Level.INFO),
+    VERIFICATION_FAILED_WRONG_FIRMWAREVERSION(4008,"VerificationFailedWrongFirmwareVersion" , "Verification failed wrong firmware version.", Level.WARNING)
+    ;
 
     private final int number;
     private final String key;

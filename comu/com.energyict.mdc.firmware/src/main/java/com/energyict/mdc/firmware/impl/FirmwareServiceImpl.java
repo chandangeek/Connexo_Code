@@ -514,10 +514,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution.get());
     }
 
-    public void resumeFirmwareUploadForDevice(Device device) {
+    public void resumeFirmwareUploadForDevice(Device device) { //todo may be category
         device.getMessagesByState(DeviceMessageStatus.PENDING)
                 .stream()
-                .filter(this::isItAFirmwareRelatedMessage)
+                .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 9)
                 .forEach(x -> this.resume(device, x));
     }
 
@@ -566,7 +566,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private void cancelPendingFirmwareMessages(Device device) {
         device.getMessagesByState(DeviceMessageStatus.PENDING)
                 .stream()
-                .filter(this::isItAFirmwareRelatedMessage)
+                .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 9)
                 .forEach(DeviceMessage::revoke);
     }
 
@@ -632,20 +632,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Override
     public Thesaurus getThesaurus() {
         return thesaurus;
-    }
-
-    private boolean isItAFirmwareRelatedMessage(DeviceMessage deviceDeviceMessage) {
-        return Stream.of(
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE,
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE,
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE,
-                DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE,
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE,
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_VERSION_AND_ACTIVATE_DATE,
-                DeviceMessageId.FIRMWARE_UPGRADE_URL_ACTIVATE_IMMEDIATE,
-                DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE
-        )
-                .anyMatch(firmwareDeviceMessage -> firmwareDeviceMessage.equals(deviceDeviceMessage.getDeviceMessageId()));
     }
 
     @Activate

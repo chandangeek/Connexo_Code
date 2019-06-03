@@ -170,7 +170,7 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
     }
 
-    public Optional<DeviceInFirmwareCampaignInfo> cancelDeviceInFirmwareCampaign(FirmwareCampaign campaign, Device device) {
+    public Optional<DeviceInFirmwareCampaignInfo> cancelDeviceInFirmwareCampaign(Device device) {
         Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaign.isPresent()) {
             firmwareService.cancelFirmwareUploadForDevice(device);
@@ -181,7 +181,7 @@ public class ResourceHelper {
         }
     }
 
-    public Optional<DeviceInFirmwareCampaignInfo> retryDeviceInFirmwareCampaign(FirmwareCampaign campaign, Device device) {
+    public Optional<DeviceInFirmwareCampaignInfo> retryDeviceInFirmwareCampaign(Device device) {
         Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaign.isPresent()) {
             firmwareCampaignService.retryFirmwareUploadForDevice(deviceInFirmwareCampaign.get());

@@ -34,6 +34,10 @@ import java.util.concurrent.Executors;
 
 public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
 
+    private final static String MANUAL_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/manualcomtaskexecution/COMPLETED";
+    private final static String MANUAL_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/manualcomtaskexecution/FAILED";
+    private final static String SCHEDULED_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/COMPLETED";
+    private final static String SCHEDULED_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/FAILED";
     private final static String FIRMWARE_COMTASKEXECUTION_STARTED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/STARTED";
     private final static String FIRMWARE_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/COMPLETED";
     private final static String FIRMWARE_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/FAILED";
@@ -64,9 +68,13 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 processEvent(event, this::onComTaskStarted);
                 break;
             case FIRMWARE_COMTASKEXECUTION_COMPLETED:
+            case MANUAL_COMTASKEXECUTION_COMPLETED:
+            case SCHEDULED_COMTASKEXECUTION_COMPLETED:
                 processEvent(event, this::onComTaskCompleted);
                 break;
             case FIRMWARE_COMTASKEXECUTION_FAILED:
+            case MANUAL_COMTASKEXECUTION_FAILED:
+            case SCHEDULED_COMTASKEXECUTION_FAILED:
                 processEvent(event, this::onComTaskFailed);
                 break;
             case FIRMWARE_CAMPAIGN_EDITED:
@@ -125,7 +133,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 if (!firmwareCampaignService.isWithVerification(firmwareCampaign)) {
                     serviceCallService.lockServiceCall(serviceCall.getId());
                     serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_STARTED).format());
+                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_COMPLETED).format());
                     firmwareCampaignService.revokeCommands(device); //in case calendar has already been uploaded out of campaign scope
                 } else {
                     scheduleVerification(device, firmwareCampaign.getValidationTimeout());
@@ -152,7 +160,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         } else {
                             serviceCallService.lockServiceCall(serviceCall.getId());
                             serviceCall.requestTransition(DefaultState.FAILED);
-                            //  firmwareCampaignService.logInServiceCall(serviceCall, MessageSeeds.VERIFICATION_FAILED_WRONG_CALENDAR, LogLevel.WARNING);
+                            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.VERIFICATION_FAILED_WRONG_FIRMWAREVERSION).format());
                         }
                     }
                 }
