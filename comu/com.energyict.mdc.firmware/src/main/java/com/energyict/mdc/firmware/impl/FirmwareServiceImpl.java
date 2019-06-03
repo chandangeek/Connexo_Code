@@ -514,7 +514,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution.get());
     }
 
-    public void resumeFirmwareUploadForDevice(Device device) { //todo may be category
+    public void resumeFirmwareUploadForDevice(Device device) {
         device.getMessagesByState(DeviceMessageStatus.PENDING)
                 .stream()
                 .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 9)
