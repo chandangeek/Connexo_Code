@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.HasId;
 
@@ -60,7 +60,7 @@ public class EndPointLogImpl implements EndPointLog, HasId {
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String message;
     private String stackTrace;
-    private Reference<EndPointOccurrence> occurrence = Reference.empty();
+    private Reference<WebServiceCallOccurrence> occurrence = Reference.empty();
 
     EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, LogLevel logLevel, Instant timestamp) {
         this.timestamp = timestamp;
@@ -70,7 +70,7 @@ public class EndPointLogImpl implements EndPointLog, HasId {
         return this;
     }
 
-    EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, LogLevel logLevel, Instant timestamp, EndPointOccurrence occurrence) {
+    EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, LogLevel logLevel, Instant timestamp, WebServiceCallOccurrence occurrence) {
         init(endPointConfiguration, message, logLevel, timestamp);
         this.occurrence.set(occurrence);
         return this;
@@ -82,7 +82,7 @@ public class EndPointLogImpl implements EndPointLog, HasId {
         return this;
     }
 
-    EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, String stacetrace, LogLevel logLevel, Instant timestamp, EndPointOccurrence occurrence) {
+    EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, String stacetrace, LogLevel logLevel, Instant timestamp, WebServiceCallOccurrence occurrence) {
         init(endPointConfiguration, message, stacetrace, logLevel, timestamp);
         this.occurrence.set(occurrence);
         return this;
@@ -126,7 +126,7 @@ public class EndPointLogImpl implements EndPointLog, HasId {
     }
 
     @Override
-    public Optional<EndPointOccurrence> getOccurrence(){
+    public Optional<WebServiceCallOccurrence> getOccurrence(){
         return this.occurrence.getOptional();
     }
 

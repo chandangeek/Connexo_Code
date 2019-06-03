@@ -9,16 +9,16 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 
 import javax.inject.Inject;
 
-public class EndpointConfigurationLogInfoFactory {
+public class WebServiceCallOccurrenceLogInfoFactory {
     private final Thesaurus thesaurus;
 
     @Inject
-    public EndpointConfigurationLogInfoFactory(Thesaurus thesaurus) {
+    public WebServiceCallOccurrenceLogInfoFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
-    public EndpointConfigurationLogInfo from(EndPointLog endPointLog) {
-        EndpointConfigurationLogInfo info = new EndpointConfigurationLogInfo();
+    public WebServiceCallOccurrenceLogInfo from(EndPointLog endPointLog) {
+        WebServiceCallOccurrenceLogInfo info = new WebServiceCallOccurrenceLogInfo();
         info.logLevel = thesaurus.getString(endPointLog.getLogLevel().getKey(), endPointLog.getLogLevel()
                 .getDefaultFormat());
         info.message = endPointLog.getMessage();
@@ -26,8 +26,8 @@ public class EndpointConfigurationLogInfoFactory {
         return info;
     }
 
-    public EndpointConfigurationLogInfo fromFull(EndPointLog endPointLog) {
-        EndpointConfigurationLogInfo info = new EndpointConfigurationLogInfo();
+    public WebServiceCallOccurrenceLogInfo fromFull(EndPointLog endPointLog) {
+        WebServiceCallOccurrenceLogInfo info = new WebServiceCallOccurrenceLogInfo();
         info.logLevel = thesaurus.getString(endPointLog.getLogLevel().getKey(), endPointLog.getLogLevel()
                 .getDefaultFormat());
         info.message = endPointLog.getMessage();

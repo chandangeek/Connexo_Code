@@ -14,7 +14,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -274,7 +274,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public void log(LogLevel logLevel, String message, EndPointOccurrence occurrence) {
+    public void log(LogLevel logLevel, String message, WebServiceCallOccurrence occurrence) {
         if (this.logLevel.compareTo(logLevel) > -1) {
             if (transactionService.isInTransaction()) {
                 doLog(logLevel, message, occurrence);
@@ -287,7 +287,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
         }
     }
 
-    private void doLog(LogLevel logLevel, String message, EndPointOccurrence occurrence) {
+    private void doLog(LogLevel logLevel, String message, WebServiceCallOccurrence occurrence) {
         EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
                 .init(this, message, logLevel, clock.instant(), occurrence);
         log.save();
@@ -312,7 +312,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public void log(String message, Exception exception, EndPointOccurrence occurrence) {
+    public void log(String message, Exception exception, WebServiceCallOccurrence occurrence) {
         if (transactionService.isInTransaction()) {
             doLog(message, exception, occurrence);
         } else {
@@ -323,7 +323,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
         }
     }
 
-    private void doLog(String message, Exception exception, EndPointOccurrence occurrence) {
+    private void doLog(String message, Exception exception, WebServiceCallOccurrence occurrence) {
         EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
                 .init(this, message, stackTrace2String(exception), LogLevel.SEVERE, clock.instant(), occurrence);
         log.save();
@@ -346,10 +346,10 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public Finder<EndPointOccurrence> getOccurrences(Boolean sort) {
-        return DefaultFinder.of(EndPointOccurrence.class,
-                Where.where(EndPointOccurrenceImpl.Fields.endPointConfiguration.fieldName())
-                        .isEqualTo(this), dataModel).sorted(EndPointOccurrenceImpl.Fields.startTime.fieldName(), sort);
+    public Finder<WebServiceCallOccurrence> getOccurrences(Boolean sort) {
+        return DefaultFinder.of(WebServiceCallOccurrence.class,
+                Where.where(WebServiceCallOccurrenceImpl.Fields.endPointConfiguration.fieldName())
+                        .isEqualTo(this), dataModel).sorted(WebServiceCallOccurrenceImpl.Fields.startTime.fieldName(), sort);
 
     }
 
@@ -411,18 +411,18 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public EndPointOccurrence createEndPointOccurrence(Instant startTime,
-                                                       String requestName,
-                                                       String applicationName) {
+    public WebServiceCallOccurrence createEndPointOccurrence(Instant startTime,
+                                                             String requestName,
+                                                             String applicationName) {
         return createEndPointOccurrence(startTime, requestName, applicationName, null);
     }
 
     @Override
-    public EndPointOccurrence createEndPointOccurrence(Instant startTime,
-                                                       String requestName,
-                                                       String applicationName,
-                                                       String payload) {
-        EndPointOccurrence occurrence = new EndPointOccurrenceImpl(dataModel,
+    public WebServiceCallOccurrence createEndPointOccurrence(Instant startTime,
+                                                             String requestName,
+                                                             String applicationName,
+                                                             String payload) {
+        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel,
                 startTime,
                 requestName,
                 applicationName,

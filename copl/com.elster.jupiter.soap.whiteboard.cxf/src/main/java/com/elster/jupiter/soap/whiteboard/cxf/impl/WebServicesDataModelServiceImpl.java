@@ -20,6 +20,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.ServletWrapper;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
@@ -87,6 +88,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
 
     private volatile WebServicesServiceImpl webServicesService;
     private volatile EndPointConfigurationServiceImpl endPointConfigurationService;
+    private volatile WebServiceCallOccurrenceServiceImpl webServiceCallOccurrenceService;
 
     public WebServicesDataModelServiceImpl() {
         // for OSGi
@@ -218,6 +220,10 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                 bind(WebServicesServiceImpl.class).toInstance(webServicesService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(EndPointConfigurationServiceImpl.class).toInstance(endPointConfigurationService);
+
+                bind(WebServiceCallOccurrenceService.class).toInstance(webServiceCallOccurrenceService);
+                bind(WebServiceCallOccurrenceServiceImpl.class).toInstance(webServiceCallOccurrenceService);
+
             }
         };
     }
@@ -234,6 +240,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         }
         webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock);
         endPointConfigurationService = new EndPointConfigurationServiceImpl(dataModel, eventService);
+        webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel,endPointConfigurationService);
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),
@@ -255,6 +262,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         registrations.add(bundleContext.registerService(WebServicesDataModelService.class, this, new Hashtable<>()));
         registrations.add(bundleContext.registerService(WebServicesService.class, webServicesService, new Hashtable<>()));
         registrations.add(bundleContext.registerService(EndPointConfigurationService.class, endPointConfigurationService, new Hashtable<>()));
+        registrations.add(bundleContext.registerService(WebServiceCallOccurrenceService.class, webServiceCallOccurrenceService, new Hashtable<>()));
     }
 
     @Deactivate

@@ -12,7 +12,7 @@ import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.users.Group;
 
@@ -88,8 +88,8 @@ public enum TableSpecs {
     WS_ENDPOINT_OCCURRENCE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<EndPointOccurrence> table = dataModel.addTable(this.name(), EndPointOccurrence.class);
-            table.map(EndPointOccurrenceImpl.class);
+            Table<WebServiceCallOccurrence> table = dataModel.addTable(this.name(), WebServiceCallOccurrence.class);
+            table.map(WebServiceCallOccurrenceImpl.class);
             table.since(version(10, 7));
 
             Column idColumn = table.addAutoIdColumn();
@@ -99,43 +99,43 @@ public enum TableSpecs {
                     .references(WS_ENDPOINTCFG.name())
                     .on(endPoint)
                     .onDelete(DeleteRule.CASCADE)
-                    .map(EndPointOccurrenceImpl.Fields.endPointConfiguration.fieldName())
+                    .map(WebServiceCallOccurrenceImpl.Fields.endPointConfiguration.fieldName())
                     .add();
 
             Column startTimeColumn = table.column("STARTTIME")
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
-                    //.notNull()
-                    .map(EndPointOccurrenceImpl.Fields.startTime.fieldName())
+                    .notNull()
+                    .map(WebServiceCallOccurrenceImpl.Fields.startTime.fieldName())
                     .add();
 
             table.column("ENDTIME")
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     //.notNull()
-                    .map(EndPointOccurrenceImpl.Fields.endTime.fieldName())
+                    .map(WebServiceCallOccurrenceImpl.Fields.endTime.fieldName())
                     .add();
 
             table.column("REQUESTNAME")
                     .varChar(NAME_LENGTH)
                     .notNull()
-                    .map(EndPointOccurrenceImpl.Fields.requestName.fieldName())
+                    .map(WebServiceCallOccurrenceImpl.Fields.requestName.fieldName())
                     .add();
 
             table.column("STATUS")
                     .varChar(NAME_LENGTH)
-                    //.notNull()
-                    .map(EndPointOccurrenceImpl.Fields.status.fieldName())
+                    .notNull()
+                    .map(WebServiceCallOccurrenceImpl.Fields.status.fieldName())
                     .add();
             table.column("APPLICATIONNAME")
                     .varChar(NAME_LENGTH)
                     .notNull()
-                    .map(EndPointOccurrenceImpl.Fields.applicationName.fieldName())
+                    .map(WebServiceCallOccurrenceImpl.Fields.applicationName.fieldName())
                     .add();
             table.column("PAYLOAD")
                     .type("CLOB")
                     .conversion(CLOB2STRING)
-                    .map(EndPointOccurrenceImpl.Fields.payload.fieldName())
+                    .map(WebServiceCallOccurrenceImpl.Fields.payload.fieldName())
                     .add();
 
             //Column endPointColumn = table.column("ENDPOINTCFG").number().notNull().conversion(NUMBER2LONG).add();
@@ -144,7 +144,7 @@ public enum TableSpecs {
 
 
             table.primaryKey("PK_WS_ENDPOINT_OCCURRENCE").on(idColumn).add();
-            //TO-DO UNCONMMET
+            //TO-DO UNCOMMENT
             //table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
 
         }

@@ -4,11 +4,7 @@
 
 package com.elster.jupiter.webservices.rest.impl;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -16,10 +12,12 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 import com.elster.jupiter.users.Privilege;
@@ -44,20 +42,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.security.Principal;
-import java.time.Clock;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
+import static java.util.stream.Collectors.toSet;
 
-import com.google.common.collect.Range;
+import com.elster.jupiter.orm.OrmService;
 
 /**
  * Resource to manage end point configurations
@@ -69,22 +63,24 @@ public class EndPointConfigurationResource {
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final WebServicesService webServicesService;
-    private final EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory;
+    private final WebServiceCallOccurrenceLogInfoFactory endpointConfigurationLogInfoFactory;
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
-    private final EndpointConfigurationOccurrenceInfoFactorty endpointConfigurationOccurrenceInfoFactorty;
+    private final WebServiceCallOccurrenceInfoFactory endpointConfigurationOccurrenceInfoFactorty;
     private final OrmService ormService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final WebServiceCallOccurrenceService webServiceCallOccurrenceService;
 
     @Inject
     public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService,
                                          EndPointConfigurationInfoFactory endPointConfigurationInfoFactory,
                                          ExceptionFactory exceptionFactory,
                                          WebServicesService webServicesService,
-                                         EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory,
+                                         WebServiceCallOccurrenceLogInfoFactory endpointConfigurationLogInfoFactory,
                                          ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory,
-                                         EndpointConfigurationOccurrenceInfoFactorty endpointConfigurationOccurrenceInfoFactorty,
+                                         WebServiceCallOccurrenceInfoFactory endpointConfigurationOccurrenceInfoFactorty,
                                          OrmService ormService,
-                                         ThreadPrincipalService threadPrincipalService) {
+                                         ThreadPrincipalService threadPrincipalService,
+                                         WebServiceCallOccurrenceService webServiceCallOccurrenceService) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
         this.exceptionFactory = exceptionFactory;
@@ -94,28 +90,44 @@ public class EndPointConfigurationResource {
         this.endpointConfigurationOccurrenceInfoFactorty = endpointConfigurationOccurrenceInfoFactorty;
         this.ormService = ormService;
         this.threadPrincipalService = threadPrincipalService;
+        this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams, @Context UriInfo uriInfo) {
-        System.out.println("getEndPointConfigurations APPLICATION NAME !!!!"+threadPrincipalService.getApplicationName());
-        List<EndPointConfiguration> epconfigs = endPointConfigurationService.findEndPointConfigurations().find();
-        Instant time = Clock.systemDefaultZone().instant();;
-       /* for (EndPointConfiguration epc : epconfigs){
-            EndPointOccurrence epcoc = epc.createEndPointOccurrence( time,
-                    "",
-                    "REQUEST",
-                    "SYS",
-                    epc);
-            epcoc.
-            epcoc.save();
-        }*/
+    public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams,
+                                                   @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                   @Context UriInfo uriInfo) {
+        List<String> applicationNameToFilter = new ArrayList<>();
+        switch (applicationName) {
+            case "SYS":
+                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
+                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
+                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName());
+                break;
+            case "MDC":
+                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
+                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
+                break;
+            case "INS":
+                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName());
+                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
+                break;
+            default:
+                throw exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.INCORRECT_APPLICATION_NAME).get();
+        }
+
+        Set<String> webServiceNames = webServicesService.getWebServices().stream()
+                .filter(ws -> applicationNameToFilter.contains(ws.getApplicationName()))
+                .map(ws -> ws.getName())
+                .collect(toSet());
+
         List<EndPointConfigurationInfo> infoList = endPointConfigurationService.findEndPointConfigurations()
                 .from(queryParams)
                 .stream()
+                .filter(epc -> webServiceNames.contains(epc.getWebServiceName()))
                 .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
                 .collect(toList());
         return PagedInfoList.fromPagedList("endpoints", infoList, queryParams);
@@ -240,7 +252,7 @@ public class EndPointConfigurationResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
 
         /* Logs contains actions not related to occurrence. */
-        List<EndpointConfigurationLogInfo> endpointConfigurationLogs = endPointConfiguration.getLogs()
+        List<WebServiceCallOccurrenceLogInfo> endpointConfigurationLogs = endPointConfiguration.getLogs()
                 .from(queryParameters)
                 .stream()
                 .filter(log -> !log.getOccurrence().isPresent())
@@ -272,19 +284,16 @@ public class EndPointConfigurationResource {
                                            @BeanParam JsonQueryFilter filter,
                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                            @Context UriInfo uriInfo) {
-        System.out.println("getAllOccurrences!!!!"+filter);
-
-        System.out.println("APPLICATION NAME !!!!"+threadPrincipalService.getApplicationName());
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
-        List<EndPointOccurrence> endPointOccurrences = getEndPointOccurrences(queryParameters, filter, applicationName, null);
-        List<EndpointConfigurationOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
+        List<WebServiceCallOccurrence> endPointOccurrences = webServiceCallOccurrenceService.getEndPointOccurrences(queryParameters, filter, applicationName, null);
+        List<WebServiceCallOccurrenceInfo> webServiceCallOccurrenceInfo = endPointOccurrences.
                                                          stream().
                                                          map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo)).
                                                          collect(toList());
 
-        return PagedInfoList.fromPagedList("occurrences", endPointOccurrencesInfo , queryParameters);
+        return PagedInfoList.fromPagedList("occurrences", webServiceCallOccurrenceInfo , queryParameters);
     }
 
 
@@ -292,25 +301,24 @@ public class EndPointConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/occurrences/{id}")
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public EndpointConfigurationOccurrenceInfo getOccurrence(@PathParam("id") long id,
-                                                             @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
-                                                             @Context UriInfo uriInfo) {
+    public WebServiceCallOccurrenceInfo getOccurrence(@PathParam("id") long id,
+                                                      @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                      @Context UriInfo uriInfo) {
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
-        DataModel dataModel = ormService.getDataModel(/*"WebServicesService"*/WebServicesService.COMPONENT_NAME).get();
-        Optional<EndPointOccurrence> epOcc = dataModel.mapper(EndPointOccurrence.class)
-                .getUnique("id", id);
+        Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id);
+
         return epOcc
                .map(epc -> endpointConfigurationOccurrenceInfoFactorty.from(epc, uriInfo))
-               .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
+               .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));
 
     }
 
-    private List<EndPointOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName, Long epId) {
+/*    private List<WebServiceCallOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName, Long epId) {
 
 
-        DataModel dataModel = ormService.getDataModel("WebServicesService"/*WebServicesService.COMPONENT_NAME*/).get();
+        DataModel dataModel = ormService.getDataModel(WebServicesService.COMPONENT_NAME).get();
         EndPointConfigurationOccurrenceFinderBuilder finderBuilder =  new EndPointConfigurationOccurrenceFinderBuilderImpl(dataModel, Condition.TRUE);
 
         if (applicationName != null && !applicationName.isEmpty()){
@@ -342,7 +350,7 @@ public class EndPointConfigurationResource {
             finderBuilder.withEndTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
         }
         /* Find endpoint by ID */
-        if (filter.hasProperty("webServiceEndPoint")) {
+/*        if (filter.hasProperty("webServiceEndPoint")) {
 
             Long endPointId = filter.getLong("webServiceEndPoint");
             EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(endPointId)
@@ -358,7 +366,7 @@ public class EndPointConfigurationResource {
                     .collect(Collectors.toList()));
         }
 
-        List<EndPointOccurrence> epocList = finderBuilder.build().from(queryParameters).find();
+        List<WebServiceCallOccurrence> epocList = finderBuilder.build().from(queryParameters).find();
 
         if(filter.hasProperty("type")){
             List<String> typeList = filter.getStringList("type");
@@ -372,7 +380,7 @@ public class EndPointConfigurationResource {
             }
         }
         return epocList;
-    }
+    }*/
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -383,12 +391,11 @@ public class EndPointConfigurationResource {
                                                       @BeanParam JsonQueryFilter filter,
                                                       @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                       @Context UriInfo uriInfo) {
-        System.out.println("getAllOccurrencesForEndPoint !!!!"+epId);
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
-        List<EndPointOccurrence> endPointOccurrences = getEndPointOccurrences(queryParameters, filter, null, epId);
-        List<EndpointConfigurationOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
+        List<WebServiceCallOccurrence> endPointOccurrences = webServiceCallOccurrenceService.getEndPointOccurrences(queryParameters, filter, applicationName, epId);
+        List<WebServiceCallOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
                 stream().
                 map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo)).
                 collect(toList());
@@ -406,9 +413,10 @@ public class EndPointConfigurationResource {
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
-
-        DataModel dataModel = ormService.getDataModel("WebServicesService").get();
-        Optional<EndPointOccurrence> epOcc = dataModel.mapper(EndPointOccurrence.class)
+        List<EndPointLog> logs = webServiceCallOccurrenceService.getLogForOccurrence(id, queryParameters);
+        /*
+        DataModel dataModel = ormService.getDataModel(WebServicesService.COMPONENT_NAME).get();
+        Optional<WebServiceCallOccurrence> epOcc = dataModel.mapper(WebServiceCallOccurrence.class)
                 .getUnique("id", id);
 
         OccurrenceLogFinderBuilder finderBuilder =  new OccurrenceLogFinderBuilderImpl(dataModel, Condition.TRUE);
@@ -418,8 +426,8 @@ public class EndPointConfigurationResource {
         }
 
 
-        List<EndPointLog> logs = finderBuilder.build().from(queryParameters).find();
-        List<EndpointConfigurationLogInfo> logsInfo = logs.stream().
+        List<EndPointLog> logs = finderBuilder.build().from(queryParameters).find();*/
+        List<WebServiceCallOccurrenceLogInfo> logsInfo = logs.stream().
                                                       map(log -> endpointConfigurationLogInfoFactory.fromFull(log)).
                                                       collect(toList());
 

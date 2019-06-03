@@ -5,7 +5,8 @@ public interface ApplicationSpecific {
     enum WebServiceApplicationName{
         MULTISENSE("Multisense"),
         INSIGHT("Insight"),
-        MULTISENSE_INSIGHT("Multisense/Insight");
+        MULTISENSE_INSIGHT("Multisense/Insight"),
+        UNDEFINED("Undefined");
 
         private String name;
 

@@ -1,11 +1,11 @@
-package com.elster.jupiter.webservices.rest.impl;
+package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointConfigurationImpl;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
 
 import com.google.common.collect.Range;
@@ -15,17 +15,17 @@ import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class EndPointConfigurationOccurrenceFinderBuilderImpl  implements EndPointConfigurationOccurrenceFinderBuilder {
+public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCallOccurrenceFinderBuilder {
     private DataModel dataModel;
     private Condition condition;
 
-    EndPointConfigurationOccurrenceFinderBuilderImpl(DataModel dataModel, Condition condition) {
+    WebServiceCallOccurrenceFinderBuilderImpl(DataModel dataModel, Condition condition) {
         this.dataModel = dataModel;
         this.condition = condition;
     }
 
     @Override
-    public EndPointConfigurationOccurrenceFinderBuilder withApplicationName(String applicationName){
+    public WebServiceCallOccurrenceFinderBuilder withApplicationName(String applicationName){
         if (!applicationName.isEmpty())
         {
             this.condition = this.condition.and(where("applicationName").isEqualTo(applicationName));
@@ -36,7 +36,7 @@ public class EndPointConfigurationOccurrenceFinderBuilderImpl  implements EndPoi
     @Override
     /*public EndPointConfigurationOccurrenceFinderBuilder withStatusIn(List<Status> statuses) {*/
     /* XROMVYU Change to enum statuses */
-    public EndPointConfigurationOccurrenceFinderBuilder withStatusIn(List<String> statuses) {
+    public WebServiceCallOccurrenceFinderBuilder withStatusIn(List<String> statuses) {
         if (!statuses.isEmpty()) {
             this.condition = this.condition.and(where("status").in(statuses));
         }
@@ -44,7 +44,7 @@ public class EndPointConfigurationOccurrenceFinderBuilderImpl  implements EndPoi
     }
 
     @Override
-    public EndPointConfigurationOccurrenceFinderBuilder withWebServiceName(String webServiceName) {
+    public WebServiceCallOccurrenceFinderBuilder withWebServiceName(String webServiceName) {
         if (!webServiceName.isEmpty()) {
             this.condition = this.condition.and(where("importScheduleId").isEqualTo(webServiceName));
         }
@@ -52,7 +52,7 @@ public class EndPointConfigurationOccurrenceFinderBuilderImpl  implements EndPoi
     }
 
     @Override
-    public EndPointConfigurationOccurrenceFinderBuilder withEndPointConfiguration(EndPointConfiguration epc)
+    public WebServiceCallOccurrenceFinderBuilder withEndPointConfiguration(EndPointConfiguration epc)
     {
         this.condition = this.condition.and(where("endPointConfiguration").isEqualTo(epc));
         return this;
@@ -60,23 +60,24 @@ public class EndPointConfigurationOccurrenceFinderBuilderImpl  implements EndPoi
 
 
     @Override
-    public EndPointConfigurationOccurrenceFinderBuilder withStartTimeIn(Range<Instant> interval) {
+    public WebServiceCallOccurrenceFinderBuilder withStartTimeIn(Range<Instant> interval) {
 
         this.condition = this.condition.and(where("startTime").in(interval));
         return this;
     }
 
     @Override
-    public EndPointConfigurationOccurrenceFinderBuilder withEndTimeIn(Range<Instant> interval) {
+    public WebServiceCallOccurrenceFinderBuilder withEndTimeIn(Range<Instant> interval) {
 
         this.condition = this.condition.and(where("endTime").in(interval));
         return this;
     }
 
     @Override
-    public Finder<EndPointOccurrence> build() {
+    public Finder<WebServiceCallOccurrence> build() {
 
-        return DefaultFinder.of(EndPointOccurrence.class, this.condition, this.dataModel)
+        return DefaultFinder.of(WebServiceCallOccurrence.class, this.condition, this.dataModel)
                 .defaultSortColumn("startTime");//return DefaultFinder.of(EndPointOccurrence.class, condition, dataModel/*, ImportSchedule.class*/);
     }
 }
+

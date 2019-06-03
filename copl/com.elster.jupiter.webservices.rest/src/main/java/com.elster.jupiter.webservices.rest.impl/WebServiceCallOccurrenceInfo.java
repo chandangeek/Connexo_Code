@@ -2,7 +2,7 @@ package com.elster.jupiter.webservices.rest.impl;
 
 import java.time.Instant;
 
-public class EndpointConfigurationOccurrenceInfo {
+public class WebServiceCallOccurrenceInfo {
     public long id;
     public Instant startTime;
     public Instant endTime;

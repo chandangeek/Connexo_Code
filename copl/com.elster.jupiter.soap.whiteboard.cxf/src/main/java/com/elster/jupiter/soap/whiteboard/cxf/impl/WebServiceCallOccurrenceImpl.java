@@ -4,7 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.HasId;
 
@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Objects;
 
-public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
+public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, HasId {
 
     private long id;
     Instant startTime;
@@ -47,26 +47,26 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
     }
 
     @Inject
-    public EndPointOccurrenceImpl(){
+    public WebServiceCallOccurrenceImpl(){
 
     }
 
-    public EndPointOccurrenceImpl(DataModel dataModel,
-                                  Instant startTime,
-                                  String requestName,
-                                  String applicationName,
-                                  EndPointConfiguration endPointConfiguration)
+    public WebServiceCallOccurrenceImpl(DataModel dataModel,
+                                        Instant startTime,
+                                        String requestName,
+                                        String applicationName,
+                                        EndPointConfiguration endPointConfiguration)
     {
         this(dataModel, startTime, requestName, applicationName, endPointConfiguration, null);
     }
 
 
-    public EndPointOccurrenceImpl(DataModel dataModel,
-                                  Instant startTime,
-                                  String requestName,
-                                  String applicationName,
-                                  EndPointConfiguration endPointConfiguration,
-                                  String payload)
+    public WebServiceCallOccurrenceImpl(DataModel dataModel,
+                                        Instant startTime,
+                                        String requestName,
+                                        String applicationName,
+                                        EndPointConfiguration endPointConfiguration,
+                                        String payload)
     {
         this.dataModel = dataModel;
         this.startTime = startTime;
@@ -156,7 +156,7 @@ public class EndPointOccurrenceImpl implements EndPointOccurrence , HasId {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        EndPointOccurrenceImpl that = (EndPointOccurrenceImpl) o;
+        WebServiceCallOccurrenceImpl that = (WebServiceCallOccurrenceImpl) o;
         return id == that.id;
     }
 

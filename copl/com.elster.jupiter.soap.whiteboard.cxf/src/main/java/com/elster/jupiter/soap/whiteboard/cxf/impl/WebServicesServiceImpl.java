@@ -7,7 +7,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
@@ -50,7 +50,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     private Map<String, EndPointFactory> webServices = new ConcurrentHashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
-    private ThreadLocal<EndPointOccurrence> occurrence = new ThreadLocal<>();
+    private ThreadLocal<WebServiceCallOccurrence> occurrence = new ThreadLocal<>();
 
     @Inject
     WebServicesServiceImpl(DataModel dataModel,
@@ -280,17 +280,17 @@ public class WebServicesServiceImpl implements WebServicesService {
     // TODO: move to another service maybe
 
     @Override
-    public EndPointOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application) {
+    public WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application) {
         validateOccurrenceNotPresent();
-        EndPointOccurrence tmp = transactionService.executeInIndependentTransaction(
+        WebServiceCallOccurrence tmp = transactionService.executeInIndependentTransaction(
                 () -> endPointConfiguration.createEndPointOccurrence(clock.instant(), requestName, application));
         occurrence.set(tmp);
         return tmp;
     }
 
     @Override
-    public EndPointOccurrence passOccurrence() {
-        EndPointOccurrence tmp = getOccurrence();
+    public WebServiceCallOccurrence passOccurrence() {
+        WebServiceCallOccurrence tmp = getOccurrence();
         occurrence.remove();
         return transactionService.executeInIndependentTransaction(() -> {
             // TODO: pass occurrence
@@ -299,18 +299,18 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Override
-    public EndPointOccurrence failOccurrence(String message) {
+    public WebServiceCallOccurrence failOccurrence(String message) {
         return failOccurrence(message, null);
     }
 
     @Override
-    public EndPointOccurrence failOccurrence(Exception exception) {
+    public WebServiceCallOccurrence failOccurrence(Exception exception) {
         return failOccurrence(exception.getLocalizedMessage(), exception);
     }
 
     @Override
-    public EndPointOccurrence failOccurrence(String message, Exception exception) {
-        EndPointOccurrence tmp = getOccurrence();
+    public WebServiceCallOccurrence failOccurrence(String message, Exception exception) {
+        WebServiceCallOccurrence tmp = getOccurrence();
         occurrence.remove();
         return transactionService.executeInIndependentTransaction(() -> {
             if (exception == null) {
@@ -324,8 +324,8 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Override
-    public EndPointOccurrence getOccurrence() {
-        EndPointOccurrence tmp = occurrence.get();
+    public WebServiceCallOccurrence getOccurrence() {
+        WebServiceCallOccurrence tmp = occurrence.get();
         if (tmp == null) {
             throw new IllegalStateException("Web service occurrence isn't present.");
         }

@@ -39,7 +39,7 @@ public interface EndPointLog {
     /**
      * Get related occurrence.
      */
-    Optional<EndPointOccurrence> getOccurrence();
+    Optional<WebServiceCallOccurrence> getOccurrence();
 
     /**
      * Removes a log entry from the system

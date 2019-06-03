@@ -96,7 +96,7 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
      */
     void log(LogLevel logLevel, String message);
 
-    void log(LogLevel logLevel, String message, EndPointOccurrence occurrence);
+    void log(LogLevel logLevel, String message, WebServiceCallOccurrence occurrence);
 
     /**
      * Log an entry for this end point (config). As real endpoints are runtime objects without persistent end, logging is done on the config instead.
@@ -107,7 +107,7 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
      */
     void log(String message, Exception exception);
 
-    void log(String message, Exception exception, EndPointOccurrence occurrence);
+    void log(String message, Exception exception, WebServiceCallOccurrence occurrence);
 
     /**
      * Retrieve a finder of logs of all end point entries. List is sorted, most recent message comes first.
@@ -116,7 +116,7 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
      */
     Finder<EndPointLog> getLogs();
 
-    Finder<EndPointOccurrence> getOccurrences(Boolean sort);
+    Finder<WebServiceCallOccurrence> getOccurrences(Boolean sort);
 
     List<EndPointProperty> getProperties();
 
@@ -124,12 +124,12 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
 
     void setProperties(Map<String, Object> map);
 
-    EndPointOccurrence createEndPointOccurrence(Instant startTime,
-                                                String requestName,
-                                                String applicationName);
+    WebServiceCallOccurrence createEndPointOccurrence(Instant startTime,
+                                                      String requestName,
+                                                      String applicationName);
 
-    EndPointOccurrence createEndPointOccurrence(Instant startTime,
-                                                String requestName,
-                                                String applicationName,
-                                                String payload);
+    WebServiceCallOccurrence createEndPointOccurrence(Instant startTime,
+                                                      String requestName,
+                                                      String applicationName,
+                                                      String payload);
 }
