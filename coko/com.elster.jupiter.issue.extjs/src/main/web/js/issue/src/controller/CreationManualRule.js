@@ -90,18 +90,16 @@ Ext.define('Isu.controller.CreationManualRule', {
        var urgency = record.get('priority.urgency');
        var impact = record.get('priority.impact');
        if ( urgency !== undefined && impact !== undefined ) record.set('priority' , urgency + ':' + impact);
-       if (form.down('#dueDateTrigger')) {
-            if (form.down('#dueDateTrigger')) {
-                record.set('dueDate', {
-                    number: form.down('[name=dueIn.number]').getValue(),
-                    type: form.down('[name=dueIn.type]').getValue()
-                });
-            } else {
-                record.set('dueDate', null);
-            }
+       if (form.down('#dueDateTrigger') && form.down('[name=dueIn.number]') &&  form.down('[name=dueIn.number]').getValue()) {
+            record.set('dueDate', {
+                number: form.down('[name=dueIn.number]').getValue(),
+                type: form.down('[name=dueIn.type]').getValue()
+            });
+       } else {
+            record.set('dueDate', null);
        }
 
-        Ext.Ajax.request({
+       Ext.Ajax.request({
             url: record.getProxy().url,
             method: 'POST',
             jsonData: {"issues": new Array( record.data )},

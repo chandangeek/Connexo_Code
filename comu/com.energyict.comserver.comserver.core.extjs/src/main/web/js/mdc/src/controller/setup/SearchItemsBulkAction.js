@@ -497,20 +497,19 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 comboReason.store.add(rec);
                 comboReason.setValue(comboReason.store.getAt(comboReason.store.count()-1).get('id'));
                 record.set('reasonId', value)
-            }
-            var urgency = record.get('priority.urgency');
-            var impact = record.get('priority.impact');
-            if ( urgency !== undefined && impact !== undefined ) record.set('priority' , urgency + ':' + impact);
-            if (form.down('#dueDateTrigger')) {
-                if (form.down('#dueDateTrigger')) {
-                    record.set('dueDate', {
-                        number: form.down('[name=dueIn.number]').getValue(),
-                        type: form.down('[name=dueIn.type]').getValue()
-                    });
-                } else {
-                    record.set('dueDate', null);
-                }
-            }
+           }
+
+           var urgency = record.get('priority.urgency');
+           var impact = record.get('priority.impact');
+           if ( urgency !== undefined && impact !== undefined ) record.set('priority' , urgency + ':' + impact);
+           if (form.down('#dueDateTrigger') && form.down('[name=dueIn.number]') &&  form.down('[name=dueIn.number]').getValue()) {
+                record.set('dueDate', {
+                    number: form.down('[name=dueIn.number]').getValue(),
+                    type: form.down('[name=dueIn.type]').getValue()
+                });
+           } else {
+                record.set('dueDate', null);
+           }
 
             var jsonData = [];
             Ext.each(mDeviceIds, function (item) {
