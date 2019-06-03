@@ -30,7 +30,7 @@ public class IssueFilterImpl implements IssueFilter {
     private List<WorkGroup> workGroupAssignees = new ArrayList<>();
     private List<DueDateRange> dueDates = new ArrayList<>();
     private List<IssueType> issueTypes = new ArrayList<>();
-    private List<Priority> priorities = new ArrayList();
+    private String priorities = "";
     private boolean unassignedSelected = false;
     private boolean unassignedWorkGroupSelected = false;
     private Long startCreateTime;
@@ -79,9 +79,9 @@ public class IssueFilterImpl implements IssueFilter {
     }
 
     @Override
-    public void setPriority(Priority priority) {
+    public void setPriority(String priority) {
         if (priority != null) {
-            this.priorities.add(priority);
+            this.priorities = priority;
         }
     }
 
@@ -148,8 +148,8 @@ public class IssueFilterImpl implements IssueFilter {
     }
 
     @Override
-    public List<Priority> getPriorities() {
-        return Collections.unmodifiableList(priorities);
+    public String getPriorities() {
+        return priorities;
     }
 
     @Override

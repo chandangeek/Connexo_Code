@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.issue.rest.resource;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
@@ -26,6 +27,8 @@ import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -36,12 +39,15 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -169,8 +175,28 @@ public class IssueResourceHelper {
         }
 
         if (jsonFilter.hasProperty(IssueRestModuleConst.USAGEPOINT)) {
-            meteringService.findUsagePointByName(jsonFilter.getString(IssueRestModuleConst.USAGEPOINT))
-                    .ifPresent(filter::addUsagePoint);
+            Finder<UsagePoint> usagePoints = meteringService.getUsagePoints(new UsagePointFilter());
+
+            String usagePointJsonString = jsonFilter.getComplexProperty(IssueRestModuleConst.USAGEPOINT);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = null;
+            try {
+                node = mapper.readTree(usagePointJsonString);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            List<UsagePoint> list = null;
+            if ( node.get(IssueRestModuleConst.OPERATOR).asText().equals("==")){
+                String criteria = node.get(IssueRestModuleConst.CRITERIA).asText();
+                list = usagePoints.stream().filter(usagePoint -> usagePoint.getName()
+                        .equals(criteria)).collect(Collectors.toList());
+            }else{
+                String criteria = node.get(IssueRestModuleConst.CRITERIA).asText();
+                list = usagePoints.stream().filter(usagePoint -> !usagePoint.getName()
+                        .equals(criteria)).collect(Collectors.toList());
+            }
+            if (list != null)
+                list.forEach(filter::addUsagePoint);
         }
 
         if (jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().allMatch(s -> s == null)) {
@@ -190,6 +216,9 @@ public class IssueResourceHelper {
             }
         }
 
+        if (jsonFilter.hasProperty(IssueRestModuleConst.PRIORITY)){
+            filter.setPriority(jsonFilter.getComplexProperty(IssueRestModuleConst.PRIORITY));
+        }
 
         if (jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP).stream().allMatch(s -> s == null)) {
             jsonFilter.getStringList(IssueRestModuleConst.WORKGROUP).stream().map(id -> userService.getWorkGroup(Long.valueOf(id)).orElse(null))

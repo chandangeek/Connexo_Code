@@ -27,4 +27,9 @@ public class IssueRestModuleConst {
     public static final String END_INTERVAL = "startIntervalTo";
     public static final String APPLICATION = "application";
     public static final String USAGEPOINT = "usagePoint";
+    public static final String PRIORITY = "priority";
+
+    //extra filter fields
+    public static final String OPERATOR = "operator";
+    public static final String CRITERIA = "criteria";
 }
