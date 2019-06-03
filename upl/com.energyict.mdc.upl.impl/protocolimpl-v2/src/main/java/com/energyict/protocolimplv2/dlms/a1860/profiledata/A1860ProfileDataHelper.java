@@ -1,12 +1,11 @@
 package com.energyict.protocolimplv2.dlms.a1860.profiledata;
 
-import com.energyict.mdc.upl.NotInObjectListException;
-import com.energyict.mdc.upl.io.NestedIOException;
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
@@ -26,6 +25,7 @@ public class A1860ProfileDataHelper {
     private final AbstractDlmsProtocol protocol;
     private ProfileGeneric profileGeneric;
     private Long multiplier = null;
+    private Integer scaleFactor = null;
     private int profileInterval = -1;
     private TimeZone timeZone;
     private LoadProfileReader loadProfileReader;
@@ -51,7 +51,7 @@ public class A1860ProfileDataHelper {
         long a1800Time = protocol.getDlmsSession().getCosemObjectFactory().getClock(Clock.getDefaultObisCode()).getDateTime().getTime() / 1000;
         long fromTime = from.getTimeInMillis() / 1000;
 
-        if(interval > 0){
+        if (interval > 0) {
             long entriesToRead = ((a1800Time - fromTime) / interval) + 1;
             if (profileEntriesInUse == 0){
                 return new ArrayList<>();// In case the profile buffer is empty
@@ -63,7 +63,7 @@ public class A1860ProfileDataHelper {
 
             byte[] bufferData = getProfileGeneric().getBufferData(0, (int) entriesToRead, 0, 0);
             return parseBuffer(bufferData);
-        }else {
+        } else {
             return new ArrayList<>();
         }
 
@@ -74,19 +74,44 @@ public class A1860ProfileDataHelper {
     }
 
     private void readMultiplierAndScaleFactor(ObisCode obisCode) throws IOException {
-        AbstractDataType adt;
-        Data scaleFactorData = protocol.getDlmsSession().getCosemObjectFactory().getData(A1860LoadProfileDataReader.SCALE_FACTOR);
-        adt = scaleFactorData.getValueAttr();
-        int scaleFactor = adt.getInteger8().intValue();
-        BigDecimal sf = new BigDecimal("1");
-        protocol.getLogger().info("Profile scale factor: " + sf.scaleByPowerOfTen(scaleFactor));
 
-        if (obisCode.equals(A1860LoadProfileDataReader.LOAD_PROFILE_PULSES) ||
-                obisCode.equals(A1860LoadProfileDataReader.PROFILE_INSTRUMENTATION_SET1) ||
+        ObisCode loadProfileMultiplier = null;
+        ObisCode loadProfileScaleFactor = null;
+
+        if (obisCode.equals(A1860LoadProfileDataReader.LOAD_PROFILE_PULSES)) {
+
+            loadProfileMultiplier = A1860LoadProfileDataReader.MULTIPLIER_NON_INSTRUMENTATION;
+            loadProfileScaleFactor = A1860LoadProfileDataReader.SCALE_FACTOR_NON_INSTRUMENTATION;
+
+        } else if (obisCode.equals(A1860LoadProfileDataReader.LOAD_PROFILE_EU_CUMULATIVE) ||
+                obisCode.equals(A1860LoadProfileDataReader.LOAD_PROFILE_EU_NONCUMULATIVE)) {
+
+            loadProfileScaleFactor = A1860LoadProfileDataReader.SCALE_FACTOR_NON_INSTRUMENTATION;
+
+        } else if (obisCode.equals(A1860LoadProfileDataReader.PROFILE_INSTRUMENTATION_SET1) ||
                 obisCode.equals(A1860LoadProfileDataReader.PROFILE_INSTRUMENTATION_SET2)) {
-            Data multiplierData = protocol.getDlmsSession().getCosemObjectFactory().getData(A1860LoadProfileDataReader.MULTIPLIER);
 
-            adt = multiplierData.getValueAttr();
+            loadProfileMultiplier  = A1860LoadProfileDataReader.MULTIPLIER_INSTRUMENTATION;
+            loadProfileScaleFactor = A1860LoadProfileDataReader.SCALE_FACTOR_INSTRUMENTATION;
+
+        } else {
+            protocol.getLogger().info("Could not determine Load Profile Multiplier and Scale Factor for OBIS code " + obisCode.toString());
+        }
+
+        if (loadProfileScaleFactor != null) {
+            final Data scaleFactorData = protocol.getDlmsSession().getCosemObjectFactory().getData(loadProfileScaleFactor);
+            AbstractDataType adt = scaleFactorData.getValueAttr();
+            if (adt.isInteger64()) {
+                scaleFactor = adt.getInteger64().intValue() == 1 ? 0 : adt.getInteger64().intValue();
+            } else if (adt.isInteger8()) {
+                scaleFactor = adt.getInteger8().intValue() == 1 ? 0 : adt.getInteger8().intValue();
+            }
+            protocol.getLogger().info("Profile scale factor: " + BigDecimal.ONE.scaleByPowerOfTen(scaleFactor));
+        }
+
+        if (loadProfileMultiplier != null) {
+            final Data multiplierData = protocol.getDlmsSession().getCosemObjectFactory().getData(loadProfileMultiplier);
+            AbstractDataType adt = multiplierData.getValueAttr();
             multiplier = adt.longValue();
             protocol.getLogger().info("Profile multiplier: " + multiplier);
         }
@@ -120,14 +145,13 @@ public class A1860ProfileDataHelper {
 
     private List<IntervalData> parseBuffer(byte[] bufferData) throws IOException {
         A1800DLMSProfileIntervals intervals = new A1800DLMSProfileIntervals(bufferData, 0x0001, 0x0002, -1, 0x0004, null);
-        try {
-            if(multiplier != null){
-                intervals.setMultiplier(multiplier);
-            }
-            return intervals.parseIntervals(getProfileInterval(), getTimeZone());
-        } catch (ClassCastException e) {
-            throw new IOException(e.getMessage());
+        if (multiplier != null) {
+            intervals.setMultiplier(multiplier);
         }
+        if (scaleFactor != null) {
+            intervals.setScaleFactor(scaleFactor);
+        }
+        return intervals.parseIntervals(getProfileInterval(), getTimeZone());
     }
 
     private TimeZone getTimeZone() {

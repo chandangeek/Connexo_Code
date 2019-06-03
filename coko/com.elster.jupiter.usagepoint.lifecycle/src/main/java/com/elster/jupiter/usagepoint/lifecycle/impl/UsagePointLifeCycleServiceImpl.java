@@ -39,7 +39,6 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFacto
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
-import com.elster.jupiter.usagepoint.lifecycle.impl.actions.RemoveUsagePointFromStaticGroup;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.ResetValidationResultsAction;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectionStateAction;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
@@ -59,6 +58,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -222,6 +222,13 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                 dataModel,
                 Installer.class,
                 Collections.emptyMap());
+    }
+
+    @Deactivate
+    public void deactivate() {
+        usagePointLifeCycleConfigurationService.removeMicroActionFactory(usagePointMicroActionFactory);
+        usagePointLifeCycleConfigurationService.removeMicroCheckFactory(usagePointMicroCheckFactory);
+        usagePointLifeCycleConfigurationService.removeUsagePointLifeCycleBuilder(this);
     }
 
     private Module getModule() {

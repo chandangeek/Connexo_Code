@@ -32,6 +32,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceProtocolPropertyImpl;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSetMultimap;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -122,14 +123,14 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
         return ImmutableMap.of("DEVICEID", deviceId);
     }
 
-    private Map<Operator, Pair<String, Object>> getHistoryByModTimeClauses() {
-        return ImmutableMap.of(Operator.EQUAL, Pair.of("DEVICEID", deviceId),
+    private ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByModTimeClauses() {
+        return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("DEVICEID", deviceId),
                 Operator.GREATERTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));
     }
 
-    private Map<Operator, Pair<String, Object>> getHistoryByJournalClauses() {
-        return ImmutableMap.of(Operator.EQUAL, Pair.of("DEVICEID", deviceId),
+    private ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByJournalClauses() {
+        return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("DEVICEID", deviceId),
                 Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
     }
@@ -236,7 +237,7 @@ public class AuditTrailDeviceProtocolDecoder extends AbstractAuditDecoder {
 
     private Optional<Device> getDeviceFromHistory(long id) {
         DataMapper<Device> dataMapper = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME).get().mapper(Device.class);
-        Map<Operator, Pair<String, Object>> historyClause = ImmutableMap.of(Operator.EQUAL, Pair.of("ID", id),
+        ImmutableSetMultimap<Operator, Pair<String, Object>> historyClause = ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("ID", id),
                 Operator.GREATERTHANOREQUAL, Pair.of("journaltime", getAuditTrailReference().getModTimeStart()));
 
         return getHistoryEntries(dataMapper, historyClause)

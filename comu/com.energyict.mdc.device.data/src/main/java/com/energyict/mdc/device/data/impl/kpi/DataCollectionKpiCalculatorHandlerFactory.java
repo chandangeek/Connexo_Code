@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.tasks.TaskService;
@@ -33,18 +34,20 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
     private volatile DataCollectionKpiService dataCollectionKpiService;
     private volatile ConnectionTaskReportService connectionTaskReportService;
     private volatile CommunicationTaskReportService communicationTaskReportService;
+    private volatile EventService eventService;
 
     // For OSGi framework only
     public DataCollectionKpiCalculatorHandlerFactory() {super();}
 
     // For unit testing purposes only
     @Inject
-    public DataCollectionKpiCalculatorHandlerFactory(TaskService taskService, DataCollectionKpiService dataCollectionKpiService, ConnectionTaskReportService connectionTaskReportService, CommunicationTaskReportService communicationTaskReportService) {
+    public DataCollectionKpiCalculatorHandlerFactory(TaskService taskService, DataCollectionKpiService dataCollectionKpiService, ConnectionTaskReportService connectionTaskReportService, CommunicationTaskReportService communicationTaskReportService, EventService eventService) {
         this();
         this.setTaskService(taskService);
         this.setDataCollectionKpiService(dataCollectionKpiService);
         this.setConnectionTaskReportService(connectionTaskReportService);
         this.setCommunicationTaskService(communicationTaskReportService);
+        this.setEventService(eventService);
     }
 
     @Override
@@ -53,7 +56,7 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
                 new DataCollectionKpiCalculatorHandler(
                         this.dataCollectionKpiService,
                         this.connectionTaskReportService,
-                        this.communicationTaskReportService));
+                        this.communicationTaskReportService, this.eventService));
     }
 
     @Reference
@@ -69,6 +72,11 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
     @Reference
     public void setConnectionTaskReportService(ConnectionTaskReportService connectionTaskReportService) {
         this.connectionTaskReportService = connectionTaskReportService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference

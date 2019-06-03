@@ -6,14 +6,19 @@ package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.energyict.mdc.cim.webservices.inbound.soap.FailedMeterOperation;
-import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.ReplyMeterConfigWebService;
+import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
+import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
+import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
+import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -37,8 +42,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
 import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -46,11 +51,12 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
-        service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class},
+        service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"name=" + ReplyMeterConfigWebService.NAME})
-public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider {
+public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, TranslationKeyProvider {
 
+    private static final String COMPONENT_NAME = "SIM";
     private static final String NOUN = "MeterConfig";
     private static final String URL = "url";
     private static final String RESOURCE_WSDL = "/meterconfig/ReplyMeterConfig.wsdl";
@@ -59,8 +65,8 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
     private final Map<String, MeterConfigPort> meterConfigPorts = new ConcurrentHashMap<>();
     private final List<MeterConfigExtendedDataFactory> meterConfigExtendedDataFactories = new ArrayList<>();
-    private final MeterConfigFactory meterConfigFactory = new MeterConfigFactory();
 
+    private volatile MeterConfigFactory meterConfigFactory;
     private volatile DeviceService deviceService;
     private volatile WebServicesService webServicesService;
 
@@ -68,10 +74,11 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         // for OSGI purposes
     }
 
-    public ReplyMeterConfigServiceProvider(DeviceService deviceService, WebServicesService webServicesService) {
+    public ReplyMeterConfigServiceProvider(DeviceService deviceService, WebServicesService webServicesService, MeterConfigFactory meterConfigFactory) {
         this();
         setDeviceService(deviceService);
         setWebServicesService(webServicesService);
+        setMeterConfigFactory(meterConfigFactory);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -108,6 +115,11 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
     @Reference
     public void setWebServicesService(WebServicesService webServicesService) {
         this.webServicesService = webServicesService;
+    }
+
+    @Reference
+    public void setMeterConfigFactory(MeterConfigFactory meterConfigFactory) {
+        this.meterConfigFactory = meterConfigFactory;
     }
 
     @Override
@@ -149,7 +161,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
 
     @Override
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
-                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls) {
+                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls) {
         publish(endPointConfiguration);
         try {
             Optional.ofNullable(getMeterConfigPorts().get(endPointConfiguration.getUrl()))
@@ -163,6 +175,9 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
                                 case UPDATE:
                                     meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED));
                                     break;
+                                case GET:
+                                    meterConfigPortService.replyMeterConfig(createResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.REPLY));
+                                    break;
                             }
                         } catch (FaultMessage faultMessage) {
                             endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
@@ -171,6 +186,23 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         } catch (RuntimeException ex) {
             endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
         }
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.SOAP;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.addAll(Arrays.asList(TranslationKeys.values()));
+        return translationKeys;
     }
 
     private void publish(EndPointConfiguration endPointConfiguration) {
@@ -184,6 +216,11 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         getMeterConfigExtendedDataFactories().forEach(meterConfigExtendedDataFactory -> {
             meterConfigExtendedDataFactory.extendData(devices, meterConfig);
         });
+        return meterConfig;
+    }
+
+    private MeterConfig getMeterConfig(List<Device> devices) {
+        MeterConfig meterConfig = meterConfigFactory.asGetMeterConfig(devices);
         return meterConfig;
     }
 
@@ -210,14 +247,14 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         return meterConfigEventMessageType;
     }
 
-    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, BigDecimal expectedNumberOfCalls, HeaderType.Verb verb) {
+    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb) {
         MeterConfigEventMessageType meterConfigEventMessageType = createResponseMessage(meterConfig, verb);
 
         // set reply
         ReplyType replyType = cimMessageObjectFactory.createReplyType();
-        if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(meterConfig.getMeter().size())) == 0) {
+        if (expectedNumberOfCalls == meterConfig.getMeter().size()) {
             replyType.setResult(ReplyType.Result.OK);
-        } else if (expectedNumberOfCalls.compareTo(BigDecimal.valueOf(failedDevices.size())) == 0) {
+        } else if (expectedNumberOfCalls == failedDevices.size()) {
             replyType.setResult(ReplyType.Result.FAILED);
         } else {
             replyType.setResult(ReplyType.Result.PARTIAL);
@@ -247,4 +284,5 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         return ((JaxWsClientProxy) (Proxy.getInvocationHandler(meterConfigPort))).getRequestContext()
                 .containsKey(Message.ENDPOINT_ADDRESS);
     }
+
 }

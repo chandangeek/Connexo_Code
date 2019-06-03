@@ -126,6 +126,18 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .stringSpec()
+                        .named(MeterConfigDomainExtension.FieldNames.METER_MRID.javaName(), TranslationKeys.METER_MRID)
+                        .describedAs(TranslationKeys.METER_MRID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterConfigDomainExtension.FieldNames.METER_NAME.javaName(), TranslationKeys.METER_NAME)
+                        .describedAs(TranslationKeys.METER_NAME)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .bigDecimalSpec()
                         .named(MeterConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName(), TranslationKeys.PARENT_SERVICE_CALL)
                         .describedAs(TranslationKeys.PARENT_SERVICE_CALL)
@@ -196,7 +208,14 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
             table.column(MeterConfigDomainExtension.FieldNames.METER.databaseName())
                     .varChar()
                     .map(MeterConfigDomainExtension.FieldNames.METER.javaName())
-                    .notNull()
+                    .add();
+            table.column(MeterConfigDomainExtension.FieldNames.METER_MRID.databaseName())
+                    .varChar()
+                    .map(MeterConfigDomainExtension.FieldNames.METER_MRID.javaName())
+                    .add();
+            table.column(MeterConfigDomainExtension.FieldNames.METER_NAME.databaseName())
+                    .varChar()
+                    .map(MeterConfigDomainExtension.FieldNames.METER_NAME.javaName())
                     .add();
             table.column(MeterConfigDomainExtension.FieldNames.PARENT_SERVICE_CALL.databaseName())
                     .number()

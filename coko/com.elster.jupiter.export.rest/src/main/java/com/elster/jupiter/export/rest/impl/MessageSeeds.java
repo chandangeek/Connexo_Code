@@ -19,7 +19,9 @@ public enum MessageSeeds implements MessageSeed {
     RUN_TASK_CONCURRENT_TITLE(4, "RunTaskConcurrentTitle", "Failed to run ''{0}''", Level.SEVERE),
     RUN_TASK_CONCURRENT_BODY(5, "RunTaskConcurrentMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
     NOT_SUPPORTED_PROPERTY_VALUE(6, "NotSupportedPropertyValue", "This value is only available for usage point", Level.SEVERE),
-    END_DATE_MUST_BE_GREATER_THAN_START_DATE(7, "EndDateMustBeGreaterThanStartDate", "End date must be greater than Start date.", Level.SEVERE),;
+    END_DATE_MUST_BE_GREATER_THAN_START_DATE(7, "EndDateMustBeGreaterThanStartDate", "End date must be greater than Start date.", Level.SEVERE),
+    COULD_NOT_VALIDATE_NEXTRUN(8, "CouldNotValidateNextRun", "Could not validate next run while now or schedule time is null", Level.SEVERE),
+    SCHEDULED_BEFORE_NOW(8, "ScheduledBeforeNow", "Scheduling tasks in past is not allowed", Level.SEVERE);
 
     private final int number;
     private final String key;

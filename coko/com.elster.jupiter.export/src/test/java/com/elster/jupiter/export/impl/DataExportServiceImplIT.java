@@ -14,6 +14,7 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatter;
@@ -143,6 +144,8 @@ public class DataExportServiceImplIT {
 
     @Mock
     private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private EventService eventService;
     @Mock
     private BundleContext bundleContext;
     @Mock
@@ -317,7 +320,7 @@ public class DataExportServiceImplIT {
             exportTask.triggerNow();
             RecurrentTask recurrentTask = extractOccurrence(exportTask);
             occurrence = injector.getInstance(TaskService.class).getOccurrences(recurrentTask, Range.<Instant>all()).stream().findFirst().get();
-            new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, CLOCK, threadPrincipalService).execute(occurrence);
+            new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, CLOCK, threadPrincipalService, eventService).execute(occurrence);
 
             context.commit();
         }

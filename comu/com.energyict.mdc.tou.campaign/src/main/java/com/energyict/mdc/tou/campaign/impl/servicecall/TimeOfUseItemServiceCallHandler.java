@@ -8,14 +8,19 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 
-import org.osgi.service.component.annotations.Component;
+import javax.inject.Inject;
 
-@Component(name = "com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemCallHandler", service = ServiceCallHandler.class,
-        property = "name=" + TimeOfUseItemServiceCallHandler.NAME, immediate = true)
 public class TimeOfUseItemServiceCallHandler implements ServiceCallHandler {
 
     public static final String NAME = "TimeOfUseItemServiceCallHandler";
     public static final String VERSION = "v1.0";
+
+    private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
+
+    @Inject
+    public TimeOfUseItemServiceCallHandler(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
+        this.timeOfUseCampaignService = timeOfUseCampaignService;
+    }
 
     @Override
     public boolean allowStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -28,6 +33,7 @@ public class TimeOfUseItemServiceCallHandler implements ServiceCallHandler {
 
         switch (newState) {
             case PENDING:
+                timeOfUseCampaignService.setCalendarOnDevice(serviceCall);
                 break;
             case ONGOING:
                 break;

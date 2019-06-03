@@ -40,7 +40,7 @@ public class UpdateUserTransaction implements Transaction<User> {
         boolean userStatus = user.getStatus();
         boolean updated = updateMemberships(user);
         updated |= info.update(user);
-        if(userStatus != user.getStatus() && !canUserBeDeactivated(user)){
+        if(userStatus != user.getStatus() && !canUserBeDeactivated(user) && !canUserBeActivated(user)){
             throw new FailToDeactivateUser(userService.getThesaurus(), MessageSeeds.CANNOT_REMOVE_ALL_USER_ADMINISTRATORS);
         }
         if(updated){
@@ -50,7 +50,11 @@ public class UpdateUserTransaction implements Transaction<User> {
     }
 
     private boolean canUserBeDeactivated(User user){
-        return user.getGroups().stream().noneMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE)) || isAnotherUserWithUserAdministratorRole(user);
+        return !info.active && (user.getGroups().stream().noneMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE)) || isAnotherUserWithUserAdministratorRole(user));
+    }
+
+    private boolean canUserBeActivated(User user){
+        return info.active && (user.getGroups().stream().anyMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE)) || isAnotherUserWithUserAdministratorRole(user));
     }
 
     private boolean updateMemberships(User user) {

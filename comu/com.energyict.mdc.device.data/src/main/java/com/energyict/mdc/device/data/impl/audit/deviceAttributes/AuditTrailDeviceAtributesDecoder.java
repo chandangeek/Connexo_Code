@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl.audit.deviceAttributes;
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditLogChange;
 import com.elster.jupiter.audit.AuditLogChangeBuilder;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
@@ -14,7 +15,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
@@ -24,6 +24,8 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.audit.AbstractDeviceAuditDecoder;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -42,11 +44,13 @@ import static com.energyict.mdc.device.data.impl.SyncDeviceWithKoreMeter.MULTIPL
 public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder {
 
     private static final String LOCATION_PROPERTY_TYPE = "LOCATION";
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
-    AuditTrailDeviceAtributesDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService, ServerDeviceService serverDeviceService) {
+    AuditTrailDeviceAtributesDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService, ServerDeviceService serverDeviceService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.ormService = ormService;
         this.meteringService = meteringService;
         this.serverDeviceService = serverDeviceService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.setThesaurus(thesaurus);
     }
 
@@ -98,6 +102,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
                                     getAuditLogChangeForInteger(from.getYearOfCertification(), to.getYearOfCertification(), PropertyTranslationKeys.DEVICE_CERT_YEAR).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForString(from.getDeviceConfiguration().getName(), to.getDeviceConfiguration()
                                             .getName(), PropertyTranslationKeys.DEVICE_CONFIGURATION).ifPresent(auditLogChanges::add);
+
                                 });
                     });
             return auditLogChanges;
@@ -113,6 +118,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
             DataMapper<EndDevice> dataMapper = ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(EndDevice.class);
 
             List<EndDevice> historyEntries = getHistoryEntries(dataMapper, getHistoryByJournalClauses(endDevice.get().getId()));
+            historyEntries.addAll(getHistoryEntries(dataMapper, getHistoryByModTimeClauses(endDevice.get().getId())));
             historyEntries
                     .forEach(from -> {
                         historyEntries.stream()
@@ -134,9 +140,10 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
                                             .getReceivedDate(), PropertyTranslationKeys.TRANSITION_SHIPMENT, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForOptional(from.getLifecycleDates().getInstalledDate(), to.getLifecycleDates()
                                             .getInstalledDate(), PropertyTranslationKeys.TRANSITION_INSTALLATION, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
-                                    getAuditLogChangeForLocation(from, to, PropertyTranslationKeys.DEVICE_LOCATION).ifPresent(auditLogChanges::add);
-                                    getAuditLogChangeForCoordinates(from, to, PropertyTranslationKeys.DEVICE_COORDINATES).ifPresent(auditLogChanges::add);
-                                    getAuditLogChangeForMultiplier(from, to, PropertyTranslationKeys.MULTIPLIER).ifPresent(auditLogChanges::add);
+                                    getAuditLogChangeForLocation(from, to).ifPresent(auditLogChanges::add);
+                                    getAuditLogChangeForCoordinates(from, to).ifPresent(auditLogChanges::add);
+                                    getAuditLogChangeForMultiplier(from, to).ifPresent(auditLogChanges::add);
+                                    getAuditLogChangeForState().ifPresent(auditLogChanges::add);
                                 });
                     });
             return auditLogChanges;
@@ -188,10 +195,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
                         getAuditLogChangeForString(from.getManufacturer(), PropertyTranslationKeys.DEVICE_MANUFACTURER).ifPresent(auditLogChanges::add);
                         getAuditLogChangeForString(from.getModelNumber(), PropertyTranslationKeys.DEVICE_MODEL_NBR).ifPresent(auditLogChanges::add);
                         getAuditLogChangeForString(from.getModelVersion(), PropertyTranslationKeys.DEVICE_MODEL_VERSION).ifPresent(auditLogChanges::add);
-                        getAuditLogChangeForOptional(from.getLifecycleDates()
-                                .getReceivedDate(), PropertyTranslationKeys.TRANSITION_SHIPMENT, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
-
-
+                        getAuditLogChangeForOptional(from.getLifecycleDates().getReceivedDate(), PropertyTranslationKeys.TRANSITION_SHIPMENT, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
                     });
             return auditLogChanges;
 
@@ -214,10 +218,10 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
         return Optional.empty();
     }
 
-    private Optional<AuditLogChange> getAuditLogChangeForLocation(EndDevice from, EndDevice to, TranslationKey translationKey) {
-        if (to.getLocation().equals(from.getLocation()) == false) {
+    private Optional<AuditLogChange> getAuditLogChangeForLocation(EndDevice from, EndDevice to) {
+        if (!to.getLocation().equals(from.getLocation())) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setName(getDisplayName(PropertyTranslationKeys.DEVICE_LOCATION));
             auditLogChange.setType(LOCATION_PROPERTY_TYPE);
             to.getLocation().ifPresent(location -> auditLogChange.setValue(formatLocation(location)));
             from.getLocation().ifPresent(location -> auditLogChange.setPreviousValue(formatLocation(location)));
@@ -226,10 +230,10 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
         return Optional.empty();
     }
 
-    private Optional<AuditLogChange> getAuditLogChangeForCoordinates(EndDevice from, EndDevice to, TranslationKey translationKey) {
+    private Optional<AuditLogChange> getAuditLogChangeForCoordinates(EndDevice from, EndDevice to) {
         if (!to.getSpatialCoordinates().equals(from.getSpatialCoordinates())) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setName(getDisplayName(PropertyTranslationKeys.DEVICE_COORDINATES));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
             to.getSpatialCoordinates().ifPresent(coordinates -> auditLogChange.setValue(coordinates.toString()));
             from.getSpatialCoordinates().ifPresent(coordinates -> auditLogChange.setPreviousValue(coordinates.toString()));
@@ -238,7 +242,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
         return Optional.empty();
     }
 
-    private Optional<AuditLogChange> getAuditLogChangeForMultiplier(EndDevice from, EndDevice to, TranslationKey translationKey) {
+    private Optional<AuditLogChange> getAuditLogChangeForMultiplier(EndDevice from, EndDevice to) {
         try {
             if (Meter.class.isInstance(from)) {
                 Map<Instant, BigDecimal> timeSlices = new HashMap<>();
@@ -251,13 +255,13 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
                         .forEach(meterActivation -> {
                             Map<Instant, BigDecimal> toJournalMultipliers = meterActivation.getJournalMultipliers();
                             if (timeSlices.size() == 0) {
-                                timeSlices.put(((MeterActivation) meterActivation).getModificationDate(), MULTIPLIER_ONE);
+                                timeSlices.put(meterActivation.getModificationDate(), MULTIPLIER_ONE);
                             }
                             if (toJournalMultipliers.size() > 0) {
                                 toJournalMultipliers.forEach(timeSlices::put);
                             }
-                            if ((toJournalMultipliers.size() == 0) || (((MeterActivation) meterActivation).getEnd() == null)) {
-                                timeSlices.put(Instant.MAX, ((MeterActivation) meterActivation).getMultiplier(multiplierType)
+                            if ((toJournalMultipliers.size() == 0) || (meterActivation.getEnd() == null)) {
+                                timeSlices.put(Instant.MAX, meterActivation.getMultiplier(multiplierType)
                                         .orElseGet(() -> MULTIPLIER_ONE));
                             }
                         });
@@ -267,6 +271,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
                         .sorted(Comparator.comparing(Map.Entry::getKey))
                         .map(Map.Entry::getValue)
                         .findFirst();
+
                 Optional<BigDecimal> toMultiplier = timeSlices.entrySet().stream()
                         .filter(timeSlice -> timeSlice.getKey().isAfter(getAuditTrailReference().getModTimeEnd()))
                         .sorted(Comparator.comparing(Map.Entry::getKey))
@@ -275,13 +280,12 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
 
                 if (!fromMultiplier.equals(toMultiplier)) {
                     AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-                    auditLogChange.setName(getDisplayName(translationKey));
+                    auditLogChange.setName(getDisplayName(PropertyTranslationKeys.MULTIPLIER));
                     auditLogChange.setType(SimplePropertyType.NUMBER.name());
                     toMultiplier.ifPresent(auditLogChange::setValue);
                     fromMultiplier.ifPresent(auditLogChange::setPreviousValue);
                     return Optional.of(auditLogChange);
                 }
-
             }
         } catch (Exception e) {
         }
@@ -294,9 +298,19 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
             auditLogChange.setName(getDisplayName(PropertyTranslationKeys.BATCH));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
             auditLogChange.setValue(batch.getName());
-            auditLogChange.setValue(batch.getName());
             return auditLogChange;
         });
+    }
+
+    private Optional<AuditLogChange> getAuditLogChangeForState() {
+        return new DeviceStateDecoder(this).getAuditLog();
+    }
+
+    private String getStateName(State state) {
+        return DefaultState
+                .from(state)
+                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .orElseGet(state::getName);
     }
 
     private String formatLocation(Location location) {
@@ -306,5 +320,21 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
         return formattedLocationMembers.stream()
                 .flatMap(List::stream).filter(Objects::nonNull)
                 .collect(Collectors.joining(", "));
+    }
+
+    public OrmService getOrmService(){
+        return ormService;
+    }
+
+    public EndDevice getEndDevice(){
+        return endDevice.get();
+    }
+
+    public Device getDevice(){
+        return device.get();
+    }
+
+    public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService(){
+        return deviceLifeCycleConfigurationService;
     }
 }

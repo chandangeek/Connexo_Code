@@ -113,7 +113,7 @@ public class ValidationIT {
         ReadingType readingType2 = meteringService.getReadingType(READING_TYPE_2).get();
         ReadingType readingType3 = meteringService.getReadingType(READING_TYPE_3).get();
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        meter = amrSystem.newMeter("amrId", "meter").create();
+        meter = amrSystem.newMeter("123", "meter").create();
         meterActivation = meter.activate(TIMESTAMP);
         meterActivation.getChannelsContainer().createChannel(readingType1, readingType2);
         meterActivation.getChannelsContainer().createChannel(readingType1, readingType3);
@@ -123,6 +123,8 @@ public class ValidationIT {
         validationService.addResource(validatorFactory);
         ValidationRuleSet validationRuleSet = createValidationRuleSet(readingType1, readingType2, readingType3, validationService);
         when(validationRuleSetResolver.resolve(any())).thenReturn(Collections.singletonMap(validationRuleSet, rangeSet));
+        when(validationRuleSetResolver.canHandleRuleSetStatus()).thenReturn(true);
+        when(validationRuleSetResolver.isValidationRuleSetActiveOnDeviceConfig(validationRuleSet.getId(), Long.parseLong(meter.getAmrId()))).thenReturn(true);
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
         validationService.activateValidation(meter);

@@ -39,7 +39,7 @@ public class IsuUiInstaller implements TranslationKeyProvider {
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-        // HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "c:\\git10.5\\DavidConnexo\\coko\\com.elster.jupiter.issue.extjs\\src\\main\\web\\js\\issue", new FileResolver());
+       // HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "c:\\git10.6\\connexo\\coko\\com.elster.jupiter.issue.extjs\\src\\main\\web\\js\\issue", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 

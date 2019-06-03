@@ -60,7 +60,7 @@ public class DeviceInFirmwareCampaignHandler extends EventHandler<LocalEvent> {
             ActivatedFirmwareVersion activatedFirmwareVersion = (ActivatedFirmwareVersion) event.getSource();
             for (DeviceInFirmwareCampaignImpl deviceInCampaign : this.firmwareService.getDeviceInFirmwareCampaignsFor(activatedFirmwareVersion.getDevice())) {
                 if (FirmwareManagementDeviceStatus.VERIFICATION_ONGOING.equals(deviceInCampaign.getStatus())) {
-                    deviceInCampaign.validateFirmvareVersion(activatedFirmwareVersion);
+                    deviceInCampaign.validateFirmwareVersion(activatedFirmwareVersion);
                 }
             }
         }

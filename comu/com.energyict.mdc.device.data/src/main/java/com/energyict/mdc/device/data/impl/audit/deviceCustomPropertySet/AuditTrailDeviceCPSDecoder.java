@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.audit.deviceCustomPropertySet;
 
+import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditLogChange;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -23,31 +24,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
 
     AuditTrailDeviceCPSDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService, ServerDeviceService serverDeviceService, CustomPropertySetService customPropertySetService) {
         super(ormService, thesaurus, meteringService, serverDeviceService, customPropertySetService);
     }
-
-    /*@Override
-    protected void decodeReference() {
-        try {
-            device = serverDeviceService.findDeviceById(getAuditTrailReference().getPkDomain())
-                    .map(Optional::of)
-                    .orElseGet(() -> {
-                        isRemoved = true;
-                        return getDeviceFromHistory(getAuditTrailReference().getPkDomain());
-                    });
-
-            meteringService.findEndDeviceByName(device.get().getName())
-                    .ifPresent(ed -> {
-                        endDevice = Optional.of(ed);
-                    });
-        }
-        catch (Exception ignored){
-        }
-    }*/
 
     @Override
     public Object getContextReference() {
@@ -59,8 +42,7 @@ public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
         registeredCustomPropertySet
                 .filter(set -> set.getCustomPropertySet().isVersioned())
                 .ifPresent(set -> {
-                    CustomPropertySetValues customPropertySetValues = getCustomPropertySetValues(getCustomPropertySet().get(),
-                            isContextObsolete() ? getAuditTrailReference().getModTimeEnd().minusMillis(1) : getAuditTrailReference().getModTimeEnd());
+                    CustomPropertySetValues customPropertySetValues = getCustomPropertySetValues(getCustomPropertySet().get(), getAuditTrailReference().getModTimeEnd());
                     if (customPropertySetValues.getEffectiveRange().hasLowerBound()) {
                         builder.put("startTime", customPropertySetValues.getEffectiveRange().lowerEndpoint());
                     }
@@ -72,6 +54,18 @@ public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
         return builder.build();
     }
 
+    public UnexpectedNumberOfUpdatesException.Operation getOperation(UnexpectedNumberOfUpdatesException.Operation operation, AuditDomainContextType context){
+        return getAuditTrailReference().getOperation().equals(UnexpectedNumberOfUpdatesException.Operation.INSERT) ?
+                UnexpectedNumberOfUpdatesException.Operation.INSERT : UnexpectedNumberOfUpdatesException.Operation.UPDATE;
+    }
+
+    @Override
+    public List<AuditLogChange> getAuditLogChanges() {
+        return getAuditLogChangesFromDevice().stream()
+                        .distinct()
+                        .collect(Collectors.toList());
+    }
+
     protected List<AuditLogChange> getAuditLogChangesFromDevice() {
         try {
             List<AuditLogChange> auditLogChanges = new ArrayList<>();
@@ -81,7 +75,8 @@ public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
                 return auditLogChanges;
             }
 
-            if (getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.UPDATE) {
+            if ((getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.UPDATE) ||
+                 (getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.DELETE)){
                 CustomPropertySetValues toCustomPropertySetValues = getCustomPropertySetValues(registeredCustomPropertySet.get(),getAuditTrailReference().getModTimeEnd());
                 CustomPropertySetValues fromCustomPropertySetValues = getCustomPropertySetValues(registeredCustomPropertySet.get(), getAuditTrailReference().getModTimeStart()
                         .minusMillis(1));

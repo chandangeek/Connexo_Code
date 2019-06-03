@@ -12,7 +12,8 @@ Ext.define('Mdc.model.CommunicationTaskConfig', {
         {name: 'connectionFunctionInfo', type: 'Mdc.model.ConnectionFunction', useNull: true, defaultValue: null},
         {name: 'priority', type: 'int', useNull: true},
         {name: 'suspended', type: 'boolean', useNull: true},
-        {name: 'ignoreNextExecutionSpecsForInbound', type: 'boolean', useNull: true}
+        {name: 'ignoreNextExecutionSpecsForInbound', type: 'boolean', useNull: true},
+        {name: 'maxNumberOfTries', type: 'int', useNull: true}
     ],
     proxy: {
         type: 'rest',

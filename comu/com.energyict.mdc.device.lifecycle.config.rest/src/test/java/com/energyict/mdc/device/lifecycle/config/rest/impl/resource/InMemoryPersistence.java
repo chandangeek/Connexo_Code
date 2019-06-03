@@ -29,6 +29,7 @@ import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.PartyService;
@@ -59,6 +60,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -131,6 +133,8 @@ public class InMemoryPersistence {
     private TimeService timeService;
     private HttpService httpService;
     private MeteringZoneService meteringZoneService;
+    private DataModel dataModel;
+    private DeviceService deviceService;
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
@@ -180,6 +184,7 @@ public class InMemoryPersistence {
         this.initializeMocks(testName);
         this.threadSecurityModule = new ThreadSecurityModule(this.principal);
         this.injector = Guice.createInjector(this.guiceModules());
+        when(dataModel.getInstance(any())).thenAnswer(invocationOnMock -> injector.getInstance(invocationOnMock.getArgumentAt(0, Class.class)));
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.injector.getInstance(OrmService.class);
@@ -239,6 +244,8 @@ public class InMemoryPersistence {
         this.searchService = mock(SearchService.class);
         this.timeService = mock(TimeService.class);
         this.httpService = mock(HttpService.class);
+        this.deviceService = mock(DeviceService.class);
+        dataModel = mock(DataModel.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -281,6 +288,8 @@ public class InMemoryPersistence {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(PropertyValueInfoService.class).toInstance(mock(PropertyValueInfoService.class));
             bind(MdcPropertyValueConverterFactory.class).toInstance(mock(MdcPropertyValueConverterFactory.class));
+            bind(DataModel.class).toInstance(dataModel);
+            bind(DeviceService.class).toInstance(deviceService);
         }
     }
 }

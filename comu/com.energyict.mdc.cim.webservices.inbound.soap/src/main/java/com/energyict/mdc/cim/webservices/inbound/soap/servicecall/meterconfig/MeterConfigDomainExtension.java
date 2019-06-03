@@ -22,6 +22,8 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
         METER("meter", "meter"),
+        METER_MRID("meterMrid", "METER_MRID"),
+        METER_NAME("meterName", "METER_NAME"),
         PARENT_SERVICE_CALL("parentServiceCallId", "parentServiceCallId"),
         ERROR_MESSAGE("errorMessage", "errorMessage"),
         ERROR_CODE("errorCode", "errorCode"),
@@ -48,6 +50,10 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
 
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String meter;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String meterMrid;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String meterName;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private BigDecimal parentServiceCallId;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -68,6 +74,22 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
 
     public void setMeter(String meter) {
         this.meter = meter;
+    }
+
+    public String getMeterMrid() {
+        return meterMrid;
+    }
+
+    public void setMeterMrid(String meterMrid) {
+        this.meterMrid = meterMrid;
+    }
+
+    public String getMeterName() {
+        return meterName;
+    }
+
+    public void setMeterName(String meterName) {
+        this.meterName = meterName;
     }
 
     public BigDecimal getParentServiceCallId() {
@@ -106,6 +128,8 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setMeter((String) propertyValues.getProperty(FieldNames.METER.javaName()));
+        this.setMeterMrid((String) propertyValues.getProperty(FieldNames.METER_MRID.javaName()));
+        this.setMeterName((String) propertyValues.getProperty(FieldNames.METER_NAME.javaName()));
         this.setParentServiceCallId(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.PARENT_SERVICE_CALL.javaName()))
                 .orElse(BigDecimal.ZERO).toString()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
@@ -116,6 +140,8 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.METER.javaName(), this.getMeter());
+        propertySetValues.setProperty(FieldNames.METER_MRID.javaName(), this.getMeterMrid());
+        propertySetValues.setProperty(FieldNames.METER_NAME.javaName(), this.getMeterName());
         propertySetValues.setProperty(FieldNames.PARENT_SERVICE_CALL.javaName(), this.getParentServiceCallId());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());

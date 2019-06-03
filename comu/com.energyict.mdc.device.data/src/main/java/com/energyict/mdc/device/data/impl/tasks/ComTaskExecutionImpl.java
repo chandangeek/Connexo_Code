@@ -63,7 +63,6 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import javax.inject.Inject;
@@ -75,7 +74,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 
 @ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
 @ManuallyScheduledNextExecSpecRequired(groups = {SaveScheduled.class})
@@ -123,7 +121,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     @SuppressWarnings("unused")
     private Instant modTime;
     private boolean calledByConnectionTask;
-    private static final Logger LOGGER = Logger.getLogger(ComTaskExecutionImpl.class.getName());
 
     /**
      * ExecutionPriority can be overruled by the Minimize ConnectionTask.
@@ -193,7 +190,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                     break;
                 default:
                     this.behavior = new ManualBehavior();
-
             }
         }
         return behavior;
@@ -236,7 +232,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     @Override
     public boolean isExecuting() {
         return this.comPort.isPresent()
-                || (this.connectionTask.isPresent()
+                || (this.connectionTask.isPresent() && this.connectionTask.getOptional().isPresent()
                 && (this.connectionTask.get().getExecutingComServer() != null)
                 && ((this.getNextExecutionTimestamp() != null
                 && this.getNextExecutionTimestamp().isBefore(this.clock.instant()))
@@ -272,7 +268,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public int getMaxNumberOfTries() {
-        return this.getBehavior().getMaxNumberOfTries();
+        return this.device.get().getDeviceConfiguration().getComTaskEnablementFor(this.getComTask()).get().getMaxNumberOfTries();
     }
 
     @Override
@@ -818,7 +814,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void executionFailed() {
-        this.currentRetryCount++;    // increment the current number of retries
+        this.currentRetryCount++;
         if (this.currentRetryCount < getMaxNumberOfTries()) {
             this.doExecutionAttemptFailed();
         } else {
@@ -1060,6 +1056,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    public long getConnectionFunctionId() {
+        return connectionFunctionDbValue;
+    }
+
+    @Override
     public List<ComTask> getComTasks() {
         return Collections.singletonList(getComTask());
     }
@@ -1155,13 +1156,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         boolean isAdHoc();
 
         /**
-         * Gets the maximum number of consecutive failures a ComTaskExecution can have before marking it as failed.
-         *
-         * @return the maximum number of consecutive failures
-         */
-        int getMaxNumberOfTries();
-
-        /**
          * Gets the specifications for the calculation of the next
          * execution timestamp of this ComTaskExecution.
          * Note that ad-hoc ComTaskExecution do not have such a specification.
@@ -1203,11 +1197,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public boolean isAdHoc() {
             return true;
-        }
-
-        @Override
-        public int getMaxNumberOfTries() {
-            return getComTask().getMaxNumberOfTries();
         }
 
         @Override
@@ -1298,11 +1287,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public int getMaxNumberOfTries() {
-            return getComTask().getMaxNumberOfTries();
-        }
-
-        @Override
         public Optional<NextExecutionSpecs> getNextExecutionSpecs() {
             return ComTaskExecutionImpl.this.nextExecutionSpecs.getOptional();
 
@@ -1315,20 +1299,17 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public void comTaskStarted() {
-                LOGGER.info("Raised event " + EventType.MANUAL_COMTASKEXECUTION_STARTED.topic());
-                postEvent(EventType.MANUAL_COMTASKEXECUTION_STARTED);
+            postEvent(EventType.MANUAL_COMTASKEXECUTION_STARTED);
         }
 
         @Override
         public void comTaskCompleted() {
-                LOGGER.info("Raised event " + EventType.MANUAL_COMTASKEXECUTION_COMPLETED.topic());
-                postEvent(EventType.MANUAL_COMTASKEXECUTION_COMPLETED);
+            postEvent(EventType.MANUAL_COMTASKEXECUTION_COMPLETED);
         }
 
         @Override
         public void comTaskFailed() {
-                LOGGER.info("Raised event " + EventType.MANUAL_COMTASKEXECUTION_FAILED.topic());
-                postEvent(EventType.MANUAL_COMTASKEXECUTION_FAILED);
+            postEvent(EventType.MANUAL_COMTASKEXECUTION_FAILED);
         }
 
         @Override
@@ -1403,15 +1384,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public int getMaxNumberOfTries() {
-            int minimalNrOfRetries = getComSchedule().get().getComTasks().stream().
-                    map(ComTask::getMaxNrOfTries).
-                    min(Integer::compare).
-                    orElse(OutboundConnectionTaskImpl.DEFAULT_MAX_NUMBER_OF_TRIES);
-            return minimalNrOfRetries;
-        }
-
-        @Override
         public Optional<NextExecutionSpecs> getNextExecutionSpecs() {
             return Optional.of(getComSchedule().get().getNextExecutionSpecs());
         }
@@ -1423,20 +1395,17 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public void comTaskStarted() {
-                LOGGER.info("Raised event " + EventType.SCHEDULED_COMTASKEXECUTION_STARTED.topic());
-                postEvent(EventType.SCHEDULED_COMTASKEXECUTION_STARTED);
+            postEvent(EventType.SCHEDULED_COMTASKEXECUTION_STARTED);
         }
 
         @Override
         public void comTaskCompleted() {
-                LOGGER.info("Raised event " + EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED.topic());
-                postEvent(EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED);
+            postEvent(EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED);
         }
 
         @Override
         public void comTaskFailed() {
-                LOGGER.info("Raised event " + EventType.SCHEDULED_COMTASKEXECUTION_FAILED.topic());
-                postEvent(EventType.SCHEDULED_COMTASKEXECUTION_FAILED);
+            postEvent(EventType.SCHEDULED_COMTASKEXECUTION_FAILED);
         }
 
         public Optional<ComSchedule> getComSchedule() {

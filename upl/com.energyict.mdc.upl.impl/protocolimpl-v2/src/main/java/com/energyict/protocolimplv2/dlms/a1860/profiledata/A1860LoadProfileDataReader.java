@@ -31,15 +31,18 @@ import java.util.Map;
 
 public class A1860LoadProfileDataReader {
 
-    private static final ObisCode LOAD_PROFILE_EU_CUMULATIVE = ObisCode.fromString("1.0.99.1.1.255");
-    private static final ObisCode LOAD_PROFILE_EU_NONCUMULATIVE = ObisCode.fromString("1.0.99.1.2.255");
     private static final ObisCode SELF_READ_DATA_TOTAL = ObisCode.fromString("0.0.98.1.0.255");
 
-    static final ObisCode LOAD_PROFILE_PULSES = ObisCode.fromString("1.0.99.1.0.255");
-    static final ObisCode PROFILE_INSTRUMENTATION_SET1 = ObisCode.fromString("1.0.99.128.0.255");
-    static final ObisCode PROFILE_INSTRUMENTATION_SET2 = ObisCode.fromString("1.0.99.129.0.255");
-    static final ObisCode MULTIPLIER = ObisCode.fromString("1.1.96.132.1.255");
-    static final ObisCode SCALE_FACTOR = ObisCode.fromString("1.1.96.132.2.255");
+    static final ObisCode LOAD_PROFILE_PULSES              = ObisCode.fromString("1.0.99.1.0.255");
+    static final ObisCode LOAD_PROFILE_EU_CUMULATIVE       = ObisCode.fromString("1.0.99.1.1.255");
+    static final ObisCode LOAD_PROFILE_EU_NONCUMULATIVE    = ObisCode.fromString("1.0.99.1.2.255");
+    static final ObisCode PROFILE_INSTRUMENTATION_SET1     = ObisCode.fromString("1.0.99.128.0.255");
+    static final ObisCode PROFILE_INSTRUMENTATION_SET2     = ObisCode.fromString("1.0.99.129.0.255");
+
+    static final ObisCode MULTIPLIER_INSTRUMENTATION       = ObisCode.fromString("1.1.96.131.1.255");
+    static final ObisCode MULTIPLIER_NON_INSTRUMENTATION   = ObisCode.fromString("1.1.96.132.1.255");
+    static final ObisCode SCALE_FACTOR_INSTRUMENTATION     = ObisCode.fromString("1.1.96.131.2.255");
+    static final ObisCode SCALE_FACTOR_NON_INSTRUMENTATION = ObisCode.fromString("1.1.96.132.2.255");
 
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfosMap;
     private final List<ObisCode> supportedLoadProfiles;
@@ -133,6 +136,9 @@ public class A1860LoadProfileDataReader {
         for (CapturedObject capturedObject : capturedObjects) {
             if(isRealChannelData(capturedObject)) {
                 Unit u = readUnitFromDevice(capturedObject);
+                if (u.isUndefined()) {
+                    u = Unit.get(BaseUnit.NOTAVAILABLE, u.getScale());
+                }
                 unitMap.put(capturedObject.getLogicalName().getObisCode(), u);
                 channelObisCodes.add(capturedObject.getLogicalName().getObisCode());
             }

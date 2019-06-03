@@ -35,7 +35,46 @@ Ext.define('Mdc.audit.controller.Audit', {
         })
     },
 
+    getAuditTrailView: function (store) {
+        var me = this;
+        return  {
+            xtype: 'audit-setup-view',
+            convertorFn: me.valueConvertor,
+            domainConvertorFn: me.domainConvertor,
+            contextConvertorFn: me.contextConvertor,
+            store: store,
+            scopeFn: me
+        };
+    },
+
+    loadDependencies: function(scope, callbackFn){
+        var me = this,
+            timeUnitsStore = me.getStore('Mdc.store.TimeUnits');
+
+        timeUnitsStore.load({
+            callback: function () {
+                callbackFn.call(scope);
+            }
+        });
+    },
+
     showOverview: function () {
+        var me = this,
+            dependenciesLoaded = function () {
+                var widget = Ext.widget('auditSetup', {
+                    convertorFn: me.valueConvertor,
+                    domainConvertorFn: me.domainConvertor,
+                    contextConvertorFn: me.contextConvertor,
+                    store: 'Mdc.audit.store.Audit',
+                    scopeFn: me
+                });
+                me.getApplication().fireEvent('changecontentevent', widget);
+        }
+
+        me.loadDependencies(me, dependenciesLoaded);
+    },
+
+    showOverview_old: function () {
         var me = this,
             timeUnitsStore = me.getStore('Mdc.store.TimeUnits');
 
@@ -45,6 +84,7 @@ Ext.define('Mdc.audit.controller.Audit', {
                     convertorFn: me.valueConvertor,
                     domainConvertorFn: me.domainConvertor,
                     contextConvertorFn: me.contextConvertor,
+                    store: 'Mdc.audit.store.Audit',
                     scopeFn: me
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -57,29 +97,36 @@ Ext.define('Mdc.audit.controller.Audit', {
             auditGrid = me.getAuditGrid(),
             auditPreview = me.getAuditPreview(),
             auditPreviewGrid = me.getAuditPreviewGrid(),
-            auditPreviewNoItems = me.getAuditPreviewNoItem();
+            auditPreviewNoItems = me.getAuditPreviewNoItem(),
+            isUpdateOperation = record[0].get('operationType') === 'UPDATE';
 
-        Ext.each(auditPreviewGrid.columns, function (column) {
-            if (column.dataIndex === 'previousValue') {
-                column.setVisible(record[0].get('operationType') == 'UPDATE');
-            }
-            if (column.dataIndex === 'value') {
-                column.setText(record[0].get('operationType') == 'UPDATE' ? Uni.I18n.translate('audit.preview.changedTo', 'MDC', 'Changed to') :
-                    Uni.I18n.translate('audit.preview.value', 'MDC', 'Value'));
-            }
-
-        });
-
+        auditPreview.suspendLayouts();
         if (record[0].auditLogsStore.getCount() > 0) {
             auditPreviewGrid.setVisible(true);
             auditPreviewGrid.getStore().loadRawData(record[0].raw['auditLogs']);
-            auditPreviewGrid.getSelectionModel().select(0);
+            auditPreviewGrid.getView() && auditPreviewGrid.getView().getEl() && auditPreviewGrid.getSelectionModel().select(0);
             auditPreviewNoItems.setVisible(false);
+
+            Ext.each(auditPreviewGrid.columns, function (column) {
+                if ((column.dataIndex === 'previousValue') && ((auditPreviewGrid.getView().getEl() == undefined || column.isVisible() != isUpdateOperation))){
+                     column.setVisible(isUpdateOperation);
+                }
+                if (column.dataIndex === 'value') {
+                    column.setText(isUpdateOperation ? Uni.I18n.translate('audit.preview.changedTo', 'MDC', 'Changed to') :
+                        Uni.I18n.translate('audit.preview.value', 'MDC', 'Value'));
+                }
+
+            });
         }
         else {
             auditPreviewGrid.setVisible(false);
             auditPreviewNoItems.setVisible(true);
         }
+        auditPreview.resumeLayouts();
+        auditPreviewGrid.doLayout();
+
+        auditGrid.getView().focus();
+        auditPreview.setLoading(false);
         auditGrid.getView().focus();
         auditPreview.setLoading(false);
     },
@@ -152,7 +199,13 @@ Ext.define('Mdc.audit.controller.Audit', {
                 rendererLink = isRemoved == true ? me.formatDeviceDataSourceContext(record, value) : me.formatDeviceDataSourceHRef(record) + me.formatDeviceDataSourceContext(record, value) + '</a>';
                 break;
             case 'DEVICE_PROTOCOL_DIALECTS_PROPS':
-                rendererLink = isRemoved == true ? me.formatProtocolDialectsContext(record, value) : me.formatProtocolDialectsHRef(record, value) + '</a>';
+                rendererLink = isRemoved == true ? me.formatOnlyEntityContext(record, value) : me.formatProtocolDialectsHRef(record, value) + '</a>';
+                break;
+            case 'DEVICE_CONNECTION_METHODS':
+                rendererLink = isRemoved == true ? me.formatEntityWithNameContext(record, value) : me.formatConnectionMethodsHRef(record, value) + '</a>';
+                break;
+            case 'DEVICE_COMTASKS':
+                rendererLink = isRemoved == true ? me.formatEntityWithNameContext(record, value) : me.formatComTasksHRef(record, value) + '</a>';;
                 break;
             default:
                 rendererLink = value;
@@ -208,11 +261,26 @@ Ext.define('Mdc.audit.controller.Audit', {
         var me = this,
             contextReference = record.get('auditReference').contextReference;
 
-        return Ext.String.format("{0} -> {1}", record.get('auditReference').contextReference.sourceTypeName, record.get('auditReference').contextReference.sourceName);
+        if (!me.isEmptyOrNull(record.get('auditReference').contextReference.sourceTypeName) && !me.isEmptyOrNull(record.get('auditReference').contextReference.sourceName)){
+            return Ext.String.format("{0} -> {1}", record.get('auditReference').contextReference.sourceTypeName, record.get('auditReference').contextReference.sourceName);
+        }
+        else if (!me.isEmptyOrNull(record.get('auditReference').contextReference.sourceTypeName)){
+            return record.get('auditReference').contextReference.sourceTypeName;
+        }
+        else if (!me.isEmptyOrNull(record.get('auditReference').contextReference.sourceName)){
+            return record.get('auditReference').contextReference.sourceName;
+        }
+        return '';
     },
 
-    formatProtocolDialectsContext: function (record, value) {
+    formatOnlyEntityContext: function (record, value) {
         return Ext.String.format("{0}", value);
+    },
+
+    formatEntityWithNameContext: function (record, value) {
+        if(this.isEmptyOrNull(record.get('auditReference').contextReference.name))
+            return Ext.String.format("{0}", value);
+        return Ext.String.format("{0} -> {1}", value, record.get('auditReference').contextReference.name);
     },
 
     formatDeviceDataSourceHRef: function (record) {
@@ -220,6 +288,9 @@ Ext.define('Mdc.audit.controller.Audit', {
             contextReference = record.get('auditReference').contextReference,
             sourceType = record.get('auditReference').contextReference.sourceType;
 
+        if (me.isEmptyOrNull(record.get('auditReference').name) || me.isEmptyOrNull(contextReference.sourceId)){
+            return '';
+        }
         if (sourceType === 'CHANNEL'){
             return '<a href="#/devices/' + record.get('auditReference').name + '/channels' + '/'+ contextReference.sourceId +  '">'
         }
@@ -250,6 +321,19 @@ Ext.define('Mdc.audit.controller.Audit', {
         return '<a href="#/devices/' + record.get('auditReference').name + '/protocols">' +  Ext.String.format("{0} -> {1} ({2})", value, contextReference.name, periodStr);
     },
 
+    formatConnectionMethodsHRef: function (record, value) {
+        var me = this,
+            contextReference = record.get('auditReference').contextReference;
+
+        return '<a href="#/devices/' + record.get('auditReference').name + '/connectionmethods">' + me.formatEntityWithNameContext(record, value);
+    },
+
+    formatComTasksHRef: function (record, value) {
+        var me = this;
+
+        return '<a href="#/devices/' + record.get('auditReference').name + '/communicationtasks">' +  me.formatEntityWithNameContext(record, value);
+    },
+
     extractPeriod: function(contextReference){
             var periodStr = '';
 
@@ -269,6 +353,20 @@ Ext.define('Mdc.audit.controller.Audit', {
     },
 
     isEmptyOrNull: function (value) {
-        return ((value != null) && (value.length == 0))
+        return (value == undefined) ||
+            (value == null) ||
+            ((value != null) && (value.length == 0));
+    },
+
+    prepareForDevice: function(view){
+        var me = this;
+
+        view.down('#audit-trail-content').setTitle('');
+        view.down('#audit-filter').down('#audit-filter-category-combo').setVisible(false);
+        Ext.each(view.down('#audit-grid').columns, function (column) {
+            if ((column.dataIndex === 'domain') || (column.dataIndex === 'auditReference')) {
+                column.setVisible(false);
+            }
+        });
     }
 });

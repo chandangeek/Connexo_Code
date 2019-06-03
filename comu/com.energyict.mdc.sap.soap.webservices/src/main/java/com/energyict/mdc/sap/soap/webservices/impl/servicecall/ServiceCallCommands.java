@@ -16,13 +16,13 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
@@ -47,6 +47,8 @@ import java.security.Principal;
 import java.time.Clock;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class ServiceCallCommands {
 
@@ -210,9 +212,10 @@ public class ServiceCallCommands {
         childDomainExtension.setReadingReasonCode(message.getReadingReasonCode());
         childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
 
-        parent.newChildCall(serviceCallType)
-                .extendedWith(childDomainExtension)
-                .create();
+        ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
+                .extendedWith(childDomainExtension);
+        sapCustomPropertySets.getDevice(new BigDecimal(message.getDeviceId())).ifPresent(serviceCallBuilder::targetObject);
+        serviceCallBuilder.create();
     }
 
     private void createServiceCall(ServiceCallType serviceCallType, StatusChangeRequestCreateMessage message) {
@@ -225,7 +228,7 @@ public class ServiceCallCommands {
         connectionStatusChangeDomainExtension.setProcessDate(message.getPlannedProcessingDateTime());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
-                .origin(MdcAppService.APPLICATION_NAME)
+                .origin(APPLICATION_NAME)
                 .extendedWith(connectionStatusChangeDomainExtension)
                 .create();
 
@@ -247,7 +250,7 @@ public class ServiceCallCommands {
         meterReadingDocumentDomainExtension.setBulk(requestMessage.isBulk());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
-                .origin(MdcAppService.APPLICATION_NAME)
+                .origin(APPLICATION_NAME)
                 .extendedWith(meterReadingDocumentDomainExtension)
                 .create();
 

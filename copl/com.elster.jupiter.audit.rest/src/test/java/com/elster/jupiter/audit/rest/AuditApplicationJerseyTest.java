@@ -41,6 +41,8 @@ public class AuditApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     Clock clock;
     @Mock
     UserService userService;
+    @Mock
+    AuditInfoFactory auditInfoFactory;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -68,6 +70,7 @@ public class AuditApplicationJerseyTest extends FelixRestApplicationJerseyTest {
         app.setNlsService(nlsService);
         app.setAuditService(auditService);
         app.setUserService(userService);
+        app.setAuditInfoFactory(auditInfoFactory);
         return app;
     }
 }

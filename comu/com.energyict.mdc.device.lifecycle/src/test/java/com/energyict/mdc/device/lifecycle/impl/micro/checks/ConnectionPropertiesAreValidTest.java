@@ -1,10 +1,11 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.SecurityAccessor;
@@ -12,8 +13,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -30,18 +30,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ConnectionPropertiesAreValid} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-16 (16:52)
+ * Tests the {@link ConnectionPropertiesAreValid} component
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionPropertiesAreValidTest {
 
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private Device device;
+    @Mock
+    private State state;
 
     @Test
     public void deviceWithoutConnectionTasks() {
@@ -49,7 +47,7 @@ public class ConnectionPropertiesAreValidTest {
         when(this.device.getConnectionTasks()).thenReturn(Collections.emptyList());
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -65,7 +63,7 @@ public class ConnectionPropertiesAreValidTest {
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(ct1, ct2));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -81,7 +79,7 @@ public class ConnectionPropertiesAreValidTest {
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(ct1, ct2));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -103,11 +101,11 @@ public class ConnectionPropertiesAreValidTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -129,11 +127,11 @@ public class ConnectionPropertiesAreValidTest {
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2, cte3));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -154,7 +152,7 @@ public class ConnectionPropertiesAreValidTest {
         when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -176,11 +174,11 @@ public class ConnectionPropertiesAreValidTest {
         when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.empty());
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -201,15 +199,16 @@ public class ConnectionPropertiesAreValidTest {
         when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     private ConnectionPropertiesAreValid getTestInstance() {
-        return new ConnectionPropertiesAreValid(this.thesaurus);
+        ConnectionPropertiesAreValid connectionPropertiesAreValid = new ConnectionPropertiesAreValid();
+        connectionPropertiesAreValid.setThesaurus(this.thesaurus);
+        return connectionPropertiesAreValid;
     }
-
 }

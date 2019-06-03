@@ -89,6 +89,8 @@ public class CreationRuleResource extends BaseResource {
                     .select(where(ISSUE_TYPE).in(new ArrayList<IssueType>() {{
                         add(getIssueService().findIssueType(IssueTypes.DATA_COLLECTION.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.DATA_VALIDATION.getName()).get());
+                        add(getIssueService().findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).get());
+                        add(getIssueService().findIssueType(IssueTypes.TASK.getName()).get());
                     }})));
         }
 

@@ -14,7 +14,8 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
         'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.devicehistory.IssueAlarmFilter',
         'Mdc.view.setup.devicehistory.IssueAlarmGrid',
-        'Mdc.view.setup.devicehistory.IssueAlarmPreview'
+        'Mdc.view.setup.devicehistory.IssueAlarmPreview',
+        'Mdc.audit.view.AuditSetup'
     ],
 
     router: null,
@@ -58,7 +59,7 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                             itemId: 'device-history-firmware-tab'
                         },
                         {
-                            title: Uni.I18n.translate('general.meterActivation', 'MDC', 'Meter activation'),
+                            title: Uni.I18n.translate('general.meterActivation', 'MDC', 'Device activation'),
                             padding: '8 16 16 0',
                             itemId: 'device-history-meter-activations-tab',
                             items: {
@@ -128,6 +129,10 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
             ]
         };
 
+        if (Mdc.privileges.Audit.canViewAuditLog()) {
+            me.content.items[0].items.push(me.getAuditTrail());
+        }
+
         me.callParent(arguments);
     },
 
@@ -147,6 +152,13 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
             }
         });
         Ext.resumeLayouts(true);
-    }
+    },
 
+    getAuditTrail: function() {
+        return {
+            title: Uni.I18n.translate('general.auditTrail', 'MDC', 'Audit trail'),
+            padding: '8 16 16 0',
+            itemId: 'device-history-audit-trail-tab'
+        };
+    }
 });

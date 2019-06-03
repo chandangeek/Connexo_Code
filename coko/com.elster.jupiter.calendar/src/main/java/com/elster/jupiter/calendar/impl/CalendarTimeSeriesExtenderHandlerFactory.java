@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.calendar.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.tasks.TaskService;
@@ -31,6 +32,7 @@ public class CalendarTimeSeriesExtenderHandlerFactory implements MessageHandlerF
     private volatile TransactionService transactionService;
     private volatile ServerCalendarService calendarService;
     private volatile TaskService taskService;
+    private volatile EventService eventService;
 
     // For OSGi framework only
     public CalendarTimeSeriesExtenderHandlerFactory() {
@@ -62,7 +64,7 @@ public class CalendarTimeSeriesExtenderHandlerFactory implements MessageHandlerF
 
     @Override
     public MessageHandler newMessageHandler() {
-        return this.taskService.createMessageHandler(new CalendarTimeSeriesExtenderHandler(transactionService, this.calendarService));
+        return this.taskService.createMessageHandler(new CalendarTimeSeriesExtenderHandler(transactionService, this.calendarService, eventService));
     }
 
 }

@@ -14,6 +14,8 @@
     <properties>
         <!-- TODO: remove after release 10.6 -->
         <baseline>(,${project.version})</baseline>
+        <js.dir>js/tou</js.dir>
+        <package.name>${project.groupId}.${project.artifactId}</package.name>
     </properties>
 
     <artifactId>mdc.tou.campaign.extjs</artifactId>
@@ -62,15 +64,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/tou</js.dir>
-                <package.name>${project.groupId}.${project.artifactId}</package.name>
-            </properties>
-        </profile>
-    </profiles>
 
 </project>

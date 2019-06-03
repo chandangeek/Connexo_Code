@@ -44,7 +44,8 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.privileges.TaskManagement',
         'Mdc.privileges.SecurityAccessor',
         'Mdc.privileges.Audit',
-        'Tou.privileges.TouCampaign'
+        'Tou.privileges.TouCampaign',
+        'Itk.privileges.Task'
     ],
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
@@ -81,7 +82,8 @@ Ext.define('MdcApp.controller.Main', {
         Mdc.privileges.RegisteredDevicesKpi.all(),
         Mdc.privileges.SecurityAccessor.all(),
         Mdc.privileges.Audit.all(),
-        Tou.privileges.TouCampaign.all()
+        Tou.privileges.TouCampaign.all(),
+        Itk.privileges.Task.all()
     ),
     controllers: [
         'Sam.controller.Main',
@@ -103,8 +105,10 @@ Ext.define('MdcApp.controller.Main', {
         'Fim.controller.Main',
         'Dbp.controller.Main',
         'Scs.controller.Main',
-        'Tou.controller.Main'
-
+        'Dal.controller.Main',
+        'Idl.controller.Main',
+        'Tou.controller.Main',
+        'Itk.controller.Main'
     ],
 
     init: function () {

@@ -62,6 +62,13 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
                 checkViewRights: true,
                 action: 'showKeyValues',
                 section: me.SECTION_VIEW
+            },
+            {
+                text:  Uni.I18n.translate('general.unmarkServiceKey', 'MDC', 'Unmark service key'),
+                privileges: Mdc.privileges.Device.canAdministrateDevice(),
+                checkServiceKey: true,
+                action: 'unmarkServiceKey',
+                section: me.SECTION_EDIT
             }
         ];
         this.callParent(arguments);
@@ -74,6 +81,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
                 hasViewRights = Mdc.securityaccessors.view.PrivilegesHelper.hasPrivileges(menu.record.get('viewLevels')),
                 passiveAvailable = menu.record.get('hasTempValue'),
                 canGeneratePassiveKey = menu.record.get('canGeneratePassiveKey'),
+                serviceKey = menu.record.get('serviceKey'),
                 visible = true;
 
             me.items.each(function(item) {
@@ -93,6 +101,11 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
                 if (Ext.isDefined(item.invisibleWhenSwapped)) {
                     visible = visible && !swapped;
                 }
+
+                if (Ext.isDefined(item.checkServiceKey)) {
+                    visible = serviceKey;
+                }
+
                 item.setVisible(visible);
             });
         }

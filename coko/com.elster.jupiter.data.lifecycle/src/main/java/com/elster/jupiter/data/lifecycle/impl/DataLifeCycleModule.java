@@ -5,6 +5,7 @@
 package com.elster.jupiter.data.lifecycle.impl;
 
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
@@ -20,6 +21,7 @@ public class DataLifeCycleModule extends AbstractModule {
     @Override
     protected void configure() {
         requireBinding(OrmService.class);
+        requireBinding(EventService.class);
         requireBinding(MessageService.class);
         requireBinding(MeteringService.class);
         requireBinding(NlsService.class);

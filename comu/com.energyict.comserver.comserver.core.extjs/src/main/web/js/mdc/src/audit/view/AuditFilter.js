@@ -5,9 +5,6 @@
 Ext.define('Mdc.audit.view.AuditFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     alias: 'widget.auditFilter',
-
-    store: 'Mdc.audit.store.Audit',
-
     requires: [
         'Mdc.audit.store.Audit',
         'Mdc.audit.store.Categories',
