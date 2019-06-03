@@ -28,7 +28,8 @@ public class IssueRestModuleConst {
     public static final String APPLICATION = "application";
     public static final String USAGEPOINT = "usagePoint";
     public static final String PRIORITY = "priority";
-    public static final String CRITERIA = "criteria";
-    public static final String OPERATOR = "operator";
 
+    //extra filter fields
+    public static final String OPERATOR = "operator";
+    public static final String CRITERIA = "criteria";
 }

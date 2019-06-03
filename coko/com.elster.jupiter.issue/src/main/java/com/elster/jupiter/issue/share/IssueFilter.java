@@ -35,7 +35,7 @@ public interface IssueFilter {
 
     void setIssueReason(IssueReason issueReason);
 
-    void setPriority(Priority priority);
+    void setPriority(String priority);
 
     void addStatus(IssueStatus status);
 
@@ -67,7 +67,7 @@ public interface IssueFilter {
 
     void addIssueType(IssueType issueType);
 
-    List<Priority> getPriorities();
+    String getPriorities();
 
     Long getStartCreateTime();
 

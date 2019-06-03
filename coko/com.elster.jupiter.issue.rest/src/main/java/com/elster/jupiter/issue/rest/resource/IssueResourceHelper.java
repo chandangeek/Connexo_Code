@@ -7,7 +7,10 @@ package com.elster.jupiter.issue.rest.resource;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.MessageSeeds;
-import com.elster.jupiter.issue.rest.request.*;
+import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
+import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
+import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
+import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
@@ -15,7 +18,6 @@ import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueFilter;
-import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -37,15 +39,15 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.sun.org.apache.xml.internal.utils.res.StringArrayWrapper;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -173,54 +175,28 @@ public class IssueResourceHelper {
         }
 
         if (jsonFilter.hasProperty(IssueRestModuleConst.USAGEPOINT)) {
-            String usageString = jsonFilter.getComplexProperty(IssueRestModuleConst.USAGEPOINT);
-            JSONObject property = null;
-            String value = null;
-            String operator = null;
+            Finder<UsagePoint> usagePoints = meteringService.getUsagePoints(new UsagePointFilter());
+
+            String usagePointJsonString = jsonFilter.getComplexProperty(IssueRestModuleConst.USAGEPOINT);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = null;
             try {
-                property = new JSONObject(usageString);
-                value = property.getString(IssueRestModuleConst.CRITERIA);
-                operator = property.getString(IssueRestModuleConst.OPERATOR);
-            } catch (JSONException e) {
-
+                node = mapper.readTree(usagePointJsonString);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            Finder<UsagePoint> finder = meteringService.getUsagePoints(new UsagePointFilter());
-            if(operator.equals("==")){
-                String finalValue = value;
-                finder.stream().filter(usagePoint -> usagePoint.getName().equals(finalValue)).forEach(filter::addUsagePoint);
-            }else if ( operator.equals("!=")){
-                String finalValue1 = value;
-                finder.stream().filter(usagePoint -> !usagePoint.getName().equals(finalValue1)).forEach(filter::addUsagePoint);
+            List<UsagePoint> list = null;
+            if ( node.get(IssueRestModuleConst.OPERATOR).asText().equals("==")){
+                String criteria = node.get(IssueRestModuleConst.CRITERIA).asText();
+                list = usagePoints.stream().filter(usagePoint -> usagePoint.getName()
+                        .equals(criteria)).collect(Collectors.toList());
+            }else{
+                String criteria = node.get(IssueRestModuleConst.CRITERIA).asText();
+                list = usagePoints.stream().filter(usagePoint -> !usagePoint.getName()
+                        .equals(criteria)).collect(Collectors.toList());
             }
-//            meteringService.findUsagePointByName(jsonFilter.getString(value)).ifPresent(filter::addUsagePoint);
-        }
-
-        if (jsonFilter.hasProperty(IssueRestModuleConst.PRIORITY)){
-            String usageString = jsonFilter.getComplexProperty(IssueRestModuleConst.PRIORITY);
-            JSONObject property = null;
-
-            Integer value = null;
-            String operator = null;
-            try {
-                property = new JSONObject(usageString);
-                value = property.getInt(IssueRestModuleConst.CRITERIA);
-                operator = property.getString(IssueRestModuleConst.OPERATOR);
-            } catch (JSONException e) {
-
-            }
-            if ( operator.equals("==")){
-
-            }else if ( operator.equals("!=")){
-
-            }else if ( operator.equals("<")){
-
-            }else if ( operator.equals(">")){
-
-            }else if ( operator.equals("BETWEEN")){
-
-            }
-
-            filter.setPriority(Priority.fromStringValue(jsonFilter.getString(IssueRestModuleConst.PRIORITY)));
+            if (list != null)
+                list.forEach(filter::addUsagePoint);
         }
 
         if (jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().allMatch(s -> s == null)) {
@@ -240,6 +216,9 @@ public class IssueResourceHelper {
             }
         }
 
+        if (jsonFilter.hasProperty(IssueRestModuleConst.PRIORITY)){
+            filter.setPriority(jsonFilter.getComplexProperty(IssueRestModuleConst.PRIORITY));
+        }
 
         if (jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP).stream().allMatch(s -> s == null)) {
             jsonFilter.getStringList(IssueRestModuleConst.WORKGROUP).stream().map(id -> userService.getWorkGroup(Long.valueOf(id)).orElse(null))
