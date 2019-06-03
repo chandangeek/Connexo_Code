@@ -13,7 +13,7 @@ Ext.define('Wss.controller.Webservices', {
         'Wss.view.LandingPage',
         'Wss.view.endpoint.Status',
         'Wss.view.endpoint.History',
-        'Wss.view.endpoint.HistoryOccurrence',
+        'Wss.view.endpoint.HistoryOccurrence'
     ],
     stores: [
         'Wss.store.Endpoints',
@@ -125,14 +125,14 @@ Ext.define('Wss.controller.Webservices', {
                     success: function (occurrence) {
                         var view = Ext.widget('webservice-history-occurence', {
                             router: me.getController('Uni.controller.history.Router'),
-                            endpoint,
-                            occurrence
+                            endpoint: endpoint,
+                            occurrence: occurrence
                         });
+
                         me.getApplication().fireEvent('changecontentevent', view);
                         me.getApplication().fireEvent('endpointload', endpoint.get('name'));
-                    },
+                    }
                 });
-
             }
         });
     },
