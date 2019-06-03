@@ -59,14 +59,14 @@ Ext.define('Wss.controller.history.Webservices', {
                             action: 'showEndpointStatusHistory'
                         },
                         history: {
-                            privileges: Wss.privileges.Webservices.view,
+                            privileges: Wss.privileges.Webservices.viewHistory,
                             route: 'history',
                             title: Uni.I18n.translate('general.history', 'WSS', 'History'),
                             controller: 'Wss.controller.Webservices',
                             action: 'showWebserviceHistory',
                             items: {
                                 occurrence: {
-                                    privileges: Wss.privileges.Webservices.view,
+                                    privileges: Wss.privileges.Webservices.viewHistory,
                                     route: '{occurenceId}',
                                     title: Uni.I18n.translate('general.log', 'WSS', 'Log'),
                                     controller: 'Wss.controller.Webservices',

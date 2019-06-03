@@ -65,7 +65,7 @@ Ext.onReady(function () {
         {
             name: 'Wss',
             path: '../../apps/wss/src'
-        },
+        }
     ];
 
     loader.initPackages(packages);

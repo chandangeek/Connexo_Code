@@ -57,7 +57,8 @@ Ext.define('MdmApp.controller.Main', {
         Fim.privileges.DataImport.all(),
         Est.privileges.EstimationConfiguration.all(),
         Dxp.privileges.DataExport.all(),
-        Yfn.privileges.Yellowfin.all()
+        Yfn.privileges.Yellowfin.all(),
+        Wss.privileges.Webservices.all()
     ),
 
     controllers: [

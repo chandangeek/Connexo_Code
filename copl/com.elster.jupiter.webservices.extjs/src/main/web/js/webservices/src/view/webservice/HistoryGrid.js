@@ -22,13 +22,18 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 renderer: function (value, metaData, record) {
                     var basename = me.adminView ? 'administration' : 'workspace';
                     var route = basename + '/webserviceendpoints/view/history/occurrence';
-                    var url = me.router.getRoute(route).buildUrl({
-                        endpointId: record.getEndpoint().get('id'),
-                        occurenceId: record.get('id'),
-                    });
                     var date = value ? Uni.DateTime.formatDateTimeShort(value) : '-';
 
-                    return '<a href="' + url + '">' + date + '</a>';
+                    if (Wss.privileges.Webservices.canViewHistory()) {
+                        var url = me.router.getRoute(route).buildUrl({
+                            endpointId: record.getEndpoint().get('id'),
+                            occurenceId: record.get('id'),
+                        });
+
+                        return '<a href="' + url + '">' + date + '</a>';
+                    }
+
+                    return date;
                 }
             },
             {
