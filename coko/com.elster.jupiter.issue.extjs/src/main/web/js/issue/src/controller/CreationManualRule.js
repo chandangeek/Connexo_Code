@@ -7,7 +7,7 @@ Ext.define('Isu.controller.CreationManualRule', {
 
     stores: [
         'Isu.store.IssueDevices',
-        'Isu.store.IssueReasons',
+        'Isu.store.ManualIssueReasons',
         'Isu.store.DueinTypes',
         'Isu.store.IssueWorkgroupAssignees',
         'Isu.store.UserList'

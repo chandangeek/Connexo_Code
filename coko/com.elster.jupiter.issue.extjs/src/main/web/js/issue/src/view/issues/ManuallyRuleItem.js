@@ -51,7 +51,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     name: 'reasonId',
                     fieldLabel: Uni.I18n.translate('general.title.issueReason', 'ISU', 'Issue reason'),
                     required: true,
-                    store: 'Isu.store.IssueReasons',
+                    store: 'Isu.store.ManualIssueReasons',
                     queryMode: 'local',
                     displayField: 'name',
                     validateOnBlur: false,

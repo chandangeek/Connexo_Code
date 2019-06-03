@@ -7,7 +7,7 @@ Ext.define('Isu.view.issues.AddManuallyRuleItem', {
     requires: [
         'Isu.view.issues.ManuallyRuleItem',
         'Isu.store.IssueDevices',
-        'Isu.store.IssueReasons',
+        'Isu.store.ManualIssueReasons',
         'Isu.store.DueinTypes',
         'Isu.store.IssueWorkgroupAssignees',
         'Isu.store.UserList'
@@ -37,7 +37,7 @@ Ext.define('Isu.view.issues.AddManuallyRuleItem', {
         me.callParent(arguments);
 
         var manualIssue = Ext.create('Isu.model.ManuallyRuleItem'),
-        dependencies = ['Isu.store.IssueDevices', 'Isu.store.IssueReasons'],
+        dependencies = ['Isu.store.IssueDevices', 'Isu.store.ManualIssueReasons'],
         dependenciesCounter = dependencies.length,
         manualIssueForm = me.down('issue-manually-creation-rules-item'),
         onDependenciesLoaded = function () {
