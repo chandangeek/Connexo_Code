@@ -244,14 +244,7 @@ public class DeviceHistoryResource {
         }
         //filter by issue types
         if (!filter.getIssueTypes().isEmpty()) {
-            IssueType manualIssueType = filter.getIssueTypes().stream().filter(type -> IssueService.MANUAL_ISSUE_TYPE.equals(type.getKey())).findFirst().orElse(null);
-            List<IssueType> nonManualIssueTypes = filter.getIssueTypes().stream().filter(type -> !IssueService.MANUAL_ISSUE_TYPE.equals(type.getKey())).collect(Collectors.toList());
-            if (!nonManualIssueTypes.isEmpty()) {
-                condition = condition.and(where("type").isNull()).and(where("reason.issueType").in(nonManualIssueTypes));
-            }
-            if (manualIssueType != null) {
-                condition = condition.and(where("type").isEqualTo(manualIssueType));
-            }
+            condition = condition.and(where("reason.issueType").in(filter.getIssueTypes()));
         }
         //filter by statuses
         if (!filter.getStatuses().isEmpty()) {

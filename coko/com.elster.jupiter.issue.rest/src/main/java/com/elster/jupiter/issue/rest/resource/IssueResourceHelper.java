@@ -267,13 +267,21 @@ public class IssueResourceHelper {
 
     public Issue createNewIssue(AddIssueRequest request) {
         ManualIssueBuilder issueBuilder = issueService.newIssueBuilder();
+        Instant dueDate = null;
+        if (request.dueDate != null) {
+            if (request.dueDate.getNumber() > 0 ) {
+                dueDate = Instant.ofEpochMilli(DueInType.fromString(request.dueDate.getType()).dueValueFor(request.dueDate.getNumber()));
+            } else {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "dueDate");
+            }
+        }
 
         Issue issue = issueBuilder.withReason(getReason(request.reasonId))
                 .withType(getIssueType())
                 .withStatus(issueService.findStatus(request.statusId).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "statusId")))
                 .withPriority(Priority.fromStringValue(request.priority))
                 .withDevice(meteringService.findEndDeviceById(request.deviceId).orElse(null))
-                .withDueDate(request.dueDate == null? null: Instant.ofEpochMilli(DueInType.fromString(request.dueDate.getType()).dueValueFor(request.dueDate.getNumber())))
+                .withDueDate(dueDate)
                 .withOverdue(false)
                 .withComment(request.comment)
                 .withAssignToUserAndWorkgroup(request.assignToUserId > 0 ? request.assignToUserId: null, request.assignToWorkgroupId > 0 ? request.assignToWorkgroupId: null)
