@@ -25,6 +25,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         'Cfg.zones.store.ZoneTypes',
         'Isu.store.IssueDevices',
         'Isu.store.IssueReasons',
+        'Isu.store.ManualIssueReasons',
         'Isu.store.DueinTypes',
         'Isu.store.IssueWorkgroupAssignees',
         'Isu.store.UserList'
