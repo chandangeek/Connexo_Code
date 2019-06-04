@@ -29,6 +29,8 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     public String updateType;
     public Long validationTimeout;
     public Boolean withUniqueCalendarName;
+    public Long sendCalendarComTaskId;
+    public Long validationComTaskId;
 
     private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
     private final DataModel dataModel;
@@ -54,6 +56,18 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     @Override
     public TimeOfUseCampaignBuilder withActivationOption(String activationOption) {
         this.activationOption = activationOption;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilder withSendCalendarComTaskId(long sendCalendarComTaskId) {
+        this.sendCalendarComTaskId = sendCalendarComTaskId;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilder withValidationComTaskId(long validationComTaskId) {
+        this.validationComTaskId = validationComTaskId;
         return this;
     }
 
@@ -108,6 +122,8 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         timeOfUseCampaign.setUpdateType(updateType);
         timeOfUseCampaign.setActivationOption(activationOption);
         timeOfUseCampaign.setWithUniqueCalendarName(withUniqueCalendarName);
+        timeOfUseCampaign.setSendCalendarComTaskId(sendCalendarComTaskId);
+        timeOfUseCampaign.setValidationComTaskId(validationComTaskId);
         Optional.ofNullable(activationDate).ifPresent(timeOfUseCampaign::setActivationDate);
         Optional.ofNullable(validationTimeout).ifPresent(timeOfUseCampaign::setValidationTimeout);
         ServiceCall serviceCall = timeOfUseCampaignService.createServiceCallAndTransition(timeOfUseCampaign);

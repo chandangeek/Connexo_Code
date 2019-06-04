@@ -44,7 +44,9 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         ACTIVATION_DATE("activationDate", "activation_date"),
         UPDATE_TYPE("updateType", "update_type"),
         VALIDATION_TIMEOUT("validationTimeout", "validation_timeout"),
-        WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "with_unique_calendar_name");
+        WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "with_unique_calendar_name"),
+        VALIDATION_COMTASK_ID("validationComTaskId", "validation_comtask_id"),
+        SEND_CALENDAR_COMTASK_ID("sendCalendarComTaskId", "send_calendar_comtask_id");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -94,6 +96,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     private long validationTimeout;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private boolean withUniqueCalendarName;
+    private long sendCalendarComTaskId;
+    private long validationComTaskId;
 
     @Inject
     public TimeOfUseCampaignDomainExtension(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
@@ -192,6 +196,26 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
+    public long getSendCalendarComTaskId() {
+        return sendCalendarComTaskId;
+    }
+
+    @Override
+    public long getValidationComTaskId() {
+        return validationComTaskId;
+    }
+
+    @Override
+    public void setSendCalendarComTaskId(long sendCalendarComTaskId) {
+        this.sendCalendarComTaskId = sendCalendarComTaskId;
+    }
+
+    @Override
+    public void setValidationComTaskId(long validationComTaskId) {
+        this.validationComTaskId = validationComTaskId;
+    }
+
+    @Override
     public ServiceCall getServiceCall() {
         return serviceCall.get();
     }
@@ -254,6 +278,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         this.setUpdateType((String) propertyValues.getProperty(FieldNames.UPDATE_TYPE.javaName()));
         this.setValidationTimeout((long) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
         this.setWithUniqueCalendarName((boolean) propertyValues.getProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName()));
+        this.setValidationTimeout((long) propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
+        this.setValidationTimeout((long) propertyValues.getProperty(FieldNames.SEND_CALENDAR_COMTASK_ID.javaName()));
     }
 
     @Override
@@ -269,6 +295,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.UPDATE_TYPE.javaName(), this.getUpdateType());
         propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getValidationTimeout());
         propertySetValues.setProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName(), this.isWithUniqueCalendarName());
+        propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationTimeout());
+        propertySetValues.setProperty(FieldNames.SEND_CALENDAR_COMTASK_ID.javaName(), this.getValidationTimeout());
     }
 
     @Override

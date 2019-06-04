@@ -55,4 +55,12 @@ public interface TimeOfUseCampaign {
     long getId();
 
     boolean isWithUniqueCalendarName();
+
+    long getSendCalendarComTaskId();
+
+    long getValidationComTaskId();
+
+    void setSendCalendarComTaskId(long sendCalendarComTaskId);
+
+    void setValidationComTaskId(long validationComTaskId);
 }

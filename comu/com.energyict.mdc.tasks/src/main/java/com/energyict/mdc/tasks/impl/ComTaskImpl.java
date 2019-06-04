@@ -294,6 +294,11 @@ abstract class ComTaskImpl implements ComTask {
     }
 
     @Override
+    public boolean isSystemComTask(){
+        return systemTask;
+    }
+
+    @Override
     public void delete() {
         this.eventService.postEvent(EventType.COMTASK_VALIDATE_DELETE.topic(), this);
         this.protocolTasks.forEach(ProtocolTaskImpl::deleteDependents);

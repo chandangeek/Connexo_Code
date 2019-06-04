@@ -25,5 +25,9 @@ public interface TimeOfUseCampaignBuilder {
 
     TimeOfUseCampaignBuilder withUniqueCalendarName(boolean withCalendarNameValidation);
 
+    TimeOfUseCampaignBuilder withSendCalendarComTaskId(long sendCalendarComTaskId);
+
+    TimeOfUseCampaignBuilder withValidationComTaskId(long validationComTaskId);
+
     TimeOfUseCampaign create();
 }

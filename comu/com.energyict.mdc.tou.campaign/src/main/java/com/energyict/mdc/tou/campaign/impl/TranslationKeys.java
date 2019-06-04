@@ -28,6 +28,8 @@ public enum TranslationKeys implements TranslationKey {
     TIME_OF_USE_CAMPAIGN_CPS("TimeOfUseCampaignCustomPropertySet", "Time of use campaign custom property set"),
     TIME_OF_USE_ITEM_CPS("TimeOfUseCampaignItemCustomPropertySet", "Time of use campaign item custom property set"),
     WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "With unique calendar name"),
+    VALIDATION_COMTASK_ID("validationComTaskId", "Validation comtask id"),
+    SEND_CALENDAR_COMTASK_ID("sendCalendarComTaskId", "Send calendar comtask id"),
     ;
 
 

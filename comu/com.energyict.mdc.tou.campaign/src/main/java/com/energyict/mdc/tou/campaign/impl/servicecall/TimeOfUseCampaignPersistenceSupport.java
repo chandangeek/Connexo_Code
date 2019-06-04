@@ -124,6 +124,16 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName())
                 .notNull()
                 .add();
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.SEND_CALENDAR_COMTASK_ID.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.SEND_CALENDAR_COMTASK_ID.javaName())
+                .add();
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName())
+                .add();
         table.foreignKey(FK_NAME + "_CAL")
                 .on(calendar)
                 .references(Calendar.class)

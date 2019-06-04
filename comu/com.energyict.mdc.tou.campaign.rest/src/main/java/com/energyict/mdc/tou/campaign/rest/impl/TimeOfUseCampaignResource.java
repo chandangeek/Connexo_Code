@@ -240,11 +240,9 @@ public class TimeOfUseCampaignResource {
 
         List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
         deviceType.getConfigurations().stream().forEach(cnf -> comTaskEnablements.addAll(cnf.getComTaskEnablements()));
-        comTaskEnablements.stream().forEach(comTaskEnb -> {
-            if(comTaskEnb.getComTask().getSystemTask()){
-                comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName()));
-            }
-        });
+        comTaskEnablements.stream()
+                .filter(cte -> cte.getComTask().getSystemTask())
+                .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
 
         return Response.ok(comTasks).build();
     }

@@ -205,7 +205,8 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         if (supportedReadingTypes.size() < readingTypes.size()) {
             serviceCall.requestTransition(DefaultState.FAILED);
         } else {
-            multiSenseDevice.getComTaskExecutions()
+            multiSenseDevice.getComTaskExecutions().stream()
+                    //.filter(cte -> cte.getComTask().isSystemComTask())
                     .forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, instant));
         }
 
