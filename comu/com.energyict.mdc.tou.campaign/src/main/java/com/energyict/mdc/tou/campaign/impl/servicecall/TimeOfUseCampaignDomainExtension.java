@@ -295,8 +295,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.UPDATE_TYPE.javaName(), this.getUpdateType());
         propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getValidationTimeout());
         propertySetValues.setProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName(), this.isWithUniqueCalendarName());
-        propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationTimeout());
-        propertySetValues.setProperty(FieldNames.SEND_CALENDAR_COMTASK_ID.javaName(), this.getValidationTimeout());
+        propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationComTaskId());
+        propertySetValues.setProperty(FieldNames.SEND_CALENDAR_COMTASK_ID.javaName(), this.getSendCalendarComTaskId());
     }
 
     @Override
