@@ -50,7 +50,7 @@ Ext.define('Isu.view.issues.ManualIssueDetail', {
             },
             {
                 xtype: 'issue-comments',
-                itemId: 'data-validation-issue-comments'
+                itemId: 'manual-issue-comments'
             }
         ];
 
