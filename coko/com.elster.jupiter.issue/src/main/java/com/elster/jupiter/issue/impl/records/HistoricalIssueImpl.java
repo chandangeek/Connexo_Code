@@ -39,7 +39,6 @@ public final class HistoricalIssueImpl extends IssueImpl implements HistoricalIs
 
     @Override
     public void delete() {
-        this.getIssueService().getIssueProviders().stream().forEach(provider -> provider.getHistoricalIssue(this).ifPresent(Entity::delete));
         this.getDataModel().remove(this);
     }
 }

@@ -25,13 +25,7 @@ public final class OpenIssueImpl extends IssueImpl implements OpenIssue {
 
     @Override
     public HistoricalIssue close(IssueStatus status) {
-        for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
-            Optional<? extends OpenIssue> issue = issueProvider.getOpenIssue(this);
-            if (issue.isPresent()) {
-                return issue.get().close(status);
-            }
-        }
-        return null;
+        return closeInternal(status);
     }
 
     public HistoricalIssue closeInternal(IssueStatus status) {
