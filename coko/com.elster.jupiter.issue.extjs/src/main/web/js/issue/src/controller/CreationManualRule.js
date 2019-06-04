@@ -44,13 +44,14 @@ Ext.define('Isu.controller.CreationManualRule', {
             deviceId = router.arguments.deviceId;
             returnLink = router.getRoute('devices').buildUrl() + '/' + deviceId;
         }
-
-        var widget = Ext.widget('issue-manually-creation-rules-item-add',{
-                returnLink: returnLink,
-                router: router,
-                deviceId: deviceId
-            });
-        this.getApplication().fireEvent('changecontentevent', widget);
+        if (Isu.privileges.Issue.canCreateManualIssue()){
+            var widget = Ext.widget('issue-manually-creation-rules-item-add',{
+                    returnLink: returnLink,
+                    router: router,
+                    deviceId: deviceId
+                });
+            this.getApplication().fireEvent('changecontentevent', widget);
+        }
 
     },
 
@@ -72,6 +73,7 @@ Ext.define('Isu.controller.CreationManualRule', {
             return;
        }
 
+
        form.updateRecord();
 
        var record = form.getRecord();
@@ -87,6 +89,7 @@ Ext.define('Isu.controller.CreationManualRule', {
             comboReason.setValue(comboReason.store.getAt(comboReason.store.count()-1).get('id'));
             record.set('reasonId', value)
        }
+
        var urgency = record.get('priority.urgency');
        var impact = record.get('priority.impact');
        if ( urgency !== undefined && impact !== undefined ) record.set('priority' , urgency + ':' + impact);
@@ -95,8 +98,10 @@ Ext.define('Isu.controller.CreationManualRule', {
                 number: form.down('[name=dueIn.number]').getValue(),
                 type: form.down('[name=dueIn.type]').getValue()
             });
+            form.down('#dueDateTrigger').setValue({dueDate: true});
        } else {
             record.set('dueDate', null);
+            form.down('#dueDateTrigger').setValue({dueDate: false});
        }
 
        Ext.Ajax.request({

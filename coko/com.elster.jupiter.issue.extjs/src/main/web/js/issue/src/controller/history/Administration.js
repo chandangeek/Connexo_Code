@@ -80,7 +80,7 @@ Ext.define('Isu.controller.history.Administration', {
                     route: 'newissuemanually',
                     controller: 'Isu.controller.CreationManualRule',
                     action: 'createNewManuallyIssue',
-                    privileges: Isu.privileges.Issue.viewAdminDevice
+                    privileges: Isu.privileges.Issue.createManualIssue
                 },
             }
         },

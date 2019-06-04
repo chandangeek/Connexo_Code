@@ -19,10 +19,15 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
     },
     newReasonId: '12222e48-9afb-4c76-a41e-d3c40f16ac76',
     deviceId: null,
+    deviceIdSetted: false,
     initComponent: function () {
         var me = this;
         var defaultUrgency = 25;
         var defaultImpact = 5;
+        var devicesStore = Ext.getStore('Isu.store.IssueDevices') || Ext.create('Isu.store.IssueDevices');
+        devicesStore.getProxy().setExtraParam('nameOnly', true);
+
+        devicesStore.on('load', Ext.bind(me.setDeviceCombo, me));
 
         me.items = [{
                     xtype: 'uni-form-error-message',
@@ -33,17 +38,30 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                },
                {
                     xtype: 'combobox',
+                    itemId: 'deviceId',
+                    name: 'deviceId',
+                    displayField: 'name',
                     fieldLabel: Uni.I18n.translate('general.title.isudevice', 'ISU', 'Device'),
-                    store: 'Isu.store.IssueDevices',
+                    valueField: 'id',
+                    allowBlank: false,
+                    store: devicesStore,
+                    queryMode: 'remote',
+                    queryParam: 'name',
+                    queryCaching: false,
+                    minChars: 0,
+                    loadStore: false,
                     forceSelection: true,
                     required: !me.bulkAction,
-                    allowBlank: false,
-                    displayField: 'name',
-                    valueField: 'id',
-                    name: 'deviceId',
-                    queryMode: 'local',
-                    itemId: 'deviceId',
-                    hidden: me.bulkAction
+                    hidden: me.bulkAction,
+                    emptyText: me.deviceId ? me.deviceId : '',
+                    listeners: {
+                        expand: {
+                            fn: me.comboLimitNotification
+                        },
+                        render: function(){
+                            this.store.load();
+                        }
+                    },
                },
                {
                     itemId: 'issueReason',
@@ -340,6 +358,38 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
         if (value > field.maxValue) {
             field.setValue(field.maxValue);
         }
+    },
+    comboLimitNotification: function (combo) {
+        var picker = combo.getPicker(),
+            fn = function (view) {
+                var store = view.getStore(),
+                    el = view.getEl().down('.' + Ext.baseCSSPrefix + 'list-plain');
+                if (store.getTotalCount() > store.getCount()) {
+                    el.appendChild({
+                        tag: 'li',
+                        html: Uni.I18n.translate('isu.limitNotification', 'ISU', 'Keep typing to narrow down'),
+                        cls: Ext.baseCSSPrefix + 'boundlist-item combo-limit-notification'
+                    });
+                }
+            };
+
+        picker.on('refresh', fn);
+        picker.on('beforehide', function () {
+            picker.un('refresh', fn);
+        }, combo, {single: true});
+    },
+    setDeviceCombo: function(){
+       var me = this;
+       if (me.deviceId){
+            var deviceIdCombo =  me.down('#deviceId');
+            if (!deviceIdCombo) return;
+            var device = deviceIdCombo.store.find('name', me.deviceId);
+            if (device !== -1 && !me.deviceIdSetted){
+                 deviceIdCombo.setRawValue(me.deviceId);
+                 deviceIdCombo.setValue(deviceIdCombo.store.getAt(device).get('id'));
+                 me.deviceIdSetted = true;
+            }
+       }
     }
 
 });

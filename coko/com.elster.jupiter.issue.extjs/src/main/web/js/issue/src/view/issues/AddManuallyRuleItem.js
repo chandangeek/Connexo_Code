@@ -37,21 +37,14 @@ Ext.define('Isu.view.issues.AddManuallyRuleItem', {
         me.callParent(arguments);
 
         var manualIssue = Ext.create('Isu.model.ManuallyRuleItem'),
-        dependencies = ['Isu.store.IssueDevices', 'Isu.store.ManualIssueReasons'],
+        dependencies = ['Isu.store.ManualIssueReasons'],
         dependenciesCounter = dependencies.length,
         manualIssueForm = me.down('issue-manually-creation-rules-item'),
         onDependenciesLoaded = function () {
             dependenciesCounter--;
             if (!dependenciesCounter) {
                 manualIssueForm.loadRecord(manualIssue);
-                if (me.deviceId){
-                    var deviceIdCombo =  manualIssueForm.child('#deviceId');
-                    var device = deviceIdCombo.store.find('name', me.deviceId);
-                    if (device !== -1){
-                        deviceIdCombo.setRawValue(me.deviceId);
-                        deviceIdCombo.setValue(deviceIdCombo.store.getAt(device).get('id'));
-                    }
-                }
+
                 var dueInTypeField = manualIssueForm.down('[name=dueIn.type]');
                  dueInTypeField.setValue(dueInTypeField.getStore().getAt(0).get('name'));
 

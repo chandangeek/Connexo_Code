@@ -15,6 +15,10 @@ Ext.define('Isu.model.IssueDevice', {
         {
             name: 'name',
             type: 'string'
+        },
+        {
+            name: 'mRID',
+            type: 'string'
         }
     ],
 

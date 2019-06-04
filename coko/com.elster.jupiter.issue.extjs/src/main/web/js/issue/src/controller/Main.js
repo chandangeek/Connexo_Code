@@ -29,7 +29,8 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.Overview',
         'Isu.controller.BulkChangeIssues',
         'Isu.controller.SetPriority',
-        'Isu.controller.ManualIssueDetail'
+        'Isu.controller.ManualIssueDetail',
+        'Isu.controller.CreationManualRule'
     ],
 
     init: function () {
@@ -103,14 +104,17 @@ Ext.define('Isu.controller.Main', {
                         text: Uni.I18n.translate('workspace.issues.myWorkgroupsIssues', 'ISU', 'My workgroups issues'),
                         itemId: 'my-workgroup-issues-item',
                         href: router.getRoute('workspace/issues').buildUrl({}, {myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
-                    },
-                    {
-                        text: Uni.I18n.translate('workspace.issues.newManuallyIssue', 'ISU', 'Create issue'),
-                        itemId: 'new-manually-issue-item',
-                        href: router.getRoute('workspace/newissuemanually').buildUrl()
                     }
                 ]
             });
+
+            if (Isu.privileges.Issue.canCreateManualIssue()){
+                issuesPortalItem.data.items.push({
+                        text: Uni.I18n.translate('workspace.issues.newManuallyIssue', 'ISU', 'Create issue'),
+                        itemId: 'new-manually-issue-item',
+                        href: router.getRoute('workspace/newissuemanually').buildUrl()
+                 })
+            }
         }
 
         if (issuesPortalItem) {
