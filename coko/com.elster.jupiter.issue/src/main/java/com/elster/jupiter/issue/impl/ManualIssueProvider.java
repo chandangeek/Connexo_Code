@@ -35,7 +35,7 @@ public class ManualIssueProvider implements IssueProvider {
 
     @Override
     public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
-        if (issue instanceof OpenIssue) {
+        if (!issue.getStatus().isHistorical()) {
             return (issue.getType() != null && IssueService.MANUAL_ISSUE_TYPE.equals(issue.getType().getKey())) ? Optional.of(issue) : Optional.empty();
         } else {
             return Optional.empty();
@@ -44,7 +44,7 @@ public class ManualIssueProvider implements IssueProvider {
 
     @Override
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
-        if (issue instanceof HistoricalIssue) {
+        if (issue.getStatus().isHistorical()) {
             return (issue.getType() != null && IssueService.MANUAL_ISSUE_TYPE.equals(issue.getType().getKey())) ? Optional.of(issue) : Optional.empty();
         } else {
             return Optional.empty();
