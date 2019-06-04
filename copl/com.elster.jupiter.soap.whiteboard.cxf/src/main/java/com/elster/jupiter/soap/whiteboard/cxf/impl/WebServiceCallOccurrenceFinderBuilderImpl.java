@@ -25,10 +25,10 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withApplicationName(String applicationName){
-        if (!applicationName.isEmpty())
+    public WebServiceCallOccurrenceFinderBuilder withApplicationName(List<String> applicationNames){
+        if (!applicationNames.isEmpty())
         {
-            this.condition = this.condition.and(where("applicationName").isEqualTo(applicationName));
+            this.condition = this.condition.and(where("applicationName").in(applicationNames));
         }
         return this;
     }

@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface WebServiceCallOccurrenceService {
 
-    List<WebServiceCallOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName, Long epId);
+    List<WebServiceCallOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, List<String> applicationName, Long epId);
 
     Optional<WebServiceCallOccurrence> getEndPointOccurrence(Long id);
 

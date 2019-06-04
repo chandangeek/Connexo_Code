@@ -100,37 +100,54 @@ public class EndPointConfigurationResource {
     public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams,
                                                    @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                    @Context UriInfo uriInfo) {
-        List<String> applicationNameToFilter = new ArrayList<>();
+
+        List<EndPointConfigurationInfo> infoList;
+        if (applicationName == "SYS"){
+            infoList = endPointConfigurationService.findEndPointConfigurations()
+                    .from(queryParams)
+                    .stream()
+                    .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
+                    .collect(toList());
+        }else{
+            List<String> applicationNameToFilter = prepareApplicationNames(applicationName);
+
+            Set<String> webServiceNames = webServicesService.getWebServices().stream()
+                    .filter(ws -> applicationNameToFilter.contains(ws.getApplicationName()))
+                    .map(ws -> ws.getName())
+                    .collect(toSet());
+
+            infoList = endPointConfigurationService.findEndPointConfigurations()
+                    .from(queryParams)
+                    .stream()
+                    .filter(epc -> webServiceNames.contains(epc.getWebServiceName()))
+                    .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
+                    .collect(toList());
+        }
+
+
+        return PagedInfoList.fromPagedList("endpoints", infoList, queryParams);
+    }
+
+    private List<String> prepareApplicationNames(String applicationName){
+        List<String> applicationNames = new ArrayList<>();
         switch (applicationName) {
             case "SYS":
-                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
-                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
-                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName());
                 break;
             case "MDC":
-                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
-                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
                 break;
             case "INS":
-                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName());
-                applicationNameToFilter.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
                 break;
             default:
                 throw exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.INCORRECT_APPLICATION_NAME).get();
         }
-
-        Set<String> webServiceNames = webServicesService.getWebServices().stream()
-                .filter(ws -> applicationNameToFilter.contains(ws.getApplicationName()))
-                .map(ws -> ws.getName())
-                .collect(toSet());
-
-        List<EndPointConfigurationInfo> infoList = endPointConfigurationService.findEndPointConfigurations()
-                .from(queryParams)
-                .stream()
-                .filter(epc -> webServiceNames.contains(epc.getWebServiceName()))
-                .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
-                .collect(toList());
-        return PagedInfoList.fromPagedList("endpoints", infoList, queryParams);
+        return applicationNames;
     }
 
     @GET
@@ -287,7 +304,9 @@ public class EndPointConfigurationResource {
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
-        List<WebServiceCallOccurrence> endPointOccurrences = webServiceCallOccurrenceService.getEndPointOccurrences(queryParameters, filter, applicationName, null);
+        List<String> applicationNameToFilter = prepareApplicationNames(applicationName);
+
+        List<WebServiceCallOccurrence> endPointOccurrences = webServiceCallOccurrenceService.getEndPointOccurrences(queryParameters, filter, applicationNameToFilter, null);
         List<WebServiceCallOccurrenceInfo> webServiceCallOccurrenceInfo = endPointOccurrences.
                                                          stream().
                                                          map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo)).
@@ -394,7 +413,9 @@ public class EndPointConfigurationResource {
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
-        List<WebServiceCallOccurrence> endPointOccurrences = webServiceCallOccurrenceService.getEndPointOccurrences(queryParameters, filter, applicationName, epId);
+        List<String> applicationNameToFilter = prepareApplicationNames(applicationName);
+
+        List<WebServiceCallOccurrence> endPointOccurrences = webServiceCallOccurrenceService.getEndPointOccurrences(queryParameters, filter, applicationNameToFilter, epId);
         List<WebServiceCallOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
                 stream().
                 map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo)).

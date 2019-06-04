@@ -36,7 +36,7 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
     @Override
     public List<WebServiceCallOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters,
                                                                  JsonQueryFilter filter,
-                                                                 String applicationName,
+                                                                 List<String> applicationName,
                                                                  Long epId){
 
 

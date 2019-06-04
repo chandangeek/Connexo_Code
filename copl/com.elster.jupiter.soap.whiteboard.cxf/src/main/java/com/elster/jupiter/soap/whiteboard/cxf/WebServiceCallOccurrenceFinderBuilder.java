@@ -11,7 +11,7 @@ import java.util.List;
 @ProviderType
 public interface WebServiceCallOccurrenceFinderBuilder {
 
-    public WebServiceCallOccurrenceFinderBuilder withApplicationName(String applicationName);
+    public WebServiceCallOccurrenceFinderBuilder withApplicationName(List<String> applicationName);
 
     public WebServiceCallOccurrenceFinderBuilder withStatusIn(List<String> statuses);
 
