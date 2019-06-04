@@ -8,10 +8,8 @@ Ext.define('Uni.grid.filtertop.CustomNumeric', {
     mixins: [
         'Uni.grid.filtertop.Base'
     ],
-    requires: [
-        'Uni.view.search.field.internal.CriteriaLine',
-    ],
     margin: '0 0 10 0',
+
 
     initComponent: function () {
         var me = this;
@@ -23,57 +21,40 @@ Ext.define('Uni.grid.filtertop.CustomNumeric', {
                 text: me.text,
                 menu: [
                     {
-                        xtype: 'uni-search-internal-criterialine',
-                        itemId: 'uni-search-internal-customnumeric',
+                        xtype: 'uni-search-criteria-numeric',
+                        itemId: 'uni-search-criteria-numeric',
                         minWidth: undefined,
                         width: 280,
                         itemsDefaultConfig: {
                             isFilterField: true
                         },
                         customOperatorMap: {
-                            '==': 'uni-search-internal-input',
-                            '!=': 'uni-search-internal-input'
+                            '==': 'uni-search-internal-numberfield',
+                            '!=': 'uni-search-internal-numberfield',
                         }
                     }
-                ]
-            },
-            {
-                xtype: 'fieldcontainer',
-                margins: '0 8 0 8',
-                layout: {
-                    type: 'column',
-                    align: 'stretch',
-                    pack: 'center'
-                },
-                items: [
-                    {
-                        xtype: 'label',
-                        html: '&nbsp;',
-                        width: 48
-                    },
-                    {
-                        xtype: 'button',
-                        ui: 'action',
-                        action: 'apply',
-                        text: Uni.I18n.translate('general.apply', 'UNI', 'Apply')
-                    },
-                    {
-                        xtype: 'button',
-                        action: 'reset',
-                        text: Uni.I18n.translate('general.reset', 'UNI', 'Reset')
+                ],
+                listeners: {
+                    menuhide: function (btn, menu) {
+                        menu.query('numberfield').map(function (fld) {
+                            if (!fld.isValid()) {
+                                fld.clearInvalid();
+                            }
+                        });
                     }
-                ]
+                }
             }
         ];
 
         me.callParent(arguments);
-        //
-        // me.down('#criteria-toolbar').insert(0, {
-        //     xtype: 'button',
-        //     ui: 'action',
-        //     action: 'apply',
-        //     text: Uni.I18n.translate('general.apply', 'UNI', 'Apply')
-        // });
+        me.items.items[0].menu.onMouseOver = Ext.emptyFn;
+
+        me.down('#criteria-toolbar').insert(0, {
+            xtype: 'button',
+            ui: 'action',
+            action: 'apply',
+            text: Uni.I18n.translate('general.apply', 'UNI', 'Apply')
+        });
 
         me.doLayout();
         me.down('button[action=apply]').on('click', me.onApplyValues, me);
@@ -82,7 +63,7 @@ Ext.define('Uni.grid.filtertop.CustomNumeric', {
 
     getParamValue: function () {
         var me = this,
-            value = me.down('#uni-search-internal-customnumeric').getValue();
+            value = me.down('#uni-search-criteria-numeric').getValue();
 
         if (value) {
             me.updateTitle();
@@ -94,7 +75,7 @@ Ext.define('Uni.grid.filtertop.CustomNumeric', {
     setFilterValue: function (data) {
         var me = this;
 
-        me.down('#uni-search-internal-criterialine').setValue([{
+        me.down('#uni-search-criteria-numeric').setValue([{
             get: function (id) {
                 return data[id];
             }
@@ -112,7 +93,7 @@ Ext.define('Uni.grid.filtertop.CustomNumeric', {
             }
         });
 
-        if (me.down('uni-search-internal-criterialine').isValid()) {
+        if (me.down('uni-search-criteria-numeric').isValid()) {
             me.fireFilterUpdateEvent();
             me.down('button[action=chooseValues]').hideMenu();
             me.updateTitle();
@@ -129,7 +110,7 @@ Ext.define('Uni.grid.filtertop.CustomNumeric', {
 
     updateTitle: function () {
         var me = this,
-            value = me.down('#uni-search-internal-criterialine').getValue();
+            value = me.down('#uni-search-criteria-numeric').getValue();
 
         me.down('button[action=chooseValues]').setText(value ? me.text + '&nbsp;&nbsp;(' + value.length + ')' : me.text);
     },
@@ -137,7 +118,7 @@ Ext.define('Uni.grid.filtertop.CustomNumeric', {
     reset: function () {
         var me = this;
         me.updateHref();
-        me.down('#uni-search-internal-criterialine').reset();
+        me.down('#uni-search-criteria-simple').reset();
         me.down('button[action=chooseValues]').setText(me.text);
     },
 
