@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.mdm.metering.extjs;
 
-import com.elster.jupiter.http.whiteboard.FileResolver;
+import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
@@ -41,9 +41,9 @@ public class ImtUiInstaller implements TranslationKeyProvider {
 
     @Activate
     public void activate(BundleContext context) {
-        //HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-        HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Development\\Jupiter\\connexo\\coin\\com.elster.insight.metering.extjs\\src\\main\\web\\js\\imt", new FileResolver());
+        //HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Development\\Jupiter\\connexo\\coin\\com.elster.insight.metering.extjs\\src\\main\\web\\js\\imt", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 
