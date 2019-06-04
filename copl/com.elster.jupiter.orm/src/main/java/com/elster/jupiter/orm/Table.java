@@ -233,6 +233,8 @@ public interface Table<T> {
 
     TableAudit getTableAudit();
 
+    Class<?> getApi();
+
     interface JournalTableVersionOptions {
         void since(Version version);
         void upTo(Version version);
