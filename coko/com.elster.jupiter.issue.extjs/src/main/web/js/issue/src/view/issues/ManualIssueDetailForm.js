@@ -45,7 +45,7 @@ Ext.define('Isu.view.issues.ManualIssueDetailForm', {
                         }
                     },
                     {
-                        itemId: 'data-validation-issue-detail-device',
+                        itemId: 'manual-issue-detail-device',
                         fieldLabel: Uni.I18n.translate('general.title.device', 'IDV', 'Device'),
                         name: 'device',
                         renderer: function (value) {
@@ -73,7 +73,7 @@ Ext.define('Isu.view.issues.ManualIssueDetailForm', {
                 },
                 items: [
                     {
-                        itemId: 'data-validation-issue-detail-status',
+                        itemId: 'manual-issue-detail-status',
                         fieldLabel: Uni.I18n.translate('general.title.status', 'IDV', 'Status'),
                         name: 'status',
                         afterSubTpl: '<span id="issue-status-field-sub-tpl" class="field-additional-info" style="color: #686868;"></span>',
@@ -82,7 +82,7 @@ Ext.define('Isu.view.issues.ManualIssueDetailForm', {
                         }
                     },
                     {
-                        itemId: 'data-validation-issue-detail-due-date',
+                        itemId: 'manual-issue-detail-due-date',
                         fieldLabel: Uni.I18n.translate('general.title.dueDate', 'IDV', 'Due date'),
                         name: 'dueDate',
                         renderer: function (value) {
@@ -90,12 +90,12 @@ Ext.define('Isu.view.issues.ManualIssueDetailForm', {
                         }
                     },
                     {
-                        itemId: 'data-validation-issue-detail-priority',
+                        itemId: 'manual-issue-detail-priority',
                         fieldLabel: Uni.I18n.translate('general.title.priority', 'IDV', 'Priority'),
                         name: 'priority'
                     },
                     {
-                        itemId: 'data-validation-issue-detail-workgroup',
+                        itemId: 'manual-issue-detail-workgroup',
                         fieldLabel: Uni.I18n.translate('general.title.workgroup', 'IDV', 'Workgroup'),
                         name: 'workGroupAssignee',
                         renderer: function (value) {
@@ -103,7 +103,7 @@ Ext.define('Isu.view.issues.ManualIssueDetailForm', {
                         }
                     },
                     {
-                        itemId: 'data-validation-issue-detail-assignee',
+                        itemId: 'manual-issue-detail-assignee',
                         fieldLabel: Uni.I18n.translate('general.title.user', 'IDV', 'User'),
                         name: 'userAssignee',
                         renderer: function (value) {
@@ -111,7 +111,7 @@ Ext.define('Isu.view.issues.ManualIssueDetailForm', {
                         }
                     },
                     {
-                        itemId: 'data-validation-issue-detail-creation-date',
+                        itemId: 'manual-issue-detail-creation-date',
                         fieldLabel: Uni.I18n.translate('general.title.creationDate', 'IDV', 'Creation date'),
                         name: 'creationDate',
                         renderer: function (value) {
