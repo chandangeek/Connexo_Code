@@ -11,7 +11,7 @@ Ext.define('Cfg.audit.view.AuditGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('audit.changeOn', 'CFG', 'Change on'),
+                header: Uni.I18n.translate('audit.changedOn', 'CFG', 'Changed on'),
                 dataIndex: 'changedOn',
                 flex: 2,
                 renderer: function (value, metaData, record) {
@@ -56,14 +56,14 @@ Ext.define('Cfg.audit.view.AuditGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('audit.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} audit trails'),
-                displayMoreMsg: Uni.I18n.translate('audit.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} audit trails'),
-                emptyMsg: Uni.I18n.translate('audit.pagingtoolbartop.emptyMsg', 'CFG', 'There are no audit trails to display')
+                displayMsg: Uni.I18n.translate('audit.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} entries'),
+                displayMoreMsg: Uni.I18n.translate('audit.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} entries'),
+                emptyMsg: Uni.I18n.translate('audit.pagingtoolbartop.emptyMsg', 'CFG', 'There are no entries to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('audit.pagingtoolbarbottom.itemsPerPage', 'CFG', 'Audit trails per page'),
+                itemsPerPageMsg: Uni.I18n.translate('audit.pagingtoolbarbottom.itemsPerPage', 'CFG', 'Entries per page'),
                 dock: 'bottom'
             }
         ];

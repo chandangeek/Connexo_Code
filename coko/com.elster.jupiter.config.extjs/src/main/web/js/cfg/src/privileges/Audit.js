@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.privileges.Audit', {
+Ext.define('Cfg.privileges.Audit', {
     requires: [
         'Uni.Auth'
     ],
@@ -10,9 +10,9 @@ Ext.define('Mdc.privileges.Audit', {
     viewAuditLog: ['privilege.view.auditLog'],
 
     all: function () {
-        return Ext.Array.merge(Mdc.privileges.Audit.viewAuditLog);
+        return Ext.Array.merge(Cfg.privileges.Audit.viewAuditLog);
     },
     canViewAuditLog: function () {
-        return Uni.Auth.checkPrivileges(Mdc.privileges.Audit.viewAuditLog);
+        return Uni.Auth.checkPrivileges(Cfg.privileges.Audit.viewAuditLog);
     }
 });

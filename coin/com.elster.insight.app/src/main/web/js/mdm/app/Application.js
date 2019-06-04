@@ -21,7 +21,8 @@ Ext.define('MdmApp.Application', {
         'Dxp.privileges.DataExport',
         'Est.privileges.EstimationConfiguration',
         'Imt.privileges.UsagePointGroup',
-        'Yfn.privileges.Yellowfin'
+        'Yfn.privileges.Yellowfin',
+        ''
     ],
 
     controllers: [

@@ -4,6 +4,11 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.audit.AuditDomainContextType;
+import com.elster.jupiter.audit.AuditDomainType;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.AuditTrailFilter;
+import com.elster.jupiter.audit.rest.AuditInfoFactory;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
@@ -195,6 +200,8 @@ public class UsagePointResource {
     private final CalendarService calendarService;
     private final MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory;
     private final UsagePointTransitionInfoFactory usagePointTransitionInfoFactory;
+    private AuditService auditService;
+    private AuditInfoFactory auditInfoFactory;
 
     @Inject
     public UsagePointResource(
@@ -229,7 +236,9 @@ public class UsagePointResource {
             ValidationService validationService,
             CalendarService calendarService,
             MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory,
-            UsagePointTransitionInfoFactory usagePointTransitionInfoFactory) {
+            UsagePointTransitionInfoFactory usagePointTransitionInfoFactory,
+            AuditService auditService,
+            AuditInfoFactory auditInfoFactory) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
@@ -262,6 +271,8 @@ public class UsagePointResource {
         this.calendarService = calendarService;
         this.metrologyConfigurationHistoryInfoFactory = metrologyConfigurationHistoryInfoFactory;
         this.usagePointTransitionInfoFactory = usagePointTransitionInfoFactory;
+        this.auditService = auditService;
+        this.auditInfoFactory = auditInfoFactory;
     }
 
     @GET
@@ -1163,6 +1174,18 @@ public class UsagePointResource {
     }
 
     @GET
+    @Path("/{name}/history/audit")
+    @RolesAllowed({com.elster.jupiter.audit.security.Privileges.Constants.VIEW_AUDIT_LOG})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getDeviceAuditTrail(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        return PagedInfoList.fromPagedList("audit", auditService.getAuditTrail(getDeviceAuditTrailFilter(filter, name))
+                .from(queryParameters)
+                .stream()
+                .map(audit -> auditInfoFactory.from(audit, thesaurus))
+                .collect(Collectors.toList()), queryParameters);
+    }
+
+    @GET
     @Path("/{name}/validationtasks")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
@@ -1427,5 +1450,25 @@ public class UsagePointResource {
         from.getCustomPropertySet().getPropertySpecs().stream()
                 .map(PropertySpec::getName)
                 .forEach(propertyName -> to.setProperty(propertyName, fromValues.getProperty(propertyName)));
+    }
+    private AuditTrailFilter getDeviceAuditTrailFilter(JsonQueryFilter filter, String name) {
+        AuditTrailFilter auditFilter = auditService.newAuditTrailFilter();
+        if (filter.hasProperty("changedOnFrom")) {
+            auditFilter.setChangedOnFrom(filter.getInstant("changedOnFrom"));
+        }
+        if (filter.hasProperty("changedOnTo")) {
+            auditFilter.setChangedOnTo(filter.getInstant("changedOnTo"));
+        }
+        if (filter.hasProperty("users")) {
+            auditFilter.setChangedBy(filter.getStringList("users"));
+        }
+        auditFilter.setCategories(filter.getStringList(AuditDomainType.DEVICE.name()));
+        auditFilter.setDomainContexts(
+                Arrays.stream(AuditDomainContextType.values())
+                        .filter(auditDomainContextType -> auditDomainContextType.domainType() == AuditDomainType.DEVICE)
+                        .collect(Collectors.toList())
+        );
+        auditFilter.setDomain(resourceHelper.findUsagePointByNameOrThrowException(name).getId());
+        return auditFilter;
     }
 }

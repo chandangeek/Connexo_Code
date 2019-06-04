@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -38,6 +39,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/audit")
 public class AuditResource {
+    static final String X_CONNEXO_APPLICATION_NAME = "X-CONNEXO-APPLICATION-NAME";
 
     private final TransactionService transactionService;
     private final AuditService auditService;
@@ -79,10 +81,11 @@ public class AuditResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/categories")
     @RolesAllowed({Privileges.Constants.VIEW_AUDIT_LOG})
-    public Response getCategories() {
+    public Response getCategories(@HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         List<IdWithNameInfo> operationInfos =
                 Arrays.stream(AuditDomainType.values())
                         .filter(auditDomainType -> auditDomainType != AuditDomainType.UNKNOWN)
+                        .filter(auditDomainType -> auditDomainType.getApplicationName().equals(appCode))
                         .map(auditDomainType ->
                                 Arrays.stream(AuditDomainTranslationKeys.values())
                                         .filter(keys -> keys.getKey().compareToIgnoreCase(auditDomainType.type()) == 0)

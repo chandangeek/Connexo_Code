@@ -114,6 +114,9 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             case 'metrology-configurations-tab':
                 me.showMetrologyConfiguartionsTab();
                 break;
+            case 'up-audit-trail-tab':
+                me.showAuditTrail(me.usagePointId);
+                break;
             default:
                 me.showCustomAttributeSetTab(isInit);
                 break;
@@ -287,5 +290,19 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 }
             }
         });
+    },
+
+    showAuditTrail: function (usagePointId) {
+        var me = this,
+            auditController = me.getController('Cfg.audit.controller.Audit'),
+            auditTrailTab = me.getPage().down('#up-audit-trail-tab'),
+            dependenciesLoaded = function () {
+                var usagePointAudit = me.getStore('Imt.store.UsagePointAudit');
+                usagePointAudit.getProxy().setUrl(usagePointId);
+                auditTrailTab.add(auditController.getAuditTrailView(usagePointAudit));
+                auditController.prepareForSpecificObject(auditTrailTab.down('audit-setup-view'));
+            };
+
+        auditController.loadDependencies(this, dependenciesLoaded);
     }
 });

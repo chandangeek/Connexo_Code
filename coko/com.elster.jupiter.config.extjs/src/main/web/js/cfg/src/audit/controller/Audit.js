@@ -358,7 +358,7 @@ Ext.define('Cfg.audit.controller.Audit', {
             ((value != null) && (value.length == 0));
     },
 
-    prepareForDevice: function(view){
+    prepareForSpecificObject: function(view){
         var me = this;
 
         view.down('#audit-trail-content').setTitle('');
