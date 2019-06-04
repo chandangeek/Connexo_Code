@@ -87,6 +87,21 @@ public class ServiceCallTypeResource {
         return Response.ok(serviceCallTypeInfoFactory.from(type)).build();
     }
 
+    @PUT
+    @Path("/{id}/setdestinationandpriority")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
+    public Response update(@PathParam("id") int id, ServiceCallTypeInfo info) {
+	    info.id = id;
+        ServiceCallType type = fetchAndLockServiceCallType(info);
+	    type.setDestination(info.destination);
+	    type.setPriority(info.priority);
+        type.save();
+        return Response.ok(serviceCallTypeInfoFactory.from(type)).build();
+    }
+
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
