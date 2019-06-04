@@ -10,7 +10,7 @@ import com.energyict.mdc.app.MdcAppService;
 
 import javax.inject.Inject;
 
-import static com.elster.jupiter.issue.security.Privileges.Constants.ADD_ISSUE;
+import static com.elster.jupiter.issue.security.Privileges.Constants.CREATE_ISSUE;
 
 public class UpgraderV10_7 implements Upgrader {
 
@@ -30,12 +30,12 @@ public class UpgraderV10_7 implements Upgrader {
 
     private String[] getNewMeterOperatorPrivileges() {
         return new String[]{
-                ADD_ISSUE
+                CREATE_ISSUE
         };
     }
     private String[] getNewMeterExpertPrivileges() {
         return new String[]{
-                ADD_ISSUE
+                CREATE_ISSUE
         };
     }
 }

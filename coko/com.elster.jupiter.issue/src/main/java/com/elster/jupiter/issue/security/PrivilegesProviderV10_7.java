@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.elster.jupiter.issue.security.Privileges.Constants.ADD_ISSUE;
+import static com.elster.jupiter.issue.security.Privileges.Constants.CREATE_ISSUE;
 
 public class PrivilegesProviderV10_7 implements PrivilegesProvider {
     private final UserService userService;
@@ -35,6 +35,6 @@ public class PrivilegesProviderV10_7 implements PrivilegesProvider {
                         IssueService.COMPONENT_NAME,
                         Privileges.RESOURCE_ISSUES.getKey(),
                         Privileges.RESOURCE_ISSUES_DESCRIPTION.getKey(),
-                        Arrays.asList(ADD_ISSUE)));
+                        Arrays.asList(CREATE_ISSUE)));
     }
 }
