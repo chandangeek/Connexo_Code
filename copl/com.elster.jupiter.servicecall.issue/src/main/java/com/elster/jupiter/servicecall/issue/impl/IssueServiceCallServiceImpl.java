@@ -55,7 +55,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.servicecall.issue.impl",
+@Component(name = "com.elster.jupiter.servicecall.issue.impl.IssueServiceCallServiceImpl",
            service = { TranslationKeyProvider.class, MessageSeedProvider.class, IssueServiceCallService.class, IssueProvider.class, IssueGroupTranslationProvider.class, IssueReasonTranslationProvider.class},
            property = "name=" + IssueServiceCallService.COMPONENT_NAME,
            immediate = true)

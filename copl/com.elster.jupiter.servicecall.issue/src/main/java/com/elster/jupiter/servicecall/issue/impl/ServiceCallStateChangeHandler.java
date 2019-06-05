@@ -14,17 +14,17 @@ import com.elster.jupiter.util.json.JsonService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.servicecall.issue.impl",
+@Component(name = "com.elster.jupiter.servicecall.issue.impl.ServiceCallStateChangeHandler",
         service = ServiceCallHandler.class,
         immediate = true,
         property = "name=SerrviceCallStateChangeHandler")
-public class SerrviceCallStateChangeHandler implements ServiceCallHandler {
+public class ServiceCallStateChangeHandler implements ServiceCallHandler {
 
     private MessageService messageService;
     private JsonService jsonService;
     private IssueServiceCallService issueServiceCallService;
 
-    public SerrviceCallStateChangeHandler() {
+    public ServiceCallStateChangeHandler() {
     }
 
     @Reference
