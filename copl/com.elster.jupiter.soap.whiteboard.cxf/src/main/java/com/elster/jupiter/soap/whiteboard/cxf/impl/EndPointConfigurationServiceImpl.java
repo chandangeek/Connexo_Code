@@ -16,8 +16,10 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -58,6 +60,13 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     public Optional<EndPointConfiguration> getEndPointConfiguration(long id) {
         return dataModel.mapper(EndPointConfiguration.class)
                 .getUnique(EndPointConfigurationImpl.Fields.ID.fieldName(), id);
+    }
+
+    @Override
+    public List<EndPointConfiguration> getEndPointConfigurationsForWebService(String webServiceName) {
+        return streamEndPointConfigurations()
+                .filter(Where.where(EndPointConfigurationImpl.Fields.WEB_SERVICE_NAME.fieldName()).isEqualTo(webServiceName))
+                .select();
     }
 
     @Override

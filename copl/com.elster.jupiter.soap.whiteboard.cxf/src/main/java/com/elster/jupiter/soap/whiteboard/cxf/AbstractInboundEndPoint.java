@@ -13,9 +13,17 @@ import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import aQute.bnd.annotation.ConsumerType;
 import org.apache.cxf.interceptor.Fault;
 
+import javax.jws.WebMethod;
+import javax.jws.WebService;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @ConsumerType
 public abstract class AbstractInboundEndPoint {
     private static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
+    private final Set<String> webServiceMethodNames;
 
     /**
      * Attention: These fields are injectable by hardcoded names via {@link AbstractEndPointInitializer}.
@@ -26,6 +34,16 @@ public abstract class AbstractInboundEndPoint {
     protected WebServicesService webServicesService;
     private InboundEndPointConfiguration endPointConfiguration;
 
+    public AbstractInboundEndPoint() {
+        webServiceMethodNames = Arrays.stream(getClass().getInterfaces())
+                .filter(face -> face.getAnnotation(WebService.class) != null)
+                .map(Class::getMethods)
+                .flatMap(Arrays::stream)
+                .filter(meth -> meth.getAnnotation(WebMethod.class) != null)
+                .map(Method::getName)
+                .collect(Collectors.toSet());
+    }
+
     protected void setSecurityContext() {
         if (threadPrincipalService.getPrincipal() == null) {
             userService.findUser(BATCH_EXECUTOR_USER_NAME, userService.getRealm())
@@ -35,8 +53,7 @@ public abstract class AbstractInboundEndPoint {
 
     protected <RES, E extends Exception> RES runWithOccurrence(ExceptionThrowingSupplier<RES, E> supplier) throws E {
         try {
-            // TODO: add method name & application
-            webServicesService.startOccurrence(endPointConfiguration, null, null);
+            saveRequestNameAndApplicationIfNeeded();
             RES result = supplier.get();
             webServicesService.passOccurrence();
             return result;
@@ -46,6 +63,29 @@ public abstract class AbstractInboundEndPoint {
         } catch (Exception exception) {
             webServicesService.failOccurrence(exception);
             throw exception;
+        }
+    }
+
+    private void saveRequestNameAndApplicationIfNeeded() {
+        WebServiceCallOccurrence occurrence = webServicesService.getOccurrence();
+        boolean needToSave = false;
+        if (occurrence.getApplicationName() == null) {
+            occurrence.setApplicationName(getApplicationName());
+            needToSave = true;
+        }
+        if (occurrence.getRequest() == null) {
+            StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+            String methodName = Arrays.stream(stackTrace)
+                    .skip(2) // skip method names until the calling ones
+                    .map(StackTraceElement::getMethodName)
+                    .filter(webServiceMethodNames::contains)
+                    .findFirst()
+                    .orElse(stackTrace[2].getMethodName());
+            occurrence.setRequest(methodName);
+            needToSave = true;
+        }
+        if (needToSave) {
+            transactionService.runInIndependentTransaction(occurrence::save);
         }
     }
 
@@ -64,5 +104,11 @@ public abstract class AbstractInboundEndPoint {
 
     protected void log(String message, Exception exception) {
         webServicesService.getOccurrence().log(message, exception);
+    }
+
+    private String getApplicationName() {
+        return this instanceof ApplicationSpecific ?
+                ((ApplicationSpecific) this).getApplication() :
+                ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
 }

@@ -10,6 +10,7 @@ import com.elster.jupiter.users.Group;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -53,6 +54,8 @@ public interface EndPointConfigurationService {
      * @return The endpoint config by that id, or Empty if none found
      */
     Optional<EndPointConfiguration> getEndPointConfiguration(long id);
+
+    List<EndPointConfiguration> getEndPointConfigurationsForWebService(String webServiceName);
 
     /**
      * Finder for all known end point configurations. This methods supports paging.

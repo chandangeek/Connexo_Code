@@ -5,7 +5,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -17,15 +17,21 @@ import org.apache.cxf.phase.Phase;
  * Created by bvn on 6/24/16.
  */
 public class EndPointAccessFaultInterceptor extends AbstractEndPointInterceptor {
+    private final WebServicesService webServicesService;
 
-    public EndPointAccessFaultInterceptor(EndPointConfiguration endPointConfiguration, TransactionService transactionService) {
-        super(endPointConfiguration, endPointConfiguration.isInbound() ? Phase.PRE_STREAM : Phase.RECEIVE, transactionService);
+    public EndPointAccessFaultInterceptor(EndPointConfiguration endPointConfiguration, WebServicesService webServicesService) {
+        super(endPointConfiguration, endPointConfiguration.isInbound() ? Phase.PRE_STREAM : Phase.RECEIVE);
+        this.webServicesService = webServicesService;
     }
 
     @Override
     public void handleMessage(Message message) throws Fault {
-        Fault fault = (Fault) message.getContent(Exception.class);
-        Throwable stackTrace = fault.getCause();
-        logInTransaction("Request failed.", new Exception(stackTrace));
+        if (isForInboundService()) { // occurrences for outbound services are processed in AbstractOutboundEndPointProvider
+            try {
+                webServicesService.failOccurrence(new Exception(message.getContent(Exception.class).getCause()));
+            } catch (IllegalStateException e) {
+                // means occurrence has already been failed and removed from context; so just ignore
+            }
+        }
     }
 }

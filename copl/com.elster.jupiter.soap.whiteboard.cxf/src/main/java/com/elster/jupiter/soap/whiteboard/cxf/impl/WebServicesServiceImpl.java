@@ -289,11 +289,23 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Override
+    public WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application, String payload) {
+        validateOccurrenceNotPresent();
+        WebServiceCallOccurrence tmp = transactionService.executeInIndependentTransaction(
+                () -> endPointConfiguration.createEndPointOccurrence(clock.instant(), requestName, application, payload));
+        occurrence.set(tmp);
+        return tmp;
+    }
+
+    @Override
     public WebServiceCallOccurrence passOccurrence() {
         WebServiceCallOccurrence tmp = getOccurrence();
         occurrence.remove();
         return transactionService.executeInIndependentTransaction(() -> {
+            tmp.log(LogLevel.INFO, "Request completed successfully.");
+            tmp.setEndTime(clock.instant());
             // TODO: pass occurrence
+            tmp.save();
             return tmp;
         });
     }
@@ -314,11 +326,13 @@ public class WebServicesServiceImpl implements WebServicesService {
         occurrence.remove();
         return transactionService.executeInIndependentTransaction(() -> {
             if (exception == null) {
-                tmp.log(LogLevel.SEVERE, message);
+                tmp.log(LogLevel.SEVERE, "Request failed: " + message);
             } else {
-                tmp.log(message, exception);
+                tmp.log("Request failed: " + message, exception);
             }
+            tmp.setEndTime(clock.instant());
             // TODO: fail occurrence
+            tmp.save();
             return tmp;
         });
     }

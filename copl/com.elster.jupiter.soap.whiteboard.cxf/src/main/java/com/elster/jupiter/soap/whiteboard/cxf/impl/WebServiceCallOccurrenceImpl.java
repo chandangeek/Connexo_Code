@@ -133,6 +133,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         this.status = status;
     };
 
+    @Override
     public void setApplicationName(String applicationName){
         this.applicationName = applicationName;
     };

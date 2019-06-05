@@ -6,7 +6,6 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.transaction.TransactionService;
 
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -16,13 +15,11 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
  */
 public abstract class AbstractEndPointInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private final EndPointConfiguration endPointConfiguration;
-    private final TransactionService transactionService;
+    protected final EndPointConfiguration endPointConfiguration;
 
-    public AbstractEndPointInterceptor(EndPointConfiguration endPointConfiguration, String phase, TransactionService transactionService) {
+    public AbstractEndPointInterceptor(EndPointConfiguration endPointConfiguration, String phase) {
         super(phase);
         this.endPointConfiguration = endPointConfiguration;
-        this.transactionService = transactionService;
     }
 
     void logInTransaction(LogLevel logLevel, String message) {

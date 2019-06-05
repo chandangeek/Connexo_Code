@@ -17,5 +17,6 @@ public interface WebServiceCallOccurrence {
     void setStartTime(Instant startTime);
     void setEndTime(Instant endTime);
     void setRequest(String request);
+    void setApplicationName(String applicationName);
     void save();
 }

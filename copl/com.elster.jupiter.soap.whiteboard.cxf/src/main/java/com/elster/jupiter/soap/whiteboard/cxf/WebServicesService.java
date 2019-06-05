@@ -80,6 +80,8 @@ public interface WebServicesService {
 
     WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application);
 
+    WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application, String payload);
+
     WebServiceCallOccurrence passOccurrence();
 
     WebServiceCallOccurrence failOccurrence(String message);

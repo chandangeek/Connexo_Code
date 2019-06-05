@@ -108,12 +108,14 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                 publish(endPointConfiguration);
                 EP endpoint = endpoints.get(endPointConfiguration.getId());
                 if (endpoint == null) {
-                    endPointConfiguration.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName()));
+                    webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName());
+                    webServicesService.failOccurrence(thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName()));
                     // TODO send event for issue here, in a different transaction
                 }
                 return endpoint;
             } else {
-                endPointConfiguration.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.INACTIVE_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName()));
+                webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName());
+                webServicesService.failOccurrence(thesaurus.getSimpleFormat(MessageSeeds.INACTIVE_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName()));
                 // TODO send event for issue here, in a different transaction
                 return null;
             }
@@ -121,16 +123,13 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
         private Map<EndPointConfiguration, EP> getEndpoints() {
             if (endPointConfigurations == null) {
-                // use all available endpoints
-                Map<EndPointConfiguration, EP> result = endpoints.entrySet().stream()
-                        .map(epcIdAndEndpoint -> Pair.of(endPointConfigurationService.getEndPointConfiguration(epcIdAndEndpoint.getKey()).orElse(null), epcIdAndEndpoint.getValue()))
-                        .filter(Pair::hasFirst)
-                        .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
-                if (result.isEmpty()) {
+                endPointConfigurations = endPointConfigurationService.getEndPointConfigurationsForWebService(getName()).stream()
+                        .filter(EndPointConfiguration::isActive)
+                        .collect(Collectors.toSet());
+                if (endPointConfigurations.isEmpty()) {
                     LOGGER.severe(thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINTS).format(getName()));
                     // TODO send event for issue here, in a different transaction
                 }
-                return result;
             }
             return endPointConfigurations.stream()
                     .map(epc -> Pair.of(epc, getEndpoint(epc)))
@@ -149,8 +148,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                             new NoSuchMethodException("Couldn't find corresponding public method " + methodName + " in class " + getService().getName())));
             return getEndpoints().entrySet().stream()
                     .map(epcAndEP -> {
-                        // TODO: add application
-                        webServicesService.startOccurrence(epcAndEP.getKey(), methodName, null);
+                        webServicesService.startOccurrence(epcAndEP.getKey(), methodName, getApplicationName());
                         try {
                             Object response = method.invoke(epcAndEP.getValue(), request);
                             webServicesService.passOccurrence();
@@ -187,6 +185,12 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
+        }
+
+        private String getApplicationName() {
+            return AbstractOutboundEndPointProvider.this instanceof ApplicationSpecific ?
+                    ((ApplicationSpecific) AbstractOutboundEndPointProvider.this).getApplication() :
+                    ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
         }
     }
 }

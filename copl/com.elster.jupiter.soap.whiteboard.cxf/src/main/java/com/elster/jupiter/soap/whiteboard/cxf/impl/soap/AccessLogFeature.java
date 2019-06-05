@@ -5,6 +5,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 
 import org.apache.cxf.Bus;
@@ -20,10 +21,12 @@ import javax.inject.Inject;
 public class AccessLogFeature extends AbstractFeature {
     private EndPointConfiguration endPointConfiguration;
     private final TransactionService transactionService;
+    private final WebServicesService webServicesService;
 
     @Inject
-    public AccessLogFeature(TransactionService transactionService) {
+    public AccessLogFeature(TransactionService transactionService, WebServicesService webServicesService) {
         this.transactionService = transactionService;
+        this.webServicesService = webServicesService;
     }
 
     AccessLogFeature init(EndPointConfiguration endPointConfiguration) {
@@ -34,18 +37,15 @@ public class AccessLogFeature extends AbstractFeature {
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
         super.initializeProvider(provider, bus);
-        EndPointAccessRequestInterceptor endPointAccessRequestInterceptor = new EndPointAccessRequestInterceptor(endPointConfiguration, transactionService);
-        EndPointAccessResponseInterceptor endPointAccessResponseInterceptor = new EndPointAccessResponseInterceptor(endPointConfiguration, transactionService);
-        EndPointAccessFaultInterceptor endPointAccessFaultInterceptor = new EndPointAccessFaultInterceptor(endPointConfiguration, transactionService);
+        EndPointAccessRequestInterceptor endPointAccessRequestInterceptor = new EndPointAccessRequestInterceptor(endPointConfiguration, transactionService, webServicesService);
+        EndPointAccessFaultInterceptor endPointAccessFaultInterceptor = new EndPointAccessFaultInterceptor(endPointConfiguration, webServicesService);
         if (endPointConfiguration.isInbound()) {
             provider.getInInterceptors().add(endPointAccessRequestInterceptor);
             provider.getInFaultInterceptors().add(endPointAccessRequestInterceptor);
-            provider.getOutInterceptors().add(endPointAccessResponseInterceptor);
             provider.getOutFaultInterceptors().add(endPointAccessFaultInterceptor);
         } else {
             provider.getOutInterceptors().add(endPointAccessRequestInterceptor);
             provider.getOutFaultInterceptors().add(endPointAccessRequestInterceptor);
-            provider.getInInterceptors().add(endPointAccessResponseInterceptor);
             provider.getInFaultInterceptors().add(endPointAccessFaultInterceptor);
         }
     }

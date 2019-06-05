@@ -112,13 +112,11 @@ public enum TableSpecs {
             table.column("ENDTIME")
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
-                    //.notNull()
                     .map(WebServiceCallOccurrenceImpl.Fields.endTime.fieldName())
                     .add();
 
             table.column("REQUESTNAME")
                     .varChar(NAME_LENGTH)
-                    .notNull()
                     .map(WebServiceCallOccurrenceImpl.Fields.requestName.fieldName())
                     .add();
 
@@ -129,7 +127,6 @@ public enum TableSpecs {
                     .add();
             table.column("APPLICATIONNAME")
                     .varChar(NAME_LENGTH)
-                    .notNull()
                     .map(WebServiceCallOccurrenceImpl.Fields.applicationName.fieldName())
                     .add();
             table.column("PAYLOAD")
@@ -142,11 +139,9 @@ public enum TableSpecs {
             //Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             //table.column("VALUE").varChar(SHORT_DESCRIPTION_LENGTH).map("stringValue").add();
 
-
             table.primaryKey("PK_WS_ENDPOINT_OCCURRENCE").on(idColumn).add();
             //TO-DO UNCOMMENT
             //table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
-
         }
     },
     WS_ENDPOINT_LOG {
@@ -195,7 +190,6 @@ public enum TableSpecs {
                     .add();
             table.primaryKey("SCS_PK_ENDPOINT_LOG").on(idColumn).add();
             table.autoPartitionOn(timestampColumn, LifeCycleClass.WEBSERVICES);
-
         }
     },
     WS_ENDPOINT_PROPS {
