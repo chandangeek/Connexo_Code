@@ -125,7 +125,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
                 HLS_4_on_P0 and P3_enable (bit 5)   Indicates whether authentication via HLS method 4 is enabled on P0 and P3 (disabled == 0, enabled ==1)
                 HLS_5_on_P0 and P3_enable (bit 6)   Indicates whether authentication via HLS method 5 is enabled on P0 and P3 (disabled == 0, enabled ==1)
                  */
-                getProtocol().getLogger().finest("- configuration object flags: " + getStringFromBitString(flags) +" - before update");
+                getProtocol().journal("Configuration object flags: " + getStringFromBitString(flags) +" - before update");
                 switch (newAuthLevel){
                     case 3:
                     case 4:
@@ -135,7 +135,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
                     default:
                         throw new ProtocolException("Unexpected authentication level, should be 3,4 or 5 but received: " + newAuthLevel);
                 }
-                getProtocol().getLogger().finest("- configuration object flags: " + getStringFromBitString(flags) +" - after update");
+                getProtocol().journal("Configuration object flags: " + getStringFromBitString(flags) +" - after update");
                 config.setValueAttr(value);
             } catch (ClassCastException e) {
                 throw new ProtocolException("Couldn't write configuration. Expected value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to be of type 'Structure', but was of type '" + config.getValueAttr().getClass().getSimpleName() + "'.");
@@ -149,7 +149,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         String lteAPN = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.apnAttributeName);
         try {
-            getProtocol().getLogger().info("Changing LTE APN to: ["+lteAPN+"]");
+            getProtocol().journal("Changing LTE APN to: ["+lteAPN+"]");
 
             PPPSetup.PPPAuthenticationType pppat = getCosemObjectFactory().getPPPSetup().new PPPAuthenticationType();
             pppat.setAuthenticationType(PPPSetup.LCPOptionsType.AUTH_PAP);
@@ -191,31 +191,31 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         int bit11 = getIntegerAttribute(pendingMessage);// TODO check that the field is a number. Change attribute type maybe?
         ObisCode configObject = ObisCode.fromString(MBUS_CONFIGURATION_OBJECT);
-        getProtocol().getLogger().finest("Writing MBus Change Configuration object bit 11 to {"+bit11+"}");
+        getProtocol().journal("Writing MBus Change Configuration object bit 11 to {"+bit11+"}");
 
         try {
             Data data = getCosemObjectFactory().getData(configObject);
-            getProtocol().getLogger().finest("Reading existing value ...");
+            getProtocol().journal("Reading existing value ...");
             AbstractDataType abstractDataType = data.getValueAttr();
             if (abstractDataType.isStructure()){
                 Structure structure = abstractDataType.getStructure();
                 BitString flags = structure.getNextDataType().getBitString();
-                getProtocol().getLogger().finest(" - existing flags: 0x"+Long.toHexString(flags.longValue()));
+                getProtocol().journal(" - existing flags: 0x"+Long.toHexString(flags.longValue()));
                 flags.set(11, bit11==1);
                 structure.setDataType(0, flags);
-                getProtocol().getLogger().finest(" - new flags are: 0x"+Long.toHexString(flags.longValue())+" - saving back to the meter ...");
+                getProtocol().journal(" - new flags are: 0x"+Long.toHexString(flags.longValue())+" - saving back to the meter ...");
                 data.setValueAttr(structure);
-                getProtocol().getLogger().finest(" - done!");
+                getProtocol().journal(" - done!");
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
                 collectedMessage.setDeviceProtocolInformation("New flags: 0x"+Long.toHexString(flags.longValue()));
             } else {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                getProtocol().getLogger().finest(" - not a structure!" + abstractDataType.toString());
+                getProtocol().journal(" - not a structure!" + abstractDataType.toString());
                 collectedMessage.setDeviceProtocolInformation("Value of "+configObject+" is not a structure:"+abstractDataType.toString());
             }
         } catch (IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            getProtocol().getLogger().warning("Could not set MBusConfiguration object " + configObject.toString() + ": " + e.getMessage());
+            getProtocol().journal(Level.WARNING, "Could not set MBusConfiguration object " + configObject.toString() + ": " + e.getMessage());
             collectedMessage.setDeviceProtocolInformation( e.getMessage());
         }
         return collectedMessage;
@@ -262,32 +262,32 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
 
     public void setLTEFWLocation(OfflineDeviceMessage pendingMessage) throws IOException {
         byte[] fileAsOctetString = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.LTEModemFirmwareUgradeDownloadFileAttributeName), "");
-        getProtocol().getLogger().info(" > file content (hex): " + ProtocolTools.getHexStringFromBytes(fileAsOctetString));
+        getProtocol().journal(" > file content (hex): " + ProtocolTools.getHexStringFromBytes(fileAsOctetString));
         if(fileAsOctetString != null) {
-            getProtocol().getLogger().info(" > converting to OctetString and writing to "+ESMR50RegisterFactory.LTE_FW_LOCATION.toString());
+            getProtocol().journal(" > converting to OctetString and writing to "+ESMR50RegisterFactory.LTE_FW_LOCATION.toString());
             OctetString octetString = new OctetString(fileAsOctetString);
             Data fwLocation = getCosemObjectFactory().getData(ESMR50RegisterFactory.LTE_FW_LOCATION);
             fwLocation.setValueAttr(octetString);
-            getProtocol().getLogger().info( "LTE Firmware location package send successfully!");
+            getProtocol().journal( "LTE Firmware location package send successfully!");
         }else{
-            getProtocol().getLogger().info("LTE FW location is empty.");
+            getProtocol().journal("LTE FW location is empty.");
         }
     }
 
     public void setLTEFWDownloadTime(OfflineDeviceMessage pendingMessage) throws IOException {
         int lteFWDownloadTime = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.LTEModemFirmwareUgradeDownloadTimeoutAttributeName));
-        getProtocol().getLogger().info("Setting LTE Firmware download time to " + lteFWDownloadTime + " seconds.");
+        getProtocol().journal("Setting LTE Firmware download time to " + lteFWDownloadTime + " seconds.");
         getCosemObjectFactory().getData(ESMR50RegisterFactory.LTE_FW_DOWNLOAD_TIME).setValueAttr(new Unsigned32(lteFWDownloadTime));
     }
 
     public void doActivateLTEImageTransfer(OfflineDeviceMessage pendingMessage) throws IOException {
-        getProtocol().getLogger().info("Activating LTE Firmware image.");
+        getProtocol().journal("Activating LTE Firmware image.");
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer(LTE_IMAGE_TRANSFER_OBIS);
         imageTransfer.imageActivation();
     }
 
     public void doInitiateLTEImageTransfer(OfflineDeviceMessage pendingMessage) throws IOException {
-        getProtocol().getLogger().info("Initiating LTE Firmware image transfer.");
+        getProtocol().journal("Initiating LTE Firmware image transfer.");
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer(LTE_IMAGE_TRANSFER_OBIS);
         imageTransfer.initializeFOTA();
     }
@@ -303,7 +303,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
     }
 
     protected void resetAlarmRegister() throws IOException {
-        getProtocol().getLogger().info("Handling message Reset Alarm register.");
+        getProtocol().journal("Handling message Reset Alarm register.");
         getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.98.0.255")).setValueAttr(new Unsigned32(-1L)); //TODO Value was originally Unsigned64, must create Unsigned64 data type
     }
 
@@ -313,7 +313,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
      * @throws IOException
      */
     protected void changeGlobalKey() throws IOException {
-        getProtocol().getLogger().info("Handling message Change global encryption key.");
+        getProtocol().journal("Handling message Change global encryption key.");
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: global unicast encryption key
@@ -324,7 +324,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
         ss.transferGlobalKey(globalKeyArray);
 
-        getProtocol().getLogger().info(" > resetting FrameCounter to 1");
+        getProtocol().journal(" > resetting FrameCounter to 1");
         ((ESMR50Protocol)getProtocol()).resetFrameCounter(1);
     }
 

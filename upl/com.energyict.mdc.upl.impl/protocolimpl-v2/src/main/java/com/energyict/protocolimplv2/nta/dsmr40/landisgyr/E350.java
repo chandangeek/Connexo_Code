@@ -97,7 +97,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        getLogger().info("LandisGyr E350 protocol init V2");
+        journal("LandisGyr E350 protocol init V2");
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
         HHUSignOnV2 hhuSignOn = null;
@@ -220,11 +220,11 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
             setDeviceCache(new DLMSCache());
         }
         if ((getDeviceCache().getObjectList() == null) || ((Dsmr40Properties) getProperties()).getForcedToReadCache()) {
-            getLogger().info(((Dsmr40Properties) getProperties()).getForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
+            journal(((Dsmr40Properties) getProperties()).getForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
             readObjectList();
             getDeviceCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
         } else {
-            getLogger().info("Cache exist, will not be read!");
+            journal("Cache exist, will not be read!");
             getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
         }
     }

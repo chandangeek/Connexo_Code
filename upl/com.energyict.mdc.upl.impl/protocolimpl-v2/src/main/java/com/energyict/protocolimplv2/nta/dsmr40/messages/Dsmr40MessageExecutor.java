@@ -363,11 +363,11 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                 e.printStackTrace();
             }
             if (profileGeneric == null) {
-                getProtocol().getLogger().log(Level.SEVERE, "Profile for obis code " + ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE.toString() + " is null");
+                getProtocol().journal(Level.SEVERE, "Profile for obis code " + ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE.toString() + " is null");
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             }
             if(capturedObjectDefinitions.isEmpty()){
-                getProtocol().getLogger().log(Level.INFO, "Failed to set definable load profile capture objects.");
+                getProtocol().journal( "Failed to set definable load profile capture objects.");
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             }
             Array capturedObjects = new Array();
@@ -385,15 +385,15 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     definition.addDataType(new Unsigned16(dataIndex));
                     capturedObjects.addDataType(definition);
                 } catch (Exception e) {
-                    getProtocol().getLogger().log(Level.SEVERE, e.getMessage());
+                    getProtocol().journal(Level.SEVERE, e.getMessage());
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 }
             }
             profileGeneric.setCaptureObjectsAttr(capturedObjects);
-            getProtocol().getLogger().log(Level.INFO, "Successfully set definable load profile capture objects.");
+            getProtocol().journal("Successfully set definable load profile capture objects.");
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } else {
-            getProtocol().getLogger().log(Level.INFO, "Failed to set definable load profile capture objects.");
+            getProtocol().journal("Failed to set definable load profile capture objects.");
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
         }
         return collectedMessage;
@@ -404,7 +404,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         ObisCode obisCode = ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE;
         int period  =Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.capturePeriodAttributeName).getValue());
         getProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(obisCode).setCapturePeriodAttr(new Unsigned32(period));
-        getProtocol().getLogger().log(Level.INFO, "Successfully set definable load profile capture period to " + period);
+        getProtocol().journal("Successfully set definable load profile capture period to " + period);
         return collectedMessage;
     }
 }

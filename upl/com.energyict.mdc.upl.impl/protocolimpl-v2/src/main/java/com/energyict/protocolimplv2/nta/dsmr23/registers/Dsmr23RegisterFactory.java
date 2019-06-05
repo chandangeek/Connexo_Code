@@ -130,7 +130,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
                         }
                     } else {
-                        this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit.");
+                        this.protocol.journal(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit.");
                     }
                 } else if (this.registerMap.containsKey(register)) {
                     rv = convertCustomAbstractObjectsToRegisterValues(register, registerComposedCosemObject.getAttribute(this.registerMap.get(register)));
@@ -177,7 +177,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                     new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
                             su.getEisUnit()), eventTime);
         } else {
-            this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit "+su.toString()+". (it's handled as a composed register).");
+            this.protocol.journal(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit "+su.toString()+". (it's handled as a composed register).");
             return new RegisterValue(register,
                     new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
                             null), null);
@@ -195,7 +195,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         if (unitAttribute!=null) {
             return new ScalerUnit(registerComposedCosemObject.getAttribute(unitAttribute));
         } else {
-            protocol.getLogger().finest(" - register "+register.getObisCode()+" does now have an unit code specified in the protocol implementation, set to default");
+            protocol.journal("Register "+register.getObisCode()+" doesn't have an unit code specified in the protocol implementation, set to default");
             return new ScalerUnit(0, Unit.get(0) );
         }
     }
@@ -246,7 +246,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             if (protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) != -1) {
                 validRegisters.add(register);
             } else {
-                protocol.getLogger().severe("Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
+                protocol.journal(Level.SEVERE,"Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
             }
         }
         return validRegisters;
@@ -351,7 +351,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                             this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.DEVICE_TYPE.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                             dlmsAttributes.add(this.registerMap.get(register));
                         } else {
-                            protocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
+                            protocol.journal( "Register with ObisCode " + rObisCode + " is not supported.");
                         }
                     }
                 }
