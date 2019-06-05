@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.issue.impl.module;
 
+import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
@@ -41,7 +42,12 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_WEBSERVICE_NOTIFICATION("issue.action.webServiceNotification", "Web service notification"),
     ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE("issue.action.webServiceNotification.closeIssue", "Close issue"),
     ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE_DESCRIPTION("issue.action.webServiceNotification.close.description", "Select to remove the issue from operational screens in Connexo (e.g. dashboard, overviews, what''s going on). It will receive the status ''Forwarded''."),
-    MANUAL_ISSUE_TYPE("ManualIssueType", "Manually created");
+    MANUAL_ISSUE_TYPE("ManualIssueType", "Manually created"),
+    CLOSE_ACTION_PROPERTY_CLOSE_STATUS(CloseIssueAction.CLOSE_STATUS, "Close status"),
+    CLOSE_ACTION_PROPERTY_COMMENT(CloseIssueAction.COMMENT, "Comment"),
+    CLOSE_ACTION_WRONG_STATUS("action.wrong.status", "You are trying to apply the incorrect status"),
+    CLOSE_ACTION_ISSUE_CLOSED("action.issue.closed", "Issue closed"),
+    CLOSE_ACTION_ISSUE_ALREADY_CLOSED("action.issue.already.closed", "Issue already closed");
 
     private final String key;
     private final String defaultFormat;
