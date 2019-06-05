@@ -18,6 +18,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.InboundRestEndPointFactoryImpl;
@@ -304,7 +305,7 @@ public class WebServicesServiceImpl implements WebServicesService {
         return transactionService.executeInIndependentTransaction(() -> {
             tmp.log(LogLevel.INFO, "Request completed successfully.");
             tmp.setEndTime(clock.instant());
-            // TODO: pass occurrence
+            tmp.setStatus(WebServiceCallOccurrenceStatus.SUCCESSFUL);
             tmp.save();
             return tmp;
         });
@@ -331,7 +332,7 @@ public class WebServicesServiceImpl implements WebServicesService {
                 tmp.log("Request failed: " + message, exception);
             }
             tmp.setEndTime(clock.instant());
-            // TODO: fail occurrence
+            tmp.setStatus(WebServiceCallOccurrenceStatus.FAILED);
             tmp.save();
             return tmp;
         });

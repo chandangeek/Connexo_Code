@@ -12,8 +12,7 @@ public class WebServiceCallOccurrenceInfoFactory {
 
     @Inject
     public WebServiceCallOccurrenceInfoFactory(Thesaurus thesaurus,
-                                               EndPointConfigurationInfoFactory endPointConfigurationInfoFactory)
-    {
+                                               EndPointConfigurationInfoFactory endPointConfigurationInfoFactory) {
         this.thesaurus = thesaurus;
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
     }
@@ -22,25 +21,19 @@ public class WebServiceCallOccurrenceInfoFactory {
         WebServiceCallOccurrenceInfo info = new WebServiceCallOccurrenceInfo();
         /*info.logLevel = thesaurus.getString(endPointLog.getLogLevel().getKey(), endPointLog.getLogLevel()
                 .getDefaultFormat());*/
-        System.out.println("PREPARE INFO OBJECT FOR OCCURRENCE id ="+endPointOccurrence.getId());
-        System.out.println("PAYLOAD = "+endPointOccurrence.getPayload());
+        System.out.println("PREPARE INFO OBJECT FOR OCCURRENCE id =" + endPointOccurrence.getId());
+        System.out.println("PAYLOAD = " + endPointOccurrence.getPayload().orElse(null));
 
         info.id = endPointOccurrence.getId();
         info.startTime = endPointOccurrence.getStartTime();
-        info.endTime = endPointOccurrence.getEndTime();
-        info.status = endPointOccurrence.getStatus();
-        info.request = endPointOccurrence.getRequest();
-        info.applicationName = endPointOccurrence.getApplicationName();
-        if (uriInfo != null && endPointOccurrence.getEndPointConfiguration() != null){
+        info.status = endPointOccurrence.getStatus().getName();
+        endPointOccurrence.getEndTime().ifPresent(endTime -> info.endTime = endTime);
+        endPointOccurrence.getRequest().ifPresent(request -> info.request = request);
+        endPointOccurrence.getApplicationName().ifPresent(applicationName -> info.applicationName = applicationName);
+        endPointOccurrence.getPayload().ifPresent(payload -> info.payload = payload);
+        if (uriInfo != null && endPointOccurrence.getEndPointConfiguration() != null) {
             info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointOccurrence.getEndPointConfiguration(), uriInfo);
         }
-
-        if (endPointOccurrence.getPayload() != null){
-            info.payload = endPointOccurrence.getPayload();
-        }
-
         return info;
     }
-
-
 }

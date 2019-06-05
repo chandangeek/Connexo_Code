@@ -69,11 +69,11 @@ public abstract class AbstractInboundEndPoint {
     private void saveRequestNameAndApplicationIfNeeded() {
         WebServiceCallOccurrence occurrence = webServicesService.getOccurrence();
         boolean needToSave = false;
-        if (occurrence.getApplicationName() == null) {
+        if (!occurrence.getApplicationName().isPresent()) {
             occurrence.setApplicationName(getApplicationName());
             needToSave = true;
         }
-        if (occurrence.getRequest() == null) {
+        if (!occurrence.getRequest().isPresent()) {
             StackTraceElement[] stackTrace = new Throwable().getStackTrace();
             String methodName = Arrays.stream(stackTrace)
                     .skip(2) // skip method names until the calling ones

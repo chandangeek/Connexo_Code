@@ -122,6 +122,7 @@ public enum TableSpecs {
 
             table.column("STATUS")
                     .varChar(NAME_LENGTH)
+                    .conversion(ColumnConversion.CHAR2ENUM)
                     .notNull()
                     .map(WebServiceCallOccurrenceImpl.Fields.status.fieldName())
                     .add();

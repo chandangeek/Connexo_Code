@@ -4,7 +4,7 @@ public enum WebServiceCallOccurrenceStatus {
 
     ONGOING("Ongoing"),
     FAILED("Failed"),
-    SUCCESSFUL("Sucessful");
+    SUCCESSFUL("Successful");
 
     private String name;
 

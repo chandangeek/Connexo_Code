@@ -4,26 +4,26 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.util.HasId;
 
-import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 
 public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, HasId {
+    private DataModel dataModel;
 
     private long id;
-    Instant startTime;
-    Instant endTime;
-    String requestName;
-    //WebService webService;
     private Reference<EndPointConfiguration> endPointConfiguration = Reference.empty();
-    String status;
-    String applicationName;
+    private Instant startTime;
+    private Instant endTime;
+    private String requestName;
+    private WebServiceCallOccurrenceStatus status;
+    private String applicationName;
     private String payload;
-    private DataModel dataModel;
 
     public enum Fields {
         ID("id"),
@@ -46,17 +46,11 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         }
     }
 
-    @Inject
-    public WebServiceCallOccurrenceImpl(){
-
-    }
-
     public WebServiceCallOccurrenceImpl(DataModel dataModel,
                                         Instant startTime,
                                         String requestName,
                                         String applicationName,
-                                        EndPointConfiguration endPointConfiguration)
-    {
+                                        EndPointConfiguration endPointConfiguration) {
         this(dataModel, startTime, requestName, applicationName, endPointConfiguration, null);
     }
 
@@ -66,99 +60,96 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
                                         String requestName,
                                         String applicationName,
                                         EndPointConfiguration endPointConfiguration,
-                                        String payload)
-    {
+                                        String payload) {
         this.dataModel = dataModel;
         this.startTime = startTime;
         this.requestName = requestName;
         this.applicationName = applicationName;
-        this.status = null; // TODO: add status
+        this.status = WebServiceCallOccurrenceStatus.ONGOING;
         this.endPointConfiguration.set(endPointConfiguration);
         this.payload = payload;
     }
 
     @Override
-    public long getId(){return this.id;}
-
-    @Override
-    public Instant getStartTime(){
-        return startTime;
-    };
-
-    @Override
-    public Instant getEndTime(){
-        return endTime;
-    };
-    @Override
-    public String getRequest(){
-        return requestName;
-    };
-
-    @Override
-    public String getStatus(){
-        return status;
-    };
-    @Override
-    public String getApplicationName(){
-        return applicationName;
-    };
-
-    @Override
-    public String getPayload() {
-        return this.payload;
+    public long getId() {
+        return this.id;
     }
 
     @Override
-    public EndPointConfiguration getEndPointConfiguration(){
+    public Instant getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public Optional<Instant> getEndTime() {
+        return Optional.ofNullable(endTime);
+    }
+
+    @Override
+    public Optional<String> getRequest() {
+        return Optional.ofNullable(requestName);
+    }
+
+    @Override
+    public WebServiceCallOccurrenceStatus getStatus() {
+        return status;
+    }
+
+    @Override
+    public Optional<String> getApplicationName() {
+        return Optional.ofNullable(applicationName);
+    }
+
+    @Override
+    public Optional<String> getPayload() {
+        return Optional.ofNullable(payload);
+    }
+
+    @Override
+    public EndPointConfiguration getEndPointConfiguration() {
         return endPointConfiguration.get();
-    };
+    }
 
     @Override
-    public void  setStartTime(Instant startTime){
-        this.startTime = startTime;
-    };
-
-    @Override
-    public void setEndTime(Instant endTime){
+    public void setEndTime(Instant endTime) {
         this.endTime = endTime;
-    };
+    }
 
     @Override
-    public void setRequest(String requestName){
+    public void setRequest(String requestName) {
         this.requestName = requestName;
-    };
+    }
 
     @Override
-    public void setStatus(String status){
+    public void setStatus(WebServiceCallOccurrenceStatus status) {
         this.status = status;
-    };
+    }
 
     @Override
-    public void setApplicationName(String applicationName){
+    public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
-    };
+    }
 
     @Override
-    public void log(LogLevel logLevel, String message){
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
+
+    @Override
+    public void log(LogLevel logLevel, String message) {
         getEndPointConfiguration().log(logLevel, message);
     }
 
     @Override
-    public void log(String message, Exception exception){
+    public void log(String message, Exception exception) {
         getEndPointConfiguration().log(message, exception);
     }
 
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        WebServiceCallOccurrenceImpl that = (WebServiceCallOccurrenceImpl) o;
-        return id == that.id;
+        return this == o
+                || o instanceof WebServiceCallOccurrenceImpl
+                && id == ((WebServiceCallOccurrenceImpl) o).id;
     }
 
     @Override
@@ -167,15 +158,8 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     }
 
     @Override
-    public void setPayload(String payload) {
-        this.payload = payload;
-    }
-
-
-
-    @Override
-    public void save(){
-        if (this.getId() > 0) {
+    public void save() {
+        if (id > 0) {
             Save.UPDATE.save(this.dataModel, this, Save.Update.class);
         } else {
             Save.CREATE.save(this.dataModel, this, Save.Create.class);
