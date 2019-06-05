@@ -153,8 +153,8 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
     },
 
     unlinkSaveButton: function(btn) {
-        var me = this;
-            unlinkTime = this.getUnlinkMeterForm().down('#unlink-meter-date').down('#unlink-date-on').getValue().getTime(),
+        var me = this,
+            unlinkTime = me.getUnlinkMeterForm().down('#unlink-meter-date').down('#unlink-date-on').getValue().getTime(),
             meterRoleId = _.find(btn.meterRoles, function(meterRole) {
                 return meterRole.meter === btn.meterName;
             });
@@ -162,24 +162,9 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
         Ext.Ajax.request({
             url: '/api/udr/usagepoints/'+ btn.usagePointName +'/meterroles/'+ meterRoleId.id +'/unlink/' + unlinkTime,
             method: 'PUT',
-            success: function () {
+            success: function() {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.unlinkMeter.success.message', 'IMT', 'Meter {0} will be unlinked on {1}.', [btn.meterName, Uni.DateTime.formatDateTimeShort(unlinkTime)], false));
                 me.getController('Uni.controller.history.Router').getRoute('usagepoints/view/metrologyconfiguration').forward();
-            },
-            failure: function (response) {
-                var code = response.status;
-
-                if (response.status === 400) {
-                    var response = Ext.decode(response.responseText, true),
-                    title = Uni.I18n.translate('general.error.title', 'IMT', 'Failed to unlink meter'),
-                    msg = _.take(response.errors).msg;
-
-                    if (Ext.isEmpty(msg)) {
-                        msg = Uni.I18n.translate('general.error.unknown', 'IMT', 'Unknown error occurred');
-                    }
-
-                    me.getApplication().getController('Uni.controller.Error').showError(title, msg, code);
-                }
             }
         });
     }
