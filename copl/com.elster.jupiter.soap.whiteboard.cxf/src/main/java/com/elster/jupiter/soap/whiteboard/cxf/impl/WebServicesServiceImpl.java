@@ -83,6 +83,7 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile TransactionService transactionService;
+    private volatile HttpService httpService;
 
     // OSGi
     public WebServicesServiceImpl() {
@@ -91,7 +92,7 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
     @Inject // For test purposes only
     public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService,
                                   UpgradeService upgradeService, BundleContext bundleContext, EventService eventService,
-                                  UserService userService, NlsService nlsService, TransactionService transactionService) throws Exception {
+                                  UserService userService, NlsService nlsService, TransactionService transactionService, HttpService httpService) throws Exception {
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setOrmService(ormService);
         setUpgradeService(upgradeService);
@@ -99,6 +100,7 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
         setNlsService(nlsService);
         setUserService(userService);
         setTransactionService(transactionService);
+        setHttpService(httpService);
         activate(bundleContext);
     }
 
@@ -142,6 +144,7 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
 
     @Reference
     public void setHttpService(HttpService httpService) {
+        this.httpService = httpService;
         HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet());
         try {
             httpService.registerServlet("/soap",servlet,null,null);
@@ -352,6 +355,7 @@ public class WebServicesServiceImpl implements WebServicesService, BundleWaiter.
                 bind(UserService.class).toInstance(userService);
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(String.class).annotatedWith(Names.named("LogDirectory")).toInstance(logDirectory);
+                bind(HttpService.class).toInstance(httpService);
                 bind(WebServicesService.class).toInstance(WebServicesServiceImpl.this);
             }
         };
