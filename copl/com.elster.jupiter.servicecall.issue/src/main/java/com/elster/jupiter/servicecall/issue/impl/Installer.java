@@ -5,22 +5,12 @@
 package com.elster.jupiter.servicecall.issue.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
-import com.elster.jupiter.servicecall.issue.ModuleConstants;
-import com.elster.jupiter.servicecall.issue.ServiceCallActionsFactory;
 import com.elster.jupiter.servicecall.issue.TranslationKeys;
-import com.elster.jupiter.servicecall.issue.impl.action.FailedAction;
-import com.elster.jupiter.servicecall.issue.impl.action.PartialSucceedAction;
 import com.elster.jupiter.servicecall.issue.impl.event.ServiceCallEventDescription;
 import com.elster.jupiter.upgrade.FullInstaller;
 
@@ -28,23 +18,17 @@ import com.google.inject.Inject;
 
 import java.util.logging.Logger;
 
-import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
-
 class Installer implements FullInstaller {
 
     private final IssueService issueService;
-    private final IssueActionService issueActionService;
     private final DataModel dataModel;
     private final EventService eventService;
-    private final MessageService messageService;
 
     @Inject
-    Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, EventService eventService, MessageService messageService) {
+    Installer(DataModel dataModel, IssueService issueService, EventService eventService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
-        this.issueActionService = issueActionService;
         this.eventService = eventService;
-        this.messageService = messageService;
     }
 
     @Override
@@ -55,12 +39,9 @@ class Installer implements FullInstaller {
                 () -> new CreateIssueViewOperation(dataModel).execute(),
                 logger
         );
-
-//        doTry(
-//                "Create event subscriber",
-//                this::setAQSubscriber,
-//                logger
-//        );
+        run(() -> {
+            issueService.createIssueType(IssueServiceCallService.ISSUE_TYPE_NAME, TranslationKeys.SERVICE_CALL_ISSUE_TYPE, IssueServiceCallService.SERVICE_CALL_ISSUE_PREFIX);
+        }, "issue type", logger);
         doTry(
                 "Publish events",
                 this::publishEvents,
@@ -77,20 +58,6 @@ class Installer implements FullInstaller {
         }
     }
 
-    private IssueType setSupportedIssueType() {
-        return issueService.createIssueType(IssueServiceCallService.ISSUE_TYPE_NAME, TranslationKeys.SERVICE_CALL_ISSUE_TYPE, IssueServiceCallService.SERVICE_CALL_ISSUE_PREFIX);
-    }
-
-    private void setAQSubscriber() {
-        DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
-        destinationSpec.subscribe(
-                TranslationKeys.AQ_SUBSCRIBER,
-                IssueServiceCallService.COMPONENT_NAME,
-                Layer.DOMAIN,
-                whereCorrelationId()
-                        .isEqualTo(ServiceCallEventDescription.CANNOT_ESTIMATE_DATA.getTopic())
-                        .or(whereCorrelationId().isEqualTo(ServiceCallEventDescription.CANNOT_ESTIMATE_DATA.getTopic())));
-    }
     private void run(Runnable runnable, String explanation, Logger logger) {
         doTry(
                 explanation,

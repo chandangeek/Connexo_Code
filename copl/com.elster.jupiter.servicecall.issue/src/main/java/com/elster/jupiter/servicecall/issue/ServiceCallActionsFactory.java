@@ -14,14 +14,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.issue.impl.action.FailedAction;
-import com.elster.jupiter.servicecall.issue.impl.action.PartialSucceedAction;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.ProvisionException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -81,8 +77,6 @@ public class ServiceCallActionsFactory implements IssueActionFactory {
 //                bind(EstimationService.class).toInstance(estimationService);
             }
         });
-
-        addDefaultActions();
     }
 
     public IssueAction createIssueAction(String issueActionClassName) {
@@ -124,12 +118,4 @@ public class ServiceCallActionsFactory implements IssueActionFactory {
 //        this.estimationService = estimationService;
 //    }
 
-    private void addDefaultActions() {
-        try {
-            actionProviders.put(FailedAction.class.getName(), injector.getProvider(FailedAction.class));
-            actionProviders.put(PartialSucceedAction.class.getName(), injector.getProvider(PartialSucceedAction.class));
-        } catch (ConfigurationException | ProvisionException e) {
-            LOG.warning(e.getMessage());
-        }
-    }
 }
