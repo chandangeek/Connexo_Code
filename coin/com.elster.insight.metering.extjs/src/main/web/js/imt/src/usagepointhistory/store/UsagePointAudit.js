@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Imt.store.UsagePointAudit', {
+Ext.define('Imt.usagepointhistory.store.UsagePointAudit', {
     extend: 'Ext.data.Store',
     require: [
         'Cfg.audit.model.Audit'

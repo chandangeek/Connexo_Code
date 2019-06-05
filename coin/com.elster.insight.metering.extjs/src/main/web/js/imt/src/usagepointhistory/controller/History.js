@@ -18,7 +18,8 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         'Imt.usagepointmanagement.store.CalendarHistory',
         'Imt.usagepointhistory.store.LifeCycleAndState',
         'Imt.usagepointhistory.store.HistoricalMeters',
-        'Imt.usagepointhistory.store.MetrologyConfigurationsHistory'
+        'Imt.usagepointhistory.store.MetrologyConfigurationsHistory',
+        'Imt.usagepointhistory.store.UsagePointAudit'
     ],
     views: [
         'Imt.usagepointhistory.view.Overview',
@@ -297,7 +298,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             auditController = me.getController('Cfg.audit.controller.Audit'),
             auditTrailTab = me.getPage().down('#up-audit-trail-tab'),
             dependenciesLoaded = function () {
-                var usagePointAudit = me.getStore('Imt.store.UsagePointAudit');
+                var usagePointAudit = me.getStore('Imt.usagepointhistory.store.UsagePointAudit');
                 usagePointAudit.getProxy().setUrl(usagePointId);
                 auditTrailTab.add(auditController.getAuditTrailView(usagePointAudit));
                 auditController.prepareForSpecificObject(auditTrailTab.down('audit-setup-view'));
