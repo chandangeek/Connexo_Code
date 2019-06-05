@@ -251,6 +251,14 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      */
     void store(MeterReading meterReading);
 
+    /**
+     * Stores the given MeterReadings.
+     *
+     * @param meterReading the meterReadings which will be stored
+     * @param readingDate used to set the reading date in case data is imported from another system. If data is collected, it can be set to null
+     */
+    void store(MeterReading meterReading, Instant readingDate);
+
     boolean hasData();
 
     void touchDevice();

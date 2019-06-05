@@ -157,6 +157,10 @@
             <artifactId>mdc.app</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cim.webservices.outbound.soap</artifactId>
         </dependency>
@@ -270,31 +274,4 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jvnet.jax-ws-commons</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <wsdlDirectory>src/main/resources</wsdlDirectory>
-                    <wsdlFiles>
-                        <wsdlFile>meterconfig/ExecuteMeterConfig.wsdl</wsdlFile>
-                        <wsdlFile>meterconfig/GetMeterConfig.wsdl</wsdlFile>
-                        <wsdlFile>getenddeviceevents/GetEndDeviceEvents.wsdl</wsdlFile>
-                        <wsdlFile>enddeviceevents/ReceiveEndDeviceEvents.wsdl</wsdlFile>
-                    </wsdlFiles>
-                    <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
-                    <bindingDirectory>${basedir}/src/main/resources/binding</bindingDirectory>
-                    <keep>true</keep>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

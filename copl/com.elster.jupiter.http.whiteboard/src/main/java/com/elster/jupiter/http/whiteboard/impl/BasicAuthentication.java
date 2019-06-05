@@ -464,9 +464,12 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private Optional<Cookie> getTokenCookie(HttpServletRequest request) {
-        return Arrays.stream(request.getCookies())
-                .filter(cookie -> TOKEN_COOKIE_NAME.equals(cookie.getName()))
-                .findFirst();
+        if (request.getCookies() != null) {
+            return Arrays.stream(request.getCookies())
+                    .filter(cookie -> TOKEN_COOKIE_NAME.equals(cookie.getName()))
+                    .findFirst();
+        }
+        return Optional.empty();
     }
 
     private Cookie createTokenCookie(String cookieValue, String cookiePath) {

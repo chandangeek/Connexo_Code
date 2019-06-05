@@ -100,7 +100,7 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         parentGetMeterReadingsDomainExtension.setTimePeriodStart(startDate);
         parentGetMeterReadingsDomainExtension.setTimePeriodEnd(endDate);
         parentGetMeterReadingsDomainExtension.setReadingTypes(MIN15_MRID);
-        parentGetMeterReadingsDomainExtension.setEndDevices(END_DEVICE1_MRID);
+//        parentGetMeterReadingsDomainExtension.setEndDevices(END_DEVICE1_MRID);
         when(serviceCall.getExtensionFor(any(ParentGetMeterReadingsCustomPropertySet.class)))
                 .thenReturn(Optional.of(parentGetMeterReadingsDomainExtension));
         when(serviceCall.getExtension(any())).thenReturn(Optional.of(parentGetMeterReadingsDomainExtension));

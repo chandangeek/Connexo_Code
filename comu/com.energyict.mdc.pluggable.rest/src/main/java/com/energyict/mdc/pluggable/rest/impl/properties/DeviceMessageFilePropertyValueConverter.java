@@ -16,9 +16,8 @@ public class DeviceMessageFilePropertyValueConverter implements PropertyValueCon
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        //return propertySpec != null && propertySpec.getValueFactory().getValueType().isAssignableFrom(DeviceMessageFile.class); Lau 1
-       return propertySpec != null && com.energyict.mdc.upl.properties.DeviceMessageFile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()); } //Lau2
-
+        return propertySpec != null && propertySpec.getValueFactory().getValueType().isAssignableFrom(DeviceMessageFile.class);
+    }
 
     @Override
     public SimplePropertyType getPropertyType(PropertySpec propertySpec) {

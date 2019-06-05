@@ -11,11 +11,9 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
-import com.google.common.collect.TreeRangeSet;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -82,6 +80,11 @@ public class EffectiveChannelsContainerValidation implements ChannelsContainerVa
     @Override
     public void activate() {
         channelsContainerValidation.activate();
+    }
+
+    @Override
+    public void setInitialActivationStatus(boolean status) {
+        channelsContainerValidation.setInitialActivationStatus(status);
     }
 
     @Override

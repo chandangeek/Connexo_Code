@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -30,6 +31,7 @@ public class DataValidationMessageHandlerFactory implements MessageHandlerFactor
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
+    private volatile EventService eventService;
     private volatile Clock clock;
 
     private User user;
@@ -37,7 +39,7 @@ public class DataValidationMessageHandlerFactory implements MessageHandlerFactor
     @Override
     public MessageHandler newMessageHandler() {
         return taskService.createMessageHandler(new DataValidationTaskExecutor((ValidationServiceImpl) validationService,
-                transactionService, validationService.getThesaurus(), threadPrincipalService, clock, getUser()));
+                transactionService, validationService.getThesaurus(), threadPrincipalService, eventService, clock, getUser()));
     }
 
     @Reference
@@ -53,6 +55,11 @@ public class DataValidationMessageHandlerFactory implements MessageHandlerFactor
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference

@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
@@ -12,12 +11,6 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.Set;
 
-/**
- * Provides building services for {@link DeviceLifeCycle}.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-03-12 (16:31)
- */
 @ProviderType
 public interface DeviceLifeCycleBuilder {
 
@@ -30,7 +23,7 @@ public interface DeviceLifeCycleBuilder {
      * @return The DeviceLifeCycleBuilder to support method chaining
      * @see DeviceLifeCycle#getMaximumFutureEffectiveTimeShift()
      */
-    public DeviceLifeCycleBuilder maximumFutureEffectiveTimeShift(TimeDuration timeDuration);
+    DeviceLifeCycleBuilder maximumFutureEffectiveTimeShift(TimeDuration timeDuration);
 
     /**
      * Sets the maximum time shift in the past
@@ -41,18 +34,18 @@ public interface DeviceLifeCycleBuilder {
      * @return The DeviceLifeCycleBuilder to support method chaining
      * @see DeviceLifeCycle#getMaximumPastEffectiveTimeShift()
      */
-    public DeviceLifeCycleBuilder maximumPastEffectiveTimeShift(TimeDuration timeDuration);
+    DeviceLifeCycleBuilder maximumPastEffectiveTimeShift(TimeDuration timeDuration);
 
     /**
      * Starts the building process to authorize the initiation of the {@link TransitionBusinessProcess}
      * when the related device is in the specified {@link State}.
      *
-     * @param state The State
-     * @param name The name for the new custom action
+     * @param state   The State
+     * @param name    The name for the new custom action
      * @param process The TransitionBusinessProcess
      * @return The AuthorizedActionBuilder
      */
-    public AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String name, TransitionBusinessProcess process);
+    AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String name, TransitionBusinessProcess process);
 
     /**
      * Starts the building process to authorize the initiation of the specified {@link StateTransition}
@@ -62,7 +55,7 @@ public interface DeviceLifeCycleBuilder {
      * @return The AuthorizedTransitionActionBuilder
      * @see StateTransition#getFrom()
      */
-    public AuthorizedTransitionActionBuilder newTransitionAction(StateTransition stateTransition);
+    AuthorizedTransitionActionBuilder newTransitionAction(StateTransition stateTransition);
 
     /**
      * Gets the {@link DeviceLifeCycle} that was being constructed with this builder.
@@ -71,7 +64,7 @@ public interface DeviceLifeCycleBuilder {
      * @return The DeviceLifeCycle
      * @see DeviceLifeCycle#save()
      */
-    public DeviceLifeCycle complete();
+    DeviceLifeCycle complete();
 
     /**
      * Supports the building process of an {@link AuthorizedAction}.
@@ -82,26 +75,25 @@ public interface DeviceLifeCycleBuilder {
      *
      * @param <T> The type of {@link AuthorizedAction} that is being built
      */
-    public interface AuthorizedActionBuilder<T extends AuthorizedAction> {
+    @ProviderType
+    interface AuthorizedActionBuilder<T extends AuthorizedAction> {
 
-        public AuthorizedActionBuilder<T> addLevel(AuthorizedAction.Level level, AuthorizedAction.Level... otherLevels);
+        AuthorizedActionBuilder<T> addLevel(AuthorizedAction.Level level, AuthorizedAction.Level... otherLevels);
 
-        public AuthorizedActionBuilder<T> addAllLevels(Set<AuthorizedAction.Level> levels);
+        AuthorizedActionBuilder<T> addAllLevels(Set<AuthorizedAction.Level> levels);
 
-        public T complete();
-
+        T complete();
     }
 
-    public interface AuthorizedTransitionActionBuilder extends AuthorizedActionBuilder<AuthorizedTransitionAction> {
+    @ProviderType
+    interface AuthorizedTransitionActionBuilder extends AuthorizedActionBuilder<AuthorizedTransitionAction> {
 
-        public AuthorizedTransitionActionBuilder addCheck(MicroCheck check, MicroCheck... otherChecks);
+        AuthorizedTransitionActionBuilder setChecks(Set<String> checks);
 
-        public AuthorizedTransitionActionBuilder addAllChecks(Set<MicroCheck> checks);
+        AuthorizedTransitionActionBuilder setChecks(String... checks);
 
-        public AuthorizedTransitionActionBuilder addAction(MicroAction action, MicroAction... otherActions);
+        AuthorizedTransitionActionBuilder addActions(Set<MicroAction> actions);
 
-        public AuthorizedTransitionActionBuilder addAllActions(Set<MicroAction> actions);
-
+        AuthorizedTransitionActionBuilder addActions(MicroAction... actions);
     }
-
 }

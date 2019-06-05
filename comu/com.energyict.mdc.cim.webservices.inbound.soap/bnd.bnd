@@ -1,19 +1,6 @@
 -classpath: target/classes
 -dsannotations: *
 
-Private-Package: com.energyict.mdc.cim.webservices.inbound.soap.*,\
-                 ch.iec.tc57._2011.enddeviceevents*,\
-                 ch.iec.tc57._2011.enddeviceeventsmessage*,\
-                 ch.iec.tc57._2011.executemeterconfig*,\
-                 ch.iec.tc57._2011.getenddeviceevents*,\
-                 ch.iec.tc57._2011.getenddeviceeventsmessage*,\
-                 ch.iec.tc57._2011.getmeterconfig*,\
-                 ch.iec.tc57._2011.getmeterconfigmessage*,\
-                 ch.iec.tc57._2011.meterconfig*,\
-                 ch.iec.tc57._2011.meterconfigmessage*,\
-                 ch.iec.tc57._2011.receiveenddeviceevents*,\
-                 com.elster.connexo.*,\
-                 org.w3.*
-Export-Package: com.energyict.mdc.cim.webservices.inbound.soap,\
-                org.w3._2000._09.xmldsig,\
-                org.w3._2001._04.xmlenc
+Private-Package: com.energyict.mdc.cim.webservices.inbound.soap.*
+
+Export-Package: com.energyict.mdc.cim.webservices.inbound.soap

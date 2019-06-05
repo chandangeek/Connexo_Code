@@ -62,6 +62,25 @@ public class DeviceConfigurationEstimationRuleSetUsageTest extends PersistenceTe
 
     @Test
     @Transactional
+    public void testChangeEstimationRuleSetStatus() {
+        deviceConfiguration.addEstimationRuleSet(createEstimationRuleSet("RuleSet1"));
+        deviceConfiguration.addEstimationRuleSet(createEstimationRuleSet("RuleSet2"));
+        deviceConfiguration.addEstimationRuleSet(createEstimationRuleSet("RuleSet3"));
+        deviceConfiguration.save();
+
+        List<EstimationRuleSet> estimationRuleSets = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get()
+                .getEstimationRuleSets();
+
+        estimationRuleSets.forEach(estimationRuleSet -> deviceConfiguration.setEstimationRuleSetStatus(estimationRuleSet, true));
+        assertThat(estimationRuleSets.stream().filter(estimationRuleSet -> deviceConfiguration.getEstimationRuleSetStatus(estimationRuleSet)).count()).isEqualTo(3);
+
+        estimationRuleSets.forEach(estimationRuleSet -> deviceConfiguration.setEstimationRuleSetStatus(estimationRuleSet, false));
+        assertThat(estimationRuleSets.stream().filter(estimationRuleSet -> deviceConfiguration.getEstimationRuleSetStatus(estimationRuleSet)).count()).isEqualTo(0);
+
+    }
+
+    @Test
+    @Transactional
     public void testRemoveEstimationRuleSets() {
         EstimationRuleSet estimationRuleSet = createEstimationRuleSet("RuleSet3");
         deviceConfiguration.addEstimationRuleSet(estimationRuleSet);

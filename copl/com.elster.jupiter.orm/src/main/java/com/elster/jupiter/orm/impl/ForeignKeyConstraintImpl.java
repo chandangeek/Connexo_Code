@@ -184,7 +184,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         Objects.requireNonNull(getReferencedTable());
         Objects.requireNonNull(deleteRule);
         Objects.requireNonNull(fieldName);
-        if (!deleteRule.equals(DeleteRule.RESTRICT) && getTable().hasJournal()) {
+        if (!getTable().hasForceJournal() && !deleteRule.equals(DeleteRule.RESTRICT) && getTable().hasJournal()) {
             throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journalled table cannot have a foreign key with cascade or set null delete rule");
         }
         if (getReferencedTable().isCached() && forwardEagers.length > 0) {

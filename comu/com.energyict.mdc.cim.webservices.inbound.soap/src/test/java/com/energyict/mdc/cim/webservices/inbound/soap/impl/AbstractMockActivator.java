@@ -40,6 +40,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 
+import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -144,6 +145,8 @@ public abstract class AbstractMockActivator {
     OrmService ormService;
     @Mock
     DataModel dataModel;
+    @Mock
+    protected MeterConfigFactory meterConfigFactory;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -205,6 +208,7 @@ public abstract class AbstractMockActivator {
         activator.setJsonService(jsonService);
         activator.setSendMeterReadingsProvider(sendMeterReadingsProvider);
         activator.setOrmService(ormService);
+        activator.setMeterConfigFactory(meterConfigFactory);
         activator.activate(mock(BundleContext.class));
     }
 

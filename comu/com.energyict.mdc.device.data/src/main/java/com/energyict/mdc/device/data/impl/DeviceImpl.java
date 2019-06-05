@@ -182,6 +182,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -422,8 +423,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         inboundConnectionTaskBuilder.add();
                     } else if (!(partialConnectionTask instanceof PartialConnectionInitiationTask) && (partialConnectionTask instanceof PartialOutboundConnectionTask && !outboundTaskIdList.contains(partialConnectionTask.getId()))) {
                         ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = this.getScheduledConnectionTaskBuilder((PartialOutboundConnectionTask) partialConnectionTask);
+                        NextExecutionSpecs nextExecutionSpecs = ((PartialOutboundConnectionTask) partialConnectionTask).getNextExecutionSpecs();
                         deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, scheduledConnectionTaskBuilder);
-                        scheduledConnectionTaskBuilder.add();
+                        if (nextExecutionSpecs != null) {
+                            scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(nextExecutionSpecs.getTemporalExpression());
+                        }scheduledConnectionTaskBuilder.add();
                     } else if (partialConnectionTask instanceof PartialConnectionInitiationTask) {
                         ConnectionInitiationTaskBuilder partialConnectionTaskBuilder = this.getConnectionInitiationTaskBuilder((PartialConnectionInitiationTask) partialConnectionTask);
                         deactivateConnectionTaskIfPropsAreMissing(partialConnectionTask, partialConnectionTaskBuilder);
@@ -1057,7 +1061,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void store(MeterReading meterReading) {
-        this.meter.getOptional().ifPresent(meter -> meter.store(QualityCodeSystem.MDC, meterReading));
+        this.store(meterReading, null);
+    }
+
+    @Override
+    public void store(MeterReading meterReading, Instant readingDate) {
+        this.meter.getOptional().ifPresent(meter -> meter.store(QualityCodeSystem.MDC, meterReading, readingDate));
     }
 
     @Override

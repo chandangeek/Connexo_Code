@@ -102,11 +102,6 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
     }
 
     @Override
-    public Class getContextClass() {
-        return Device.class;
-    }
-
-    @Override
     public PersistenceSupport<ChannelSpec, LoadProfileOneVersionedDomainExtension> getPersistenceSupport() {
         return new LoadProfileOneVersionedPeristenceSupport();
     }
@@ -196,28 +191,19 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-            return Collections.singletonList(
-                    table
-                        .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
-                        .number()
-                        .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
-                        .notNull()
-                        .add());
-        }
-
-        @Override
-        public String contextFieldName() {
-            return LoadProfileOneVersionedDomainExtension.FieldNames.DEVICE_REF.javaName();
-        }
-
-        @Override
-        public String contextColumnName() {
-            return LoadProfileOneVersionedDomainExtension.FieldNames.DEVICE_REF.databaseName();
-        }
-
-        @Override
-        public String contextForeignKeyName() {
-            return FK_CPS_DEVICE_VER;
+            Column deviceColumn = table
+                    .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
+                    .number()
+                    .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
+                    .notNull()
+                    .add();
+            table
+                    .foreignKey(FK_CPS_DEVICE_VER)
+                    .on(deviceColumn)
+                    .references(getContextClass())
+                    .map(LoadProfileOneVersionedDomainExtension.FieldNames.DEVICE_REF.javaName())
+                    .add();
+            return Collections.singletonList(deviceColumn);
         }
 
         @Override
@@ -238,5 +224,13 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
                 .map(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
                 .add();
         }
+
+        @Override
+        public String contextForeignKeyName() {
+            return FK_CPS_DEVICE_VER;
+        }
+
+        @Override
+        public Class getContextClass() { return Device.class;}
     }
 }

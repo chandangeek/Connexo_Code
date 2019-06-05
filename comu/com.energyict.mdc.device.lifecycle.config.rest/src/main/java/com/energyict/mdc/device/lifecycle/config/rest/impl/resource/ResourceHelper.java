@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.events.EventService;
@@ -9,12 +8,16 @@ import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
@@ -23,6 +26,10 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateI
 import javax.inject.Inject;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+
+import static com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService.COMPONENT_NAME;
+import static com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT;
 
 public class ResourceHelper {
 
@@ -32,6 +39,8 @@ public class ResourceHelper {
     private final ExceptionFactory exceptionFactory;
     private final EventService eventService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private Thesaurus thesaurus;
+    private NlsService nlsService;
 
     @Inject
     public ResourceHelper(
@@ -40,13 +49,15 @@ public class ResourceHelper {
             FiniteStateMachineService finiteStateMachineService,
             ExceptionFactory exceptionFactory,
             EventService eventService,
-            ConcurrentModificationExceptionFactory conflictFactory) {
+            ConcurrentModificationExceptionFactory conflictFactory,
+            NlsService nlsService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.finiteStateMachineService = finiteStateMachineService;
         this.exceptionFactory = exceptionFactory;
         this.eventService = eventService;
         this.conflictFactory = conflictFactory;
+        setNlsService(nlsService);
     }
 
     DeviceLifeCycle findDeviceLifeCycleByIdOrThrowException(long id) {
@@ -134,10 +145,10 @@ public class ResourceHelper {
                 .build();
     }
 
-    public Optional<StateTransitionEventType> findStateTransitionEventType(String symbol){
+    public Optional<StateTransitionEventType> findStateTransitionEventType(String symbol) {
         Optional<EventType> eventType = eventService.getEventType(symbol);
         Optional<? extends StateTransitionEventType> stateTransitionEventType;
-        if (eventType.isPresent()){
+        if (eventType.isPresent()) {
             stateTransitionEventType = finiteStateMachineService.findStandardStateTransitionEventType(eventType.get());
         } else {
             stateTransitionEventType = finiteStateMachineService.findCustomStateTransitionEventType(symbol);
@@ -146,9 +157,21 @@ public class ResourceHelper {
     }
 
     void checkDeviceLifeCycleUsages(DeviceLifeCycle deviceLifeCycle) {
-        if (!deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(deviceLifeCycle).isEmpty()){
+        if (!deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(deviceLifeCycle).isEmpty()) {
             throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_IS_USED_BY_DEVICE_TYPE);
         }
     }
 
+    public Set<MicroCheck> findAllAvailableMicroChecks() {
+        return deviceLifeCycleConfigurationService.getMicroChecks();
+    }
+    private void setNlsService(NlsService nlsService){
+        this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus(DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST)
+                .join(nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    public Thesaurus getThesaurus() {
+        return thesaurus;
+    }
 }

@@ -12,7 +12,6 @@ import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
-import com.elster.jupiter.calendar.impl.CalendarImpl;
 import com.elster.jupiter.calendar.impl.xmlbinding.Calendars;
 import com.elster.jupiter.calendar.impl.xmlbinding.Event;
 import com.elster.jupiter.calendar.impl.xmlbinding.Exception;
@@ -218,22 +217,23 @@ public class CalendarProcessor {
                                             .findCategoryByDisplayName(calendar.getCategory())
                                             .orElseThrow(() -> new CategoryNotFound(thesaurus, calendar.getCategory())));
         UpdatableHolder<Consumer<ImportListener>> listenerNotification = new UpdatableHolder<>(null);
+        EventSet eventSet = calendarService.findEventSetByName(calendar.getEventset())
+                .orElseThrow(() -> new IllegalArgumentException("illegal eventset name " + calendar
+                        .getEventset()));
+        eventSetHolder.update(eventSet);
         CalendarService.CalendarBuilder builder = calendarByMRID
                 .map(existingCalendar -> {
                     listenerNotification.update(perform(ImportListener::updated).with(calendar.getMRID()));
-                    eventSetHolder.update(((CalendarImpl) existingCalendar).getEventSet());
                     return existingCalendar.redefine()
                             .name(getCalendarName(calendar))
+                            .category(category)
+                            .eventSet(eventSet)
                             .startYear(getStartYear(calendar))
                             .description(getDescription(calendar))
                             .mRID(calendar.getMRID());
                 })
                 .orElseGet(() -> {
                     listenerNotification.update(perform(ImportListener::created).with(calendar.getMRID()));
-                    EventSet eventSet = calendarService.findEventSetByName(calendar.getEventset())
-                            .orElseThrow(() -> new IllegalArgumentException("illegal eventset name " + calendar
-                                    .getEventset()));
-                    eventSetHolder.update(eventSet);
                     return calendarService
                             .newCalendar(getCalendarName(calendar), category, getStartYear(calendar), eventSet)
                             .description(getDescription(calendar))

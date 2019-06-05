@@ -5,6 +5,7 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
+import static com.elster.jupiter.orm.Version.version;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.hsm.HsmEnergyService;
@@ -37,11 +38,10 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
-import com.energyict.mdc.cim.webservices.inbound.soap.getmeterconfig.GetMeterConfigEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_6;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ExecuteMeterReadingsEndpoint;
@@ -55,6 +55,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadin
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
+import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -62,6 +63,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -77,7 +79,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
-
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,8 +99,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 
     public static final String COMPONENT_NAME = "SIM";
 
-    private static final String CIM_MERER_CONFIG = "CIM MeterConfig";
-    private static final String CIM_GET_METER_CONFIG = "CIM GetMeterConfig";
+    private static final String CIM_METER_CONFIG = "CIM MeterConfig";
     private static final String CIM_GET_END_DEVICE_EVENTS = "CIM GetEndDeviceEvents";
     private static final String CIM_END_DEVICE_EVENTS = "CIM EndDeviceEvents";
     private static final String CIM_METER_READINGS = "CIM MeterReadings";
@@ -134,6 +134,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile SendMeterReadingsProvider sendMeterReadingsProvider;
     private volatile MessageService messageService;
     private volatile OrmService ormService;
+    private volatile MeterConfigFactory meterConfigFactory;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -221,6 +222,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(SendMeterReadingsProvider.class).toInstance(sendMeterReadingsProvider);
                 bind(MessageService.class).toInstance(messageService);
+				bind(MeterConfigFactory.class).toInstance(meterConfigFactory);
+				bind(OrmService.class).toInstance(ormService);
             }
         };
     }
@@ -230,11 +233,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         dataModel = ormService.newDataModel(COMPONENT_NAME, "Multisense SOAP webservices");
         dataModel.register(getModule());
 
-//        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-//                Version.version(10, 6), UpgraderV10_6.class
-//        ));
-
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(version(10, 6), UpgraderV10_6.class));
 
         addConverter(new ObisCodePropertyValueConverter());
         registerHandlers();
@@ -264,8 +263,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     }
 
     private void registerServices(BundleContext bundleContext) {
-        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterConfigEndpoint.class), CIM_MERER_CONFIG);
-        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetMeterConfigEndpoint.class), CIM_GET_METER_CONFIG);
+        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterConfigEndpoint.class), CIM_METER_CONFIG);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetEndDeviceEventsEndpoint.class), CIM_GET_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteEndDeviceEventsEndpoint.class), CIM_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterReadingsEndpoint.class), CIM_METER_READINGS);
@@ -438,6 +436,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 			DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
 		this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
 	}
+
+    @Reference
+    public void setMeterConfigFactory(MeterConfigFactory meterConfigFactory) {
+        this.meterConfigFactory = meterConfigFactory;
+    }
 
     @Reference
     public void setOrmService(OrmService ormService) {

@@ -20,6 +20,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -29,6 +30,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,6 +59,14 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .map(keyFunctionTypeInfoFactory::from)
                 .sorted(Comparator.comparing(k -> k.name, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
+        for (SecurityAccessorTypeInfo info : infos) {
+            Optional<SecurityAccessorType> securityAccessorType = deviceType.getSecurityAccessorTypes().stream()
+                    .filter(s -> s.getId() == info.id).findFirst();
+            if (securityAccessorType.isPresent()) {
+                deviceType.getDefaultKeyOfSecurityAccessorType(securityAccessorType.get())
+                        .ifPresent(v -> info.defaultServiceKey = v);
+            }
+        }
         return PagedInfoList.fromCompleteList("securityaccessors", infos, queryParameters);
     }
 
@@ -88,11 +98,13 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     public SecurityAccessorTypeInfo getDeviceTypeSecurityAccessor(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<SecurityAccessorType> securityAccessorTypes = deviceType.getSecurityAccessorTypes();
-        return securityAccessorTypes.stream()
+        SecurityAccessorType securityAccessorType = securityAccessorTypes.stream()
                 .filter(kat -> kat.getId() == securityAccessorId)
                 .findAny()
-                .map(keyFunctionTypeInfoFactory::withSecurityLevels)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
+        SecurityAccessorTypeInfo accessorTypeInfo =  keyFunctionTypeInfoFactory.withSecurityLevels(securityAccessorType);
+        deviceType.getDefaultKeyOfSecurityAccessorType(securityAccessorType).ifPresent(v -> accessorTypeInfo.defaultServiceKey = v);
+        return accessorTypeInfo;
     }
 
     @POST
@@ -128,4 +140,30 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
         }
         return Response.noContent().build();
     }
+
+    /**
+     * Sets the default key value for the device type for the given security accessor type.
+     *
+     * @param deviceTypeId       Identifier of the device type for which the default key will be updated
+     * @param securityAccessorId Identifier of the security accessor for which the key will be updated
+     * @param info               Contains default key value for the security accessor type
+     * @summary sets/updates the default key value for the device type for the given security accessor type
+     */
+    @PUT
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @Path("/{securityAccessorId}/defaultkey")
+    public Response setDefaultKeySecurityAccessorTypeValue(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("securityAccessorId") long securityAccessorId, ServiceKeyDefultValueInfo info) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        SecurityAccessorType keyFunctionType = deviceType.getSecurityAccessorTypes().stream()
+                .filter(kFType -> kFType.getId() == securityAccessorId)
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
+
+	    deviceType.updateDefaultKeyOfSecurityAccessorType(keyFunctionType, info.value);
+        return Response.ok().build();
+    }
+
 }

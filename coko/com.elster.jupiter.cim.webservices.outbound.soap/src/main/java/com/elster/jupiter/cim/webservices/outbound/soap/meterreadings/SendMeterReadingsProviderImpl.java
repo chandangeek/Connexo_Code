@@ -7,6 +7,7 @@ import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvide
 import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import ch.iec.tc57._2011.meterreadings.MeterReadings;
 import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsEventMessageType;
@@ -48,9 +49,9 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ObjectFactory meterReadingsMessageObjectFactory = new ObjectFactory();
     private final MeterReadingsBuilder readingBuilderProvider = new MeterReadingsBuilder();
+    private volatile WebServicesService webServicesService;
 
     public SendMeterReadingsProviderImpl() {
-        // for OSGI purposes
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -74,6 +75,11 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
     @Override
     public Class getService() {
         return MeterReadingsPort.class;
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
     }
 
     public String getWebServiceName() {

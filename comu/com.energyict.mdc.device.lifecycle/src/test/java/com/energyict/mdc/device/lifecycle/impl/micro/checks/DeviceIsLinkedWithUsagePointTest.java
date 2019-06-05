@@ -1,14 +1,14 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -23,18 +23,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link DeviceIsLinkedWithUsagePoint} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-17 (12:56)
+ * Tests the {@link DeviceIsLinkedWithUsagePoint} component
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceIsLinkedWithUsagePointTest {
 
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private Device device;
+    @Mock
+    private State state;
 
     @Test
     public void deviceIsNotLinkedToUsagePoint() {
@@ -42,11 +40,11 @@ public class DeviceIsLinkedWithUsagePointTest {
         DeviceIsLinkedWithUsagePoint microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.LINKED_WITH_USAGE_POINT);
+        assertThat(violation.get().getCheck()).isEqualTo(microCheck);
     }
 
     @Test
@@ -55,14 +53,15 @@ public class DeviceIsLinkedWithUsagePointTest {
         DeviceIsLinkedWithUsagePoint microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+        Optional<ExecutableMicroCheckViolation> violation = microCheck.execute(this.device, Instant.now(), state);
 
         // Asserts
         assertThat(violation).isEmpty();
     }
 
     private DeviceIsLinkedWithUsagePoint getTestInstance() {
-        return new DeviceIsLinkedWithUsagePoint(this.thesaurus);
+        DeviceIsLinkedWithUsagePoint deviceIsLinkedWithUsagePoint = new DeviceIsLinkedWithUsagePoint();
+        deviceIsLinkedWithUsagePoint.setThesaurus(this.thesaurus);
+        return deviceIsLinkedWithUsagePoint;
     }
-
 }

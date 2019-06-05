@@ -33,15 +33,15 @@ Ext.define('Tou.controller.Devices', {
 
     currentRecord: null,
 
-    showDevices: function (touCampaignName) {
+    showDevices: function (touCampaignId) {
         var me = this,
         router = me.getController('Uni.controller.history.Router'),
         pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
         devicesStore = me.getStore('Tou.store.Devices');
 
-        devicesStore.getProxy().setUrl(touCampaignName);
+        devicesStore.getProxy().setUrl(touCampaignId);
         pageView.setLoading();
-        me.getModel('Tou.model.TouCampaign').load(touCampaignName, {
+        me.getModel('Tou.model.TouCampaign').load(touCampaignId, {
             success: function (record) {
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('tou-campaign-devices', {
                         itemId: 'tou-campaign-devices',
@@ -86,7 +86,7 @@ Ext.define('Tou.controller.Devices', {
             method: 'PUT',
             success: function (response) {
                 me.doUpdateRecord(me.currentRecord, response.responseText);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInTouCampaign.cancelled', 'TOU', ' Time of use calendar upload for device cancelled'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInTouCampaign.cancelled', 'TOU', 'ToU calendar campaign upload for device cancelled'));
             }
         });
     },
@@ -106,7 +106,7 @@ Ext.define('Tou.controller.Devices', {
             method: 'PUT',
             success: function (response) {
                 me.doUpdateRecord(me.currentRecord, response.responseText);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInTouCampaign.retry', 'TOU', ' Time of use calendar upload for device rescheduled'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInTouCampaign.retry', 'TOU', 'ToU calendar campaign upload for device rescheduled'));
             }
         });
     },

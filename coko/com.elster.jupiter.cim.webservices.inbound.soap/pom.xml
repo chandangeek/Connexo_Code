@@ -39,9 +39,9 @@
                     <wsdlDirectory>src/main/resources</wsdlDirectory>
                     <wsdlFiles>
                         <wsdlFile>usagepointconfig/ExecuteUsagePointConfig.wsdl</wsdlFile>
-                        <wsdlFile>usagepointconfig/ReplyUsagePointConfig.wsdl</wsdlFile>
+                        <!-- wsdlFile>usagepointconfig/ReplyUsagePointConfig.wsdl</wsdlFile -->
                         <wsdlFile>masterdatalinkageconfig/ExecuteMasterDataLinkageConfig.wsdl</wsdlFile>
-                        <wsdlFile>masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl</wsdlFile>
+                        <!-- wsdlFile>masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl</wsdlFile-->
                     </wsdlFiles>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
                     <bindingDirectory>${basedir}/src/main/resources/binding</bindingDirectory>
@@ -122,9 +122,16 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>cim.webservices.outbound.soap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>

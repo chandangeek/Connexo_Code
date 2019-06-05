@@ -104,6 +104,121 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                     }
                                     return result;
                                 }
+                            },
+                            {
+                                xtype: 'displayfield',
+                                name: 'targetOptions',
+                                itemId: 'target-options',
+                                fieldLabel: Uni.I18n.translate('general.targetManagementOptions', 'FWC', 'Target firmware status'),
+                                renderer: function (value, field) {
+                                      var result = '',
+                                          record = field.up('form').getRecord();
+                                      if (!record || record.get('isAllowed') === false) {
+                                          field.hide();
+                                      } else {
+                                              var targetFirmwareCheck = value;
+
+                                              if  (!targetFirmwareCheck || !targetFirmwareCheck.activated) {
+                                                  field.hide();
+                                                  return;
+                                              }
+                                              field.show();
+
+                                              if (targetFirmwareCheck && targetFirmwareCheck.activated){
+                                                  var targetFirmwareOptionTemplate = [];
+                                                  var targetFirmwareOptionsValues = {
+                                                      'FINAL' : Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', 'Final status of the target firmware'),
+                                                      'TEST' :  Uni.I18n.translate('general.targetFirmwareTestOption', 'FWC', 'Test status of the target firmware')
+                                                  };
+                                                  targetFirmwareCheck['statuses'].sort();
+                                                  targetFirmwareCheck['statuses'].forEach(function(item){
+                                                      targetFirmwareOptionTemplate.push({"localizedValue" : targetFirmwareOptionsValues[item]});
+                                                  })
+                                                  if (targetFirmwareOptionTemplate && targetFirmwareOptionTemplate.length){
+                                                      var tpl = Ext.create('FirmwareOptionsXTemplate');
+                                                      result += ('<div style="margin:0 0 0 -3px">' + tpl.apply(targetFirmwareOptionTemplate) + '</div>');
+                                                  }
+                                              }
+                                      }
+                                    return result;
+                                }
+                            },
+                            {
+                                xtype: 'displayfield',
+                                name: 'currOptions',
+                                itemId: 'cur-options',
+                                fieldLabel: Uni.I18n.translate('general.rankManagementOptions', 'FWC', 'Dependencies check'),
+                                renderer: function (value, field) {
+                                    var result = '',
+                                        record = field.up('form').getRecord();
+                                    if (record && (record.get('checkOptions').length === 0 || record.get('isAllowed') === false)) {
+                                        field.hide();
+                                    } else {
+                                        var currentFirmwareCheck  = value;
+
+                                        if  (!currentFirmwareCheck || !currentFirmwareCheck.activated) {
+                                            field.hide();
+                                            return;
+                                        }
+                                        field.show();
+
+
+                                        if (currentFirmwareCheck && currentFirmwareCheck.activated){
+                                            result =  Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', "The target firmware version should have a higher rank than the current firmware version on the device with the same type. All firmware types present in the device should have a rank not less than that of the version with the minimal level configured on the target version");
+                                        }
+
+                                        var me  = this;
+                                    }
+                                    return result ? result : "-";
+                                },
+                                listeners:{
+                                		afterrender:function(){
+                                		   var me = this;
+                                		   this.el.hover(function(e){
+                                		       if (this.querySelector("div").getAttribute("data-qtip")) this.querySelector("div").removeAttribute("data-qtip");
+                                		       me.el.removeAllListeners();
+                                           });
+                                		}
+                                }
+                            },
+                            {
+                                xtype: 'displayfield',
+                                name: 'masterOptions',
+                                itemId: 'master-options',
+                                fieldLabel: ' ',
+                                renderer: function (value, field) {
+                                    var result = '',
+                                        record = field.up('form').getRecord();
+                                    if (record && (record.get('checkOptions').length === 0 || record.get('isAllowed') === false)) {
+                                        field.hide();
+                                    } else {
+                                        var masterFirmwareCheck = value;
+
+                                        if  (!masterFirmwareCheck || !masterFirmwareCheck.activated) {
+                                            field.hide();
+                                            return;
+                                        }
+                                        field.show();
+
+                                        if (masterFirmwareCheck && masterFirmwareCheck.activated){
+                                            var masterFirmwareOptionTemplate = [];
+                                            var masterFirmwareOptionsValues = {
+                                                       'FINAL' : Uni.I18n.translate('general.masterFirmwareFinalOption', 'FWC', 'Final status of firmware on master device'),
+                                                       'TEST' : Uni.I18n.translate('general.masterFirmwareTestOption', 'FWC', 'Test status of firmware on master device')
+                                                    };
+                                            masterFirmwareCheck['statuses'].sort();
+                                            masterFirmwareCheck['statuses'].forEach(function(item){
+                                                masterFirmwareOptionTemplate.push({"localizedValue" : masterFirmwareOptionsValues[item]});
+                                            })
+                                            if (masterFirmwareOptionTemplate && masterFirmwareOptionTemplate.length){
+                                                result += '<div style="margin:10 0px">' + Uni.I18n.translate('general.masterFirmwareMainOption', 'FWC', 'Master has the latest firmware (both meter and communication)') + '</div>';
+                                                var tpl = Ext.create('FirmwareOptionsXTemplate');
+                                                result += ('<div style="margin:0 0 10px 30px">' + tpl.apply(masterFirmwareOptionTemplate) + '</div>');
+                                            }
+                                        }
+                                    }
+                                    return result ? result : "-";
+                                }
                             }
                         ],
                         loadRecord: function (record) {

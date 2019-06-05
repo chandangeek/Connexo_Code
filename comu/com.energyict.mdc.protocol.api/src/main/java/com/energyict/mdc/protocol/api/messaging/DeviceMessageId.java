@@ -665,6 +665,10 @@ public enum DeviceMessageId {
     InstallWirelessMbusDevices(24017),
     ScanAndInstallWiredMbusDeviceForGivenMeterIdentification(24018),
     InstallWirelessMbusDeviceForGivenMeterIdentification(24019),
+    MBUS_TRANSFER_FUAK(24020),
+    MBUS_TRANSFER_P2KEY(24021),
+    MBUS_ESMR5_FIRMWARE_UPGRADE(24022),
+    MBUS_READ_DETAILED_VERSION_INFORMATION_TAG(24023),
 
     OPUS_CONFIGURATION_SET_OS_NUMBER(25001),
     OPUS_CONFIGURATION_SET_PASSWORD(25002),
@@ -893,15 +897,6 @@ public enum DeviceMessageId {
                 DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_SWITCH_POINT_CLOCK_UPDATE_SETTINGS,
                 DeviceMessageId.ADVANCED_TEST_USERFILE_CONFIG,
                 DeviceMessageId.ACTIVITY_CALENDAR_WRITE_CONTRACTS_FROM_XML_USERFILE);
-    }
-
-    public static Set<DeviceMessageId> needsImageIdentifier(){
-        return EnumSet.of(
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER,
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER,
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER,
-                DeviceMessageId.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME
-        );
     }
 
 }

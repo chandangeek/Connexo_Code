@@ -44,24 +44,27 @@ public class ScheduledBehaviorTest {
     private ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
     private List<ComTask> comTasks;
 
+    private int maxNumberOfTries = 7;
+
     @Test
     public void testMaxNumberOfRetriesWhenScheduleHasComTasks() {
         comTasks = createComTasks();
-        ComTaskExecutionImpl comTaskExecution = setup();
-        assertThat(comTaskExecution.getMaxNumberOfTries()).isEqualTo(7);
+        setup();
+        assertThat(comTaskEnablement.getMaxNumberOfTries()).isEqualTo(maxNumberOfTries);
     }
 
     @Test
     public void testMaxNumberOfRetriesWhenScheduleHasNoComTasks() {
         comTasks = new ArrayList<>();
-        ComTaskExecutionImpl comTaskExecution = setup();
-        assertThat(comTaskExecution.getMaxNumberOfTries()).isEqualTo(3);
+        setup();
+        assertThat(comTaskEnablement.getMaxNumberOfTries()).isEqualTo(maxNumberOfTries);
     }
 
     private ComTaskExecutionImpl setup() {
         ComTaskExecutionImpl comTaskExecution = new ComTaskExecutionImpl(dataModel, eventService, thesaurus, clock, communicationTaskService, schedulingService);
         when(comTaskEnablement.getConnectionFunction()).thenReturn(Optional.empty());
         when(comTaskEnablement.getPartialConnectionTask()).thenReturn(Optional.empty());
+        when(comTaskEnablement.getMaxNumberOfTries()).thenReturn(maxNumberOfTries);
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getComTasks()).thenReturn(comTasks);
 

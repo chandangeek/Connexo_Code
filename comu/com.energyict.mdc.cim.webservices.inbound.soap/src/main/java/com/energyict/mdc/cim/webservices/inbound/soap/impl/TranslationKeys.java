@@ -25,6 +25,7 @@ public enum TranslationKeys implements TranslationKey {
     CALLS_EXPECTED("callsExpected", "Expected calls counter"),
     FROM_DATE("fromDate", "From date"),
     TO_DATE("toDate", "To date"),
+    GENERAL_ATTRIBUTES("GeneralAttributes", "General attributes"),
     SOURCE("source", "Source"),
     CALLBACK_URL("callbackUrl", "Callback URL"),
     CORRELATION_ID("corelationId", "Correlation Id"),

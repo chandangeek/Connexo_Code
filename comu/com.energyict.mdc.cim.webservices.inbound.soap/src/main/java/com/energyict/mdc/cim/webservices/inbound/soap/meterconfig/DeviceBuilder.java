@@ -27,8 +27,6 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-
 import javax.inject.Inject;
 
 import java.math.BigDecimal;
@@ -156,6 +154,7 @@ public class DeviceBuilder {
                         .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), 
 			MessageSeeds.UNABLE_TO_CHANGE_DEVICE_STATE, statusValue.orElse("")));
                 executableAction.execute(effectiveDate, Collections.emptyList());
+                changedDevice = findDeviceByMRID(meter, changedDevice.getmRID());
                 updateDevice(changedDevice);
                 changedDevice = findDeviceByMRID(meter, changedDevice.getmRID());
             }

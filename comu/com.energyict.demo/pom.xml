@@ -155,6 +155,10 @@
             <artifactId>estimators</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cim.webservices.outbound.soap</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
         </dependency>
@@ -310,6 +314,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue.task</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>pki</artifactId>
         </dependency>
         <dependency>
@@ -332,6 +340,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.issue.datavalidation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+        </dependency>
+
         <!-- TESTS -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -351,11 +364,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validators</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>bpm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -445,6 +453,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.zone</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
         </dependency>
     </dependencies>
 </project>
