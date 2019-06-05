@@ -80,8 +80,8 @@ public enum MessageSeeds implements MessageSeed {
     METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER(74, "MetrologyContractNotLinkedToChannelsContainer", "Metrology contract with id {0} is not linked to any channels container"),
     NOTHING_TO_ESTIMATE(75, "nothing.is.estimated", "Estimation is not configured on this purpose of this usage point"),
     NO_SUCH_METER_ROLE(76, "NoSuchMeterRole", "No such meter role with key {0}"),
-    CANNOT_UNLINK_BEFORE_LINK_DATE(77,"InvalidDateOfUnlink", "Can''t unlink meter role before date of link."),
-    METER_CANNOT_BE_UNLINKED(78, "meter.cannot.be.unlinked", " Meter unlinking error. Meter ''{0}'' is already unlinked ''{1}'' at {2}.")
+    CANNOT_UNLINK_BEFORE_LINK_DATE(77,"InvalidDateOfUnlink", "The meter can''t be unlinked before the date of linking"),
+    METER_CANNOT_BE_UNLINKED(78, "meter.cannot.be.unlinked", "Meter unlinking error. Meter ''{0}'' is already unlinked ''{1}'' at {2}.")
     ;
 
     private final int number;
