@@ -100,6 +100,12 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
     protected NumberLookupExtractor getNumberLookupExtractor () {return numberLookupExtractor;}
     protected LoadProfileExtractor getLoadProfileExtractor () {return loadProfileExtractor;}
 
+
+    @Override
+    public void journal(String message) {
+        super.journal("[WebRTUKP] " + message);
+    }
+
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.comChannel = comChannel;

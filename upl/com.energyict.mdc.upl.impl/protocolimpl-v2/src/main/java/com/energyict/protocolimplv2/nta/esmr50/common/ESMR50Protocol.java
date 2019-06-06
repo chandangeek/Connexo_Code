@@ -98,6 +98,11 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     }
 
     @Override
+    public void journal(String message) {
+        super.journal("ESMR50] " + message);
+    }
+
+    @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         journal("Sagemcom T210 protocol init");
         this.offlineDevice = offlineDevice;

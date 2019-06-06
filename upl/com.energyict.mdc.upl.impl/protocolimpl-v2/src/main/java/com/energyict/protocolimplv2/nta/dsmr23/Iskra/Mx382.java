@@ -88,6 +88,11 @@ public class Mx382 extends AbstractSmartNtaProtocol {
     }
 
     @Override
+    public void journal(String message) {
+        super.journal("[Mx382] " + message);
+    }
+
+    @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         getLogger().info("Iskra Mx382 protocol init V2");
         this.offlineDevice = offlineDevice;
