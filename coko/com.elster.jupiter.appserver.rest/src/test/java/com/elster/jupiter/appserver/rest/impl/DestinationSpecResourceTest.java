@@ -106,6 +106,7 @@ public class DestinationSpecResourceTest extends MessagingApplicationTest {
         info.tasks = new ArrayList<>();
         info.name = name;
         info.queueTypeName = queueTypeName;
+        info.serviceCallTypes = new ArrayList<>();
     }
 
     private void whenClientCallsDelete(String uriPath, DestinationSpecInfo info) {
