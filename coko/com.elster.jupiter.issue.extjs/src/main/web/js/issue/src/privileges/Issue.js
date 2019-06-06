@@ -37,7 +37,7 @@ Ext.define('Isu.privileges.Issue', {
     executeLevel2: ['privilege.execute.processes.lvl.2'],
     executeLevel3: ['privilege.execute.processes.lvl.3'],
     executeLevel4: ['privilege.execute.processes.lvl.4'],
-    createManualIssue: ['privilege.add.issue'],
+    createManualIssue: ['privilege.create.issue'],
 
 
     all: function() {

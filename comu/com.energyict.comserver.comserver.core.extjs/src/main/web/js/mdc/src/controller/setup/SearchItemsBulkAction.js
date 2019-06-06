@@ -507,8 +507,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     number: form.down('[name=dueIn.number]').getValue(),
                     type: form.down('[name=dueIn.type]').getValue()
                 });
+                form.down('#dueDateTrigger').setValue({dueDate: true});
            } else {
                 record.set('dueDate', null);
+                form.down('#dueDateTrigger').setValue({dueDate: false});
            }
 
             var jsonData = [];
