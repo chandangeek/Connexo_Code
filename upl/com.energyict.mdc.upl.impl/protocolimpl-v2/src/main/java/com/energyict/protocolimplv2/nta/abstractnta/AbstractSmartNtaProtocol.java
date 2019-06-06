@@ -208,6 +208,12 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
         } else {
             address = getPhysicalAddressFromSerialNumber(serialNumber);
         }
+
+        //correct the mW values for 1.128.x.8.x.255
+        if ( (address == 0) && isElectricityMilliWatts(obisCode) ) {
+            return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) 0);
+        }
+
         if ((address == 0 && obisCode.getB() != -1) || obisCode.getB() == 128) { // then don't correct the obisCode
             return obisCode;
         }
@@ -215,6 +221,15 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
             return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) address);
         }
         return null;
+    }
+
+    /**
+     * Some meter have custom obis-codes mapped to mW instead of kW
+     * @param obisCode
+     * @return
+     */
+    public boolean isElectricityMilliWatts(ObisCode obisCode){
+        return Dsmr23RegisterFactory.isElectricityMilliWatts(obisCode);
     }
 
     /**

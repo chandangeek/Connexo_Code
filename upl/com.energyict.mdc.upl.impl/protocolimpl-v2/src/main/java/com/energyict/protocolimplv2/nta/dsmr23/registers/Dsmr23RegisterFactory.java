@@ -208,10 +208,26 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
      *
      */
     protected RegisterValue getRegisterValueForComposedRegister(OfflineRegister offlineRegister, Date captureTime, AbstractDataType attributeValue, Unit unit) {
+        Unit actualUnit;
+        actualUnit = unit;
+        if (isElectricityMilliWatts(offlineRegister.getObisCode())){
+            actualUnit = Unit.get(unit.getDlmsCode(), -3);
+        }
         return  new RegisterValue(offlineRegister,
-                new Quantity(attributeValue.toBigDecimal(), unit),
+                new Quantity(attributeValue.toBigDecimal(), actualUnit),
                 captureTime // eventTime
         );
+    }
+
+    /**
+     * Some meter have custom obis-codes mapped to mW instead of kW
+     * @param obisCode
+     * @return
+     */
+    static public boolean isElectricityMilliWatts(ObisCode obisCode){
+        return ((   obisCode.getA() == 1 )
+                && (obisCode.getB() == 128)
+                && (obisCode.getD() == 8 ));
     }
 
     /**
