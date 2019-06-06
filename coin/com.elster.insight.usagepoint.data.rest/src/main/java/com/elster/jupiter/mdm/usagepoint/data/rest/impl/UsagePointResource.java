@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.audit.ApplicationType;
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditService;
@@ -1452,7 +1453,7 @@ public class UsagePointResource {
                 .forEach(propertyName -> to.setProperty(propertyName, fromValues.getProperty(propertyName)));
     }
     private AuditTrailFilter getDeviceAuditTrailFilter(JsonQueryFilter filter, String name) {
-        AuditTrailFilter auditFilter = auditService.newAuditTrailFilter();
+        AuditTrailFilter auditFilter = auditService.newAuditTrailFilter(ApplicationType.MDM_APPLICATION_KEY);
         if (filter.hasProperty("changedOnFrom")) {
             auditFilter.setChangedOnFrom(filter.getInstant("changedOnFrom"));
         }

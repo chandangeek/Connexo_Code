@@ -6,25 +6,26 @@ package com.elster.jupiter.audit;
 
 import static com.elster.jupiter.audit.ApplicationType.MDC_APPLICATION_KEY;
 import static com.elster.jupiter.audit.ApplicationType.MDM_APPLICATION_KEY;
+import static com.elster.jupiter.audit.ApplicationType.UNKNOWN_APPLICATION_KEY;
 
 public enum AuditDomainType {
 
-    UNKNOWN("UNKNOWN", ""),
-    DEVICE("DEVICE", MDC_APPLICATION_KEY.getName()),
-    USAGEPOINT("USAGEPOINT", MDM_APPLICATION_KEY.getName());
+    UNKNOWN("UNKNOWN", UNKNOWN_APPLICATION_KEY),
+    DEVICE("DEVICE", MDC_APPLICATION_KEY),
+    USAGEPOINT("USAGEPOINT", MDM_APPLICATION_KEY);
 
     private final String auditDomainType;
-    private final String applicationName;
+    private final ApplicationType applicationType;
 
-    AuditDomainType(String auditDomainType, String applicationName) {
+    AuditDomainType(String auditDomainType, ApplicationType applicationType) {
         this.auditDomainType = auditDomainType;
-        this.applicationName = applicationName;
+        this.applicationType = applicationType;
     }
 
     public String type() {
         return auditDomainType;
     }
-    public String getApplicationName() {
-        return applicationName;
+    public ApplicationType getApplicationType() {
+        return applicationType;
     }
 }

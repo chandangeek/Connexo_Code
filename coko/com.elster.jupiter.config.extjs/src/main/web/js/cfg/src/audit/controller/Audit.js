@@ -166,6 +166,9 @@ Ext.define('Cfg.audit.controller.Audit', {
             case 'DEVICE':
                 rendererLink = isRemoved == true ? record.get('auditReference').name : '<a href="#/devices/' + record.get('auditReference').name + '">' + record.get('auditReference').name + '</a>';
                 break;
+            case 'USAGEPOINT':
+                rendererLink = isRemoved == true ? record.get('auditReference').name : '<a href="#/usagepoints/' + record.get('auditReference').name + '">' + record.get('auditReference').name + '</a>';
+                break;
             default:
                 rendererLink = record.get('auditReference').name;
         }
@@ -206,6 +209,9 @@ Ext.define('Cfg.audit.controller.Audit', {
                 break;
             case 'DEVICE_COMTASKS':
                 rendererLink = isRemoved == true ? me.formatEntityWithNameContext(record, value) : me.formatComTasksHRef(record, value) + '</a>';;
+                break;
+            case 'USAGEPOINT_ATTRIBUTES':
+                rendererLink = isRemoved == true ? value : '<a href="#/usagepoints/' + record.get('auditReference').name + '/attributes">' + value + '</a>';
                 break;
             default:
                 rendererLink = value;

@@ -140,7 +140,8 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     protected abstract void decodeReference();
 
     public Optional<AuditLogChange> getAuditLogChangeForString(String from, String to, TranslationKey translationKey) {
-        if (to.compareTo(from) != 0) {
+        if (!(to == null ? from == null : to.equals(from)))
+        {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
             auditLogChange.setType(SimplePropertyType.TEXT.name());

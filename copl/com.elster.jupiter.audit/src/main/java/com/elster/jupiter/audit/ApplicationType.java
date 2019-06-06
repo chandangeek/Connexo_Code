@@ -6,6 +6,7 @@ package com.elster.jupiter.audit;
 
 public enum ApplicationType {
 
+    UNKNOWN_APPLICATION_KEY("UNKNOWN"),
     MDC_APPLICATION_KEY("MDC"),
     MDM_APPLICATION_KEY("INS");
 
@@ -15,5 +16,5 @@ public enum ApplicationType {
         this.applicationType = applicationType;
     }
 
-    String getName(){return applicationType;}
+    public String getName(){return applicationType;}
 }
