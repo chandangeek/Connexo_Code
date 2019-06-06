@@ -381,12 +381,13 @@ public class ResourceHelper {
                     .findAny()
                     .ifPresent(meterActivation -> {
                         DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
-                        throw exceptionFactory.newException(
-                                com.elster.jupiter.metering.MessageSeeds.METER_CANNOT_BE_UNLINKED,
-                                meterActivation.getMeter().get().getName(),
-                                usagePoint.getName(),
-                                dateTimeFormatter.format(LocalDateTime.ofInstant(clock.instant(), ZoneId.systemDefault())));
+                            throw new UsagePointMeterActivationException.MeterCannotBeUnlinked(
+                                    thesaurus,
+                                    meterActivation.getMeter().get().getName(),
+                                    usagePoint.getName(),
+                                    dateTimeFormatter.format(LocalDateTime.ofInstant(clock.instant(), ZoneId.systemDefault())));
                     });
+
         }
     }
 
