@@ -26,12 +26,13 @@ Ext.define('Uni.grid.filtertop.CustomNumeric', {
                         minWidth: undefined,
                         width: 280,
                         itemsDefaultConfig: {
-                            isFilterField: true
+                            isFilterField: false
                         },
                         customOperatorMap: {
-                            '==': 'uni-search-internal-numberfield',
-                            '!=': 'uni-search-internal-numberfield',
+                            '==': 'uni-search-internal-input',
+                            '!=': 'uni-search-internal-input',
                         }
+
                     }
                 ],
                 listeners: {
@@ -93,7 +94,7 @@ Ext.define('Uni.grid.filtertop.CustomNumeric', {
             }
         });
 
-        if (me.down('uni-search-criteria-numeric').isValid()) {
+        if (me.down('uni-search-criteria-numerict').isValid()) {
             me.fireFilterUpdateEvent();
             me.down('button[action=chooseValues]').hideMenu();
             me.updateTitle();
@@ -118,7 +119,7 @@ Ext.define('Uni.grid.filtertop.CustomNumeric', {
     reset: function () {
         var me = this;
         me.updateHref();
-        me.down('#uni-search-criteria-simple').reset();
+        me.down('#uni-search-criteria-numeric').reset();
         me.down('button[action=chooseValues]').setText(me.text);
     },
 

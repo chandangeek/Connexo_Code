@@ -46,24 +46,6 @@ Ext.define('Uni.view.search.field.Simple', {
                     fn: me.onValueChange,
                     scope: me
                 }
-            },
-            xtype: 'uni-search-internal-criterialine',
-            operator: '==',
-            padding: 5,
-            removable: false,
-            operatorMap: {
-                '==': 'uni-search-internal-input',
-                '!=': 'uni-search-internal-input'
-                //'>': 'uni-search-internal-input',
-                //'>=': 'uni-search-internal-input',
-                //'<': 'uni-search-internal-input',
-                //'<=': 'uni-search-internal-input'
-            },
-            listeners: {
-                change: {
-                    fn: me.onValueChange,
-                    scope: me
-                }
             }
         };
     }
