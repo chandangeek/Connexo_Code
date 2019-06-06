@@ -290,6 +290,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.zone</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall.issue</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
