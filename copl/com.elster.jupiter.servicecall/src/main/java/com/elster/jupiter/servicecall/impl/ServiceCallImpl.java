@@ -343,7 +343,7 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     private void deleteQueuedTransitions() {
-        DestinationSpec serviceCallQueue = serviceCallService.getServiceCallQueue();
+        DestinationSpec serviceCallQueue = serviceCallService.getServiceCallQueue(getType().getDestinationName());
         serviceCallQueue.purgeCorrelationId(this.getNumber());
     }
 

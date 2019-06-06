@@ -31,6 +31,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -87,17 +88,35 @@ public class ServiceCallTypeResource {
         return Response.ok(serviceCallTypeInfoFactory.from(type)).build();
     }
 
+    @GET
+    @Path("/compatiblequeues/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALL_TYPES, Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALLS})
+    public Response getCompatibleQueues(@PathParam("id") long id) {
+        ServiceCallType serviceCallType = serviceCallService.getServiceCallTypes().stream()
+                .filter(type -> type.getId() == id)
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL_TYPE));
+
+        List<String> queues = serviceCallService.getCompatibleQueues4(serviceCallType.getDestinationName())
+                .stream()
+                .map(destinationSpec -> destinationSpec.getName())
+                .collect(Collectors.toList());
+
+        return Response.status(Response.Status.OK).entity(queues).build();
+    }
+
     @PUT
-    @Path("/{id}/setdestinationandpriority")
+    @Path("/setdestinationandpriority/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
     public Response update(@PathParam("id") int id, ServiceCallTypeInfo info) {
-	    info.id = id;
+        info.id = id;
         ServiceCallType type = fetchAndLockServiceCallType(info);
-	    type.setDestination(info.destination);
-	    type.setPriority(info.priority);
+        type.setDestination(info.destination);
+        type.setPriority(info.priority);
         type.save();
         return Response.ok(serviceCallTypeInfoFactory.from(type)).build();
     }

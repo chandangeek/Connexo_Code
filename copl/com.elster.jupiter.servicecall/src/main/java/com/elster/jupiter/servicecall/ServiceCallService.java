@@ -4,11 +4,13 @@
 
 package com.elster.jupiter.servicecall;
 
-import com.elster.jupiter.domain.util.Finder;
-
 import aQute.bnd.annotation.ProviderType;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.messaging.DestinationSpec;
+
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -143,4 +145,6 @@ public interface ServiceCallService {
     void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties);
 
     Set<DefaultState> nonFinalStates();
+
+    List<DestinationSpec> getCompatibleQueues4(String destination);
 }

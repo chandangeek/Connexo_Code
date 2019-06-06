@@ -66,7 +66,8 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
 
         TransitionNotification transitionNotification = new TransitionNotification(serviceCall, currentState, newState);
 
-        DestinationSpec serviceCallQueue = serviceCallService.getServiceCallQueue();
+        DestinationSpec serviceCallQueue = serviceCallService.getServiceCallQueue(serviceCall.getType().getDestinationName());
+        int priority = serviceCall.getType().getPriority();
 
         if (DefaultState.CANCELLED.equals(newState)) {
             serviceCallQueue.purgeCorrelationId(serviceCall.getNumber());
@@ -75,6 +76,7 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
 
         serviceCallQueue.message(jsonService.serialize(transitionNotification))
                 .withCorrelationId(serviceCall.getNumber())
+                .withPriority(priority)
                 .send();
     }
 

@@ -19,6 +19,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -61,9 +62,11 @@ public class DestinationSpecResource {
     private final Thesaurus thesaurus;
     private final TaskService taskService;
     private final AppService appService;
+    private final ServiceCallService serviceCallService;
 
     @Inject
-    public DestinationSpecResource(MessageService messageService, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory, DestinationSpecInfoFactory destinationSpecInfoFactory, Thesaurus thesaurus, TaskService taskService, AppService appService) {
+    public DestinationSpecResource(MessageService messageService, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory, DestinationSpecInfoFactory destinationSpecInfoFactory, Thesaurus thesaurus,
+                                   TaskService taskService, AppService appService, ServiceCallService serviceCallService) {
         this.messageService = messageService;
         this.transactionService = transactionService;
         this.conflictFactory = conflictFactory;
@@ -71,6 +74,7 @@ public class DestinationSpecResource {
         this.thesaurus = thesaurus;
         this.taskService = taskService;
         this.appService = appService;
+        this.serviceCallService = serviceCallService;
     }
 
     @GET
@@ -79,11 +83,12 @@ public class DestinationSpecResource {
     public PagedInfoList getDestinationSpecs(@BeanParam JsonQueryParameters queryParameters, @QueryParam("state") boolean withState) {
         List<DestinationSpec> destinationSpecs = messageService.findDestinationSpecs();
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
+        List<String> allServiceCallTypes = getServiceCallTypes();
 
         List<DestinationSpecInfo> destinationSpecInfos = destinationSpecs
                 .stream()
                 .sorted(Comparator.comparing(DestinationSpec::getName))
-                .map((DestinationSpec spec) -> mapToInfo(withState, spec, allTasks))
+                .map((DestinationSpec spec) -> mapToInfo(withState, spec, allTasks, allServiceCallTypes))
                 .skip(queryParameters.getStart().orElse(0))
                 .limit(queryParameters.getLimit().map(i -> i++).orElse(Integer.MAX_VALUE))
                 .collect(Collectors.toList());
@@ -91,10 +96,10 @@ public class DestinationSpecResource {
         return PagedInfoList.fromPagedList("destinationSpecs", destinationSpecInfos, queryParameters);
     }
 
-    private DestinationSpecInfo mapToInfo(@QueryParam("state") boolean withState, DestinationSpec destinationSpec, List<RecurrentTask> tasks) {
+    private DestinationSpecInfo mapToInfo(@QueryParam("state") boolean withState, DestinationSpec destinationSpec, List<RecurrentTask> tasks, List<String> serviceCallTypes) {
         return withState
-                ? destinationSpecInfoFactory.withAppServers(destinationSpec, tasks)
-                : destinationSpecInfoFactory.from(destinationSpec, tasks);
+                ? destinationSpecInfoFactory.withAppServers(destinationSpec, tasks, serviceCallTypes)
+                : destinationSpecInfoFactory.from(destinationSpec, tasks, serviceCallTypes);
     }
 
     @GET
@@ -104,7 +109,9 @@ public class DestinationSpecResource {
     public DestinationSpecInfo getAppServer(@PathParam("destionationSpecName") String destinationSpecName, @QueryParam("state") boolean withState) {
         DestinationSpec destinationSpec = fetchDestinationSpec(destinationSpecName);
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
-        DestinationSpecInfo destinationSpecInfo = mapToInfo(withState, destinationSpec, allTasks);
+        List<String> allServiceCallTypes = getServiceCallTypes();
+
+        DestinationSpecInfo destinationSpecInfo = mapToInfo(withState, destinationSpec, allTasks, allServiceCallTypes);
         return destinationSpecInfo;
     }
 
@@ -135,11 +142,13 @@ public class DestinationSpecResource {
     private Response doPurgeErrors(String destinationSpecName) {
         DestinationSpec destinationSpec = fetchDestinationSpec(destinationSpecName);
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
+        List<String> allServiceCallTypes = getServiceCallTypes();
+
         try (TransactionContext context = transactionService.getContext()) {
             destinationSpec.purgeErrors();
             context.commit();
         }
-        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec, allTasks)).build();
+        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec, allTasks, allServiceCallTypes)).build();
     }
 
     private Response doUpdateDestinationSpec(String destinationSpecName, DestinationSpecInfo info) {
@@ -151,7 +160,13 @@ public class DestinationSpecResource {
         }
 
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
-        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec, allTasks)).build();
+        List<String> allServiceCallTypes = getServiceCallTypes();
+
+        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec, allTasks, allServiceCallTypes)).build();
+    }
+
+    private List<String> getServiceCallTypes() {
+        return serviceCallService.getServiceCallTypes().find().stream().map(sc -> sc.getDestinationName()).collect(Collectors.toList());
     }
 
     @POST
@@ -212,6 +227,11 @@ public class DestinationSpecResource {
 
         if (!info.tasks.isEmpty()) {
             throw new WebApplicationException(thesaurus.getString(MessageSeeds.Keys.TASKS_NOT_EMPTY, MessageSeeds.TASKS_NOT_EMPTY.getDefaultFormat()),
+                    Response.Status.FORBIDDEN);
+        }
+
+        if (!info.serviceCallTypes.isEmpty()) {
+            throw new WebApplicationException(thesaurus.getString(MessageSeeds.Keys.SERVICE_CALL_TYPES_NOT_EMPTY, MessageSeeds.SERVICE_CALL_TYPES_NOT_EMPTY.getDefaultFormat()),
                     Response.Status.FORBIDDEN);
         }
 

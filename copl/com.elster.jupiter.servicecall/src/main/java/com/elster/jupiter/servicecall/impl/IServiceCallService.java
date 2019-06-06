@@ -20,7 +20,7 @@ public interface IServiceCallService extends ServiceCallService {
 
     void removeServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties);
 
-    DestinationSpec getServiceCallQueue();
+    DestinationSpec getServiceCallQueue(String destinationName);
 
     Thesaurus getThesaurus();
 

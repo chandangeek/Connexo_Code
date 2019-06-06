@@ -257,5 +257,11 @@ class TransientDestinationSpec implements DestinationSpec {
         public MessageBuilder withDelay(int delay) {
             return this;
         }
+
+        @Override
+        public MessageBuilder withPriority(int priority) {
+            return this;
+        }
+
     }
 }

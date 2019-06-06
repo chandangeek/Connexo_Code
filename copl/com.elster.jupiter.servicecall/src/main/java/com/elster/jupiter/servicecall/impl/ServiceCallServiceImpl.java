@@ -41,6 +41,7 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableMap;
@@ -319,7 +320,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
     @Override
     public Finder<ServiceCall> getServiceCallFinder(ServiceCallFilter filter) {
-         return DefaultFinder.of(ServiceCall.class, createConditionFromFilter(filter), dataModel, ServiceCallType.class, State.class)
+        return DefaultFinder.of(ServiceCall.class, createConditionFromFilter(filter), dataModel, ServiceCallType.class, State.class)
                 .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
                 .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
     }
@@ -338,7 +339,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
         sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE fsm, ");
         sqlBuilder.append("(SELECT STATE, COUNT(*) TOTAL FROM SCS_SERVICE_CALL ");
-        sqlBuilder.append("WHERE id IN (SELECT id FROM " + TableSpecs.SCS_SERVICE_CALL  +" where parent=");
+        sqlBuilder.append("WHERE id IN (SELECT id FROM " + TableSpecs.SCS_SERVICE_CALL + " where parent=");
         sqlBuilder.append(id + ") ");
         sqlBuilder.append("GROUP BY STATE) scs ");
         sqlBuilder.append("WHERE fsm.ID = scs.STATE");
@@ -364,8 +365,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public DestinationSpec getServiceCallQueue() {
-        return messageService.getDestinationSpec(SERVICE_CALLS_DESTINATION_NAME).get();
+    public DestinationSpec getServiceCallQueue(String destinationName) {
+        return messageService.getDestinationSpec(destinationName).get();
     }
 
     @Override
@@ -402,7 +403,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 DefaultState.PENDING,
                 DefaultState.SCHEDULED,
                 DefaultState.WAITING
-        );    }
+        );
+    }
 
     private Condition createConditionFromFilter(ServiceCallFilter filter) {
         Condition condition = Condition.TRUE;
@@ -455,5 +457,17 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         return states.stream()
                 .map(stateName -> where(ServiceCallImpl.Fields.state.fieldName() + ".name").isEqualTo(DefaultState.valueOf(stateName).getKey()))
                 .reduce(Condition.FALSE, Condition::or);
+    }
+
+    @Override
+    public List<DestinationSpec> getCompatibleQueues4(String destination) {
+        final String destinationName = destination == null ? SERVICE_CALLS_DESTINATION_NAME : destination;
+        List<DestinationSpec> destinationSpecs = messageService.findDestinationSpecs();
+        String queueTypeName = SERVICE_CALLS_SUBSCRIBER_NAME;
+        return destinationSpecs.stream()
+                .filter(DestinationSpec::isExtraQueueCreationEnabled)
+                .filter(destinationSpec -> destinationSpec.getQueueTypeName().equals(queueTypeName))
+                .filter(Predicates.not(destinationSpec -> destinationSpec.getName().equals(destinationName)))
+                .collect(Collectors.toList());
     }
 }
