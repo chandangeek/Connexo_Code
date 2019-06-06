@@ -26,6 +26,7 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_ASSIGN_ALARM("alarm.action.assignAlarm", "Assign alarm"),
     ACTION_ALARM_ASSIGNED("action.alarm.assigned", "Alarm assigned"),
     ACTION_ALARM_UNASSIGNED("action.alarm.unassigned", "Alarm unassigned"),
+    ACTION_MAIL_NOTIFICATION("alarm.action.mail","Mail"),
     ACTION_START_ALARM_START_PROCESS("alarm.action.startProcess", "Start process"),
     ACTION_START_ALARM_PROCESS("alarm.action.process", "Process"),
     EVENT_TEMPORAL_THRESHOLD(ModuleConstants.EVENT_TEMPORAL_THRESHOLD, "Event time threshold"),
