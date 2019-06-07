@@ -1,7 +1,10 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
 
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -12,6 +15,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -39,6 +43,8 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
+    public static final ObisCode FIRMWARE_VERSION_METER_CORE = ObisCode.fromString("1.0.0.2.0.255");
+    public static final ObisCode FIRMWARE_VERSION_COMMS_MODULE = ObisCode.fromString("1.1.0.2.0.255");
 
     public AbstractSmartNtaProtocol(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -315,4 +321,76 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     public void setHasBreaker(boolean hasBreaker) {
         this.hasBreaker = hasBreaker;
     }
+
+
+    /**
+     * Getter for the default obis code of the communication module
+     * @return
+     */
+    public ObisCode getFirmwareVersionMeterCoreObisCode() {
+        return FIRMWARE_VERSION_METER_CORE;
+    }
+
+    /**
+     * Getter for the default obis code for the communication module
+     * Individual protocols can ovveride (i.e. EMSR)
+     * @return
+     */
+    public ObisCode getFirmwareVersionCommsModuleObisCode() {
+        return FIRMWARE_VERSION_COMMS_MODULE;
+    }
+
+    public void collectFirmwareVersionMeterCore(CollectedFirmwareVersion result) {
+        ObisCode coreFirmwareVersion = getFirmwareVersionMeterCoreObisCode();
+        try {
+            journal("Collecting active meter core firmware version from " +coreFirmwareVersion);
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(coreFirmwareVersion).getValueAttr();
+            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
+            result.setActiveMeterFirmwareVersion(fwVersion);
+            journal("Active meter core firmware version is " + fwVersion);
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue problem = this.getIssueFactory().createProblem(coreFirmwareVersion, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                result.setFailureInformation(ResultType.InCompatible, problem);
+            }
+        }
+    }
+
+
+    public void collectFirmwareVersionCommunicationModule(CollectedFirmwareVersion result){
+        ObisCode communicationModuleFirmwareVersion = getFirmwareVersionCommsModuleObisCode();
+        try {
+            journal("Collecting active communication module firmware version from "+communicationModuleFirmwareVersion);
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(communicationModuleFirmwareVersion).getValueAttr();
+            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
+            result.setActiveCommunicationFirmwareVersion(fwVersion);
+            journal("Active communication module firmware version is "+fwVersion);
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue problem = this.getIssueFactory().createProblem(communicationModuleFirmwareVersion, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                result.setFailureInformation(ResultType.InCompatible, problem);
+            }
+        }
+    }
+
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions(){
+        CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(
+                                                                        new DeviceIdentifierById(this.offlineDevice.getId()));
+
+        collectFirmwareVersionMeterCore(result);
+
+        collectFirmwareVersionCommunicationModule(result);
+
+        return result;
+    }
+
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
+
+
 }

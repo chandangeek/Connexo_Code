@@ -237,6 +237,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         return result;
     }
 
+    // NTA-related protocols don't support CA version, this is for tesitng purposes only
     // TODO: 19.03.2018 for testing purposes
     @Override
     public boolean supportsCaConfigImageVersion() {
@@ -247,38 +248,20 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
     public CollectedFirmwareVersion getFirmwareVersions() {
         CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
 
-        ObisCode coreActiveFirmwareVersionObisCode = ObisCode.fromString("1.0.0.2.8.255");
-        try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(coreActiveFirmwareVersionObisCode).getValueAttr();
-            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
-            result.setActiveMeterFirmwareVersion(fwVersion);
-        } catch (IOException e) {
-            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue problem = this.getIssueFactory().createProblem(coreActiveFirmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
-                result.setFailureInformation(ResultType.InCompatible, problem);
-            }   //Else a communication exception is thrown
-        }
 
+        collectFirmwareVersionMeterCore(result);
+
+        collectFirmwareVersionCommunicationModule(result);
+
+        // NTA-related protocols don't support CA version, this is for tesitng purposes only
         // TODO: 19.03.2018 for testing purposes
         try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(coreActiveFirmwareVersionObisCode).getValueAttr();
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(FIRMWARE_VERSION_METER_CORE).getValueAttr();
             String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
             result.setActiveCaConfigImageVersion(fwVersion);
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue problem = this.getIssueFactory().createProblem(coreActiveFirmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
-                result.setFailureInformation(ResultType.InCompatible, problem);
-            }   //Else a communication exception is thrown
-        }
-
-        ObisCode moduleActiveFirmwareVersionObisCode = ObisCode.fromString("1.1.0.2.8.255");
-        try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(moduleActiveFirmwareVersionObisCode).getValueAttr();
-            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
-            result.setActiveCommunicationFirmwareVersion(fwVersion);
-        } catch (IOException e) {
-            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue problem = this.getIssueFactory().createProblem(moduleActiveFirmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                Issue problem = this.getIssueFactory().createProblem(FIRMWARE_VERSION_METER_CORE, "issue.protocol.readingOfFirmwareFailed", e.toString());
                 result.setFailureInformation(ResultType.InCompatible, problem);
             }   //Else a communication exception is thrown
         }

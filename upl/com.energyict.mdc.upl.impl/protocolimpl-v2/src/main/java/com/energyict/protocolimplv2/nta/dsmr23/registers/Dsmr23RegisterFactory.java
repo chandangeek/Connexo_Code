@@ -30,6 +30,7 @@ import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -45,8 +46,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     public static final ObisCode ACTIVITY_CALENDAR = ObisCode.fromString("0.0.13.0.0.255");
     public static final ObisCode ACTIVITY_CALENDAR_NAME = ObisCode.fromString("0.0.13.0.0.2");
-    public static final ObisCode CORE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
-    public static final ObisCode MODULE_FIRMWARE = ObisCode.fromString("1.1.0.2.0.255");
+    public static final ObisCode CORE_FIRMWARE = AbstractSmartNtaProtocol.FIRMWARE_VERSION_METER_CORE;
+    public static final ObisCode MODULE_FIRMWARE = AbstractSmartNtaProtocol.FIRMWARE_VERSION_COMMS_MODULE;
     public static final ObisCode CORE_FIRMWARE_SIGNATURE = ObisCode.fromString("1.0.0.2.8.255");
     public static final ObisCode MODULE_FIRMWARE_SIGNATURE = ObisCode.fromString("1.1.0.2.8.255");
     public static final ObisCode DISCONNECT_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");

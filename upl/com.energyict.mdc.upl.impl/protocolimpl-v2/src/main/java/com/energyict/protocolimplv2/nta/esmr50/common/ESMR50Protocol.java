@@ -347,6 +347,11 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         return Optional.empty();
     }
 
+    @Override
+    public ObisCode getFirmwareVersionCommsModuleObisCode(){
+        return ESMR50RegisterFactory.ACTIVE_MODEM_FIRMWARE_VERSION_OBISCODE;
+    }
+
    //TODO This method must be overriden in all nta protocols. It had a different implementation in 8.11 AbstractSmartDlmsProtocol than in AbstractDlmsProtcol from connexo
     /**
      * E-meter has address 0. Subclasses can override to add MBus address functionality.
@@ -364,10 +369,6 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         ((ESMR50Cache)getDeviceCache()).setFrameCounter(newFrameCounter);
     }
 
-    @Override
-    public boolean supportsCommunicationFirmwareVersion() {
-        return true;
-    }
 }
 
 
