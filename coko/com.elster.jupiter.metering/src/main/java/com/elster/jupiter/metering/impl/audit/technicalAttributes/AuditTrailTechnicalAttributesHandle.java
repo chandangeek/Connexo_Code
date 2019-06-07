@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.metering.impl.audit.attributes;
+package com.elster.jupiter.metering.impl.audit.technicalAttributes;
 
 import com.elster.jupiter.audit.AuditDecoder;
 import com.elster.jupiter.audit.AuditDomainContextType;
@@ -21,19 +21,19 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component(
-        name = "com.elster.jupiter.metering.impl.audit.attributes",
+        name = "com.elster.jupiter.metering.impl.audit.technical.attributes",
         service = {AuditTrailDecoderHandle.class},
         immediate = true)
-public class AuditTrailAttributesHandle implements AuditTrailDecoderHandle {
+public class AuditTrailTechnicalAttributesHandle implements AuditTrailDecoderHandle {
 
-    private final AuditDomainContextType auditDomainContextType = AuditDomainContextType.USAGEPOINT_ATTRIBUTES;
+    private final AuditDomainContextType auditDomainContextType = AuditDomainContextType.USAGEPOINT_TECHNICAL_ATTRIBUTES;
 
     private volatile OrmService ormService;
     private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
 
     @SuppressWarnings("unused") // for OSGI
-    public AuditTrailAttributesHandle() {
+    public AuditTrailTechnicalAttributesHandle() {
     }
 
     @Reference
@@ -63,6 +63,6 @@ public class AuditTrailAttributesHandle implements AuditTrailDecoderHandle {
 
     @Override
     public AuditDecoder getAuditDecoder(AuditTrailReference reference) {
-        return new AuditTrailAttributesDecoder(ormService, thesaurus, meteringService).init(reference);
+        return new AuditTrailTechnicalAttributesDecoder(ormService, thesaurus, meteringService).init(reference);
     }
 }

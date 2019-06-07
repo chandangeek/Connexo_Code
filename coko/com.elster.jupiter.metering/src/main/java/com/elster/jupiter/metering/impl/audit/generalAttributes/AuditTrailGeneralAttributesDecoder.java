@@ -2,9 +2,8 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.metering.impl.audit.attributes;
+package com.elster.jupiter.metering.impl.audit.generalAttributes;
 
-import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditLogChange;
 import com.elster.jupiter.audit.AuditLogChangeBuilder;
 import com.elster.jupiter.metering.Location;
@@ -30,18 +29,18 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class AuditTrailAttributesDecoder extends AbstractUsagePointAuditDecoder {
+public class AuditTrailGeneralAttributesDecoder extends AbstractUsagePointAuditDecoder {
 
-    AuditTrailAttributesDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService) {
+    AuditTrailGeneralAttributesDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService) {
         this.ormService = ormService;
         this.meteringService = meteringService;
         this.setThesaurus(thesaurus);
     }
 
-    @Override
-    public UnexpectedNumberOfUpdatesException.Operation getOperation(UnexpectedNumberOfUpdatesException.Operation operation, AuditDomainContextType context) {
-        return operation;
-        //return isDomainObsolete() ? UnexpectedNumberOfUpdatesException.Operation.DELETE : operation;
+    public Object getContextReference() {
+        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+        builder.put("name", this.getThesaurus().getFormat(PropertyTranslationKeys.USAGEPOINT_GENERAL_INFORMATION).format());
+        return builder.build();
     }
 
     @Override
@@ -99,8 +98,6 @@ public class AuditTrailAttributesDecoder extends AbstractUsagePointAuditDecoder 
                 getAuditLogChangeForString(getThesaurus().getString(upEntry.getLifeCycle().getName(), upEntry.getLifeCycle().getName()), PropertyTranslationKeys.USAGEPOINT_LIFE_CYCLE_NAME).ifPresent(auditLogChanges::add);
                 getAuditLogChangeForOptional(Optional.of(upEntry.getCreateDate()), PropertyTranslationKeys.USAGEPOINT_CREATETIME, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
                 getAuditLogChangeForUpType(upEntry).ifPresent(auditLogChanges::add);
-
-
             });
             return auditLogChanges;
         } catch (Exception e) {

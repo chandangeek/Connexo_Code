@@ -16,7 +16,8 @@ public enum AuditDomainContextType {
     DEVICE_PROTOCOL_DIALECTS_PROPS("auditDomainContext.deviceProtocolDialectsProps", AuditDomainType.DEVICE),
     DEVICE_COMTASKS("auditDomainContext.deviceComTasks", AuditDomainType.DEVICE),
     DEVICE_CONNECTION_METHODS("auditDomainContext.deviceConnectionMethods", AuditDomainType.DEVICE),
-    USAGEPOINT_ATTRIBUTES("auditDomainContext.usagePointAttributes", AuditDomainType.USAGEPOINT);
+    USAGEPOINT_GENERAL_ATTRIBUTES("auditDomainContext.usagePointGeneralAttributes", AuditDomainType.USAGEPOINT),
+    USAGEPOINT_TECHNICAL_ATTRIBUTES("auditDomainContext.usagePointTechnicalAttributes", AuditDomainType.USAGEPOINT);
 
     private final String domainContextType;
     private final AuditDomainType domainType;

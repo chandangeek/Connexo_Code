@@ -76,6 +76,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_SERVICE_DELIVERY_REMARK("usagepoint.serviceDeliveryRemark", "Service delivery remark"),
     USAGEPOINT_LIFE_CYCLE_NAME("usagepoint.usagepointLifecycleNAme", "Usage point life cycle"),
     USAGEPOINT_TYPE_OF_USAGE_POINT("usagepoint.typeOf", "Type of usage point"),
+    USAGEPOINT_GENERAL_INFORMATION("usagepoint.general.info", "General information"),
+    USAGEPOINT_TECHNICAL_INFORMATION("usagepoint.technical.info", "Technical information"),
     ;
 
     private String key;
