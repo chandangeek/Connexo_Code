@@ -174,7 +174,14 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
 
                     if (Ext.isDefined(decodedResponse.errors) && Ext.isArray(decodedResponse.errors) && !Ext.isEmpty(decodedResponse.errors)) {
                        var title = Uni.I18n.translate('general.error.requestFailedConnexoKnownError', 'IMT', 'Couldn\'t perform your action'),
-                           msg = _.take(decodedResponse.errors).msg;
+                           msg = decodedResponse.errors[0].msg ?
+                            decodedResponse.errors[0].msg
+                            : 
+                            Uni.I18n.translate(
+                                'general.error.unknownErrorOccurred',
+                                'IMT',
+                                'An unknown error occurred'
+                            );
 
                         me.getApplication().getController('Uni.controller.Error').showError(title, msg, code, null, null, 'unlink-meter-error');
                         Ext.tip.QuickTipManager.disable();
