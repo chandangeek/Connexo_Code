@@ -98,6 +98,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     private boolean withUniqueCalendarName;
     private long sendCalendarComTaskId;
     private long validationComTaskId;
+    //public String connectionMethod;
 
     @Inject
     public TimeOfUseCampaignDomainExtension(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
