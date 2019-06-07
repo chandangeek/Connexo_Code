@@ -295,15 +295,21 @@ Ext.define('Imt.usagepointhistory.controller.History', {
 
     showAuditTrail: function (usagePointId) {
         var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
             auditController = me.getController('Cfg.audit.controller.Audit'),
-            auditTrailTab = me.getPage().down('#up-audit-trail-tab'),
+            historyTab = me.getPage().down('#usage-point-history-tab-panel'),
+            auditTrailTab = historyTab.down('#up-audit-trail-tab'),
             dependenciesLoaded = function () {
                 var usagePointAudit = me.getStore('Imt.usagepointhistory.store.UsagePointAudit');
                 usagePointAudit.getProxy().setUrl(usagePointId);
                 auditTrailTab.add(auditController.getAuditTrailView(usagePointAudit));
                 auditController.prepareForSpecificObject(auditTrailTab.down('audit-setup-view'));
+                historyTab.setLoading(false);
+                Ext.resumeLayouts(true);
             };
 
+        historyTab.setLoading();
+        Ext.suspendLayouts();
         auditController.loadDependencies(this, dependenciesLoaded);
     }
 });

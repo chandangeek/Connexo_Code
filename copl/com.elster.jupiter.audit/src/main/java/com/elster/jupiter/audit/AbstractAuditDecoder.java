@@ -151,6 +151,48 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         }
         return Optional.empty();
     }
+/*
+    public  <E extends Enum<E>> Optional<AuditLogChange> getAuditLogChangeForEnum(E from, E to, TranslationKey translationKey) {
+        if (!(to == null ? from == null : to.toString().equals(from.toString())))
+        {
+            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setType(SimplePropertyType.TEXT.name());
+            auditLogChange.setValue(to == null ? "": to.toString());
+            auditLogChange.setPreviousValue(from == null ? "": from.toString());
+            return Optional.of(auditLogChange);
+        }
+        return Optional.empty();
+    }
+
+    public  <E extends Enum<E>> Optional<AuditLogChange> getAuditLogChangeForEnum(E from, TranslationKey translationKey) {
+        AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+        auditLogChange.setName(getDisplayName(translationKey));
+        auditLogChange.setType(SimplePropertyType.TEXT.name());
+        auditLogChange.setValue(from == null ? "": from.toString());
+        return Optional.of(auditLogChange);
+    }
+*/
+    public Optional<AuditLogChange> getAuditLogChangeForObject(Object from, Object to, TranslationKey translationKey) {
+        if (!(to == null ? from == null : to.toString().equals(from.toString())))
+        {
+            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setType(SimplePropertyType.TEXT.name());
+            auditLogChange.setValue(to == null ? "": to.toString());
+            auditLogChange.setPreviousValue(from == null ? "": from.toString());
+            return Optional.of(auditLogChange);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<AuditLogChange> getAuditLogChangeForObject(Object from, TranslationKey translationKey) {
+        AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+        auditLogChange.setName(getDisplayName(translationKey));
+        auditLogChange.setType(SimplePropertyType.TEXT.name());
+        auditLogChange.setValue(from == null ? "": from.toString());
+        return Optional.of(auditLogChange);
+    }
 
     public Optional<AuditLogChange> getAuditLogChangeForBoolean(boolean from, boolean to, TranslationKey translationKey) {
         if (to != from) {
@@ -196,7 +238,7 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         return Optional.of(auditLogChange);
     }
 
-    protected Optional<AuditLogChange> getAuditLogChangeForString(String to, TranslationKey translationKey) {
+    public Optional<AuditLogChange> getAuditLogChangeForString(String to, TranslationKey translationKey) {
         return Optional.ofNullable(to).filter(s -> !s.isEmpty()).map(value -> {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));

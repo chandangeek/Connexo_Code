@@ -9,6 +9,7 @@ import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.AuditTrailFilter;
+import com.elster.jupiter.audit.rest.AuditI18N;
 import com.elster.jupiter.audit.rest.AuditInfoFactory;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
@@ -51,8 +52,10 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
@@ -201,8 +204,9 @@ public class UsagePointResource {
     private final CalendarService calendarService;
     private final MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory;
     private final UsagePointTransitionInfoFactory usagePointTransitionInfoFactory;
-    private AuditService auditService;
-    private AuditInfoFactory auditInfoFactory;
+    private final NlsService nlsService;
+    private final AuditService auditService;
+    private final AuditInfoFactory auditInfoFactory;
 
     @Inject
     public UsagePointResource(
@@ -238,6 +242,7 @@ public class UsagePointResource {
             CalendarService calendarService,
             MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory,
             UsagePointTransitionInfoFactory usagePointTransitionInfoFactory,
+            NlsService nlsService,
             AuditService auditService,
             AuditInfoFactory auditInfoFactory) {
         this.queryService = queryService;
@@ -254,7 +259,7 @@ public class UsagePointResource {
         this.bulkScheduleResourceProvider = bulkScheduleResourceProvider;
         this.locationInfoFactory = locationInfoFactory;
         this.validationSummaryInfoFactory = validationSummaryInfoFactory;
-        this.thesaurus = thesaurus;
+        this.thesaurus = thesaurus.join(nlsService.getThesaurus(AuditI18N.COMPONENT_NAME, Layer.REST));
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
@@ -274,6 +279,7 @@ public class UsagePointResource {
         this.usagePointTransitionInfoFactory = usagePointTransitionInfoFactory;
         this.auditService = auditService;
         this.auditInfoFactory = auditInfoFactory;
+        this.nlsService = nlsService;
     }
 
     @GET

@@ -10,28 +10,48 @@ import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class HeatDetailAuditLog {
 
-    private final HeatDetail from;
-    private final HeatDetail to;
+    private Optional<HeatDetail> from = Optional.empty();
+    private Optional<HeatDetail> to = Optional.empty();
     private final AuditTrailTechnicalAttributesDecoder decoder;
 
     HeatDetailAuditLog(AuditTrailTechnicalAttributesDecoder decoder, HeatDetail from, HeatDetail to){
         this.decoder = decoder;
-        this.from = from;
-        this.to = to;
+        this.from = Optional.of(from);
+        this.to = Optional.of(to);
+    }
+
+    HeatDetailAuditLog(AuditTrailTechnicalAttributesDecoder decoder, HeatDetail from){
+        this.decoder = decoder;
+        this.from = Optional.of(from);
     }
 
     public List<AuditLogChange> getLogs()
     {
         List<AuditLogChange> auditLogChanges = new ArrayList<>();
         try{
-            decoder.getAuditLogChangeForString(from.getPhysicalCapacity().toString(), to.getPhysicalCapacity().toString(), PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY).ifPresent(auditLogChanges::add);
-            decoder.getAuditLogChangeForString(from.getPressure().toString(), to.getPressure().toString(), PropertyTranslationKeys.USAGEPOINT_PRESSURE).ifPresent(auditLogChanges::add);
-            decoder.getAuditLogChangeForString(from.isBypassInstalled().toString(), to.isBypassInstalled().toString(), PropertyTranslationKeys.USAGEPOINT_BYPASS).ifPresent(auditLogChanges::add);
-            decoder.getAuditLogChangeForString(from.getBypassStatus().toString(), to.getBypassStatus().toString(), PropertyTranslationKeys.USAGEPOINT_BYPASS_STATUS).ifPresent(auditLogChanges::add);
-            decoder.getAuditLogChangeForString(from.isValveInstalled().toString(), to.isValveInstalled().toString(), PropertyTranslationKeys.USAGEPOINT_VALVE).ifPresent(auditLogChanges::add);
+            if (from.isPresent() && to.isPresent()) {
+                HeatDetail fromEntity = from.get();
+                HeatDetail toEntity = to.get();
+
+                decoder.getAuditLogChangeForObject(fromEntity.getPhysicalCapacity(), toEntity.getPhysicalCapacity(), PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY).ifPresent(auditLogChanges::add);
+                decoder.getAuditLogChangeForObject(fromEntity.getPressure(), toEntity.getPressure(), PropertyTranslationKeys.USAGEPOINT_PRESSURE).ifPresent(auditLogChanges::add);
+                decoder.getAuditLogChangeForObject(fromEntity.isBypassInstalled(), toEntity.isBypassInstalled(), PropertyTranslationKeys.USAGEPOINT_BYPASS).ifPresent(auditLogChanges::add);
+                decoder.getAuditLogChangeForBypassStatus(fromEntity.getBypassStatus(), toEntity.getBypassStatus(), PropertyTranslationKeys.USAGEPOINT_BYPASS_STATUS).ifPresent(auditLogChanges::add);
+                decoder.getAuditLogChangeForObject(fromEntity.isValveInstalled(), toEntity.isValveInstalled(), PropertyTranslationKeys.USAGEPOINT_VALVE).ifPresent(auditLogChanges::add);
+            }
+            else if (from.isPresent()) {
+                HeatDetail fromEntity = from.get();
+
+                decoder.getAuditLogChangeForObject(fromEntity.getPhysicalCapacity(), PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY).ifPresent(auditLogChanges::add);
+                decoder.getAuditLogChangeForObject(fromEntity.getPressure(), PropertyTranslationKeys.USAGEPOINT_PRESSURE).ifPresent(auditLogChanges::add);
+                decoder.getAuditLogChangeForObject(fromEntity.isBypassInstalled(), PropertyTranslationKeys.USAGEPOINT_BYPASS).ifPresent(auditLogChanges::add);
+                decoder.getAuditLogChangeForBypassStatus(fromEntity.getBypassStatus(), PropertyTranslationKeys.USAGEPOINT_BYPASS_STATUS).ifPresent(auditLogChanges::add);
+                decoder.getAuditLogChangeForObject(fromEntity.isValveInstalled(), PropertyTranslationKeys.USAGEPOINT_VALVE).ifPresent(auditLogChanges::add);
+            }
 
         } catch (Exception e) {
         }

@@ -5,6 +5,8 @@
 package com.elster.jupiter.metering.impl.audit.technicalAttributes;
 
 import com.elster.jupiter.audit.AuditLogChange;
+import com.elster.jupiter.audit.AuditLogChangeBuilder;
+import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
@@ -14,9 +16,11 @@ import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.impl.audit.AbstractUsagePointAuditDecoder;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
+import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Operator;
 
@@ -28,6 +32,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AuditTrailTechnicalAttributesDecoder extends AbstractUsagePointAuditDecoder {
@@ -73,9 +78,8 @@ public class AuditTrailTechnicalAttributesDecoder extends AbstractUsagePointAudi
 
                 UsagePointDetail from = allEntries.get(0);
                 UsagePointDetail to = allEntries.get(allEntries.size() - 1);
-                // translate it
-                getAuditLogChangeForString(from.isCollarInstalled().toString(), to.isCollarInstalled().toString(), PropertyTranslationKeys.USAGEPOINT_COLLAR).ifPresent(auditLogChanges::add);
 
+                getAuditLogChangeForString(from.isCollarInstalled().toString(), to.isCollarInstalled().toString(), PropertyTranslationKeys.USAGEPOINT_COLLAR).ifPresent(auditLogChanges::add);
                 if (from instanceof ElectricityDetail) {
                     auditLogChanges.addAll(new ElectricityDetailAuditLog(this, (ElectricityDetail) from, (ElectricityDetail)to).getLogs());
                 } else if (from instanceof GasDetail) {
@@ -97,7 +101,19 @@ public class AuditTrailTechnicalAttributesDecoder extends AbstractUsagePointAudi
             List<AuditLogChange> auditLogChanges = new ArrayList<>();
 
             usagePoint.ifPresent(upEntry -> {
-                getAuditLogChangeForString(upEntry.getName(), PropertyTranslationKeys.USAGEPOINT_NAME).ifPresent(auditLogChanges::add);
+                DataMapper<UsagePointDetail> dataMapper = ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(UsagePointDetail.class);
+                List<UsagePointDetail> actualEntries = getActualEntries(dataMapper, getActualClauses(upEntry.getId()));
+                UsagePointDetail updEntry = actualEntries.get(0);
+                getAuditLogChangeForString(updEntry.isCollarInstalled().toString(), PropertyTranslationKeys.USAGEPOINT_COLLAR).ifPresent(auditLogChanges::add);
+                if (updEntry instanceof ElectricityDetail) {
+                    auditLogChanges.addAll(new ElectricityDetailAuditLog(this, (ElectricityDetail) updEntry).getLogs());
+                } else if (updEntry instanceof GasDetail) {
+                    auditLogChanges.addAll(new GasDetailAuditLog(this, (GasDetail) updEntry).getLogs());
+                } else if (updEntry instanceof WaterDetail) {
+                    auditLogChanges.addAll(new WaterDetailAuditLog(this, (WaterDetail) updEntry).getLogs());
+                } else if (updEntry instanceof HeatDetail) {
+                    auditLogChanges.addAll(new HeatDetailAuditLog(this, (HeatDetail) updEntry).getLogs());
+                }
 
             });
             return auditLogChanges;
@@ -122,5 +138,24 @@ public class AuditTrailTechnicalAttributesDecoder extends AbstractUsagePointAudi
                 Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));
     }
 
+    public Optional<AuditLogChange> getAuditLogChangeForBypassStatus(BypassStatus from, BypassStatus to, TranslationKey translationKey) {
+        if (!(to == null ? from == null : to.getDisplayValue(getThesaurus()).equals(from.getDisplayValue(getThesaurus()))))
+        {
+            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setType(SimplePropertyType.TEXT.name());
+            auditLogChange.setValue(to == null ? "": to.getDisplayValue(getThesaurus()));
+            auditLogChange.setPreviousValue(from == null ? "": from.getDisplayValue(getThesaurus()));
+            return Optional.of(auditLogChange);
+        }
+        return Optional.empty();
+    }
 
+    public Optional<AuditLogChange> getAuditLogChangeForBypassStatus(BypassStatus from, TranslationKey translationKey) {
+        AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+        auditLogChange.setName(getDisplayName(translationKey));
+        auditLogChange.setType(SimplePropertyType.TEXT.name());
+        auditLogChange.setValue(from == null ? "": from.getDisplayValue(getThesaurus()));
+        return Optional.of(auditLogChange);
+    }
 }
