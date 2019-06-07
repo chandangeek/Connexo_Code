@@ -22,23 +22,23 @@ import java.util.Set;
 /**
  * An implementation of a System defined ComTask
  */
-@UniqueComTaskForFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
-@OnlyOneProtocolTaskIfFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
+@UniqueComTaskForFirmwareUpgrade(groups = { Save.Create.class, Save.Update.class }, message = "{"
+        + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
+@OnlyOneProtocolTaskIfFirmwareUpgrade(groups = { Save.Create.class, Save.Update.class }, message = "{"
+        + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
 class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemComTask {
 
     @Inject
-    ComTaskDefinedBySystemImpl(DataModel dataModel, Thesaurus thesaurus,
-                                    EventService eventService,
-                                    Provider<BasicCheckTaskImpl> basicCheckTaskProvider,
-                                    Provider<ClockTaskImpl> clockTaskProvider,
-                                    Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider,
-                                    Provider<LogBooksTaskImpl> logBooksTaskProvider,
-                                    Provider<MessagesTaskImpl> messagesTaskProvider,
-                                    Provider<RegistersTaskImpl> registersTaskProvider,
-                                    Provider<StatusInformationTaskImpl> statusInformationTaskProvider,
-                                    Provider<TopologyTaskImpl> topologyTaskProvider,
-                                    Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider) {
-        super(logBooksTaskProvider, dataModel, statusInformationTaskProvider, messagesTaskProvider, basicCheckTaskProvider, registersTaskProvider, eventService, clockTaskProvider, topologyTaskProvider, thesaurus, loadProfilesTaskProvider, firmwareManagementTaskProvider);
+    ComTaskDefinedBySystemImpl(DataModel dataModel, Thesaurus thesaurus, EventService eventService,
+            Provider<BasicCheckTaskImpl> basicCheckTaskProvider, Provider<ClockTaskImpl> clockTaskProvider,
+            Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider, Provider<LogBooksTaskImpl> logBooksTaskProvider,
+            Provider<MessagesTaskImpl> messagesTaskProvider, Provider<RegistersTaskImpl> registersTaskProvider,
+            Provider<StatusInformationTaskImpl> statusInformationTaskProvider,
+            Provider<TopologyTaskImpl> topologyTaskProvider,
+            Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider) {
+        super(logBooksTaskProvider, dataModel, statusInformationTaskProvider, messagesTaskProvider,
+                basicCheckTaskProvider, registersTaskProvider, eventService, clockTaskProvider, topologyTaskProvider,
+                thesaurus, loadProfilesTaskProvider, firmwareManagementTaskProvider);
     }
 
     @Override

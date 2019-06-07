@@ -142,4 +142,8 @@ public interface ComTaskEnablement extends HasId {
     void save();
 
     long getVersion();
+
+    int getMaxNumberOfTries ();
+
+    void setMaxNumberOfTries(int maxNumberOfTries);
 }

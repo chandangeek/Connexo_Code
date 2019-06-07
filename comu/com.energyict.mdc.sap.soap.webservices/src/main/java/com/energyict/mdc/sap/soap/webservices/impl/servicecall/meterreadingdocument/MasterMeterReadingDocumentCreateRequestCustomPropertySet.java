@@ -18,7 +18,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
@@ -32,6 +31,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 @Component(name = "MasterMeterReadingDocumentCreateRequestCustomPropertySet",
         service = CustomPropertySet.class,
@@ -222,7 +223,7 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
 
         @Override
         public String application() {
-            return MdcAppService.APPLICATION_NAME;
+            return APPLICATION_NAME;
         }
     }
 }

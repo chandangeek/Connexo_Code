@@ -158,6 +158,13 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
             table.column(Fields.PROFILE_NUMBER.name()).map(Fields.PROFILE_NUMBER.javaName()).number().notNull().add();
             table.column(Fields.IN_USE.name()).map(Fields.IN_USE.javaName()).bool().notNull().add();
             table.column(Fields.BILLING_FACTOR.name()).map(Fields.BILLING_FACTOR.javaName()).number().notNull().add();
+            Column contextReference = (Column)(table.getColumn(Fields.DEVICE.javaName()).get());
+            table
+                    .foreignKey(contextForeignKeyName())
+                    .on(contextReference)
+                    .references(getContextClass())
+                    .map(Fields.DEVICE_REF.javaName())
+                    .add();
         }
 
         @Override
@@ -176,19 +183,15 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
                     .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
         }
 
-        @Override
-        public String contextFieldName() {
-            return Fields.DEVICE_REF.javaName();
-        }
-
-        @Override
-        public String contextColumnName() {
-            return Fields.DEVICE.javaName();
-        }
 
         @Override
         public String contextForeignKeyName() {
             return PREFIX + "_SAP_INFO_"+ Fields.DEVICE.javaName().toUpperCase() + "_FK";
+        }
+
+        @Override
+        public Class getContextClass() {
+            return Device.class;
         }
     }
 
@@ -239,11 +242,6 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
     @Override
     public Class<ChannelSpec> getDomainClass() {
         return ChannelSpec.class;
-    }
-
-    @Override
-    public Class getContextClass() {
-        return Device.class;
     }
 
     @Override

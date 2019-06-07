@@ -248,7 +248,14 @@ public class DataMapperReader<T> implements TupleParser<T> {
     private List<JournalEntry<T>> findJournalComparison(List<Comparison> comparisons, Order[] orders, LockMode lockMode) throws SQLException {
 
         List<SqlFragment> fragments = new ArrayList<>();
+
         comparisons.stream().forEach(comparison -> {
+            FieldMapping mapping = getTable().getFieldMapping(comparison.getFieldName());
+            if (mapping != null) {
+                fragments.add(mapping.asComparisonFragment(comparison, getAlias()));
+                return;
+            }
+
             fragments.add(new SqlFragment() {
                 String statement = "";
 

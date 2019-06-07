@@ -10,6 +10,7 @@ Ext.define('Idl.store.TransitionStore', {
         {name: 'deviceLifecycle', type: 'auto'},
         {name: 'transition', type: 'auto'},
         {name: 'failedStateChange', type: 'auto'},
-        {name: 'cause', type: 'auto'}
+        {name: 'cause', type: 'auto'},
+        {name: 'modTime', type: 'auto'}
     ]
 });

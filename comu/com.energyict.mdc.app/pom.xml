@@ -272,16 +272,14 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.tasks</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue.task.extjs</artifactId>
+        </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/mdc</js.dir>
-            </properties>
-        </profile>
-    </profiles>
+    <properties>
+        <js.dir>js/mdc</js.dir>
+    </properties>
 
 </project>

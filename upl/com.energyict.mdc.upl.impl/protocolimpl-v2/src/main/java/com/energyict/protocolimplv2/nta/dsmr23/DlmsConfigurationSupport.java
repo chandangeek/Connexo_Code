@@ -52,7 +52,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_I
 public class DlmsConfigurationSupport implements HasDynamicProperties {
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
-
+    public static final String REPLAY_ATTACK_PREVENTION = "ReplayAttackPrevention";
     private final PropertySpecService propertySpecService;
 
     public DlmsConfigurationSupport(PropertySpecService propertySpecService) {
@@ -77,7 +77,8 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
                 this.deviceId(),
                 this.ignoreDstStatusCode(),
                 this.validateLoadProfileChannelsPropertySpec(),
-                this.masterKeyPropertySpec()));
+                this.masterKeyPropertySpec(),
+                this.replayAttackPreventionPropertySpec()));
     }
 
     @Override
@@ -142,8 +143,15 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
         return this.bigDecimalSpec(MAX_REC_PDU_SIZE, false, PropertyTranslationKeys.V2_ELSTER_MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
     }
 
+
+
     protected PropertySpec bulkRequestPropertySpec() {
         return this.booleanSpecBuilder(BULK_REQUEST, PropertyTranslationKeys.V2_ELSTER_BULK_REQUEST).finish();
+    }
+
+
+    protected PropertySpec replayAttackPreventionPropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(REPLAY_ATTACK_PREVENTION, false, PropertyTranslationKeys.V2_NTA_REPLAY_ATTACK_PREVENTION, getPropertySpecService()::booleanSpec).finish();
     }
 
     protected PropertySpec cipheringTypePropertySpec() {

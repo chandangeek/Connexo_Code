@@ -308,6 +308,10 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             case 'hideKeyValues':
                 me.hideKeyValues(menu.record);
                 break;
+            case 'unmarkServiceKey':
+                me.unmarkServiceKey(menu.record);
+                break;
+
         }
     },
 
@@ -834,6 +838,35 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
         gridActionsMenu.down('#mdc-device-security-accessors-action-menu-item-show-hide').action = 'showKeyValues';
         gridActionsMenu.down('#mdc-device-security-accessors-action-menu-item-show-hide').setText(Uni.I18n.translate('general.showValues', 'MDC', 'Show values'));
     },
+
+    unmarkServiceKey: function(deviceSecurityAccessorRecord) {
+            var me = this;
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+            me.deviceKeyRecord = deviceSecurityAccessorRecord;
+            me.deviceKeyRecord.set('serviceKey', false);
+
+            viewport.setLoading();
+
+            var url = '/api/ddr/devices/{deviceId}/securityaccessors/keys/{keyId}/unmarkservicekey';
+
+            url = url.replace('{deviceId}', me.deviceId).replace('{keyId}', me.deviceKeyRecord.get('id'));
+
+            Ext.Ajax.request({
+                url: url,
+                method: 'PUT',
+                jsonData: Ext.encode(deviceSecurityAccessorRecord.getData()),
+                success: function () {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.serviceKey.unmarked', 'MDC', 'Service key unmarked'));
+                },
+                callback: function () {
+                    viewport.setLoading(false);
+                }
+            });
+
+    },
+
+
 
     comboLimitNotification: function (combo) {
         var picker = combo.getPicker(),

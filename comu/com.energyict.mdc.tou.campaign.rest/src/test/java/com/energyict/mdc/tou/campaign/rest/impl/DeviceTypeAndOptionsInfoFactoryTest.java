@@ -5,6 +5,7 @@
 package com.energyict.mdc.tou.campaign.rest.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -36,11 +37,12 @@ public class DeviceTypeAndOptionsInfoFactoryTest {
     private static TimeOfUseOptions timeOfUseOptions = mock(TimeOfUseOptions.class);
     private static AllowedCalendar allowedCalendar = mock(AllowedCalendar.class);
     private static Calendar calendar = mock(Calendar.class);
+    private static ExceptionFactory exceptionFactory = mock(ExceptionFactory.class);
 
     @BeforeClass
     public static void setUp() {
         when(deviceConfigurationService.findTimeOfUseOptions(deviceType)).thenReturn(Optional.of(timeOfUseOptions));
-        deviceTypeAndOptionsInfoFactory = new DeviceTypeAndOptionsInfoFactory(deviceConfigurationService);
+        deviceTypeAndOptionsInfoFactory = new DeviceTypeAndOptionsInfoFactory(deviceConfigurationService, exceptionFactory);
         when(deviceType.getId()).thenReturn(1L);
         when(deviceType.getName()).thenReturn("TestDeviceType");
         when(deviceType.getAllowedCalendars()).thenReturn(Collections.singletonList(allowedCalendar));

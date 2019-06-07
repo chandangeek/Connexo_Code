@@ -10,6 +10,7 @@ import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
 import ch.iec.tc57._2011.masterdatalinkageconfig.Name;
 import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
+import ch.iec.tc57._2011.schema.message.HeaderType;
 
 import java.time.Instant;
 
@@ -26,6 +27,7 @@ public class MasterDataLinkageMessageBuilder {
     private boolean spawnLists = false;
     private boolean dropPayload = false;
     private boolean dropConfigEvent = false;
+    private boolean asyncReplyFlag = false;
 
     private final ch.iec.tc57._2011.masterdatalinkageconfigmessage.ObjectFactory requestFactory = new ch.iec.tc57._2011.masterdatalinkageconfigmessage.ObjectFactory();
     private final ch.iec.tc57._2011.masterdatalinkageconfig.ObjectFactory contentFactory = new ch.iec.tc57._2011.masterdatalinkageconfig.ObjectFactory();
@@ -43,12 +45,16 @@ public class MasterDataLinkageMessageBuilder {
         return this;
     }
 
+    MasterDataLinkageMessageBuilder withAsyncReplyFlag(boolean asyncReplyFlag) {
+        this.asyncReplyFlag = asyncReplyFlag;
+        return this;
+    }
+
     MasterDataLinkageMessageBuilder withMeterName(String meterName) {
         this.meterName = meterName;
         eraseMeterList = false;
         return this;
     }
-
 
     MasterDataLinkageMessageBuilder withMeterRole(String meterRole) {
         this.meterRole = meterRole;
@@ -146,9 +152,13 @@ public class MasterDataLinkageMessageBuilder {
             configNode.setConfigurationEvent(configurationEvent);
         }
 
-        MasterDataLinkageConfigRequestMessageType message = requestFactory.createMasterDataLinkageConfigRequestMessageType();
+        MasterDataLinkageConfigRequestMessageType message = requestFactory
+                .createMasterDataLinkageConfigRequestMessageType();
         message.setPayload(requestFactory.createMasterDataLinkageConfigPayloadType());
         message.getPayload().setMasterDataLinkageConfig(configNode);
+
+        message.setHeader(new HeaderType());
+        message.getHeader().setAsyncReplyFlag(asyncReplyFlag);
         return message;
     }
 }

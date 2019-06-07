@@ -25,7 +25,7 @@ import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageU
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -57,24 +57,26 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
-    private DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
+    protected DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
         return supplier.get(this.propertySpecService, this.nlsService, this.converter);
     }
 
+
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return Arrays.asList(
-                    this.get(ContactorDeviceMessage.CONTACTOR_OPEN),
-                    this.get(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE),
-                    this.get(ContactorDeviceMessage.CONTACTOR_CLOSE),
-                    this.get(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE),
-                    this.get(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE),
-                    this.get(MBusSetupDeviceMessage.Decommission),
-                    this.get(MBusSetupDeviceMessage.SetEncryptionKeys),
-                    this.get(MBusSetupDeviceMessage.UseCorrectedValues),
-                    this.get(MBusSetupDeviceMessage.UseUncorrectedValues),
-                    this.get(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST),
-                    this.get(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST));
+        List<DeviceMessageSpec> supportedMessages = new ArrayList<>();
+        supportedMessages.add(this.get(ContactorDeviceMessage.CONTACTOR_OPEN));
+        supportedMessages.add(this.get(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE));
+        supportedMessages.add(this.get(ContactorDeviceMessage.CONTACTOR_CLOSE));
+        supportedMessages.add(this.get(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE));
+        supportedMessages.add(this.get(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE));
+        supportedMessages.add(this.get(MBusSetupDeviceMessage.Decommission));
+        supportedMessages.add(this.get(MBusSetupDeviceMessage.SetEncryptionKeys));
+        supportedMessages.add(this.get(MBusSetupDeviceMessage.UseCorrectedValues));
+        supportedMessages.add(this.get(MBusSetupDeviceMessage.UseUncorrectedValues));
+        supportedMessages.add(this.get(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST));
+        supportedMessages.add(this.get(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST));
+        return supportedMessages;
     }
 
     @Override

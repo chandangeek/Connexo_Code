@@ -6,6 +6,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
@@ -70,6 +71,8 @@ public class DataValidationTaskExecutorTest {
     @Mock
     private ValidationServiceImpl validationService;
     @Mock
+    private EventService eventService;
+    @Mock
     private Clock clock;
     @Mock
     private User user;
@@ -100,7 +103,7 @@ public class DataValidationTaskExecutorTest {
             return null;
         }).when(threadPrincipalService).runAs(eq(user), any(Runnable.class), any(Locale.class));
         executor = new DataValidationTaskExecutor(validationService, transactionService,
-                thesaurus, threadPrincipalService, clock, user);
+                thesaurus, threadPrincipalService, eventService, clock, user);
     }
 
     @Test

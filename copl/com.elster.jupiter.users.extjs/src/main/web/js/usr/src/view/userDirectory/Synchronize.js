@@ -9,7 +9,8 @@ Ext.define('Usr.view.userDirectory.Synchronize', {
 
     requires: [
         'Uni.util.FormErrorMessage',
-        'Usr.store.MgmUserDirectoryUsers'
+        'Usr.store.MgmUserDirectoryUsers',
+		'Usr.store.MgmUserDirectoryGroups'
     ],
     content: [
         {
@@ -34,7 +35,7 @@ Ext.define('Usr.view.userDirectory.Synchronize', {
                             width: 780,
                             items: [
                                 {
-                                   xtype: 'gridpanel',
+                                    xtype: 'gridpanel',
                                     itemId: 'grd-user-directory-users',
                                     store: 'Usr.store.MgmUserDirectoryUsers',
                                     //scroll: 'vertical',
@@ -102,6 +103,73 @@ Ext.define('Usr.view.userDirectory.Synchronize', {
                                 }
                             ]
                         },
+						{
+                            xtype: 'panel',
+							itemId: 'panel-user-directory-groups',
+							hidden: true,
+                            width: 780,
+                            items: [
+                                {
+                                    xtype: 'gridpanel',
+                                    itemId: 'grd-user-directory-groups',
+                                    store: 'Usr.store.MgmUserDirectoryGroups',
+                                    //scroll: 'vertical',
+                                    //hideHeaders: true,
+                                    padding: 0,
+                                    width: 650,
+                                    columns: [
+                                        {
+                                            header: Uni.I18n.translate('general.groupName', 'USR', 'Group name'),
+                                            dataIndex: 'name',
+                                            flex: 2
+                                        },
+										{
+                                            header: Uni.I18n.translate('general.groupDescription', 'USR', 'Description'),
+                                            dataIndex: 'description',
+                                            flex: 4
+                                        },
+                                        {
+                                            xtype: 'actioncolumn',
+                                            align: 'right',
+                                            items: [
+                                                {
+                                                    iconCls: 'uni-icon-delete',
+                                                    handler: function (grid, rowIndex) {
+                                                        grid.getStore().removeAt(rowIndex);
+                                                    },
+                                                    getClass: function(v, meta, rec) {
+                                                        if(Ext.isDefined(rec.index)) {
+                                                            return 'x-hide-display';
+                                                        }
+                                                        return 'uni-icon-delete';
+                                                    }
+                                                }
+                                            ],
+                                            flex: 1
+                                        }
+                                    ],
+                                    height: 210
+                                }
+                            ],
+                            rbar: [
+                                {
+                                    xtype: 'container',
+                                    layout: {
+                                        type: 'vbox'
+                                    },
+                                    defaults: {
+                                        margin: '8 0 0 0'
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'button',
+                                            itemId: 'btn-user-directory-add-groups',
+                                            text: Uni.I18n.translate('userDirectories.selectGroups', 'USR', 'Select groups')
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
                         {
                             xtype: 'container',
                             layout: 'hbox',
@@ -132,4 +200,3 @@ Ext.define('Usr.view.userDirectory.Synchronize', {
         this.callParent(arguments);
     }
 });
-

@@ -16,6 +16,7 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.Provider;
+import org.hibernate.validator.messageinterpolation.HibernateMessageInterpolatorContext;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
@@ -190,16 +191,7 @@ class ThesaurusImpl implements IThesaurus {
 
     @Override
     public String interpolate(String messageTemplate, Context context) {
-        String key = messageTemplate;
-        Matcher matcher = VALIDATION_KEY.matcher(messageTemplate);
-        if (matcher.matches()) {
-            key = matcher.group(1);
-        }
-        String pattern = getString(key, key);
-        for (Map.Entry<String, Object> entry : context.getConstraintDescriptor().getAttributes().entrySet()) {
-            pattern = pattern.replaceAll("\\Q{" + entry.getKey() + "}\\E", Objects.toString(entry.getValue()));
-        }
-        return MessageFormat.format(pattern, context.getValidatedValue());
+        return interpolate(messageTemplate, context, getLocale());
     }
 
     @Override
@@ -209,7 +201,17 @@ class ThesaurusImpl implements IThesaurus {
         if (matcher.matches()) {
             key = matcher.group(1);
         }
-        return MessageFormat.format(getString(locale, key, key), context.getValidatedValue());
+        String pattern = getString(locale, key, key);
+        for (Map.Entry<String, Object> entry : context.getConstraintDescriptor().getAttributes().entrySet()) {
+            pattern = pattern.replace('{' + entry.getKey() + '}', String.valueOf(entry.getValue()));
+        }
+        if (context instanceof HibernateMessageInterpolatorContext) {
+            // TODO: for hibernate validator >= 5.4.1
+//            for (Map.Entry<String, Object> entry : context.unwrap(HibernateMessageInterpolatorContext.class).getMessageParameters().entrySet()) {
+//                pattern = pattern.replace('{' + entry.getKey() + '}', String.valueOf(entry.getValue()));
+//            }
+        }
+        return MessageFormat.format(pattern, context.getValidatedValue());
     }
 
     @Override
@@ -237,9 +239,7 @@ class ThesaurusImpl implements IThesaurus {
         this.ensureTranslationsLoaded();
         return this.translations.entrySet()
                 .stream()
-                .filter(e -> e.getKey().equals(key))
-                .findFirst()
-                .isPresent();
+                .anyMatch(e -> e.getKey().equals(key));
     }
 
 }

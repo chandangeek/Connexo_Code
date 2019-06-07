@@ -41,7 +41,7 @@ public class A1860LoadProfileDataReader {
 
     static final ObisCode MULTIPLIER_INSTRUMENTATION       = ObisCode.fromString("1.1.96.131.1.255");
     static final ObisCode MULTIPLIER_NON_INSTRUMENTATION   = ObisCode.fromString("1.1.96.132.1.255");
-    static final ObisCode SCALE_FACTOR_INSTRUMENTATION     = ObisCode.fromString("1.1.96.131.1.255");
+    static final ObisCode SCALE_FACTOR_INSTRUMENTATION     = ObisCode.fromString("1.1.96.131.2.255");
     static final ObisCode SCALE_FACTOR_NON_INSTRUMENTATION = ObisCode.fromString("1.1.96.132.2.255");
 
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfosMap;

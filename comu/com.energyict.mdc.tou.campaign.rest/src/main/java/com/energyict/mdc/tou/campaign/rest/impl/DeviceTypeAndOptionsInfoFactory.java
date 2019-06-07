@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.tou.campaign.rest.impl;
 
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -14,10 +15,12 @@ import java.util.ArrayList;
 public class DeviceTypeAndOptionsInfoFactory {
 
     private final DeviceConfigurationService deviceConfigurationService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceTypeAndOptionsInfoFactory(DeviceConfigurationService deviceConfigurationService) {
+    public DeviceTypeAndOptionsInfoFactory(DeviceConfigurationService deviceConfigurationService, ExceptionFactory exceptionFactory) {
         this.deviceConfigurationService = deviceConfigurationService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     public DeviceTypeAndOptionsInfo create(DeviceType deviceType) {
@@ -30,7 +33,9 @@ public class DeviceTypeAndOptionsInfoFactory {
         deviceType.getAllowedCalendars().stream()
                 .filter(allowedCalendar -> !allowedCalendar.isGhost())
                 .forEach(allowedCalendar -> deviceTypeAndOptionsInfo.calendars.add(new IdWithNameInfo(allowedCalendar.getCalendar().get().getId(), allowedCalendar.getName())));
-        deviceConfigurationService.findTimeOfUseOptions(deviceType).get().getOptions()
+        deviceConfigurationService.findTimeOfUseOptions(deviceType)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_TOU_OPTIONS_ON_DEVICE_TYPE, deviceType.getName()))
+                .getOptions()
                 .forEach(protocolSupportedCalendarOptions -> {
                     switch (protocolSupportedCalendarOptions.getId()) {
                         case "send":

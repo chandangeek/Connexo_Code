@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -31,6 +32,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 
+import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -117,6 +119,10 @@ public abstract class AbstractMockActivator {
     protected WebServicesService webServicesService;
     @Mock
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    @Mock
+    protected MeterConfigFactory meterConfigFactory;
+    @Mock
+    protected OrmService ormService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -160,6 +166,8 @@ public abstract class AbstractMockActivator {
         activator.setServiceCallService(serviceCallService);
         activator.setWebServicesService(webServicesService);
         activator.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        activator.setMeterConfigFactory(meterConfigFactory);
+        activator.setOrmService(ormService);
         activator.activate(mock(BundleContext.class));
     }
 

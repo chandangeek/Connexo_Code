@@ -8,6 +8,7 @@ import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.data.lifecycle.security.Privileges;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -66,12 +67,13 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
     private volatile UserService userService;
 	private volatile Clock clock;
 	private volatile UpgradeService upgradeService;
+	private volatile EventService eventService;
 
 	public LifeCycleServiceImpl() {
 	}
 
 	@Inject
-	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService, IdsService idsService, MeteringService meteringService, UserService userService, Clock clock, UpgradeService upgradeService) {
+	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService, IdsService idsService, MeteringService meteringService, UserService userService, EventService eventService, Clock clock, UpgradeService upgradeService) {
 		this();
 		setOrmService(ormService);
 		setNlsService(nlsService);
@@ -79,6 +81,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
 		setTaskService(taskService);
 		setIdsService(idsService);
 		setMeteringService(meteringService);
+		setEventService(eventService);
         setUserService(userService);
 		setClock(clock);
         setUpgradeService(upgradeService);
@@ -105,6 +108,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
                 bind(MessageService.class).toInstance(messageService);
                 bind(TaskService.class).toInstance(taskService);
 				bind(UserService.class).toInstance(userService);
+				bind(EventService.class).toInstance(eventService);
 			}
 		});
         upgradeService.register(
@@ -141,6 +145,11 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
 		this.meteringService = meteringService;
 	}
 
+	@Reference
+	public void setEventService(EventService eventService) {
+		this.eventService = eventService;
+	}
+
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
@@ -170,7 +179,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
 
 	@Override
 	public TaskOccurrence runNow() {
-		return getTask().runNow(new LifeCycleTaskExecutor(this));
+		return getTask().runNow(new LifeCycleTaskExecutor(this, eventService));
 	}
 
 	private Instant limit(Period period) {

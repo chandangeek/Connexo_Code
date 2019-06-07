@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.tou.campaign.rest.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -26,7 +27,8 @@ public abstract class BaseTouTest extends FelixRestApplicationJerseyTest {
     DeviceConfigurationService deviceConfigurationService;
     @Mock
     Clock clock;
-
+    @Mock
+    CalendarService calendarService;
 
     @Override
     protected Application getApplication() {
@@ -37,7 +39,7 @@ public abstract class BaseTouTest extends FelixRestApplicationJerseyTest {
         application.setServiceCallService(serviceCallService);
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setNlsService(nlsService);
-
+        application.setCalendarService(calendarService);
         return application;
     }
 }

@@ -102,6 +102,11 @@ Ext.define('Tou.view.AddForm', {
                 allowBlank: false,
                 hidden: true,
             }, {
+                xtype: 'displayfield',
+                itemId: 'tou-update-type-disp',
+                fieldLabel: Uni.I18n.translate('general.updateOption', 'TOU', 'Update'),
+                hidden: true
+            }, {
                 xtype: 'radiogroup',
                 itemId: 'tou-update-type',
                 name: 'updateOption',
@@ -115,13 +120,14 @@ Ext.define('Tou.view.AddForm', {
                         id: 'fullCalendar',
                         boxLabel: Uni.I18n.translate('general.fullCalendar', 'TOU', 'Full calendar'),
                         inputValue: 'fullCalendar',
-                        checked: true,
-                        name: 'updateType'
+                        name: 'updateType',
+                        margin: '5 0 5 0'
                     }, {
                         id: 'specialDays',
                         boxLabel: Uni.I18n.translate('general.specialDays', 'TOU', 'Only special days'),
                         inputValue: 'specialDays',
-                        name: 'updateType'
+                        name: 'updateType',
+                        margin: '5 0 5 0'
                     }
                 ],
                 width: 1000
@@ -175,6 +181,15 @@ Ext.define('Tou.view.AddForm', {
                 margin: '30 0 10 0',
                 hidden: true
             }, {
+                itemId: 'unique-calendar-name-field',
+                xtype: 'checkbox',
+                fieldLabel: Uni.I18n.translate(
+                    'general.uniqueCalendarName',
+                    'TOU',
+                    'Upload with unique calendar name'
+                ),
+                name: 'withUniqueCalendarName'
+            }, {
                 xtype: 'fieldcontainer',
                 itemId: 'form-buttons',
                 fieldLabel: '&nbsp;',
@@ -200,37 +215,113 @@ Ext.define('Tou.view.AddForm', {
 
         me.callParent(arguments);
     },
-    enableOptions: function (allEnabledOptionsArr){
-	    var allOptions = ['TouWActivation', 'TouImmediately', 'TouByDate', 'fullCalendar', 'specialDays'];
-        for ( var optCnt = 0; optCnt < allOptions.length; optCnt++ ){
-            var option = allOptions[optCnt];
-            var cmp = Ext.getCmp(option);
-            if (cmp){
-               (Ext.Array.indexOf(allEnabledOptionsArr, option) !== -1) ? cmp.enable() : cmp.disable()
+    setUpdateTypeLabel: function (option){
+         switch (option){
+             case 'fullCalendar':
+                return Uni.I18n.translate('general.fullCalendar', 'TOU', 'Full calendar');
+             case 'specialDays':
+                return Uni.I18n.translate('general.specialDays', 'TOU', 'Only special days');
+             default:
+                return null;
+         }
+    },
+    enableUpdateOptions: function (allEnabledOptionsArr){
+	    var allOptions = ['fullCalendar', 'specialDays'],
+	        me = this,
+	        radiogroup = me.down('#tou-update-type'),
+	        displayField = me.down('#tou-update-type-disp');
+
+	    if (!allEnabledOptionsArr || !allEnabledOptionsArr.length){
+	        radiogroup.hide();
+	        return;
+	    }
+	    if (allEnabledOptionsArr.length == 1){
+            radiogroup.hide();
+            displayField.show();
+            displayField.setValue(me.setUpdateTypeLabel(allEnabledOptionsArr[0]));
+            var value = {};
+            value['updateType'] = allEnabledOptionsArr[0];
+            radiogroup.setValue(value);
+	    }else{
+	        displayField.hide();
+	        radiogroup.show();
+	        radiogroup.setValue({});
+            for ( var optCnt = 0; optCnt < allOptions.length; optCnt++ ){
+                var option = allOptions[optCnt];
+                var cmp = Ext.getCmp(option);
+                if (cmp){
+                   (Ext.Array.indexOf(allEnabledOptionsArr, option) !== -1) ? cmp.show() : cmp.hide()
+                }
+            }
+
+            if (allEnabledOptionsArr.indexOf('fullCalendar') !== -1){
+                var value = {};
+                value['updateType'] = allEnabledOptionsArr[0];
+                radiogroup.setValue(value);
             }
         }
     },
     onDeviceTypeChange: function (radiogroup, newValue) {
         var me = this;
-        if (!radiogroup.findRecordByValue(newValue))
-            return;
+        if (!radiogroup.findRecordByValue(newValue)) return;
+
         var activateCalendarItem = me.down('#activate-calendar');
         activateCalendarItem.show();
         me.down('#tou-update-type').show();
+
         var cbxCal = me.down('#tou-campaign-allowed-calendar');
         cbxCal.show();
+
         var calStore = Ext.create('Tou.store.AllowedDeviceTypeOptions');
         calStore.getProxy().setUrl(newValue);
+
         calStore.load(function () {
             var calParams = calStore.getAt(0);
             if (!calParams)
                 return;
             cbxCal.bindStore(calParams.calendars());
-            var allEnabledOptionsArr = [];
-            allEnabledOptionsArr = calParams.get('fullCalendar') ? Ext.Array.merge(allEnabledOptionsArr, ['TouWActivation', 'fullCalendar'] ) : allEnabledOptionsArr;
-            allEnabledOptionsArr = calParams.get('withActivationDate') ? Ext.Array.merge(allEnabledOptionsArr, ['TouImmediately', 'TouByDate', 'fullCalendar'] ) : allEnabledOptionsArr;
-            allEnabledOptionsArr = calParams.get('specialDays') ? Ext.Array.merge(allEnabledOptionsArr, ['TouWActivation', 'specialDays'] ) : allEnabledOptionsArr;
-            me.enableOptions(allEnabledOptionsArr);
+
+            var allEnabledActivateCalendarOptionsArr = [],
+                allEnabledUpdateTypeOptionsArr = [];
+
+            function setAllowedDeviceTypeOptions(record){
+                 var enabledActivateCalendarOptions = [],
+                     enabledUpdateTypeOptions = [],
+                     deviceTypeOptions = ['fullCalendar', 'withActivationDate', 'specialDays'];
+
+                 Ext.Array.forEach(deviceTypeOptions, function(paramName){
+                     switch(paramName){
+                         case 'fullCalendar':
+                            enabledActivateCalendarOptions = ['withoutActivation'];
+                            enabledUpdateTypeOptions = ['fullCalendar'];
+                            break;
+
+                         case 'withActivationDate':
+                            enabledActivateCalendarOptions = ['immediately', 'onDate'];
+                            enabledUpdateTypeOptions = ['fullCalendar'];
+                            break;
+
+                         case 'specialDays':
+                            enabledActivateCalendarOptions = ['withoutActivation'];
+                            enabledUpdateTypeOptions = ['specialDays'];
+                            break;
+
+                         default:
+                            break;
+                     }
+
+                     if (record.get(paramName)){
+                         allEnabledActivateCalendarOptionsArr = Ext.Array.merge(allEnabledActivateCalendarOptionsArr, enabledActivateCalendarOptions);
+                         allEnabledUpdateTypeOptionsArr = Ext.Array.merge(allEnabledUpdateTypeOptionsArr, enabledUpdateTypeOptions);
+                     }
+                 });
+
+            }
+
+            setAllowedDeviceTypeOptions(calParams);
+
+            activateCalendarItem.setOptions(allEnabledActivateCalendarOptionsArr);
+            me.enableUpdateOptions(allEnabledUpdateTypeOptionsArr);
 
             me.fireEvent('tou-deviceTypeChanged');
         });
@@ -285,6 +376,7 @@ Ext.define('Tou.view.AddForm', {
             me.down("#tou-campaign-allowed-calendar").setDisabled(true);
             me.down("#tou-update-type").setValue(campaignRecord.get('updateType'));
             me.down("#tou-update-type").setDisabled(true);
+            me.down('#unique-calendar-name-field').setDisabled(true);
 
         };
         me.setLoading(false);

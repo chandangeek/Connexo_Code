@@ -104,11 +104,6 @@ public class RegisterTypeOneCustomPropertySet implements CustomPropertySet<Regis
     }
 
     @Override
-    public Class getContextClass() {
-        return Device.class;
-    }
-
-    @Override
     public PersistenceSupport<RegisterSpec, RegisterTypeOneDomainExtension> getPersistenceSupport() {
         return new RegisterTypeOnePeristenceSupport();
     }
@@ -211,28 +206,31 @@ public class RegisterTypeOneCustomPropertySet implements CustomPropertySet<Regis
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+            Column deviceColumn = table
+                    .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
+                    .number()
+                    .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
+                    .notNull()
+                    .add();
+            table
+                    .foreignKey("FK_REGISTER_DEVICE_ONE")
+                    .on(deviceColumn)
+                    .references(getContextClass())
+                    .map(RegisterTypeOneDomainExtension.FieldNames.DEVICE_REF.javaName())
+                    .add();
             return Collections.singletonList(
-                    table
-                            .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
-                            .number()
-                            .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
-                            .notNull()
-                            .add());
-        }
-
-        @Override
-        public String contextFieldName() {
-            return RegisterTypeOneDomainExtension.FieldNames.DEVICE_REF.javaName();
-        }
-
-        @Override
-        public String contextColumnName() {
-            return RegisterTypeOneDomainExtension.FieldNames.DEVICE.databaseName();
+                    deviceColumn
+            );
         }
 
         @Override
         public String contextForeignKeyName() {
-            return FK_REGISTER_DEVICE_ONE;
+            return "FK_REGISTER_DEVICE_ONE";
+        }
+
+        @Override
+        public Class getContextClass() {
+            return Device.class;
         }
 
         @Override

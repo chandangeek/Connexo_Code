@@ -1053,6 +1053,10 @@ public final class DeviceMessageConstants {
     public static final String transferKeyAttributeDefaultTranslation = "Transfer key";
     public static final String defaultKeyAttributeName = "MBusSetupDeviceMessage.defaultkey";
     public static final String defaultKeyAttributeDefaultTranslation = "Default key";
+    public static final String FUAKeyAttributeName = "MBusSetupDeviceMessage.fuakey";
+    public static final String FUAKeyAttributeDefaultTranslation = "Firmware upgrade authentication key";
+    public static final String P2KeyAttributeName = "MBusSetupDeviceMessage.p2key";
+    public static final String P2KeyAttributeDefaultTranslation = "P2 key";
     public static final String dib = "MBusSetupDeviceMessage.dib";
     public static final String dibDefaultTranslation = "DIB";
     public static final String vib = "MBusSetupDeviceMessage.vib";

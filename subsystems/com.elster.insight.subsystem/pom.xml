@@ -12,9 +12,15 @@
     </parent>
 
     <artifactId>mdm</artifactId>
-    <packaging>pom</packaging>
+    <packaging>bundle</packaging>
     <name>[Insight Subsystem] com.elster.insight.subsystem</name>
     <description>Assembly project for Insight</description>
+
+    <!-- This is a workaround until release while most of deployed artifacts for this artifact does not contain jar (they were pom type previously) and bundle plugin simply crashes,
+    the old bundle plugin for which we do not have documentation or sources -->
+    <properties>
+        <baseline>1.4.0</baseline>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -105,42 +111,31 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>insight</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-
-                        <configuration>
-                            <archiverConfig>
-                                <duplicateBehavior>skip</duplicateBehavior>
-                            </archiverConfig>
-
-                            <descriptors>
-                                <descriptor>assembly.xml</descriptor>
-                            </descriptors>
-
-                            <finalName>connexo-insight-v${project.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>insight</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <archiverConfig>
+                        <duplicateBehavior>skip</duplicateBehavior>
+                    </archiverConfig>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
+                    <finalName>connexo-insight-v${project.version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

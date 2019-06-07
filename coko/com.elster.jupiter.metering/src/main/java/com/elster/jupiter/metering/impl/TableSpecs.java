@@ -434,8 +434,6 @@ public enum TableSpecs {
             table.unique("UK_MTR_ENDDEVICE_NAME").on(nameColumn, obsoleteTime).since(version(10, 2, 1)).add();
             table.audit(MTR_ENDDEVICE.name())
                     .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
-                    //.domain("DEVICE")
-                   // .context("DEVICE_ATTRIBUTES")
                     .build();
         }
     },
@@ -464,6 +462,10 @@ public enum TableSpecs {
                     .onDelete(RESTRICT)
                     .map("state")
                     .add();
+            table.audit("")
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainReferences("FK_MTR_STATUS_ENDDEVICE")
+                    .build();
         }
     },
     MTR_METERROLE {
@@ -614,6 +616,7 @@ public enum TableSpecs {
             table.column("LOGBOOKID").number().map("logBookId").conversion(NUMBER2LONG).add();
             table.column("LOGBOOKPOSITION").number().map("logBookPosition").conversion(NUMBER2INT).add();
             table.column("DEVICEEVENTTYPE").varChar(80).map("deviceEventType").add();
+            table.column("READINGDATETIME").number().conversion(NUMBER2INSTANT).map("readingDateTime").since(version(10, 6)).add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_ENDDEVICEEVENTRECORD")
                     .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)
@@ -1889,6 +1892,7 @@ public enum TableSpecs {
             Column readingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
             Column actual = table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
+            table.partitionOn(timestampColumn);
             table.column("COMMENTS").varChar(4000).map("comment").add();
             table.primaryKey("PK_MTR_READINGQUALITY").on(idColumn).add();
             table.foreignKey("FK_MTR_RQ_CHANNEL")

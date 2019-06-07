@@ -128,7 +128,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         DATALOGGER_ENABLED("dataloggerEnabled"),
         VALIDATE_ON_STORE("validateOnStore"),
         MULTI_ELEMENT_ENABLED("multiElementEnabled"),
-        IS_DEFAULT("isDefault");
+        IS_DEFAULT("isDefault"),
+        DEVICETYPE("deviceType");
 
         private final String javaFieldName;
 
@@ -1579,7 +1580,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private void clearOldDefault(){
         getDataModel()
                 .query(DeviceConfigurationImpl.class)
-                .select(where(Fields.IS_DEFAULT.fieldName()).isEqualTo(true))
+                .select(where(Fields.IS_DEFAULT.fieldName()).isEqualTo(true)
+                        .and(where(Fields.DEVICETYPE.fieldName()).isEqualTo(getDeviceType())))
                 .forEach(deviceConfiguration -> deviceConfiguration.setDefaultStatus(false));
     }
 
@@ -1806,6 +1808,13 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         public ComTaskEnablementBuilder setPriority(int priority) {
             this.mode.verify();
             this.underConstruction.setPriority(priority);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder setMaxNumberOfTries(int maxNumberOfTries) {
+            this.mode.verify();
+            this.underConstruction.setMaxNumberOfTries(maxNumberOfTries);
             return this;
         }
 

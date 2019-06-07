@@ -16,15 +16,19 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasHandler;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
+																	
+																						 
+																					  
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
+import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
+import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
@@ -54,20 +58,21 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
 
-    private volatile TransactionService transactionService;
-    private volatile MeterConfigFaultMessageFactory faultMessageFactory;
-    private volatile MeterConfigFactory meterConfigFactory;
-    private volatile MeterConfigParser meterConfigParser;
-    private volatile ReplyTypeFactory replyTypeFactory;
-    private volatile EndPointHelper endPointHelper;
-    private volatile DeviceBuilder deviceBuilder;
+    private final TransactionService transactionService;
+    private final MeterConfigFaultMessageFactory faultMessageFactory;
+    private final MeterConfigFactory meterConfigFactory;
+    private final MeterConfigParser meterConfigParser;
+    private final ReplyTypeFactory replyTypeFactory;
+    private final EndPointHelper endPointHelper;
+    private final DeviceBuilder deviceBuilder;
+    private final DeviceFinder deviceFinder;
 
-    private volatile ServiceCallCommands serviceCallCommands;
-    private volatile EndPointConfigurationService endPointConfigurationService;
-    private volatile WebServicesService webServicesService;
-    private volatile InboundCIMWebServiceExtensionFactory webServiceExtensionFactory;
-    private volatile CasHandler casHandler;
-    private volatile SecurityHelper securityHelper;
+    private final ServiceCallCommands serviceCallCommands;
+    private final EndPointConfigurationService endPointConfigurationService;
+    private final WebServicesService webServicesService;
+    private final InboundCIMWebServiceExtensionFactory webServiceExtensionFactory;
+    private final CasHandler casHandler;
+    private final SecurityHelper securityHelper;
 
     @Inject
     public ExecuteMeterConfigEndpoint(TransactionService transactionService, MeterConfigFactory meterConfigFactory,
@@ -75,7 +80,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
                                       EndPointHelper endPointHelper, DeviceBuilder deviceBuilder, ServiceCallCommands serviceCallCommands,
                                       EndPointConfigurationService endPointConfigurationService, MeterConfigParser meterConfigParser,
                                       WebServicesService webServicesService, InboundCIMWebServiceExtensionFactory webServiceExtensionFactory,
-                                      CasHandler casHandler, SecurityHelper securityHelper) {
+                                      CasHandler casHandler, SecurityHelper securityHelper, DeviceFinder deviceFinder) {
         this.transactionService = transactionService;
         this.meterConfigFactory = meterConfigFactory;
         this.meterConfigParser = meterConfigParser;
@@ -89,6 +94,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         this.webServiceExtensionFactory = webServiceExtensionFactory;
         this.casHandler = casHandler;
         this.securityHelper = securityHelper;
+        this.deviceFinder = deviceFinder;
     }
 
     @Override
@@ -100,8 +106,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
             MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
             if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                 // call asynchronously
-                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(
-                        getReplyAddress(requestMessage));
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                 createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                         OperationEnum.CREATE);
                 context.commit();
@@ -159,8 +164,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
             MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
             if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                 // call asynchronously
-                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(
-                        getReplyAddress(requestMessage));
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                 createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                         OperationEnum.UPDATE);
                 context.commit();
@@ -187,30 +191,25 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
                     e.getLocalizedMessage(), e.getErrorCode());
         }
     }
-
-    private String getReplyAddress(MeterConfigRequestMessageType requestMessage) throws FaultMessage {
-        String replyAddress = requestMessage.getHeader().getReplyAddress();
-        if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
-            throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_CREATE_DEVICE,
-                    MessageSeeds.NO_REPLY_ADDRESS);
-        }
-        return replyAddress;
-    }
+  
 
     private EndPointConfiguration getOutboundEndPointConfiguration(String url) throws FaultMessage {
-        EndPointConfiguration endPointConfig = endPointConfigurationService.findEndPointConfigurations().stream()
-                .filter(EndPointConfiguration::isActive)
-                .filter(endPointConfiguration -> !endPointConfiguration.isInbound())
-                .filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url)).findFirst()
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null,
-                        MessageSeeds.NO_END_POINT_WITH_URL, url));
-        if (!webServicesService.isPublished(endPointConfig)) {
-            webServicesService.publishEndPoint(endPointConfig);
-        }
-        if (!webServicesService.isPublished(endPointConfig)) {
-            throw faultMessageFactory
-                    .meterConfigFaultMessageSupplier(null, MessageSeeds.NO_PUBLISHED_END_POINT_WITH_URL, url).get();
-        }
+		EndPointConfiguration endPointConfig=null;
+		if (!Checks.is(url).emptyOrOnlyWhiteSpace()) {
+			endPointConfig = endPointConfigurationService.findEndPointConfigurations().stream()
+					.filter(EndPointConfiguration::isActive)
+					.filter(endPointConfiguration -> !endPointConfiguration.isInbound())
+					.filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url)).findFirst()
+					.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null,
+							MessageSeeds.NO_END_POINT_WITH_URL, url));
+			if (!webServicesService.isPublished(endPointConfig)) {
+				webServicesService.publishEndPoint(endPointConfig);
+			}
+			if (!webServicesService.isPublished(endPointConfig)) {
+				throw faultMessageFactory
+						.meterConfigFaultMessageSupplier(null, MessageSeeds.NO_PUBLISHED_END_POINT_WITH_URL, url).get();
+			}
+		}
         return endPointConfig;
     }
 
@@ -237,7 +236,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
         // set payload
         MeterConfigPayloadType meterConfigPayload = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
-        meterConfigPayload.setMeterConfig(meterConfigFactory.asMeterConfig(device));
+        meterConfigPayload.setMeterConfig(Verb.REPLY.equals(verb) ? meterConfigFactory.asGetMeterConfig(device) : meterConfigFactory.asMeterConfig(device));
         responseMessage.setPayload(meterConfigPayload);
 
         return responseMessage;
@@ -291,5 +290,30 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
     public MeterConfigResponseMessageType deleteMeterConfig(
             MeterConfigRequestMessageType deleteMeterConfigRequestMessage) throws FaultMessage {
         throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public MeterConfigResponseMessageType getMeterConfig(MeterConfigRequestMessageType meterConfigRequestMessageType) throws FaultMessage {
+        endPointHelper.setSecurityContext();
+        try (TransactionContext context = transactionService.getContext()) {
+            MeterConfig meterConfig = meterConfigRequestMessageType.getPayload().getMeterConfig();
+            //get mrid or name of device
+            if (Boolean.TRUE.equals(meterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
+                // call asynchronously
+                EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
+                createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET);
+                context.commit();
+                return createQuickResponseMessage(HeaderType.Verb.REPLY);
+            } else {
+                // call synchronously
+                Meter meter = meterConfig.getMeter().stream().findFirst()
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
+                MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
+                Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
+                return createResponseMessage(device, HeaderType.Verb.REPLY);
+            }
+        } catch (VerboseConstraintViolationException e) {
+            throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG_EVENTS, e.getLocalizedMessage());
+        }
     }
 }

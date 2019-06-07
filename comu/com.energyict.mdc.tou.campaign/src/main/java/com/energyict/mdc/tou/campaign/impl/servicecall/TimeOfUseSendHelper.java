@@ -64,16 +64,15 @@ public class TimeOfUseSendHelper {
     }
 
     public void setCalendarOnDevice(Device device, ServiceCall serviceCall) {
+        timeOfUseCampaignService.revokeCalendarsCommands(device);
         TimeOfUseCampaign timeOfUseCampaign =
                 serviceCall.getParent()
                         .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.SERVICE_CALL_PARENT_NOT_FOUND))
                         .getExtension(TimeOfUseCampaignDomainExtension.class)
                         .orElse(null);
-        if (timeOfUseCampaign.getActivationOption().equals(TranslationKeys.IMMEDIATELY.getKey())) {
+        if (timeOfUseCampaignService.isWithVerification(timeOfUseCampaign)) {
             if (!timeOfUseCampaignService.getActiveVerificationTask(device).isPresent()) {
-                serviceCall.log(LogLevel.SEVERE,
-                        thesaurus.getString(MessageSeeds.DEVICE_DOESNT_CONTAIN_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getKey(),
-                                MessageSeeds.DEVICE_DOESNT_CONTAIN_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getDefaultFormat()));
+                serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_DOESNT_CONTAIN_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG).format());
                 if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                     serviceCall.requestTransition(DefaultState.REJECTED);
                 }
@@ -87,7 +86,7 @@ public class TimeOfUseSendHelper {
             sendCalendarInfo.activationDate = timeOfUseCampaign.getActivationOption()
                     .equals(TranslationKeys.IMMEDIATELY.getKey()) ? serviceCall.getCreationTime() : timeOfUseCampaign.getActivationDate();
             sendCalendarInfo.calendarUpdateOption = timeOfUseCampaign.getUpdateType();
-            sendCalendarInfo.releaseDate = timeOfUseCampaign.getActivationStart();
+            sendCalendarInfo.releaseDate = timeOfUseCampaign.getUploadPeriodStart();
             sendCalendarInfo.contract = null;//bigdec
             sendCalendarInfo.type = null;//string
             Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device, deviceConfigurationService);
@@ -104,7 +103,7 @@ public class TimeOfUseSendHelper {
                 comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add();
             }
             if (comTaskExecution.getConnectionTask().isPresent()) {
-                scheduleCampaign(comTaskExecution, timeOfUseCampaign.getActivationStart(), timeOfUseCampaign.getActivationEnd());
+                scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd());
                 TimeOfUseItemDomainExtension extension = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get();
                 extension.setDeviceMessage(deviceMessage);
                 serviceCall.update(extension);
@@ -113,14 +112,13 @@ public class TimeOfUseSendHelper {
                 }
 
             } else {
-                serviceCall.log(LogLevel.SEVERE, thesaurus.getString(MessageSeeds.MISSING_CONNECTION_TASKS.getKey(), MessageSeeds.MISSING_CONNECTION_TASKS.getDefaultFormat()));
+                serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.MISSING_CONNECTION_TASKS).format());
                 if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                     serviceCall.requestTransition(DefaultState.REJECTED);
                 }
             }
         } else {
-            serviceCall.log(LogLevel.SEVERE, thesaurus.getString(MessageSeeds.DEVICE_DOESNT_CONTAIN_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getKey(),
-                    MessageSeeds.DEVICE_DOESNT_CONTAIN_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG.getDefaultFormat()));
+            serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_DOESNT_CONTAIN_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG).format());
             if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                 serviceCall.requestTransition(DefaultState.REJECTED);
             }

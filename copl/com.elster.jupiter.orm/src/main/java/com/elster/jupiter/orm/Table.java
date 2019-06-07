@@ -144,6 +144,7 @@ public interface Table<T> {
      */
     JournalTableVersionOptions setJournalTableName(String journalTableName);
 
+    JournalTableVersionOptions setJournalTableName(String journalTableName, boolean forceJournal);
     /*
      * activates caching. The cache is shared between all threads of a Java VM,
      * so implementers must make sure the Java type is thread safe
@@ -172,6 +173,7 @@ public interface Table<T> {
     String getJournalTableName(Version version);
 
     boolean hasJournal();
+    boolean hasForceJournal();
     boolean hasJournal(Version version);
 
     boolean isCached();
@@ -230,6 +232,8 @@ public interface Table<T> {
     boolean hasAudit();
 
     TableAudit getTableAudit();
+
+    Class<?> getApi();
 
     interface JournalTableVersionOptions {
         void since(Version version);

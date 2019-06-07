@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -13,6 +14,7 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
@@ -20,6 +22,7 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
@@ -27,16 +30,21 @@ import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
+import com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
 
@@ -89,7 +97,11 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER)) {
                     upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
-                } else {
+                } else  if (pendingMessage.getSpecification().equals(LoadProfileMessage.CONFIGURE_CAPTURE_DEFINITION)) {
+                    collectedMessage = writeCaptureDefinition(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.CONFIGURE_CAPTURE_PERIOD)) {
+                    collectedMessage = writeCapturePeriod(pendingMessage);
+                } else{
                     collectedMessage = null;
                     notExecutedDeviceMessages.add(pendingMessage);  // These messages are not specific for Dsmr 4.0, but can be executed by the super (= Dsmr 2.3) messageExecutor
                 }
@@ -323,5 +335,70 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
             this.mbusMessageExecutor = new Dsmr40MbusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return this.mbusMessageExecutor;
+    }
+
+
+    protected CollectedMessage writeCaptureDefinition(OfflineDeviceMessage pendingMessage) throws IOException {
+        CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
+        String captureObjects = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.captureObjectListAttributeName);
+        //TODO This is just an attempt. Actual code must be adapted to current protocol. Actual code from Dsmr40Messaging in 8.11
+        String[] splitCaptureObjects = captureObjects.split(";");
+        List <String> capturedObjectDefinitions = Arrays.asList(splitCaptureObjects);
+        List <String> filteredCaptureObjects = new ArrayList<>();
+        for(String capturedObject : capturedObjectDefinitions){
+            filteredCaptureObjects.add( capturedObject.replace("{", "").replace("}", ""));
+        }
+        if (filteredCaptureObjects.isEmpty()) {
+
+            ProfileGeneric profileGeneric = null;
+            try {
+                profileGeneric = getCosemObjectFactory().getProfileGeneric(ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE);
+            } catch (NotInObjectListException e) {
+                e.printStackTrace();
+            }
+            if (profileGeneric == null) {
+                getProtocol().getLogger().log(Level.SEVERE, "Profile for obis code " + ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE.toString() + " is null");
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            }
+            if(capturedObjectDefinitions.isEmpty()){
+                getProtocol().getLogger().log(Level.INFO, "Failed to set definable load profile capture objects.");
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            }
+            Array capturedObjects = new Array();
+            for (String capturedObjectDefinition : capturedObjectDefinitions) {
+                String[] definitionParts = capturedObjectDefinition.split(",");
+                try {
+                    int dlmsClassId = Integer.parseInt(definitionParts[0].substring(0, 1));
+                    ObisCode obisCode = ObisCode.fromString(definitionParts[1].replace('-', '.').replace(':', '.'));
+                    int attribute = Integer.parseInt(definitionParts[2]);
+                    int dataIndex = Integer.parseInt(definitionParts[3].substring(0, 1));
+                    Structure definition = new Structure();
+                    definition.addDataType(new Unsigned16(dlmsClassId));
+                    definition.addDataType(OctetString.fromObisCode(obisCode));
+                    definition.addDataType(new Integer8(attribute));
+                    definition.addDataType(new Unsigned16(dataIndex));
+                    capturedObjects.addDataType(definition);
+                } catch (Exception e) {
+                    getProtocol().getLogger().log(Level.SEVERE, e.getMessage());
+                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                }
+            }
+            profileGeneric.setCaptureObjectsAttr(capturedObjects);
+            getProtocol().getLogger().log(Level.INFO, "Successfully set definable load profile capture objects.");
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+        } else {
+            getProtocol().getLogger().log(Level.INFO, "Failed to set definable load profile capture objects.");
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+        }
+        return collectedMessage;
+    }
+
+    protected CollectedMessage writeCapturePeriod(OfflineDeviceMessage pendingMessage) throws IOException {
+        CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
+        ObisCode obisCode = ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE;
+        int period  =Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.capturePeriodAttributeName).getValue());
+        getProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(obisCode).setCapturePeriodAttr(new Unsigned32(period));
+        getProtocol().getLogger().log(Level.INFO, "Successfully set definable load profile capture period to " + period);
+        return collectedMessage;
     }
 }

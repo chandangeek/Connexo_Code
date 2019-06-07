@@ -64,6 +64,7 @@ Ext.define('Usr.model.MgmUserDirectory', {
         'password',
         'backupUrl',
         'baseUser',
+		'groupName',
         'baseGroup',
         {
             name: 'certificateAlias',
@@ -76,7 +77,11 @@ Ext.define('Usr.model.MgmUserDirectory', {
             type: 'auto',
             useNull: true,
             defaultValue: null
-        }
+        },
+		{
+			name: 'dnType',
+			persist: false
+		}
     ],
     
     proxy: {

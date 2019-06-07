@@ -83,6 +83,7 @@ public abstract class DeviceLifecycleIssueApplicationTest extends FelixRestAppli
         application.setNlsService(nlsService);
         when(nlsService.getThesaurus(IssueDeviceLifecycleService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
         application.setDeviceService(deviceService);
+        application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         return application;
     }
 

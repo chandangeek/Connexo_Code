@@ -78,11 +78,14 @@ public class A1860ProfileDataHelper {
         ObisCode loadProfileMultiplier = null;
         ObisCode loadProfileScaleFactor = null;
 
-        if (obisCode.equals(A1860LoadProfileDataReader.LOAD_PROFILE_PULSES) ||
-                obisCode.equals(A1860LoadProfileDataReader.LOAD_PROFILE_EU_CUMULATIVE) ||
+        if (obisCode.equals(A1860LoadProfileDataReader.LOAD_PROFILE_PULSES)) {
+
+            loadProfileMultiplier = A1860LoadProfileDataReader.MULTIPLIER_NON_INSTRUMENTATION;
+            loadProfileScaleFactor = A1860LoadProfileDataReader.SCALE_FACTOR_NON_INSTRUMENTATION;
+
+        } else if (obisCode.equals(A1860LoadProfileDataReader.LOAD_PROFILE_EU_CUMULATIVE) ||
                 obisCode.equals(A1860LoadProfileDataReader.LOAD_PROFILE_EU_NONCUMULATIVE)) {
 
-            loadProfileMultiplier  = A1860LoadProfileDataReader.MULTIPLIER_NON_INSTRUMENTATION;
             loadProfileScaleFactor = A1860LoadProfileDataReader.SCALE_FACTOR_NON_INSTRUMENTATION;
 
         } else if (obisCode.equals(A1860LoadProfileDataReader.PROFILE_INSTRUMENTATION_SET1) ||
@@ -95,20 +98,20 @@ public class A1860ProfileDataHelper {
             protocol.getLogger().info("Could not determine Load Profile Multiplier and Scale Factor for OBIS code " + obisCode.toString());
         }
 
-        if (loadProfileMultiplier != null && loadProfileScaleFactor != null) {
-            AbstractDataType adt;
-
+        if (loadProfileScaleFactor != null) {
             final Data scaleFactorData = protocol.getDlmsSession().getCosemObjectFactory().getData(loadProfileScaleFactor);
-            adt = scaleFactorData.getValueAttr();
+            AbstractDataType adt = scaleFactorData.getValueAttr();
             if (adt.isInteger64()) {
                 scaleFactor = adt.getInteger64().intValue() == 1 ? 0 : adt.getInteger64().intValue();
             } else if (adt.isInteger8()) {
                 scaleFactor = adt.getInteger8().intValue() == 1 ? 0 : adt.getInteger8().intValue();
             }
             protocol.getLogger().info("Profile scale factor: " + BigDecimal.ONE.scaleByPowerOfTen(scaleFactor));
+        }
 
+        if (loadProfileMultiplier != null) {
             final Data multiplierData = protocol.getDlmsSession().getCosemObjectFactory().getData(loadProfileMultiplier);
-            adt = multiplierData.getValueAttr();
+            AbstractDataType adt = multiplierData.getValueAttr();
             multiplier = adt.longValue();
             protocol.getLogger().info("Profile multiplier: " + multiplier);
         }

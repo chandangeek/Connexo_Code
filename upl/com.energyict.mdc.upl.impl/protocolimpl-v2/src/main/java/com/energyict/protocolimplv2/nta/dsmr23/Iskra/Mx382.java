@@ -69,6 +69,14 @@ public class Mx382 extends AbstractSmartNtaProtocol {
         this.loadProfileExtractor = loadProfileExtractor;
     }
 
+    protected NlsService getNlsService() {return this.nlsService;}
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {return keyAccessorTypeExtractor;}
+    protected Converter getConverter () {return converter;}
+    protected DeviceMessageFileExtractor getDeviceMessageFileExtractor () {return messageFileExtractor;}
+    protected TariffCalendarExtractor getTariffCalendarExtractor () {return calendarExtractor;}
+    protected NumberLookupExtractor getNumberLookupExtractor () {return numberLookupExtractor;}
+    protected LoadProfileExtractor getLoadProfileExtractor () {return loadProfileExtractor;}
+
     @Override
     public AXDRDateTimeDeviationType getDateTimeDeviationType() {
         return AXDRDateTimeDeviationType.Negative;
@@ -89,16 +97,20 @@ public class Mx382 extends AbstractSmartNtaProtocol {
             hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
         }
 
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
+        setDlmsSession(newDlmsSession(comChannel));
         getDlmsSession().getDLMSConnection().setSNRMType(1);//Uses a specific parameter length for the HDLC signon (SNRM request)
     }
 
-    private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
+    protected HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
         HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsSessionProperties());
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(false);
         return hhuSignOn;
+    }
+
+    protected DlmsSession newDlmsSession(ComChannel comChannel) {
+        return new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
     }
 
     @Override

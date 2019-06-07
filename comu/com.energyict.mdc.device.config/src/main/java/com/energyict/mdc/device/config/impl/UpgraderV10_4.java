@@ -13,8 +13,6 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.device.config.events.EventType;
 
 import javax.inject.Inject;
-import java.sql.Statement;
-import java.util.Arrays;
 import java.util.EnumSet;
 
 @LiteralSql
@@ -49,7 +47,7 @@ class UpgraderV10_4 implements Upgrader {
     }
 
     private void fillDeviceTypesToSecurityAccessorTypesTable() {
-        executeInTransaction(
+        execute(dataModel,
                 "insert into " + TableSpecs.DTC_SECACCTYPES_ON_DEVICETYPE.name() +
                         " (" + SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.name() +
                         ", " + SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.name() +
@@ -67,13 +65,5 @@ class UpgraderV10_4 implements Upgrader {
                 "alter table " + com.elster.jupiter.pki.impl.TableSpecs.Constants.PKI_SECACCESSORTYPE_JOURNAL_TABLE +
                         " drop column DEVICETYPEID"
                 );
-    }
-
-    private void executeInTransaction(String... sql) {
-        dataModel.useConnectionRequiringTransaction(connection -> {
-            try (Statement statement = connection.createStatement()) {
-                Arrays.stream(sql).forEach(sqlCommand -> execute(statement, sqlCommand));
-            }
-        });
     }
 }

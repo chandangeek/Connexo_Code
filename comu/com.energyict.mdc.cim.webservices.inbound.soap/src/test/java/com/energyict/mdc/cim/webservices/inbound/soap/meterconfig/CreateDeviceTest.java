@@ -19,11 +19,13 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
 import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfig.MeterMultiplier;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
+import ch.iec.tc57._2011.meterconfig.Status;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigFaultMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
@@ -35,6 +37,7 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -252,12 +255,22 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
     @Test
     public void testCreateDeviceSuccessfullyWithoutOptionalParameters() throws Exception {
         // Prepare request
-        MeterConfig meterConfig = new MeterConfig();
+        MeterConfig meterCfg = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
-        meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
+        meterCfg.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
         Meter meter = createMeter();
-        meterConfig.getMeter().add(meter);
-        MeterConfigRequestMessageType meterConfigRequest = createMeterConfigRequest(meterConfig);
+        meter.setMRID(DEVICE_MRID);
+        meter.setSerialNumber(null);
+        meter.setLotNumber(null);
+        EndDeviceInfo endDeviceInfo = new EndDeviceInfo();
+        endDeviceInfo.setAssetModel(new ProductAssetModel());
+        meter.setEndDeviceInfo(endDeviceInfo);
+        meter.getMeterMultipliers().add(createMeterMultiplier(1));
+        Status status = new Status();
+        status.setValue(DefaultState.COMMISSIONING.getDefaultFormat());
+        meter.setStatus(status);
+        meterCfg.getMeter().add(meter);
+        MeterConfigRequestMessageType meterConfigRequest = createMeterConfigRequest(meterCfg);
 
         // Re-mock device
         when(device.getSerialNumber()).thenReturn(null);
@@ -267,6 +280,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         when(device.getModelNumber()).thenReturn(null);
         when(device.getModelVersion()).thenReturn(null);
         when(state.getName()).thenReturn(DefaultState.COMMISSIONING.getKey());
+        when(meterConfig.getMeter()).thenReturn(Arrays.asList(meter));
 
         // Business method
         MeterConfigResponseMessageType response = getInstance(ExecuteMeterConfigEndpoint.class)
@@ -279,7 +293,6 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         verify(deviceBuilder).withManufacturer(null);
         verify(deviceBuilder).withModelNumber(null);
         verify(deviceBuilder).withModelVersion(null);
-        verify(deviceBuilder).withMultiplier(null);
         verify(deviceBuilder).create();
 
         // Assert response
@@ -594,18 +607,8 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         try {
             // Business method
             getInstance(ExecuteMeterConfigEndpoint.class).createMeterConfig(meterConfigRequest);
-            fail("FaultMessage must be thrown");
-        } catch (FaultMessage faultMessage) {
-            // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_CREATE_DEVICE.translate(thesaurus));
-            MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
-            assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
-            assertThat(faultInfo.getReply().getError()).hasSize(1);
-            ErrorType error = faultInfo.getReply().getError().get(0);
-            assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
-            assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_REPLY_ADDRESS.getErrorCode());
-        } catch (Exception e) {
-            fail("FaultMessage must be thrown");
+            fail("A NPE must be thrown");
+        } catch (NullPointerException e) {
         }
     }
 
