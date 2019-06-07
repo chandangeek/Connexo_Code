@@ -11,7 +11,10 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -25,10 +28,11 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withApplicationName(List<String> applicationNames){
+    public WebServiceCallOccurrenceFinderBuilder withApplicationName(Set<String> applicationNames){
         if (!applicationNames.isEmpty())
         {
-            this.condition = this.condition.and(where("applicationName").in(applicationNames));
+            List<String> namesList = new ArrayList<>(applicationNames);
+            this.condition = this.condition.and(where("applicationName").in(namesList));
         }
         return this;
     }

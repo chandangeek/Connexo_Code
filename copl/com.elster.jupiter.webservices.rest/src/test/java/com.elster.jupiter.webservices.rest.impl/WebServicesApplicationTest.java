@@ -7,14 +7,19 @@ package com.elster.jupiter.webservices.rest.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import javax.ws.rs.core.Application;
@@ -42,6 +47,17 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
     UserService userService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    WebServiceCallOccurrenceService webServiceCallOccurrenceService;
+    @Mock
+    OrmService ormService;
+    @Mock
+    ThreadPrincipalService threadPrincipalService;
+    @Mock
+    User user;
+    @Mock
+    Privilege privilege;
+
 
     @Override
     protected Application getApplication() {
@@ -52,6 +68,9 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         webServicesApplication.setWebServicesService(webServicesService);
         webServicesApplication.setUserService(userService);
         webServicesApplication.setPropertyValueInfoService(propertyValueInfoService);
+        webServicesApplication.setWebServiceCallOccurrenceService(webServiceCallOccurrenceService);
+        webServicesApplication.setOrmService(ormService);
+        webServicesApplication.setThreadPrincipalService(threadPrincipalService);
         return webServicesApplication;
     }
 

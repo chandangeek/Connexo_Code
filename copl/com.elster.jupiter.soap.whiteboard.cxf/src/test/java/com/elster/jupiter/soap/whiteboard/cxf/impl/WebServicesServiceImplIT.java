@@ -18,6 +18,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -94,6 +95,10 @@ public class WebServicesServiceImplIT {
     @Mock
     private Thesaurus thesaurus;
 
+    private DataModel dataModel;
+
+    private WebServicesDataModelService webServicesDataModelService;
+
     private WebServicesService webServicesService;
     private EndPointConfigurationService endPointConfigurationService;
 
@@ -107,6 +112,7 @@ public class WebServicesServiceImplIT {
             bind(DataVaultService.class).toInstance(dataVaultService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(httpService);
+            bind(DataModel.class).toProvider(()-> dataModel);
         }
     }
 
@@ -145,6 +151,8 @@ public class WebServicesServiceImplIT {
                 thesaurus = nlsService.getThesaurus(WebServicesServiceImpl.COMPONENT_NAME, Layer.DOMAIN);
                 eventService = injector.getInstance(EventService.class);
                 injector.getInstance(UserService.class);
+                webServicesDataModelService = injector.getInstance(WebServicesDataModelService.class);
+                dataModel = webServicesDataModelService.getDataModel();
                 webServicesService = injector.getInstance(WebServicesService.class);
                 endPointConfigurationService = injector.getInstance(EndPointConfigurationService.class);
                 return null;

@@ -25,5 +25,6 @@ public class WebServicesModule extends AbstractModule {
         bind(WebServicesService.class).to(WebServicesServiceImpl.class).in(Scopes.SINGLETON);
         bind(EndPointConfigurationService.class).to(EndPointConfigurationServiceImpl.class).in(Scopes.SINGLETON);
         bind(SoapProviderSupportFactory.class).to(CxfSupportFactory.class).in(Scopes.SINGLETON);
+        bind(WebServicesDataModelService.class).to(WebServicesDataModelServiceImpl.class).in(Scopes.SINGLETON);
     }
 }

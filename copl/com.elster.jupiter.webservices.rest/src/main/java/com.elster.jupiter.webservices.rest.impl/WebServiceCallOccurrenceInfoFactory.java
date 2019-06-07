@@ -19,10 +19,6 @@ public class WebServiceCallOccurrenceInfoFactory {
 
     public WebServiceCallOccurrenceInfo from(WebServiceCallOccurrence endPointOccurrence, UriInfo uriInfo) {
         WebServiceCallOccurrenceInfo info = new WebServiceCallOccurrenceInfo();
-        /*info.logLevel = thesaurus.getString(endPointLog.getLogLevel().getKey(), endPointLog.getLogLevel()
-                .getDefaultFormat());*/
-        System.out.println("PREPARE INFO OBJECT FOR OCCURRENCE id =" + endPointOccurrence.getId());
-        System.out.println("PAYLOAD = " + endPointOccurrence.getPayload().orElse(null));
 
         info.id = endPointOccurrence.getId();
         info.startTime = endPointOccurrence.getStartTime();

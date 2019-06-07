@@ -8,17 +8,25 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.UriInfo;
 
 public class WebServiceCallOccurrenceLogInfoFactory {
     private final Thesaurus thesaurus;
+    EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
+    WebServiceCallOccurrenceInfoFactory webServiceCallOccurrenceInfoFactory;
 
     @Inject
-    public WebServiceCallOccurrenceLogInfoFactory(Thesaurus thesaurus) {
+    public WebServiceCallOccurrenceLogInfoFactory(Thesaurus thesaurus,
+                                                  EndPointConfigurationInfoFactory endPointConfigurationInfoFactory,
+                                                  WebServiceCallOccurrenceInfoFactory webServiceCallOccurrenceInfoFactory) {
         this.thesaurus = thesaurus;
+        this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
+        this.webServiceCallOccurrenceInfoFactory = webServiceCallOccurrenceInfoFactory;
     }
 
     public WebServiceCallOccurrenceLogInfo from(EndPointLog endPointLog) {
         WebServiceCallOccurrenceLogInfo info = new WebServiceCallOccurrenceLogInfo();
+        info.id = endPointLog.getId();
         info.logLevel = thesaurus.getString(endPointLog.getLogLevel().getKey(), endPointLog.getLogLevel()
                 .getDefaultFormat());
         info.message = endPointLog.getMessage();
@@ -26,17 +34,16 @@ public class WebServiceCallOccurrenceLogInfoFactory {
         return info;
     }
 
-    public WebServiceCallOccurrenceLogInfo fromFull(EndPointLog endPointLog) {
+    public WebServiceCallOccurrenceLogInfo fromFull(EndPointLog endPointLog, UriInfo uriInfo) {
         WebServiceCallOccurrenceLogInfo info = new WebServiceCallOccurrenceLogInfo();
         info.logLevel = thesaurus.getString(endPointLog.getLogLevel().getKey(), endPointLog.getLogLevel()
                 .getDefaultFormat());
         info.message = endPointLog.getMessage();
         info.timestamp = endPointLog.getTime();
         info.id = endPointLog.getId();
-        info.endPointConfiguration = endPointLog.getEndPointConfiguration();
-        info.message = endPointLog.getMessage();
+        info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointLog.getEndPointConfiguration(), uriInfo);
         info.stackTrace = endPointLog.getStackTrace();
-        info.occurrence = endPointLog.getOccurrence().get();
+        info.occurrenceInfo = webServiceCallOccurrenceInfoFactory.from(endPointLog.getOccurrence().get(), uriInfo);
         return info;
     }
 }

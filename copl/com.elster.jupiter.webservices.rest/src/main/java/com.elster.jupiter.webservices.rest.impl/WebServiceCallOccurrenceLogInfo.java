@@ -14,7 +14,7 @@ public class WebServiceCallOccurrenceLogInfo {
     public Instant timestamp;
     public String message;
     public String logLevel;
-    public EndPointConfiguration endPointConfiguration;// = Reference.empty();
+    public EndPointConfigurationInfo endPointConfigurationInfo;
     public String stackTrace;
-    public WebServiceCallOccurrence occurrence;//= Reference.empty();
+    public WebServiceCallOccurrenceInfo occurrenceInfo;
 }

@@ -16,8 +16,10 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -36,15 +38,15 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
     @Override
     public List<WebServiceCallOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters,
                                                                  JsonQueryFilter filter,
-                                                                 List<String> applicationName,
+                                                                 Set<String> applicationNames,
                                                                  Long epId){
 
 
         //DataModel dataModel = ormService.getDataModel(/*"WebServicesService"*/WebServicesService.COMPONENT_NAME).get();
         WebServiceCallOccurrenceFinderBuilder finderBuilder =  new WebServiceCallOccurrenceFinderBuilderImpl(dataModel, Condition.TRUE);
 
-        if (applicationName != null && !applicationName.isEmpty()){
-            finderBuilder.withApplicationName(applicationName);
+        if (applicationNames != null && !applicationNames.isEmpty()){
+            finderBuilder.withApplicationName(applicationNames);
         }
 
         if (epId != null){
@@ -122,9 +124,6 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
         if(epOcc.isPresent()){
             finderBuilder.withOccurrenceId(epOcc.get());
         }
-
-
-        //List<EndPointLog> logs = finderBuilder.build().from(queryParameters).find();
 
         return finderBuilder.build().from(queryParameters).find();
     }

@@ -3,6 +3,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
@@ -20,12 +21,29 @@ public class OccurrenceLogFinderBuilderImpl implements OccurrenceLogFinderBuilde
         this.condition = condition;
     }
 
+    @Override
+    public OccurrenceLogFinderBuilder withEndPointConfiguration(EndPointConfiguration epc){
 
+        this.condition = this.condition.and(where("endPointConfiguration").isEqualTo(epc));
+
+        return this;
+        /*return DefaultFinder.of(EndPointLog.class,
+                Where.where(EndPointLogImpl.Fields.endPointConfiguration.fieldName())
+                        .isEqualTo(this), dataModel).sorted(EndPointLogImpl.Fields.timestamp.fieldName(), false);*/
+
+
+    }
+
+    @Override
+    public OccurrenceLogFinderBuilder withEmptyOccurrence(){
+        this.condition = this.condition.and(where("occurrence").isNull());
+        return this;
+
+    };
+
+    @Override
     public OccurrenceLogFinderBuilder withOccurrenceId(WebServiceCallOccurrence epoc){
-        /*if (occur)
-        {*/
         this.condition = this.condition.and(where("occurrence").isEqualTo(epoc));
-        //}
         return this;
 
     };

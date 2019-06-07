@@ -42,8 +42,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -102,14 +102,14 @@ public class EndPointConfigurationResource {
                                                    @Context UriInfo uriInfo) {
 
         List<EndPointConfigurationInfo> infoList;
-        if (applicationName == "SYS"){
+        if ("SYS".equals(applicationName)){
             infoList = endPointConfigurationService.findEndPointConfigurations()
                     .from(queryParams)
                     .stream()
                     .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
                     .collect(toList());
         }else{
-            List<String> applicationNameToFilter = prepareApplicationNames(applicationName);
+            Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
 
             Set<String> webServiceNames = webServicesService.getWebServices().stream()
                     .filter(ws -> applicationNameToFilter.contains(ws.getApplicationName()))
@@ -128,8 +128,8 @@ public class EndPointConfigurationResource {
         return PagedInfoList.fromPagedList("endpoints", infoList, queryParams);
     }
 
-    private List<String> prepareApplicationNames(String applicationName){
-        List<String> applicationNames = new ArrayList<>();
+    private Set<String> prepareApplicationNames(String applicationName){
+        Set<String> applicationNames = new HashSet();
         switch (applicationName) {
             case "SYS":
                 applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
@@ -272,7 +272,6 @@ public class EndPointConfigurationResource {
         List<WebServiceCallOccurrenceLogInfo> endpointConfigurationLogs = endPointConfiguration.getLogs()
                 .from(queryParameters)
                 .stream()
-                .filter(log -> !log.getOccurrence().isPresent())
                 .map(endpointConfigurationLogInfoFactory::from)
                 .collect(toList());
         return PagedInfoList.fromPagedList("logs", endpointConfigurationLogs, queryParameters);
@@ -304,7 +303,7 @@ public class EndPointConfigurationResource {
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
-        List<String> applicationNameToFilter = prepareApplicationNames(applicationName);
+        Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
 
         List<WebServiceCallOccurrence> endPointOccurrences = webServiceCallOccurrenceService.getEndPointOccurrences(queryParameters, filter, applicationNameToFilter, null);
         List<WebServiceCallOccurrenceInfo> webServiceCallOccurrenceInfo = endPointOccurrences.
@@ -334,73 +333,6 @@ public class EndPointConfigurationResource {
 
     }
 
-/*    private List<WebServiceCallOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, String applicationName, Long epId) {
-
-
-        DataModel dataModel = ormService.getDataModel(WebServicesService.COMPONENT_NAME).get();
-        EndPointConfigurationOccurrenceFinderBuilder finderBuilder =  new EndPointConfigurationOccurrenceFinderBuilderImpl(dataModel, Condition.TRUE);
-
-        if (applicationName != null && !applicationName.isEmpty()){
-            finderBuilder.withApplicationName(applicationName);
-        }
-
-        if (epId != null){
-            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(epId)
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
-            finderBuilder.withEndPointConfiguration(epc);
-        }
-
-        if (filter.hasProperty("startedOnFrom")) {
-            if (filter.hasProperty("startedOnTo")) {
-                finderBuilder.withStartTimeIn(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
-            } else {
-                finderBuilder.withStartTimeIn(Range.greaterThan(filter.getInstant("startedOnFrom")));
-            }
-        } else if (filter.hasProperty("startedOnTo")) {
-            finderBuilder.withStartTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
-        }
-        if (filter.hasProperty("finishedOnFrom")) {
-            if (filter.hasProperty("finishedOnTo")) {
-                finderBuilder.withEndTimeIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")));
-            } else {
-                finderBuilder.withEndTimeIn(Range.greaterThan(filter.getInstant("finishedOnFrom")));
-            }
-        } else if (filter.hasProperty("finishedOnTo")) {
-            finderBuilder.withEndTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
-        }
-        /* Find endpoint by ID */
-/*        if (filter.hasProperty("webServiceEndPoint")) {
-
-            Long endPointId = filter.getLong("webServiceEndPoint");
-            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(endPointId)
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
-
-            finderBuilder.withEndPointConfiguration(epc);
-        }
-
-        if (filter.hasProperty("status")) {
-
-            finderBuilder.withStatusIn(filter.getStringList("status")
-                    .stream()
-                    .collect(Collectors.toList()));
-        }
-
-        List<WebServiceCallOccurrence> epocList = finderBuilder.build().from(queryParameters).find();
-
-        if(filter.hasProperty("type")){
-            List<String> typeList = filter.getStringList("type");
-            if (typeList.contains("INBOUND") && !typeList.contains("OUTBOUND")){
-                epocList = epocList.stream().
-                        filter(epoc -> epoc.getEndPointConfiguration().isInbound()).collect(toList());
-
-            } else if  (typeList.contains("OUTBOUND") && !typeList.contains("INBOUND")) {
-                epocList = epocList.stream().
-                        filter(epoc -> !epoc.getEndPointConfiguration().isInbound()).collect(toList());
-            }
-        }
-        return epocList;
-    }*/
-
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{epId}/occurrences")
@@ -413,7 +345,7 @@ public class EndPointConfigurationResource {
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
-        List<String> applicationNameToFilter = prepareApplicationNames(applicationName);
+        Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
 
         List<WebServiceCallOccurrence> endPointOccurrences = webServiceCallOccurrenceService.getEndPointOccurrences(queryParameters, filter, applicationNameToFilter, epId);
         List<WebServiceCallOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
@@ -430,29 +362,18 @@ public class EndPointConfigurationResource {
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
     public PagedInfoList getLogForOccurrence(@PathParam("id") long id,
                                              @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
-                                             @BeanParam JsonQueryParameters queryParameters) {
+                                             @BeanParam JsonQueryParameters queryParameters,
+                                             @Context UriInfo uriInfo) {
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
         List<EndPointLog> logs = webServiceCallOccurrenceService.getLogForOccurrence(id, queryParameters);
-        /*
-        DataModel dataModel = ormService.getDataModel(WebServicesService.COMPONENT_NAME).get();
-        Optional<WebServiceCallOccurrence> epOcc = dataModel.mapper(WebServiceCallOccurrence.class)
-                .getUnique("id", id);
-
-        OccurrenceLogFinderBuilder finderBuilder =  new OccurrenceLogFinderBuilderImpl(dataModel, Condition.TRUE);
-
-        if(epOcc.isPresent()){
-            finderBuilder.withOccurrenceId(epOcc.get());
-        }
-
-
-        List<EndPointLog> logs = finderBuilder.build().from(queryParameters).find();*/
         List<WebServiceCallOccurrenceLogInfo> logsInfo = logs.stream().
-                                                      map(log -> endpointConfigurationLogInfoFactory.fromFull(log)).
+                                                      map(log -> endpointConfigurationLogInfoFactory.fromFull(log, uriInfo)).
                                                       collect(toList());
 
         return PagedInfoList.fromPagedList("logs", logsInfo, queryParameters);
+
     }
 
     private void validatePayload(EndPointConfigurationInfo info) {

@@ -5,10 +5,11 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface WebServiceCallOccurrenceService {
 
-    List<WebServiceCallOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, List<String> applicationName, Long epId);
+    List<WebServiceCallOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters, JsonQueryFilter filter, Set<String> applicationName, Long epId);
 
     Optional<WebServiceCallOccurrence> getEndPointOccurrence(Long id);
 

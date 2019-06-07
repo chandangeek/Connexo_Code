@@ -7,11 +7,12 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @ProviderType
 public interface WebServiceCallOccurrenceFinderBuilder {
 
-    public WebServiceCallOccurrenceFinderBuilder withApplicationName(List<String> applicationName);
+    public WebServiceCallOccurrenceFinderBuilder withApplicationName(Set<String> applicationName);
 
     public WebServiceCallOccurrenceFinderBuilder withStatusIn(List<String> statuses);
 
