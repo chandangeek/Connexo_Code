@@ -429,6 +429,7 @@
 				<module>com.elster.jupiter.parties</module>
 				<module>com.elster.jupiter.parties.rest</module>
 				<module>com.elster.jupiter.slp.importers</module>
+				<module>com.elster.jupiter.servicecall.issue</module>
 				<module>com.elster.jupiter.system.app</module>
 				<module>com.elster.jupiter.system.app.help</module>
 				<module>com.elster.jupiter.systemadmin.extjs</module>
