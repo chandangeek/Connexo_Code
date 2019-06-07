@@ -125,7 +125,7 @@ public class AuditResourceTest extends AuditApplicationJerseyTest {
 
     @Test
     public void testGetAudits() {
-        String json = target("audit").request().get(String.class);
+        String json = target("audit").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get(String.class);
 
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
