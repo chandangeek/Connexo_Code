@@ -47,9 +47,10 @@ public class RecurrentTaskFinder implements TaskFinder {
         DataMapper<RecurrentTaskImpl> mapper = dataModel.mapper(RecurrentTaskImpl.class);
         //SqlBuilder builder = mapper.builder("RT");
         SqlBuilder builder = new SqlBuilder();
-        builder.append("select * from (select ID, APPLICATION, NAME, CRONSTRING, NEXTEXECUTION, PAYLOAD, DESTINATION, LASTRUN, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME, LOGLEVEL, ROWNUM as rnum from (");
-        builder.append("select RT.ID, RT.APPLICATION, RT.NAME, RT.CRONSTRING, RT.NEXTEXECUTION, RT.PAYLOAD, RT.DESTINATION, RT.LASTRUN, RT.VERSIONCOUNT, RT.CREATETIME, RT.MODTIME, RT.USERNAME, RT.LOGLEVEL, ROWNUM as rnum ");
+        builder.append("select * from (select ID, APPLICATION, NAME, CRONSTRING, NEXTEXECUTION, PAYLOAD, DESTINATION, LASTRUN, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME, LOGLEVEL, QUEUE_TYPE_NAME, ROWNUM as rnum from (");
+        builder.append("select RT.ID, RT.APPLICATION, RT.NAME, RT.CRONSTRING, RT.NEXTEXECUTION, RT.PAYLOAD, RT.DESTINATION, RT.LASTRUN, RT.VERSIONCOUNT, RT.CREATETIME, RT.MODTIME, RT.USERNAME, RT.LOGLEVEL, DS.QUEUE_TYPE_NAME, ROWNUM as rnum ");
         builder.append(" from TSK_RECURRENT_TASK RT ");
+        builder.append(" inner join (select NAME, QUEUE_TYPE_NAME from MSG_DESTINATIONSPEC) DS on RT.DESTINATION = DS.NAME ");
         builder.append(" inner join ");
         builder.append("(select * from ");
         builder.append("(select x.*, ROWNUM rnum from ");
@@ -115,9 +116,31 @@ public class RecurrentTaskFinder implements TaskFinder {
             builder.append(") ");
         }
 
+        //add types filter conditions
+        if ((filter.types != null) && (!filter.types.isEmpty())) {
+            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)
+                    && ((filter.queues == null) || filter.queues.isEmpty())) {
+                builder.append(" where ( ");
+            } else {
+                builder.append(" and ( ");
+            }
+            List<String> types = new ArrayList();
+            types.addAll(filter.types);
+            for (int i = 0; i < types.size(); i++) {
+                builder.append("QUEUE_TYPE_NAME= ");
+                builder.addObject(types.get(i));
+                if (i < types.size() - 1) {
+                    builder.append(" or ");
+                }
+            }
+            builder.append(") ");
+        }
+
         //add application filter conditions
         if ((filter.applications != null) && (!filter.applications.isEmpty())) {
-            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null) && ((filter.queues == null) || (filter.queues.isEmpty()))) {
+            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)
+                    && ((filter.queues == null) || filter.queues.isEmpty())
+                    && ((filter.types == null) || filter.types.isEmpty())) {
                 builder.append(" where ( ");
             } else {
                 builder.append(" and ( ");
@@ -143,7 +166,7 @@ public class RecurrentTaskFinder implements TaskFinder {
         builder.append(" and rnum >= ");
         builder.addInt(start + 1);
 
-        try(Fetcher<RecurrentTaskImpl> fetcher = mapper.fetcher(builder)) {
+        try (Fetcher<RecurrentTaskImpl> fetcher = mapper.fetcher(builder)) {
             return getRecurrentTasks(fetcher);
         }
     }

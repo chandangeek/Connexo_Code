@@ -77,6 +77,7 @@ public class TaskResource {
             JsonQueryFilter filter = new JsonQueryFilter(params.get("filter").get(0));
             filterSpec.applications.addAll(filter.getStringList("application"));
             filterSpec.queues.addAll(filter.getStringList("queue"));
+            filterSpec.types.addAll(filter.getStringList("type"));
             filterSpec.startedOnFrom = filter.getInstant("startedOnFrom");
             filterSpec.startedOnTo = filter.getInstant("startedOnTo");
         }
