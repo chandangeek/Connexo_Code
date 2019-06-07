@@ -165,6 +165,28 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             success: function() {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.unlinkMeter.success.message', 'IMT', 'Meter {0} will be unlinked on {1}.', [btn.meterName, Uni.DateTime.formatDateTimeShort(unlinkTime)], false));
                 me.getController('Uni.controller.history.Router').getRoute('usagepoints/view/metrologyconfiguration').forward();
+            },
+            failure: function(response) {
+                var code = response.status;
+
+                if (response.status === 400) {
+                    var decodedResponse = Ext.decode(response.responseText, true);
+
+                    if (Ext.isDefined(decodedResponse.errors) && Ext.isArray(decodedResponse.errors) && !Ext.isEmpty(decodedResponse.errors)) {
+                       var title = Uni.I18n.translate('general.error.requestFailedConnexoKnownError', 'IMT', 'Couldn\'t perform your action'),
+                           msg = decodedResponse.errors[0].msg ?
+                            decodedResponse.errors[0].msg
+                            : 
+                            Uni.I18n.translate(
+                                'general.error.unknownErrorOccurred',
+                                'IMT',
+                                'An unknown error occurred'
+                            );
+
+                        me.getApplication().getController('Uni.controller.Error').showError(title, msg, code, null, null, 'unlink-meter-error');
+                        Ext.tip.QuickTipManager.disable();
+                    }
+                }
             }
         });
     }
