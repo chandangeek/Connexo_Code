@@ -30,6 +30,8 @@ public interface ServiceCallType extends HasId, HasName {
 
     ServiceCallLifeCycle getServiceCallLifeCycle();
 
+    List<String> getSupportedApplications();
+
     /**
      * Returns the RegisteredCustomPropertySets linked to this ServiceCallType
      * @return

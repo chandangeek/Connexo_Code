@@ -3,24 +3,34 @@
   ~ Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
         <version>1.0.0-Nessus-SNAPSHOT</version>
     </parent>
-
-    <modelVersion>4.0.0</modelVersion>
-
-
     <artifactId>servicecall.issue</artifactId>
     <packaging>bundle</packaging>
     <name>servicecall.issue [init ISC]</name>
     <description>
         Contains servicecall issue templates
     </description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <_include>bnd.bnd</_include>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>
@@ -39,7 +49,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
         </dependency>
-
         <!-- Jupiter modules -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -100,6 +109,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>estimation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
@@ -222,11 +235,7 @@
             <artifactId>appserver</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall</artifactId>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bpm</artifactId>
@@ -271,10 +280,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>audit</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall</artifactId>
         </dependency>
     </dependencies>
 </project>

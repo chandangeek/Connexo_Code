@@ -17,10 +17,10 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.servicecall.issue.IssueServiceCall;
 import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
 import com.elster.jupiter.servicecall.issue.NotEstimatedBlock;
+import com.elster.jupiter.users.User;
 
 import javax.inject.Inject;
 import java.time.Instant;

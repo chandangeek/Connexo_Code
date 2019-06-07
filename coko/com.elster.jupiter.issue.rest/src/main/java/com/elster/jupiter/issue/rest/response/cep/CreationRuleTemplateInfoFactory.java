@@ -18,6 +18,16 @@ public class CreationRuleTemplateInfoFactory {
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    public CreationRuleTemplateInfo asInfo(CreationRuleTemplate template, String appKey) {
+        CreationRuleTemplateInfo info = new CreationRuleTemplateInfo();
+        template.setAppKey(appKey);
+        info.name = template.getName();
+        info.displayName = template.getDisplayName();
+        info.description = template.getDescription();
+        info.properties = propertyValueInfoService.getPropertyInfos(template.getPropertySpecs());
+        return info;
+    }
+
     public CreationRuleTemplateInfo asInfo(CreationRuleTemplate template) {
         CreationRuleTemplateInfo info = new CreationRuleTemplateInfo();
         info.name = template.getName();

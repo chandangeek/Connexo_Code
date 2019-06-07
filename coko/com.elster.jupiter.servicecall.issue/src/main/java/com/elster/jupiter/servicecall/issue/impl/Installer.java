@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.servicecall.issue.impl;
 
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -22,13 +21,11 @@ class Installer implements FullInstaller {
 
     private final IssueService issueService;
     private final DataModel dataModel;
-    private final EventService eventService;
 
     @Inject
-    Installer(DataModel dataModel, IssueService issueService, EventService eventService) {
+    Installer(DataModel dataModel, IssueService issueService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
-        this.eventService = eventService;
     }
 
     @Override
@@ -51,10 +48,10 @@ class Installer implements FullInstaller {
 
     private void publishEvents() {
         for (ServiceCallEventDescription eventDescription : ServiceCallEventDescription.values()) {
-            eventService.getEventType(eventDescription.getTopic()).ifPresent(eventType -> {
-                eventType.setPublish(true);
-                eventType.update();
-            });
+//            eventService.getEventType(eventDescription.getTopic()).ifPresent(eventType -> {
+//                eventType.setPublish(true);
+//                eventType.update();
+//            });
         }
     }
 

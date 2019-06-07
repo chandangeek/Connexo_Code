@@ -19,11 +19,11 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.ServiceCallInfoPropertyFactory;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
 import com.elster.jupiter.servicecall.issue.OpenIssueServiceCall;
-import com.elster.jupiter.properties.rest.ServiceCallInfoPropertyFactory;
 import com.elster.jupiter.servicecall.issue.TranslationKeys;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -53,6 +53,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
     private volatile ServiceCallService serviceCallService;
+    private Optional<String> appKey = Optional.empty();
 
     //for OSGI
     public ServiceCallIssueCreationRuleTemplate() {
@@ -137,6 +138,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
+        ServiceCallTypeInfo[] values = serviceCallService.getServiceCallTypes().stream().map(ServiceCallTypeInfo::new).toArray(ServiceCallTypeInfo[]::new);
         return Collections.singletonList(propertySpecService.specForValuesOf(new ServiceCallInfoValueFactory())
                 .named(TranslationKeys.SERVICE_CALL_TYPE_HANDLER)
                 .describedAs(TranslationKeys.SERVICE_CALL_TYPE_HANDLER_DESCRIPTION)
@@ -174,12 +176,16 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
         return issue;
     }
 
+    @Override
+    public void setAppKey(String appKey) {
+        this.appKey = Optional.of(appKey);
+    }
+
     private class ServiceCallInfoValueFactory implements ValueFactory<HasIdAndName>, ServiceCallInfoPropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
-            return serviceCallService.findServiceCallType(stringValue, stringValue)
-                    .map(ServiceCallTypeInfo::new)
-                    .orElse(null);
+            return serviceCallService.getServiceCallTypes().stream().filter(serviceCallType -> String.valueOf(serviceCallType.getId()).equals(stringValue))
+                    .map(ServiceCallTypeInfo::new).findFirst().orElse(null);
         }
 
         @Override

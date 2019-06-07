@@ -14,6 +14,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -58,14 +59,14 @@ public class RuleResource extends BaseResource {
     @Path("/templates")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CREATION_RULE,Privileges.Constants.VIEW_CREATION_RULE})
-    public PagedInfoList getCreationRulesTemplates(@QueryParam(value = ISSUE_TYPE) String issueType, @BeanParam JsonQueryParameters params){
+    public PagedInfoList getCreationRulesTemplates(@QueryParam(value = ISSUE_TYPE) String issueType, @BeanParam JsonQueryParameters params, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey){
         if (issueType == null ) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         List<CreationRuleTemplateInfo> infos = getIssueCreationService()
                 .getCreationRuleTemplates().stream()
                 .filter(template -> template.getIssueType().getKey().equals(issueType))
-                .map(templateInfoFactory::asInfo)
+                .map(creationRuleTemplate -> templateInfoFactory.asInfo(creationRuleTemplate, appKey))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("creationRuleTemplates", infos, params);
     }

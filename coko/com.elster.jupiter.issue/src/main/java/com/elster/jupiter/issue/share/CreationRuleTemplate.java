@@ -35,6 +35,9 @@ public interface CreationRuleTemplate extends HasDynamicProperties {
         openIssue.update();
     }
 
+    default void setAppKey(String appKey) {
+    }
+
     Optional<? extends Issue> resolveIssue(IssueEvent event);
 
     default Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId) {return Optional.empty();}
