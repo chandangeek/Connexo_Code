@@ -812,17 +812,43 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
         String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fullActivityCalendarAttributeName).getValue();
 
-        activityCalendar(calendarName, activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[0]);
-        writeSpecialDays(activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[1]);
+        String[] calendarParts = activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR);
+        if (calendarParts.length>0) {
+            getProtocol().journal("Sending calendar name:" + calendarName);
+            activityCalendar(calendarName, calendarParts[0]);
+        } else {
+            getProtocol().journal("Skipping calendar because it's empty");
+        }
+
+        if (calendarParts.length>1) {
+            getProtocol().journal("Sending special days");
+            writeSpecialDays(calendarParts[1]);
+        } else {
+            getProtocol().journal("Skipping special days part because it's empty");
+        }
+
     }
 
     protected void fullActivityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
+        getProtocol().journal("Processing full calendar with activation date message");
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
         String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
         String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fullActivityCalendarAttributeName).getValue();
 
-        activityCalendarWithActivationDate(calendarName, epoch, activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[0]);
-        writeSpecialDays(activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[1]);
+        String[] calendarParts = activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR);
+        if (calendarParts.length>0) {
+            getProtocol().journal("Sending calendar name:" + calendarName + ", activation date=" + epoch);
+            activityCalendarWithActivationDate(calendarName, epoch, calendarParts[0]);
+        } else {
+            getProtocol().journal("Skipping calendar because it's empty");
+        }
+
+        if (calendarParts.length>1) {
+            getProtocol().journal("Sending special days");
+            writeSpecialDays(calendarParts[1]);
+        } else {
+            getProtocol().journal("Skipping special days part because it's empty");
+        }
     }
 
     private void writeSpecialDays(String specialDayArrayBEREncodedBytes) throws IOException {
@@ -841,10 +867,13 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
         ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
         activityCalendarController.parseContent(activityCalendarContents);
+        getProtocol().journal("Writing calendar name: "+calendarName);
         activityCalendarController.writeCalendarName(calendarName);
+        getProtocol().journal("Writing calendar content");
         activityCalendarController.writeCalendar(); //Does not activate it yet
         Calendar activationCal = Calendar.getInstance(getProtocol().getTimeZone());
         activationCal.setTimeInMillis(Long.parseLong(epoch));
+        getProtocol().journal("Writing calendar activation date:"+activationCal.getTime().toString());
         activityCalendarController.writeCalendarActivationTime(activationCal);   //Activate now
     }
 

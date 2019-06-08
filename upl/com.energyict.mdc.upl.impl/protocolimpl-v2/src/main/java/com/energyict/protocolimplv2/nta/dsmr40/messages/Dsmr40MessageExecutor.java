@@ -234,8 +234,11 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
         ActivityCalendarController activityCalendarController = getActivityCalendarController();
         activityCalendarController.parseContent(activityCalendarContents);
+        getProtocol().journal("Writing calendar name: "+calendarName);
         activityCalendarController.writeCalendarName(calendarName);
+        getProtocol().journal("Writing calendar content");
         activityCalendarController.writeCalendar(); //Does not activate it yet
+        getProtocol().journal("Writing null activation date - i.e. activate now");
         activityCalendarController.writeCalendarActivationTime(null);   //Activate now
     }
 
@@ -247,10 +250,13 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
         ActivityCalendarController activityCalendarController = getActivityCalendarController();
         activityCalendarController.parseContent(activityCalendarContents);
+        getProtocol().journal("Writing calendar name: "+calendarName);
         activityCalendarController.writeCalendarName(calendarName);
+        getProtocol().journal("Writing calendar content");
         activityCalendarController.writeCalendar(); //Does not activate it yet
         Calendar activationCal = Calendar.getInstance(getProtocol().getTimeZone());
         activationCal.setTimeInMillis(Long.parseLong(epoch));
+        getProtocol().journal("Writing calendar activation date:"+activationCal.getTime().toString());
         activityCalendarController.writeCalendarActivationTime(activationCal);   //Activate now
     }
 
