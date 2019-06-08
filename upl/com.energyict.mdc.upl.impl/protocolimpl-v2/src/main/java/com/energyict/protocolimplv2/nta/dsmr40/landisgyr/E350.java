@@ -42,6 +42,7 @@ import com.energyict.protocolimplv2.nta.dsmr40.Dsmr40Properties;
 import com.energyict.protocolimplv2.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.Dsmr40LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40Messaging;
 
@@ -61,7 +62,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final NumberLookupExtractor numberLookupExtractor;
     private final LoadProfileExtractor loadProfileExtractor;
-    private Dsmr40LogBookFactory dsmr40LogBookFactory;
+    private LGLogBookFactory logBookFactory;
 
     public E350(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -177,14 +178,14 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBookReaders) {
-        return getDsmr40LogBookFactory().getLogBookData(logBookReaders);
+        return getLogBookFactory().getLogBookData(logBookReaders);
     }
 
-    private Dsmr40LogBookFactory getDsmr40LogBookFactory() {
-        if (dsmr40LogBookFactory == null) {
-            dsmr40LogBookFactory = new Dsmr40LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+    private LGLogBookFactory getLogBookFactory() {
+        if (logBookFactory == null) {
+            logBookFactory = new LGLogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
-        return dsmr40LogBookFactory;
+        return logBookFactory;
     }
 
 

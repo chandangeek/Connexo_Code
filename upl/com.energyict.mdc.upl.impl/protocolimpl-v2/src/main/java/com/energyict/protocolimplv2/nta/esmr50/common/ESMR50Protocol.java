@@ -8,7 +8,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.ProtocolJournal;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.*;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
@@ -95,11 +94,6 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     @Override
     public void journal(String message) {
         super.journal("[ESMR50] " + message);
-    }
-
-    @Override
-    public void journal(String message) {
-        super.journal("ESMR50] " + message);
     }
 
     @Override
@@ -384,10 +378,6 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         ((ESMR50Cache)getDeviceCache()).setFrameCounter(newFrameCounter);
     }
 
-    @Override
-    public boolean supportsCommunicationFirmwareVersion() {
-        return true;
-    }
 }
 
 
