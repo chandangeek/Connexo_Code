@@ -40,6 +40,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -402,9 +403,18 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     protected CollectedMessage writeCapturePeriod(OfflineDeviceMessage pendingMessage) throws IOException {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         ObisCode obisCode = ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE;
-        int period  =Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.capturePeriodAttributeName).getValue());
-        getProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(obisCode).setCapturePeriodAttr(new Unsigned32(period));
-        getProtocol().journal("Successfully set definable load profile capture period to " + period);
+        String messageAttribute = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.capturePeriodAttributeName).getValue();
+        Duration duration = Duration.parse(messageAttribute);
+        int period  = (int) duration.getSeconds();
+        getProtocol().journal("Writing load profile capture period " + messageAttribute + " - parsed as "+period+" seconds");
+        try {
+            getProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(obisCode).setCapturePeriodAttr(new Unsigned32(period));
+            getProtocol().journal("Successfully set definable load profile capture period to " + period);
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+        } catch (Exception ex){
+            getProtocol().journal(Level.SEVERE, "Cannot write load profile capture period to "+period+": "+ ex.getLocalizedMessage());
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+        }
         return collectedMessage;
     }
 }
