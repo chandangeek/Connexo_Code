@@ -26,6 +26,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
         var defaultImpact = 5;
         var devicesStore = Ext.getStore('Isu.store.IssueDevices') || Ext.create('Isu.store.IssueDevices');
         devicesStore.getProxy().setExtraParam('nameOnly', true);
+        if (me.deviceId) devicesStore.getProxy().setExtraParam('name', me.deviceId);
 
         devicesStore.on('load', Ext.bind(me.setDeviceCombo, me));
 
@@ -53,7 +54,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     forceSelection: true,
                     required: !me.bulkAction,
                     hidden: me.bulkAction,
-                    emptyText: me.deviceId ? me.deviceId : '',
+                    emptyText: '',
                     listeners: {
                         expand: {
                             fn: me.comboLimitNotification
