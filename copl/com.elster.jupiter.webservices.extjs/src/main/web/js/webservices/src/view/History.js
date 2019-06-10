@@ -11,7 +11,9 @@ Ext.define('Wss.view.History', {
   requires: [
     'Wss.store.endpoint.Occurrence',
     'Wss.view.HistoryTopFilter',
-    'Wss.view.webservice.HistoryPreviewContainer'
+    'Wss.view.webservice.HistoryPreviewContainer',
+    'Uni.grid.commander.SortingPanel',
+    'Wss.view.webservice.SortMenu'
   ],
 
   initComponent: function () {
@@ -20,14 +22,6 @@ Ext.define('Wss.view.History', {
     me.content = {
         ui: 'large',
         title: Uni.I18n.translate('webservices.webserviceHistory', 'WSS', 'Web service history'),
-        items: [
-          {
-            xtype: 'webservices-webservice-history-preview',
-            itemId: 'webservices-webservice-history-preview',
-            adminView: me.adminView,
-            router: me.router
-          }
-        ],
         dockedItems: [
           {
             dock: 'top',
@@ -36,7 +30,31 @@ Ext.define('Wss.view.History', {
             itemId: 'mss-view-history-history-topfilter',
             adminView: me.adminView,
           },
-        ]
+          {
+            dock: 'top',
+            store: 'Wss.store.endpoint.Occurrence',
+            xtype: 'uni-grid-commander-sortingpanel',
+            menu: 'wss-webservice-sort-menu',
+            items: [
+              {
+                property: 'status',
+                direction: Uni.component.sort.model.Sort.DESC
+              },
+              {
+                property: 'startTime',
+                direction: Uni.component.sort.model.Sort.DESC
+              }
+            ]
+          },
+        ],
+        items: [
+          {
+            xtype: 'webservices-webservice-history-preview',
+            itemId: 'webservices-webservice-history-preview',
+            adminView: me.adminView,
+            router: me.router
+          }
+        ],
     };
 
     me.callParent(arguments);

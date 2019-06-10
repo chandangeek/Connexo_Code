@@ -85,11 +85,12 @@ Ext.define('Wss.controller.Webservices', {
 
     showWebservicesHistoryOverview: function () {
         var me = this;
-        me.setDefaultSort();
+        var store = me.getStore('Wss.store.endpoint.Occurrence');
         var view = Ext.widget('webservices-history', {
             router: me.getController('Uni.controller.history.Router'),
             adminView: Uni.util.Application.getAppNamespace() === 'SystemApp'
         });
+        store.load();
         me.getApplication().fireEvent('changecontentevent', view);
     },
 
@@ -98,7 +99,6 @@ Ext.define('Wss.controller.Webservices', {
         var store = me.getStore('Wss.store.endpoint.EndpointOccurrence');
         store.getProxy().setUrl(endpointId);
 
-        me.setDefaultSort();
         me.getModel('Wss.model.Endpoint').load(endpointId, {
             success: function (record) {
                 var view = Ext.widget('webservice-history', {
@@ -108,6 +108,7 @@ Ext.define('Wss.controller.Webservices', {
                 });
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.getApplication().fireEvent('endpointload', record.get('name'));
+                store.load();
             }
         });
     },
@@ -135,20 +136,6 @@ Ext.define('Wss.controller.Webservices', {
                 });
             }
         });
-    },
-
-    setDefaultSort: function () {
-        var me = this,
-            store = me.getStore('Wss.store.endpoint.Occurrence'),
-            sorting = store.getProxy().extraParams['sort'];
-
-        if (sorting === undefined) {
-            sorting = [{
-                property: 'startTime',
-                direction: Uni.component.sort.model.Sort.DESC
-            }];
-            store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
-        }
     },
 
     showAddWebserviceEndPoint: function () {

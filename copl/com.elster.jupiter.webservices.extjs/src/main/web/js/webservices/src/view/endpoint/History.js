@@ -12,7 +12,9 @@ Ext.define('Wss.view.endpoint.History', {
     'Wss.view.Menu',
     'Wss.store.endpoint.EndpointOccurrence',
     'Wss.view.HistoryTopFilter',
-    'Wss.view.webservice.HistoryPreviewContainer'
+    'Wss.view.webservice.HistoryPreviewContainer',
+    'Uni.grid.commander.SortingPanel',
+    'Wss.view.webservice.SortMenu'
   ],
 
   initComponent: function () {
@@ -42,6 +44,7 @@ Ext.define('Wss.view.endpoint.History', {
             itemId: 'webservices-webservice-history-preview',
             endpoint: me.record,
             router: me.router,
+            adminView: me.adminView
           }
         ],
         dockedItems: [
@@ -51,7 +54,23 @@ Ext.define('Wss.view.endpoint.History', {
             xtype: 'mss-view-history-history-topfilter',
             itemId: 'mss-view-history-history-topfilter',
             endpoint: me.record
-          }
+          },
+          {
+            dock: 'top',
+            store: 'Wss.store.endpoint.EndpointOccurrence',
+            xtype: 'uni-grid-commander-sortingpanel',
+            menu: 'wss-webservice-sort-menu',
+            items: [
+              {
+                property: 'status',
+                direction: Uni.component.sort.model.Sort.DESC
+              },
+              {
+                property: 'startTime',
+                direction: Uni.component.sort.model.Sort.DESC
+              }
+            ]
+          },
         ]
     };
 

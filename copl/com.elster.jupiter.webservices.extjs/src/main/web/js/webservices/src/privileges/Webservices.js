@@ -17,7 +17,7 @@ Ext.define('Wss.privileges.Webservices', {
 
     admin: ['privilege.administrate.webservices'],
 
-    viewHistory: ['privilege.viewHistory.webservices'],
+    viewHistory: ['privilege.view.webservices'],
 
     retry: ['privilege.retry.webservices'],
 
