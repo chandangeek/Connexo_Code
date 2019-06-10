@@ -1294,7 +1294,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     titleText = Ext.String.format(pattern, me.zoneName, false);
                     break;
                 case 'createmanualissue':
-                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmPartDevicesMsg', 'ISU', 'Create issues for {0} devices?', me.allDevicesCnt, false);
+                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmDevicesMsg', 'ISU', 'Create issues for {0} devices?', me.allDevicesCnt);
                     break;
             }
         } else {
