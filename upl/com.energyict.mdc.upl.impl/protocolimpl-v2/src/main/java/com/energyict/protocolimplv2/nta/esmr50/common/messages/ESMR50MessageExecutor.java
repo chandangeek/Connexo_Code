@@ -66,6 +66,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
          for (OfflineDeviceMessage pendingMessage : masterMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
+            getProtocol().journal("Executing message " + pendingMessage.getSpecification().getName());
             try {
                 if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_LTE_APN_NAME)) {
                     collectedMessage = doSetLteApn(pendingMessage);
@@ -89,6 +90,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                 }
+                getProtocol().journal(Level.SEVERE,"Error while executing message " + pendingMessage.getSpecification().getName()+": " + e.getLocalizedMessage());
             }
             if (collectedMessage != null) {
                 result.addCollectedMessage(collectedMessage);

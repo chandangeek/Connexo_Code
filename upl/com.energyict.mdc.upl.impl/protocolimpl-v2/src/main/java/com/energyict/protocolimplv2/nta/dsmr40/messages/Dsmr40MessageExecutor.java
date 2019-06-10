@@ -79,6 +79,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         for (OfflineDeviceMessage pendingMessage : sortSecurityRelatedDeviceMessages(masterMessages)) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
+            getProtocol().journal("Executing message " + pendingMessage.getSpecification().getName());
             try {
                 if (pendingMessage.getSpecification().equals(DeviceActionMessage.RESTORE_FACTORY_SETTINGS)) {
                     restoreFactorySettings();
@@ -112,6 +113,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                 }
+                getProtocol().journal(Level.SEVERE,"Error while executing message " + pendingMessage.getSpecification().getName()+": " + e.getLocalizedMessage());
             }
             if (collectedMessage != null) {
                 result.addCollectedMessage(collectedMessage);
