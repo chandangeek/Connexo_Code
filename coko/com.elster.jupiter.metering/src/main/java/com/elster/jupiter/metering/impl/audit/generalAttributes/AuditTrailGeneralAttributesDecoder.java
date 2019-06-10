@@ -99,7 +99,6 @@ public class AuditTrailGeneralAttributesDecoder extends AbstractUsagePointAuditD
                 getAuditLogChangeForString(getThesaurus().getString(upEntry.getLifeCycle().getName(), upEntry.getLifeCycle().getName()), PropertyTranslationKeys.USAGEPOINT_LIFE_CYCLE_NAME).ifPresent(auditLogChanges::add);
                 getAuditLogChangeForOptional(Optional.of(upEntry.getCreateDate()), PropertyTranslationKeys.USAGEPOINT_CREATETIME, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
                 getAuditLogChangeForUpType(upEntry).ifPresent(auditLogChanges::add);
-                getAuditLogChangeForString(getThesaurus().getString(upEntry.getLifeCycle().getName(), upEntry.getLifeCycle().getName()), PropertyTranslationKeys.USAGEPOINT_LIFE_CYCLE_NAME).ifPresent(auditLogChanges::add);
             });
             return auditLogChanges;
         } catch (Exception e) {
