@@ -135,11 +135,6 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     }
 
     @Override
-    public void cancelFirmwareCampaign(FirmwareCampaign firmwareCampaign) {
-        firmwareCampaign.cancel();
-    }
-
-    @Override
     public void createItemsOnCampaign(ServiceCall serviceCall) {
         serviceCall.getExtension(FirmwareCampaignDomainExtension.class).ifPresent(campaign -> {
             Map<MessageSeeds, Integer> numberOfDevices = new HashMap<>();
@@ -190,7 +185,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
             ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.FIRMWARE_CAMPAIGN_ITEM);
             FirmwareCampaignItemDomainExtension firmwareCampaignItemDomainExtension = dataModel.getInstance(FirmwareCampaignItemDomainExtension.class);
             firmwareCampaignItemDomainExtension.setDevice(device);
-            firmwareCampaignItemDomainExtension.setParentServiceCallId(parent);
+            firmwareCampaignItemDomainExtension.setParent(parent);
             ServiceCall serviceCall = parent.newChildCall(serviceCallType).extendedWith(firmwareCampaignItemDomainExtension).create();
             serviceCall.requestTransition(DefaultState.PENDING);
             return MessageSeeds.DEVICE_WAS_ADDED;
@@ -288,16 +283,6 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
         return streamAllCampaigns().filter(firmwareCampaign -> firmwareCampaign.getDeviceType().equals(deviceType)).collect(Collectors.toList());
     }
 
-    @Override
-    public Optional<DeviceInFirmwareCampaign> findActiveTimeOfUseItemByDevice(Device device) {
-        List<String> states = new ArrayList<>();
-        states.add(DefaultState.ONGOING.getKey());
-        states.add(DefaultState.PENDING.getKey());
-        return streamDevicesInCampaigns().join(ServiceCall.class).join(ServiceCall.class).join(State.class)
-                .filter(Where.where("device").isEqualTo(device))
-                .filter(Where.where("serviceCall.parent.state.name").in(states)).findAny().map(DeviceInFirmwareCampaign.class::cast);
-    }
-
     public DataModel getDataModel() {
         return dataModel;
     }
@@ -306,14 +291,6 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
         return device.getComTaskExecutions().stream()
                 .filter(comTaskExecution1 -> comTaskExecution1.getComTask().equals(comTaskEnablement.getComTask()))
                 .findAny().orElse(null);
-    }
-
-    void revokeCommands(Device device) {
-        device.getMessages().stream()
-                .filter(deviceMessage -> (deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING)
-                        || deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING)))
-                .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 9)
-                .forEach(DeviceMessage::revoke);
     }
 
     private <T extends ServiceCallHandler> void registerServiceCallHandler(BundleContext bundleContext,

@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -19,6 +20,8 @@ import com.google.inject.Module;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static com.elster.jupiter.orm.Version.version;
 
 public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<ServiceCall, FirmwareCampaignDomainExtension> {
 
@@ -115,10 +118,21 @@ public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<Se
                 .conversion(ColumnConversion.NUMBER2INSTANT)
                 .map(FirmwareCampaignDomainExtension.FieldNames.ACTIVATION_DATE.javaName())
                 .add();
-        table.column(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.databaseName())
+        table.column("VALIDATION_TIMEOUT_VALUE")
                 .number()
-                .conversion(ColumnConversion.NUMBER2LONG)
-                .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName())
+                .conversion(ColumnConversion.NUMBER2INT)
+                .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName() + ".count")
+                .notNull()
+                .since(version(10, 4, 1))
+                .installValue("1")
+                .add();
+        table.column("VALIDATION_TIMEOUT_UNIT")
+                .number()
+                .conversion(ColumnConversion.NUMBER2INT)
+                .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName() + ".timeUnitCode")
+                .notNull()
+                .since(version(10, 4, 1))
+                .installValue(Integer.toString(TimeDuration.TimeUnit.HOURS.getCode()))
                 .add();
         table.foreignKey(FK_NAME + "_DT")
                 .on(deviceType)

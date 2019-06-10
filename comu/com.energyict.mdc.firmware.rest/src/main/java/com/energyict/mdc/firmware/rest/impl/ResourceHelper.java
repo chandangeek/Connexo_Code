@@ -170,10 +170,9 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
     }
 
-    public Optional<DeviceInFirmwareCampaignInfo> cancelDeviceInFirmwareCampaign(Device device) {
+    public Optional<DeviceInFirmwareCampaignInfo> cancelDeviceInFirmwareCampaign(Device device, long campaignId) {
         Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
-        if (deviceInFirmwareCampaign.isPresent()) {
-            firmwareService.cancelFirmwareUploadForDevice(device);
+        if (deviceInFirmwareCampaign.isPresent() && deviceInFirmwareCampaign.get().getParent().getId() == campaignId) {
             deviceInFirmwareCampaign.get().cancel();
             return Optional.of(deviceInFirmwareCampaignInfoFactory.create(deviceInFirmwareCampaign.get().getDevice(), deviceInFirmwareCampaign.get().getServiceCall()));
         } else {
@@ -181,10 +180,9 @@ public class ResourceHelper {
         }
     }
 
-    public Optional<DeviceInFirmwareCampaignInfo> retryDeviceInFirmwareCampaign(Device device) {
+    public Optional<DeviceInFirmwareCampaignInfo> retryDeviceInFirmwareCampaign(Device device, long campaignId) {
         Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
-        if (deviceInFirmwareCampaign.isPresent()) {
-            firmwareCampaignService.retryFirmwareUploadForDevice(deviceInFirmwareCampaign.get());
+        if (deviceInFirmwareCampaign.isPresent() && deviceInFirmwareCampaign.get().getParent().getId() == campaignId) {
             deviceInFirmwareCampaign.get().retry();
             return Optional.of(deviceInFirmwareCampaignInfoFactory.create(deviceInFirmwareCampaign.get().getDevice(), deviceInFirmwareCampaign.get().getServiceCall()));
         } else {

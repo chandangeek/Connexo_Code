@@ -73,9 +73,9 @@ public class FirmwareCampaignResource {
                 .sorted(Order.descending("serviceCall.createTime"));
         queryParameters.getStart().ifPresent(campaigns::skip);
         queryParameters.getLimit().ifPresent(limit -> campaigns.limit(limit + 1));
-        List<FirmwareCampaignInfo> touCampaigns = campaigns
+        List<FirmwareCampaignInfo> firmwareCampaigns = campaigns
                 .map(campaignInfoFactory::getOverviewCampaignInfo).collect(Collectors.toList());
-        return Response.ok(PagedInfoList.fromPagedList("touCampaigns", touCampaigns, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("firmwareCampaigns", firmwareCampaigns, queryParameters)).build();
     }
 
     @GET

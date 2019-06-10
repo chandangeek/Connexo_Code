@@ -5,6 +5,7 @@
 package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -20,7 +21,7 @@ public interface FirmwareCampaignBuilder {
 
     FirmwareCampaignBuilder withDeviceType(DeviceType deviceType);
 
-    FirmwareCampaignBuilder withValidationTimeout(long validationTimeout);
+    FirmwareCampaignBuilder withValidationTimeout(TimeDuration validationTimeout);
 
     FirmwareCampaignBuilder withFirmwareType(FirmwareType firmwareType);
 

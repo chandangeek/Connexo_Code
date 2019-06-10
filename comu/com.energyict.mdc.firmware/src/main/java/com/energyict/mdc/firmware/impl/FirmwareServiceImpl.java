@@ -49,6 +49,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
@@ -557,6 +558,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         if (fwComTaskExecution.getNextExecutionTimestamp() != null) {
             fwComTaskExecution.schedule(null);
             cancelPendingFirmwareMessages(fwComTaskExecution.getDevice());
+            getFirmwareCampaignService().findActiveFirmwareItemByDevice(fwComTaskExecution.getDevice())
+                    .ifPresent(DeviceInFirmwareCampaign::cancel);
             return true;
         } else {
             return false;

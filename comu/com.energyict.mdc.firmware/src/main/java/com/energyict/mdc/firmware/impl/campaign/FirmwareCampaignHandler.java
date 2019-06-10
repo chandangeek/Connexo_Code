@@ -130,13 +130,12 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 FirmwareCampaign firmwareCampaign = firmwareCampaignOptional.get();
                 Device device = comTaskExecution.getDevice();
                 ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_COMPLETED).format());
                 if (!firmwareCampaignService.isWithVerification(firmwareCampaign)) {
                     serviceCallService.lockServiceCall(serviceCall.getId());
                     serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-                    serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_COMPLETED).format());
-                    firmwareCampaignService.revokeCommands(device); //in case calendar has already been uploaded out of campaign scope
                 } else {
-                    scheduleVerification(device, firmwareCampaign.getValidationTimeout());
+                    scheduleVerification(device, firmwareCampaign.getValidationTimeout().getSeconds());
                     serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.VERIFICATION_SCHEDULED).format());
                 }
             }
@@ -152,8 +151,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                             .map(DeviceMessage::getStatus)
                             .filter(deviceMessageStatus -> deviceMessageStatus.equals(DeviceMessageStatus.CONFIRMED))
                             .isPresent()) {
-                        if (firmwareCampaignService.getFirmwareService().getActiveFirmwareVersion(comTaskExecution.getDevice(), firmwareCampaign.getFirmwareType())
-                                .get().getFirmwareVersion().getFirmwareVersion().equals(firmwareCampaign.getFirmwareVersion().getFirmwareVersion())) {
+                        if (serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().deviceAlreadyHasTheSameVersion()) {
                             serviceCallService.lockServiceCall(serviceCall.getId());
                             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                             serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.VERIFICATION_COMPLETED).format());

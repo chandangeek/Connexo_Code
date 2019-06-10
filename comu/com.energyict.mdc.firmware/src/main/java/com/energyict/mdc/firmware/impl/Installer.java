@@ -53,11 +53,6 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-//        doTry(
-//                "Create events subscriber",
-//                this::createJupiterEventsSubscriber,
-//                logger
-//        );
         doTry(
                 "Create event types for FRM",
                 this::createEventTypesIfNotExist,
@@ -85,17 +80,6 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                         Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN)));
         return resources;
     }
-
-//    private void createJupiterEventsSubscriber() {
-//        Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
-//        if (destinationSpec.isPresent()) {
-//            DestinationSpec jupiterEvents = destinationSpec.get();
-//            if (jupiterEvents.getSubscribers().stream().noneMatch(s -> s.getName().equals(FirmwareCampaignHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER))) {
-//                Condition or = Condition.FALSE;
-//                jupiterEvents.subscribe(TranslationKeys.FIRMWARE_CAMPAIGNS_SUBSCRIBER, FirmwareService.COMPONENTNAME, Layer.DOMAIN, or);
-//            }
-//        }
-//    }
 
     private void createEventTypesIfNotExist() {
         for (EventType eventType : EventType.values()) {

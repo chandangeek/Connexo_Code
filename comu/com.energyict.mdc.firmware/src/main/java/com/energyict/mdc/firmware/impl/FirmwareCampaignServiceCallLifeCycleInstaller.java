@@ -105,6 +105,7 @@ public class FirmwareCampaignServiceCallLifeCycleInstaller {
                         .addTransition(DefaultState.FAILED, DefaultState.PENDING)
                         .addTransition(DefaultState.CANCELLED, DefaultState.PENDING)
                         .addTransition(DefaultState.PENDING, DefaultState.REJECTED)
+                        .addTransition(DefaultState.PENDING, DefaultState.SUCCESSFUL)
                         .create();
         }
     }

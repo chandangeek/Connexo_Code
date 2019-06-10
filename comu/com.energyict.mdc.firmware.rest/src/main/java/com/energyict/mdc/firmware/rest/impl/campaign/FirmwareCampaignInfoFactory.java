@@ -11,6 +11,8 @@ import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -91,7 +93,7 @@ public class FirmwareCampaignInfoFactory {
         info.timeBoundaryEnd = campaign.getUploadPeriodEnd();
         info.firmwareType = new FirmwareTypeInfo(campaign.getFirmwareType(), thesaurus);
         info.activationDate = campaign.getActivationDate();
-        info.validationTimeout = campaign.getValidationTimeout();
+        info.validationTimeout = new TimeDurationInfo(campaign.getValidationTimeout());
         String managementOptionId = campaign.getFirmwareManagementOption().getId();
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         info.version = campaign.getVersion();
@@ -140,9 +142,8 @@ public class FirmwareCampaignInfoFactory {
                 .withFirmwareType(firmwareService.getFirmwareVersionById(firmwareVersionId).get().getFirmwareType())
                 .withManagementOption(managementOptions)
                 .withActivationDate(info.activationDate)
-                .withValidationTimeout(info.validationTimeout)
+                .withValidationTimeout(info.validationTimeout.asTimeDuration())
                 .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint());
-        // FirmwareCampaign campaign = firmwareCampaignBuilder.create();
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(deviceType, info.managementOption.id, firmwareVersion);
         String imageIdentifier = firmwareVersion.getImageIdentifier();
         if (deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(firmwareMessageId) && imageIdentifier != null) {

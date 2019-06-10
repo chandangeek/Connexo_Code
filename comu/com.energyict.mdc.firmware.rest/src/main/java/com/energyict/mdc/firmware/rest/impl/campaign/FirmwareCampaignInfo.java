@@ -5,6 +5,7 @@
 package com.energyict.mdc.firmware.rest.impl.campaign;
 
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareTypeInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfo;
 import com.energyict.mdc.firmware.rest.impl.IdWithLocalizedValue;
@@ -34,7 +35,7 @@ public class FirmwareCampaignInfo {
     public List<PropertyInfo> properties;
     public List<DevicesStatusAndQuantity> devices;
     public long version;
-    public long validationTimeout;
+    public TimeDurationInfo validationTimeout;
 
     public Optional<PropertyInfo> getPropertyInfo(String key) {
         return this.properties.stream().filter(y -> y.key.equals(key)).findFirst();

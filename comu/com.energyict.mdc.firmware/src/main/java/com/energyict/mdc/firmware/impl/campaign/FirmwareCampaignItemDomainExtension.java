@@ -10,13 +10,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -32,12 +30,9 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
@@ -142,7 +137,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         return parent.get();
     }
 
-    public void setParentServiceCallId(ServiceCall parent) {
+    public void setParent(ServiceCall parent) {
         this.parent.set(parent);
     }
 
@@ -159,7 +154,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(domainInstance);
         this.setDevice((Device) propertyValues.getProperty(FieldNames.DEVICE.javaName()));
-        this.setParentServiceCallId((ServiceCall) propertyValues.getProperty(FieldNames.PARENT.javaName()));
+        this.setParent((ServiceCall) propertyValues.getProperty(FieldNames.PARENT.javaName()));
         this.setDeviceMessage((DeviceMessage) propertyValues.getProperty(FieldNames.DEVICE_MESSAGE.javaName()));
     }
 
@@ -197,27 +192,22 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
             if (deviceAlreadyHasTheSameVersion()) {
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
-                DeviceMessage deviceMess = getDevice().getMessages().stream()
-                        .filter(deviceMessage1 -> deviceMessage1.getSpecification().getCategory().getId()==9)
-                        .filter(deviceMessage1 -> deviceMessage1.getStatus().equals(DeviceMessageStatus.PENDING))
-                        .findFirst().orElse(null);
-             //   FirmwareCampaign firmwareCampaign = getFirmwareCampaign();
-               // prepareCommunicationTask(getDevice(), firmwareCampaign.getProperties(), firmwareCampaign.getFirmwareMessageSpec().get());
-              //  firmwareService.cancelFirmwareUploadForDevice(getDevice());
+                try {
+                    prepareCommunicationTask(getDevice());
+                } catch (FirmwareCheck.FirmwareCheckException e) {
+                    serviceCall.log(LogLevel.WARNING, e.getLocalizedMessage());
+                    serviceCall.requestTransition(DefaultState.REJECTED);
+                }
+                firmwareService.cancelFirmwareUploadForDevice(getDevice());
                 createFirmwareMessage(firmwareMessageId.get(), retry);
                 scheduleFirmwareTask();
             }
         }
     }
 
-    private void prepareCommunicationTask(Device device, Map<String, Object> convertedProperties, DeviceMessageSpec firmwareMessageSpec) {
-        FirmwareManagementDeviceUtils helper = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
-        Optional<ComTaskExecution> fuComTaskExecutionRef = helper.getFirmwareComTaskExecution();
-        if (!fuComTaskExecutionRef.isPresent()) {
-            createFirmwareComTaskExecution(device);
-        } else {
-            cancelOldFirmwareUpdates(helper, convertedProperties, firmwareMessageSpec);
-        }
+    private void prepareCommunicationTask(Device device) {
+        firmwareService.getFirmwareManagementDeviceUtilsFor(device)
+                .getFirmwareComTaskExecution().orElse(createFirmwareComTaskExecution(device));
     }
 
     private ComTaskExecution createFirmwareComTaskExecution(Device device) {
@@ -229,19 +219,6 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         ComTaskExecution firmwareComTaskExecution = device.newFirmwareComTaskExecution(comTaskEnablement).add();
         device.save();
         return firmwareComTaskExecution;
-    }
-
-    private void cancelOldFirmwareUpdates(FirmwareManagementDeviceUtils helper, Map<String, Object> convertedProperties, DeviceMessageSpec firmwareMessageSpec) {
-        Optional<PropertySpec> firmwareVersionPropertySpec = firmwareMessageSpec.getPropertySpecs()
-                .stream()
-                .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class))
-                .findAny();
-        if (firmwareVersionPropertySpec.isPresent()) {
-            FirmwareVersion requestedFirmwareVersion = (FirmwareVersion) convertedProperties.get(firmwareVersionPropertySpec.get().getName());
-            if (requestedFirmwareVersion != null) {
-                helper.cancelPendingFirmwareUpdates(requestedFirmwareVersion.getFirmwareType());
-            }
-        }
     }
 
     private FirmwareCampaignDomainExtension getFirmwareCampaign() {
@@ -298,7 +275,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         return true;
     }
 
-    private boolean deviceAlreadyHasTheSameVersion() {
+    boolean deviceAlreadyHasTheSameVersion() {
         FirmwareVersion targetFirmwareVersion = getFirmwareCampaign().getFirmwareVersion();
         Optional<ActivatedFirmwareVersion> activeVersion = firmwareService.getActiveFirmwareVersion(getDevice(), getFirmwareCampaign().getFirmwareType());
         return activeVersion.isPresent()
@@ -330,7 +307,6 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
             firmwareComTaskExec.schedule(appliedStartDate);
         }
     }
-
 
     private ComTaskExecution getFirmwareComTaskExec() {
         ComTask firmwareComTask = taskService.findFirmwareComTask().get();

@@ -23,7 +23,8 @@ public class DeviceInFirmwareCampaignInfoFactory {
     }
 
     public DeviceInFirmwareCampaignInfo create(Device device, ServiceCall serviceCall) {
-        return new DeviceInFirmwareCampaignInfo(new IdWithNameInfo(device.getId(), device.getName()),
+        return new DeviceInFirmwareCampaignInfo(serviceCall.getId(),
+                new IdWithNameInfo( device.getId(), device.getName()),
                 getDeviceStatus(serviceCall.getState(), thesaurus),
                 serviceCall.getCreationTime(),
                 (serviceCall.getState().equals(DefaultState.CANCELLED)

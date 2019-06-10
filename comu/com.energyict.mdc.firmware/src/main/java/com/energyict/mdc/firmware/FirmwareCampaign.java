@@ -7,6 +7,7 @@ package com.energyict.mdc.firmware;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
@@ -52,7 +53,7 @@ public interface FirmwareCampaign extends HasId, HasName {
 
     Instant getActivationDate();
 
-    long getValidationTimeout();
+    TimeDuration getValidationTimeout();
 
     ServiceCall getServiceCall();
 

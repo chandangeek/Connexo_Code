@@ -22,7 +22,7 @@ public enum TranslationKeys implements TranslationKey {
     UPDATE_END("updateEnd", "Time boundary end"),
     ACTIVATION_OPTION("activationOption", "Activation option"),
     ACTIVATION_DATE("activationDate", "Activation date"),
-    VALIDATION_TIMEOUT("validationTimeout", "Timeout before validation(sec)"),
+    VALIDATION_TIMEOUT("validationTimeout", "Timeout before validation"),
     DEVICE("device", "Device"),
     ON_DATE("onDate", "On date"),
     WITHOUT_ACTIVATION("withoutActivation", "Without activation"),

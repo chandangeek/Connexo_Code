@@ -34,7 +34,12 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
 
         switch (newState) {
             case PENDING:
-                serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().startFirmwareProcess();
+                if (oldState.equals(DefaultState.CREATED)) {
+                    serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().startFirmwareProcess();
+                }
+                else {
+                    serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().retryFirmwareProcess();
+                }
                 break;
             case ONGOING:
                 break;

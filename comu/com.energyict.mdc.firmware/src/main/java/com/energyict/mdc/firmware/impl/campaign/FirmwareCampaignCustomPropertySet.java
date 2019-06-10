@@ -103,16 +103,6 @@ public class FirmwareCampaignCustomPropertySet implements CustomPropertySet<Serv
                         .named(FirmwareCampaignDomainExtension.FieldNames.DEVICE_GROUP.javaName(), TranslationKeys.DEVICE_GROUP)
                         .fromThesaurus(thesaurus)
                         .finish(),
-//                propertySpecService
-//                        .longSpec()
-//                        .named(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_TYPE.javaName(), TranslationKeys.DEVICE_GROUP)
-//                        .fromThesaurus(thesaurus)
-//                        .finish(),
-//                propertySpecService
-//                        .longSpec()
-//                        .named(FirmwareCampaignDomainExtension.FieldNames.MANAGEMENT_OPTION.javaName(), TranslationKeys.MANAGEMENT_OPTION)
-//                        .fromThesaurus(thesaurus)
-//                        .finish(),
                 propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(FirmwareCampaignDomainExtension.FieldNames.UPLOAD_PERIOD_START.javaName(), TranslationKeys.UPDATE_START)
@@ -129,7 +119,7 @@ public class FirmwareCampaignCustomPropertySet implements CustomPropertySet<Serv
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
-                        .longSpec()
+                        .timeDurationSpec()
                         .named(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName(), TranslationKeys.VALIDATION_TIMEOUT)
                         .fromThesaurus(thesaurus)
                         .finish()

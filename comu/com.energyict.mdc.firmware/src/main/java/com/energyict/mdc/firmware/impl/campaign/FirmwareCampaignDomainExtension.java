@@ -20,9 +20,9 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
@@ -114,7 +114,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Instant uploadPeriodEnd;
     private Instant activationDate;
-    private long validationTimeout;
+    private TimeDuration validationTimeout;
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
 
 
@@ -241,11 +241,11 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public long getValidationTimeout() {
+    public TimeDuration getValidationTimeout() {
         return validationTimeout;
     }
 
-    public void setValidationTimeout(long validationTimeout) {
+    public void setValidationTimeout(TimeDuration validationTimeout) {
         this.validationTimeout = validationTimeout;
     }
 
@@ -333,7 +333,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         this.setUploadPeriodStart((Instant) propertyValues.getProperty(FieldNames.UPLOAD_PERIOD_START.javaName()));
         this.setUploadPeriodEnd((Instant) propertyValues.getProperty(FieldNames.UPLOAD_PERIOD_END.javaName()));
         this.setActivationDate((Instant) propertyValues.getProperty(FieldNames.ACTIVATION_DATE.javaName()));
-        this.setValidationTimeout((long) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
+        this.setValidationTimeout((TimeDuration) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
         this.setFirmwareType((FirmwareType) propertyValues.getProperty(FieldNames.FIRMWARE_TYPE.javaName()));
         this.setManagementOption((ProtocolSupportedFirmwareOptions) propertyValues.getProperty(FieldNames.MANAGEMENT_OPTION.javaName()));
     }
@@ -370,7 +370,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
 
     @Override
     public ComWindow getComWindow() {
-        return new ComWindow((((Number)(this.getUploadPeriodStart().getEpochSecond()%86400)).intValue()),
-                (((Number) (this.getUploadPeriodEnd().getEpochSecond()%86400)).intValue()));
+        return new ComWindow((((Number) (this.getUploadPeriodStart().getEpochSecond() % 86400)).intValue()),
+                (((Number) (this.getUploadPeriodEnd().getEpochSecond() % 86400)).intValue()));
     }
 }

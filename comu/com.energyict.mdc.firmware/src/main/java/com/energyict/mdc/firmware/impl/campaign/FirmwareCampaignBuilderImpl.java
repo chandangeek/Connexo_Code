@@ -8,6 +8,7 @@ package com.energyict.mdc.firmware.impl.campaign;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignBuilder;
@@ -27,7 +28,7 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     public Instant uploadStart;
     public Instant uploadEnd;
     public Instant activationDate;
-    public Long validationTimeout;
+    public TimeDuration validationTimeout;
     public ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions;
     public FirmwareType firmwareType;
     public Map<PropertySpec, Object> properties;
@@ -61,7 +62,7 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     }
 
     @Override
-    public FirmwareCampaignBuilder withValidationTimeout(long validationTimeout) {
+    public FirmwareCampaignBuilder withValidationTimeout(TimeDuration validationTimeout) {
         this.validationTimeout = validationTimeout;
         return this;
     }

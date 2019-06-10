@@ -37,8 +37,6 @@ public interface FirmwareCampaignService {
 
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter);
 
-    void cancelFirmwareCampaign(FirmwareCampaign firmwareCampaign);
-
     void createItemsOnCampaign(ServiceCall serviceCall);
 
     void cancelFirmwareUpload(ServiceCall serviceCall);
@@ -60,8 +58,6 @@ public interface FirmwareCampaignService {
     QueryStream<? extends FirmwareCampaign> streamAllCampaigns();
 
     List<FirmwareCampaign> findFirmwareCampaigns(DeviceType deviceType);
-
-    Optional<DeviceInFirmwareCampaign> findActiveTimeOfUseItemByDevice(Device device);
 
     Optional<DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
                                                        FirmwareVersion firmwareVersion);
