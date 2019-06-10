@@ -36,6 +36,7 @@ import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.servicecall.security.Privileges;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
@@ -243,7 +244,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 7), V10_7SimpleUpgrader.class
                 ));
     }
 
@@ -274,8 +276,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
-        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, dataModel, thesaurus);
+    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication) {
+        return new ServiceCallTypeBuilderImpl(this, name, versionName, reservedByApplication, (IServiceCallLifeCycle) serviceCallLifeCycle, dataModel, thesaurus);
     }
 
     @Override

@@ -32,6 +32,7 @@ import java.util.Optional;
 public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "MeterConfigMasterServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MultiSense";
 
     private volatile DeviceService deviceService;
     private volatile EndPointConfigurationService endPointConfigurationService;

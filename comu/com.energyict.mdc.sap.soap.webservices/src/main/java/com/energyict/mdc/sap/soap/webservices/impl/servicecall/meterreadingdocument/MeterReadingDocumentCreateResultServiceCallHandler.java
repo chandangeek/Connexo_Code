@@ -24,6 +24,7 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
 
     public static final String NAME = "MeterReadingDocumentCreateResultServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MultiSense";
 
     private volatile Clock clock;
     private volatile MeteringService meteringService;

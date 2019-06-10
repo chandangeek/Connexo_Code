@@ -111,7 +111,7 @@ public class InstallerV10_2Impl implements FullInstaller, PrivilegesProvider {
 
 
         serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)
-                .orElseGet(() -> serviceCallService.createServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)
+                .orElseGet(() -> serviceCallService.createServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION, OnDemandReadServiceCallHandler.APPLICATION)
                         .handler(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
                         .customPropertySet(customPropertySet)
                         .customPropertySet(completionOptionsCustomPropertySet)
@@ -126,7 +126,7 @@ public class InstallerV10_2Impl implements FullInstaller, PrivilegesProvider {
             RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(new CompletionOptionsCustomPropertySet().getId())
                     .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find active custom property set {0}", CommandCustomPropertySet.class.getSimpleName())));
 
-            serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion())
+            serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion(), serviceCallTypeMapping.getApplication().orElse(null))
                     .handler(serviceCallTypeMapping.getTypeName())
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(commandCustomPropertySet)

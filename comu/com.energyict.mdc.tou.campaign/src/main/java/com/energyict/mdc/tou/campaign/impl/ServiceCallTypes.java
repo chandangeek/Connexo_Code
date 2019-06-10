@@ -11,16 +11,20 @@ import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemDomainExtens
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemPropertySet;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemServiceCallHandler;
 
+import java.util.Optional;
+
 public enum ServiceCallTypes {
 
     TIME_OF_USE_CAMPAIGN(
             TimeOfUseCampaignServiceCallHandler.NAME,
             TimeOfUseCampaignServiceCallHandler.VERSION,
+            TimeOfUseCampaignServiceCallHandler.APPLICATION,
             TimeOfUseCampaignCustomPropertySet.class.getSimpleName(),
             TimeOfUseCampaignDomainExtension.class.getName()),
     TIME_OF_USE_CAMPAIGN_ITEM(
             TimeOfUseItemServiceCallHandler.NAME,
             TimeOfUseItemServiceCallHandler.VERSION,
+            TimeOfUseItemServiceCallHandler.APPLICATION,
             TimeOfUseItemPropertySet.class.getSimpleName(),
             TimeOfUseItemDomainExtension.class.getName()),
     ;
@@ -29,10 +33,13 @@ public enum ServiceCallTypes {
     private final String typeVersion;
     private final String customPropertySetClass;
     private final String persistenceSupportClass;
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private final Optional<String> reservedByApplication;
 
-    ServiceCallTypes(String typeName, String typeVersion, String customPropertySetClass, String persistenceSupportClass) {
+    ServiceCallTypes(String typeName, String typeVersion, String reservedByApplication, String customPropertySetClass, String persistenceSupportClass) {
         this.typeName = typeName;
         this.typeVersion = typeVersion;
+        this.reservedByApplication = Optional.ofNullable(reservedByApplication);
         this.customPropertySetClass = customPropertySetClass;
         this.persistenceSupportClass = persistenceSupportClass;
     }
@@ -43,6 +50,10 @@ public enum ServiceCallTypes {
 
     public String getTypeVersion() {
         return typeVersion;
+    }
+
+    public Optional<String> getApplication() {
+        return reservedByApplication;
     }
 
     public String getCustomPropertySetClass() {

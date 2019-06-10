@@ -49,10 +49,15 @@ public class ServiceCallCommands {
         public String getTypeVersion() {
             return typeVersion;
         }
+
+        public String getApplication() {
+            return RESERVED_BY_APPLICATION;
+        }
     }
 
     private final Thesaurus thesaurus;
     private final ServiceCallService serviceCallService;
+    private static final String RESERVED_BY_APPLICATION = "MultiSense";
 
     private ServiceCallType serviceCallType;
 

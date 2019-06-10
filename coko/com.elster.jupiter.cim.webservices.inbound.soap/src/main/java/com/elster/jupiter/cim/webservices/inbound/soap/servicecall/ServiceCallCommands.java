@@ -70,31 +70,38 @@ public class ServiceCallCommands {
         MASTER_DATA_LINKAGE_CONFIG(
                 MasterDataLinkageConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
                 MasterDataLinkageConfigMasterServiceCallHandler.VERSION,
+                MasterDataLinkageConfigMasterServiceCallHandler.APPLICATION,
                 MasterDataLinkageConfigMasterCustomPropertySet.class.getName()),
         DATA_LINKAGE_CONFIG(
                 MasterDataLinkageConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
                 MasterDataLinkageConfigServiceCallHandler.VERSION,
+                MasterDataLinkageConfigServiceCallHandler.APPLICATION,
                 MasterDataLinkageConfigCustomPropertySet.class.getName()),
         PARENT_GET_METER_READINGS(
                 ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
                 ParentGetMeterReadingsServiceCallHandler.VERSION,
+                ParentGetMeterReadingsServiceCallHandler.APPLICATION,
                 ParentGetMeterReadingsCustomPropertySet.class.getName()),
         MASTER_USAGE_POINT_CONFIG(
                 UsagePointConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
                 UsagePointConfigMasterServiceCallHandler.VERSION,
+                UsagePointConfigMasterServiceCallHandler.APPLICATION,
                 UsagePointConfigMasterCustomPropertySet.class.getName()),
         USAGE_POINT_CONFIG(
                 UsagePointConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
                 UsagePointConfigServiceCallHandler.VERSION,
+                UsagePointConfigServiceCallHandler.APPLICATION,
                 UsagePointConfigCustomPropertySet.class.getName());
 
         private final String typeName;
         private final String typeVersion;
+        private final Optional<String> reservedByApplication;
         private final String customPropertySetClass;
 
-        ServiceCallTypes(String typeName, String typeVersion, String customPropertySetClass) {
+        ServiceCallTypes(String typeName, String typeVersion, String reservedByApplication, String customPropertySetClass) {
             this.typeName = typeName;
             this.typeVersion = typeVersion;
+            this.reservedByApplication = Optional.of(reservedByApplication);
             this.customPropertySetClass = customPropertySetClass;
         }
 
@@ -104,6 +111,10 @@ public class ServiceCallCommands {
 
         public String getTypeVersion() {
             return typeVersion;
+        }
+
+        public Optional<String> getApplication() {
+            return reservedByApplication;
         }
 
         public String getCustomPropertySetClass() {

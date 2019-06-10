@@ -6,23 +6,13 @@ package com.elster.jupiter.kore.api.impl.servicecall;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Base64;
 
 @Component(name = "com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHandler",
         service = ServiceCallHandler.class,
@@ -32,6 +22,7 @@ public class UsagePointCommandHandler implements ServiceCallHandler {
 
     public static final String USAGE_POINT_COMMAND_HANDLER_NAME = "UsagePointCommandHandler";
     public static final String USAGE_POINT_COMMAND_HANDLER_VERSION = "v1.0";
+    public static final String APPLICATION = null;
 
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MeteringService meteringService;

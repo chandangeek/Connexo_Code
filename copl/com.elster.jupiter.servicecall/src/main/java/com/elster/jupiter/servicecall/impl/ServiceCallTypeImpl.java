@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -48,6 +49,8 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
+    private String appKey;
+    private Optional<String> reservedByApplication = Optional.empty();
     @SuppressWarnings("unused")
     private Instant createTime;
     @SuppressWarnings("unused")
@@ -56,7 +59,6 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private String userName;
     @SuppressWarnings("unused")
     private long version;
-
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
@@ -79,7 +81,8 @@ public class ServiceCallTypeImpl implements IServiceCallType {
         version("version"),
         currentLifeCycleState("currentLifeCycleState"),
         customPropertySets("customPropertySets"),
-        handler("serviceCallHandler");
+        handler("serviceCallHandler"),
+        appKey("appKey");
 
         private final String javaFieldName;
 
@@ -170,6 +173,15 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     void setServiceCallLifeCycle(IServiceCallLifeCycle serviceCallLifeCycle) {
         this.serviceCallLifeCycle.set(serviceCallLifeCycle);
+    }
+
+    public void setAppKey(String appKey) {
+        this.appKey = appKey;
+    }
+
+    @Override
+    public Optional<String> reservedByApplication() {
+        return reservedByApplication;
     }
 
     @Override

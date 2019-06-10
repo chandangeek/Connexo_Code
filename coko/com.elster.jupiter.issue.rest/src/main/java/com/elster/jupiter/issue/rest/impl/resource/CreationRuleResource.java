@@ -268,7 +268,7 @@ public class CreationRuleResource extends BaseResource {
     }
 
     private void setActions(CreationRuleInfo rule, CreationRuleBuilder builder) {
-        rule.actions.stream().forEach((info) -> setAction(info, builder.newCreationRuleAction(), null));
+        rule.actions.forEach((info) -> setAction(info, builder.newCreationRuleAction(), null));
     }
 
     private void setAction(CreationRuleActionInfo actionInfo, CreationRuleActionBuilder actionBuilder, String reasonName) {

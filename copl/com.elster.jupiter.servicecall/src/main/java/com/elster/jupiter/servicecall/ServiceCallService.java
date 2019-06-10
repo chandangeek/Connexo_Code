@@ -48,17 +48,22 @@ public interface ServiceCallService {
     /**
      * Creates a new service call type, using provided name, version and life cycle. This method start a builder.
      * @param name
+     * @param versionName
+     * @param serviceCallLifeCycle
+     * @param reservedByApplication "MultiSense" or "Insight". NULL for both.
      * @return
      */
-    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle);
+    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication);
 
     /**
      * Creates a new service call type, using provided name and version. The default life cycle is used. This method start a builder.
      * @param name
+     * @param versionName
+     * @param reservedByApplication "MultiSense" or "Insight". NULL for both.
      * @return
      */
-    default public ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
-        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get());
+    default public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, String reservedByApplication) {
+        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get(), reservedByApplication);
     }
 
     /**

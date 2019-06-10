@@ -30,6 +30,7 @@ import java.util.Optional;
  */
 public class MasterDataLinkageConfigServiceCallHandler extends AbstractServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "MasterDataLinkageConfigServiceCallHandler";
+    public static final String APPLICATION = "MultiSense";
     public static final String VERSION = "v1.0";
 
     private final Provider<MasterDataLinkageHandler> masterDataLinkageHandlerProvider;

@@ -19,43 +19,53 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocum
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultServiceCallHandler;
 
+import java.util.Optional;
+
 public enum ServiceCallTypes {
 
     CONNECTION_STATUS_CHANGE(
             ConnectionStatusChangeServiceCallHandler.NAME,
             ConnectionStatusChangeServiceCallHandler.VERSION,
+            ConnectionStatusChangeServiceCallHandler.APPLICATION,
             ConnectionStatusChangeCustomPropertySet.class.getSimpleName(),
             ConnectionStatusChangeDomainExtension.class.getName()),
     MASTER_METER_READING_DOCUMENT_CREATE_REQUEST(
             MasterMeterReadingDocumentCreateRequestServiceCallHandler.NAME,
             MasterMeterReadingDocumentCreateRequestServiceCallHandler.VERSION,
+            MasterMeterReadingDocumentCreateRequestServiceCallHandler.APPLICATION,
             MasterMeterReadingDocumentCreateRequestCustomPropertySet.class.getSimpleName(),
             MasterMeterReadingDocumentCreateRequestDomainExtension.class.getName()),
     METER_READING_DOCUMENT_CREATE_REQUEST(
             MeterReadingDocumentCreateRequestServiceCallHandler.NAME,
             MeterReadingDocumentCreateRequestServiceCallHandler.VERSION,
+            MeterReadingDocumentCreateRequestServiceCallHandler.APPLICATION,
             MeterReadingDocumentCreateRequestCustomPropertySet.class.getSimpleName(),
             MeterReadingDocumentCreateRequestDomainExtension.class.getName()),
     MASTER_METER_READING_DOCUMENT_CREATE_RESULT(
             MasterMeterReadingDocumentCreateResultServiceCallHandler.NAME,
             MasterMeterReadingDocumentCreateResultServiceCallHandler.VERSION,
+            MasterMeterReadingDocumentCreateResultServiceCallHandler.APPLICATION,
             MasterMeterReadingDocumentCreateResultCustomPropertySet.class.getSimpleName(),
             MasterMeterReadingDocumentCreateResultDomainExtension.class.getName()),
     METER_READING_DOCUMENT_CREATE_RESULT(
             MeterReadingDocumentCreateResultServiceCallHandler.NAME,
             MeterReadingDocumentCreateResultServiceCallHandler.VERSION,
+            MeterReadingDocumentCreateResultServiceCallHandler.APPLICATION,
             MeterReadingDocumentCreateResultCustomPropertySet.class.getSimpleName(),
             MeterReadingDocumentCreateResultDomainExtension.class.getName())
     ;
 
     private final String typeName;
     private final String typeVersion;
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private final Optional<String> reservedByApplication;
     private final String customPropertySetClass;
     private final String persistenceSupportClass;
 
-    ServiceCallTypes(String typeName, String typeVersion, String customPropertySetClass, String persistenceSupportClass) {
+    ServiceCallTypes(String typeName, String typeVersion, String application, String customPropertySetClass, String persistenceSupportClass) {
         this.typeName = typeName;
         this.typeVersion = typeVersion;
+        this.reservedByApplication = Optional.ofNullable(application);
         this.customPropertySetClass = customPropertySetClass;
         this.persistenceSupportClass = persistenceSupportClass;
     }
@@ -66,6 +76,10 @@ public enum ServiceCallTypes {
 
     public String getTypeVersion() {
         return typeVersion;
+    }
+
+    public Optional<String> getApplication() {
+        return reservedByApplication;
     }
 
     public String getCustomPropertySetClass() {

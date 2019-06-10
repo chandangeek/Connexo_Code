@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLog;
@@ -87,6 +88,11 @@ public enum TableSpecs {
                     .number()
                     .conversion(ColumnConversion.NUMBER2ENUM)
                     .map(ServiceCallTypeImpl.Fields.currentLifeCycleState.fieldName())
+                    .add();
+            table.column("APPKEY")
+                    .since(Version.version(10, 7))
+                    .varChar(NAME_LENGTH)
+                    .map(ServiceCallTypeImpl.Fields.appKey.fieldName())
                     .add();
             Column serviceCallLifeCycle = table.column("LIFECYCLE").number().notNull().add();
             table.addAuditColumns();

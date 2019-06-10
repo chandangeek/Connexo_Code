@@ -33,6 +33,7 @@ import java.util.Set;
 public class GetEndDeviceEventsServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "GetEndDeviceEventsServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MultiSense";
 
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile MeteringService meteringService;

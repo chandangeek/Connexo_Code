@@ -11,6 +11,7 @@ import com.elster.jupiter.util.HasName;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Optional;
 
 @ProviderType
 public interface ServiceCallType extends HasId, HasName {
@@ -29,6 +30,8 @@ public interface ServiceCallType extends HasId, HasName {
     void setLogLevel(LogLevel logLevel);
 
     ServiceCallLifeCycle getServiceCallLifeCycle();
+
+    Optional<String> reservedByApplication();
 
     /**
      * Returns the RegisteredCustomPropertySets linked to this ServiceCallType

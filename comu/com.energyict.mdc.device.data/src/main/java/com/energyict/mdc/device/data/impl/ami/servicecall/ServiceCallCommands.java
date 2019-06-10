@@ -35,27 +35,30 @@ import java.util.Optional;
 public class ServiceCallCommands {
 
     public enum ServiceCallTypeMapping {
-        other(DefaultDeviceServiceCallHandler.SERVICE_CALL_HANDLER_NAME, DefaultDeviceServiceCallHandler.VERSION, EndDeviceControlTypeMapping.OTHER),
-        connectBreaker(ConnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ConnectServiceCallHandler.VERSION, EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH),
-        disconnectBreaker(DisconnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME, DisconnectServiceCallHandler.VERSION, EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH),
-        armBreaker(ArmServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_CLOSURE),
+        other(DefaultDeviceServiceCallHandler.SERVICE_CALL_HANDLER_NAME, DefaultDeviceServiceCallHandler.VERSION, DefaultDeviceServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.OTHER),
+        connectBreaker(ConnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ConnectServiceCallHandler.VERSION, ConnectServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH),
+        disconnectBreaker(DisconnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME, DisconnectServiceCallHandler.VERSION, DisconnectServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH),
+        armBreaker(ArmServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, ArmServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_CLOSURE),
 
-        loadControlInitiate(EnableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.LOAD_CONTROL_INITIATE),
-        loadControlTerminate(DisableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.LOAD_CONTROL_TERMINATE),
+        loadControlInitiate(EnableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EnableLoadLimitServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.LOAD_CONTROL_INITIATE),
+        loadControlTerminate(DisableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, DisableLoadLimitServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.LOAD_CONTROL_TERMINATE),
 
-        renewKey(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, EndDeviceControlTypeMapping.KEY_RENEWAL),
-        generateKeyPair(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, EndDeviceControlTypeMapping.GENERATE_KEY_PAIR),
-        generateCsr(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, EndDeviceControlTypeMapping.GENERATE_CSR),
-        importCertificate(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, EndDeviceControlTypeMapping.IMPORT_CERTIFICATE),
+        renewKey(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, KeyRenewalServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.KEY_RENEWAL),
+        generateKeyPair(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, KeyRenewalServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.GENERATE_KEY_PAIR),
+        generateCsr(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, KeyRenewalServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.GENERATE_CSR),
+        importCertificate(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, KeyRenewalServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.IMPORT_CERTIFICATE),
         ;
 
         private final String typeName;
         private final String typeVersion;
+        @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+        private final Optional<String> reservedByApplication;
         private final EndDeviceControlTypeMapping endDeviceControlTypeMapping;
 
-        ServiceCallTypeMapping(String typeName, String typeVersion, EndDeviceControlTypeMapping endDeviceControlTypeMapping) {
+        ServiceCallTypeMapping(String typeName, String typeVersion, String reservedByApplication, EndDeviceControlTypeMapping endDeviceControlTypeMapping) {
             this.typeName = typeName;
             this.typeVersion = typeVersion;
+            this.reservedByApplication = Optional.of(reservedByApplication);
             this.endDeviceControlTypeMapping = endDeviceControlTypeMapping;
         }
 
@@ -65,6 +68,10 @@ public class ServiceCallCommands {
 
         public String getTypeVersion() {
             return typeVersion;
+        }
+
+        public Optional<String> getApplication() {
+            return reservedByApplication;
         }
 
         public EndDeviceControlTypeMapping getEndDeviceControlTypeMapping() {
