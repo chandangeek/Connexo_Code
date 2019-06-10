@@ -9,6 +9,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.util.HasId;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
@@ -46,28 +47,31 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         }
     }
 
-    public WebServiceCallOccurrenceImpl(DataModel dataModel,
-                                        Instant startTime,
+    @Inject
+    public WebServiceCallOccurrenceImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
+
+    public WebServiceCallOccurrenceImpl init(Instant startTime,
                                         String requestName,
                                         String applicationName,
                                         EndPointConfiguration endPointConfiguration) {
-        this(dataModel, startTime, requestName, applicationName, endPointConfiguration, null);
+        return init(startTime, requestName, applicationName, endPointConfiguration, null);
     }
 
 
-    public WebServiceCallOccurrenceImpl(DataModel dataModel,
-                                        Instant startTime,
+    public WebServiceCallOccurrenceImpl init(Instant startTime,
                                         String requestName,
                                         String applicationName,
                                         EndPointConfiguration endPointConfiguration,
                                         String payload) {
-        this.dataModel = dataModel;
         this.startTime = startTime;
         this.requestName = requestName;
         this.applicationName = applicationName;
         this.status = WebServiceCallOccurrenceStatus.ONGOING;
         this.endPointConfiguration.set(endPointConfiguration);
         this.payload = payload;
+        return this;
     }
 
     @Override
@@ -137,12 +141,12 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
 
     @Override
     public void log(LogLevel logLevel, String message) {
-        getEndPointConfiguration().log(logLevel, message);
+        getEndPointConfiguration().log(logLevel, message, this);
     }
 
     @Override
     public void log(String message, Exception exception) {
-        getEndPointConfiguration().log(message, exception);
+        getEndPointConfiguration().log(message, exception, this);
     }
 
     @Override

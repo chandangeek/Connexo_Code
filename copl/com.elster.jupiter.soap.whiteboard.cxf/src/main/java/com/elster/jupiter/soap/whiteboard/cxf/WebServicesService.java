@@ -82,13 +82,13 @@ public interface WebServicesService {
 
     WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application, String payload);
 
-    WebServiceCallOccurrence passOccurrence();
+    WebServiceCallOccurrence passOccurrence(long id);
 
-    WebServiceCallOccurrence failOccurrence(String message);
+    WebServiceCallOccurrence failOccurrence(long id, String message);
 
-    WebServiceCallOccurrence failOccurrence(Exception exception);
+    WebServiceCallOccurrence failOccurrence(long id, Exception exception);
 
-    WebServiceCallOccurrence failOccurrence(String message, Exception exception);
+    WebServiceCallOccurrence failOccurrence(long id, String message, Exception exception);
 
-    WebServiceCallOccurrence getOccurrence();
+    WebServiceCallOccurrence getOccurrence(long id);
 }
