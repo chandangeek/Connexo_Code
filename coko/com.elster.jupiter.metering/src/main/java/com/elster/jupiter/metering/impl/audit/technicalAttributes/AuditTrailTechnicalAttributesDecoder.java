@@ -69,26 +69,35 @@ public class AuditTrailTechnicalAttributesDecoder extends AbstractUsagePointAudi
             usagePoint.ifPresent(upEntry -> {
                 DataMapper<UsagePointDetail> dataMapper = ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(UsagePointDetail.class);
 
-                List<UsagePointDetail> allEntries = getChangedObjects(dataMapper, upEntry.getId())
+                List<UsagePointDetail> actualEntries = getActualEntries(dataMapper, getActualClauses(upEntry.getId()));
+                List<UsagePointDetail> historyByModTimeEntries = getHistoryEntries(dataMapper, getHistoryByModTimeClauses(upEntry.getId()));
+
+                List<UsagePointDetail> allEntries = new ArrayList<>();
+                allEntries.addAll(actualEntries);
+                allEntries.addAll(historyByModTimeEntries);
+
+                allEntries = allEntries
                         .stream()
-                        .filter(distinctByKey(p -> ((UsagePointDetail)p).getVersion()))
-                        .map(p-> (UsagePointDetail)p)
-                        .sorted(Comparator.comparing(UsagePointDetail::getVersion))
+                        .sorted(Comparator.comparing(mc -> mc.getInterval().toOpenClosedRange().lowerEndpoint()))
                         .collect(Collectors.toList());
 
-                UsagePointDetail from = allEntries.get(0);
-                UsagePointDetail to = allEntries.get(allEntries.size() - 1);
+                if (allEntries.size() > 1)
+                {
+                    UsagePointDetail from = allEntries.get(0);
+                    UsagePointDetail to = allEntries.get(allEntries.size() - 1);
 
-                getAuditLogChangeForString(from.isCollarInstalled().toString(), to.isCollarInstalled().toString(), PropertyTranslationKeys.USAGEPOINT_COLLAR).ifPresent(auditLogChanges::add);
-                if (from instanceof ElectricityDetail) {
-                    auditLogChanges.addAll(new ElectricityDetailAuditLog(this, (ElectricityDetail) from, (ElectricityDetail)to).getLogs());
-                } else if (from instanceof GasDetail) {
-                    auditLogChanges.addAll(new GasDetailAuditLog(this, (GasDetail) from, (GasDetail)to).getLogs());
-                } else if (from instanceof WaterDetail) {
-                    auditLogChanges.addAll(new WaterDetailAuditLog(this, (WaterDetail) from, (WaterDetail)to).getLogs());
-                } else if (from instanceof HeatDetail) {
-                    auditLogChanges.addAll(new HeatDetailAuditLog(this, (HeatDetail) from, (HeatDetail)to).getLogs());
+                    getAuditLogChangeForString(from.isCollarInstalled().toString(), to.isCollarInstalled().toString(), PropertyTranslationKeys.USAGEPOINT_COLLAR).ifPresent(auditLogChanges::add);
+                    if (from instanceof ElectricityDetail) {
+                        auditLogChanges.addAll(new ElectricityDetailAuditLog(this, (ElectricityDetail) from, (ElectricityDetail)to).getLogs());
+                    } else if (from instanceof GasDetail) {
+                        auditLogChanges.addAll(new GasDetailAuditLog(this, (GasDetail) from, (GasDetail)to).getLogs());
+                    } else if (from instanceof WaterDetail) {
+                        auditLogChanges.addAll(new WaterDetailAuditLog(this, (WaterDetail) from, (WaterDetail)to).getLogs());
+                    } else if (from instanceof HeatDetail) {
+                        auditLogChanges.addAll(new HeatDetailAuditLog(this, (HeatDetail) from, (HeatDetail)to).getLogs());
+                    }
                 }
+
             });
             return auditLogChanges;
         } catch (Exception e) {
@@ -102,7 +111,7 @@ public class AuditTrailTechnicalAttributesDecoder extends AbstractUsagePointAudi
 
             usagePoint.ifPresent(upEntry -> {
                 DataMapper<UsagePointDetail> dataMapper = ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(UsagePointDetail.class);
-                List<UsagePointDetail> actualEntries = getActualEntries(dataMapper, getActualClauses(upEntry.getId()));
+                List<UsagePointDetail> actualEntries = getChangedObjects(dataMapper, upEntry.getId());
                 UsagePointDetail updEntry = actualEntries.get(0);
                 getAuditLogChangeForString(updEntry.isCollarInstalled().toString(), PropertyTranslationKeys.USAGEPOINT_COLLAR).ifPresent(auditLogChanges::add);
                 if (updEntry instanceof ElectricityDetail) {

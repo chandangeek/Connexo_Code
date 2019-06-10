@@ -41,45 +41,7 @@ public abstract class AbstractUsagePointAuditDecoder extends AbstractAuditDecode
     protected void decodeReference() {
         usagePoint = meteringService.findUsagePointById(getAuditTrailReference().getPkDomain());
     }
-/*
-    protected Optional<Device> getDeviceFromHistory(long id) {
-        DataMapper<Device> dataMapper = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME).get().mapper(Device.class);
-        ImmutableSetMultimap<Operator, Pair<String, Object>> historyClause = ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("ID", id),
-                Operator.GREATERTHANOREQUAL, Pair.of("journaltime", getAuditTrailReference().getModTimeStart()));
 
-        return getHistoryEntries(dataMapper, historyClause)
-                .stream().max(Comparator.comparing(Device::getVersion));
-    }
-
-    protected boolean isDomainObsolete() {
-        return endDevice.map(ed ->
-                ed.getObsoleteTime()
-                        .filter(obsoleteTime -> (obsoleteTime.isAfter(getAuditTrailReference().getModTimeStart()) || obsoleteTime.equals(getAuditTrailReference().getModTimeStart())) &&
-                                (obsoleteTime.isBefore(getAuditTrailReference().getModTimeEnd()) || obsoleteTime.equals(getAuditTrailReference().getModTimeEnd())))
-                        .isPresent())
-                .orElse(false);
-    }
-
-    protected Optional<Device> getToDeviceEntry(Device from, long version, DataMapper<Device> dataMapper) {
-        if (version >= device.get().getVersion()) {
-            return device;
-        }
-        return getJournalEntry(dataMapper, Arrays.asList(Pair.of("ID", from.getId()),
-                Pair.of("VERSIONCOUNT", version)))
-                .map(Optional::of)
-                .orElseGet(() -> getToDeviceEntry(from, version + 1, dataMapper));
-    }
-
-    protected Optional<EndDevice> getToEndDeviceEntry(EndDevice from, long version, DataMapper<EndDevice> dataMapper) {
-        if (version >= endDevice.get().getVersion()) {
-            return endDevice;
-        }
-        return getJournalEntry(dataMapper,
-                Arrays.asList(Pair.of("ID", from.getId()), Pair.of("VERSIONCOUNT", version)))
-                .map(Optional::of)
-                .orElseGet(() -> getToEndDeviceEntry(from, version + 1, dataMapper));
-    }
-*/
     public ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByJournalClauses(Long id) {
         return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("ID", id),
                 Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),

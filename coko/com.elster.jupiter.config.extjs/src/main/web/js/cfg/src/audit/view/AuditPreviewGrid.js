@@ -9,7 +9,7 @@ Ext.define('Cfg.audit.view.AuditPreviewGrid', {
         'Cfg.audit.store.AuditDetails'
     ],
     store: 'Cfg.audit.store.AuditDetails',
-    maxHeight: 355,
+    maxHeight: 356,
 
     initComponent: function () {
         var me = this;

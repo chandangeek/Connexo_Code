@@ -75,6 +75,7 @@ public class AuditTrailGeneralAttributesDecoder extends AbstractUsagePointAuditD
                 getAuditLogChangeForString(from.getName(), to.getName(), PropertyTranslationKeys.USAGEPOINT_NAME).ifPresent(auditLogChanges::add);
                 getAuditLogChangeForLocation(from, to).ifPresent(auditLogChanges::add);
                 getAuditLogChangeForCoordinates(from, to).ifPresent(auditLogChanges::add);
+                getAuditLogChangeForString(getThesaurus().getString(from.getLifeCycle().getName(), from.getLifeCycle().getName()), getThesaurus().getString(to.getLifeCycle().getName(), to.getLifeCycle().getName()), PropertyTranslationKeys.USAGEPOINT_LIFE_CYCLE_NAME).ifPresent(auditLogChanges::add);
                 getAuditLogChangeForString(from.getReadRoute(), to.getReadRoute(), PropertyTranslationKeys.USAGEPOINT_READROUTE).ifPresent(auditLogChanges::add);
                 getAuditLogChangeForString(from.getServiceDeliveryRemark(), to.getServiceDeliveryRemark(), PropertyTranslationKeys.USAGEPOINT_SERVICE_DELIVERY_REMARK).ifPresent(auditLogChanges::add);
             });
@@ -98,6 +99,7 @@ public class AuditTrailGeneralAttributesDecoder extends AbstractUsagePointAuditD
                 getAuditLogChangeForString(getThesaurus().getString(upEntry.getLifeCycle().getName(), upEntry.getLifeCycle().getName()), PropertyTranslationKeys.USAGEPOINT_LIFE_CYCLE_NAME).ifPresent(auditLogChanges::add);
                 getAuditLogChangeForOptional(Optional.of(upEntry.getCreateDate()), PropertyTranslationKeys.USAGEPOINT_CREATETIME, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
                 getAuditLogChangeForUpType(upEntry).ifPresent(auditLogChanges::add);
+                getAuditLogChangeForString(getThesaurus().getString(upEntry.getLifeCycle().getName(), upEntry.getLifeCycle().getName()), PropertyTranslationKeys.USAGEPOINT_LIFE_CYCLE_NAME).ifPresent(auditLogChanges::add);
             });
             return auditLogChanges;
         } catch (Exception e) {
