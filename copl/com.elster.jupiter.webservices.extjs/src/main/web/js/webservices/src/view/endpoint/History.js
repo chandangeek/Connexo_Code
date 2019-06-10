@@ -42,6 +42,7 @@ Ext.define('Wss.view.endpoint.History', {
             itemId: 'webservices-webservice-history-preview',
             endpoint: me.record,
             router: me.router,
+            adminView: me.adminView
           }
         ],
         dockedItems: [
