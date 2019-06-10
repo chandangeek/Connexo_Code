@@ -5,12 +5,13 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.AbstractEndPointInitializer;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.ManagedEndpoint;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import org.apache.cxf.annotations.SchemaValidation;
@@ -18,6 +19,7 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.validation.SchemaValidationFeature;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.logging.FaultListener;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
 
 import javax.inject.Inject;
@@ -36,6 +38,7 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
     private final Provider<AuthorizationInInterceptor> authorizationInInterceptorProvider;
     private final Provider<AccessLogFeature> accessLogFeatureProvider;
     private final AbstractEndPointInitializer endPointInitializer;
+    private final WebServicesService webServicesService;
 
     private Server endpoint;
     private TracingFeature tracingFeature;
@@ -43,12 +46,14 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
     @Inject
     public InboundSoapEndPoint(SoapProviderSupportFactory soapProviderSupportFactory, @Named("LogDirectory") String logDirectory,
                                Provider<AuthorizationInInterceptor> authorizationInInterceptorProvider,
-                               Provider<AccessLogFeature> accessLogFeatureProvider, AbstractEndPointInitializer endPointInitializer) {
+                               Provider<AccessLogFeature> accessLogFeatureProvider, AbstractEndPointInitializer endPointInitializer,
+                               WebServicesService webServicesService) {
         this.soapProviderSupportFactory = soapProviderSupportFactory;
         this.logDirectory = logDirectory;
         this.authorizationInInterceptorProvider = authorizationInInterceptorProvider;
         this.accessLogFeatureProvider = accessLogFeatureProvider;
         this.endPointInitializer = endPointInitializer;
+        this.webServicesService = webServicesService;
     }
 
     InboundSoapEndPoint init(InboundSoapEndPointProvider endPointProvider, InboundEndPointConfiguration endPointConfiguration) {
@@ -73,7 +78,7 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
                         .add(new SchemaValidationFeature(operationInfo -> SchemaValidation.SchemaValidationType.IN));
             }
             svrFactory.getFeatures().add(accessLogFeatureProvider.get().init(endPointConfiguration));
-            FaultListener faultListener = (exception, description, message) -> logFault(endPointConfiguration, exception);
+            FaultListener faultListener = (exception, description, message) -> logFault(message, exception);
             svrFactory.getProperties(true).put(FaultListener.class.getName(), faultListener);
             svrFactory.setAddress(endPointConfiguration.getUrl());
             svrFactory.setServiceBean(endPointInitializer.initializeInboundEndPoint(implementor, endPointConfiguration));
@@ -91,8 +96,12 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
         }
     }
 
-    private static boolean logFault(EndPointConfiguration endPointConfiguration, Exception exception) {
-        endPointConfiguration.log(exception.getLocalizedMessage(), exception);
+    private boolean logFault(Message message, Exception exception) {
+        try {
+            webServicesService.failOccurrence(MessageUtils.getOccurrenceId(message), exception);
+        } catch (IllegalStateException e) {
+            // means occurrence has already been failed and removed from context; so just ignore
+        }
         return true;
     }
 

@@ -422,7 +422,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
                                                              String requestName,
                                                              String applicationName,
                                                              String payload) {
-        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel,
+        WebServiceCallOccurrence occurrence = dataModel.getInstance(WebServiceCallOccurrenceImpl.class).init(
                 startTime,
                 requestName,
                 applicationName,

@@ -7,6 +7,7 @@ package com.elster.jupiter.soap.whiteboard.cxf;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.AbstractEndPointInitializer;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageSeeds;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Pair;
 
@@ -15,6 +16,7 @@ import org.apache.cxf.transport.http.HTTPException;
 import org.glassfish.jersey.message.internal.MessageBodyProviderNotFoundException;
 
 import javax.ws.rs.NotAuthorizedException;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -108,14 +110,14 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                 publish(endPointConfiguration);
                 EP endpoint = endpoints.get(endPointConfiguration.getId());
                 if (endpoint == null) {
-                    webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName());
-                    webServicesService.failOccurrence(thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName()));
+                    long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName()).getId();
+                    webServicesService.failOccurrence(id, thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName()));
                     // TODO send event for issue here, in a different transaction
                 }
                 return endpoint;
             } else {
-                webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName());
-                webServicesService.failOccurrence(thesaurus.getSimpleFormat(MessageSeeds.INACTIVE_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName()));
+                long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName()).getId();
+                webServicesService.failOccurrence(id, thesaurus.getSimpleFormat(MessageSeeds.INACTIVE_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName()));
                 // TODO send event for issue here, in a different transaction
                 return null;
             }
@@ -148,16 +150,18 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                             new NoSuchMethodException("Couldn't find corresponding public method " + methodName + " in class " + getService().getName())));
             return getEndpoints().entrySet().stream()
                     .map(epcAndEP -> {
-                        webServicesService.startOccurrence(epcAndEP.getKey(), methodName, getApplicationName());
+                        Object port = epcAndEP.getValue();
+                        long id = webServicesService.startOccurrence(epcAndEP.getKey(), methodName, getApplicationName()).getId();
                         try {
-                            Object response = method.invoke(epcAndEP.getValue(), request);
-                            webServicesService.passOccurrence();
+                            MessageUtils.setOccurrenceId((BindingProvider) port, id);
+                            Object response = method.invoke(port, request);
+                            webServicesService.passOccurrence(id);
                             return Pair.of(epcAndEP.getKey(), response);
                         } catch (IllegalAccessException | IllegalArgumentException e) {
                             throw new RuntimeException(e);
                         } catch (InvocationTargetException e) {
                             Throwable cause = e.getTargetException();
-                            webServicesService.failOccurrence(cause instanceof Exception ? (Exception) cause : new Exception(cause));
+                            webServicesService.failOccurrence(id, cause instanceof Exception ? (Exception) cause : new Exception(cause));
                             if (cause instanceof WebServiceException) { // SOAP endpoint
                                 WebServiceException wse = (WebServiceException) cause;
                                 String message = wse.getLocalizedMessage();

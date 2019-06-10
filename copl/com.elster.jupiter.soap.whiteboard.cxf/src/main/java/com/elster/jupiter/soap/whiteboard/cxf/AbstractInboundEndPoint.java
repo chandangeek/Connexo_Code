@@ -6,6 +6,7 @@ package com.elster.jupiter.soap.whiteboard.cxf;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.AbstractEndPointInitializer;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
@@ -13,8 +14,10 @@ import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import aQute.bnd.annotation.ConsumerType;
 import org.apache.cxf.interceptor.Fault;
 
+import javax.annotation.Resource;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
+import javax.xml.ws.WebServiceContext;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Set;
@@ -24,6 +27,8 @@ import java.util.stream.Collectors;
 public abstract class AbstractInboundEndPoint {
     private static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
     private final Set<String> webServiceMethodNames;
+    @Resource
+    protected WebServiceContext webServiceContext;
 
     /**
      * Attention: These fields are injectable by hardcoded names via {@link AbstractEndPointInitializer}.
@@ -52,22 +57,23 @@ public abstract class AbstractInboundEndPoint {
     }
 
     protected <RES, E extends Exception> RES runWithOccurrence(ExceptionThrowingSupplier<RES, E> supplier) throws E {
+        long id = MessageUtils.getOccurrenceId(webServiceContext);
         try {
-            saveRequestNameAndApplicationIfNeeded();
+            saveRequestNameAndApplicationIfNeeded(id);
             RES result = supplier.get();
-            webServicesService.passOccurrence();
+            webServicesService.passOccurrence(id);
             return result;
         } catch (Fault fault) {
-            webServicesService.failOccurrence(new Exception(fault.getCause()));
+            webServicesService.failOccurrence(id, new Exception(fault.getCause()));
             throw fault;
         } catch (Exception exception) {
-            webServicesService.failOccurrence(exception);
+            webServicesService.failOccurrence(id, exception);
             throw exception;
         }
     }
 
-    private void saveRequestNameAndApplicationIfNeeded() {
-        WebServiceCallOccurrence occurrence = webServicesService.getOccurrence();
+    private void saveRequestNameAndApplicationIfNeeded(long id) {
+        WebServiceCallOccurrence occurrence = webServicesService.getOccurrence(id);
         boolean needToSave = false;
         if (!occurrence.getApplicationName().isPresent()) {
             occurrence.setApplicationName(getApplicationName());
@@ -99,11 +105,11 @@ public abstract class AbstractInboundEndPoint {
     }
 
     protected void log(LogLevel logLevel, String message) {
-        webServicesService.getOccurrence().log(logLevel, message);
+        webServicesService.getOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(logLevel, message);
     }
 
     protected void log(String message, Exception exception) {
-        webServicesService.getOccurrence().log(message, exception);
+        webServicesService.getOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(message, exception);
     }
 
     private String getApplicationName() {

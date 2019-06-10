@@ -51,7 +51,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     private Map<String, EndPointFactory> webServices = new ConcurrentHashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
-    private ThreadLocal<WebServiceCallOccurrence> occurrence = new ThreadLocal<>();
+    private Map<Long, WebServiceCallOccurrence> occurrences = new ConcurrentHashMap<>();
 
     @Inject
     WebServicesServiceImpl(DataModel dataModel,
@@ -282,29 +282,28 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application) {
-        validateOccurrenceNotPresent();
         WebServiceCallOccurrence tmp = transactionService.executeInIndependentTransaction(
                 () -> endPointConfiguration.createEndPointOccurrence(clock.instant(), requestName, application));
-        occurrence.set(tmp);
+        occurrences.put(tmp.getId(), tmp);
         return tmp;
     }
 
     @Override
     public WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application, String payload) {
-        validateOccurrenceNotPresent();
         WebServiceCallOccurrence tmp = transactionService.executeInIndependentTransaction(
                 () -> endPointConfiguration.createEndPointOccurrence(clock.instant(), requestName, application, payload));
-        occurrence.set(tmp);
+        occurrences.put(tmp.getId(), tmp);
         return tmp;
     }
 
     @Override
-    public WebServiceCallOccurrence passOccurrence() {
-        WebServiceCallOccurrence tmp = getOccurrence();
-        occurrence.remove();
+    public WebServiceCallOccurrence passOccurrence(long id) {
+        WebServiceCallOccurrence tmp = getOccurrence(id);
+        occurrences.remove(tmp.getId());
         return transactionService.executeInIndependentTransaction(() -> {
             tmp.log(LogLevel.INFO, "Request completed successfully.");
             tmp.setEndTime(clock.instant());
+            validateOngoingStatus(tmp);
             tmp.setStatus(WebServiceCallOccurrenceStatus.SUCCESSFUL);
             tmp.save();
             return tmp;
@@ -312,44 +311,46 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Override
-    public WebServiceCallOccurrence failOccurrence(String message) {
-        return failOccurrence(message, null);
+    public WebServiceCallOccurrence failOccurrence(long id, String message) {
+        return failOccurrence(id, message, null);
     }
 
     @Override
-    public WebServiceCallOccurrence failOccurrence(Exception exception) {
-        return failOccurrence(exception.getLocalizedMessage(), exception);
+    public WebServiceCallOccurrence failOccurrence(long id, Exception exception) {
+        return failOccurrence(id, exception.getLocalizedMessage(), exception);
     }
 
     @Override
-    public WebServiceCallOccurrence failOccurrence(String message, Exception exception) {
-        WebServiceCallOccurrence tmp = getOccurrence();
-        occurrence.remove();
+    public WebServiceCallOccurrence failOccurrence(long id, String message, Exception exception) {
+        WebServiceCallOccurrence tmp = getOccurrence(id);
+        occurrences.remove(tmp.getId());
         return transactionService.executeInIndependentTransaction(() -> {
             if (exception == null) {
-                tmp.log(LogLevel.SEVERE, "Request failed: " + message);
+                tmp.log(LogLevel.SEVERE, message);
             } else {
-                tmp.log("Request failed: " + message, exception);
+                tmp.log(message, exception);
             }
             tmp.setEndTime(clock.instant());
+            validateOngoingStatus(tmp);
             tmp.setStatus(WebServiceCallOccurrenceStatus.FAILED);
             tmp.save();
             return tmp;
         });
     }
 
-    @Override
-    public WebServiceCallOccurrence getOccurrence() {
-        WebServiceCallOccurrence tmp = occurrence.get();
-        if (tmp == null) {
-            throw new IllegalStateException("Web service occurrence isn't present.");
+    private static void validateOngoingStatus(WebServiceCallOccurrence occurrence) {
+        WebServiceCallOccurrenceStatus status = occurrence.getStatus();
+        if (status != WebServiceCallOccurrenceStatus.ONGOING) {
+            throw new IllegalStateException("Web service call occurrence is already in " + status + " state.");
         }
-        return tmp;
     }
 
-    private void validateOccurrenceNotPresent() {
-        if (occurrence.get() != null) {
-            throw new IllegalStateException("Web service occurrence is already present.");
+    @Override
+    public WebServiceCallOccurrence getOccurrence(long id) {
+        WebServiceCallOccurrence tmp = occurrences.get(id);
+        if (tmp == null) {
+            throw new IllegalStateException("Web service call occurrence isn't present.");
         }
+        return tmp;
     }
 }

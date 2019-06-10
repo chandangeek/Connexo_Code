@@ -4,6 +4,11 @@ import java.time.Instant;
 import java.util.Optional;
 
 public interface WebServiceCallOccurrence {
+    /**
+     * Used as a key for custom property of {@link org.apache.cxf.message.Message} containing id of {@link WebServiceCallOccurrence}.
+     */
+    String MESSAGE_CONTEXT_OCCURRENCE_ID = "com.honeywell.web.service.call.occurrence.id";
+
     long getId();
     EndPointConfiguration getEndPointConfiguration();
     Instant getStartTime();

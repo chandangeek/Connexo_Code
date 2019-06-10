@@ -8,6 +8,7 @@ import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.users.UserService;
@@ -38,7 +39,7 @@ import java.util.stream.Stream;
         service = {InboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkCreateConfirmationReceiver.NAME})
-public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkCreateConfirmationEIn, ApplicationSpecific {
+public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractInboundEndPoint implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkCreateConfirmationEIn, ApplicationSpecific {
     static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateConfirmation_C_In";
     private static final Set<String> FAILURE_CODES = ImmutableSet.of("5");
 
@@ -84,15 +85,17 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver implements Inboun
 
     @Override
     public void utilitiesTimeSeriesERPItemBulkCreateConfirmationEIn(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
-        setPrincipal();
-        Optional<String> uuid = findReferenceUuid(confirmation);
-        ServiceCall serviceCall = uuid.flatMap(dataExportServiceCallType::findServiceCall)
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.UNEXPECTED_CONFIRMATION_MESSAGE, uuid.orElse("null")));
-        if (isConfirmed(confirmation)) {
-            dataExportServiceCallType.tryPassingServiceCall(serviceCall);
-        } else {
-            dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
-        }
+        runInTransactionWithOccurrence(() -> {
+            Optional<String> uuid = findReferenceUuid(confirmation);
+            ServiceCall serviceCall = uuid.flatMap(dataExportServiceCallType::findServiceCall)
+                    .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.UNEXPECTED_CONFIRMATION_MESSAGE, uuid.orElse("null")));
+            if (isConfirmed(confirmation)) {
+                dataExportServiceCallType.tryPassingServiceCall(serviceCall);
+            } else {
+                dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
+            }
+            return null;
+        });
     }
 
     private static Optional<String> findReferenceUuid(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
@@ -151,13 +154,6 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver implements Inboun
                 return item2;
             }
             return i1 < i2 ? item2 : item1;
-        }
-    }
-
-    private void setPrincipal() {
-        if (threadPrincipalService.getPrincipal() == null) {
-            userService.findUser(WebServiceActivator.BATCH_EXECUTOR_USER_NAME, userService.getRealm())
-                    .ifPresent(threadPrincipalService::set);
         }
     }
 
