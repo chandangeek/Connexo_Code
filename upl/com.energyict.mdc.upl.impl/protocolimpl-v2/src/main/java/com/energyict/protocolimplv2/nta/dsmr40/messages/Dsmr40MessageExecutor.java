@@ -135,6 +135,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     @Override
     protected void activateWakeUp() throws IOException {
+        getProtocol().journal("Opening SMS wake-up window");
         getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(new Array());
     }
 
@@ -142,6 +143,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     protected void deactivateWakeUp() throws IOException {
         AXDRDateTime axdrDateTime = convertUnixToDateTime(String.valueOf(946684800), getProtocol().getTimeZone());  //Jan 1st, 2000
         OctetString time = new OctetString(axdrDateTime.getBEREncodedByteArray(), 0);
+        getProtocol().journal("Closing SMS wake-up window");
         getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(time, time);   //Closed window, no SMSes are allowed
     }
 

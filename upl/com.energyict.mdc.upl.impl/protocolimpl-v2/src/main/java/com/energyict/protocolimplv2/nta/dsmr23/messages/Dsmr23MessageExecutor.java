@@ -278,6 +278,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                 }
+                getProtocol().journal(Level.SEVERE,"Error while executing message " + pendingMessage.getSpecification().getName()+": " + e.getLocalizedMessage());
             }
             result.addCollectedMessage(collectedMessage);
         }
@@ -626,10 +627,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void activateWakeUp() throws IOException {   //Enable the wake up via SMS
+        getProtocol().journal("Activating wake-up via SMS");
         getCosemObjectFactory().getAutoConnect().writeMode(4);
     }
 
     protected void deactivateWakeUp() throws IOException {   //Disable the wake up via SMS
+        getProtocol().journal("Disabling wake-up via SMS");
         getCosemObjectFactory().getAutoConnect().writeMode(1);
     }
 
