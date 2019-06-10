@@ -108,7 +108,7 @@ public class CloseIssueAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicable(Issue issue) {
-        return super.isApplicable(issue) && IssueStatus.OPEN.equals(issue.getStatus().getKey());
+        return super.isApplicable(issue) && (IssueStatus.OPEN.equals(issue.getStatus().getKey()) || IssueStatus.SNOOZED.equals(issue.getStatus().getKey()));
     }
 
     @Override
