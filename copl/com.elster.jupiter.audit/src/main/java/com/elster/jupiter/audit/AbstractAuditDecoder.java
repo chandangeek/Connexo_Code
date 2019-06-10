@@ -151,30 +151,9 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
         }
         return Optional.empty();
     }
-/*
-    public  <E extends Enum<E>> Optional<AuditLogChange> getAuditLogChangeForEnum(E from, E to, TranslationKey translationKey) {
-        if (!(to == null ? from == null : to.toString().equals(from.toString())))
-        {
-            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-            auditLogChange.setName(getDisplayName(translationKey));
-            auditLogChange.setType(SimplePropertyType.TEXT.name());
-            auditLogChange.setValue(to == null ? "": to.toString());
-            auditLogChange.setPreviousValue(from == null ? "": from.toString());
-            return Optional.of(auditLogChange);
-        }
-        return Optional.empty();
-    }
 
-    public  <E extends Enum<E>> Optional<AuditLogChange> getAuditLogChangeForEnum(E from, TranslationKey translationKey) {
-        AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-        auditLogChange.setName(getDisplayName(translationKey));
-        auditLogChange.setType(SimplePropertyType.TEXT.name());
-        auditLogChange.setValue(from == null ? "": from.toString());
-        return Optional.of(auditLogChange);
-    }
-*/
     public Optional<AuditLogChange> getAuditLogChangeForObject(Object from, Object to, TranslationKey translationKey) {
-        if (!(to == null ? from == null : to.toString().equals(from.toString())))
+        if (!(to == null ? from == null : to.equals(from)))
         {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));
