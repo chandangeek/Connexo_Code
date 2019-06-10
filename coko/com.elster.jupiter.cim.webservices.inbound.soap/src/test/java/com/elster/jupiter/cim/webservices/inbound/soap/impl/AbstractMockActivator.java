@@ -4,6 +4,11 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigCustomPropertySet;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigMasterCustomPropertySet;
 import com.elster.jupiter.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
@@ -106,6 +111,16 @@ public abstract class AbstractMockActivator {
     private ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
     @Mock
     private ReplyUsagePointConfigWebService replyUsagePointConfigWebService;
+    @Mock
+    private MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet;
+    @Mock
+    private MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet;
+    @Mock
+    private ParentGetMeterReadingsCustomPropertySet parentGetMeterReadingsCustomPropertySet;
+    @Mock
+    private UsagePointConfigMasterCustomPropertySet usagePointConfigMasterCustomPropertySet;
+    @Mock
+    private UsagePointConfigCustomPropertySet usagePointConfigCustomPropertySet;
 
     @Before
     public void init() {
@@ -136,7 +151,10 @@ public abstract class AbstractMockActivator {
                 transactionService, meteringService, nlsService, upgradeService, metrologyConfigurationService,
                 userService, usagePointLifeCycleService, customPropertySetService, endPointConfigurationService,
                 webServicesService, serviceCallService, messageService, jsonService, sendMeterReadingsProvider,
-                replyMasterDataLinkageConfigWebService, replyUsagePointConfigWebService);
+                replyMasterDataLinkageConfigWebService, replyUsagePointConfigWebService,
+                masterDataLinkageConfigMasterCustomPropertySet, masterDataLinkageConfigCustomPropertySet,
+                parentGetMeterReadingsCustomPropertySet, usagePointConfigMasterCustomPropertySet,
+                usagePointConfigCustomPropertySet);
     }
 
     protected <T> T getInstance(Class<T> clazz) {
