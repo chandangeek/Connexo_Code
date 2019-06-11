@@ -79,7 +79,7 @@ public class ServiceCallCommands {
         }
 
         static Optional<ServiceCallTypeMapping> getServiceCallTypeMappingFor(EndDeviceControlType endDeviceControlType) {
-            return Arrays.asList(values()).stream()
+            return Arrays.stream(values())
                     .filter(mapping -> mapping.getEndDeviceControlTypeMapping().getEndDeviceControlTypeMRID().equals(endDeviceControlType.getMRID()))
                     .findFirst();
         }

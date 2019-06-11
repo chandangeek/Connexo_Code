@@ -181,6 +181,9 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     @Override
     public Optional<String> reservedByApplication() {
+        if (appKey != null && !reservedByApplication.isPresent()) {
+            reservedByApplication = Optional.of(appKey);
+        }
         return reservedByApplication;
     }
 
