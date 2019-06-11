@@ -102,7 +102,7 @@ public class MeterTopology extends AbstractMeterTopology {
     }
 
     private void discoverMbusDevices() {
-        log(Level.FINE, "Starting discovery of MBusDevices");
+        log("Starting discovery of MBusDevices");
         constructMbusMap();
 
         StringBuilder sb = new StringBuilder();
@@ -110,7 +110,7 @@ public class MeterTopology extends AbstractMeterTopology {
         for (DeviceMapping deviceMapping : this.mbusMap) {
             sb.append(deviceMapping).append("\r\n");
         }
-        log(Level.INFO, sb.toString());
+        log(sb.toString());
     }
 
     /**
@@ -245,8 +245,12 @@ public class MeterTopology extends AbstractMeterTopology {
         return deviceTopology;
     }
 
+    private void log(String message) {
+        this.protocol.journal(message);
+    }
+
     private void log(Level level, String message) {
-        this.protocol.getLogger().log(level, message);
+        this.protocol.journal(level, message);
     }
 
     /**

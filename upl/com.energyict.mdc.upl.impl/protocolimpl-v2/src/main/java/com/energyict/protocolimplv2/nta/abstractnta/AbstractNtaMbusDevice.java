@@ -156,6 +156,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
      *
      * @return the Logger
      */
+    @Deprecated
     public Logger getLogger() {
         return this.meterProtocol.getLogger();
     }

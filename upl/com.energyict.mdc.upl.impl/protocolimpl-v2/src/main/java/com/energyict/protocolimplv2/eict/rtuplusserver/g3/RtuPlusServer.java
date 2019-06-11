@@ -61,7 +61,6 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.ProtocolLoggingSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -97,7 +96,7 @@ import java.util.logging.Logger;
  * Date: 9/04/13
  * Time: 16:00
  */
-public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, ProtocolLoggingSupport {
+public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
@@ -601,11 +600,6 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, Proto
             logger = Logger.getLogger(this.getClass().getName());
         }
         return logger;
-    }
-
-    @Override
-    public void setProtocolLogger(Logger protocolLogger) {
-        this.logger = protocolLogger;
     }
 
     @Override

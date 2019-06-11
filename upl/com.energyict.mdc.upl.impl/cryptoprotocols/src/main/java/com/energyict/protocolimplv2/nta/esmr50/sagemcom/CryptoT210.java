@@ -45,8 +45,8 @@ public class CryptoT210 extends T210 {
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        getLogger().info("Sagemcom T210 crypto protocol:");
-            super.init(offlineDevice,comChannel);
+        journal("Sagemcom T210 crypto protocol");
+        super.init(offlineDevice,comChannel);
     }
 
     @Override
@@ -60,6 +60,8 @@ public class CryptoT210 extends T210 {
             return super.newDlmsSession(comChannel);
         }
     }
+
+
 
     @Override
     public CryptoESMR50Properties getDlmsSessionProperties() {
