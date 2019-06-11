@@ -1,8 +1,11 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.Optional;
 
+@ProviderType
 public interface WebServiceCallOccurrence {
     /**
      * Used as a key for custom property of {@link org.apache.cxf.message.Message} containing id of {@link WebServiceCallOccurrence}.

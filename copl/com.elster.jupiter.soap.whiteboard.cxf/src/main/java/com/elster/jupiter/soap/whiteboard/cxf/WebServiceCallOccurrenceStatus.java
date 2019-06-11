@@ -1,14 +1,16 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
-public enum WebServiceCallOccurrenceStatus {
+import aQute.bnd.annotation.ProviderType;
 
+@ProviderType
+public enum WebServiceCallOccurrenceStatus {
     ONGOING("Ongoing"),
     FAILED("Failed"),
     SUCCESSFUL("Successful");
 
     private String name;
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 

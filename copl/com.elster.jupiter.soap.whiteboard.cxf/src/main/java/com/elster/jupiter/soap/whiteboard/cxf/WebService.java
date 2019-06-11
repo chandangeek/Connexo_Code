@@ -4,17 +4,20 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Created by bvn on 6/6/16.
  */
+@ProviderType
 public interface WebService {
-    public String getName();
+    String getName();
 
-    public boolean isInbound();
+    boolean isInbound();
 
-    public WebServiceProtocol getProtocol();
+    WebServiceProtocol getProtocol();
 
-    public default String getApplicationName(){
+    default String getApplicationName(){
         return "Application is not specified";
-    };
+    }
 }

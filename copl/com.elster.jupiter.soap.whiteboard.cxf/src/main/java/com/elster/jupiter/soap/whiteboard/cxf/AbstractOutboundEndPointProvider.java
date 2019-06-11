@@ -30,7 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-// TODO: format EndPoint everywhere
 @ConsumerType
 public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEndPointProvider {
     // todo : make a new enum of properties
