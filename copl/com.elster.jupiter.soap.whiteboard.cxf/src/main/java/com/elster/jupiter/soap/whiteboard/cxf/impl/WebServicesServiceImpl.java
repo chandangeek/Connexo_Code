@@ -87,14 +87,21 @@ public class WebServicesServiceImpl implements WebServicesService {
                 @Override
                 public String getApplicationName() {
                     EndPointProvider provider = endPointFactory.getEndPointProvider();
-                    if (provider instanceof InboundSoapEndPointProvider) {
+                    if (provider instanceof InboundSoapEndPointProvider ) {
                         if (((InboundSoapEndPointProvider)provider).get() instanceof ApplicationSpecific){
                             ApplicationSpecific tmpProvider = (ApplicationSpecific)((InboundSoapEndPointProvider)provider).get();
                             return tmpProvider.getApplication();
                         }
                     }
 
-                    if (provider instanceof OutboundSoapEndPointProvider) {
+                    if (provider instanceof InboundRestEndPointProvider ) {
+                        if (((InboundRestEndPointProvider)provider).get() instanceof ApplicationSpecific){
+                            ApplicationSpecific tmpProvider = (ApplicationSpecific)((InboundRestEndPointProvider)provider).get();
+                            return tmpProvider.getApplication();
+                        }
+                    }
+
+                    if (provider instanceof OutboundSoapEndPointProvider || provider instanceof OutboundRestEndPointProvider) {
                         if (provider instanceof ApplicationSpecific){
                             return ((ApplicationSpecific) provider).getApplication();
                         }
@@ -145,6 +152,13 @@ public class WebServicesServiceImpl implements WebServicesService {
                 if (provider instanceof InboundSoapEndPointProvider) {
                     if (((InboundSoapEndPointProvider)provider).get() instanceof ApplicationSpecific){
                         ApplicationSpecific tmpProvider = (ApplicationSpecific)((InboundSoapEndPointProvider)provider).get();
+                        return tmpProvider.getApplication();
+                    }
+                }
+
+                if (provider instanceof InboundRestEndPointProvider ) {
+                    if (((InboundRestEndPointProvider)provider).get() instanceof ApplicationSpecific){
+                        ApplicationSpecific tmpProvider = (ApplicationSpecific)((InboundRestEndPointProvider)provider).get();
                         return tmpProvider.getApplication();
                     }
                 }
