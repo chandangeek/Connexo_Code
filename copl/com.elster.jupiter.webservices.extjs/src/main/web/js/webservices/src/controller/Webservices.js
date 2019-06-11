@@ -18,6 +18,8 @@ Ext.define('Wss.controller.Webservices', {
     stores: [
         'Wss.store.Endpoints',
         'Wss.store.Webservices',
+        'Wss.store.endpoint.Type',
+        'Wss.store.endpoint.Status',
         'Wss.store.endpoint.Occurrence',
         'Wss.store.endpoint.EndpointOccurrence',
         'Wss.store.endpoint.OccurrenceLog',
