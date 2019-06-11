@@ -82,6 +82,10 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 flex: 1,
                 header: Uni.I18n.translate('general.duration', 'WSS', 'Duration'),
                 renderer: function (value, metaData, record) {
+                    if (!record.get('endTime')) {
+                        return '-';
+                    }
+
                     return Uni.util.String.formatDuration(record.get('startTime') - record.get('endTime'));
                 }
             },
