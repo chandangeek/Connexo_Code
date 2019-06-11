@@ -18,6 +18,7 @@ Ext.define('Wss.view.Preview', {
                 xtype: 'uni-button-action',
                 itemId: 'webservicePreviewMenuButton',
                 privileges: Wss.privileges.Webservices.admin,
+                hidden: !me.adminView,
                 menu: {
                     xtype: 'webservices-action-menu'
                 }

@@ -22,7 +22,8 @@ Ext.define('Wss.view.Grid', {
                 dataIndex: 'name',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: record.get('id')});
+                    var route = me.router.getRoute();
+                    var url = me.router.getRoute(route.key + '/view').buildUrl({endpointId: record.get('id')});
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
             },
@@ -71,6 +72,7 @@ Ext.define('Wss.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                hidden: !me.adminView,
                 privileges: Wss.privileges.Webservices.admin,
                 menu: {
                     xtype: 'webservices-action-menu'
@@ -90,6 +92,7 @@ Ext.define('Wss.view.Grid', {
                 items: [
                     {
                         xtype: 'button',
+                        hidden: !me.adminView,
                         text: Uni.I18n.translate('general.addWebserviceEndpoint', 'WSS', 'Add web service endpoint'),
                         privileges: Wss.privileges.Webservices.admin,
                         itemId: 'add-webservice-endpoint'

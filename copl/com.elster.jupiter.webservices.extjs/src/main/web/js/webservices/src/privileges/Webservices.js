@@ -17,12 +17,25 @@ Ext.define('Wss.privileges.Webservices', {
 
     admin: ['privilege.administrate.webservices'],
 
+    viewHistory: ['privilege.viewHistory.webservices'],
+
+    retry: ['privilege.retry.webservices'],
+
     all: function () {
-        return Ext.Array.merge(Wss.privileges.Webservices.view, Wss.privileges.Webservices.admin);
+        return Ext.Array.merge(
+            Wss.privileges.Webservices.view,
+            Wss.privileges.Webservices.admin,
+            Wss.privileges.Webservices.viewHistory,
+            Wss.privileges.Webservices.retry
+        );
     },
 
     canView: function () {
         return Uni.Auth.checkPrivileges(Wss.privileges.Webservices.view);
+    },
+
+    canViewHistory: function () {
+        return Uni.Auth.checkPrivileges(Wss.privileges.Webservices.viewHistory);
     },
 
     canAdministrate: function() {

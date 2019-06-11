@@ -35,12 +35,14 @@ Ext.define('Wss.view.WebservicesPreviewContainer', {
         me.grid = {
             xtype: 'webservices-grid',
             itemId: 'grd-webservices',
+            adminView: me.adminView,
             router: me.router
         };
 
         me.previewComponent = {
             xtype: 'webservices-preview',
             itemId: 'pnl-webservices-preview',
+            adminView: me.adminView
         };
 
         me.callParent(arguments);

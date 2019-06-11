@@ -13,6 +13,8 @@ Ext.define('Wss.view.Menu', {
 
     initComponent: function () {
         var me = this;
+        var route = me.router.getRoute();
+        var basename = route.key.split('/').slice(0, 2).join('/');
 
         me.title = me.record.get('name') || Uni.I18n.translate('webservices.webserviceEndpoint', 'WSS', 'Web service endpoint');
 
@@ -20,14 +22,25 @@ Ext.define('Wss.view.Menu', {
             {
                 text: Uni.I18n.translate('general.details', 'WSS', 'Details'),
                 itemId: 'webservice-overview-link',
-                href: me.router.getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: me.record.get('id')})
+                href: me.router
+                    .getRoute(basename + '/view')
+                    .buildUrl({endpointId: me.record.get('id')})
             },
             {
-                text: Uni.I18n.translate('general.logging', 'WSS', 'Logging'),
+                text: Uni.I18n.translate('general.history', 'WSS', 'History'),
+                itemId: 'wenservoces-history-link',
+                privileges: Wss.privileges.Webservices.viewHistory,
+                href: me.router
+                    .getRoute(basename + '/view/history')
+                    .buildUrl({endpointId: me.record.get('id')})
+            },
+            {
+                text: Uni.I18n.translate('general.endpointStatusHistory', 'WSS', 'Endpoint status history'),
                 itemId: 'wenservoces-logs-link',
-                href: me.router.getRoute('administration/webserviceendpoints/view/logs').buildUrl({endpointId: me.record.get('id')})
-            }
-
+                href: me.router
+                    .getRoute(basename + '/view/status')
+                    .buildUrl({endpointId: me.record.get('id')})
+            },
         ];
 
         me.callParent(arguments);

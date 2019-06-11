@@ -98,6 +98,10 @@ Ext.onReady(function () {
         {
             name: 'Itk',
             path: '../../apps/itk/src'
+        },
+        {
+            name: 'Wss',
+            path: '../../apps/wss/src'
         }
     ];
 
