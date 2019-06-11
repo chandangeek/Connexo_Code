@@ -88,7 +88,7 @@ public interface FirmwareService {
      * @param device the device to cancel the firmware upload
      * @return true if we did a cancel, false if no action was required
      */
-    boolean cancelFirmwareUploadForDevice(Device device);
+    void cancelFirmwareUploadForDevice(Device device);
 
     /**
         * Tries to resume the current FirmwareComTaskExecution on the device if it was still pending.

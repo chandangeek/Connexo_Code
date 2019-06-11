@@ -81,6 +81,7 @@ import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
@@ -134,6 +135,7 @@ public class InMemoryPersistence {
     private HttpService httpService;
     private Thesaurus thesaurus;
     private MeteringZoneService meteringZoneService;
+    private FirmwareCampaignServiceImpl firmwareCampaignService;
 
     public void initializeDatabase(String testName, boolean showSqlLogging) {
         this.initializeMocks(testName);

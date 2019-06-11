@@ -181,7 +181,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     public void startFirmwareProcess(boolean retry) {
         ServiceCall serviceCall = getServiceCall();
         Optional<DeviceMessageId> firmwareMessageId = getFirmwareCampaign().getFirmwareMessageId();
-        if (!doesDeviceTypeAllowFirmwareManagement()
+        if (!doesDeviceTypeAllowFirmwareManagement(serviceCall)
                 || !doesDeviceConfigurationSupportFirmwareManagement()
                 || !cancelPendingFirmwareUpdates()
                 || !firmwareMessageId.isPresent()
@@ -226,9 +226,14 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         return getParent().getExtension(FirmwareCampaignDomainExtension.class).get();
     }
 
-    private boolean doesDeviceTypeAllowFirmwareManagement() {
+    private boolean doesDeviceTypeAllowFirmwareManagement(ServiceCall serviceCall) {
         Set<ProtocolSupportedFirmwareOptions> deviceTypeAllowedOptions = firmwareService.getAllowedFirmwareManagementOptionsFor(getDevice().getDeviceType());
-        return deviceTypeAllowedOptions.contains(getFirmwareCampaign().getFirmwareManagementOption());
+        if (deviceTypeAllowedOptions.contains(getFirmwareCampaign().getFirmwareManagementOption())) {
+            return true;
+        } else {
+            serviceCall.log(LogLevel.WARNING, "todo");
+            return false;
+        }
     }
 
     private boolean doesDeviceConfigurationSupportFirmwareManagement() {

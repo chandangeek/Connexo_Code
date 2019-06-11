@@ -49,7 +49,6 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
@@ -510,9 +509,9 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public boolean cancelFirmwareUploadForDevice(Device device) {
-        Optional<ComTaskExecution> fwComTaskExecution = getFirmwareComtaskExecution(device);
-        return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution.get());
+    public void cancelFirmwareUploadForDevice(Device device) {
+        getFirmwareComtaskExecution(device)
+                .ifPresent(this::cancelFirmwareUpload);
     }
 
     public void resumeFirmwareUploadForDevice(Device device) {
@@ -554,17 +553,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         }
     }
 
-    private boolean cancelFirmwareUpload(ComTaskExecution fwComTaskExecution) {
+    private void cancelFirmwareUpload(ComTaskExecution fwComTaskExecution) {
         if (fwComTaskExecution.getNextExecutionTimestamp() != null) {
             fwComTaskExecution.schedule(null);
             fwComTaskExecution.updateNextExecutionTimestamp();
-            cancelPendingFirmwareMessages(fwComTaskExecution.getDevice());
-            getFirmwareCampaignService().findActiveFirmwareItemByDevice(fwComTaskExecution.getDevice())
-                    .ifPresent(DeviceInFirmwareCampaign::cancel);
-            return true;
-        } else {
-            return false;
         }
+        fwComTaskExecution.updateNextExecutionTimestamp();
+        cancelPendingFirmwareMessages(fwComTaskExecution.getDevice());
     }
 
     private void cancelPendingFirmwareMessages(Device device) {
