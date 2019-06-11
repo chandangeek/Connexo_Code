@@ -62,7 +62,7 @@ public interface ServiceCallService {
      * @param reservedByApplication "MultiSense" or "Insight". NULL for both.
      * @return
      */
-    default public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, String reservedByApplication) {
+    default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, String reservedByApplication) {
         return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get(), reservedByApplication);
     }
 
@@ -72,7 +72,7 @@ public interface ServiceCallService {
      * @param versionName
      * @return
      */
-    default public ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
+    default ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
         return createServiceCallType(name, versionName, null);
     }
 
