@@ -20,6 +20,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.ServiceCallInfoPropertyFactory;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
@@ -27,6 +28,7 @@ import com.elster.jupiter.servicecall.issue.OpenIssueServiceCall;
 import com.elster.jupiter.servicecall.issue.TranslationKeys;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.google.common.collect.ImmutableList;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -35,9 +37,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.servicecall.issue.impl.ServiceCallIssueCreationRuleTemplate",
         property = {"name=" + ServiceCallIssueCreationRuleTemplate.NAME},
@@ -138,16 +142,27 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        ServiceCallTypeInfo[] values = serviceCallService.getServiceCallTypes().stream().map(ServiceCallTypeInfo::new).toArray(ServiceCallTypeInfo[]::new);
-        return Collections.singletonList(propertySpecService.specForValuesOf(new ServiceCallInfoValueFactory())
-                .named(TranslationKeys.SERVICE_CALL_TYPE_HANDLER)
-                .describedAs(TranslationKeys.SERVICE_CALL_TYPE_HANDLER_DESCRIPTION)
+        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
+        builder.add(
+                propertySpecService.specForValuesOf(new ServiceCallInfoValueFactory())
+                .named(TranslationKeys.SERVICE_CALL_TYPE_STATE)
                 .fromThesaurus(thesaurus)
                 .markRequired()
-                .markMultiValued(",")
-                .addValues(serviceCallService.getServiceCallTypes().stream().map(ServiceCallTypeInfo::new).toArray(ServiceCallTypeInfo[]::new))
+                .markMultiValued(":")
+                .addValues(Arrays.stream(DefaultState.values()).filter(defaultState -> !defaultState.isOpen()).map(defaultState -> new DefaultStateInfo(defaultState, thesaurus)).collect(Collectors.toList()))
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
+        builder.add(
+                propertySpecService.specForValuesOf(new ServiceCallInfoValueFactory())
+                        .named(TranslationKeys.SERVICE_CALL_TYPE_HANDLER)
+                        .describedAs(TranslationKeys.SERVICE_CALL_TYPE_HANDLER_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .markMultiValued(",")
+                        .addValues(serviceCallService.getServiceCallTypes().stream().map(ServiceCallTypeInfo::new).toArray(ServiceCallTypeInfo[]::new))
+                        .markExhaustive(PropertySelectionMode.LIST)
+                        .finish());
+        return builder.build();
     }
 
     @Override
@@ -228,6 +243,46 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     }
 
     @XmlRootElement
+    static class DefaultStateInfo extends HasIdAndName {
+
+        private transient DefaultState defaultState;
+        private transient Thesaurus thesaurus;
+
+        DefaultStateInfo(DefaultState defaultState, Thesaurus thesaurus) {
+            this.defaultState = defaultState;
+            this.thesaurus = thesaurus;
+        }
+
+        @Override
+        public Long getId() {
+            return (long) defaultState.ordinal();
+        }
+
+        @Override
+        public String getName() {
+            return defaultState.getDisplayName(thesaurus);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this != o) {
+                return false;
+            }
+            if (getClass() != o.getClass()) {
+                return false;
+            }
+            return super.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + Long.hashCode(defaultState.ordinal());
+            return result;
+        }
+    }
+
+    @XmlRootElement
     static class ServiceCallTypeInfo extends HasIdAndName {
 
         private transient ServiceCallType serviceCallType;
@@ -254,10 +309,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
             if (getClass() != o.getClass()) {
                 return false;
             }
-            if (!super.equals(o)) {
-                return false;
-            }
-            return true;
+            return super.equals(o);
         }
 
         @Override

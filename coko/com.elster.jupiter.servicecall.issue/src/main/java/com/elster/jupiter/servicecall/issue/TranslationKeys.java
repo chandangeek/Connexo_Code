@@ -16,6 +16,7 @@ public enum TranslationKeys implements TranslationKey {
     SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON_DESCRIPTION("ServiceCallIssuePartialSucceedReasonDescription", "Service call partial succeed description"),
     SERVICE_CALL_TYPE_HANDLER("ServiceCallTypeHandler", "Service call handler name"),
     SERVICE_CALL_TYPE_HANDLER_DESCRIPTION("ServiceCallTypeHandlerDescription", "Service call handler description"),
+    SERVICE_CALL_TYPE_STATE("ServiceCallTypeState", "Service call state"),
 
     SERVICE_CALL_ISSUE_RULE_TEMPLATE_NAME("ServiceCallIssueRuleTemplateName", "State change"),
     SERVICE_CALL_ISSUE_RULE_TEMPLATE_DESCRIPTION("ServiceCallIssueRuleTemplateDescription", "State change"),
