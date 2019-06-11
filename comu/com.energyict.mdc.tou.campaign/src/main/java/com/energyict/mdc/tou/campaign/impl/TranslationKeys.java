@@ -30,6 +30,9 @@ public enum TranslationKeys implements TranslationKey {
     WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "With unique calendar name"),
     VALIDATION_COMTASK_ID("validationComTaskId", "Validation comtask id"),
     SEND_CALENDAR_COMTASK_ID("sendCalendarComTaskId", "Send calendar comtask id"),
+    VALIDATION_СONNECTIONSTRATEGY_ID("validationСonnectionStrategyId", "Validation connection strategy id"),
+    SEND_CALENDAR_СONNECTIONSTRATEGY_ID("sendCalendarСonnectionStrategyId", "Send calendar connection strategy id"),
+
     ;
 
 

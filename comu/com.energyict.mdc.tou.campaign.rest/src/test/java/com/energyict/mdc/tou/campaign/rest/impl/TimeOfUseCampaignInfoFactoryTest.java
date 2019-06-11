@@ -13,6 +13,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
@@ -38,13 +39,13 @@ public class TimeOfUseCampaignInfoFactoryTest {
     private static CalendarService calendarService = mock(CalendarService.class);
     private static TimeOfUseCampaignInfoFactory timeOfUseCampaignInfoFactory;
     private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
-
+    private static TaskService taskService  = mock(TaskService.class);
     private static ExceptionFactory exceptionFactory = mock(ExceptionFactory.class);
 
     @BeforeClass
     public static void setUp() {
         timeOfUseCampaignInfoFactory = new TimeOfUseCampaignInfoFactory(timeOfUseCampaignService, clock, thesaurus,
-                deviceConfigurationService, calendarService, exceptionFactory);
+                deviceConfigurationService, calendarService, exceptionFactory,taskService);
     }
 
     @Test

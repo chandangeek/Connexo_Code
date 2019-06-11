@@ -6,6 +6,7 @@ package com.energyict.mdc.tou.campaign.rest.impl;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.Instant;
@@ -31,6 +32,11 @@ public class TimeOfUseCampaignInfo {
     public long validationTimeout;
     public long version;
     public boolean withUniqueCalendarName;
-    public long sendCalendarComTaskId;
-    public long validationComTaskId;
+
+    public IdWithNameInfo sendCalendarСomTask;
+    public IdWithNameInfo sendCalendarСonnectionStrategy;
+
+    public IdWithNameInfo validationСomTask;
+    public IdWithNameInfo validationСonnectionStrategy;
+
 }

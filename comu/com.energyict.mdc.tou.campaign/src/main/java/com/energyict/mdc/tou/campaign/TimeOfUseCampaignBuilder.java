@@ -29,5 +29,9 @@ public interface TimeOfUseCampaignBuilder {
 
     TimeOfUseCampaignBuilder withValidationComTaskId(long validationComTaskId);
 
+    TimeOfUseCampaignBuilder withSendCalendarСonnectionStrategyId(long sendCalendarСonnectionStrategyId);
+
+    TimeOfUseCampaignBuilder withValidationСonnectionStrategyId(long timeOfUseCampaignInfoId);
+
     TimeOfUseCampaign create();
 }
