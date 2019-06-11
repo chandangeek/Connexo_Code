@@ -40,7 +40,7 @@ public class LoadProfileTypeOneCustomPropertySet implements CustomPropertySet<Ch
 
     public static final String TABLE_NAME = "RVK_CPS_CHANNEL_ONE";
     public static final String FK_CPS_CHANNEL_ONE = "FK_CPS_CHANNEL_ONE";
-    public static final String FK_CPS_DEVICE_ONE = "FK_CPS_DEVICE_ONE";
+    public static final String FK_CPS_DEVICE_ONE = "FK_CPS_CHANNEL_DEVICE_ONE";
 
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceService deviceService;
