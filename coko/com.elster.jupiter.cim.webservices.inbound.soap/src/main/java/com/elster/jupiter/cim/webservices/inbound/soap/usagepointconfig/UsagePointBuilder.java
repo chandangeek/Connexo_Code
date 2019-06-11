@@ -579,9 +579,9 @@ public class UsagePointBuilder {
     private String retrieveLifeCycle(List<Name> names) throws FaultMessage {
 
         String nameString = null;
-        if (names.size() > 1) {
+        if (names.size() > 1 && names.stream().filter(name -> name.getNameType().getName().equals("UsagePointLifecycleName")).findFirst().isPresent()) {
             nameString = names.stream().filter(name -> name.getNameType().getName().equals("UsagePointLifecycleName"))
-                    .findFirst().orElse(null).getName();
+                    .findFirst().get().getName();
         }
 
         return nameString;

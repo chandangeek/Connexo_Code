@@ -4,11 +4,12 @@
 
 package com.elster.jupiter.users;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.security.KeyStore;
 import java.util.List;
@@ -41,6 +42,8 @@ public interface UserService {
     void grantGroupWithPrivilege(String roleName, String applicationName, String[] privileges);
 
     Optional<User> findUser(String authenticationName);
+
+    Optional<User> findUserIgnoreStatus(String authenticationName);
 
     Optional<User> findUser(String authenticationName, String userDirectoryName);
 

@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.Effective;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
@@ -81,7 +82,7 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
         expectSuccess();
 
         verify(firmwareService, times(2)).getMaximumFirmware(eq(masterDeviceType), anySetOf(FirmwareType.class), eq(EnumSet.of(FirmwareStatus.FINAL, FirmwareStatus.TEST)));
-        verify(activatedFirmwareVersionStream, times(2)).filter(conditionCaptor.capture());
+        verify(activatedFirmwareVersionStream, times(3)).filter(conditionCaptor.capture());
         List<Condition> filterConditions = conditionCaptor.getAllValues();
         Optional<Comparison> deviceConditionOptional = filterConditions.stream()
                 .filter(Comparison.class::isInstance)
@@ -99,6 +100,13 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
         assertThat(firmwareTypeConditionOptional.map(Contains::getFieldName)).isPresent();
         assertThat(firmwareTypeConditionOptional.map(Contains::getFieldName).get()).contains("firmwareType");
         assertThat(firmwareTypeConditionOptional.map(Contains::getCollection)).contains(Arrays.asList(FirmwareType.METER, FirmwareType.COMMUNICATION));
+        Optional<Effective> effectiveConditionOptional = filterConditions.stream()
+                .filter(Effective.class::isInstance)
+                .findAny()
+                .map(Effective.class::cast);
+        assertThat(effectiveConditionOptional).isPresent();
+        assertThat(effectiveConditionOptional.map(Effective::getFieldName)).isPresent();
+        assertThat(effectiveConditionOptional.map(Effective::getFieldName).get()).contains("interval");
 
         verify(activatedFirmwareVersionStream).anyMatch(conditionCaptor.capture());
         Condition condition = conditionCaptor.getValue();

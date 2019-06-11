@@ -134,9 +134,6 @@ public abstract class SecureDeviceImporterAbstract {
         } catch (ImportFailedException e) {
             log(logger, e.getMessageSeed(), e.getMessageParameters());
             throw new RuntimeException(thesaurus.getFormat(e.getMessageSeed()).format(e.getMessageParameters()));
-        } catch (HsmBaseException e) {
-            logger.log(Level.SEVERE, e.getMessage());
-            throw new RuntimeException(e);
         }
     }
 
@@ -145,7 +142,7 @@ public abstract class SecureDeviceImporterAbstract {
             CertificateException,
             InvalidAlgorithmParameterException,
             NoSuchAlgorithmException,
-            CertPathValidatorException, IOException, ImportFailedException, HsmBaseException {
+            CertPathValidatorException, IOException, ImportFailedException {
         ReusableInputStream inputStreamProvider = ReusableInputStream.from(fileImportOccurrence.getContents());
         Shipment shipment = getShipmentFileFomQueueMessage(inputStreamProvider.stream());
         if (shouldValidateCert()) {

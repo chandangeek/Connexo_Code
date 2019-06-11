@@ -380,7 +380,8 @@ public class TableImpl<T> implements Table<T> {
         return getDataMapper(api);
     }
 
-    Class<?> getApi() {
+    @Override
+    public Class<?> getApi() {
         return api;
     }
 
@@ -1066,7 +1067,7 @@ public class TableImpl<T> implements Table<T> {
     }
 
     Optional<Column> partitionColumn() {
-        return partitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
+        return partitionColumn;
     }
 
     @Override

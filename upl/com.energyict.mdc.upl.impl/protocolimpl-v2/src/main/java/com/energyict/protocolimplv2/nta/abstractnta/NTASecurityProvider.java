@@ -35,7 +35,7 @@ public class NTASecurityProvider implements SecurityProvider {
     private byte[] encryptionKey;
     private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 
-    private Long initialFrameCounter;
+    private Long initialFrameCounter = null;
 
     /**
      * Create a new instance of NTASecurityProvider
@@ -170,14 +170,25 @@ public class NTASecurityProvider implements SecurityProvider {
      * @return the initial frameCounter
      */
     public long getInitialFrameCounter() {
-        if (initialFrameCounter != null) {
-            return initialFrameCounter;
-        } else {
-            SecureRandom generator = new SecureRandom();
-            return generator.nextLong();
+        if (initialFrameCounter == null) {
+            initialFrameCounter = initializeFrameCounter();
         }
+        return initialFrameCounter;
     }
 
+    /**
+     * Initialized frame counter with a random value.
+     * @return
+     */
+    public long initializeFrameCounter() {
+        SecureRandom generator = new SecureRandom();
+        return generator.nextLong();
+    }
+
+    /**
+     * Setter for the frame-counter, i.e. from a cached value.
+     * @param frameCounter
+     */
     public void setInitialFrameCounter(long frameCounter) {
         this.initialFrameCounter = frameCounter;
     }
