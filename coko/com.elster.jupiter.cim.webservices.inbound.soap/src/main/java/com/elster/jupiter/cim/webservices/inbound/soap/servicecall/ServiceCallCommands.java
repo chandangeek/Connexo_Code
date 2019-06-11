@@ -101,7 +101,7 @@ public class ServiceCallCommands {
         ServiceCallTypes(String typeName, String typeVersion, String reservedByApplication, String customPropertySetClass) {
             this.typeName = typeName;
             this.typeVersion = typeVersion;
-            this.reservedByApplication = Optional.of(reservedByApplication);
+            this.reservedByApplication = Optional.ofNullable(reservedByApplication);
             this.customPropertySetClass = customPropertySetClass;
         }
 

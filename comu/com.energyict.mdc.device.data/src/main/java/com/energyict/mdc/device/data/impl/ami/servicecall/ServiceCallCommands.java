@@ -58,7 +58,7 @@ public class ServiceCallCommands {
         ServiceCallTypeMapping(String typeName, String typeVersion, String reservedByApplication, EndDeviceControlTypeMapping endDeviceControlTypeMapping) {
             this.typeName = typeName;
             this.typeVersion = typeVersion;
-            this.reservedByApplication = Optional.of(reservedByApplication);
+            this.reservedByApplication = Optional.ofNullable(reservedByApplication);
             this.endDeviceControlTypeMapping = endDeviceControlTypeMapping;
         }
 
