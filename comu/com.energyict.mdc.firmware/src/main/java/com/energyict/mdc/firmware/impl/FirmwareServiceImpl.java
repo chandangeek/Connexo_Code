@@ -557,6 +557,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private boolean cancelFirmwareUpload(ComTaskExecution fwComTaskExecution) {
         if (fwComTaskExecution.getNextExecutionTimestamp() != null) {
             fwComTaskExecution.schedule(null);
+            fwComTaskExecution.updateNextExecutionTimestamp();
             cancelPendingFirmwareMessages(fwComTaskExecution.getDevice());
             getFirmwareCampaignService().findActiveFirmwareItemByDevice(fwComTaskExecution.getDevice())
                     .ifPresent(DeviceInFirmwareCampaign::cancel);

@@ -206,8 +206,9 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     private void prepareCommunicationTask(Device device) {
-        firmwareService.getFirmwareManagementDeviceUtilsFor(device)
-                .getFirmwareComTaskExecution().orElse(createFirmwareComTaskExecution(device));
+        if (!firmwareService.getFirmwareManagementDeviceUtilsFor(device).getFirmwareComTaskExecution().isPresent()) {
+            createFirmwareComTaskExecution(device);
+        }
     }
 
     private ComTaskExecution createFirmwareComTaskExecution(Device device) {
