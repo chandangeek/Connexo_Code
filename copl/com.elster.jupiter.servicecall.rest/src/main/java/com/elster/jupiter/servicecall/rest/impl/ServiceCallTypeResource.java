@@ -97,7 +97,7 @@ public class ServiceCallTypeResource {
                 .filter(scl -> Long.valueOf(info.serviceCallLifeCycle.id.toString()).equals(scl.getId()))
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL_LIFE_CYCLE));
-        ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(info.name, info.versionName, serviceCallLifeCycle);
+        ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(info.name, info.versionName, serviceCallLifeCycle, info.reservedByApplication);
         builder.handler(info.handler);
         builder.logLevel(LogLevel.valueOf(info.logLevel.id));
         info.customPropertySets

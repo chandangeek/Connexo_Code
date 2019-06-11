@@ -181,7 +181,7 @@ public class ServiceCallLifeCycleImplIT {
     public void testDeleteUsedServiceCallLifeCycle() {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.createServiceCallLifeCycle(NAME).create();
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("test", "v1", serviceCallLifeCycle)
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("test", "v1", serviceCallLifeCycle, null)
                     .handler("DisconnectHandler1")
                     .create();
             assertThat(serviceCallService.getServiceCallLifeCycle(NAME)).isPresent();
