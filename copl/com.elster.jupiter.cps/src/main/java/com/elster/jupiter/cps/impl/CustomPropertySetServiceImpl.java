@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetSearchEnabler;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.EventType;
 import com.elster.jupiter.cps.HardCodedFieldNames;
 import com.elster.jupiter.cps.OverlapCalculatorBuilder;
 import com.elster.jupiter.cps.PersistenceSupport;
@@ -16,6 +17,7 @@ import com.elster.jupiter.cps.Privileges;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -39,6 +41,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.SqlExceptionThrowingFunction;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
@@ -62,6 +65,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,6 +109,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile SearchService searchService;
     private volatile UpgradeService upgradeService;
+    private volatile EventService eventService;
 
     /**
      * Holds the {@link CustomPropertySet}s that were published on the whiteboard
@@ -125,7 +131,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     // For testing purposes
     @Inject
-    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, UserService userService, SearchService searchService, UpgradeService upgradeService) {
+    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
+                                        UserService userService, SearchService searchService, UpgradeService upgradeService, EventService eventService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
@@ -134,6 +141,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.setUserService(userService);
         this.setSearchService(searchService);
         this.setUpgradeService(upgradeService);
+        this.setEventService(eventService);
         this.activate();
     }
 
@@ -219,11 +227,17 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.upgradeService = upgradeService;
     }
 
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
+                bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(TransactionService.class).toInstance(transactionService);
@@ -238,7 +252,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     public void activate() {
         this.dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-                Version.version(10, 2), UpgraderV10_2.class
+                Version.version(10, 2), UpgraderV10_2.class,
+                Version.version(10, 6), UpgraderV10_6.class
         ));
         this.installed = true;
         this.registerAllCustomPropertySets();
@@ -338,6 +353,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 } else {
                     this.registerCustomPropertySet(customPropertySet, systemDefined);
                 }
+                this.eventService.postEvent(EventType.CUSTOM_PROPERTY_SET_REGISTERED.topic(), customPropertySet.getPersistenceSupport().componentName());
             } catch (UnderlyingSQLFailedException | CommitException | IllegalArgumentException | IllegalStateException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw e;
@@ -417,7 +433,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     private static class CustomPropertySetInstaller implements FullInstaller, Upgrader {
-
         private final DataModel dataModel;
 
         @Inject
@@ -428,6 +443,26 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         @Override
         public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
             dataModelUpgrader.upgrade(dataModel, Version.latest());
+        }
+
+        @Override
+        public <T> T executeQuery(Statement statement, String sql, SqlExceptionThrowingFunction<ResultSet, T> resultMapper) {
+            return FullInstaller.super.executeQuery(statement, sql, resultMapper);
+        }
+
+        @Override
+        public <T> T executeQuery(DataModel dataModel, String sql, SqlExceptionThrowingFunction<ResultSet, T> resultMapper) {
+            return FullInstaller.super.executeQuery(dataModel, sql, resultMapper);
+        }
+
+        @Override
+        public void execute(Statement statement, String sql) {
+            FullInstaller.super.execute(statement, sql);
+        }
+
+        @Override
+        public void execute(DataModel dataModel, String... sql) {
+            FullInstaller.super.execute(dataModel, sql);
         }
 
         @Override
@@ -487,6 +522,16 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
+    public List<RegisteredCustomPropertySet> findAllCustomPropertySets() {
+        return this.dataModel
+                .mapper(RegisteredCustomPropertySetImpl.class)
+                .find()
+                .stream()
+                .filter(RegisteredCustomPropertySetImpl::isActive)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<RegisteredCustomPropertySet> findActiveCustomPropertySets(Class domainClass) {
         return this.findActiveCustomPropertySets()
                 .stream()
@@ -526,8 +571,34 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
+    public <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueHistoryValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Object... additionalPrimaryKeyValues) {
+        return this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesHistoryEntityFor(customPropertySet, businesObject, at, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
+    }
+
+    @Override
     public <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
         return this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesEntityFor(customPropertySet, businesObject, effectiveTimestamp, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        return this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesEntityModifiedBetweenFor(customPropertySet, businesObject, at, effectiveTimestamp, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListOfValuesModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        List<CustomPropertySetValues> customPropertySetValues = this.toListCustomPropertySetValues(customPropertySet, this.getListValuesEntityModifiedBetweenFor(customPropertySet, businesObject, at, effectiveTimestamp, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
+        return customPropertySetValues;
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueHistoryValuesForVersion(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        return this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesHistoryEntityFor(customPropertySet, businesObject, at, effectiveTimestamp, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListOfHistoryValuesForVersion(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues) {
+        return this.toListCustomPropertySetValues(customPropertySet, this.getListValuesHistoryEntityFor(customPropertySet, businesObject, false, start, end, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
     }
 
     @Override
@@ -552,6 +623,22 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             properties = CustomPropertySetValues.empty();
         }
         return properties;
+    }
+
+    private <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> toListCustomPropertySetValues(CustomPropertySet<D, T> customPropertySet, List<T> customPropertyValuesEntities, Object... additionalPrimaryKeyValues) {
+        List<CustomPropertySetValues> listProperties = new ArrayList<>();
+        for(T customPropertyValuesEntity: customPropertyValuesEntities) {
+            CustomPropertySetValues properties;
+            if (customPropertySet.isVersioned()) {
+                Interval interval = DomainExtensionAccessor.getInterval(customPropertyValuesEntity);
+                properties = CustomPropertySetValues.emptyDuring(interval);
+            } else {
+                properties = CustomPropertySetValues.empty();
+            }
+            customPropertyValuesEntity.copyTo(properties, additionalPrimaryKeyValues);
+            listProperties.add(properties);
+        }
+        return listProperties;
     }
 
     @Override
@@ -591,6 +678,13 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         return activeCustomPropertySet.getNonVersionedValuesEntityFor(businesObject, additionalPrimaryKeyValues);
     }
 
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Object... additionalPrimaryKeyValues) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsNotVersioned(customPropertySet, activeCustomPropertySet);
+        return activeCustomPropertySet.getNonVersionedValuesHistoryEntityFor(businesObject, at, additionalPrimaryKeyValues);
+    }
+
     private <D, T extends PersistentDomainExtension<D>> void validateCustomPropertySetIsNotVersioned(CustomPropertySet<D, T> customPropertySet, ActiveCustomPropertySet activeCustomPropertySet) {
         if (activeCustomPropertySet.getCustomPropertySet().isVersioned()) {
             throw new UnsupportedOperationException("Custom property set " + customPropertySet.getId() + " is versioned, you need to call CustomPropertySetService#getUniqueValuesFor(CustomPropertySet, Class<Domain>, Instant)");
@@ -602,10 +696,55 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         return this.getUniqueValuesEntityFor(customPropertySet, businesObject, false, effectiveTimestamp, additionalPrimaryKeyValues);
     }
 
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues) {
+        return this.getUniqueValuesEntityModifiedBetweenFor(customPropertySet, businesObject, false, start, end, additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> List<T> getListValuesEntityModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        return this.getListValuesEntityModifiedBetweenFor(customPropertySet, businesObject, false, at, effectiveTimestamp, additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        return this.getUniqueValuesHistoryEntityFor(customPropertySet, businesObject, false, at, effectiveTimestamp, additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getListValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant start, Instant end, Object... additionalPrimaryKeyValues) {
+        return this.toListCustomPropertySetValues(customPropertySet,
+                this.getListValuesHistoryEntityFor(customPropertySet, businesObject, false, start, end, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
+    }
+
     private <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, boolean ignorePrivileges, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
         return activeCustomPropertySet.getVersionedValuesEntityFor(businesObject, ignorePrivileges, effectiveTimestamp, additionalPrimaryKeyValues);
+    }
+
+    private <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, boolean ignorePrivileges, Instant start, Instant end, Object... additionalPrimaryKeyValues) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
+        return activeCustomPropertySet.getVersionedValuesEntityModifiedBetweenFor(businesObject, ignorePrivileges, start, end, additionalPrimaryKeyValues);
+    }
+
+    private <D, T extends PersistentDomainExtension<D>> List<T> getListValuesEntityModifiedBetweenFor(CustomPropertySet<D, T> customPropertySet, D businesObject, boolean ignorePrivileges, Instant start, Instant end, Object... additionalPrimaryKeyValues) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
+        return activeCustomPropertySet.getListVersionedValuesEntityModifiedBetweenFor(businesObject, ignorePrivileges, start, end, additionalPrimaryKeyValues);
+    }
+
+    private <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, boolean ignorePrivileges, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
+        return activeCustomPropertySet.getVersionedValuesHistoryEntityFor(businesObject, ignorePrivileges, at, effectiveTimestamp, additionalPrimaryKeyValues);
+    }
+
+    private <D, T extends PersistentDomainExtension<D>> List<T> getListValuesHistoryEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, boolean ignorePrivileges, Instant from, Instant to, Object... additionalPrimaryKeyValues) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
+        return activeCustomPropertySet.getListVersionedValuesHistoryEntityFor(businesObject, ignorePrivileges, from, to, additionalPrimaryKeyValues);
     }
 
     private <D, T extends PersistentDomainExtension<D>> void validateCustomPropertySetIsVersioned(CustomPropertySet<D, T> customPropertySet, ActiveCustomPropertySet activeCustomPropertySet) {
@@ -1017,7 +1156,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .add();
             return domainReference;
         }
-
         /**
          * Adds a column and a foreign key to the specified {@link Table}
          * that references the {@link CustomPropertySet}.

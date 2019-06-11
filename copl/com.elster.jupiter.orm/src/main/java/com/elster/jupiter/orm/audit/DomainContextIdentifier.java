@@ -5,28 +5,24 @@ import com.elster.jupiter.orm.TableAudit;
 public class DomainContextIdentifier {
 
     private Long id;
-    private String domain;
-    private String context;
+    private Integer domainContext;
     private String reference;
     private int operation;
     private Object object;
     private TableAudit tableAudit;
     private Long reverseReferenceMapValue;
 
-    private long pkColumn;
+    private long pkDomainColumn;
+    private long pkContextColumn1;
+    private long pkContextColumn2;
 
     public DomainContextIdentifier setId(Long id) {
         this.id = id;
         return this;
     }
 
-    public DomainContextIdentifier setDomain(String domain) {
-        this.domain = domain;
-        return this;
-    }
-
-    public DomainContextIdentifier setContext(String context) {
-        this.context = context;
+    public DomainContextIdentifier setDomainContext(Integer domainContext) {
+        this.domainContext = domainContext;
         return this;
     }
 
@@ -40,8 +36,8 @@ public class DomainContextIdentifier {
         return this;
     }
 
-    public DomainContextIdentifier setPkColumn(long pkColumn) {
-        this.pkColumn = pkColumn;
+    public DomainContextIdentifier setPkDomainColumn(long pkDomainColumn) {
+        this.pkDomainColumn = pkDomainColumn;
         return this;
     }
 
@@ -64,12 +60,8 @@ public class DomainContextIdentifier {
         return id;
     }
 
-    public String getDomain() {
-        return domain;
-    }
-
-    public String getContext() {
-        return context;
+    public Integer getDomainContext() {
+        return domainContext;
     }
 
     public String getReference() {
@@ -80,8 +72,8 @@ public class DomainContextIdentifier {
         return operation;
     }
 
-    public long getPkColumn() {
-        return pkColumn;
+    public long getPkDomainColumn() {
+        return pkDomainColumn;
     }
 
     public Object getObject() {
@@ -94,5 +86,23 @@ public class DomainContextIdentifier {
 
     public Long getReverseReferenceMapValue() {
         return reverseReferenceMapValue;
+    }
+
+    public long getPkContextColumn1() {
+        return pkContextColumn1;
+    }
+
+    public long getPkContextColumn2() {
+        return pkContextColumn2;
+    }
+
+    public DomainContextIdentifier setPkContextColumn1(long pkContextColumn) {
+        this.pkContextColumn1 = pkContextColumn;
+        return this;
+    }
+
+    public DomainContextIdentifier setPkContextColumn2(long pkContextColumn) {
+        this.pkContextColumn2 = pkContextColumn;
+        return this;
     }
 }

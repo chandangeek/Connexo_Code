@@ -36,5 +36,7 @@ public class SecurityAccessorTypeInfo {
     public SessionKeyCapability importCapability;
     public SessionKeyCapability renewCapability;
     public int keySize;
+    public String defaultServiceKey;
+    public boolean isReversible;
 
 }

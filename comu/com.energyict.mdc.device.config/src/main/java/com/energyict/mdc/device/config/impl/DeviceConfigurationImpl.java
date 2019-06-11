@@ -128,7 +128,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         DATALOGGER_ENABLED("dataloggerEnabled"),
         VALIDATE_ON_STORE("validateOnStore"),
         MULTI_ELEMENT_ENABLED("multiElementEnabled"),
-        IS_DEFAULT("isDefault");
+        IS_DEFAULT("isDefault"),
+        DEVICETYPE("deviceType");
 
         private final String javaFieldName;
 
@@ -1383,10 +1384,28 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public DeviceConfValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet) {
         DeviceConfValidationRuleSetUsage usage =
-                deviceConfValidationRuleSetUsageFactory.get().init(validationRuleSet, this);
+                deviceConfValidationRuleSetUsageFactory.get().init(validationRuleSet, this, true);
         deviceConfValidationRuleSetUsages.add(usage);
         getDataModel().touch(this);
         return usage;
+    }
+
+    @Override
+    public void setValidationRuleSetStatus(ValidationRuleSet validationRuleSet, boolean status) {
+        DeviceConfValidationRuleSetUsage usage = getUsage(validationRuleSet);
+        if (usage != null) {
+            usage.setRuleSetStatus(status);
+            getDataModel().update(usage, "isRuleSetActive");
+        }
+    }
+
+    @Override
+    public boolean getValidationRuleSetStatus(ValidationRuleSet validationRuleSet) {
+        DeviceConfValidationRuleSetUsage usage = getUsage(validationRuleSet);
+        if (usage != null) {
+            return usage.isRuleSetActive();
+        }
+        throw new UnsupportedOperationException("Unable to retrieve the validation rule set status for validation rule set with name: "+validationRuleSet.getName());
     }
 
     private DeviceConfValidationRuleSetUsage getUsage(ValidationRuleSet validationRuleSet) {
@@ -1420,7 +1439,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public DeviceConfigurationEstimationRuleSetUsage addEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
         return findEstimationRuleSetUsage(estimationRuleSet).orElseGet(() -> {
             DeviceConfigurationEstimationRuleSetUsage usage = deviceConfigEstimationRuleSetUsageFactory.get()
-                    .init(this, estimationRuleSet);
+                    .init(this, estimationRuleSet, true);
             deviceConfigurationEstimationRuleSetUsages.add(usage);
             if (DeviceConfigurationImpl.this.getId() > 0) {
                 getDataModel().touch(DeviceConfigurationImpl.this);
@@ -1433,6 +1452,34 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         return deviceConfigurationEstimationRuleSetUsages.stream()
                 .filter(usage -> usage.getEstimationRuleSet().getId() == estimationRuleSet.getId())
                 .findFirst();
+    }
+
+    @Override
+    public boolean isEstimationRuleSetActiveOnDeviceConfig(long estimationRuleSetId) {
+        return deviceConfigurationEstimationRuleSetUsages.stream()
+                .filter(usage -> usage.getEstimationRuleSet().getId() == estimationRuleSetId)
+                .findFirst()
+                .map(DeviceConfigurationEstimationRuleSetUsage::isRuleSetActive)
+                .orElse(false);
+
+    }
+
+    @Override
+    public void setEstimationRuleSetStatus(EstimationRuleSet estimationRuleSet, boolean status) {
+        Optional<DeviceConfigurationEstimationRuleSetUsage> usage = findEstimationRuleSetUsage(estimationRuleSet);
+        if (usage.isPresent()) {
+            usage.get().setRuleSetStatus(status);
+            getDataModel().update(usage.get(), DeviceConfigurationEstimationRuleSetUsageImpl.Fields.IS_RULE_SET_ACTIVE.fieldName());
+        }
+    }
+
+    @Override
+    public boolean getEstimationRuleSetStatus(EstimationRuleSet estimationRuleSet) {
+        Optional<DeviceConfigurationEstimationRuleSetUsage> estimationRuleSetUsage = findEstimationRuleSetUsage(estimationRuleSet);
+        if (estimationRuleSetUsage.isPresent()) {
+            return estimationRuleSetUsage.get().isRuleSetActive();
+        }
+        throw new UnsupportedOperationException("Unable to retrieve the estimation rule set status for estimation rule set with name: "+estimationRuleSet.getName());
     }
 
     @Override
@@ -1533,7 +1580,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private void clearOldDefault(){
         getDataModel()
                 .query(DeviceConfigurationImpl.class)
-                .select(where(Fields.IS_DEFAULT.fieldName()).isEqualTo(true))
+                .select(where(Fields.IS_DEFAULT.fieldName()).isEqualTo(true)
+                        .and(where(Fields.DEVICETYPE.fieldName()).isEqualTo(getDeviceType())))
                 .forEach(deviceConfiguration -> deviceConfiguration.setDefaultStatus(false));
     }
 
@@ -1760,6 +1808,13 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         public ComTaskEnablementBuilder setPriority(int priority) {
             this.mode.verify();
             this.underConstruction.setPriority(priority);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder setMaxNumberOfTries(int maxNumberOfTries) {
+            this.mode.verify();
+            this.underConstruction.setMaxNumberOfTries(maxNumberOfTries);
             return this;
         }
 

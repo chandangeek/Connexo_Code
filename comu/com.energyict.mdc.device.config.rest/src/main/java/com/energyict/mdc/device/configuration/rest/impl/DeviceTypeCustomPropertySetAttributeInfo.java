@@ -19,7 +19,7 @@ public class DeviceTypeCustomPropertySetAttributeInfo {
 
     public DeviceTypeCustomPropertySetAttributeInfo(PropertySpec propertySpec) {
         this();
-        this.name = propertySpec.getName();
+        this.name = propertySpec.getDisplayName();
         this.required = propertySpec.isRequired();
     }
 }

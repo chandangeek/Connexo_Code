@@ -34,4 +34,6 @@ public final class ModuleConstants {
     public static final String EVENT_TIMESTAMP = "timestamp";
     public static final long MDC_AMR_SYSTEM_ID = 1L;
 
+    public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES ="deviceLifecycleInDeviceStates";
+
 }

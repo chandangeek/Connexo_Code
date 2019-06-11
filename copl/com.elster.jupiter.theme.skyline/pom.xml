@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>theme.skyline</artifactId>
@@ -28,56 +28,67 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>extjs</artifactId>
+        </dependency>
     </dependencies>
+
+    <properties>
+        <sencha.ext.dir>${basedir}/../com.elster.jupiter.extjs/src/main/web/js/ext</sencha.ext.dir>
+        <js.dir>js/skyline</js.dir>
+        <package.name>uni-theme-skyline</package.name>
+    </properties>
 
     <profiles>
         <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/skyline</js.dir>
-                <package.name>uni-theme-skyline</package.name>
-            </properties>
+            <id>sencha-dev</id>
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>1.8</version>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
                         <executions>
                             <execution>
-                                <id>add-compiled-js</id>
+                                <id>sencha-compile</id>
                                 <phase>generate-resources</phase>
                                 <goals>
-                                    <goal>add-resource</goal>
+                                    <goal>run</goal>
                                 </goals>
                                 <configuration>
-                                    <resources>
-                                        <resource>
-                                            <directory>${basedir}/target/web</directory>
-                                            <targetPath>${js.dir}/build</targetPath>
-                                            <includes>
-                                                <!--  WATCH OUT : our build is case sensitive !!!! -->
-                                                <include>*.html</include>
-                                                <include>*.js</include>
-                                                <include>resources/**/*</include>
-                                            </includes>
-                                            <excludes>
-                                                <exclude>resources/packages/**/*</exclude>
-                                                <exclude>resources/resources/**/*</exclude>
-                                                <exclude>resources/sass/**/*</exclude>
-                                            </excludes>
-                                        </resource>
-                                        <resource>
-                                            <directory>src/main/web</directory>
-                                            <excludes>
-                                                <exclude>${js.dir}/*.html</exclude>
-                                                <exclude>${js.dir}/*.js</exclude>
-                                                <exclude>${js.dir}/resources/**/*</exclude>
-                                                <exclude>${js.dir}/build/**/*</exclude>
-                                            </excludes>
-
-                                        </resource>
-                                    </resources>
+                                    <target unless="skipSencha" if="js.dir">
+                                        <echo>Sencha build</echo>
+                                        <echo>Using Sencha CMD in ${sencha.cmd.dir}</echo>
+                                        <echo>Using Ext lib in ${sencha.ext.dir}</echo>
+                                        <property name="build.dir" value="${project.basedir}/src/main/web/${js.dir}/build"/>
+                                        <property name="build.temp.dir" value="${project.build.directory}/webtemp"/>
+                                        <property name="cmd.dir" value="${sencha.cmd.dir}"/>
+                                        <property name="ext.dir" value="${sencha.ext.dir}"/>
+                                        <ant antfile="build.xml" target="build" dir="./src/main/web/${js.dir}"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>sencha-deploy</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target unless="skipSencha" if="package.name">
+                                        <property name="cmd.dir" value="${sencha.cmd.dir}"/>
+                                        <property name="package.file"
+                                                  value="${project.basedir}/src/main/web/${js.dir}/build/${package.name}/${package.name}.pkg"/>
+                                        <available file="${package.file}" property="package.present"/>
+                                        <taskdef resource="com/sencha/ant/antlib.xml" classpath="${cmd.dir}/sencha.jar"
+                                                 loaderref="senchaloader"/>
+                                        <x-sencha-command>
+                                            package
+                                            add
+                                            ${package.file}
+                                        </x-sencha-command>
+                                    </target>
                                 </configuration>
                             </execution>
                         </executions>
@@ -87,16 +98,4 @@
         </profile>
     </profiles>
 
-    <!--<build>
-        <resources>
-            <resource>
-                <directory>src/main/web/js/skyline/build</directory>
-                <targetPath>js/skyline/build</targetPath>
-                <includes>
-                    <include>resources/**/*</include>
-                    <include>*.js</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>-->
 </project>

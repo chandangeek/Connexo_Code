@@ -9,12 +9,15 @@ package com.elster.jupiter.hsm.impl.config;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 
+import com.atos.worldline.jss.api.basecrypto.ChainingMode;
+import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-public class HsmConfigurationPropFileImpl implements HsmConfiguration {
+public class HsmConfigurationPropFileImpl extends HsmAbstractConfiguration implements HsmConfiguration {
 
     private final File file;
     private final Properties properties;

@@ -14,15 +14,16 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.rest.AliasInfo;
 import com.elster.jupiter.pki.rest.AliasSearchFilterFactory;
+import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
-import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -35,6 +36,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -84,6 +86,7 @@ public class SecurityAccessorResource {
     private final Thesaurus thesaurus;
     private final SecurityAccessorResourceHelper securityAccessorResourceHelper;
     private final AliasSearchFilterFactory aliasSearchFilterFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
     public SecurityAccessorResource(ResourceHelper resourceHelper,
@@ -96,7 +99,8 @@ public class SecurityAccessorResource {
                                     Thesaurus thesaurus,
                                     SecurityAccessorResourceHelper securityAccessorResourceHelper,
                                     TrustStoreValuesProvider trustStoreValuesProvider,
-                                    AliasSearchFilterFactory aliasSearchFilterFactory) {
+                                    AliasSearchFilterFactory aliasSearchFilterFactory,
+                                    ConcurrentModificationExceptionFactory conflictFactory) {
         this.securityAccessorInfoFactory = securityAccessorInfoFactory;
         this.resourceHelper = resourceHelper;
         this.securityManagementService = securityManagementService;
@@ -108,6 +112,7 @@ public class SecurityAccessorResource {
         this.trustStoreValuesProvider = trustStoreValuesProvider;
         this.securityAccessorResourceHelper = securityAccessorResourceHelper;
         this.aliasSearchFilterFactory = aliasSearchFilterFactory;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -119,8 +124,7 @@ public class SecurityAccessorResource {
             com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public PagedInfoList getKeys(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()),
-                securityAccessorInfoFactory::asKeyWithLevels);
+        List<SecurityAccessorInfo> collect = getSecurityAccessorKeyInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()));
         return PagedInfoList.fromCompleteList("keys", collect, queryParameters);
     }
 
@@ -136,7 +140,9 @@ public class SecurityAccessorResource {
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
         SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType)
                 .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(securityAccessorType, device));
-        return Response.ok(securityAccessorInfoFactory.asKey(securityAccessor)).build();
+	    SecurityAccessorInfo info = securityAccessorInfoFactory.asKey(securityAccessor);
+	    device.getDeviceType().getDefaultKeyOfSecurityAccessorType(securityAccessorType).ifPresent(v -> info.defaultServiceKey = v);
+        return Response.ok(info).build();
     }
 
     @GET
@@ -164,7 +170,7 @@ public class SecurityAccessorResource {
             com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public PagedInfoList getCertificates(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, kat -> CERTIFICATES.contains(kat.getKeyType().getCryptographicType()), (keyAccessor) -> securityAccessorInfoFactory
+        List<SecurityAccessorInfo> collect = getSecurityAccessorCertificateInfos(device, kat -> CERTIFICATES.contains(kat.getKeyType().getCryptographicType()), (keyAccessor) -> securityAccessorInfoFactory
                 .asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider));
         return PagedInfoList.fromCompleteList("certificates", collect, queryParameters);
     }
@@ -232,6 +238,25 @@ public class SecurityAccessorResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
         securityAccessor.swapValues();
         return Response.ok(securityAccessorInfoFactory.asCertificate(securityAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/keys/{id}/unmarkservicekey")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
+    public Response unmarkServiceKey(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
+        SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        SecurityAccessor<SecurityValueWrapper> securityAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, securityAccessorType, securityAccessorInfo.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(securityAccessorType.getName())
+                        .supplier());
+        securityAccessor.setServiceKey(false);
+        securityAccessor.save();
+        return Response.ok(securityAccessorInfoFactory.asKey(securityAccessor)).build();
     }
 
     @PUT
@@ -492,7 +517,17 @@ public class SecurityAccessorResource {
         return properties.values().stream().anyMatch(Objects::nonNull);
     }
 
-    private List<SecurityAccessorInfo> getSecurityAccessorInfos(Device device, Predicate<SecurityAccessorType> keyAccessorPredicate,
+    private List<SecurityAccessorInfo> getSecurityAccessorKeyInfos(Device device, Predicate<SecurityAccessorType> keyAccessorPredicate) {
+        List<SecurityAccessor> securityAccessors = device.getDeviceType().getSecurityAccessorTypes().stream()
+                .filter(keyAccessorPredicate)
+                .map(kat -> device.getSecurityAccessor(kat).orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(kat, device)))
+                .collect(toList());
+
+        return securityAccessorInfoFactory.asKeyWithLevels(device, securityAccessors);
+
+    }
+
+    private List<SecurityAccessorInfo> getSecurityAccessorCertificateInfos(Device device, Predicate<SecurityAccessorType> keyAccessorPredicate,
                                                                 Function<SecurityAccessor, SecurityAccessorInfo> infoCreator) {
         return device.getDeviceType().getSecurityAccessorTypes().stream()
                 .filter(keyAccessorPredicate)

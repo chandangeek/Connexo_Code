@@ -45,6 +45,8 @@ public class IssueTypeResource extends BaseResource {
                     .select(where(KEY).in(new ArrayList<String>() {{
                         add(IssueTypes.DATA_COLLECTION.getName());
                         add(IssueTypes.DATA_VALIDATION.getName());
+                        add(IssueTypes.DEVICE_LIFECYCLE.getName());
+                        add(IssueTypes.TASK.getName());
                     }}));
         }
         return issueTypes;

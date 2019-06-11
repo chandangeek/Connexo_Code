@@ -6,6 +6,7 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
@@ -16,14 +17,16 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -50,6 +53,8 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
     private FirmwareVersion communicationFirmwareVersion;
     @Mock
     private DeviceMessageCategory deviceMessageCategory;
+    @Mock
+    DeviceMessageService deviceMessageService;
 
     @Before
     public void setUpStubs() {
@@ -72,7 +77,7 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         when(deviceMessageCategory.getId()).thenReturn(8);
         when(this.taskService.findFirmwareComTask()).thenReturn(Optional.<ComTask>empty());
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class))).thenAnswer(
-                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService).initFor((Device) invocationOnMock.getArguments()[0])
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService).initFor((Device) invocationOnMock.getArguments()[0])
         );
     }
 
@@ -95,10 +100,10 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         JsonModel jsonModel = JsonModel.create(json);
 
         assertThat(jsonModel.<List<?>>get("$.firmwares")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
-        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion.firmwareVersion")).isEqualTo(METER_VERSION);
-        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("communication");
-        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion")).isNull();
+        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo(METER_VERSION);
+        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("communication");
+        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion")).isNull();
     }
 
     @Test
@@ -119,10 +124,10 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         JsonModel jsonModel = JsonModel.create(json);
 
         assertThat(jsonModel.<List<?>>get("$.firmwares")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
-        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion.firmwareVersion")).isEqualTo(METER_VERSION);
-        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("communication");
-        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo(communicationVersion);
+        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo(METER_VERSION);
+        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("communication");
+        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion.firmwareVersion")).isEqualTo(communicationVersion);
     }
 
 }

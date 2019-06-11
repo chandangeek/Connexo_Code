@@ -7,7 +7,7 @@
 	    <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
 	<groupId>com.energyict</groupId>
@@ -58,6 +58,12 @@
 			<dependency>
 				<groupId>com.energyict</groupId>
 				<artifactId>mdc.app.help</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
+				<artifactId>mdc.autoreschedule</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
@@ -327,6 +333,24 @@
 			</dependency>
 			<dependency>
 				<groupId>com.energyict</groupId>
+				<artifactId>mdc.issue.devicelifecycle</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
+				<artifactId>mdc.issue.devicelifecycle.extjs</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
+				<artifactId>mdc.issue.devicelifecycle.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
 				<artifactId>mdc.issues</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
@@ -424,6 +448,24 @@
 			<dependency>
 				<groupId>com.energyict</groupId>
 				<artifactId>mdc.tasks.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
+				<artifactId>mdc.tou.campaign</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
+				<artifactId>mdc.tou.campaign.extjs</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
+				<artifactId>mdc.tou.campaign.rest</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
@@ -633,6 +675,7 @@
 				<module>com.energyict.mdc.api.rest</module>
 				<module>com.energyict.mdc.app</module>
 				<module>com.energyict.mdc.app.help</module>
+				<module>com.energyict.mdc.autoreschedule</module>
 				<module>com.energyict.mdc.bpm</module>
 				<module>com.energyict.mdc.bpm.extjs</module>
 				<module>com.energyict.mdc.cim.webservices.inbound.soap</module>
@@ -675,6 +718,9 @@
 				<module>com.energyict.mdc.issue.datavalidation</module>
 				<module>com.energyict.mdc.issue.datavalidation.extjs</module>
 				<module>com.energyict.mdc.issue.datavalidation.rest</module>
+				<module>com.energyict.mdc.issue.devicelifecycle</module>
+				<module>com.energyict.mdc.issue.devicelifecycle.extjs</module>
+				<module>com.energyict.mdc.issue.devicelifecycle.rest</module>
 				<module>com.energyict.mdc.issues</module>
 				<module>com.energyict.mdc.masterdata</module>
 				<module>com.energyict.mdc.masterdata.rest</module>
@@ -689,6 +735,9 @@
 				<module>com.energyict.mdc.sap.soap.wsdl</module>
 				<module>com.energyict.mdc.scheduling</module>
 				<module>com.energyict.mdc.scheduling.rest</module>
+				<module>com.energyict.mdc.tou.campaign</module>
+				<module>com.energyict.mdc.tou.campaign.extjs</module>
+				<module>com.energyict.mdc.tou.campaign.rest</module>
 				<module>com.energyict.mdc.tasks</module>
 				<module>com.energyict.mdc.tasks.rest</module>
 				<module>com.energyict.mdc.usagepoint.data.rest</module>				

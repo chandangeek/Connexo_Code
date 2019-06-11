@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>third-party</artifactId>
@@ -356,8 +356,8 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
         </dependency>
-
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -371,16 +371,13 @@
                         </goals>
                     </execution>
                 </executions>
-
                 <configuration>
                     <archiverConfig>
                         <duplicateBehavior>skip</duplicateBehavior>
                     </archiverConfig>
-
                     <descriptors>
                         <descriptor>assembly/assembly.xml</descriptor>
                     </descriptors>
-
                     <finalName>connexo-third-party-v${project.version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>

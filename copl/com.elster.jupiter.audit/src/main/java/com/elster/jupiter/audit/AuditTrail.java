@@ -19,9 +19,7 @@ public interface AuditTrail {
 
     Instant getChangedOn();
 
-    AuditDomainType getDomain();
-
-    AuditDomainContextType getContext();
+    AuditDomainContextType getDomainContext();
 
     String getUser();
 
@@ -33,6 +31,9 @@ public interface AuditTrail {
 
     Instant getModTimeEnd();
 
-    long getPkcolumn();
+    long getPkDomain();
 
+    long getPkContext1();
+
+    long getPkContext2();
 }

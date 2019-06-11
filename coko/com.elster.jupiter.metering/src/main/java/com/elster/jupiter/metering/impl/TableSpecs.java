@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -432,8 +433,7 @@ public enum TableSpecs {
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
             table.unique("UK_MTR_ENDDEVICE_NAME").on(nameColumn, obsoleteTime).since(version(10, 2, 1)).add();
             table.audit(MTR_ENDDEVICE.name())
-                    .domain("DEVICE")
-                    .context("DEVICE_ATTRIBUTES")
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
                     .build();
         }
     },
@@ -462,6 +462,10 @@ public enum TableSpecs {
                     .onDelete(RESTRICT)
                     .map("state")
                     .add();
+            table.audit("")
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainReferences("FK_MTR_STATUS_ENDDEVICE")
+                    .build();
         }
     },
     MTR_METERROLE {
@@ -526,11 +530,8 @@ public enum TableSpecs {
                     .on(meterRoleIdColumn)
                     .add();
             table.audit(MTR_MULTIPLIERVALUE.name())
-                    .domain("DEVICE")
-                    .context("DEVICE_ATTRIBUTES")
-                    .references("FK_MTR_METERACTMETER")
-                    .touchDomain("FK_MTR_METERACTMETER")
-                    .touchContext("")
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainReferences("FK_MTR_METERACTMETER")
                     .build();
         }
     },
@@ -615,6 +616,7 @@ public enum TableSpecs {
             table.column("LOGBOOKID").number().map("logBookId").conversion(NUMBER2LONG).add();
             table.column("LOGBOOKPOSITION").number().map("logBookPosition").conversion(NUMBER2INT).add();
             table.column("DEVICEEVENTTYPE").varChar(80).map("deviceEventType").add();
+            table.column("READINGDATETIME").number().conversion(NUMBER2INSTANT).map("readingDateTime").since(version(10, 6)).add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_ENDDEVICEEVENTRECORD")
                     .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)
@@ -927,6 +929,11 @@ public enum TableSpecs {
                     .reverseMap("meterConfigurations")
                     .reverseMapOrder("interval.start")
                     .on(meterIdColumn).add();
+
+            table.audit(MTR_RT_METER_CONFIG.name())
+                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.ordinal())
+                    .domainReferences("FK_MTR_METER_CONFIG")
+                    .build();
 
         }
     },
@@ -1885,6 +1892,7 @@ public enum TableSpecs {
             Column readingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
             Column actual = table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
+            table.partitionOn(timestampColumn);
             table.column("COMMENTS").varChar(4000).map("comment").add();
             table.primaryKey("PK_MTR_READINGQUALITY").on(idColumn).add();
             table.foreignKey("FK_MTR_RQ_CHANNEL")

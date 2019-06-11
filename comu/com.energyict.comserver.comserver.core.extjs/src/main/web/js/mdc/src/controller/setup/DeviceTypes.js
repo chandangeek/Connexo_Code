@@ -19,6 +19,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         'setup.devicetype.DeviceTypeLogbooks',
         'setup.devicetype.AddLogbookTypes',
         'setup.devicetype.AddEditDeviceIcon',
+        'setup.devicetype.DeviceTypeCustomAttributesEdit',
         'Uni.view.error.NotFound'
     ],
 
@@ -28,11 +29,13 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         'LogbookTypesOfDeviceType',
         'AvailableLogbookTypes',
         'Mdc.store.DeviceLifeCycles',
-        'Mdc.store.DeviceTypePurposes'
+        'Mdc.store.DeviceTypePurposes',
+        'Mdc.store.DeviceTypeCustomAttributesSets'
     ],
 
     models: [
-        'Mdc.model.DeviceType'
+        'Mdc.model.DeviceType',
+        'Mdc.model.AttributeSetOnDeviceType'
     ],
 
     refs: [
@@ -63,7 +66,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeDetailActionMenu', selector: 'deviceTypeDetail device-type-action-menu'},
         {ref: 'addEditDeviceIcon', selector: 'add-edit-device-icon'},
         {ref: 'deviceIconDisplayField', selector: 'deviceTypeDetail #deviceIconDisplayField'},
-        {ref: 'noDeviceIconDisplayField', selector: 'deviceTypeDetail #noDeviceIconDisplayField'}
+        {ref: 'noDeviceIconDisplayField', selector: 'deviceTypeDetail #noDeviceIconDisplayField'},
+        {
+            ref: 'editCustomAttributePropertyForm',
+            selector: '#device-type-custom-attributes-edit-id #device-type-custom-attributes-property-form'
+        },
+        {ref: 'deviceTypeCustomAttributesEditView', selector: '#device-type-custom-attributes-edit-id '}
     ],
 
     init: function () {
@@ -110,7 +118,17 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             },
             '#deviceIconFileField': {
                 change: this.onDeviceIconFieldChange
-            }
+            },
+            '#device-type-custom-attributes-edit-id #device-type-custom-attributes-save-btn': {
+                click: this.saveCustomAttributes
+            },
+            '#device-type-custom-attributes-edit-id #device-type-custom-attributes-restore-default-btn': {
+                click: this.restoreDefaultCustomAttributes
+            },
+            '#device-type-custom-attributes-edit-id #device-type-custom-attributes-cancel-btn': {
+                click: this.goToAttributesLandingFromCas
+            },
+
         });
     },
 
@@ -173,12 +191,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showDeviceTypeDetailsView: function (deviceType) {
         var me = this,
             deviceTypePurposesStore = me.getStore('Mdc.store.DeviceTypePurposes'),
-            model = Ext.ModelManager.getModel('Mdc.model.DeviceType');
+            model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
+            router = me.getController('Uni.controller.history.Router');
 
         deviceTypePurposesStore.load(function () {
             var widget = Ext.widget('deviceTypeDetail', {
                 deviceTypeId: deviceType,
-                purposeStore: deviceTypePurposesStore
+                purposeStore: deviceTypePurposesStore,
+                router: router
             });
 
             me.getApplication().fireEvent('changecontentevent', widget);
@@ -241,6 +261,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     Ext.resumeLayouts(true);
 
                     me.getApplication().fireEvent('loadDeviceType', deviceType);
+
+                    /* Load custom property sets  */
+                    var customAttributesStore = me.getStore('Mdc.store.DeviceTypeCustomAttributesSets');
+                    customAttributesStore.getProxy().setUrl(deviceTypeId);
+
+                    customAttributesStore.load(function () {
+                        widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(this);
+                    });
                 }
             });
         });
@@ -343,6 +371,33 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             }
         );
 
+    },
+
+    showDeviceTypeCustomAttributesEditView: function (deviceTypeId, customAttributeSetId) {
+
+            var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            model = Ext.ModelManager.getModel('Mdc.model.AttributeSetOnDeviceType'),
+            widget;
+
+            model.getProxy().setUrl(deviceTypeId);
+            viewport.setLoading();
+
+            widget = Ext.widget('device-type-custom-attributes-edit', {deviceTypeId: deviceTypeId});
+
+            me.getApplication().fireEvent('changecontentevent', widget);
+
+            model.load(customAttributeSetId, {
+                success: function (record) {
+                    me.getApplication().fireEvent('loadCustomAttributeSetOnDeviceType', record);
+                    widget.down('#custom-attribute-set-edit-panel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                    widget.down('#device-type-custom-attributes-property-form').loadRecord(record);
+                },
+                callback: function () {
+                    viewport.setLoading(false);
+                }
+            })
     },
 
     modifyEditView: function (widget, store) {
@@ -782,7 +837,53 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
     hideErrorPanel: function () {
         this.getDeviceTypeEditForm().down('#deviceTypeEditFormErrors').hide();
-    }
+    },
 
+    saveCustomAttributes: function () {
+        var me = this,
+            form = me.getEditCustomAttributePropertyForm(),
+            editView = me.getDeviceTypeCustomAttributesEditView(),
+            errorPanel = editView.down('#device-type-custom-attributes-error-msg');
+
+        editView.setLoading();
+        Ext.suspendLayouts();
+        errorPanel.hide();
+        form.clearInvalid();
+        Ext.resumeLayouts(true);
+        form.updateRecord();
+
+        form.getRecord().save({
+            backUrl: me.getLandingUrl(),
+            success: function (record) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceTypeAttributes.saved', 'MDC', 'Device Type attributes saved'));
+                me.goToAttributesLandingFromCas();
+            },
+            failure: function (rec, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+
+                if (json && json.errors) {
+                    Ext.suspendLayouts();
+                    form.markInvalid(json.errors);
+                    errorPanel.show();
+                    Ext.resumeLayouts(true);
+                }
+            },
+            callback: function () {
+                editView.setLoading(false);
+            }
+        });
+    },
+
+    restoreDefaultCustomAttributes: function () {
+        this.getEditCustomAttributePropertyForm().restoreAll();
+    },
+
+    getLandingUrl: function () {
+        return this.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view').buildUrl();
+    },
+
+    goToAttributesLandingFromCas: function () {
+        this.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view').forward();
+    }
 })
 ;

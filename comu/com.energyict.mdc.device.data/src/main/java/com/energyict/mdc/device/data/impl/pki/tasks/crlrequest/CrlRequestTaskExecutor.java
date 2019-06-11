@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.pki.tasks.crlrequest;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
@@ -53,6 +54,7 @@ class CrlRequestTaskExecutor implements TaskExecutor {
     private final Clock clock;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
+    private final EventService eventService;
     private Logger logger;
 
     CrlRequestTaskExecutor(CaService caService,
@@ -61,7 +63,7 @@ class CrlRequestTaskExecutor implements TaskExecutor {
                            DeviceService deviceService,
                            Clock clock,
                            Thesaurus thesaurus,
-                           TransactionService transactionService) {
+                           TransactionService transactionService, EventService eventService) {
         this.caService = caService;
         this.crlRequestTaskPropertiesService = crlRequestTaskPropertiesService;
         this.securityManagementService = securityManagementService;
@@ -69,6 +71,7 @@ class CrlRequestTaskExecutor implements TaskExecutor {
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
+        this.eventService = eventService;
     }
 
     @Override
@@ -85,6 +88,7 @@ class CrlRequestTaskExecutor implements TaskExecutor {
             run(occurrence);
             context.commit();
         } catch (Throwable e) {
+            postFailEvent(eventService, occurrence, e.getLocalizedMessage());
             try (TransactionContext context = transactionService.getContext()) {
                 log(e);
                 context.commit();

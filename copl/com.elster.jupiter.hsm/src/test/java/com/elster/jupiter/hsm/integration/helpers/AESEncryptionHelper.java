@@ -78,14 +78,16 @@ public class AESEncryptionHelper {
     @Test
     public void test() throws InvalidKeyException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchPaddingException, IOException {
 
-        Message initVector = new Message("0123456789ABCDEF");
-        Message key = new Message("PasswordPassword");
-        Message plainMsg = new Message("plainMsg");
+        Message wrappingKey = new Message("PasswordPasswordPasswordPassword");
+        Message deviceKey = new Message("0123456789ABCDEF");
+        Message iv = new Message("PasswordPassword");
 
-        Message encrypt = encrypt(plainMsg, key, initVector, SymmetricAlgorithm.AES_256_CBC);
-        Message decrypt = decrypt(encrypt, key, initVector, SymmetricAlgorithm.AES_256_CBC);
+        Message encrypt = encrypt(deviceKey, wrappingKey, iv, SymmetricAlgorithm.AES_256_CBC);
+        System.out.println("Encrypted B64 (no iv):" + encrypt.toBase64());
+        System.out.println("Encrypted B64 (with iv):" + EncryptImportSampleTest.getFullDeviceKey(iv, encrypt).toBase64());
+        Message decrypt = decrypt(encrypt, wrappingKey, iv, SymmetricAlgorithm.AES_256_CBC);
 
-        Assert.assertEquals(plainMsg, decrypt);
+        Assert.assertEquals(deviceKey, decrypt);
 
     }
 

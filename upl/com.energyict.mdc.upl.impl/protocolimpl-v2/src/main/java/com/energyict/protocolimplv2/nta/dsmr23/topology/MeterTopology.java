@@ -37,7 +37,7 @@ public class MeterTopology extends AbstractMeterTopology {
 
     private static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     private static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
-    private static final ObisCode MbusClientObisCode = ObisCode.fromString("0.0.24.1.0.255");
+    private static final ObisCode MbusClientObisCode = ObisCode.fromString("0.x.24.1.0.255");
 
     private static final int ObisCodeBFieldIndex = 1;
     public static final int MaxMbusDevices = 4;
@@ -83,8 +83,9 @@ public class MeterTopology extends AbstractMeterTopology {
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
             UniversalObject uo = DLMSUtils.findCosemObjectInObjectListIgnoreBChannel(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
+
             if (uo != null) {
-                uo.setObisCodeChannelB((byte) i);
+                //uo.setObisCodeChannelB((byte) i);
                 ComposedMbusSerialNumber cMbusSerial = new ComposedMbusSerialNumber(
                         new DLMSAttribute(serialObisCode, MbusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), uo.getClassID()),
                         new DLMSAttribute(serialObisCode, MbusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), uo.getClassID()),
@@ -101,7 +102,7 @@ public class MeterTopology extends AbstractMeterTopology {
     }
 
     private void discoverMbusDevices() {
-        log(Level.FINE, "Starting discovery of MBusDevices");
+        log("Starting discovery of MBusDevices");
         constructMbusMap();
 
         StringBuilder sb = new StringBuilder();
@@ -109,7 +110,7 @@ public class MeterTopology extends AbstractMeterTopology {
         for (DeviceMapping deviceMapping : this.mbusMap) {
             sb.append(deviceMapping).append("\r\n");
         }
-        log(Level.INFO, sb.toString());
+        log(sb.toString());
     }
 
     /**
@@ -244,8 +245,12 @@ public class MeterTopology extends AbstractMeterTopology {
         return deviceTopology;
     }
 
+    private void log(String message) {
+        this.protocol.journal(message);
+    }
+
     private void log(Level level, String message) {
-        this.protocol.getLogger().log(level, message);
+        this.protocol.journal(level, message);
     }
 
     /**

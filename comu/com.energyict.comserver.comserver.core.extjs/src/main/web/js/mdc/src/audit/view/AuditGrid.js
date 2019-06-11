@@ -5,7 +5,6 @@
 Ext.define('Mdc.audit.view.AuditGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.auditGrid',
-    store: 'Mdc.audit.store.Audit',
     requires: [],
 
     initComponent: function () {
@@ -14,7 +13,7 @@ Ext.define('Mdc.audit.view.AuditGrid', {
             {
                 header: Uni.I18n.translate('audit.changeOn', 'MDC', 'Change on'),
                 dataIndex: 'changedOn',
-                flex: 1,
+                flex: 2,
                 renderer: function (value, metaData, record) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
@@ -27,7 +26,7 @@ Ext.define('Mdc.audit.view.AuditGrid', {
             {
                 header: Uni.I18n.translate('audit.name', 'MDC', 'Name'),
                 dataIndex: 'auditReference',
-                flex: 1,
+                flex: 2,
                 renderer: function (value, metaData, record) {
                     return me.domainConvertorFn.call(me.scope, value, record);
                 }
@@ -35,7 +34,7 @@ Ext.define('Mdc.audit.view.AuditGrid', {
             {
                 header: Uni.I18n.translate('audit.entity', 'MDC', 'Entity'),
                 dataIndex: 'context',
-                flex: 1,
+                flex: 3,
                 renderer: function (value, metaData, record) {
                     return me.contextConvertorFn.call(me.scopeFn, value, record);
                 }
@@ -48,7 +47,7 @@ Ext.define('Mdc.audit.view.AuditGrid', {
             {
                 header: Uni.I18n.translate('audit.user', 'MDC', 'Changed by'),
                 dataIndex: 'user',
-                flex: 0.5
+                flex: 1
             }
         ];
 

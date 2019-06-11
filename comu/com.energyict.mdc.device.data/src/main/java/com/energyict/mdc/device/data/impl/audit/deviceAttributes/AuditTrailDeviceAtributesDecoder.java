@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.device.data.impl.audit.deviceAttributes;
 
-import com.elster.jupiter.audit.AbstractAuditDecoder;
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditLogChange;
 import com.elster.jupiter.audit.AuditLogChangeBuilder;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
@@ -15,19 +15,17 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
-import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.conditions.Operator;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.data.impl.audit.AbstractDeviceAuditDecoder;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
-
-import com.google.common.collect.ImmutableMap;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -43,49 +41,22 @@ import java.util.stream.Collectors;
 
 import static com.energyict.mdc.device.data.impl.SyncDeviceWithKoreMeter.MULTIPLIER_ONE;
 
-public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
-
-    private volatile OrmService ormService;
-    private volatile ServerDeviceService serverDeviceService;
-    private volatile MeteringService meteringService;
-
-    //private Long deviceId;
-    private Optional<Device> device;
-    private Optional<EndDevice> endDevice;
+public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder {
 
     private static final String LOCATION_PROPERTY_TYPE = "LOCATION";
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
-    AuditTrailDeviceAtributesDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService, ServerDeviceService serverDeviceService) {
+    AuditTrailDeviceAtributesDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService, ServerDeviceService serverDeviceService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.ormService = ormService;
         this.meteringService = meteringService;
         this.serverDeviceService = serverDeviceService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.setThesaurus(thesaurus);
     }
 
     @Override
-    public String getName() {
-        return device
-                .map(Device::getName)
-                .orElseThrow(() -> new IllegalArgumentException("Device cannot be found"));
-    }
-
-    @Override
-    protected void decodeReference() {
-        meteringService.findEndDeviceById(getAuditTrailReference().getPkcolumn())
-                .ifPresent(ed -> {
-                    endDevice = Optional.of(ed);
-                    device = serverDeviceService.findDeviceById(Long.parseLong(ed.getAmrId()))
-                            .map(Optional::of)
-                            .orElseGet(() -> {
-                                isRemoved = true;
-                                return getDeviceFromHistory(Long.parseLong(ed.getAmrId()));
-                            });
-                });
-    }
-
-    @Override
     public UnexpectedNumberOfUpdatesException.Operation getOperation(UnexpectedNumberOfUpdatesException.Operation operation, AuditDomainContextType context) {
-        return isObsolete() ? UnexpectedNumberOfUpdatesException.Operation.DELETE : operation;
+        return isDomainObsolete() ? UnexpectedNumberOfUpdatesException.Operation.DELETE : operation;
     }
 
     @Override
@@ -93,7 +64,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
         try {
             List<AuditLogChange> auditLogChanges = new ArrayList<>();
 
-            if (isObsolete()) {
+            if (isDomainObsolete()) {
                 return auditLogChanges;
             }
             if (getAuditTrailReference().getOperation() == UnexpectedNumberOfUpdatesException.Operation.UPDATE) {
@@ -131,6 +102,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
                                     getAuditLogChangeForInteger(from.getYearOfCertification(), to.getYearOfCertification(), PropertyTranslationKeys.DEVICE_CERT_YEAR).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForString(from.getDeviceConfiguration().getName(), to.getDeviceConfiguration()
                                             .getName(), PropertyTranslationKeys.DEVICE_CONFIGURATION).ifPresent(auditLogChanges::add);
+
                                 });
                     });
             return auditLogChanges;
@@ -146,6 +118,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
             DataMapper<EndDevice> dataMapper = ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(EndDevice.class);
 
             List<EndDevice> historyEntries = getHistoryEntries(dataMapper, getHistoryByJournalClauses(endDevice.get().getId()));
+            historyEntries.addAll(getHistoryEntries(dataMapper, getHistoryByModTimeClauses(endDevice.get().getId())));
             historyEntries
                     .forEach(from -> {
                         historyEntries.stream()
@@ -167,9 +140,10 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
                                             .getReceivedDate(), PropertyTranslationKeys.TRANSITION_SHIPMENT, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForOptional(from.getLifecycleDates().getInstalledDate(), to.getLifecycleDates()
                                             .getInstalledDate(), PropertyTranslationKeys.TRANSITION_INSTALLATION, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
-                                    getAuditLogChangeForLocation(from, to, PropertyTranslationKeys.DEVICE_LOCATION).ifPresent(auditLogChanges::add);
-                                    getAuditLogChangeForCoordinates(from, to, PropertyTranslationKeys.DEVICE_COORDINATES).ifPresent(auditLogChanges::add);
-                                    getAuditLogChangeForMultiplier(from, to, PropertyTranslationKeys.MULTIPLIER).ifPresent(auditLogChanges::add);
+                                    getAuditLogChangeForLocation(from, to).ifPresent(auditLogChanges::add);
+                                    getAuditLogChangeForCoordinates(from, to).ifPresent(auditLogChanges::add);
+                                    getAuditLogChangeForMultiplier(from, to).ifPresent(auditLogChanges::add);
+                                    getAuditLogChangeForState().ifPresent(auditLogChanges::add);
                                 });
                     });
             return auditLogChanges;
@@ -221,49 +195,13 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
                         getAuditLogChangeForString(from.getManufacturer(), PropertyTranslationKeys.DEVICE_MANUFACTURER).ifPresent(auditLogChanges::add);
                         getAuditLogChangeForString(from.getModelNumber(), PropertyTranslationKeys.DEVICE_MODEL_NBR).ifPresent(auditLogChanges::add);
                         getAuditLogChangeForString(from.getModelVersion(), PropertyTranslationKeys.DEVICE_MODEL_VERSION).ifPresent(auditLogChanges::add);
-                        getAuditLogChangeForOptional(from.getLifecycleDates()
-                                .getReceivedDate(), PropertyTranslationKeys.TRANSITION_SHIPMENT, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
-
-
+                        getAuditLogChangeForOptional(from.getLifecycleDates().getReceivedDate(), PropertyTranslationKeys.TRANSITION_SHIPMENT, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
                     });
             return auditLogChanges;
 
         } catch (Exception e) {
         }
         return Collections.emptyList();
-    }
-
-
-    private Optional<Device> getToDeviceEntry(Device from, long version, DataMapper<Device> dataMapper) {
-        if (version >= device.get().getVersion()) {
-            return device;
-        }
-        return getJournalEntry(dataMapper, ImmutableMap.of("ID", from.getId(),
-                "VERSIONCOUNT", version))
-                .map(Optional::of)
-                .orElseGet(() -> getToDeviceEntry(from, version + 1, dataMapper));
-    }
-
-    private Optional<EndDevice> getToEndDeviceEntry(EndDevice from, long version, DataMapper<EndDevice> dataMapper) {
-        if (version >= endDevice.get().getVersion()) {
-            return endDevice;
-        }
-        return getJournalEntry(dataMapper, ImmutableMap.of("ID", from.getId(),
-                "VERSIONCOUNT", version))
-                .map(Optional::of)
-                .orElseGet(() -> getToEndDeviceEntry(from, version + 1, dataMapper));
-    }
-
-    private Map<Operator, Pair<String, Object>> getHistoryByJournalClauses(Long deviceId) {
-        return ImmutableMap.of(Operator.EQUAL, Pair.of("ID", deviceId),
-                Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),
-                Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
-    }
-
-    private Map<Operator, Pair<String, Object>> getHistoryByModTimeClauses(Long deviceId) {
-        return ImmutableMap.of(Operator.EQUAL, Pair.of("ID", deviceId),
-                Operator.GREATERTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeStart()),
-                Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));
     }
 
     private Optional<AuditLogChange> getAuditLogChangeForBatch(Device from, Device to) {
@@ -280,10 +218,10 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
         return Optional.empty();
     }
 
-    private Optional<AuditLogChange> getAuditLogChangeForLocation(EndDevice from, EndDevice to, TranslationKey translationKey) {
-        if (to.getLocation().equals(from.getLocation()) == false) {
+    private Optional<AuditLogChange> getAuditLogChangeForLocation(EndDevice from, EndDevice to) {
+        if (!to.getLocation().equals(from.getLocation())) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setName(getDisplayName(PropertyTranslationKeys.DEVICE_LOCATION));
             auditLogChange.setType(LOCATION_PROPERTY_TYPE);
             to.getLocation().ifPresent(location -> auditLogChange.setValue(formatLocation(location)));
             from.getLocation().ifPresent(location -> auditLogChange.setPreviousValue(formatLocation(location)));
@@ -292,10 +230,10 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
         return Optional.empty();
     }
 
-    private Optional<AuditLogChange> getAuditLogChangeForCoordinates(EndDevice from, EndDevice to, TranslationKey translationKey) {
+    private Optional<AuditLogChange> getAuditLogChangeForCoordinates(EndDevice from, EndDevice to) {
         if (!to.getSpatialCoordinates().equals(from.getSpatialCoordinates())) {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-            auditLogChange.setName(getDisplayName(translationKey));
+            auditLogChange.setName(getDisplayName(PropertyTranslationKeys.DEVICE_COORDINATES));
             auditLogChange.setType(SimplePropertyType.TEXT.name());
             to.getSpatialCoordinates().ifPresent(coordinates -> auditLogChange.setValue(coordinates.toString()));
             from.getSpatialCoordinates().ifPresent(coordinates -> auditLogChange.setPreviousValue(coordinates.toString()));
@@ -304,7 +242,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
         return Optional.empty();
     }
 
-    private Optional<AuditLogChange> getAuditLogChangeForMultiplier(EndDevice from, EndDevice to, TranslationKey translationKey) {
+    private Optional<AuditLogChange> getAuditLogChangeForMultiplier(EndDevice from, EndDevice to) {
         try {
             if (Meter.class.isInstance(from)) {
                 Map<Instant, BigDecimal> timeSlices = new HashMap<>();
@@ -317,13 +255,13 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
                         .forEach(meterActivation -> {
                             Map<Instant, BigDecimal> toJournalMultipliers = meterActivation.getJournalMultipliers();
                             if (timeSlices.size() == 0) {
-                                timeSlices.put(((MeterActivation) meterActivation).getModificationDate(), MULTIPLIER_ONE);
+                                timeSlices.put(meterActivation.getModificationDate(), MULTIPLIER_ONE);
                             }
                             if (toJournalMultipliers.size() > 0) {
                                 toJournalMultipliers.forEach(timeSlices::put);
                             }
-                            if ((toJournalMultipliers.size() == 0) || (((MeterActivation) meterActivation).getEnd() == null)) {
-                                timeSlices.put(Instant.MAX, ((MeterActivation) meterActivation).getMultiplier(multiplierType)
+                            if ((toJournalMultipliers.size() == 0) || (meterActivation.getEnd() == null)) {
+                                timeSlices.put(Instant.MAX, meterActivation.getMultiplier(multiplierType)
                                         .orElseGet(() -> MULTIPLIER_ONE));
                             }
                         });
@@ -333,6 +271,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
                         .sorted(Comparator.comparing(Map.Entry::getKey))
                         .map(Map.Entry::getValue)
                         .findFirst();
+
                 Optional<BigDecimal> toMultiplier = timeSlices.entrySet().stream()
                         .filter(timeSlice -> timeSlice.getKey().isAfter(getAuditTrailReference().getModTimeEnd()))
                         .sorted(Comparator.comparing(Map.Entry::getKey))
@@ -341,17 +280,37 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
 
                 if (!fromMultiplier.equals(toMultiplier)) {
                     AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-                    auditLogChange.setName(getDisplayName(translationKey));
+                    auditLogChange.setName(getDisplayName(PropertyTranslationKeys.MULTIPLIER));
                     auditLogChange.setType(SimplePropertyType.NUMBER.name());
                     toMultiplier.ifPresent(auditLogChange::setValue);
                     fromMultiplier.ifPresent(auditLogChange::setPreviousValue);
                     return Optional.of(auditLogChange);
                 }
-
             }
         } catch (Exception e) {
         }
         return Optional.empty();
+    }
+
+    private Optional<AuditLogChange> getAuditLogChangeForBatch(Device to) {
+        return to.getBatch().map(batch -> {
+            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
+            auditLogChange.setName(getDisplayName(PropertyTranslationKeys.BATCH));
+            auditLogChange.setType(SimplePropertyType.TEXT.name());
+            auditLogChange.setValue(batch.getName());
+            return auditLogChange;
+        });
+    }
+
+    private Optional<AuditLogChange> getAuditLogChangeForState() {
+        return new DeviceStateDecoder(this).getAuditLog();
+    }
+
+    private String getStateName(State state) {
+        return DefaultState
+                .from(state)
+                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .orElseGet(state::getName);
     }
 
     private String formatLocation(Location location) {
@@ -363,32 +322,19 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractAuditDecoder {
                 .collect(Collectors.joining(", "));
     }
 
-    private Optional<Device> getDeviceFromHistory(long id) {
-        DataMapper<Device> dataMapper = ormService.getDataModel(DeviceDataServices.COMPONENT_NAME).get().mapper(Device.class);
-        Map<Operator, Pair<String, Object>> historyClause = ImmutableMap.of(Operator.EQUAL, Pair.of("ID", id),
-                Operator.GREATERTHANOREQUAL, Pair.of("journaltime", getAuditTrailReference().getModTimeStart()));
-
-        return getHistoryEntries(dataMapper, historyClause)
-                .stream().max(Comparator.comparing(Device::getVersion));
+    public OrmService getOrmService(){
+        return ormService;
     }
 
-    private Optional<AuditLogChange> getAuditLogChangeForBatch(Device to) {
-        return to.getBatch().map(batch -> {
-            AuditLogChange auditLogChange = new AuditLogChangeBuilder();
-            auditLogChange.setName(getDisplayName(PropertyTranslationKeys.BATCH));
-            auditLogChange.setType(SimplePropertyType.TEXT.name());
-            auditLogChange.setValue(batch.getName());
-            auditLogChange.setValue(batch.getName());
-            return auditLogChange;
-        });
+    public EndDevice getEndDevice(){
+        return endDevice.get();
     }
 
-    private boolean isObsolete() {
-        return Optional.ofNullable(endDevice).map(ed ->
-                ed.get().getObsoleteTime()
-                        .filter(obsoleteTime -> (obsoleteTime.isAfter(getAuditTrailReference().getModTimeStart()) || obsoleteTime.equals(getAuditTrailReference().getModTimeStart())) &&
-                                (obsoleteTime.isBefore(getAuditTrailReference().getModTimeEnd()) || obsoleteTime.equals(getAuditTrailReference().getModTimeEnd())))
-                        .isPresent())
-                .orElse(false);
+    public Device getDevice(){
+        return device.get();
+    }
+
+    public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService(){
+        return deviceLifeCycleConfigurationService;
     }
 }

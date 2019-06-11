@@ -13,6 +13,6 @@ Ext.define('Mdc.privileges.Audit', {
         return Ext.Array.merge(Mdc.privileges.Audit.viewAuditLog);
     },
     canViewAuditLog: function () {
-        return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.viewAuditLog);
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Audit.viewAuditLog);
     }
 });

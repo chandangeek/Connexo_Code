@@ -5,9 +5,10 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.users.User;
+
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-13 (16:51)
  */
+@ConsumerType
 public interface EndDeviceLifeCycleStatus extends Effectivity {
 
     /**
@@ -41,6 +43,20 @@ public interface EndDeviceLifeCycleStatus extends Effectivity {
      * @return The user
      */
     public Optional<User> getUser();
+
+    /**
+     * Gets the modification time of the change.
+     *
+     * @return The instant
+     */
+    Instant getModTime();
+
+    /**
+     * Gets the creation time of the object.
+     *
+     * @return The instant
+     */
+    Instant getCreateTime();
 
     /**
      * Gets the User that originate the status.

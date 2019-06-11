@@ -22,6 +22,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_CSR_PRESENT(1022, "noCsrPresent", "No CSR found"),
     NO_SUCH_CERTIFICATE(1023, "NoSuchCertificate", "No such certificate could be located"),
     NO_APPLICABLE_CERTIFICATE_TYPE(1024, "NoApplicableCertificateType", "No applicable certificate type for security accessor {0}"),
+    UNKNOWN_SECURITYPROPERTYSET(1025, "UnknownSecuritySet", "No security set with name {0}"),
     ;
 
     private final int number;

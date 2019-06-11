@@ -8,8 +8,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
-
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>comserver.core.extjs</artifactId>
@@ -85,14 +84,9 @@
 
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/mdc</js.dir>
-                <package.name>com.energyict.comserver.comserver.core.extjs</package.name>
-            </properties>
-        </profile>
-    </profiles>
+    <properties>
+        <js.dir>js/mdc</js.dir>
+        <package.name>com.energyict.comserver.comserver.core.extjs</package.name>
+    </properties>
 
 </project>

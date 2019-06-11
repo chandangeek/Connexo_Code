@@ -53,6 +53,10 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
         if (!Ext.isEmpty(record.get('priority'))) {
             me.down('#priorityNumberField').setValue(record.get('priority'));
         }
+        if (!Ext.isEmpty(record.get('maxNumberOfTries'))) {
+            me.down('#numberOfRetries').setValue(record.get('maxNumberOfTries'));
+        }
+
         if (!Ext.isEmpty(record.get('ignoreNextExecutionSpecsForInbound'))) {
             me.down('#ignoreNextExecutionSpecsForInboundRadioGroup').setValue({
                 ignoreNextExecutionSpecsForInbound: record.get('ignoreNextExecutionSpecsForInbound')
@@ -165,6 +169,19 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                         afterSubTpl: '<div class="x-form-display-field"><i>' + Uni.I18n.translate('communicationtasks.form.priorityMessage', 'MDC', '(Low=999 - High=0)') + '</i></div>'
                     },
                     {
+                        xtype: 'numberfield',
+                        name: 'maxNumberOfTries',
+                        fieldLabel: Uni.I18n.translate('communicationtasks.form.retries', 'MDC', 'Max number of tries'),
+                        itemId: 'numberOfRetries',
+                        value: 3,
+                        maxValue: 10,
+                        minValue: 1,
+                        listeners: {
+                            blur: me.numberFieldValidation
+                        }
+                    },
+
+                    {
                         xtype: 'radiogroup',
                         fieldLabel: Uni.I18n.translate('communicationtasks.form.ignoreNextExecutionSpecsForInbound', 'MDC', 'Always execute for inbound'),
                         itemId: 'ignoreNextExecutionSpecsForInboundRadioGroup',
@@ -210,6 +227,14 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
 
         me.callParent(arguments);
         me.setEdit(me.isEdit(), me.returnLink);
+    },
+
+    numberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue || value > field.maxValue) {
+            field.setValue(field.minValue);
+        }
     }
 });
 

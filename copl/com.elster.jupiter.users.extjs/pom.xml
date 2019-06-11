@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>users.extjs</artifactId>
@@ -38,14 +38,9 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/usr</js.dir>
-                <package.name>${project.groupId}.${project.artifactId}</package.name>
-            </properties>
-        </profile>
-    </profiles>
+    <properties>
+        <js.dir>js/usr</js.dir>
+        <package.name>${project.groupId}.${project.artifactId}</package.name>
+    </properties>
 
 </project>

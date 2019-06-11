@@ -371,4 +371,141 @@ public class ServiceCallLifeCycleBuilderIT {
 
     }
 
+    @Test
+    public void buildingWithCustomTransition() {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallLifeCycleImpl serviceCallLifeCycle = (ServiceCallLifeCycleImpl) serviceCallService
+                    .createServiceCallLifeCycle("ToUCampaign")
+                    .remove(DefaultState.SCHEDULED)
+                    .removeTransition(DefaultState.CREATED, DefaultState.SCHEDULED)
+                    .removeTransition(DefaultState.SCHEDULED, DefaultState.PENDING)
+                    .removeTransition(DefaultState.SCHEDULED, DefaultState.CANCELLED)
+                    .removeTransition(DefaultState.PARTIAL_SUCCESS, DefaultState.SCHEDULED)
+                    .removeTransition(DefaultState.FAILED, DefaultState.SCHEDULED)
+                    .remove(DefaultState.PAUSED)
+                    .removeTransition(DefaultState.ONGOING, DefaultState.PAUSED)
+                    .removeTransition(DefaultState.PAUSED, DefaultState.CANCELLED)
+                    .removeTransition(DefaultState.PAUSED, DefaultState.ONGOING)
+                    .remove(DefaultState.WAITING)
+                    .removeTransition(DefaultState.ONGOING, DefaultState.WAITING)
+                    .removeTransition(DefaultState.WAITING, DefaultState.ONGOING)
+                    .removeTransition(DefaultState.WAITING, DefaultState.CANCELLED)
+                    .remove(DefaultState.PARTIAL_SUCCESS)
+                    .removeTransition(DefaultState.ONGOING, DefaultState.PARTIAL_SUCCESS)
+                    .removeTransition(DefaultState.PARTIAL_SUCCESS, DefaultState.SCHEDULED)
+                    .remove(DefaultState.REJECTED)
+                    .removeTransition(DefaultState.CREATED, DefaultState.REJECTED)
+                    .addTransition(DefaultState.CREATED, DefaultState.ONGOING)
+                    .create();
+
+            ServiceCallLifeCycleImpl serviceCallLifeCycle2 = (ServiceCallLifeCycleImpl)serviceCallService
+                    .createServiceCallLifeCycle("TimeOfUseItem")
+                    .remove(DefaultState.SCHEDULED)
+                    .removeTransition(DefaultState.CREATED, DefaultState.SCHEDULED)
+                    .removeTransition(DefaultState.SCHEDULED, DefaultState.PENDING)
+                    .removeTransition(DefaultState.SCHEDULED, DefaultState.CANCELLED)
+                    .removeTransition(DefaultState.PARTIAL_SUCCESS, DefaultState.SCHEDULED)
+                    .removeTransition(DefaultState.FAILED, DefaultState.SCHEDULED)
+                    .remove(DefaultState.PAUSED)
+                    .removeTransition(DefaultState.ONGOING, DefaultState.PAUSED)
+                    .removeTransition(DefaultState.PAUSED, DefaultState.CANCELLED)
+                    .removeTransition(DefaultState.PAUSED, DefaultState.ONGOING)
+                    .remove(DefaultState.WAITING)
+                    .removeTransition(DefaultState.ONGOING, DefaultState.WAITING)
+                    .removeTransition(DefaultState.WAITING, DefaultState.ONGOING)
+                    .removeTransition(DefaultState.WAITING, DefaultState.CANCELLED)
+                    .remove(DefaultState.PARTIAL_SUCCESS)
+                    .removeTransition(DefaultState.ONGOING, DefaultState.PARTIAL_SUCCESS)
+                    .removeTransition(DefaultState.PARTIAL_SUCCESS, DefaultState.SCHEDULED)
+                    .removeTransition(DefaultState.CREATED, DefaultState.CANCELLED)
+                    .removeTransition(DefaultState.CREATED, DefaultState.ONGOING)
+                    .addTransition(DefaultState.REJECTED, DefaultState.PENDING)
+                    .addTransition(DefaultState.REJECTED, DefaultState.FAILED)
+                    .addTransition(DefaultState.FAILED, DefaultState.PENDING)
+                    .addTransition(DefaultState.CANCELLED, DefaultState.PENDING)
+                    .create();
+
+            FiniteStateMachine finiteStateMachine = serviceCallLifeCycle.getFiniteStateMachine();
+            FiniteStateMachine finiteStateMachine2 = serviceCallLifeCycle2.getFiniteStateMachine();
+
+            Arrays.stream(DefaultState.values())
+                    .filter(not(SCHEDULED::equals))
+                    .filter(not(PAUSED::equals))
+                    .filter(not(WAITING::equals))
+                    .filter(not(PARTIAL_SUCCESS::equals))
+                    .filter(not(REJECTED::equals))
+                    .forEach(state -> assertThat(contains(finiteStateMachine, state)).isTrue());
+
+            Arrays.stream(DefaultState.values())
+                    .filter(not(SCHEDULED::equals))
+                    .filter(not(PAUSED::equals))
+                    .filter(not(WAITING::equals))
+                    .filter(not(PARTIAL_SUCCESS::equals))
+                    .forEach(state -> assertThat(contains(finiteStateMachine2, state)).isTrue());
+
+            Arrays.asList(
+                    Pair.of(CREATED, ONGOING),
+                    Pair.of(CREATED, CANCELLED),
+                    Pair.of(PENDING, CANCELLED),
+                    Pair.of(PENDING, ONGOING),
+                    Pair.of(ONGOING, CANCELLED),
+                    Pair.of(ONGOING, SUCCESSFUL),
+                    Pair.of(ONGOING, FAILED)
+            ).forEach(pair -> assertThat(containsTransition(finiteStateMachine, pair.getFirst(), pair.getLast()))
+                    .describedAs("Does not contain transition from " + pair.getFirst() + " to " + pair.getLast())
+                    .isTrue());
+
+            Arrays.asList(
+                    Pair.of(CREATED, REJECTED),
+                    Pair.of(CREATED, PENDING),
+                    Pair.of(PENDING, CANCELLED),
+                    Pair.of(PENDING, ONGOING),
+                    Pair.of(ONGOING, CANCELLED),
+                    Pair.of(ONGOING, SUCCESSFUL),
+                    Pair.of(ONGOING, FAILED),
+                    Pair.of(CANCELLED, PENDING),
+                    Pair.of(REJECTED, FAILED),
+                    Pair.of(REJECTED, PENDING)
+            ).forEach(pair -> assertThat(containsTransition(finiteStateMachine2, pair.getFirst(), pair.getLast()))
+                    .describedAs("Does not contain transition from " + pair.getFirst() + " to " + pair.getLast())
+                    .isTrue());
+
+            Arrays.asList(
+                    Pair.of(CREATED, SCHEDULED),
+                    Pair.of(CREATED, REJECTED),
+                    Pair.of(SCHEDULED, CANCELLED),
+                    Pair.of(SCHEDULED, PENDING),
+                    Pair.of(ONGOING, PARTIAL_SUCCESS),
+                    Pair.of(ONGOING, PAUSED),
+                    Pair.of(ONGOING, WAITING),
+                    Pair.of(PARTIAL_SUCCESS, SCHEDULED),
+                    Pair.of(FAILED, SCHEDULED),
+                    Pair.of(PAUSED, ONGOING),
+                    Pair.of(PAUSED, CANCELLED),
+                    Pair.of(WAITING, ONGOING),
+                    Pair.of(WAITING, CANCELLED)
+            ).forEach(pair -> assertThat(containsTransition(finiteStateMachine, pair.getFirst(), pair.getLast()))
+                    .describedAs("Contain transition from " + pair.getFirst() + " to " + pair.getLast())
+                    .isFalse());
+
+            Arrays.asList(
+                    Pair.of(CREATED, SCHEDULED),
+                    Pair.of(CREATED, CANCELLED),
+                    Pair.of(CREATED, ONGOING),
+                    Pair.of(SCHEDULED, CANCELLED),
+                    Pair.of(SCHEDULED, PENDING),
+                    Pair.of(ONGOING, PARTIAL_SUCCESS),
+                    Pair.of(ONGOING, PAUSED),
+                    Pair.of(ONGOING, WAITING),
+                    Pair.of(PARTIAL_SUCCESS, SCHEDULED),
+                    Pair.of(FAILED, SCHEDULED),
+                    Pair.of(PAUSED, ONGOING),
+                    Pair.of(PAUSED, CANCELLED),
+                    Pair.of(WAITING, ONGOING),
+                    Pair.of(WAITING, CANCELLED)
+            ).forEach(pair -> assertThat(containsTransition(finiteStateMachine2, pair.getFirst(), pair.getLast()))
+                    .describedAs("Contain transition from " + pair.getFirst() + " to " + pair.getLast())
+                    .isFalse());
+        }
+    }
 }

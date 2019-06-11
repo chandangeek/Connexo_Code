@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Layer;
@@ -54,14 +55,16 @@ public class IssuesAndAlarmsLayerBuilder implements GraphLayerBuilder{
     private final TimeService timeService;
     private final Clock clock;
     private final MeteringService meteringService;
+    private final MeteringGroupsService meteringGroupsService;
     private final IssueService issueService;
     private final IssueCreationService issueCreationService;
     private final DeviceAlarmService deviceAlarmService;
     private final DeviceService deviceService;
     private final Injector injector;
 
-    public IssuesAndAlarmsLayerBuilder(MeteringService meteringService, IssueService issueService, IssueCreationService issueCreationService, DeviceAlarmService deviceAlarmService, DeviceService deviceService, NlsService nlsService, TimeService timeService, Clock clock, Injector injector){
+    public IssuesAndAlarmsLayerBuilder(MeteringService meteringService, MeteringGroupsService meteringGroupsService, IssueService issueService, IssueCreationService issueCreationService, DeviceAlarmService deviceAlarmService, DeviceService deviceService, NlsService nlsService, TimeService timeService, Clock clock, Injector injector){
         this.meteringService = meteringService;
+        this.meteringGroupsService = meteringGroupsService;
         this.issueService = issueService;
         this.issueCreationService = issueCreationService;
         this.deviceAlarmService = deviceAlarmService;
@@ -186,7 +189,7 @@ public class IssuesAndAlarmsLayerBuilder implements GraphLayerBuilder{
 
 
         FakedDeviceAlarmEvent(Device device, Instant eventTimestamp){
-            super(deviceAlarmService, issueService, meteringService, deviceService, nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN), timeService, clock, injector);
+            super(deviceAlarmService, issueService, meteringService,meteringGroupsService, deviceService, nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN), timeService, clock, injector);
             setDevice(device);
             this.endDeviceId = device.getId();
             this.endDeviceEventType = "3.0.0.79"; // "DEMO NETWORK TOPOLOGY";

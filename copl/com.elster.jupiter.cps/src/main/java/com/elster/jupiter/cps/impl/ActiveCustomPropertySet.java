@@ -16,8 +16,11 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.Interval;
@@ -27,11 +30,13 @@ import com.google.common.collect.Range;
 
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -86,6 +91,27 @@ class ActiveCustomPropertySet {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> Optional<T> getNonVersionedValuesHistoryEntityFor(D businessObject, Instant at, Object... additionalPrimaryKeyColumnValues) {
+        if (this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            List<Comparison> comparisons = new ArrayList<>();
+
+            comparisons.add(Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject));
+            comparisons.add(Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet));
+            comparisons.addAll(getAdditionalPrimaryKeyColumnComparisonsTo(additionalPrimaryKeyColumnValues));
+
+
+            return this.getMapper()
+                    .at(at)
+                    .find(comparisons)
+                    .stream()
+                    .map(o -> ((JournalEntry<T>) o).get()).findFirst();
+        } else {
+            return Optional.empty();
+        }
+    }
+
     private void validateAdditionalPrimaryKeyValues(Object... additionalPrimaryKeyValues) {
         long requiredNumberOfAdditionalPrimaryKeyValues = this.getAdditionalPrimaryKeyColumns().count();
         if (requiredNumberOfAdditionalPrimaryKeyValues != additionalPrimaryKeyValues.length) {
@@ -116,6 +142,13 @@ class ActiveCustomPropertySet {
                         .reduce(
                             Condition.TRUE,
                             Condition::and));
+    }
+
+    private List<Comparison> getAdditionalPrimaryKeyColumnComparisonsTo(Object... additionalPrimaryKeyColumnValues) {
+        Iterator<Object> pkValueIterator = Iterators.forArray(additionalPrimaryKeyColumnValues);
+        return this.getAdditionalPrimaryKeyColumns()
+                        .map(pkColumn -> Operator.EQUAL.compare(this.fieldNameFor(pkColumn), pkValueIterator.next()))
+                        .collect(Collectors.toList());
     }
 
     private String fieldNameFor(Column pkColumn) {
@@ -181,8 +214,108 @@ class ActiveCustomPropertySet {
     }
 
     @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> Optional<T> getVersionedValuesEntityModifiedBetweenFor(D businessObject, boolean ignorePrivileges, Instant start, Instant end, Object... additionalPrimaryKeyColumnValues) {
+        if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            Condition condition =
+                    this.addAdditionalPrimaryKeyColumnConditionsTo(
+                            where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
+                                    .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
+                                    .and(where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isGreaterThanOrEqual(start))
+                                    .and(where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isLessThanOrEqual(end)),
+                            additionalPrimaryKeyColumnValues);
+            return this.getValuesEntityFor(
+                    condition,
+                    () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " modified between " + start + " and " + end + " against business object " + businessObject);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    <T extends PersistentDomainExtension<D>, D> List<T> getListVersionedValuesEntityModifiedBetweenFor(D businessObject, boolean ignorePrivileges, Instant start, Instant end, Object... additionalPrimaryKeyColumnValues) {
+        if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            Condition modTime = where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isGreaterThanOrEqual(start)
+                    .and(where(HardCodedFieldNames.MODIFICATION_TIME.javaName()).isLessThanOrEqual(end));
+            Condition createTime = where(HardCodedFieldNames.CREATION_TIME.javaName()).isGreaterThanOrEqual(start)
+                    .and(where(HardCodedFieldNames.CREATION_TIME.javaName()).isLessThanOrEqual(end));
+            Condition condition =
+                    this.addAdditionalPrimaryKeyColumnConditionsTo(
+                            where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
+                                    .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
+                                    .and(modTime.or(createTime)),
+                            additionalPrimaryKeyColumnValues);
+            return this.getListValuesEntityFor(
+                    condition,
+                    () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " modified between " + start + " and " + end + " against business object " + businessObject);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> Optional<T> getVersionedValuesHistoryEntityFor(D businessObject, boolean ignorePrivileges, Instant at, Instant effectiveTimestamp, Object... additionalPrimaryKeyColumnValues) {
+        if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            List<Comparison> comparisons = new ArrayList<>();
+
+            comparisons.add(Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject));
+            comparisons.add(Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet));
+            comparisons.addAll(getAdditionalPrimaryKeyColumnComparisonsTo(additionalPrimaryKeyColumnValues));
+
+            return this.getMapper()
+                    .at(at)
+                    .find(comparisons)
+                    .stream()
+                    .map(o -> ((JournalEntry<T>) o).get()).findFirst();
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> List<T> getListVersionedValuesHistoryEntityFor(D businessObject, boolean ignorePrivileges, Instant from, Instant to, Object... additionalPrimaryKeyColumnValues) {
+        if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            List<Comparison> comparisons = new ArrayList<>();
+
+            comparisons.add(Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject));
+            comparisons.add(Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet));
+            comparisons.addAll(getAdditionalPrimaryKeyColumnComparisonsTo(additionalPrimaryKeyColumnValues));
+            comparisons.add(Operator.GREATERTHANOREQUAL.compare(HardCodedFieldNames.MODIFICATION_TIME.databaseName(), from));
+            comparisons.add(Operator.LESSTHANOREQUAL.compare(HardCodedFieldNames.MODIFICATION_TIME.databaseName(), to));
+            List<JournalEntry<T>> journalEntriesByModTime = this.getMapper()
+                    .at(Instant.EPOCH)
+                    .find(comparisons);
+
+            comparisons.clear();
+            comparisons.add(Operator.EQUAL.compare(this.customPropertySet.getPersistenceSupport().domainFieldName(), businessObject));
+            comparisons.add(Operator.EQUAL.compare(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName(), this.registeredCustomPropertySet));
+            comparisons.addAll(getAdditionalPrimaryKeyColumnComparisonsTo(additionalPrimaryKeyColumnValues));
+            comparisons.add(Operator.GREATERTHANOREQUAL.compare(HardCodedFieldNames.CREATION_TIME.databaseName(), from));
+            comparisons.add(Operator.LESSTHANOREQUAL.compare(HardCodedFieldNames.CREATION_TIME.databaseName(), to));
+            List<JournalEntry<T>> journalEntriesByCreateTime = this.getMapper()
+                    .at(Instant.EPOCH)
+                    .find(comparisons);
+
+            journalEntriesByModTime.addAll(journalEntriesByCreateTime);
+            return journalEntriesByModTime
+                    .stream()
+                    .map(o -> ((JournalEntry<T>) o).get())
+                    .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+
+
+
+    @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(Condition condition, Supplier<String> errorMessageSupplier) {
         List<T> extensions = this.getMapper().select(condition);
+
         if (extensions.isEmpty()) {
             return Optional.empty();
         }
@@ -192,6 +325,10 @@ class ActiveCustomPropertySet {
         else {
             return Optional.of(extensions.get(0));
         }
+    }
+
+    <T extends PersistentDomainExtension<D>, D> List<T> getListValuesEntityFor(Condition condition, Supplier<String> errorMessageSupplier) {
+        return this.getMapper().select(condition);
     }
 
     @SuppressWarnings("unchecked")

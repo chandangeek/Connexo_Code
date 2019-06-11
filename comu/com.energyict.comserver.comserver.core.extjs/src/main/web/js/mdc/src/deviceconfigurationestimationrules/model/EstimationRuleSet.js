@@ -16,7 +16,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.model.EstimationRuleSet', {
             mapping: function (data) {
                 return data.numberOfRules - data.numberOfInactiveRules;
             }
-        }
+        },
+        {name: 'isEstimationRuleSetActive', type: 'boolean'}
     ],
 
     proxy: {

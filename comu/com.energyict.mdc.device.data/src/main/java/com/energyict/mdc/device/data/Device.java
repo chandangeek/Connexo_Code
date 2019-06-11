@@ -10,6 +10,7 @@ import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -54,6 +55,7 @@ import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
 
 import aQute.bnd.annotation.ProviderType;
 import com.energyict.obis.ObisCode;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -66,6 +68,8 @@ import java.util.function.Consumer;
 
 @ProviderType
 public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, HasName {
+
+    Meter getMeter();
 
     /**
      * Gets the receiver's Channels.
@@ -222,6 +226,11 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
     void removeProtocolProperty(String name);
 
+    void addZone(String zoneName, String zoneTypeName);
+    void removeZonesOnDevice();
+
+    Multimap<String,String> getZones();
+
     /**
      * Resolve the security accessors and their types to their actual values (if present) and return them as TypedProperties.
      */
@@ -242,7 +251,17 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      */
     void store(MeterReading meterReading);
 
+    /**
+     * Stores the given MeterReadings.
+     *
+     * @param meterReading the meterReadings which will be stored
+     * @param readingDate used to set the reading date in case data is imported from another system. If data is collected, it can be set to null
+     */
+    void store(MeterReading meterReading, Instant readingDate);
+
     boolean hasData();
+
+    void touchDevice();
 
     /**
      * Activates the device on a usage point. Either end the current MeterActivation and create a new one

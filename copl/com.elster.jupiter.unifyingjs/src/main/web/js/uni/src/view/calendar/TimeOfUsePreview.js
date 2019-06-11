@@ -3,45 +3,51 @@
  */
 
 Ext.define('Uni.view.calendar.TimeOfUsePreview', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.form.Panel',
     frame: true,
     alias: 'widget.timeOfUsePreview',
     record: null,
-    layout: {
-        type: 'column'
-    },
+    requires: [
+        'Uni.view.calendar.SpecialDaysPreview'
+    ],
 
     initComponent: function () {
         var me = this;
 
-        me.items = {
-            xtype: 'form',
-            defaults: {
-                labelWidth: 250
+        me.items = [
+            {
+                xtype: 'fieldcontainer',
+                defaults: {
+                    labelWidth: 250
+                },
+                items: [
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.startOfCalculations', 'UNI', 'Start of calculations'),
+                        name: 'startYear'
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.periods', 'UNI', 'Periods'),
+                        itemId: 'periodField'
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.dayTypes', 'UNI', 'Day types'),
+                        itemId: 'dayTypesField'
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.eventTypes', 'UNI', 'Event types'),
+                        itemId: 'tariffsField'
+                    }
+                ]
             },
-            items: [
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: Uni.I18n.translate('general.startOfCalculations', 'UNI', 'Start of calculations'),
-                    name: 'startYear'
-                },
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.period', 'UNI', 'Period'),
-                    itemId: 'periodField'
-                },
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.dayTypes', 'UNI', 'Day types'),
-                    itemId: 'dayTypesField'
-                },
-                {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.eventTypes', 'UNI', 'Event types'),
-                    itemId: 'tariffsField'
-                }
-            ]
-        };
+            {
+                xtype: 'specialDaysPreview',
+            }
+        ];
+
         me.callParent(arguments);
     },
 
@@ -49,7 +55,7 @@ Ext.define('Uni.view.calendar.TimeOfUsePreview', {
         var me = this;
         Ext.suspendLayouts();
         me.setTitle(Ext.String.htmlEncode(calendarRecord.get('name')));
-        me.down('form').loadRecord(calendarRecord);
+        me.loadRecord(calendarRecord);
         me.setTitle(Ext.String.htmlEncode(calendarRecord.get('name')));
         me.down('#periodField').removeAll();
         calendarRecord.periods().each(function (record) {
@@ -86,10 +92,16 @@ Ext.define('Uni.view.calendar.TimeOfUsePreview', {
                 }
             );
         });
+
+        me.renderSpecialDays(calendarRecord);
         me.doComponentLayout();
         Ext.resumeLayouts(true);
         me.updateLayout();
         me.doLayout();
+    },
+
+    renderSpecialDays: function(calendarRecord) {
+        this.down('specialDaysPreview').renderSpecialDays(calendarRecord);
     },
 
     calculateDate: function (month, day) {

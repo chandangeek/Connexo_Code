@@ -62,6 +62,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
     private static final String registersComTaskName = "RegistersComTask";
     private static final String loadProfilesComTaskName = "LoadProfilesComTask";
     private static final String firmwareComTaskName = "Firmware management";
+    private static final int maxNumberOfTries = 5;
 
     DeviceType deviceType;
     DeviceConfiguration deviceConfiguration;
@@ -91,7 +92,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         deviceConfiguration = mockDeviceConfiguration("config", 12);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
-        comTaskEnablement = mockComTaskEnablement(13L, "My task");
+        comTaskEnablement = mockComTaskEnablement(13L, "My task", maxNumberOfTries);
         when(comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
         when(deviceConfigurationService.findComTaskEnablement(13L)).thenReturn(Optional.of(comTaskEnablement));
@@ -183,6 +184,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         info.comTask = new ComTaskEnablementInfo.ComTaskInfo();
         info.comTask.id = 456L;
         info.comTask.name = "My task";
+        info.maxNumberOfTries = maxNumberOfTries;
         info.connectionFunctionInfo = null;
         info.partialConnectionTask = new ComTaskEnablementInfo.PartialConnectionTaskInfo();
         info.partialConnectionTask.id = 0L;
@@ -212,6 +214,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         info.comTask = new ComTaskEnablementInfo.ComTaskInfo();
         info.comTask.id = 456L;
         info.comTask.name = "My task";
+        info.maxNumberOfTries = maxNumberOfTries;
         info.connectionFunctionInfo = null;
         info.partialConnectionTask = new ComTaskEnablementInfo.PartialConnectionTaskInfo();
         info.partialConnectionTask.id = 0L;
@@ -252,6 +255,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         info.comTask = new ComTaskEnablementInfo.ComTaskInfo();
         info.comTask.id = 456L;
         info.comTask.name = "My task";
+        info.maxNumberOfTries = maxNumberOfTries;
         info.connectionFunctionInfo = null;
         info.partialConnectionTask = new ComTaskEnablementInfo.PartialConnectionTaskInfo();
         info.partialConnectionTask.id = partialConnectionTask.getId();
@@ -286,6 +290,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         info.comTask = new ComTaskEnablementInfo.ComTaskInfo();
         info.comTask.id = 456L;
         info.comTask.name = "My task";
+        info.maxNumberOfTries = maxNumberOfTries;
         info.connectionFunctionInfo = null;
         info.partialConnectionTask = new ComTaskEnablementInfo.PartialConnectionTaskInfo();
         info.partialConnectionTask.id = partialConnectionTask.getId();
@@ -321,6 +326,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         info.comTask = new ComTaskEnablementInfo.ComTaskInfo();
         info.comTask.id = 456L;
         info.comTask.name = "My task";
+        info.maxNumberOfTries = maxNumberOfTries;
         info.connectionFunctionInfo = null;
         info.partialConnectionTask = null;
         info.connectionFunctionInfo = new ConnectionFunctionInfo();
@@ -350,6 +356,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         info.comTask = new ComTaskEnablementInfo.ComTaskInfo();
         info.comTask.id = 456L;
         info.comTask.name = "My task";
+        info.maxNumberOfTries = maxNumberOfTries;
         info.connectionFunctionInfo = null;
         info.partialConnectionTask = null;
         info.connectionFunctionInfo = new ConnectionFunctionInfo();
@@ -510,6 +517,62 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         assertThat((List) map.get("data")).hasSize(0);
     }
 
+    @Test
+    public void testCreateComTaskExecutionToUseMaxNumberOfTries() throws Exception {
+        ComTaskEnablementInfo info = new ComTaskEnablementInfo();
+        info.id = 17L;
+        info.comTask = new ComTaskEnablementInfo.ComTaskInfo();
+        info.comTask.id = 456L;
+        info.comTask.name = "My task";
+        info.maxNumberOfTries = 7;
+        info.connectionFunctionInfo = null;
+        info.partialConnectionTask = null;
+        info.connectionFunctionInfo = new ConnectionFunctionInfo();
+        info.connectionFunctionInfo.id = connectionFunction_2.getId();
+        info.connectionFunctionInfo.localizedValue = connectionFunction_2.getConnectionFunctionDisplayName();
+        info.priority = 50;
+        info.securityPropertySet = new ComTaskEnablementInfo.SecurityPropertySetInfo();
+        info.securityPropertySet.id = 789L;
+        info.securityPropertySet.name = "Security";
+        info.ignoreNextExecutionSpecsForInbound = false;
+        info.suspended = false;
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(12L, OK_VERSION);
+
+        Response response = target("/devicetypes/11/deviceconfigurations/12/comtaskenablements").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+
+        assertThat(comTaskEnablementBuilder.getMaxNumberOfTries()).isEqualTo(7);
+
+    }
+
+
+    @Test
+    public void testUpdateComTaskExecutionToUseMaxNumberOfTries() throws Exception {
+        ComTaskEnablementInfo info = new ComTaskEnablementInfo();
+        info.id = 13L;
+        info.comTask = new ComTaskEnablementInfo.ComTaskInfo();
+        info.comTask.id = 456L;
+        info.comTask.name = "My task";
+        info.maxNumberOfTries = maxNumberOfTries;
+        info.connectionFunctionInfo = null;
+        info.partialConnectionTask = null;
+        info.connectionFunctionInfo = new ConnectionFunctionInfo();
+        info.connectionFunctionInfo.id = connectionFunction_2.getId();
+        info.connectionFunctionInfo.localizedValue = connectionFunction_2.getConnectionFunctionDisplayName();
+        info.priority = 50;
+        info.securityPropertySet = new ComTaskEnablementInfo.SecurityPropertySetInfo();
+        info.securityPropertySet.id = 789L;
+        info.securityPropertySet.name = "Security";
+        info.ignoreNextExecutionSpecsForInbound = false;
+        info.suspended = false;
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(12L, OK_VERSION);
+
+        Response response = target("/devicetypes/11/deviceconfigurations/12/comtaskenablements/13").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
     private ComTaskEnablement mockTopologyComTaskEnablement(ComTask topologyComTask) {
         ComTaskEnablement topologyComTaskEnablement = mock(ComTaskEnablement.class);
         when(topologyComTaskEnablement.getComTask()).thenReturn(topologyComTask);
@@ -621,7 +684,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         return deviceConfiguration;
     }
 
-    private ComTaskEnablement mockComTaskEnablement(long id, String name) {
+    private ComTaskEnablement mockComTaskEnablement(long id, String name, int maxNumberOfTries) {
         ComTask comTask = mock(ComTask.class);
         when(comTask.getName()).thenReturn(name);
         when(taskService.findComTask(anyLong())).thenReturn(Optional.of(comTask));
@@ -637,6 +700,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         when(comTaskEnablement.usesDefaultConnectionTask()).thenReturn(true);
         when(comTaskEnablement.getConnectionFunction()).thenReturn(Optional.empty());
         when(comTaskEnablement.getPriority()).thenReturn(50);
+        when(comTaskEnablement.getMaxNumberOfTries()).thenReturn(maxNumberOfTries);
 
         doReturn(Optional.of(comTaskEnablement)).when(deviceConfigurationService).findAndLockComTaskEnablementByIdAndVersion(eq(id), anyLong());
         return comTaskEnablement;
@@ -667,6 +731,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         boolean useDefaultConnectionTask;
         ConnectionFunction connectionFunction;
         ComTaskEnablement comTaskEnablement;
+        int maxNumberOfTries;
 
         public MyTestComTaskEnablementBuilder(ComTaskEnablement comTaskEnablement) {
             this.comTaskEnablement = comTaskEnablement;
@@ -705,6 +770,12 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
             return comTaskEnablement;
         }
 
+        @Override
+        public ComTaskEnablementBuilder setMaxNumberOfTries(int maxNumberOfTries) {
+            this.maxNumberOfTries = maxNumberOfTries;
+            return this;
+        }
+
         public PartialConnectionTask getPartialConnectionTask() {
             return partialConnectionTask;
         }
@@ -715,6 +786,10 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
 
         public ConnectionFunction getConnectionFunction() {
             return connectionFunction;
+        }
+
+        public int getMaxNumberOfTries() {
+            return this.maxNumberOfTries;
         }
     }
 }

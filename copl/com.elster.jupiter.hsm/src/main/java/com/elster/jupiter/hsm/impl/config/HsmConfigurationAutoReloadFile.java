@@ -4,6 +4,8 @@ import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 
 
+import com.atos.worldline.jss.api.basecrypto.ChainingMode;
+import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
 import org.apache.commons.configuration2.ImmutableConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedBuilderParametersImpl;
@@ -24,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * This implementation does not work in OSGi due to thread that is being launched to reload configuration. This thread does not have proper class loader in context therefore on any
  * change performed on underlying file configuration operations will fail.
  */
-public class HsmConfigurationAutoReloadFile implements HsmConfiguration {
+public class HsmConfigurationAutoReloadFile extends HsmAbstractConfiguration implements HsmConfiguration {
 
     public static final String LABEL_PREFIX = HSM_CONFIG_LABEL_PREFIX + HSM_CONFIG_SEPARATOR;
     private final  ReloadingFileBasedConfigurationBuilder cfgBuilder;
@@ -105,6 +107,8 @@ public class HsmConfigurationAutoReloadFile implements HsmConfiguration {
             throw new HsmBaseException(e);
         }
     }
+
+
 
 }
 

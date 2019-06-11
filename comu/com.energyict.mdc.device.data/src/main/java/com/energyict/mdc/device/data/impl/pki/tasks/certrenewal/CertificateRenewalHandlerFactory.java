@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl.pki.tasks.certrenewal;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.nls.Layer;
@@ -39,6 +40,7 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
     private volatile OrmService ormService;
     private volatile BpmService bpmService;
     private volatile NlsService nlsService;
+    private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
 
@@ -64,11 +66,12 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
                                             OrmService ormService,
                                             BpmService bpmService,
                                             Clock clock,
-                                            NlsService nlsService) {
+                                            NlsService nlsService, EventService eventService) {
         this();
         setTaskService(taskService);
         setOrmService(ormService);
         setBpmService(bpmService);
+        setEventService(eventService);
         setClock(clock);
         setNlsService(nlsService);
         activate(bundleContext);
@@ -103,6 +106,11 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
     }
 
     @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
+    @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
     }
@@ -125,7 +133,7 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CertificateRenewalTaskExecutor(ormService, bpmService, clock, certRenewalBpmProcessDefinitionId,
+        return taskService.createMessageHandler(new CertificateRenewalTaskExecutor(ormService, bpmService, eventService, clock, certRenewalBpmProcessDefinitionId,
                 certRenewalExpitationDays));
     }
 
@@ -136,7 +144,7 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
 
     @Override
     public TaskOccurrence runNow() {
-        return getTask().runNow(new CertificateRenewalTaskExecutor(ormService, bpmService, clock, certRenewalBpmProcessDefinitionId,
+        return getTask().runNow(new CertificateRenewalTaskExecutor(ormService, bpmService, eventService, clock, certRenewalBpmProcessDefinitionId,
                 certRenewalExpitationDays));
     }
 

@@ -8,4 +8,4 @@ Private-Package: com.energyict.mdc.cim.webservices.outbound.soap.impl,\
 Export-Package: com.energyict.mdc.cim.webservices.outbound.soap,\
                 ch.iec.tc57._2011.*,\
                 com.elster.connexo.*,\
-                org.w3._2001.xmlschema
+                org.w3.*

@@ -6,6 +6,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -71,12 +72,14 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import javax.xml.bind.DatatypeConverter;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -205,6 +208,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.logBookTypeUsages.clear();
         this.deviceMessageFiles.clear();
         this.allowedCalendars.clear();
+        this.removeCustomProperties();
         Iterator<ServerDeviceConfiguration> iterator = this.deviceConfigurations.iterator();
         // do not replace with foreach!! the deviceConfiguration will be removed from the iterator
         while (iterator.hasNext()) {
@@ -219,6 +223,22 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         this.getDataMapper().remove(this);
     }
+
+    private void removeCustomProperties() {
+        this.getCustomPropertySets().stream().filter(cps -> cps.getCustomPropertySet().getDomainClass().equals(DeviceType.class))
+                .collect(Collectors.toList())
+                .forEach(this::removeCustomPropertiesFor);
+    }
+
+    private void removeCustomPropertiesFor(RegisteredCustomPropertySet customPropertySet) {
+        this.removeCustomPropertiesFor(customPropertySet.getCustomPropertySet());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void removeCustomPropertiesFor(CustomPropertySet customPropertySet) {
+        this.customPropertySetService.removeValuesFor(customPropertySet, this);
+    }
+
 
     private void deleteTimeOfUseManagementOption() {
         this.getDataModel()
@@ -367,6 +387,39 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             throw new SecurityAccessorTypeCanNotBeDeletedException(getThesaurus());
         }
         getEventService().postEvent(EventType.SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE.topic(), securityAccessorTypeOnDeviceType);
+    }
+
+    @Override
+    public Optional<String> getDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType) {
+        Optional<SecurityAccessorTypeOnDeviceTypeImpl> accessorTypeImpl = securityAccessorTypes.stream()
+          .filter(securityAccessorTypeOnDeviceType ->
+              securityAccessorTypeOnDeviceType.getSecurityAccessorType().getId() == securityAccessorType.getId()).findAny();
+        if (accessorTypeImpl.isPresent()) {
+            Optional<String> keyValue = accessorTypeImpl.get().getDefaultKey();
+            if (keyValue.isPresent()) {
+                byte[] key = Base64.getDecoder().decode(keyValue.get());
+                return Optional.of(DatatypeConverter.printHexBinary(key));
+            }
+        }
+        return Optional.ofNullable(null);
+    }
+
+    @Override
+    public void updateDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType, String value) {
+         if (securityAccessorType.keyTypeIsHSM()) {
+             Optional<SecurityAccessorTypeOnDeviceTypeImpl> accessorTypeImpl = securityAccessorTypes.stream()
+                    .filter(securityAccessorTypeOnDeviceType ->
+                            securityAccessorTypeOnDeviceType.getSecurityAccessorType().equals(securityAccessorType))
+                    .findAny();
+                byte[] key = DatatypeConverter.parseHexBinary(value);
+                if (accessorTypeImpl.isPresent()) {
+                    accessorTypeImpl.get().setDefaultKey(Base64.getEncoder().encodeToString(key));
+                } else {
+                    throw new SecurityAccessorTypeIsNotFoundException(securityAccessorType, this.getThesaurus());
+                }
+         } else {
+             throw new SecurityAccessorTypeIsNotHSMException(securityAccessorType, this.getThesaurus());
+         }
     }
 
     @Override

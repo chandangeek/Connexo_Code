@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
     <artifactId>cps.extjs</artifactId>
     <packaging>bundle</packaging>
@@ -52,15 +52,9 @@
         </dependency>
     </dependencies>
 
-
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/cps</js.dir>
-                <package.name>com.elster.jupiter.cps.extjs</package.name>
-            </properties>
-        </profile>
-    </profiles>
+    <properties>
+        <js.dir>js/cps</js.dir>
+        <package.name>com.elster.jupiter.cps.extjs</package.name>
+    </properties>
 
 </project>

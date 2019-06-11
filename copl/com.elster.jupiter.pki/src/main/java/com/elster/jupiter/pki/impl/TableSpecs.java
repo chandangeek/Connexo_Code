@@ -301,6 +301,11 @@ public enum TableSpecs {
                     .map(SecurityAccessorTypeImpl.Fields.KEY_SIZE.fieldName())
                     .since(version(10,4,3))
                     .add();
+            table.column("REVERSIBLE")
+                    .type("char(1)").conversion(CHAR2BOOLEAN).installValue("'N'")
+                    .map(SecurityAccessorTypeImpl.Fields.REVERSIBLE.fieldName())
+                    .since(version(10,4,4))
+                    .add();
             Column keytypeid = table.column("KEYTYPEID")
                     .number()
                     .notNull()

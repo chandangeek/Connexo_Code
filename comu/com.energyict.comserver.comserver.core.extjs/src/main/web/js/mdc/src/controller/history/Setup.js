@@ -193,6 +193,17 @@ Ext.define('Mdc.controller.history.Setup', {
                                             controller: 'Mdc.controller.setup.DeviceHistory',
                                             action: 'startProcess',
                                             privileges: Isu.privileges.Issue.viewAdminDevice
+                                        },
+                                        viewProcesses: {
+                                            title: Uni.I18n.translate('general.processes', 'MDC', 'Processes'),
+                                            route: 'viewProcesses',
+                                            controller: 'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses',
+                                            action: 'viewProcesses',
+                                            privileges: Isu.privileges.Issue.viewAdminDevice,
+                                            params: {
+                                                process: '',
+
+                                            }
                                         }
                                     }
                                 }
@@ -1586,6 +1597,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                         privileges: Mdc.privileges.DeviceType.admin,
                                         controller: 'Mdc.controller.setup.DeviceTypes',
                                         action: 'showDeviceTypeEditView'
+                                    },
+                                    editcustomattributes: {
+                                        title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                        route: '{customAttributeSetId}/editcas',
+                                        privileges: Mdc.privileges.DeviceType.admin,
+                                        controller: 'Mdc.controller.setup.DeviceTypes',
+                                        action: 'showDeviceTypeCustomAttributesEditView',
+                                        callback: function (route) {
+                                            this.getApplication().on('loadCustomAttributeSetOnDeviceType', function (record) {
+                                                route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                return true;
+                                                }, {single: true});
+
+                                                return this;
+                                        }
                                     },
                                     logbooktypes: {
                                         title: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),

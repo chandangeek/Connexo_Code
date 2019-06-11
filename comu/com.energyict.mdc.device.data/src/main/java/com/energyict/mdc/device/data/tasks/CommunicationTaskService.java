@@ -166,6 +166,14 @@ public interface CommunicationTaskService {
 
     Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(OutboundComPort comPort);
 
+    /**
+     * Finds all the ComTaskExecutions having ComTask in the received comTaskIds from the devices in deviceIds
+     * @param deviceIds list of device IDs to search for
+     * @param comTaskIds list of ComTask IDs to search for
+     * @return a fetcher for the ComTaskExecutions found
+     */
+    Fetcher<ComTaskExecution> findComTaskExecutionsForDevicesByComTask(List<Long> deviceIds, List<Long> comTaskIds);
+
     List<ComTaskExecution> getPlannedComTaskExecutionsFor(InboundComPort comPort, Device device);
 
     boolean isComTaskStillPending(long comTaskExecutionId);

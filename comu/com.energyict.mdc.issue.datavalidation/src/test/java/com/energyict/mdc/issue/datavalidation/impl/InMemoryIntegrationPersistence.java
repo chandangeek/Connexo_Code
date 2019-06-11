@@ -23,6 +23,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -34,8 +35,11 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.impl.PkiModule;
@@ -114,6 +118,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -152,6 +157,8 @@ public class InMemoryIntegrationPersistence {
         properties.put("protocols", "all");
         when(license.getLicensedValues()).thenReturn(properties);
         this.injector = Guice.createInjector(this.getModules(showSqlLogging));
+        DataModel dataModel = injector.getInstance(DataModel.class);
+        when(dataModel.getInstance(any())).thenAnswer(invocationOnMock -> injector.getInstance(invocationOnMock.getArgumentAt(0, Class.class)));
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             ProtocolPluggableServiceImpl protocolPluggableService = (ProtocolPluggableServiceImpl) this.injector.getInstance(ProtocolPluggableService.class);
@@ -160,6 +167,7 @@ public class InMemoryIntegrationPersistence {
             this.transactionService = this.injector.getInstance(TransactionService.class);
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(AuditService.class);
+            injector.getInstance(MeteringZoneService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
@@ -257,7 +265,8 @@ public class InMemoryIntegrationPersistence {
                 new CalendarModule(),
                 new WebServicesModule(),
                 new AuditServiceModule(),
-                new FileImportModule()
+                new FileImportModule(),
+                new MeteringZoneModule()
         );
         if (this.deviceConfigurationService == null) {
             modules.add(new DeviceConfigurationModule());
@@ -325,6 +334,8 @@ public class InMemoryIntegrationPersistence {
 
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
+            bind(DataModel.class).toInstance(mock(DataModel.class));
         }
     }
 

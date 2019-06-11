@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.energyict</groupId>
     <artifactId>mdc.parent</artifactId>
-      <version>1.0.0-Nessus-SNAPSHOT</version>
+      <version>0.0.1-Heracles-SNAPSHOT</version>
 
   </parent>
 
@@ -122,6 +122,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>estimation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.lifecycle.config</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -207,11 +211,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.tasks</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -361,6 +360,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>audit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.zone</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -10,9 +10,13 @@ package com.elster.jupiter.hsm.impl.config;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 
+import com.atos.worldline.jss.api.basecrypto.ChainingMode;
+import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
+
 import java.util.Collection;
 
 public interface HsmConfiguration {
+
 
     String HSM_CONFIG_JSS_INIT_FILE = "hsm.config.jss.init.file";
     String HSM_CONFIG_LABEL_PREFIX = "hsm.config.label";
@@ -44,4 +48,18 @@ public interface HsmConfiguration {
      * @return all configured labels
      */
     Collection<HsmLabelConfiguration> getLabels() throws HsmBaseException;
+
+    /**
+     * @return chaining mode to be used for given label. This will be used for calling Symmetric and Asymmetric encrypt/decrypt calls but not for import
+     * while there we use mapping configured in shipment file
+     */
+    ChainingMode getChainingMode(String label);
+
+    /**
+     * @return padding algorithm mode to be used for given label.
+     * This will be used for calling Symmetric and Asymmetric encrypt/decrypt calls but not for import
+     * while there we use mapping configured in shipment file
+     */
+    PaddingAlgorithm getPaddingAlgorithm(String label);
+
 }

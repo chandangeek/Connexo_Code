@@ -274,6 +274,10 @@ public interface DeviceType extends HasId, HasName {
      */
     boolean removeSecurityAccessorType(SecurityAccessorType securityAccessorType);
 
+    Optional<String> getDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType);
+
+    void updateDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType, String value);
+
     interface DeviceTypeBuilder {
         DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes);
 

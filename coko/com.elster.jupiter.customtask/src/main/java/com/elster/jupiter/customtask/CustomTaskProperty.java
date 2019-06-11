@@ -15,6 +15,8 @@ public interface CustomTaskProperty extends HasName {
 
     Object getValue();
 
+    String getStringValue();
+
     void setValue(Object value);
 
     void save();

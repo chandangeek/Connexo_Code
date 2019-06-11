@@ -1,63 +1,61 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
+import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
+import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
+import javax.inject.Inject;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
- * Provides an implementation for the {@link ServerMicroCheck} interface
- * that checks that all data in load profiles is collected.
+ * Checks that all data in load profiles is collected.
  * The actual check is done by comparing the last reading timestamp
  * of all profiles against the effective timestamp of the transition.
  * A missing last reading on a load profile
  * equals to a mismatch with the effective timestamp
  * and will therefore fail this check.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-15 (09:48)
  */
 public class AllLoadProfileDataCollected extends TranslatableServerMicroCheck {
 
-    private final MeteringService meteringService;
+    private MeteringService meteringService;
 
-    public AllLoadProfileDataCollected(Thesaurus thesaurus, MeteringService meteringService) {
-        super(thesaurus);
+    @Inject
+    public final void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        return this.evaluateLoadProfiles(device, effectiveTimestamp);
+    public String getCategory() {
+        return MicroCategory.DATA_COLLECTION.name();
     }
 
-    private Optional<DeviceLifeCycleActionViolation> evaluateLoadProfiles(Device device, Instant effectiveTimestamp) {
-        if (anyLoadProfileWithIncorrectLastReading(device, effectiveTimestamp).isPresent()) {
-            return Optional.of(newViolation());
-        }
-        return Optional.empty();
+    @Override
+    public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
+        return anyLoadProfileWithIncorrectLastReading(device, effectiveTimestamp).isPresent() ?
+                fail(MicroCheckTranslations.Message.ALL_LOAD_PROFILE_DATA_COLLECTED) :
+                Optional.empty();
     }
 
-    private DeviceLifeCycleActionViolationImpl newViolation() {
-        return new DeviceLifeCycleActionViolationImpl(
-                this.thesaurus,
-                MessageSeeds.ALL_LOAD_PROFILE_DATA_COLLECTED,
-                MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
+    @Override
+    public Set<DefaultTransition> getOptionalDefaultTransitions() {
+        return EnumSet.of(
+                DefaultTransition.DEACTIVATE,
+                DefaultTransition.DEACTIVATE_AND_DECOMMISSION,
+                DefaultTransition.DECOMMISSION);
     }
 
     private Optional<LoadProfile> anyLoadProfileWithIncorrectLastReading(Device device, Instant effectiveTimestamp) {
@@ -93,10 +91,5 @@ public class AllLoadProfileDataCollected extends TranslatableServerMicroCheck {
 
     private AmrSystem findMdcAmrSystem() {
         return this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-    }
-
-    @Override
-    protected MicroCheck getMicroCheck() {
-        return MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED;
     }
 }

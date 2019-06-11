@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
@@ -60,18 +61,18 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     private static final ObisCode FRAME_COUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
 
-    private final NlsService nlsService;
+    protected final NlsService nlsService;
     ESMR50Cache esmr50Cache;
     private Esmr50LogBookFactory esmr50LogBookFactory;
     ESMR50RegisterFactory registerFactory;
     private ESMR50Messaging esmr50Messaging;
     private ESMR50MessageExecutor esmr50MessageExecutor;
-    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
-    private final Converter converter;
-    private final TariffCalendarExtractor calendarExtractor;
-    private final DeviceMessageFileExtractor messageFileExtractor;
-    private final NumberLookupExtractor numberLookupExtractor;
-    private final LoadProfileExtractor loadProfileExtractor;
+    protected final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+    protected final Converter converter;
+    protected final TariffCalendarExtractor calendarExtractor;
+    protected final DeviceMessageFileExtractor messageFileExtractor;
+    protected final NumberLookupExtractor numberLookupExtractor;
+    protected final LoadProfileExtractor loadProfileExtractor;
 
 
     public ESMR50Protocol(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
@@ -87,48 +88,59 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "Enexis first protocol integration version 10.12.2018";
+        return "ESMR 5.0 - 2019-06-06";
+    }
+
+    @Override
+    public void journal(String message) {
+        super.journal("[ESMR50] " + message);
     }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        getLogger().info("Sagemcom T210 protocol init V2");
+        journal("Sagemcom T210 protocol init");
         this.offlineDevice = offlineDevice;
-        getDlmsSessionProperties().setSerialNumber(getDlmsSessionProperties().getDeviceId());
-        getLogger().info("Initialize communication with device identified by device ID: " + getDlmsSessionProperties().getDeviceId());
+        String serialNumber = getDlmsSessionProperties().getSerialNumber();
+        getDlmsSessionProperties().setSerialNumber(serialNumber);
+        journal("Initialize communication with device identified by serial number: " + serialNumber);
         if(!testCachedFrameCounter(comChannel)){
             readFrameCounter(comChannel);
-            DlmsSession dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
+            DlmsSession dlmsSession = newDlmsSession(comChannel);
             dlmsSession.getAso().getSecurityContext().setFrameCounter(getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter());
             setDlmsSession(dlmsSession);
         } else {
             //Framecounter was validated and DLMSSession set so go on
         }
-        getLogger().info("Initialization phase has ended.");
-
+        journal("Initialization phase has ended.");
     }
 
-    private boolean testCachedFrameCounter(ComChannel comChannel){
+    protected DlmsSession newDlmsSession(ComChannel comChannel) {
+        return new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger()); }
+
+    protected boolean testCachedFrameCounter(ComChannel comChannel){
         boolean validCachedFrameCounter = false;
-        DlmsSession dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger());
+        DlmsSession dlmsSession = newDlmsSession(comChannel);
         long cachedFramecounter = getDeviceCache().getFrameCounter();
-        getLogger().info("Testing cached frame counter: " + cachedFramecounter );
+        journal("Testing cached frame counter: " + cachedFramecounter );
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFramecounter);
         dlmsSession.getAso().getSecurityContext().setFrameCounter(cachedFramecounter);
         try {
             dlmsSession.getDlmsV2Connection().connectMAC();
             dlmsSession.createAssociation();
             if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
-//                dlmsSession.disconnect();
                 long frameCounter = dlmsSession.getAso().getSecurityContext().getFrameCounter();
-                getLogger().info("This FrameCounter was validated: " + frameCounter);
+                journal("This FrameCounter was validated: " + frameCounter);
                 getDeviceCache().setFrameCounter(frameCounter);
                 validCachedFrameCounter = true;
                 setDlmsSession(dlmsSession);
             }
         } catch (CommunicationException ex) {
-            getLogger().info("Association using cached frame counter has failed.");
+            journal("Association using cached frame counter has failed.");
+        } catch (Exception ex){
+            journal(Level.SEVERE, ex.getLocalizedMessage() + " caused by " + ex.getCause().getLocalizedMessage());
+            throw ex;
         }
+
         return validCachedFrameCounter;
     }
 
@@ -138,7 +150,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
             return;
         }
 
-        getLogger().info("Starting public DLMS session to read the frame counter.");
+        journal("Starting public DLMS session to read the frame counter.");
 
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
         clone.setProperty(com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT_MAC_ADDRESS));
@@ -146,22 +158,22 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         publicClientProperties.addProperties(clone);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(PUBLIC_CLIENT_MAC_ADDRESS), 0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
-        long frameCounter;
+        long frameCounter = 0;
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
-        getLogger().info("Connecting to public client: " + PUBLIC_CLIENT_MAC_ADDRESS);
+        journal("Connecting to public client: " + PUBLIC_CLIENT_MAC_ADDRESS);
         connectWithRetries(publicDlmsSession);
         try {
             ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
-            getLogger().info("Public client connected, reading framecounter " + frameCounterObisCode.toString() + ", corresponding to client "+getDlmsSessionProperties().getClientMacAddress());
+            journal("Public client connected, reading framecounter " + frameCounterObisCode.toString() + ", corresponding to client "+getDlmsSessionProperties().getClientMacAddress());
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
-            getLogger().info("Frame counter received: " + frameCounter);
+            journal("Frame counter received: " + frameCounter);
         } catch (DataAccessResultException | ProtocolException e) {
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
-        getLogger().info("Disconnecting public client");
+        journal("Disconnecting public client");
         publicDlmsSession.disconnect();
         long incrementedFramecounter = frameCounter + 1;
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(incrementedFramecounter);
@@ -195,12 +207,12 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         }
         DLMSCache dlmsCache = getDeviceCache();
         if (dlmsCache.getObjectList() == null || getDlmsSessionProperties().isReadCache()) {
-            getLogger().info("Cache is empty or Read Cache property is set. Reading device object list.");
+            journal("Cache is empty or Read Cache property is set. Reading device object list.");
             readObjectList();
             dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());  // save object list in cache
         } else {
             getDlmsSession().getMeterConfig().setInstantiatedObjectList(dlmsCache.getObjectList());
-            getLogger().info("Cache exist, will not be read.");
+            journal("Cache exist, will not be read.");
         }
     }
 
@@ -209,7 +221,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         if(getDlmsSession() != null && getDlmsSession().getAso().getSecurityContext() != null){
             long frameCounter = getDlmsSession().getAso().getSecurityContext().getFrameCounter();
             getDeviceCache().setFrameCounter(frameCounter);
-            getLogger().info("Caching frameCounter=" + frameCounter);
+            journal("Caching frameCounter=" + frameCounter);
 
         }
     }
@@ -305,7 +317,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         return registerFactory;
     }
 
-    protected ESMR50Messaging getESMR50Messaging() {
+    protected ESMR50Messaging getMessaging() {
         if (this.esmr50Messaging == null) {
             this.esmr50Messaging = new ESMR50Messaging(getMessageExecutor(), this.getPropertySpecService(), this.nlsService, this.converter, this.messageFileExtractor, this.calendarExtractor, this.numberLookupExtractor, this.loadProfileExtractor, this.keyAccessorTypeExtractor);
         }
@@ -321,27 +333,32 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return getESMR50Messaging().getSupportedMessages();
+        return getMessaging().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return getMessageExecutor().executePendingMessages(pendingMessages);
+        return getMessaging().executePendingMessages(pendingMessages);
     }
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
-        return getESMR50Messaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+        return getMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return getESMR50Messaging().updateSentMessages(sentMessages);
+        return getMessaging().updateSentMessages(sentMessages);
     }
 
     @Override
     public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return Optional.empty();
+    }
+
+    @Override
+    public ObisCode getFirmwareVersionCommsModuleObisCode(){
+        return ESMR50RegisterFactory.ACTIVE_MODEM_FIRMWARE_VERSION_OBISCODE;
     }
 
    //TODO This method must be overriden in all nta protocols. It had a different implementation in 8.11 AbstractSmartDlmsProtocol than in AbstractDlmsProtcol from connexo
@@ -350,7 +367,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
      */
     @Override
     public int getPhysicalAddressFromSerialNumber(final String serialNumber) {
-        return 0;
+        return getMeterTopology().getPhysicalAddress(serialNumber);
     }
 
     public void resetFrameCounter(long newFrameCounter) {
@@ -360,6 +377,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         }
         ((ESMR50Cache)getDeviceCache()).setFrameCounter(newFrameCounter);
     }
+
 }
 
 

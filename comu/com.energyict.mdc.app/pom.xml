@@ -8,8 +8,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
-
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.app</artifactId>
@@ -179,6 +178,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.issue.devicelifecycle.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.device.alarms.extjs</artifactId>
         </dependency>
         <dependency>
@@ -257,15 +260,22 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>audit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tou.campaign.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tou.campaign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue.task.extjs</artifactId>
+        </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/mdc</js.dir>
-            </properties>
-        </profile>
-    </profiles>
+    <properties>
+        <js.dir>js/mdc</js.dir>
+    </properties>
 
 </project>

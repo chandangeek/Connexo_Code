@@ -5,7 +5,9 @@
 package com.elster.jupiter.cps.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.EventType;
 import com.elster.jupiter.cps.Privileges;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -30,18 +32,27 @@ public class Installer implements FullInstaller, PrivilegesProvider {
 
     private final DataModel dataModel;
     private final UserService userService;
+    private final EventService eventService;
 
     @Inject
-    public Installer(DataModel dataModel, UserService userService) {
+    public Installer(DataModel dataModel, UserService userService, EventService eventService) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry("Install event types", this::createEventTypes, logger);
         userService.addModulePrivileges(this);
+    }
+
+    private void createEventTypes() {
+        for (EventType eventType : EventType.values()) {
+            eventType.createIfNotExists(this.eventService);
+        }
     }
 
     @Override

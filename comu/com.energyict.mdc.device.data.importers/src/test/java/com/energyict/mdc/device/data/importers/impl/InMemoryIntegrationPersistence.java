@@ -19,6 +19,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -27,8 +28,11 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.MeteringZoneService;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.impl.PkiModule;
@@ -84,8 +88,10 @@ import javax.validation.MessageInterpolator;
 import java.sql.SQLException;
 import java.time.Clock;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class InMemoryIntegrationPersistence {
 
@@ -94,6 +100,7 @@ public class InMemoryIntegrationPersistence {
     private TransactionService transactionService;
     private InMemoryBootstrapModule bootstrapModule;
     private Injector injector;
+    private DataModel dataModel = mock(DataModel.class);
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -152,8 +159,10 @@ public class InMemoryIntegrationPersistence {
                 new DeviceDataModule(),
                 new TopologyModule(),
                 new CalendarModule(),
-                new PkiModule()
+                new PkiModule(),
+                new MeteringZoneModule()
                 );
+        when(dataModel.getInstance(any())).thenAnswer(invocationOnMock -> injector.getInstance(invocationOnMock.getArgumentAt(0, Class.class)));
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(ServiceCallService.class);
@@ -162,6 +171,7 @@ public class InMemoryIntegrationPersistence {
             initializeCustomPropertySets();
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(DeviceDataImporterContext.class);
+            injector.getInstance(MeteringZoneService.class);
             ctx.commit();
         }
     }
@@ -208,6 +218,8 @@ public class InMemoryIntegrationPersistence {
             bind(MessageInterpolator.class).toInstance(thesaurus);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
+            bind(DataModel.class).toInstance(dataModel);
         }
     }
 }

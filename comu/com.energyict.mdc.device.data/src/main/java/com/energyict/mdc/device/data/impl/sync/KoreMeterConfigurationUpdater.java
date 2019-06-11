@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl.sync;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.impl.ChannelUpdaterImpl;
@@ -19,6 +20,8 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMeter {
@@ -54,12 +57,63 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
 
     @Override
     public void syncWithKore(DeviceImpl device) {
-        super.setStart(this.clock.instant());
+        Instant now = this.clock.instant();
+        super.setStart(now);
         this.setDevice(device);
+
+
+        List<MeterReadingTypeConfiguration> readingTypeConfigs = new ArrayList<>();
+        device.getMeterReference()
+                .get()
+                .getConfiguration(now)
+                .ifPresent(meterConfiguration -> readingTypeConfigs.addAll(meterConfiguration.getReadingTypeConfigs()));
 
         endCurrentMeterConfigurationIfPresent();
 
+        /*device.getChannels().stream()
+                .forEach(channel -> {
+                    readingTypeConfigs.stream()
+                            .filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getMeasured().getMRID().compareToIgnoreCase(channel.getReadingType().getMRID())==0)
+                            .forEach(meterReadingTypeConfiguration -> {
+                                Channel.ChannelUpdater channelUpdater = device.getChannelUpdaterFor(channel);
+                                meterReadingTypeConfiguration.getOverflowValue().ifPresent(value -> channelUpdater.setOverflowValue(value));
+                                meterReadingTypeConfiguration.getNumberOfFractionDigits().ifPresent(value -> channelUpdater.setNumberOfFractionDigits(value));
+                                channelUpdater.update();
+                            });
+
+                });*/
+
+
         Meter.MeterConfigurationBuilder meterConfigurationBuilder = meterConfigurationBuilderProvider.apply(null);
+        device.getChannels().stream()
+                .forEach(channel -> {
+                    readingTypeConfigs.stream()
+                            .filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getMeasured().getMRID().compareToIgnoreCase(channel.getReadingType().getMRID())==0)
+                            .forEach(meterReadingTypeConfiguration -> {
+                                if (this.readingType.getMRID().compareToIgnoreCase(channel.getReadingType().getMRID())!=0) {
+                                    /*configureReadingType(
+                                            meterConfigurationBuilder,
+                                            channel.getReadingType(),
+                                            meterReadingTypeConfiguration.getNumberOfFractionDigits().getAsInt(),
+                                            meterReadingTypeConfiguration.getOverflowValue(),
+                                            null);*/
+                                    Meter.MeterReadingTypeConfigurationBuilder builder = meterConfigurationBuilder.configureReadingType(channel.getReadingType());
+                                    meterReadingTypeConfiguration.getOverflowValue().ifPresent(overruledOverflowValue -> builder.withOverflowValue(overruledOverflowValue));
+                                    meterReadingTypeConfiguration.getNumberOfFractionDigits().ifPresent(numberOfFractionDigits -> builder.withNumberOfFractionDigits(numberOfFractionDigits));
+                                }
+                            });
+
+                });
+
+        /*readingTypeConfigs.stream()
+                .forEach(meterReadingTypeConfiguration -> {
+                            Meter.MeterReadingTypeConfigurationBuilder builder = meterConfigurationBuilder.configureReadingType(meterReadingTypeConfiguration.getMeasured().);
+                            meterReadingTypeConfiguration.getOverflowValue().ifPresent(overruledOverflowValue -> builder.withOverflowValue(overruledOverflowValue));
+                            meterReadingTypeConfiguration.getNumberOfFractionDigits().ifPresent(numberOfFractionDigits -> builder.withNumberOfFractionDigits(numberOfFractionDigits));
+                            builder.create();
+                        }
+                    );*/
+
         if (overruledNbrOfFractionDigits != null && overruledOverflowValue != null) {
             meterConfigurationBuilder.configureReadingType(this.readingType)
                     .withOverflowValue(overruledOverflowValue)
@@ -74,7 +128,7 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
     }
 
     private Meter.MeterConfigurationBuilder meterconfigurationBuilderForRegisters() {
-        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter()
+        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeterReference()
                 .get()
                 .startingConfigurationOn(getStart());
         createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder);
@@ -93,7 +147,7 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
     }
 
     private Meter.MeterConfigurationBuilder meterconfigurationBuilderForChannels() {
-        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter()
+        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeterReference()
                 .get()
                 .startingConfigurationOn(getStart());
         getDevice().getDeviceConfiguration().getChannelSpecs().stream()

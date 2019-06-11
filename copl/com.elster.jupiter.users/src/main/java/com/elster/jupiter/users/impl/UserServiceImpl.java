@@ -48,6 +48,7 @@ import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -60,6 +61,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+
 import java.security.KeyStore;
 import java.security.Principal;
 import java.time.Clock;
@@ -172,7 +174,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
         synchronized (privilegeProviderRegistrationLock) {
             upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                    version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class
+                    version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class, version(10, 4), UpgraderV10_4.class
             ));
         }
     }
@@ -276,7 +278,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public User createUser(String name, String description) {
-        InternalDirectoryImpl directory = (InternalDirectoryImpl) this.findUserDirectory(getRealm()).orElse(null);
+        InternalDirectoryImpl directory = (InternalDirectoryImpl) findUserDirectory(getRealm()).orElse(null);
         UserImpl result = directory.newUser(name, description, false, true);
         result.update();
         return result;
@@ -284,7 +286,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public User createApacheDirectoryUser(String name, String domain, boolean status) {
-        ApacheDirectoryImpl directory = (ApacheDirectoryImpl) this.findUserDirectory(domain).orElse(null);
+        ApacheDirectoryImpl directory = (ApacheDirectoryImpl) findUserDirectory(domain).orElse(null);
         UserImpl result = directory.newUser(name, domain, false, status);
         result.update();
 
@@ -293,7 +295,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public User createActiveDirectoryUser(String name, String domain, boolean status) {
-        ActiveDirectoryImpl directory = (ActiveDirectoryImpl) this.findUserDirectory(domain).orElse(null);
+        ActiveDirectoryImpl directory = (ActiveDirectoryImpl) findUserDirectory(domain).orElse(null);
         UserImpl result = directory.newUser(name, domain, false, status);
         result.update();
 
@@ -445,8 +447,9 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return dataModel.mapper(GrantPrivilege.class).getOptional(privilegeName);
     }
 
+    @Override
     public Optional<Resource> getResource(String resourceName) {
-        return resourceFactory().getOptional(resourceName);
+        return resourceFactory().getUnique("name", resourceName);
     }
 
     @Override
@@ -628,12 +631,12 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
     public void addUserDirectorySecurityProvider(UserDirectorySecurityProvider userDirectorySecurityProvider) {
-        this.userDirectorySecurityProviders.add(userDirectorySecurityProvider);
+        userDirectorySecurityProviders.add(userDirectorySecurityProvider);
     }
 
     @SuppressWarnings("unused")
     public void removeUserDirectorySecurityProvider(UserDirectorySecurityProvider userDirectorySecurityProvider) {
-        this.userDirectorySecurityProviders.remove(userDirectorySecurityProvider);
+        userDirectorySecurityProviders.remove(userDirectorySecurityProvider);
     }
 
     @Override
@@ -729,9 +732,9 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public Optional<User> getLoggedInUser(long userId) {
-        Optional<User> found = this.loggedInUsers.stream().filter(user -> (user.getId() == userId)).findFirst();
+        Optional<User> found = loggedInUsers.stream().filter(user -> (user.getId() == userId)).findFirst();
         if (!found.isPresent()) {
-            found = this.getUser(userId);
+            found = getUser(userId);
         }
 
         return found;
@@ -739,15 +742,15 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public void addLoggedInUser(User user) {
-        if (!this.loggedInUsers.contains(user)) {
-            this.loggedInUsers.add(user);
+        if (!loggedInUsers.contains(user)) {
+            loggedInUsers.add(user);
         }
     }
 
 
     @Override
     public void removeLoggedUser(User user) {
-        this.loggedInUsers.remove(user);
+        loggedInUsers.remove(user);
     }
 
     @Override
@@ -911,12 +914,12 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     private void logMessage(String message, String userName, String domain, String ipAddr) {
         try {
-            this.threadPrincipalService.set(getPrincipal());
+            threadPrincipalService.set(getPrincipal());
             ipAddr = "0:0:0:0:0:0:0:1".equals(ipAddr) ? "localhost" : ipAddr;
             if (message.equals(SUCCESSFUL_LOGIN)) {
                 String userNameFormatted = domain == null ? findDefaultUserDirectory().getDomain() + "/" + userName : domain + "/" + userName;
                 userLogin.log(Level.INFO, message + "[" + userNameFormatted + "] ", ipAddr);
-                this.findUserIgnoreStatus(userName, domain).ifPresent(user -> {
+                findUserIgnoreStatus(userName, domain).ifPresent(user -> {
                     try (TransactionContext context = transactionService.getContext()) {
                         user.setLastSuccessfulLogin(clock.instant());
                         context.commit();
@@ -925,7 +928,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             } else {
                 String userNameFormatted = domain == null ? findDefaultUserDirectory().getDomain() + "/" + userName : domain + "/" + userName;
                 userLogin.log(Level.WARNING, message + "[" + userNameFormatted + "] ", ipAddr);
-                this.findUserIgnoreStatus(userName, domain).ifPresent(user -> {
+                findUserIgnoreStatus(userName, domain).ifPresent(user -> {
                     try (TransactionContext context = transactionService.getContext()) {
                         user.setLastUnSuccessfulLogin(clock.instant());
                         context.commit();
@@ -933,13 +936,17 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                 });
             }
         } finally {
-            this.threadPrincipalService.clear();
+            threadPrincipalService.clear();
         }
+    }
+
+    public Optional<User> findUserIgnoreStatus(String authenticationName) {
+        return findUserIgnoreStatus(authenticationName, null);
     }
 
     private Optional<User> findUserIgnoreStatus(String authenticationName, String domain) {
         Condition authenticationNameCondition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
-        Condition userDirectoryCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", domain == null ? this.findDefaultUserDirectory().getDomain() : domain);
+        Condition userDirectoryCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", domain == null ? findDefaultUserDirectory().getDomain() : domain);
         List<User> users = dataModel.query(User.class, UserDirectory.class).select(authenticationNameCondition.and(userDirectoryCondition));
         if (!users.isEmpty()) {
             return Optional.of(users.get(0));
@@ -954,7 +961,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private void setTrustStore(BundleContext bundleContext) {
         String trustStorePath = bundleContext.getProperty(TRUSTSTORE_PATH);
         String trustStorePass = bundleContext.getProperty(TRUSTSTORE_PASS);
-        if ((trustStorePath != null) && (trustStorePass != null)) {
+        if (trustStorePath != null && trustStorePass != null) {
             System.setProperty("javax.net.ssl.trustStore", trustStorePath);
             System.setProperty("javax.net.ssl.trustStorePassword", trustStorePass);
         }

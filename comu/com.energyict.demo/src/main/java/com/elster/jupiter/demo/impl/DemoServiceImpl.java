@@ -59,7 +59,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.PassphraseFactory;
@@ -73,6 +75,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -94,7 +97,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
 
 import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
@@ -209,6 +211,7 @@ public class DemoServiceImpl {
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile UsagePointIssueDataValidationService usagePointIssueDataValidationService;
     private volatile TopologyService topologyService;
+    private volatile Thesaurus thesaurus;
 
     private Injector injector;
 
@@ -396,6 +399,7 @@ public class DemoServiceImpl {
                 bind(DeviceAlarmService.class).toInstance(deviceAlarmService);
                 bind(UsagePointIssueDataValidationService.class).toInstance(usagePointIssueDataValidationService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
+                bind(Thesaurus.class).toInstance(thesaurus);
             }
         });
         Builders.initWith(this.injector);
@@ -532,6 +536,7 @@ public class DemoServiceImpl {
     @Reference
     @SuppressWarnings("unused")
     public final void setIssueDataCollectionService(IssueDataCollectionService issueDataCollectionService) {
+        this.issueDataCollectionService = issueDataCollectionService;
         this.issueDataCollectionService = issueDataCollectionService;
     }
 
@@ -700,9 +705,11 @@ public class DemoServiceImpl {
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
     }
+
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus("DLD", Layer.DOMAIN);
     }
 
     @Reference

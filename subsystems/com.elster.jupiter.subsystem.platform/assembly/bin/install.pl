@@ -52,13 +52,13 @@ my $SYSTEM_IDENTIFIER="";
 my $SYSTEM_IDENTIFIER_COLOR="";
 
 my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
-my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
+my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL, my $ENABLE_PARTITIONING, my $ENABLE_AUDITING;
 my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DB_USE_SERVICE_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD, my $FACTS_LICENSE;
 my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
-my $TOMCAT_BASE="$CONNEXO_DIR/partners"; 
-my $TOMCAT_ZIP="tomcat-8.5.24";
+my $TOMCAT_BASE="$CONNEXO_DIR/partners";
+my $TOMCAT_ZIP="tomcat-8.5.24.2";
 my $CATALINA_BASE="$TOMCAT_BASE/$TOMCAT_DIR";
 my $CATALINA_HOME=$CATALINA_BASE;
 $ENV{"CATALINA_HOME"}=$CATALINA_HOME;
@@ -218,6 +218,8 @@ sub read_config {
                 if ( "$val[0]" eq "jdbcUrl" )                       {$jdbcUrl=$val[1];}
                 if ( "$val[0]" eq "dbUserName" )                    {$dbUserName=$val[1];}
                 if ( "$val[0]" eq "dbPassword" )                    {$dbPassword=$val[1];}
+                if ( "$val[0]" eq "ENABLE_AUDITING" )               {$ENABLE_AUDITING=$val[1];}
+                if ( "$val[0]" eq "ENABLE_PARTITIONING" )           {$ENABLE_PARTITIONING=$val[1];}
                 if ( "$val[0]" eq "CONNEXO_SERVICE" )               {$CONNEXO_SERVICE=$val[1];}
                 if ( "$val[0]" eq "FACTS_DB_HOST" )                 {$FACTS_DB_HOST=$val[1];}
                 if ( "$val[0]" eq "FACTS_DB_PORT" )                 {$FACTS_DB_PORT=$val[1];}
@@ -267,6 +269,10 @@ sub read_config {
             chomp($dbUserName=<STDIN>);
             print "Please enter the database password: ";
             chomp($dbPassword=<STDIN>);
+            print "Do you want to enable auditing? (true/false) ";
+            chomp($ENABLE_AUDITING=<STDIN>);
+            print "Do you want to enable database partitioning? (true/false) ";
+            chomp($ENABLE_PARTITIONING=<STDIN>);
             print "Please enter the Connexo http port: ";
             chomp($CONNEXO_HTTP_PORT=<STDIN>);
             print "Do you want to install Connexo as a daemon: (yes/no) ";
@@ -433,6 +439,8 @@ sub install_connexo {
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.keyfile=$KEYFILE_FULLPATH");
+			add_to_file_if($config_file,"enable.auditing=$ENABLE_AUDITING");
+			add_to_file_if($config_file,"enable.partitioning=$ENABLE_PARTITIONING");
             update_properties_file_with_encrypted_password();
 
             if ("$ACTIVATE_SSO" eq "yes") {
@@ -539,7 +547,6 @@ sub install_tomcat {
 		if (-d "$TOMCAT_DIR") { rmtree("$TOMCAT_DIR"); }
 		sleep 10;
 		rename("apache-$TOMCAT_ZIP","$TOMCAT_DIR");
-
 		if (-e "$TOMCAT_BASE/connexo.filter.jar") {
             print "    $TOMCAT_BASE/connexo.filter.jar -> $TOMCAT_BASE/tomcat/lib/connexo.filter.jar\n";
 		    copy("$TOMCAT_BASE/connexo.filter.jar","$TOMCAT_BASE/tomcat/lib/connexo.filter.jar");
@@ -1419,6 +1426,8 @@ sub perform_upgrade {
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.keyfile=$KEYFILE_FULLPATH");
+            add_to_file_if($config_file,"enable.auditing=$ENABLE_AUDITING");
+            add_to_file_if($config_file,"enable.partitioning=$ENABLE_PARTITIONING");
             update_properties_file_with_encrypted_password();
             if ("$INSTALL_FACTS" eq "yes") {
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
@@ -1637,6 +1646,10 @@ print "| Installation script started at ".localtime(time)." |\n";
 print "'---------------------------------------------------------'\n";
 check_root();
 check_create_users();
+if ("$OS" eq "linux" ){
+    system(chmod "-R 755 $CONNEXO_DIR");
+    print "Setting the needed folder rights. Done!\n";
+}
 read_args();
 if ($help) {
     show_help();

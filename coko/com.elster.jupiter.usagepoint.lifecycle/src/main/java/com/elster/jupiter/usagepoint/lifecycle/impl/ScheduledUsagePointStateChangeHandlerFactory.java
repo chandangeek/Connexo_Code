@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.tasks.TaskService;
@@ -20,20 +21,22 @@ import org.osgi.service.component.annotations.Reference;
 public class ScheduledUsagePointStateChangeHandlerFactory implements MessageHandlerFactory {
     private TaskService taskService;
     private ServerUsagePointLifeCycleService lifeCycleService;
+    private EventService eventService;
 
     public ScheduledUsagePointStateChangeHandlerFactory() {
     }
 
     @Inject
-    public ScheduledUsagePointStateChangeHandlerFactory(TaskService taskService, ServerUsagePointLifeCycleService lifeCycleService) {
+    public ScheduledUsagePointStateChangeHandlerFactory(TaskService taskService, ServerUsagePointLifeCycleService lifeCycleService, EventService eventService) {
         this();
         setTaskService(taskService);
         setLifeCycleService(lifeCycleService);
+        setEventService(eventService);
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return this.taskService.createMessageHandler(new ScheduledUsagePointStateChangeHandler(this.lifeCycleService));
+        return this.taskService.createMessageHandler(new ScheduledUsagePointStateChangeHandler(this.lifeCycleService, eventService));
     }
 
     @Reference
@@ -44,5 +47,10 @@ public class ScheduledUsagePointStateChangeHandlerFactory implements MessageHand
     @Reference
     public void setLifeCycleService(ServerUsagePointLifeCycleService lifeCycleService) {
         this.lifeCycleService = lifeCycleService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 }

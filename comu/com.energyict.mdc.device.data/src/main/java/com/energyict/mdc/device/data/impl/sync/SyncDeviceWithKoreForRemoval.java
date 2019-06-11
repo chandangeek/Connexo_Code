@@ -31,7 +31,7 @@ public class SyncDeviceWithKoreForRemoval extends AbstractSyncDeviceWithKoreMete
     public void syncWithKore(DeviceImpl device) {
         setDevice(device);
         super.endCurrentMeterActivationIfPresent();
-        getDevice().getMeter().get().makeObsolete();
+        getDevice().getMeterReference().get().makeObsolete();
     }
 
     @Override

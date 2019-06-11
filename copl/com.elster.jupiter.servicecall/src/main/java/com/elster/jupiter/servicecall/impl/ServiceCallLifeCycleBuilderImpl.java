@@ -115,6 +115,12 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
         map.put(Pair.of(PAUSED, CANCELLED), TranslationKeys.TRANSITION_FROM_PAUSED_TO_CANCELLED);
         map.put(Pair.of(WAITING, ONGOING), TranslationKeys.TRANSITION_FROM_WAITING_TO_ONGOING);
         map.put(Pair.of(WAITING, CANCELLED), TranslationKeys.TRANSITION_FROM_WAITING_TO_CANCELLED);
+        map.put(Pair.of(CREATED, ONGOING), TranslationKeys.TRANSITION_FROM_CREATED_TO_ONGOING);
+        map.put(Pair.of(FAILED, PENDING), TranslationKeys.TRANSITION_FROM_FAILED_TO_PENDING);
+        map.put(Pair.of(CANCELLED, PENDING), TranslationKeys.TRANSITION_FROM_CANCELLED_TO_PENDING);
+        map.put(Pair.of(REJECTED, FAILED), TranslationKeys.TRANSITION_FROM_REJECT_TO_FAILED);
+        map.put(Pair.of(REJECTED, PENDING), TranslationKeys.TRANSITION_FROM_REJECT_TO_PENDING);
+        map.put(Pair.of(PENDING, REJECTED), TranslationKeys.TRANSITION_FROM_PENDING_TO_REJECT);
         return map;
     }
 
@@ -130,6 +136,12 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
     @Override
     public ServiceCallLifeCycleBuilder removeTransition(DefaultState from, DefaultState to) {
         graph.removeEdge(from, to);
+        return this;
+    }
+
+    @Override
+    public ServiceCallLifeCycleBuilder addTransition(DefaultState from, DefaultState to) {
+        graph.addEdge(from, to);
         return this;
     }
 

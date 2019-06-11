@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
 
     </parent>
 
@@ -148,7 +148,18 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>hsm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.app</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -257,30 +268,4 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jvnet.jax-ws-commons</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <wsdlDirectory>src/main/resources</wsdlDirectory>
-                    <wsdlFiles>
-                        <wsdlFile>meterconfig/ExecuteMeterConfig.wsdl</wsdlFile>
-                        <wsdlFile>getenddeviceevents/GetEndDeviceEvents.wsdl</wsdlFile>
-                        <wsdlFile>enddeviceevents/ReceiveEndDeviceEvents.wsdl</wsdlFile>
-                    </wsdlFiles>
-                    <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
-                    <bindingDirectory>${basedir}/src/main/resources/binding</bindingDirectory>
-                    <keep>true</keep>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

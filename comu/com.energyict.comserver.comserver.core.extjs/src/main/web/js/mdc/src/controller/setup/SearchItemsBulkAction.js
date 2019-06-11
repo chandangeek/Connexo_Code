@@ -416,7 +416,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
             });
 
-        } if (me.operation == 'addToZone' || me.operation == 'removeFromZone') {
+        }
+        else if (me.operation == 'addToZone' || me.operation == 'removeFromZone') {
             var  urlZones = '/api/ddr/devices/zones';
 
             Ext.each(me.devices, function (item) {
@@ -794,6 +795,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             changeDeviceConfigForm = nextCmp.down('#change-device-configuration'),
                             currentConfigField = nextCmp.down('#current-device-config-selection');
 
+                        nextCmp.down('#device-zone-add-panel').hide();
                         nextCmp.down('#select-schedules-panel').hide();
                         nextCmp.down('#bulk-start-processes-panel').hide();
                         changeDeviceConfigForm.show();
@@ -971,7 +973,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     if (me.operation == 'startprocess'){
 
                     }
-                    if (me.operation == 'addToZone' || me.operation == 'removeFromZone'){
+                    else if (me.operation == 'addToZone' || me.operation == 'removeFromZone'){
                         nextCmp.showMessage(me.buildConfirmMessage());
                         wizard.down('#confirmButton').enable();
                     } else if (me.operation != 'changeconfig') {

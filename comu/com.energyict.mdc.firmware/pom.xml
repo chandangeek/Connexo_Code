@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
 
     </parent>
 
@@ -155,6 +155,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pki</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
         </dependency>
 
         <!-- Testing -->
@@ -325,6 +329,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>audit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.zone</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

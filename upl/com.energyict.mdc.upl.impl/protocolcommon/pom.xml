@@ -13,7 +13,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
-            <version>1.2.1</version>
+            <version>1.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.activation</groupId>
@@ -56,7 +56,7 @@
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
-            <version>1.2.1</version>
+            <version>1.4</version>
         </dependency>
 
         <dependency>

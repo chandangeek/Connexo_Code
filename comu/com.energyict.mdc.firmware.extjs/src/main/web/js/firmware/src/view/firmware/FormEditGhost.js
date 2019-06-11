@@ -33,6 +33,7 @@ Ext.define('Fwc.view.firmware.FormEditGhost', {
         {
             xtype: 'textfield',
             itemId: 'text-image-identifier',
+            name: 'imageIdentifier',
             fieldLabel: Uni.I18n.translate('general.imageIdentifier', 'FWC', 'Image identifier'),
             required: true,
             anchor: '60%'

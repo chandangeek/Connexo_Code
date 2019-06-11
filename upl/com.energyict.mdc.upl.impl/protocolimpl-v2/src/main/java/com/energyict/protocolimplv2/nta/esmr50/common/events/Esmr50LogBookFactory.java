@@ -17,14 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
-    private static final ObisCode STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
-    private static final ObisCode POWER_FAILURE_LOG = ObisCode.fromString("1.0.99.97.0.255");
-    private static final ObisCode FRAUD_DETECTION_LOG = ObisCode.fromString("0.0.99.98.1.255");
-    private static final ObisCode VOLTAGE_QUALITY_LOG = ObisCode.fromString("0.0.99.98.5.255");
     private static final ObisCode COMMS_EVENT_LOG = ObisCode.fromString("0.0.99.98.4.255");
-
-    private static final ObisCode MBUS_EVENT_LOG = ObisCode.fromString("0.x.99.98.3.255");
-    private static final ObisCode MBUS_CONTROL_LOG = ObisCode.fromString("0.x.24.5.0.255");
 
     public Esmr50LogBookFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
@@ -33,39 +26,44 @@ public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
     @Override
     public void initializeSupportedLogBooks() {
         supportedLogBooks = new ArrayList<>();
-        supportedLogBooks.add(STANDARD_EVENT_LOG);
-        supportedLogBooks.add(POWER_FAILURE_LOG);
-        supportedLogBooks.add(FRAUD_DETECTION_LOG);
+        super.initializeSupportedLogBooks();
         supportedLogBooks.add(COMMS_EVENT_LOG);
-        supportedLogBooks.add(VOLTAGE_QUALITY_LOG);
-        supportedLogBooks.add(MBUS_EVENT_LOG);
-        supportedLogBooks.add(MBUS_CONTROL_LOG);
     }
 
     @Override
     protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, LogBookReader logBookReader) throws
             ProtocolException {
         ObisCode logBookObisCode = logBookReader.getLogBookObisCode();
+        getProtocol().journal("Parsing logbook "+logBookObisCode);
         List<MeterEvent> meterEvents;
-        if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
+        if (logBookObisCode.equals(STANDARD_EVENT_LOG)) {
+            getProtocol().journal("Parsing as standard event log");
             meterEvents = new ESMR50StandardEventLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(getMeterConfig().getPowerFailureLogObject().getObisCode())) {
+        } else if (logBookObisCode.equals(POWER_FAILURE_LOG)) {
+            getProtocol().journal("Parsing as power failure log");
             meterEvents = new PowerFailureLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(getMeterConfig().getFraudDetectionLogObject().getObisCode())) {
+        } else if (logBookObisCode.equals(FRAUD_DETECTION_LOG)) {
+            getProtocol().journal("Parsing as fraud detection log");
             meterEvents = new ESMR50FraudDetectionLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(getMeterConfig().getCommunicationSessionLogObject().getObisCode())) {
+        } else if (logBookObisCode.equals(COMMS_EVENT_LOG)) {
+            getProtocol().journal("Parsing as communication sessions log");
             meterEvents = new ESMR50CommunicationSessionLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(getMeterConfig().getVoltageQualityLogObject().getObisCode())) {
+        } else if (logBookObisCode.equals(VOLTAGE_QUALITY_LOG)) {
+            getProtocol().journal("Parsing as voltage quality log");
             meterEvents = new VoltageQualityEventLog(dataContainer).getMeterEvents();
         } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_CONTROL_LOG)) {
             int channel = this.getProtocol().getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
+            getProtocol().journal("Parsing as MBus control log on channel "+channel);
             meterEvents = new ESMR50MbusControlLog(dataContainer, channel).getMeterEvents();
         } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
             int channel = this.getProtocol().getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
+            getProtocol().journal("Parsing as MBus event log on channel "+channel);
             meterEvents = new ESMR50MbusEventLog(dataContainer, channel).getMeterEvents();
         } else{
+            getProtocol().journal("Logbook " + logBookObisCode + " not supported by protocol");
             return new ArrayList<>();
         }
+        getProtocol().journal("Decoded "+meterEvents.size()+" events from "+logBookObisCode);
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
     }
 }

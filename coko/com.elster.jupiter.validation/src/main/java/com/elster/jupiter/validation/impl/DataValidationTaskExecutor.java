@@ -5,6 +5,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -38,6 +39,7 @@ class DataValidationTaskExecutor implements TaskExecutor {
     private final Thesaurus thesaurus;
     private final ValidationServiceImpl validationService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final EventService eventService;
     private final Clock clock;
     private final User user;
 
@@ -45,12 +47,13 @@ class DataValidationTaskExecutor implements TaskExecutor {
                                TransactionService transactionService,
                                Thesaurus thesaurus,
                                ThreadPrincipalService threadPrincipalService,
-                               Clock clock,
+                               EventService eventService, Clock clock,
                                User user) {
         this.thesaurus = thesaurus;
         this.validationService = validationService;
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
+        this.eventService = eventService;
         this.clock = clock;
         this.user = user;
     }
@@ -78,7 +81,8 @@ class DataValidationTaskExecutor implements TaskExecutor {
             doExecute(dataValidationOccurrence, getLogger(occurrence));
             success = true;
         } catch (Exception ex) {
-            errorMessage = ex.getMessage();
+            errorMessage = ex.getLocalizedMessage();
+            postFailEvent(eventService, occurrence, errorMessage);
             throw ex;
         } finally {
             try (TransactionContext transactionContext = transactionService.getContext()) {

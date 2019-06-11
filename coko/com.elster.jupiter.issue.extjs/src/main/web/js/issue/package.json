@@ -1,15 +1,15 @@
 {
-  "name": "com.elster.jupiter.issue.extjs",
-  "type": "code",
-  "creator": "Elster Jupiter Project",
-  "summary": "Short summary",
-  "detailedDescription": "Long description of package",
-  "version": "1.5.1",
-  "compatVersion": "1.5.1",
-  "format": "1",
-  "local": true,
-  "requires": [
-    "com.elster.jupiter.unifyingjs",
-    "com.elster.jupiter.bpm.extjs"
-  ]
+  "compatVersion" : "10.7.0",
+  "creator" : "Elster Jupiter Project",
+  "detailedDescription" : "Long description of package",
+  "format" : "1",
+  "local" : true,
+  "name" : "com.elster.jupiter.issue.extjs",
+  "requires" : [
+    "com.elster.jupiter.unifyingjs@10.7.0",
+    "com.elster.jupiter.bpm.extjs@10.7.0"
+  ],
+  "summary" : "Short summary",
+  "type" : "code",
+  "version" : "10.7.0"
 }

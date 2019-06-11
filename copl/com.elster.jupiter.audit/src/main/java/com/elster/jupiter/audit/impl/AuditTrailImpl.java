@@ -6,7 +6,6 @@ package com.elster.jupiter.audit.impl;
 
 import com.elster.jupiter.audit.AuditDecoder;
 import com.elster.jupiter.audit.AuditDomainContextType;
-import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditLogChange;
 import com.elster.jupiter.audit.AuditOperationType;
 import com.elster.jupiter.audit.AuditReference;
@@ -31,14 +30,14 @@ public class AuditTrailImpl implements AuditTrail {
     private List<AuditDecoder> auditDecoders = new ArrayList<>();
 
     public enum Field {
-        TABLENAME("tableName"),
         REFERENCE("reference"),
         SREFERENCE("shortReference"),
-        DOMAIN("domain"),
+        DOMAINCONTEXT("domainContext"),
         MODTIMESTART("modTimeStart"),
         MODTIMEEND("modTimeEnd"),
-        PKCOLUMN("pkColumn"),
-        CONTEXT("context"),
+        PKDOMAIN("pkDomain"),
+        PKCONTEXT1("pkContext1"),
+        PKCONTEXT2("pkContext2"),
         OPERATION("operation"),
         CREATETIME("createTime"),
         USERNAME("userName");
@@ -56,17 +55,17 @@ public class AuditTrailImpl implements AuditTrail {
 
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
-    private String tableName;
     private String reference;
     private String shortReference;
-    private String domain;
-    private String context;
+    private AuditDomainContextType domainContext;
     private UnexpectedNumberOfUpdatesException.Operation operation;
     private Instant createTime;
     private String userName;
     private Instant modTimeStart;
     private Instant modTimeEnd;
-    private long pkColumn;
+    private long pkDomain;
+    private long pkContext1;
+    private long pkContext2;
 
     @Inject
     AuditTrailImpl(DataModel dataModel, AuditService auditService, Thesaurus thesaurus) {
@@ -85,7 +84,7 @@ public class AuditTrailImpl implements AuditTrail {
         return getAuditDecoders()
                 .stream()
                 .findFirst()
-                .map(auditDecoder -> auditDecoder.getOperation(operation, getContext()))
+                .map(auditDecoder -> auditDecoder.getOperation(operation, getDomainContext()))
                 .map(newOperation -> AuditOperationType.valueOf(newOperation.name()))
                 .orElseGet(() -> AuditOperationType.valueOf(operation.name()));
     }
@@ -101,18 +100,8 @@ public class AuditTrailImpl implements AuditTrail {
     }
 
     @Override
-    public AuditDomainType getDomain() {
-        return AuditDomainType.valueOf(domain);
-    }
-
-    @Override
-    public AuditDomainContextType getContext() {
-        try {
-            return AuditDomainContextType.valueOf(context);
-        } catch (Exception e) {
-            return AuditDomainContextType.EMPTY;
-        }
-
+    public AuditDomainContextType getDomainContext() {
+        return domainContext;
     }
 
     @Override
@@ -149,14 +138,24 @@ public class AuditTrailImpl implements AuditTrail {
     }
 
     @Override
-    public long getPkcolumn() {
-        return pkColumn;
+    public long getPkDomain() {
+        return pkDomain;
+    }
+
+    @Override
+    public long getPkContext1() {
+        return pkContext1;
+    }
+
+    @Override
+    public long getPkContext2() {
+        return pkContext2;
     }
 
     private List<AuditDecoder> getAuditDecoders() {
         if (auditDecoders.size() == 0) {
             auditDecoders = ((AuditServiceImpl) auditService)
-                    .getAuditTrailDecoderHandles(this.domain, this.context)
+                    .getAuditTrailDecoderHandles(domainContext)
                     .stream()
                     .map(auditReferenceResolver -> auditReferenceResolver.getAuditDecoder(new AuditTrailReferenceImpl().from(this)))
                     .collect(Collectors.toList());

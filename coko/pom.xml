@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.elster.jupiter</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.0.0-Nessus-SNAPSHOT</version>
+		<version>0.0.1-Heracles-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>kore</artifactId>
@@ -148,6 +148,24 @@
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
 				<artifactId>issue.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>issue.task</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>issue.task.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>issue.task.extjs</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
@@ -343,10 +361,17 @@
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.json</groupId>
+				<artifactId>json</artifactId>
+				<version>${json.version}</version>
+				<scope>provided</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
 	<properties>
+		<json.version>20090211</json.version>
 		<javadoc.excluded.package.names>
 			ch.iec.tc57.*:org.w3.*:*.security.*:com.elster.jupiter.metering.cim
 		</javadoc.excluded.package.names>
@@ -382,6 +407,9 @@
 				<module>com.elster.jupiter.issue</module>
 				<module>com.elster.jupiter.issue.extjs</module>
 				<module>com.elster.jupiter.issue.rest</module>
+				<module>com.elster.jupiter.issue.task</module>
+				<module>com.elster.jupiter.issue.task.rest</module>
+				<module>com.elster.jupiter.issue.task.extjs</module>
 				<module>com.elster.jupiter.kore.api.rest</module>
 				<module>com.elster.jupiter.kpi</module>
 				<module>com.elster.jupiter.metering</module>

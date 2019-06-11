@@ -8,18 +8,20 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.service.IssueService;
-
-
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmUtil;
 import com.energyict.mdc.device.alarms.impl.event.VetoDeviceTypeDeleteException;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate.DeviceLifeCycleInDeviceTypeInfo;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
+
+import static com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 
 @Component(name = "com.energyict.mdc.device.alarms.RemoveDeviceTypeTopicHandler", service = TopicHandler.class, immediate = true)
 public class RemoveDeviceTypeTopicHandler implements TopicHandler{
@@ -40,11 +42,10 @@ public class RemoveDeviceTypeTopicHandler implements TopicHandler{
         DeviceType deviceType = (DeviceType) localEvent.getSource();
         List<CreationRule> alarmCreationRules = DeviceAlarmUtil.getAlarmCreationRules(issueService);
         boolean deviceTypeInUse = alarmCreationRules.stream()
-                .map(rule -> (List)rule.getProperties().get(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES))
-                .filter(list -> !list.isEmpty())
-                .map(list -> list.get(0))
-                .map(rule -> (BasicDeviceAlarmRuleTemplate.DeviceLifeCycleInDeviceTypeInfo) rule)
-                .anyMatch(info -> info.getDeviceType().getId() == deviceType.getId());
+                .map(rule -> (List)rule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES))
+                .filter(list -> list != null && !list.isEmpty())
+                .flatMap(Collection::stream)
+                .anyMatch(info ->  ((DeviceLifeCycleInDeviceTypeInfo)info).getDeviceType().getId() == deviceType.getId());
         if(deviceTypeInUse) {
             throw new VetoDeviceTypeDeleteException(deviceAlarmService.thesaurus(), deviceType);
         }

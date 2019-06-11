@@ -20,15 +20,19 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
+import com.elster.jupiter.issue.task.TaskIssueService;
+import com.elster.jupiter.issue.task.impl.TaskIssueModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -45,6 +49,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.tasks.impl.TaskServiceImpl;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -62,6 +67,8 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.bpm.impl.alarms.DeviceAlarmProcessAssociationProvider;
 import com.energyict.mdc.bpm.impl.device.DeviceProcessAssociationProvider;
 import com.energyict.mdc.bpm.impl.issue.datacollection.IssueProcessAssociationProvider;
+import com.energyict.mdc.bpm.impl.issue.devicelifecycle.IssueLifecycleProcessAssociationProvider;
+import com.energyict.mdc.bpm.impl.issue.task.TaskIssueProcessAssociationProvider;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
@@ -77,6 +84,7 @@ import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
+import com.energyict.mdc.issue.devicelifecycle.impl.IssueDeviceLifecycleServiceImpl;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -135,6 +143,8 @@ public class InMemoryPersistence {
     private DeviceProcessAssociationProvider deviceProvider;
     private IssueProcessAssociationProvider issueProvider;
     private DeviceAlarmProcessAssociationProvider alarmProvider;
+    private IssueLifecycleProcessAssociationProvider lifecycleProvider;
+    private TaskIssueProcessAssociationProvider taskProvider;
 
     private InMemoryPersistence(Supplier<List<Module>> modulesSupplier) {
         super();
@@ -201,7 +211,9 @@ public class InMemoryPersistence {
                 new PkiModule(),
                 new WebServicesModule(),
                 new AuditServiceModule(),
-                new FileImportModule()
+                new FileImportModule(),
+                new MeteringZoneModule(),
+                new TaskIssueModule()
         );
     }
 
@@ -225,9 +237,13 @@ public class InMemoryPersistence {
             this.injector.getInstance(IssueDataCollectionService.class);
             this.injector.getInstance(MeteringGroupsService.class);
             this.injector.getInstance(MasterDataService.class);
+            this.injector.getInstance(IssueDeviceLifecycleServiceImpl.class);
+            this.injector.getInstance(TaskIssueService.class);
             this.deviceProvider = this.injector.getInstance(DeviceProcessAssociationProvider.class);
             this.issueProvider = this.injector.getInstance(IssueProcessAssociationProvider.class);
             this.alarmProvider = this.injector.getInstance(DeviceAlarmProcessAssociationProvider.class);
+            this.lifecycleProvider = this.injector.getInstance(IssueLifecycleProcessAssociationProvider.class);
+            this.taskProvider = this.injector.getInstance(TaskIssueProcessAssociationProvider.class);
             ctx.commit();
         }
     }
@@ -281,6 +297,10 @@ public class InMemoryPersistence {
         return this.alarmProvider;
     }
 
+    public ProcessAssociationProvider getLifecycleAssociationProvider() { return  this.lifecycleProvider; }
+
+    public ProcessAssociationProvider getTaskAssociationProvider() {return  this.taskProvider;}
+
     public <T> T getService(Class<T> serviceClass) {
         return this.injector.getInstance(serviceClass);
     }
@@ -306,6 +326,7 @@ public class InMemoryPersistence {
 
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
         }
     }
 }

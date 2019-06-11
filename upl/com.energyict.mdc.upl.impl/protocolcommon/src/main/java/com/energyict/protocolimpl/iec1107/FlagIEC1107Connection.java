@@ -797,11 +797,18 @@ public class FlagIEC1107Connection extends Connection {
     /**
      * @return the data including the brackets
      * @throws IOException
-     * @throws ConnectionException
-     * @throws FlagIEC1107ConnectionException
      */
     public byte[] receiveRawData() throws IOException {
         return doReceiveDataRetry(null);
+    }
+
+    /**
+     * @param requestObjectId
+     * @return the data including the brackets giving the request object id
+     * @throws IOException
+     */
+    public byte[] receiveRawData(String requestObjectId) throws IOException {
+        return doReceiveDataRetry(requestObjectId);
     }
 
     // KV 27102004

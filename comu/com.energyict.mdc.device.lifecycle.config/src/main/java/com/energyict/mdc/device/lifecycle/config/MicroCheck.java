@@ -1,126 +1,87 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.config;
 
-/**
- * Models a number of tiny checks that will be executed
- * by the device life cycle engine to validate
- * that an {@link AuthorizedAction} can be initiated.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-03-12 (09:04)
- */
-public enum MicroCheck {
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ConsumerType;
+
+import java.util.Collections;
+import java.util.Set;
+
+@ConsumerType
+public interface MicroCheck extends HasName {
 
     /**
-     * Checks that there is a default connection available on the device.
+     * @return Unique key of the check. {@link #equals(Object)} & {@link #hashCode()} must be implemented on the base of this key.
      */
-    DEFAULT_CONNECTION_AVAILABLE(MicroCategory.COMMUNICATION),
+    String getKey();
 
     /**
-     * Checks that there is at least one communication task scheduled on the device.
+     * @return Translatable name of the check.
      */
-    AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(MicroCategory.COMMUNICATION),
+    @Override
+    String getName();
 
     /**
-     * Checks that there is at least one shared communication schedule on the device.
+     * @return Translatable description of the check.
      */
-    AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE(MicroCategory.COMMUNICATION),
+    String getDescription();
 
     /**
-     * Checks that all loadProfile data
-     * has been collected on the device.
-     * This holds true if the last reading is set and is
-     * before the end of each <i>current</i> LoadProfile period.
+     * @return Key of the check category. Can be taken as {@link MicroCategory#name()} or can be custom.
      */
-    ALL_LOAD_PROFILE_DATA_COLLECTED(MicroCategory.DATA_COLLECTION),
+    String getCategory();
 
     /**
-     * Checks that all data (in both load profiles and registers)
-     * that has been collected on the device is also valid.(=No suspects)
+     * @return Translatable name of the category. Can be taken as {@code thesaurus.getFormat(MicroCategoryTranslationKey.XXX).format()} or can be custom.
      */
-    ALL_DATA_VALID(MicroCategory.VALIDATION),
+    String getCategoryName();
 
     /**
-     * Checks that all general protocol property values are valid,
-     * i.e. will check that all required attributes are specified
-     * because the values itself are validated when saved.
+     * @return A set of {@link DefaultTransition} where this check should be available. Default is none of default transitions.
+     * Overriding this method without {@link #isOptionalForTransition(State, State)} would mean that the check is available on returned default transitions and on all custom ones.
+     * {@link #getRequiredDefaultTransitions()} takes precedence on this method, i.e. if some transition is returned from both methods, the check is considered mandatory for it.
      */
-    GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID(MicroCategory.COMMUNICATION),
-
-    /**
-     * Checks that all protocol dialect property values are valid,
-     * i.e. will check that all required attributes are specified
-     * because the values itself are validated when saved.
-     */
-    PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID(MicroCategory.COMMUNICATION),
-
-    /**
-     * Checks that all security property values are valid,
-     * i.e. will check that all required attributes are specified
-     * because the values itself are validated when saved.
-     */
-    SECURITY_PROPERTIES_ARE_ALL_VALID(MicroCategory.COMMUNICATION),
-
-    /**
-     * Checks that all connection property values are valid,
-     * i.e. will check that all required attributes are specified
-     * because the values itself are validated when saved.
-     */
-    CONNECTION_PROPERTIES_ARE_ALL_VALID(MicroCategory.COMMUNICATION),
-
-    /**
-     * Checks that a slave device is connected to a gateway.
-     */
-    SLAVE_DEVICE_HAS_GATEWAY(MicroCategory.TOPOLOGY),
-
-    /**
-     * Checks that the device is linked to a usagepoint.
-     */
-    LINKED_WITH_USAGE_POINT(MicroCategory.INSTALLATION),
-
-    /**
-     * Checks that all issues and alarms that were
-     * registered against the device are closed.
-     */
-    ALL_ISSUES_AND_ALARMS_ARE_CLOSED(MicroCategory.ISSUES),
-
-    /**
-     * Checks if all the collected data was validated (Validation has run)
-     * This holds true if the last reading is equal to
-     * the last checked timestamp.
-     */
-    ALL_DATA_VALIDATED(MicroCategory.VALIDATION),
-
-    /**
-     * Check if at least one connection is available on the device with the status: "Active".
-     */
-    AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(MicroCategory.COMMUNICATION),
-
-    /**
-     * Check if no active service calls exist for the device.
-     */
-    NO_ACTIVE_SERVICE_CALLS(MicroCategory.MONITORING),
-
-    /**
-     * Check if no slaves are linked to the multi-element device.
-     */
-    NO_LINKED_MULTI_ELEMENT_SLAVES(MicroCategory.MULTIELEMENT),
-    /**
-     * Checks if the metrology configuration of the usage point is in a correct state (if any)
-     */
-    METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY(MicroCategory.INSTALLATION);
-
-    private MicroCategory category;
-
-    MicroCheck(MicroCategory category) {
-        this.category = category;
+    default Set<DefaultTransition> getOptionalDefaultTransitions() {
+        return Collections.emptySet();
     }
 
-    public MicroCategory getCategory() {
-        return category;
+    /**
+     * @return A set of {@link DefaultTransition} where this check is mandatory (can't be unselected by user). Default is none of default ones.
+     * Overriding this method without {@link #isRequiredForTransition(State, State)} would mean that the check is mandatory on returned default transitions only.
+     * This method takes precedence on {@link #getOptionalDefaultTransitions()}, i.e. if some transition is returned from both methods, the check is considered mandatory for it.
+     */
+    default Set<DefaultTransition> getRequiredDefaultTransitions() {
+        return Collections.emptySet();
     }
 
+    /**
+     * @return {@code true} if this check should be available for the transition represented by {code fromState} and {code toState}.
+     * Default is: available for all default transitions returned from {@link #getOptionalDefaultTransitions()} plus for all custom transitions.
+     * {@link #isRequiredForTransition(State, State)} takes precedence on this method, i.e. if for some transition both methods return true, the check is considered mandatory.
+     */
+    default boolean isOptionalForTransition(State fromState, State toState) {
+        return isForTransition(fromState, toState, getOptionalDefaultTransitions()) || !DefaultTransition.getDefaultTransition(fromState, toState).isPresent();
+    }
+
+    /**
+     * @return {@code true} if this check should be mandatory (can't be unselected by user) for the transition represented by {code fromState} and {code toState}.
+     * Default is: mandatory for all default transitions returned from {@link #getRequiredDefaultTransitions()}, and only.
+     * This method takes precedence on {@link #isOptionalForTransition(State, State)}, i.e. if for some transition both methods return true, the check is considered mandatory.
+     */
+    default boolean isRequiredForTransition(State fromState, State toState) {
+        return isForTransition(fromState, toState, getRequiredDefaultTransitions());
+    }
+
+    /**
+     * @return true if transition represented by {code fromState} and {code toState} is present among {code defaultTransitions}.
+     */
+    static boolean isForTransition(State fromState, State toState, Set<DefaultTransition> defaultTransitions) {
+        return DefaultTransition.getDefaultTransition(fromState, toState)
+                .filter(defaultTransitions::contains)
+                .isPresent();
+    }
 }

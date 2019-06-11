@@ -71,6 +71,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import org.xml.sax.SAXException;
@@ -158,6 +159,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         for (OfflineDeviceMessage pendingMessage : masterMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
+            getProtocol().journal("Executing message " + pendingMessage.getSpecification().getName());
             try {
                 if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
                     doDisconnect();
@@ -276,6 +278,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                 }
+                getProtocol().journal(Level.SEVERE,"Error while executing message " + pendingMessage.getSpecification().getName()+": " + e.getLocalizedMessage());
             }
             result.addCollectedMessage(collectedMessage);
         }
@@ -305,11 +308,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void resetAlarmRegister() throws IOException {
-        getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.98.0.255")).setValueAttr(new Unsigned32(0));
+        getCosemObjectFactory().getData(Dsmr23RegisterFactory.ALARM_REGISTER).setValueAttr(new Unsigned32(0));
     }
 
     private void resetErrorRegister() throws IOException {
-        getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.97.0.255")).setValueAttr(new Integer64Unsigned(-1L));
+        getCosemObjectFactory().getData(Dsmr23RegisterFactory.ERROR_REGISTER).setValueAttr(new Unsigned32(0));
     }
 
     private void setTime(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -624,10 +627,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void activateWakeUp() throws IOException {   //Enable the wake up via SMS
+        getProtocol().journal("Activating wake-up via SMS");
         getCosemObjectFactory().getAutoConnect().writeMode(4);
     }
 
     protected void deactivateWakeUp() throws IOException {   //Disable the wake up via SMS
+        getProtocol().journal("Disabling wake-up via SMS");
         getCosemObjectFactory().getAutoConnect().writeMode(1);
     }
 
@@ -734,7 +739,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 it.imageActivation();
             } catch (DataAccessResultException e) {
                 if (isTemporaryFailure(e)) {
-                    getProtocol().getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
+                    getProtocol().journal("Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
                 } else {
                     throw e;
                 }
@@ -812,17 +817,43 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
         String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fullActivityCalendarAttributeName).getValue();
 
-        activityCalendar(calendarName, activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[0]);
-        writeSpecialDays(activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[1]);
+        String[] calendarParts = activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR);
+        if (calendarParts.length>0) {
+            getProtocol().journal("Sending calendar name:" + calendarName);
+            activityCalendar(calendarName, calendarParts[0]);
+        } else {
+            getProtocol().journal("Skipping calendar because it's empty");
+        }
+
+        if (calendarParts.length>1) {
+            getProtocol().journal("Sending special days");
+            writeSpecialDays(calendarParts[1]);
+        } else {
+            getProtocol().journal("Skipping special days part because it's empty");
+        }
+
     }
 
     protected void fullActivityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
+        getProtocol().journal("Processing full calendar with activation date message");
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
         String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
         String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fullActivityCalendarAttributeName).getValue();
 
-        activityCalendarWithActivationDate(calendarName, epoch, activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[0]);
-        writeSpecialDays(activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[1]);
+        String[] calendarParts = activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR);
+        if (calendarParts.length>0) {
+            getProtocol().journal("Sending calendar name:" + calendarName + ", activation date=" + epoch);
+            activityCalendarWithActivationDate(calendarName, epoch, calendarParts[0]);
+        } else {
+            getProtocol().journal("Skipping calendar because it's empty");
+        }
+
+        if (calendarParts.length>1) {
+            getProtocol().journal("Sending special days");
+            writeSpecialDays(calendarParts[1]);
+        } else {
+            getProtocol().journal("Skipping special days part because it's empty");
+        }
     }
 
     private void writeSpecialDays(String specialDayArrayBEREncodedBytes) throws IOException {
@@ -841,10 +872,13 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
         ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
         activityCalendarController.parseContent(activityCalendarContents);
+        getProtocol().journal("Writing calendar name: "+calendarName);
         activityCalendarController.writeCalendarName(calendarName);
+        getProtocol().journal("Writing calendar content");
         activityCalendarController.writeCalendar(); //Does not activate it yet
         Calendar activationCal = Calendar.getInstance(getProtocol().getTimeZone());
         activationCal.setTimeInMillis(Long.parseLong(epoch));
+        getProtocol().journal("Writing calendar activation date:"+activationCal.getTime().toString());
         activityCalendarController.writeCalendarActivationTime(activationCal);   //Activate now
     }
 
@@ -941,7 +975,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         int physicalAddress;
         if (installChannel == 0) {
             physicalAddress = (byte) this.getProtocol().getMeterTopology().searchNextFreePhysicalAddress();
-            this.getProtocol().getLogger().log(Level.INFO, "Channel: " + physicalAddress + " will be used as MBUS install channel.");
+            this.getProtocol().journal("Channel: " + physicalAddress + " will be used as MBUS install channel.");
         } else {
             physicalAddress = installChannel;
         }

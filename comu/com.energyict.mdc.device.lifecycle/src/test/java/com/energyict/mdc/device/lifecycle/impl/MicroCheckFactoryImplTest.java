@@ -1,18 +1,18 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.device.lifecycle.ExecutableMicroCheck;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.ActiveConnectionAvailable;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
+
+import java.util.Optional;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,14 +21,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link MicroCheckFactoryImpl} component.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-04-16 (16:52)
+ * Tests the {@link DeviceMicroCheckFactoryImpl} component.
  */
 @RunWith(MockitoJUnitRunner.class)
 public class MicroCheckFactoryImplTest {
@@ -38,44 +38,40 @@ public class MicroCheckFactoryImplTest {
     @Mock
     private NlsService nlsService;
     @Mock
-    private TopologyService topologyService;
-    @Mock
-    private MultiElementDeviceService multiElementDeviceService;
-    @Mock
-    private ValidationService validationService;
-    @Mock
-    private MeteringService meteringService;
+    private DataModel dataModel;
 
     @Before
     public void initializeMocks() {
-        when(this.nlsService.getThesaurus(DeviceLifeCycleService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(this.thesaurus);
+        when(dataModel.getInstance(any(Class.class))).thenAnswer(invocationOnMock -> mockMicroCheck(invocationOnMock.getArgumentAt(0, Class.class)));
     }
 
     @Test
-    public void constructorExtractsThesaurus() {
-        // Business method
-        this.getTestInstance();
+    public void testAllChecks() {
+        DeviceMicroCheckFactoryImpl factory = this.getTestInstance();
+        Set<? extends MicroCheck> microChecks = factory.getAllChecks();
 
-        // Asserts
-        verify(this.nlsService).getThesaurus(DeviceLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
+        verify(dataModel, times(18)).getInstance(any());
+        assertThat(microChecks).hasSize(18);
     }
 
     @Test
-    public void allMicroChecksAreCovered() {
-        MicroCheckFactoryImpl factory = this.getTestInstance();
+    public void testOneCheck() {
+        DeviceMicroCheckFactoryImpl factory = this.getTestInstance();
+        Optional<ExecutableMicroCheck> serverMicroCheck = factory.from(ActiveConnectionAvailable.class.getSimpleName())
+                .map(ExecutableMicroCheck.class::cast);
 
-        for (MicroCheck microCheck : MicroCheck.values()) {
-            // Business method
-            ServerMicroCheck serverMicroCheck = factory.from(microCheck);
-
-            // Asserts
-            assertThat(serverMicroCheck).as("MicroCheckFactoryImpl returns null for " + microCheck).isNotNull();
-        }
-
+        verify(dataModel).getInstance(ActiveConnectionAvailable.class);
+        assertThat(serverMicroCheck).isPresent();
+        assertThat(serverMicroCheck.get().getKey()).isEqualTo(ActiveConnectionAvailable.class.getSimpleName());
     }
 
-    private MicroCheckFactoryImpl getTestInstance() {
-        return new MicroCheckFactoryImpl(this.nlsService, this.topologyService, this.multiElementDeviceService, this.validationService, meteringService);
+    private DeviceMicroCheckFactoryImpl getTestInstance() {
+        return new DeviceMicroCheckFactoryImpl(dataModel);
     }
 
+    private ExecutableMicroCheck mockMicroCheck(Class checkClass) {
+        ExecutableMicroCheck microCheck = mock(ExecutableMicroCheck.class);
+        when(microCheck.getKey()).thenReturn(checkClass.getSimpleName());
+        return microCheck;
+    }
 }

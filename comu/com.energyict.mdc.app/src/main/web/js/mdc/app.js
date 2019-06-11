@@ -36,6 +36,10 @@ Ext.onReady(function () {
             path: '../../apps/idv/src'
         },
         {
+            name: 'Idl',
+            path: '../../apps/idl/src'
+        },
+        {
             name: 'Dal',
             path: '../../apps/dal/src'
         },
@@ -86,11 +90,15 @@ Ext.onReady(function () {
         {
             name: 'Apr',
             path: '../../apps/apr/src'
+        },
+        {
+            name: 'Tou',
+            path: '../../apps/tou/src'
+        },
+        {
+            name: 'Itk',
+            path: '../../apps/itk/src'
         }
-//        {
-//            name: 'PlaygroundApp',
-//            path: '../../apps/playground/app'
-//        }
     ];
 
     loader.initPackages(packages);

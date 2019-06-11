@@ -48,6 +48,7 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.utils.CompositeClassLoader;
 
 import javax.inject.Inject;
+import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -257,6 +258,11 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     @Override
     public void processIssueResolutionEvent(long ruleId, IssueEvent event) {
         findCreationRuleById(ruleId).get().getTemplate().resolveIssue(event);
+    }
+
+    @Override
+    public void closeAllOpenIssuesResolutionEvent(long ruleId, IssueEvent event) throws OperationNotSupportedException {
+        findCreationRuleById(ruleId).get().getTemplate().closeAllOpenIssues(event);
     }
 
     @Override

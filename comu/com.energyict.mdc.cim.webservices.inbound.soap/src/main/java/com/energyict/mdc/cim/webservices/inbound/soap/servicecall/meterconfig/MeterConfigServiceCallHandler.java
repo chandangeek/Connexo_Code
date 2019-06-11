@@ -4,31 +4,39 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig;
 
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import ch.iec.tc57._2011.meterconfig.Meter;
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.schema.message.ErrorType;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.json.JsonService;
+
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
-import com.energyict.mdc.cim.webservices.inbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
+import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityHelper;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceFinder;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigParser;
-import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import ch.iec.tc57._2011.schema.message.ErrorType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -37,16 +45,17 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+
 import java.time.Clock;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
  * Implementation of {@link ServiceCallHandler} interface which handles the different steps for CIM WS MeterConfig
  */
-@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.servicecall.MeterConfigServiceCallHandler",
-        service = ServiceCallHandler.class,
-        immediate = true,
-        property = "name=" + MeterConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
+@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.servicecall.MeterConfigServiceCallHandler", service = ServiceCallHandler.class, immediate = true, property = "name="
+        + MeterConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
 public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "MeterConfigServiceCallHandler";
     public static final String VERSION = "v1.0";
@@ -58,23 +67,29 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private volatile DeviceService deviceService;
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
-    private volatile MeterConfigParser meterConfigParser;
+    private volatile CustomPropertySetService customPropertySetService;
+    private volatile SecurityManagementService securityManagementService;
+    private volatile HsmEnergyService hsmEnergyService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     private ReplyTypeFactory replyTypeFactory;
     private MeterConfigFaultMessageFactory messageFactory;
     private DeviceBuilder deviceBuilder;
+    private DeviceFinder deviceFinder;
     private Optional<InboundCIMWebServiceExtension> webServiceExtension = Optional.empty();
+    private CasHandler casHandler;
+    private SecurityHelper securityHelper;
 
-    public MeterConfigServiceCallHandler(){
+    public MeterConfigServiceCallHandler() {
 
     }
+
     @Inject
-    public MeterConfigServiceCallHandler(MeterConfigParser meterConfigParser, Thesaurus thesaurus, Clock clock, BatchService batchService,
-            DeviceLifeCycleService deviceLifeCycleService,
-            DeviceConfigurationService deviceConfigurationService,
-            DeviceService deviceService,
-            JsonService jsonService){
-        this.meterConfigParser = meterConfigParser;
+    public MeterConfigServiceCallHandler(Thesaurus thesaurus, Clock clock, BatchService batchService,
+            DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
+            DeviceService deviceService, JsonService jsonService, CustomPropertySetService customPropertySetService,
+            SecurityManagementService securityManagementService, HsmEnergyService hsmEnergyService,
+            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.batchService = batchService;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.clock = clock;
@@ -82,24 +97,29 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.deviceConfigurationService = deviceConfigurationService;
         this.jsonService = jsonService;
         this.thesaurus = thesaurus;
+        this.customPropertySetService = customPropertySetService;
+        this.securityManagementService = securityManagementService;
+        this.hsmEnergyService = hsmEnergyService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
+
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
-            case ONGOING:
-                processMeterConfigServiceCall(serviceCall);
-                break;
-            case SUCCESSFUL:
-                break;
-            case FAILED:
-                break;
-            case PENDING:
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                break;
-            default:
-                // No specific action required for these states
-                break;
+        case ONGOING:
+            processMeterConfigServiceCall(serviceCall);
+            break;
+        case SUCCESSFUL:
+            break;
+        case FAILED:
+            break;
+        case PENDING:
+            serviceCall.requestTransition(DefaultState.ONGOING);
+            break;
+        default:
+            // No specific action required for these states
+            break;
         }
     }
 
@@ -112,47 +132,98 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.webServiceExtension = Optional.empty();
     }
 
-    private void processMeterConfigServiceCall(ServiceCall serviceCall)  {
+    private void processMeterConfigServiceCall(ServiceCall serviceCall) {
         MeterConfigDomainExtension extensionFor = serviceCall.getExtensionFor(new MeterConfigCustomPropertySet()).get();
-        MeterInfo meterInfo = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
+        MeterInfo meterInfo = null;
+        OperationEnum operation = OperationEnum.getFromString(extensionFor.getOperation());
+        if (!OperationEnum.GET.equals(operation)) {
+            meterInfo = jsonService.deserialize(extensionFor.getMeter(), MeterInfo.class);
+        }
+        Device device = null;
         try {
-            Device device;
-            switch (OperationEnum.getFromString(extensionFor.getOperation())) {
-                case CREATE:
-                    device = getDeviceBuilder().prepareCreateFrom(meterInfo).build();
-                    postProcessDevice(device, meterInfo);
-                    break;
-                case UPDATE:
-                    device = getDeviceBuilder().prepareChangeFrom(meterInfo).build();
-                    postProcessDevice(device, meterInfo);
-                    break;
-                default:
-                    break;
+            switch (operation) {
+            case CREATE:
+                device = getDeviceBuilder().prepareCreateFrom(meterInfo).build();
+                processDevice(serviceCall, meterInfo, device);
+                break;
+            case UPDATE:
+                device = getDeviceBuilder().prepareChangeFrom(meterInfo).build();
+                processDevice(serviceCall, meterInfo, device);
+                break;
+            case GET:
+                getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
+                break;
+            default:
+                break;
             }
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } catch (Exception faultMessage) {
-            MeterConfigDomainExtension extension = serviceCall.getExtension(MeterConfigDomainExtension.class)
-                    .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-            extension.setErrorCode(OperationEnum.getFromString(extension.getOperation()).getDefaultErrorCode());
-            if (faultMessage instanceof FaultMessage) {
-                Optional<ErrorType> errorType = ((FaultMessage) faultMessage).getFaultInfo().getReply().getError().stream().findFirst();
-                if (errorType.isPresent()) {
-                    extension.setErrorMessage(errorType.get().getDetails());
-                    extension.setErrorCode(errorType.get().getCode());
-                } else {
-                    extension.setErrorMessage(faultMessage.getLocalizedMessage());
-                }
-            } else if (faultMessage instanceof ConstraintViolationException) {
-                extension.setErrorMessage(((ConstraintViolationException) faultMessage).getConstraintViolations().stream()
-                        .findFirst()
-                        .map(ConstraintViolation::getMessage)
-                        .orElseGet(faultMessage::getMessage));
+            handleException(serviceCall, device, operation, faultMessage);
+        }
+    }
+
+    private void handleException(ServiceCall serviceCall, Device device, OperationEnum operation, Exception faultMessage) {
+        MeterConfigDomainExtension extension = serviceCall.getExtension(MeterConfigDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+        extension.setErrorCode(OperationEnum.getFromString(extension.getOperation()).getDefaultErrorCode());
+        if (faultMessage instanceof FaultMessage) {
+            Optional<ErrorType> errorType = ((FaultMessage) faultMessage).getFaultInfo().getReply().getError()
+                    .stream().findFirst();
+            if (errorType.isPresent()) {
+                extension.setErrorMessage(errorType.get().getDetails());
+                extension.setErrorCode(errorType.get().getCode());
             } else {
                 extension.setErrorMessage(faultMessage.getLocalizedMessage());
             }
-            serviceCall.update(extension);
-            serviceCall.requestTransition(DefaultState.FAILED);
+        } else if (faultMessage instanceof ConstraintViolationException) {
+            extension.setErrorMessage(((ConstraintViolationException) faultMessage).getConstraintViolations()
+                    .stream().findFirst().map(ConstraintViolation::getMessage).orElseGet(faultMessage::getMessage));
+        } else {
+            extension.setErrorMessage(faultMessage.getLocalizedMessage());
         }
+        serviceCall.update(extension);
+        serviceCall.requestTransition(DefaultState.FAILED);
+        // we need to remove device in case it was already created, throwing exception does not rollback transaction
+        if (operation == OperationEnum.CREATE && device != null) {
+            device.delete();
+        }
+    }
+
+    private void processDevice(ServiceCall serviceCall, MeterInfo meterInfo, Device device) throws FaultMessage {
+        List<FaultMessage> faultsForCreate = processCustomAttributeSets(serviceCall, device, meterInfo);
+        if (!faultsForCreate.isEmpty()) {
+            throw faultsForCreate.get(0);
+        }
+        faultsForCreate = processSecurityKeys(serviceCall, device, meterInfo);
+        if (!faultsForCreate.isEmpty()) {
+            throw faultsForCreate.get(0);
+        }
+        postProcessDevice(device, meterInfo);
+    }
+
+    /**
+     * Sets values for CustomPropertySets on specific device logging detailed error messages if possible
+     *
+     * @param serviceCall
+     * @param device
+     * @param meterInfo
+     * @return
+     */
+    private List<FaultMessage> processCustomAttributeSets(ServiceCall serviceCall, Device device, MeterInfo meterInfo) {
+        List<CasInfo> customAttributeSets = meterInfo.getCustomAttributeSets();
+        if (customAttributeSets.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return getCasHandler().addCustomPropertySetsData(device, customAttributeSets, serviceCall);
+
+    }
+
+    private List<FaultMessage> processSecurityKeys(ServiceCall serviceCall, Device device, MeterInfo meterInfo) {
+        List<SecurityKeyInfo> securityInfos = meterInfo.getSecurityInfo().getSecurityKeys();
+        if (securityInfos.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return getSecurityHelper().addSecurityKeys(device, securityInfos, serviceCall);
     }
 
     @Reference
@@ -187,16 +258,46 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
+        thesaurus = nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
     }
 
-    private void postProcessDevice(Device device, MeterInfo meterInfo){
-        webServiceExtension.ifPresent(inboundCIMWebServiceExtension -> inboundCIMWebServiceExtension.extendMeterInfo(device, meterInfo));
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
+    }
+
+    @Reference
+    public void setHsmEnergyService(HsmEnergyService hsmEnergyService) {
+        this.hsmEnergyService = hsmEnergyService;
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(
+            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    private void postProcessDevice(Device device, MeterInfo meterInfo) {
+        webServiceExtension.ifPresent(
+                inboundCIMWebServiceExtension -> inboundCIMWebServiceExtension.extendMeterInfo(device, meterInfo));
+    }
+
+    private DeviceFinder getDeviceFinder() {
+        if (deviceFinder == null) {
+            deviceFinder = new DeviceFinder(deviceService, getMessageFactory());
+        }
+        return deviceFinder;
     }
 
     private DeviceBuilder getDeviceBuilder() {
         if (deviceBuilder == null) {
-            deviceBuilder = new DeviceBuilder(batchService, clock, deviceLifeCycleService, deviceConfigurationService, deviceService, getMessageFactory());
+            deviceBuilder = new DeviceBuilder(batchService, clock, deviceLifeCycleService, deviceConfigurationService,
+                    deviceService, getMessageFactory(), deviceLifeCycleConfigurationService);
         }
         return deviceBuilder;
     }
@@ -213,5 +314,21 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
             replyTypeFactory = new ReplyTypeFactory(thesaurus);
         }
         return replyTypeFactory;
+    }
+
+    private CasHandler getCasHandler() {
+        if (casHandler == null) {
+            casHandler = new CasHandler(customPropertySetService, thesaurus,
+                    getMessageFactory(), clock);
+        }
+        return casHandler;
+    }
+
+    private SecurityHelper getSecurityHelper() {
+        if (securityHelper == null) {
+            securityHelper = new SecurityHelper(hsmEnergyService, securityManagementService, getMessageFactory(),
+                    thesaurus);
+        }
+        return securityHelper;
     }
 }

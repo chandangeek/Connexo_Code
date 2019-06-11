@@ -48,7 +48,7 @@ public class AuditResourceTest extends AuditApplicationJerseyTest {
     private static final AuditOperationType AUDIT_TRAIL_OPERATION = AuditOperationType.UPDATE;
     private static final Instant AUDIT_TRAIL_CHANGEDON = LocalDate.of(2019, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
     private static final AuditDomainType AUDIT_TRAIL_DOMAIN = AuditDomainType.DEVICE;
-    private static final AuditDomainContextType AUDIT_TRAIL_CONTEXT = AuditDomainContextType.GENERAL_ATTRIBUTES;
+    private static final AuditDomainContextType AUDIT_TRAIL_DOMAIN_CONTEXT = AuditDomainContextType.GENERAL_ATTRIBUTES;
     private static final String AUDIT_TRAIL_USER = "USR";
     private static final String AUDIT_REFERNCE_NAME = "DEVICE";
     private static final String AUDIT_REFERNCE_REFERENCE = "1";
@@ -60,7 +60,7 @@ public class AuditResourceTest extends AuditApplicationJerseyTest {
 
     @Before
     public void setUp1() {
-        AuditTrail auditTrail = mockAuditTrail(1L, AUDIT_TRAIL_OPERATION, AUDIT_TRAIL_CHANGEDON, AUDIT_TRAIL_DOMAIN, AUDIT_TRAIL_CONTEXT, AUDIT_TRAIL_USER);
+        AuditTrail auditTrail = mockAuditTrail(1L, AUDIT_TRAIL_OPERATION, AUDIT_TRAIL_CHANGEDON, AUDIT_TRAIL_DOMAIN_CONTEXT, AUDIT_TRAIL_USER);
 
         Finder<AuditTrail> zoneFinder = mockFinder(Arrays.asList(auditTrail));
         when(auditService.getAuditTrail(any())).thenReturn(zoneFinder);
@@ -72,13 +72,12 @@ public class AuditResourceTest extends AuditApplicationJerseyTest {
         when(userService.getUserQuery()).thenReturn(queryUser);
     }
 
-    private AuditTrail mockAuditTrail(Long id, AuditOperationType operation, Instant changedOn, AuditDomainType domain, AuditDomainContextType context, String user) {
+    private AuditTrail mockAuditTrail(Long id, AuditOperationType operation, Instant changedOn, AuditDomainContextType domainContext, String user) {
         AuditTrail auditTrail = mock(AuditTrail.class);
         when(auditTrail.getId()).thenReturn(id);
         when(auditTrail.getOperation()).thenReturn(operation);
         when(auditTrail.getChangedOn()).thenReturn(changedOn);
-        when(auditTrail.getDomain()).thenReturn(domain);
-        when(auditTrail.getContext()).thenReturn(context);
+        when(auditTrail.getDomainContext()).thenReturn(domainContext);
         when(auditTrail.getUser()).thenReturn(user);
 
         AuditReference auditReference = mockTouchDomain();
@@ -92,7 +91,7 @@ public class AuditResourceTest extends AuditApplicationJerseyTest {
     private AuditReference mockTouchDomain() {
         AuditReference auditReference = mock(AuditReference.class);
         when(auditReference.getName()).thenReturn(AUDIT_REFERNCE_NAME);
-        when(auditReference.getReference()).thenReturn(AUDIT_REFERNCE_REFERENCE);
+        when(auditReference.getContextReference()).thenReturn(AUDIT_REFERNCE_REFERENCE);
         return auditReference;
     }
 
@@ -133,14 +132,14 @@ public class AuditResourceTest extends AuditApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.audit[0].domain")).isEqualTo("Device");
 
         assertThat(jsonModel.<String>get("$.audit[0].domainType")).isEqualTo(AUDIT_TRAIL_DOMAIN.type());
-        assertThat(jsonModel.<String>get("$.audit[0].contextType")).isEqualTo(AUDIT_TRAIL_CONTEXT.name());
+        assertThat(jsonModel.<String>get("$.audit[0].contextType")).isEqualTo(AUDIT_TRAIL_DOMAIN_CONTEXT.name());
         //assertThat(jsonModel.<Instant>get("$.audit[0].changedOn")).isEqualTo(Date.from(AUDIT_TRAIL_CHANGEDON));
         assertThat(jsonModel.<String>get("$.audit[0].operation")).isEqualTo("Changed attributes");
         assertThat(jsonModel.<String>get("$.audit[0].operationType")).isEqualTo(AUDIT_TRAIL_OPERATION.type());
         assertThat(jsonModel.<String>get("$.audit[0].user")).isEqualTo(AUDIT_TRAIL_USER);
 
         assertThat(jsonModel.<String>get("$.audit[0].auditReference.name")).isEqualTo(AUDIT_REFERNCE_NAME);
-        assertThat(jsonModel.<String>get("$.audit[0].auditReference.reference")).isEqualTo(AUDIT_REFERNCE_REFERENCE);
+        assertThat(jsonModel.<String>get("$.audit[0].auditReference.contextReference")).isEqualTo(AUDIT_REFERNCE_REFERENCE);
         assertThat(jsonModel.<String>get("$.audit[0].auditLogs[0].name")).isEqualTo(AUDIT_LOG_NAME);
         assertThat(jsonModel.<String>get("$.audit[0].auditLogs[0].value")).isEqualTo(AUDIT_LOG_VALUE);
         assertThat(jsonModel.<String>get("$.audit[0].auditLogs[0].previousValue")).isEqualTo(AUDIT_LOG_PREVIOUS_VALUE);
