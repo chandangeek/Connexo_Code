@@ -116,31 +116,31 @@ public class RecurrentTaskFinder implements TaskFinder {
             builder.append(") ");
         }
 
-        //add types filter conditions
-        if ((filter.types != null) && (!filter.types.isEmpty())) {
+        //add queue type filter conditions
+        if ((filter.queueTypes != null) && (!filter.queueTypes.isEmpty())) {
             if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)
                     && ((filter.queues == null) || filter.queues.isEmpty())) {
                 builder.append(" where ( ");
             } else {
                 builder.append(" and ( ");
             }
-            List<String> types = new ArrayList();
-            types.addAll(filter.types);
-            for (int i = 0; i < types.size(); i++) {
-                builder.append("QUEUE_TYPE_NAME= ");
-                builder.addObject(types.get(i));
-                if (i < types.size() - 1) {
-                    builder.append(" or ");
+            List<String> queueTypes = new ArrayList();
+            queueTypes.addAll(filter.queueTypes);
+            builder.append("QUEUE_TYPE_NAME in (");
+            for (int i = 0; i < queueTypes.size(); i++) {
+                builder.addObject(queueTypes.get(i));
+                if (i < queueTypes.size() - 1) {
+                    builder.append(" , ");
                 }
             }
-            builder.append(") ");
+            builder.append(")) ");
         }
 
         //add application filter conditions
         if ((filter.applications != null) && (!filter.applications.isEmpty())) {
             if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)
                     && ((filter.queues == null) || filter.queues.isEmpty())
-                    && ((filter.types == null) || filter.types.isEmpty())) {
+                    && ((filter.queueTypes == null) || filter.queueTypes.isEmpty())) {
                 builder.append(" where ( ");
             } else {
                 builder.append(" and ( ");

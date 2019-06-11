@@ -17,7 +17,7 @@ public class TaskMinInfo {
     public String name;
     public String application;
     public String queue;
-    public String type;
+    public String queueType;
     public String displayType;
 
     public TaskMinInfo() {
@@ -31,8 +31,8 @@ public class TaskMinInfo {
         info.name = recurrentTask.getName();
         info.application = recurrentTask.getApplication();
         info.queue = recurrentTask.getDestination().getName();
-        info.type = recurrentTask.getDestination().getQueueTypeName();
-        info.displayType = thesaurus.getString(info.type, info.type);
+        info.queueType = recurrentTask.getDestination().getQueueTypeName();
+        info.displayType = thesaurus.getString(info.queueType, info.queueType);
         return info;
     }
 
