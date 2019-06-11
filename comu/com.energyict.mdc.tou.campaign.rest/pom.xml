@@ -9,13 +9,8 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
-
-    <properties>
-        <!-- TODO: remove after release 10.6 -->
-        <baseline>(,${project.version})</baseline>
-    </properties>
 
     <artifactId>mdc.tou.campaign.rest</artifactId>
     <packaging>bundle</packaging>
