@@ -67,6 +67,16 @@ public interface ServiceCallService {
     }
 
     /**
+     * Creates a new service call type, using provided name and version. The default life cycle is used. This method start a builder.
+     * @param name
+     * @param versionName
+     * @return
+     */
+    default public ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
+        return createServiceCallType(name, versionName, null);
+    }
+
+    /**
      * Fetch a service call type by name and version name.
      * @param name
      * @param versionName This is the named version of the type. Not to be confused with the concurrency version. This is version as applied by the user.
