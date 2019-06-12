@@ -14,14 +14,14 @@ Ext.define('Wss.model.endpoint.Occurrence', {
       name: 'startTime',
       type: 'date',
       convert: function (value) {
-        return new Date(value);
+        return value && new Date(value);
       }
     },
     {
       name: 'endTime',
       type: 'date',
       convert: function (value) {
-        return new Date(value);
+        return value && new Date(value);
       }
     },
     {name: 'applicationName', type: 'string'},
