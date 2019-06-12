@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
@@ -156,10 +157,12 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                         lpc.setSupportedByMeter(false);
+                        getMeterProtocol().journal("Load profile "+lpr+" is not supported by the meter: "+e.getLocalizedMessage());
                     }
                 }
             } else {
                 lpc.setSupportedByMeter(false);
+                getMeterProtocol().journal("Load profile configuration for "+lpr+" could not be retreived from local configuration.");
             }
             this.loadProfileConfigurationList.add(lpc);
         }
@@ -208,6 +211,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     dlmsAttributes.add(cProfileConfig.getLoadProfileInterval());
                     dlmsAttributes.add(cProfileConfig.getLoadProfileCapturedObjects());
                     this.lpConfigMap.put(lpReader, cProfileConfig);
+                    this.meterProtocol.journal( "LoadProfile with ObisCode " + obisCode + " is in the meter object list");
                 } else {
                     this.meterProtocol.journal( "LoadProfile with ObisCode " + obisCode + " for meter '" + lpReader.getMeterSerialNumber() + "' is not supported.");
                 }
@@ -331,7 +335,14 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         for (CapturedRegisterObject registerUnit : registers) {
             if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
-                    ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
+                    DLMSAttribute scalerUnitAttribute = this.registerUnitMap.get(registerUnit);
+                    AbstractDataType rawValue = ccoRegisterUnits.getAttribute(scalerUnitAttribute);
+                    ScalerUnit su;
+                    if (rawValue.isStructure()){
+                        su = new ScalerUnit(rawValue.getStructure());
+                    } else {
+                        su = new ScalerUnit(0, rawValue.intValue());
+                    }
                     if (su.getUnitCode() != 0) {
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), isCumulativeChannel(registerUnit.getObisCode()));
                         channelInfos.add(ci);
