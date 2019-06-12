@@ -9,7 +9,7 @@
 
 	<groupId>com.elster.jupiter</groupId>
 	<artifactId>parent</artifactId>
-	<version>0.0.1-Heracles-SNAPSHOT</version>
+	<version>1.0.0-Nessus-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>[Jupiter] com.elster.jupiter.parent</name>
 
