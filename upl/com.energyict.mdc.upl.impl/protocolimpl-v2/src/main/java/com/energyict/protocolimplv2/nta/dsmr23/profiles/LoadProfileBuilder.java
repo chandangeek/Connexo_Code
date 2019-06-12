@@ -449,7 +449,6 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<>();
         ProfileGeneric profile;
-        ProfileData profileData;
 
         for (LoadProfileReader lpr : loadProfiles) {
             ObisCode lpObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
@@ -462,8 +461,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                 try {
                     List<ChannelInfo> channelInfos = this.channelInfoMap.get(lpr);
                     profile = this.meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
-                    profileData = new ProfileData(lpr.getLoadProfileId());
-                    profileData.setChannelInfos(channelInfos);
+
                     Calendar fromCalendar = Calendar.getInstance(this.meterProtocol.getTimeZone());
                     fromCalendar.setTime(lpr.getStartReadingTime());
                     Calendar toCalendar = Calendar.getInstance(this.meterProtocol.getTimeZone());
@@ -473,6 +471,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                             this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), getIntervalStatusBits());
                     List<IntervalData> collectedIntervalData = intervals.parseIntervals(lpc.getProfileInterval());
 
+                    this.getMeterProtocol().journal(" > load profile intervals parsed: " + collectedIntervalData.size());
                     collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {
