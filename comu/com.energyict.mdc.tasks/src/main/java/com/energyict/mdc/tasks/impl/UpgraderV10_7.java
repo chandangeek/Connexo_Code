@@ -8,6 +8,8 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 
+import com.energyict.mdc.tasks.security.Privileges;
+
 import javax.inject.Inject;
 
 class UpgraderV10_7 implements Upgrader {
@@ -24,6 +26,13 @@ class UpgraderV10_7 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         userService.addModulePrivileges(privilegesProvider10_7);
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, "MDC", getExecuteComTaskPrivileges());
     }
 
+    private String[] getExecuteComTaskPrivileges() {
+        return new String[] { Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_1,
+                Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_2,
+                Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_3,
+                Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_4, };
+    }
 }
