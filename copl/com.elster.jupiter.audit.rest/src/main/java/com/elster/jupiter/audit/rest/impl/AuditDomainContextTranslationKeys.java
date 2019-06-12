@@ -20,6 +20,7 @@ public enum AuditDomainContextTranslationKeys implements TranslationKey {
     DEVICE_CONNECTION_METHODS(AuditDomainContextType.DEVICE_CONNECTION_METHODS, "Connection methods"),
     USAGEPOINT_GENERAL_ATTRIBUTES(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES, "Usage point attributes"),
     USAGEPOINT_TECHNICAL_ATTRIBUTES(AuditDomainContextType.USAGEPOINT_TECHNICAL_ATTRIBUTES, "Usage point attributes"),
+    USAGEPOINT_CUSTOM_ATTRIBUTES(AuditDomainContextType.USAGEPOINT_CUSTOM_ATTRIBUTES, "Usage point attributes"),
     ;
 
     private AuditDomainContextType key;
