@@ -1652,6 +1652,9 @@ public final class DeviceMessageConstants {
 
     public static final String adHocEndOfBillingActivationDatedAttributeName = "AdHocEndOfBilling.activationDateTime";
     public static final String adHocEndOfBillingActivationDatedAttributeDefaultTranslation = "Ad hoc end of billing date";
+
+    public static final String billingDateConfigurationDefaultTranslation = "Billing date configuration";
+
     public static final String attributeId = "DeviceActionMessage.AttributeId";
     public static final String attributeIdDefaultTranslation = "Attribute ID";
     public static final String classId = "DeviceActionMessage.ClassID";
