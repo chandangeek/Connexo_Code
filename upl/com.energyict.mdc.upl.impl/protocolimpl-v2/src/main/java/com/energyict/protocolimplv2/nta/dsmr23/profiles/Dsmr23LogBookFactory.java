@@ -39,7 +39,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
     protected static final ObisCode POWER_FAILURE_LOG =   ObisCode.fromString("1.0.99.97.0.255");
     protected static final ObisCode FRAUD_DETECTION_LOG = ObisCode.fromString("0.0.99.98.1.255");
     protected static final ObisCode CONTROL_LOG =         ObisCode.fromString("0.0.99.98.2.255");
-    protected static final ObisCode MBUS_EVENT_LOG =      ObisCode.fromString("0.x.99.98.3.255");
+    protected static final ObisCode MBUS_EVENT_LOG =      ObisCode.fromString("0.0.99.98.3.255");
     protected static final ObisCode MBUS_CONTROL_LOG =    ObisCode.fromString("0.x.24.5.0.255");
     protected AbstractDlmsProtocol protocol;
 
