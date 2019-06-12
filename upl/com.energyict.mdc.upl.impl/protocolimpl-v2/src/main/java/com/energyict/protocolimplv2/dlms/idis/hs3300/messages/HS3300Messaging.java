@@ -15,9 +15,10 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
@@ -36,7 +37,7 @@ public class HS3300Messaging extends AbstractDlmsMessaging implements DeviceMess
     private final TariffCalendarExtractor calendarExtractor;
     protected final DeviceMessageFileExtractor messageFileExtractor;
     private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
-    private HS3300MessageExecutor messageExecutor;
+    protected HS3300MessageExecutor messageExecutor;
 
     public HS3300Messaging(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(protocol);
@@ -50,14 +51,23 @@ public class HS3300Messaging extends AbstractDlmsMessaging implements DeviceMess
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
+    protected CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
+    }
+
+    protected IssueFactory getIssueFactory() {
+        return issueFactory;
+    }
+
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.asList(
-                PLCConfigurationDeviceMessage.WRITE_MAC_TONE_MASK.get(propertySpecService, nlsService, converter),
+                PLCConfigurationDeviceMessage.SetToneMaskAttributeName.get(propertySpecService, nlsService, converter),
                 PLCConfigurationDeviceMessage.WRITE_G3_PLC_BANDPLAN.get(propertySpecService, nlsService, converter),
                 SecurityMessage.CHANGE_PSK_WITH_NEW_KEYS.get(propertySpecService, nlsService, converter),
+                SecurityMessage.CHANGE_PSK_KEK.get(propertySpecService, nlsService, converter),
                 PLCConfigurationDeviceMessage.WritePlcG3Timeout.get(propertySpecService, nlsService, converter),
-                PLCConfigurationDeviceMessage.SetAdpLBPAssociationSetup_7_Parameters.get(propertySpecService, nlsService, converter),
+                PLCConfigurationDeviceMessage.SetAdpLBPAssociationSetup_5_Parameters.get(propertySpecService, nlsService, converter),
                 PLCConfigurationDeviceMessage.WRITE_ADP_LQI_RANGE.get(propertySpecService, nlsService, converter)
         );
     }
@@ -74,7 +84,11 @@ public class HS3300Messaging extends AbstractDlmsMessaging implements DeviceMess
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        return null;
+        if (propertySpec.getName().equals(DeviceMessageConstants.newPSKAttributeName) ||
+            propertySpec.getName().equals(DeviceMessageConstants.newPSKKEKAttributeName)) {
+            return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
+        }
+        return messageAttribute.toString();
     }
 
     @Override
