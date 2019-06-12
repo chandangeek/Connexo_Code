@@ -262,6 +262,6 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
     @Override
     public String getApplication(){
-        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
+        return WebServiceApplicationName.MULTISENSE.getName();
     }
 }

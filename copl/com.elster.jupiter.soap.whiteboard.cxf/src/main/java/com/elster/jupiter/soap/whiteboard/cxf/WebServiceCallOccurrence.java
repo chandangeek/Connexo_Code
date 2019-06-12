@@ -1,5 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallOccurrenceImpl;
+
 import java.time.Instant;
 import java.util.Optional;
 
@@ -29,4 +31,15 @@ public interface WebServiceCallOccurrence {
     void setApplicationName(String applicationName);
 
     void save();
+
+    WebServiceCallOccurrenceImpl init(Instant startTime,
+                                      String requestName,
+                                      String applicationName,
+                                      EndPointConfiguration endPointConfiguration,
+                                      String payload);
+    WebServiceCallOccurrenceImpl init(Instant startTime,
+                                      String requestName,
+                                      String applicationName,
+                                      EndPointConfiguration endPointConfiguration);
+
 }

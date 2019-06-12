@@ -397,13 +397,17 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when((ecpMock).getUsername()).thenReturn("USER");
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
 
-        WebServiceCallOccurrence occurrence1 = new WebServiceCallOccurrenceImpl(dataModel,
+
+        WebServiceCallOccurrence occurrence1 = new WebServiceCallOccurrenceImpl(dataModel);
+        occurrence1.init(
                 Instant.now(),
                 "Request1",
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
                 ecpMock
         );
-        WebServiceCallOccurrence occurrence2 = new WebServiceCallOccurrenceImpl(dataModel,
+
+        WebServiceCallOccurrence occurrence2 = new WebServiceCallOccurrenceImpl(dataModel);
+        occurrence1.init(
                 Instant.now(),
                 "Request2",
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
@@ -454,7 +458,8 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
 
         //when(authentication.getDisplayName(anyObject())).thenReturn("XXXXXXXXXXXXXXXX");
 
-        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel,
+        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel);
+        occurrence.init(
                 Instant.now(),
                 "Request1",
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
@@ -512,8 +517,8 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
 
 
 
-
-        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel,
+        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel);
+        occurrence.init(
                 Instant.now(),
                 "Request1",
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
