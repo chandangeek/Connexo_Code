@@ -5,8 +5,8 @@
 Ext.define('Fwc.firmwarecampaigns.model.Device', {
     extend: 'Ext.data.Model',
     fields: [
-        'campaignId',
-        'deviceName',
+        'id',
+        {name: 'device', type: 'auto'},
         'status',
         {name: 'startedOn', type: 'date', dateFormat: 'time'},
         {name: 'finishedOn', type: 'date', dateFormat: 'time'}
@@ -21,6 +21,6 @@ Ext.define('Fwc.firmwarecampaigns.model.Device', {
     },
     replaceIds: function(tpl){
         var url = tpl.replace('{campaignId}', this.get('campaignId'));
-        return url.replace('{deviceId}', this.get('deviceName'));
+        return url.replace('{deviceId}', this.get('device').name);
     }
 });

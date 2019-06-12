@@ -25,10 +25,10 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.name', 'FWC', 'Name'),
-                dataIndex: 'deviceName',
+                dataIndex: 'device',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? '<a href="' + me.router.getRoute('devices/device/firmware').buildUrl({deviceId: value}) +'">' + value + '</a>' : '';
+                    return value && value.name ? '<a href="' + me.router.getRoute('devices/device/firmware').buildUrl({deviceId: value.name}) +'">' + value.name + '</a>' : '';
                 }
             },
             {
@@ -37,29 +37,29 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 flex: 1,
                 renderer: function (value, metaData) {
                     var iconCls = '';
-
+                    //TODO: format should be changed
                     metaData.tdCls = 'firmware-campaign-status';
-                    switch (value.id) {
-                        case 'failed':
-                            iconCls = 'icon-cancel-circle';
-                            break;
-                        case 'success':
-                            iconCls = 'icon-checkmark-circle';
-                            break;
-                        case 'ongoing':
-                            iconCls = 'icon-spinner3';
-                            break;
-                        case 'pending':
-                            iconCls = 'icon-forward2';
-                            break;
-                        case 'configurationError':
-                            iconCls = 'icon-notification';
-                            break;
-                        case 'cancelled':
-                            iconCls = 'icon-blocked';
-                            break;
+                    switch (value) {
+                            case 'Failed':
+                                iconCls = 'icon-cancel-circle';
+                                break;
+                            case 'Successful':
+                                iconCls = 'icon-checkmark-circle';
+                                break;
+                            case 'Ongoing':
+                                iconCls = 'icon-spinner3';
+                                break;
+                            case 'Pending':
+                                iconCls = 'icon-forward2';
+                                break;
+                            case 'Configuration error':
+                                iconCls = 'icon-notification';
+                                break;
+                            case 'Cancelled':
+                                iconCls = 'icon-blocked';
+                                break;
                     }
-                    return value ? '<span class="' + iconCls + '"></span>' + value.name : '-';
+                    return value ? '<span class="' + iconCls + '"></span>' + value : '-';
                 }
             },
             {
@@ -86,13 +86,14 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                     if (!me.campaignIsOngoing) {
                         return true;
                     }
-                    switch (record.get('status').id) { // current device status
-                        case 'pending':
-                        case 'ongoing':
+                    //TODO: format should be changed
+                    switch (record.get('status')) { // current device status
+                        case 'Pending':
+                        case 'Ongoing':
                             return false; // because the device can be skipped
-                        case 'cancelled':
-                        case 'failed':
-                        case 'configurationError':
+                        case 'Cancelled':
+                        case 'Failed':
+                        case 'Configuration error':
                             return false; // because the device can be retried
                         default:
                             return true;

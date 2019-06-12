@@ -66,7 +66,12 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                     {
                         xtype: 'displayfield',
                         name: 'timeBoundaryAsText',
-                        fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary')
+                        fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary'),
+                        renderer: function (value){
+                             return value ? Uni.I18n.translate('general.betweenXandY', 'FWC', 'Between {0} and {1}', Ext.Array.map(value, function (item){
+                                 return Uni.DateTime.formatDateTimeLong(new Date(item))
+                             })) : '-';
+                        }
                     },
                     {
                         itemId: 'firmware-type-field',
@@ -113,13 +118,14 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.status', 'FWC', 'Status'),
                         name: 'status',
                         renderer: function (value) {
-                            return value ? value.localizedValue : '-';
+                            //TODO: format should be changed
+                            return value ? value : '-';
                         }
                     },
                     {
                         itemId: 'devices-field',
                         fieldLabel: Uni.I18n.translate('general.devices', 'FWC', 'Devices'),
-                        name: 'devicesStatus',
+                        name: 'devices',
                         renderer: function (value, field) {
                             var result = '';
 
@@ -130,24 +136,24 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                             field.addCls('firmware-campaign-status');
                             Ext.Array.each(value, function (devicesStatus, index) {
                                 var iconCls = '';
-
-                                switch (devicesStatus.status.id) {
-                                    case 'failed':
+                                //TODO: format should be changed
+                                switch (devicesStatus.status) {
+                                    case 'Failed':
                                         iconCls = 'icon-cancel-circle';
                                         break;
-                                    case 'success':
+                                    case 'Successful':
                                         iconCls = 'icon-checkmark-circle';
                                         break;
-                                    case 'ongoing':
+                                    case 'Ongoing':
                                         iconCls = 'icon-spinner3';
                                         break;
-                                    case 'pending':
+                                    case 'Pending':
                                         iconCls = 'icon-forward2';
                                         break;
-                                    case 'configurationError':
+                                    case 'Configuration error':
                                         iconCls = 'icon-notification';
                                         break;
-                                    case 'cancelled':
+                                    case 'Cancelled':
                                         iconCls = 'icon-blocked';
                                         break;
                                 }
@@ -156,7 +162,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                                     result += '<br>';
                                 }
 
-                                result += '<span class="' + iconCls + '" data-qtip="' + devicesStatus.status.localizedValue + '"></span>' + devicesStatus.amount;
+                                result += '<span class="' + iconCls + '" data-qtip="' + devicesStatus.status + '"></span>' + devicesStatus.quantity;
                             });
                             return result;
                         }
