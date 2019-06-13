@@ -2,22 +2,22 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.audit.controller.Audit', {
+Ext.define('Cfg.audit.controller.Audit', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Mdc.audit.view.AuditSetup',
-        'Mdc.store.TimeUnits'
+        'Cfg.audit.view.AuditSetup',
+        'Uni.property.store.TimeUnits'
     ],
 
     views: [
-        'Mdc.audit.view.AuditSetup'
+        'Cfg.audit.view.AuditSetup'
     ],
 
     stores: [
-        'Mdc.audit.store.Audit',
-        'Mdc.audit.store.AuditDetails',
-        'Mdc.store.TimeUnits'
+        'Cfg.audit.store.Audit',
+        'Cfg.audit.store.AuditDetails',
+        'Uni.property.store.TimeUnits'
     ],
 
     refs: [
@@ -49,7 +49,7 @@ Ext.define('Mdc.audit.controller.Audit', {
 
     loadDependencies: function(scope, callbackFn){
         var me = this,
-            timeUnitsStore = me.getStore('Mdc.store.TimeUnits');
+            timeUnitsStore = me.getStore('Uni.property.store.TimeUnits');
 
         timeUnitsStore.load({
             callback: function () {
@@ -65,7 +65,7 @@ Ext.define('Mdc.audit.controller.Audit', {
                     convertorFn: me.valueConvertor,
                     domainConvertorFn: me.domainConvertor,
                     contextConvertorFn: me.contextConvertor,
-                    store: 'Mdc.audit.store.Audit',
+                    store: 'Cfg.audit.store.Audit',
                     scopeFn: me
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -76,7 +76,7 @@ Ext.define('Mdc.audit.controller.Audit', {
 
     showOverview_old: function () {
         var me = this,
-            timeUnitsStore = me.getStore('Mdc.store.TimeUnits');
+            timeUnitsStore = me.getStore('Uni.property.store.TimeUnits');
 
         timeUnitsStore.load({
             callback: function () {
@@ -84,7 +84,7 @@ Ext.define('Mdc.audit.controller.Audit', {
                     convertorFn: me.valueConvertor,
                     domainConvertorFn: me.domainConvertor,
                     contextConvertorFn: me.contextConvertor,
-                    store: 'Mdc.audit.store.Audit',
+                    store: 'Cfg.audit.store.Audit',
                     scopeFn: me
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -112,8 +112,8 @@ Ext.define('Mdc.audit.controller.Audit', {
                      column.setVisible(isUpdateOperation);
                 }
                 if (column.dataIndex === 'value') {
-                    column.setText(isUpdateOperation ? Uni.I18n.translate('audit.preview.changedTo', 'MDC', 'Changed to') :
-                        Uni.I18n.translate('audit.preview.value', 'MDC', 'Value'));
+                    column.setText(isUpdateOperation ? Uni.I18n.translate('audit.preview.changedTo', 'CFG', 'Changed to') :
+                        Uni.I18n.translate('audit.preview.value', 'CFG', 'Value'));
                 }
 
             });
@@ -133,7 +133,7 @@ Ext.define('Mdc.audit.controller.Audit', {
 
     valueConvertor: function (value, record) {
         var me = this,
-            timeUnitsStore = me.getStore('Mdc.store.TimeUnits'),
+            timeUnitsStore = me.getStore('Uni.property.store.TimeUnits'),
             propertyType = record.get('type'),
             displayValue = value;
 
@@ -149,8 +149,8 @@ Ext.define('Mdc.audit.controller.Audit', {
                 break;
             case 'BOOLEAN':
                 displayValue = value ?
-                    Uni.I18n.translate('general.yes', 'MDC', 'Yes') :
-                    Uni.I18n.translate('general.no', 'MDC', 'No');
+                    Uni.I18n.translate('general.yes', 'CFG', 'Yes') :
+                    Uni.I18n.translate('general.no', 'CFG', 'No');
                 break;
         }
         return ((displayValue != null) && (displayValue.length == 0)) ? '-' : displayValue;
@@ -165,6 +165,9 @@ Ext.define('Mdc.audit.controller.Audit', {
         switch (domainType) {
             case 'DEVICE':
                 rendererLink = isRemoved == true ? record.get('auditReference').name : '<a href="#/devices/' + record.get('auditReference').name + '">' + record.get('auditReference').name + '</a>';
+                break;
+            case 'USAGEPOINT':
+                rendererLink = isRemoved == true ? record.get('auditReference').name : '<a href="#/usagepoints/' + record.get('auditReference').name + '">' + record.get('auditReference').name + '</a>';
                 break;
             default:
                 rendererLink = record.get('auditReference').name;
@@ -207,6 +210,10 @@ Ext.define('Mdc.audit.controller.Audit', {
             case 'DEVICE_COMTASKS':
                 rendererLink = isRemoved == true ? me.formatEntityWithNameContext(record, value) : me.formatComTasksHRef(record, value) + '</a>';;
                 break;
+            case 'USAGEPOINT_GENERAL_ATTRIBUTES':
+            case 'USAGEPOINT_TECHNICAL_ATTRIBUTES':
+                rendererLink = isRemoved == true ? value : '<a href="#/usagepoints/' + record.get('auditReference').name + '/attributes">' + me.formatEntityWithNameContext(record, value) + '</a>';
+                break;
             default:
                 rendererLink = value;
         }
@@ -227,16 +234,16 @@ Ext.define('Mdc.audit.controller.Audit', {
         }
 
         if (contextReference.startTime) {
-            periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.from', 'MDC', 'From'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.startTime)));
+            periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.from', 'CFG', 'From'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.startTime)));
         }
         if (contextReference.startTime && contextReference.endTime) {
             periodStr += ' - ';
         }
         if (contextReference.endTime) {
-            periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'MDC', 'Until'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.endTime)));
+            periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'CFG', 'Until'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.endTime)));
         }
         if (!contextReference.endTime && !contextReference.startTime) {
-            periodStr += Uni.I18n.translate('general.infinite', 'MDC', 'Infinite');
+            periodStr += Uni.I18n.translate('general.infinite', 'CFG', 'Infinite');
         }
         return Ext.String.format("{0} -> {1} ({2})", value, record.get('auditReference').contextReference.name, periodStr);
     },
@@ -338,16 +345,16 @@ Ext.define('Mdc.audit.controller.Audit', {
             var periodStr = '';
 
             if (contextReference.startTime) {
-                periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.from', 'MDC', 'From'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.startTime)));
+                periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.from', 'CFG', 'From'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.startTime)));
             }
             if (contextReference.startTime && contextReference.endTime) {
                 periodStr += ' - ';
             }
             if (contextReference.endTime) {
-                periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'MDC', 'Until'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.endTime)));
+                periodStr += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'CFG', 'Until'), Uni.DateTime.formatDateTimeShort(new Date(contextReference.endTime)));
             }
             if (!contextReference.endTime && !contextReference.startTime) {
-                periodStr += Uni.I18n.translate('general.infinite', 'MDC', 'Infinite');
+                periodStr += Uni.I18n.translate('general.infinite', 'CFG', 'Infinite');
             }
             return periodStr;
     },
@@ -358,7 +365,7 @@ Ext.define('Mdc.audit.controller.Audit', {
             ((value != null) && (value.length == 0));
     },
 
-    prepareForDevice: function(view){
+    prepareForSpecificObject: function(view){
         var me = this;
 
         view.down('#audit-trail-content').setTitle('');

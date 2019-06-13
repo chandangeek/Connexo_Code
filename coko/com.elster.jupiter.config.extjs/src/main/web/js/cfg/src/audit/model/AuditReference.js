@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.audit.model.AuditReference', {
+Ext.define('Cfg.audit.model.AuditReference', {
     extend: 'Ext.data.Model',
 
     fields: [

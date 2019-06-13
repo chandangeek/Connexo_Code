@@ -2,25 +2,25 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.audit.view.AuditPreviewGrid', {
+Ext.define('Cfg.audit.view.AuditPreviewGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.auditPreviewGrid',
     requires: [
-        'Mdc.audit.store.AuditDetails'
+        'Cfg.audit.store.AuditDetails'
     ],
-    store: 'Mdc.audit.store.AuditDetails',
-    maxHeight: 355,
+    store: 'Cfg.audit.store.AuditDetails',
+    maxHeight: 356,
 
     initComponent: function () {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('audit.preview.propertyName', 'MDC', 'Property name'),
+                header: Uni.I18n.translate('audit.preview.propertyName', 'CFG', 'Property name'),
                 dataIndex: 'name',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('audit.preview.changedTo', 'MDC', 'Changed to'),
+                header: Uni.I18n.translate('audit.preview.changedTo', 'CFG', 'Changed to'),
                 dataIndex: 'value',
                 flex: 1,
                 renderer: function (value, metaData, record) {
@@ -28,7 +28,7 @@ Ext.define('Mdc.audit.view.AuditPreviewGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('audit.preview.changedFrom', 'MDC', 'Changed from'),
+                header: Uni.I18n.translate('audit.preview.changedFrom', 'CFG', 'Changed from'),
                 dataIndex: 'previousValue',
                 flex: 1,
                 renderer: function (value, metaData, record) {

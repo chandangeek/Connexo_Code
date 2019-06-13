@@ -2,11 +2,11 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.audit.view.AuditPreview', {
+Ext.define('Cfg.audit.view.AuditPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.auditPreview',
     requires: [
-        'Mdc.audit.view.AuditPreviewGrid'
+        'Cfg.audit.view.AuditPreviewGrid'
     ],
 
     initComponent: function () {
@@ -23,9 +23,9 @@ Ext.define('Mdc.audit.view.AuditPreview', {
                 itemId: 'audit-preview-no-items',
                 margin: '15 0 20 0',
                 hidden: true,
-                title: Uni.I18n.translate('auditlog.empty.title', 'MDC', 'No audit trail logs found'),
+                title: Uni.I18n.translate('auditlog.empty.title', 'CFG', 'No audit trail logs found'),
                 reasons: [
-                    Uni.I18n.translate('auditlog.empty.list.item1', 'MDC', 'There is no audit trail logs available.')
+                    Uni.I18n.translate('auditlog.empty.list.item1', 'CFG', 'There is no audit trail logs available.')
                 ]
             }
         ];

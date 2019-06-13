@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.audit.view.AuditGrid', {
+Ext.define('Cfg.audit.view.AuditGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.auditGrid',
     requires: [],
@@ -11,7 +11,7 @@ Ext.define('Mdc.audit.view.AuditGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('audit.changeOn', 'MDC', 'Change on'),
+                header: Uni.I18n.translate('audit.changedOn', 'CFG', 'Changed on'),
                 dataIndex: 'changedOn',
                 flex: 2,
                 renderer: function (value, metaData, record) {
@@ -19,12 +19,12 @@ Ext.define('Mdc.audit.view.AuditGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('audit.category', 'MDC', 'Category'),
+                header: Uni.I18n.translate('audit.category', 'CFG', 'Category'),
                 dataIndex: 'domain',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('audit.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('audit.name', 'CFG', 'Name'),
                 dataIndex: 'auditReference',
                 flex: 2,
                 renderer: function (value, metaData, record) {
@@ -32,7 +32,7 @@ Ext.define('Mdc.audit.view.AuditGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('audit.entity', 'MDC', 'Entity'),
+                header: Uni.I18n.translate('audit.entity', 'CFG', 'Entity'),
                 dataIndex: 'context',
                 flex: 3,
                 renderer: function (value, metaData, record) {
@@ -40,12 +40,12 @@ Ext.define('Mdc.audit.view.AuditGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('audit.change', 'MDC', 'Change'),
+                header: Uni.I18n.translate('audit.change', 'CFG', 'Change'),
                 dataIndex: 'operation',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('audit.user', 'MDC', 'Changed by'),
+                header: Uni.I18n.translate('audit.user', 'CFG', 'Changed by'),
                 dataIndex: 'user',
                 flex: 1
             }
@@ -56,14 +56,14 @@ Ext.define('Mdc.audit.view.AuditGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('audit.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} audit trails'),
-                displayMoreMsg: Uni.I18n.translate('audit.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} audit trails'),
-                emptyMsg: Uni.I18n.translate('audit.pagingtoolbartop.emptyMsg', 'MDC', 'There are no audit trails to display')
+                displayMsg: Uni.I18n.translate('audit.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} entries'),
+                displayMoreMsg: Uni.I18n.translate('audit.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} entries'),
+                emptyMsg: Uni.I18n.translate('audit.pagingtoolbartop.emptyMsg', 'CFG', 'There are no entries to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('audit.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Audit trails per page'),
+                itemsPerPageMsg: Uni.I18n.translate('audit.pagingtoolbarbottom.itemsPerPage', 'CFG', 'Entries per page'),
                 dock: 'bottom'
             }
         ];

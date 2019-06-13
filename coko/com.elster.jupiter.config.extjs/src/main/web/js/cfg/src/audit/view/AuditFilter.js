@@ -2,13 +2,13 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.audit.view.AuditFilter', {
+Ext.define('Cfg.audit.view.AuditFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     alias: 'widget.auditFilter',
     requires: [
-        'Mdc.audit.store.Audit',
-        'Mdc.audit.store.Categories',
-        'Mdc.audit.store.Users'
+        'Cfg.audit.store.Audit',
+        'Cfg.audit.store.Categories',
+        'Cfg.audit.store.Users'
     ],
 
     initComponent: function () {
@@ -21,27 +21,27 @@ Ext.define('Mdc.audit.view.AuditFilter', {
                 dataIndexFrom: 'changedOnFrom',
                 dataIndexTo: 'changedOnTo',
                 itemId: 'audit-filter-changed-interval',
-                text: Uni.I18n.translate('audit.filter.changedBetween', 'MDC', 'Changed between')
+                text: Uni.I18n.translate('audit.filter.changedBetween', 'CFG', 'Changed between')
             },
             {
                 type: 'combobox',
                 multiSelect: true,
                 dataIndex: 'categories',
-                emptyText: Uni.I18n.translate('audit.filter.category', 'MDC', 'Categories'),
+                emptyText: Uni.I18n.translate('audit.filter.category', 'CFG', 'Categories'),
                 displayField: 'name',
                 valueField: 'id',
                 itemId: 'audit-filter-category-combo',
-                store: 'Mdc.audit.store.Categories'
+                store: 'Cfg.audit.store.Categories'
             },
             {
                 type: 'combobox',
                 multiSelect: true,
                 dataIndex: 'users',
-                emptyText: Uni.I18n.translate('audit.filter.changedBy', 'MDC', 'Changed by'),
+                emptyText: Uni.I18n.translate('audit.filter.changedBy', 'CFG', 'Changed by'),
                 displayField: 'name',
                 valueField: 'name',
                 itemId: 'audit-filter-changedBy-combo',
-                store: 'Mdc.audit.store.Users',
+                store: 'Cfg.audit.store.Users',
                 queryMode: 'remote',
                 remoteFilter: true,
                 queryParam: 'like',

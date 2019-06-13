@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.audit.store.Categories', {
+Ext.define('Cfg.audit.store.Categories', {
     extend: 'Ext.data.Store',
     autoLoad: false,
     fields: ['id', 'name'],

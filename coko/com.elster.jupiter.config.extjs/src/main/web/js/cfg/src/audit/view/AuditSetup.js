@@ -2,16 +2,16 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.audit.view.AuditSetup', {
+Ext.define('Cfg.audit.view.AuditSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.auditSetup',
     xtype: 'audit-setup-view',
     requires: [
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Mdc.audit.view.AuditGrid',
-        'Mdc.audit.view.AuditPreview',
-        'Mdc.audit.view.AuditFilter'
+        'Cfg.audit.view.AuditGrid',
+        'Cfg.audit.view.AuditPreview',
+        'Cfg.audit.view.AuditFilter'
     ],
 
     initComponent: function () {
@@ -21,7 +21,7 @@ Ext.define('Mdc.audit.view.AuditSetup', {
             {
                 ui: 'large',
                 itemId: 'audit-trail-content',
-                title: Uni.I18n.translate('audit.auditTrail', 'MDC', 'Audit trail'),
+                title: Uni.I18n.translate('audit.auditTrail', 'CFG', 'Audit trail'),
                 items: [
                     {
                         xtype: 'preview-container',
@@ -36,10 +36,10 @@ Ext.define('Mdc.audit.view.AuditSetup', {
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'no-audit-trail',
-                            title: Uni.I18n.translate('audit.empty.title', 'MDC', 'No audit trails found'),
+                            title: Uni.I18n.translate('audit.empty.title', 'CFG', 'No audit trails found'),
                             reasons: [
-                                Uni.I18n.translate('audit.empty.list.item1', 'MDC', 'There is no audit trails available.'),
-                                Uni.I18n.translate('audit.empty.list.item2', 'MDC', 'No audit trails comply with the filter.')
+                                Uni.I18n.translate('audit.empty.list.item1', 'CFG', 'There is no audit trails available.'),
+                                Uni.I18n.translate('audit.empty.list.item2', 'CFG', 'No audit trails comply with the filter.')
                             ]
                         },
                         previewComponent: {

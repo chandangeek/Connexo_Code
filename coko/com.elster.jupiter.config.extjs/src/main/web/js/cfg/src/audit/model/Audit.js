@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.audit.model.Audit', {
+Ext.define('Cfg.audit.model.Audit', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'id', type: 'auto'},
@@ -19,20 +19,20 @@ Ext.define('Mdc.audit.model.Audit', {
         {name: 'auditReference'}
     ],
     requires: [
-        'Mdc.audit.model.AuditLog',
-        'Mdc.audit.model.AuditReference'
+        'Cfg.audit.model.AuditLog',
+        'Cfg.audit.model.AuditReference'
     ],
     associations: [
         {
             name: 'auditLogs',
             type: 'hasMany',
-            model: 'Mdc.audit.model.AuditLog',
+            model: 'Cfg.audit.model.AuditLog',
             associationKey: 'auditLogs'
         },
         {
             name: 'auditReference',
             type: 'hasOne',
-            model: 'Mdc.audit.model.AuditReference',
+            model: 'Cfg.audit.model.AuditReference',
             associationKey: 'auditReference'
         }
     ]

@@ -2,12 +2,12 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.audit.store.DeviceAudit', {
+Ext.define('Mdc.store.DeviceAudit', {
     extend: 'Ext.data.Store',
     require: [
-        'Mdc.audit.model.Audit'
+        'Cfg.audit.model.Audit'
     ],
-    model: 'Mdc.audit.model.Audit',
+    model: 'Cfg.audit.model.Audit',
     autoLoad: false,
 
     proxy: {

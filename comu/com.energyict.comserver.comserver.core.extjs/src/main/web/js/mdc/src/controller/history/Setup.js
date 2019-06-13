@@ -2981,9 +2981,9 @@ Ext.define('Mdc.controller.history.Setup', {
                     audit: {
                         title: Uni.I18n.translate('general.auditTrail', 'MDC', 'Audit trail'),
                         route: 'audit',
-                        controller: 'Mdc.audit.controller.Audit',
+                        controller: 'Cfg.audit.controller.Audit',
                         action: 'showOverview',
-                        privileges: Cfg.privileges.Validation.viewAuditLog
+                        privileges: Cfg.privileges.Audit.viewAuditLog
                     }
                 }
             }
