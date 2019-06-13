@@ -929,6 +929,13 @@ Ext.define('Imt.controller.History', {
                     controller: 'Isu.controller.Overview',
                     action: 'showIssuesOverview',
                     privileges: Isu.privileges.Issue.viewAdminDevice
+                },
+                audit: {
+                    title: Uni.I18n.translate('general.auditTrail', 'IMT', 'Audit trail'),
+                    route: 'audit',
+                    controller: 'Cfg.audit.controller.Audit',
+                    action: 'showOverview',
+                    privileges: Cfg.privileges.Audit.viewAuditLog
                 }
             }
         },
