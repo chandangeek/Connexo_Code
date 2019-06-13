@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 
 @ConsumerType
 public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEndPointProvider {
-    // todo : make a new enum of properties
     public static final String URL_PROPERTY = "url";
     public static final String ENDPOINT_CONFIGURATION_ID_PROPERTY = "epcId";
     private static final Logger LOGGER = Logger.getLogger(AbstractOutboundEndPointProvider.class.getName());
@@ -129,7 +128,6 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         .collect(Collectors.toSet());
                 if (endPointConfigurations.isEmpty()) {
                     LOGGER.severe(thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINTS).format(getName()));
-                    // TODO send event for issue here, in a different transaction
                 }
             }
             return endPointConfigurations.stream()
