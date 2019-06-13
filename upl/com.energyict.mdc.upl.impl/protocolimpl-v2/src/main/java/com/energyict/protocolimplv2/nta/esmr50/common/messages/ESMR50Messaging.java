@@ -6,10 +6,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40Messaging;
 
@@ -24,8 +21,10 @@ public class ESMR50Messaging extends Dsmr40Messaging {
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         List<DeviceMessageSpec> supportedMessages = super.getSupportedMessages();
-        //Remove messages
 
+        //Remove messages
+        // global reset not supported anymore in ESMR
+        supportedMessages.remove(this.get(DeviceActionMessage.RESTORE_FACTORY_SETTINGS));
 
         //LTE modem setup category
         supportedMessages.add(this.get(NetworkConnectivityMessage.CHANGE_LTE_APN_NAME));
