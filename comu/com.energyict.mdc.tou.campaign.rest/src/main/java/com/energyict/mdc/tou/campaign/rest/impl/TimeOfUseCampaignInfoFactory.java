@@ -68,8 +68,8 @@ public class TimeOfUseCampaignInfoFactory {
                 .withUniqueCalendarName(timeOfUseCampaignInfo.withUniqueCalendarName)
                 .withSendCalendarComTaskId((long)timeOfUseCampaignInfo.sendCalendarСomTask.id)
                 .withValidationComTaskId((long)timeOfUseCampaignInfo.validationСomTask.id)
-                .withSendCalendarСonnectionStrategyId((long)timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.id)
-                .withValidationСonnectionStrategyId((long)timeOfUseCampaignInfo.validationСonnectionStrategy.id);
+                .withSendCalendarСonnectionStrategyId(0)//((long)timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.id)
+                .withValidationСonnectionStrategyId(0);//((long)timeOfUseCampaignInfo.validationСonnectionStrategy.id);
         return timeOfUseCampaignBuilder.create();
     }
 
@@ -95,15 +95,15 @@ public class TimeOfUseCampaignInfoFactory {
         timeOfUseCampaignInfo.validationСomTask.id = campaign.getValidationComTaskId();
         timeOfUseCampaignInfo.validationСomTask.name = taskService.findComTask(campaign.getValidationComTaskId()).get().getName();
 
-        timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.id = campaign.getSendCalendarСonnectionStrategyId();
-        timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.name = campaign.getSendCalendarСonnectionStrategyId() == 1?
+        timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.id = 0;//campaign.getSendCalendarСonnectionStrategyId();
+        timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.name = "name1";/*campaign.getSendCalendarСonnectionStrategyId() == 1?
                 TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat():
-                TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();
+                TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();*/
 
-        timeOfUseCampaignInfo.validationСonnectionStrategy.id = campaign.getValidationСonnectionStrategyId();
-        timeOfUseCampaignInfo.validationСonnectionStrategy.name = campaign.getValidationСonnectionStrategyId() == 1?
+        timeOfUseCampaignInfo.validationСonnectionStrategy.id =0; //campaign.getValidationСonnectionStrategyId();
+        timeOfUseCampaignInfo.validationСonnectionStrategy.name = "name2";/*campaign.getValidationСonnectionStrategyId() == 1?
                 TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat():
-                TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();
+                TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();*/
 
         return timeOfUseCampaignInfo;
     }
