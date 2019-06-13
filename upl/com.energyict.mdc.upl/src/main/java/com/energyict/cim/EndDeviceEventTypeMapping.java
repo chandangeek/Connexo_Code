@@ -89,6 +89,11 @@ public enum EndDeviceEventTypeMapping {
     EVENT_RETRIEVE_INTERVAL_DATA_E  (75, EndDeviceEventTypeFactory.getRetrieveEmeterIntervalElectricityEventType()),
     EVENT_RETRIEVE_INTERVAL_DATA_G  (76, EndDeviceEventTypeFactory.getRetrieveEmeterIntervalGasEventType()),
 
+    //DSMR - ESMR Power Voltage
+    EVENT_SHORT_VOLTAGE_SAG_L1      (77, EndDeviceEventTypeFactory.getShortVoltageSagL1EventType()),
+    EVENT_SHORT_VOLTAGE_SAG_L2      (78, EndDeviceEventTypeFactory.getShortVoltageSagL2EventType()),
+    EVENT_SHORT_VOLTAGE_SAG_L3      (79, EndDeviceEventTypeFactory.getShortVoltageSagL3EventType()),
+
     EVENT_EVENT_LOG_CLEARED         (255, EndDeviceEventTypeFactory.getClearedEventType()),
 
     CLEARED                                 (100001, EndDeviceEventTypeFactory.getClearedEventType()),

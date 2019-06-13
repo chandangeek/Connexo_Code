@@ -821,4 +821,17 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getRetrieveEmeterIntervalGasEventType() {
         return new EndDeviceEventType(EndDeviceType.GASMETER,EndDeviceDomain.COMMUNICATION,EndDeviceSubdomain.INTERVAL ,EndDeviceEventOrAction.READ);
     }
+
+    public static EndDeviceEventType getShortVoltageSagL1EventType() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER,EndDeviceDomain.POWER,EndDeviceSubdomain.PHASEAVOLTAGE ,EndDeviceEventOrAction.SAGSTOPPED);
+    }
+
+    public static EndDeviceEventType getShortVoltageSagL2EventType() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER,EndDeviceDomain.POWER,EndDeviceSubdomain.PHASEBVOLTAGE ,EndDeviceEventOrAction.SAGSTOPPED);
+    }
+
+    public static EndDeviceEventType getShortVoltageSagL3EventType() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER,EndDeviceDomain.POWER,EndDeviceSubdomain.PHASECVOLTAGE ,EndDeviceEventOrAction.SAGSTOPPED);
+    }
+
 }
