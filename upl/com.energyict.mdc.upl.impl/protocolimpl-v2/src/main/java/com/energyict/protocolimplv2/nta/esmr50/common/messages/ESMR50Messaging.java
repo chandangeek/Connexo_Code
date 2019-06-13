@@ -29,6 +29,8 @@ public class ESMR50Messaging extends Dsmr40Messaging {
         supportedMessages.remove(this.get(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS));
         supportedMessages.remove(this.get(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS));
         supportedMessages.remove(this.get(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION));
+        supportedMessages.remove(this.get(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM));
+        supportedMessages.remove(this.get(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP));
         //TODO check the list of removed messages in com/energyict/protocolimplv2/messages/convertor/Dsmr50MessageConverter.java:82
 
         //LTE modem setup category
