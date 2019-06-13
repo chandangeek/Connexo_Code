@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl.commands.store.common;
 
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -15,6 +16,7 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.ProtocolJournal;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.issue.Problem;
 
@@ -35,6 +37,16 @@ public class DeviceProtocolInitializeCommand extends SimpleComCommand {
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         try {
+            // create a DEBUG-level journal link for the protocols and inject it to protocols
+            try {
+                ProtocolJournal protocolJournal = a -> executionContext.createJournalEntry(ComServer.LogLevel.DEBUG, a);
+
+                deviceProtocol.setProtocolJournaling(protocolJournal);
+            } catch (Throwable ex){
+                //swallow, seems we don't not supports this
+                System.out.print(ex.getMessage());
+            }
+
             deviceProtocol.init(device, getComChannel());
         } catch (ConnectionCommunicationException e) {
             throw e;

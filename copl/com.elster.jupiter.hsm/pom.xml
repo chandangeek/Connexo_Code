@@ -8,16 +8,19 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
     <artifactId>hsm</artifactId>
     <name>[Jupiter] com.elster.jupiter.hsm</name>
     <packaging>bundle</packaging>
 
     <properties>
+        <jss.version>9.6.0</jss.version>
         <bouncycastle.version>1.60</bouncycastle.version>
-        <spring.version>5.1.0.RELEASE</spring.version>
+        <spring.version>5.1.5.RELEASE</spring.version>
         <jackson.version>2.4.0</jackson.version>
+        <antlr.version>4.7.2</antlr.version>
+        <netty.version>4.1.33.Final</netty.version>
     </properties>
 
     <build>
@@ -29,7 +32,7 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            artifactId=commons-configuration2|commons-beanutils|jss-runtime-embedded|antlr|bcmail-jdk15on|bcpkix-jdk15on|bcprov-jdk15on|bcprov-ext-jdk15on|commons-lang3|commons-logging|groovy|gson|guava|logback-classic|logback-core|metrics-core|netty-all|slf4j-api|spring-aop|spring-beans|spring-context|spring-core|spring-expression|spring-jdbc|spring-tx
+                            artifactId=jss-runtime-embedded|jss-commondev|jss-commondev-base|jss-core|antlr4|antlr4-runtime|antlr-runtime|bcpkix-jdk15on|bcprov-jdk15on|checker-qual|commons-lang3|failureaccess|groovy|gson|guava|icu4j|javax.json|jcl-over-slf4j|logback-classic|logback-core|metrics-core|netty-buffer|netty-codec|netty-common|netty-handler|netty-resolver|netty-transport|org.abego.treelayout.core|slf4j-api|spring-aop|spring-beans|spring-context|spring-core|spring-expression|spring-jdbc|spring-tx|ST4
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
@@ -120,21 +123,42 @@
             <artifactId>devtools</artifactId>
         </dependency>
 
-        <!-- JSS libs -->
+        <!-- JSS -->
         <dependency>
             <groupId>com.atos.worldline</groupId>
             <artifactId>jss-runtime-embedded</artifactId>
-            <version>9.5.1</version>
+            <version>${jss.version}</version>
         </dependency>
         <dependency>
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
-            <version>2.7.7</version>
+            <groupId>com.atos.worldline</groupId>
+            <artifactId>jss-commondev</artifactId>
+            <version>${jss.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcmail-jdk15on</artifactId>
-            <version>${bouncycastle.version}</version>
+            <groupId>com.atos.worldline</groupId>
+            <artifactId>jss-commondev-base</artifactId>
+            <version>${jss.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.atos.worldline</groupId>
+            <artifactId>jss-core</artifactId>
+            <version>${jss.version}</version>
+        </dependency>
+        <!-- JSS libs -->
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4</artifactId>
+            <version>${antlr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${antlr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr-runtime</artifactId>
+            <version>3.5.2</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
@@ -147,9 +171,9 @@
             <version>${bouncycastle.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-ext-jdk15on</artifactId>
-            <version>${bouncycastle.version}</version>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+            <version>2.5.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -157,14 +181,14 @@
             <version>3.8.1</version>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.2</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>failureaccess</artifactId>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
-            <version>2.5.2</version>
+            <version>2.5.6</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -174,7 +198,22 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>26.0</version>
+            <version>27.1-jre</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>61.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.json</artifactId>
+            <version>1.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.26</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -189,17 +228,47 @@
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
-            <version>4.0.3</version>
+            <version>4.0.5</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.1.29.Final</version>
+            <artifactId>netty-buffer</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.abego.treelayout</groupId>
+            <artifactId>org.abego.treelayout.core</artifactId>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.25</version>
+            <version>1.7.26</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -236,6 +305,23 @@
             <artifactId>spring-tx</artifactId>
             <version>${spring.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>ST4</artifactId>
+            <version>4.1</version>
+        </dependency>
+        <!-- Following is commented while importer (in another bundle) will behave strange>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.12.0</version>
+        </dependency-->
+        <!-- Following is commented while bundles (others) are not deployed properly
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>1.4.01</version>
+        </dependency-->
     </dependencies>
 
 </project>

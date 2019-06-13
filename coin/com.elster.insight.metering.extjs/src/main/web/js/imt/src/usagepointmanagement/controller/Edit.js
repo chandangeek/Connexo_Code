@@ -131,14 +131,12 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 me.getStore('Imt.usagepointmanagement.store.BypassStatuses').load();
                 me.getWizard().loadRecord(Ext.create('Imt.usagepointmanagement.model.UsagePoint'));
             }
-
-            mainView.setLoading(false);
-        }),
-
             me.getStore('Imt.usagepointmanagement.store.UsagePointLifeCycles').load(function (records) {
                 usagePointLifeCycleCombo = mainView.down('#usage-point-life-cycle-combo');
                 usagePointLifeCycleCombo.setValue(usagePointLifeCycleCombo.store.findRecord('isDefault', true));
+                mainView.setLoading(false);
             });
+        });
     },
 
     moveTo: function (button) {

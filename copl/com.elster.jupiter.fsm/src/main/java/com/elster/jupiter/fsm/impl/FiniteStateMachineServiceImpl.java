@@ -21,6 +21,7 @@ import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -95,6 +96,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile ServiceRegistration<FiniteStateMachineService> registration;
     private volatile BundleContext bundleContext;
+    private volatile MessageService messageService;
 
     private final RegistrationHandler registrationHandler = new DelayedRegistrationHandler();
 
@@ -107,7 +109,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService,
                                          EventService eventService, TransactionService transactionService,
                                          Publisher publisher, UpgradeService upgradeService, BpmService bpmService,
-                                         EndPointConfigurationService endPointConfigurationService, BundleContext bundleContext) {
+                                         EndPointConfigurationService endPointConfigurationService, BundleContext bundleContext, MessageService messageService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -118,12 +120,14 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         setUpgradeService(upgradeService);
         setBpmService(bpmService);
         setEndPointConfigurationService(endPointConfigurationService);
+        setMessageService(messageService);
         this.activate(bundleContext);
     }
 
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
+                Arrays.stream(TranslationKeys.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
@@ -152,7 +156,8 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class,
                 version(10, 3), V10_3SimpleUpgrader.class,
-                version(10, 4), UpgraderV10_4.class
+                version(10, 4), UpgraderV10_4.class,
+                version(10, 6), UpgraderV10_6.class
         ));
         registrationHandler.ready();
     }
@@ -174,6 +179,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Publisher.class).toInstance(publisher);
                 bind(BpmService.class).toInstance(bpmService);
+                bind(MessageService.class).toInstance(messageService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(FiniteStateMachineService.class).toInstance(FiniteStateMachineServiceImpl.this);
                 bind(ServerFiniteStateMachineService.class).toInstance(FiniteStateMachineServiceImpl.this);
@@ -218,6 +224,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Reference(name = "theEndPointConfigurationService")
     public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
         this.endPointConfigurationService = endPointConfigurationService;
+    }
+
+    @Reference(name = "theMessageService")
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Reference(name = "thePublisher")

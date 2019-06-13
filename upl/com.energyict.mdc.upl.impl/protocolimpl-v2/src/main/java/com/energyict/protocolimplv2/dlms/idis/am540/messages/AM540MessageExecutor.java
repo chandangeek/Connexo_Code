@@ -376,7 +376,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         return new DSMR50ActivitiyCalendarController(getCosemObjectFactory(), getProtocol().getTimeZone(), true);
     }
 
-    private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
+    protected PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
         if (plcConfigurationDeviceMessageExecutor == null) {
             plcConfigurationDeviceMessageExecutor = new PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice(), getCollectedDataFactory(), getIssueFactory());
         }

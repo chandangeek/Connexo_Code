@@ -43,7 +43,7 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.privileges.RegisteredDevicesKpi',
         'Mdc.privileges.TaskManagement',
         'Mdc.privileges.SecurityAccessor',
-        'Mdc.privileges.Audit',
+        'Cfg.privileges.Audit',
         'Tou.privileges.TouCampaign',
         'Itk.privileges.Task',
         'Wss.privileges.Webservices'
@@ -82,7 +82,7 @@ Ext.define('MdcApp.controller.Main', {
         Dal.privileges.Alarm.all(),
         Mdc.privileges.RegisteredDevicesKpi.all(),
         Mdc.privileges.SecurityAccessor.all(),
-        Mdc.privileges.Audit.all(),
+        Cfg.privileges.Audit.all(),
         Tou.privileges.TouCampaign.all(),
         Itk.privileges.Task.all(),
         Wss.privileges.Webservices.all()

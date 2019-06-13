@@ -63,7 +63,7 @@ public class AuditTrailDataWriter<T> {
                     }
                     Object newValue = column.domainValue(object);
                     Object oldValue = column.domainValue(oldObject);
-                    return !(newValue == null ? oldValue == null : newValue.equals(oldValue));
+                    return !(newValue == null || newValue.equals("") ? oldValue == null || oldValue.equals("") : newValue.equals(oldValue));
                 })
                 .count() > 0;
     }

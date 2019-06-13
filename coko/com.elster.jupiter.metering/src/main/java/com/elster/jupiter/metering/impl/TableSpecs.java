@@ -348,6 +348,10 @@ public enum TableSpecs {
                     .map("usagepointLifeCycle")
                     .since(version(10, 3))
                     .add();
+
+            table.audit(MTR_USAGEPOINT.name())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.ordinal())
+                    .build();
         }
     },
     MTR_READINGTYPE {
@@ -724,6 +728,11 @@ public enum TableSpecs {
                     .reverseMap("detail")
                     .composition()
                     .add();
+
+            table.audit(MTR_USAGEPOINTDETAIL.name())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_TECHNICAL_ATTRIBUTES.ordinal())
+                    .domainReferenceColumn("USAGEPOINTID")
+                    .build();
         }
     },
     MTR_USAGEPOINTSTATE {
@@ -1892,6 +1901,7 @@ public enum TableSpecs {
             Column readingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
             Column actual = table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
+            table.partitionOn(timestampColumn);
             table.column("COMMENTS").varChar(4000).map("comment").add();
             table.primaryKey("PK_MTR_READINGQUALITY").on(idColumn).add();
             table.foreignKey("FK_MTR_RQ_CHANNEL")

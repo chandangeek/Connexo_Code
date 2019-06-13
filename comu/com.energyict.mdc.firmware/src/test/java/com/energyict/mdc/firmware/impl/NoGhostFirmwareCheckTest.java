@@ -9,13 +9,13 @@ import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.Effective;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +26,6 @@ import org.mockito.Captor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class NoGhostFirmwareCheckTest extends AbstractFirmwareCheckTest {
@@ -58,7 +57,7 @@ public class NoGhostFirmwareCheckTest extends AbstractFirmwareCheckTest {
 
         expectSuccess();
 
-        verify(activatedFirmwareVersionStream, times(2)).filter(conditionCaptor.capture());
+        verify(activatedFirmwareVersionStream, times(3)).filter(conditionCaptor.capture());
         List<Condition> filterConditions = conditionCaptor.getAllValues();
         Optional<Comparison> deviceConditionOptional = filterConditions.stream()
                 .filter(Comparison.class::isInstance)
@@ -76,6 +75,13 @@ public class NoGhostFirmwareCheckTest extends AbstractFirmwareCheckTest {
         assertThat(firmwareTypeConditionOptional.map(Contains::getFieldName)).isPresent();
         assertThat(firmwareTypeConditionOptional.map(Contains::getFieldName).get()).contains("firmwareType");
         assertThat(firmwareTypeConditionOptional.map(Contains::getCollection)).contains(Arrays.asList(FirmwareType.METER, FirmwareType.COMMUNICATION));
+        Optional<Effective> effectiveConditionOptional = filterConditions.stream()
+                .filter(Effective.class::isInstance)
+                .findAny()
+                .map(Effective.class::cast);
+        assertThat(effectiveConditionOptional).isPresent();
+        assertThat(effectiveConditionOptional.map(Effective::getFieldName)).isPresent();
+        assertThat(effectiveConditionOptional.map(Effective::getFieldName).get()).contains("interval");
 
         verify(activatedFirmwareVersionStream).anyMatch(conditionCaptor.capture());
         Condition condition = conditionCaptor.getValue();

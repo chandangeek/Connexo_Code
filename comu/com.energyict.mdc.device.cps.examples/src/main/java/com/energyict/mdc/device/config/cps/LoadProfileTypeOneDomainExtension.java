@@ -11,7 +11,9 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.data.Device;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -24,7 +26,8 @@ public class LoadProfileTypeOneDomainExtension extends AbstractPersistentDomainE
         DEVICE("device", "device"),
         TEST_ATTRIBUTE_ENUM_NUMBER("testEnumNumberA", "test_enum_number"),
         TEST_ATTRIBUTE_ENUM_STRING("testEnumStringB", "test_enum_string"),
-        TEST_ATTRIBUTE_BOOLEAN("testBooleanC", "test_boolean");
+        TEST_ATTRIBUTE_BOOLEAN("testBooleanC", "test_boolean"),
+        DEVICE_REF("deviceRef", "device");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -44,6 +47,7 @@ public class LoadProfileTypeOneDomainExtension extends AbstractPersistentDomainE
     }
 
     private Reference<ChannelSpec> channelSpec = Reference.empty();
+    private Reference<Device> deviceRef = ValueReference.absent();
 
     private BigDecimal device;
     @NotNull(groups = {Save.Create.class, Save.Update.class})

@@ -7,10 +7,8 @@ package com.elster.jupiter.webservices.rest.impl;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.impl.DataModelImpl;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
-import com.elster.jupiter.rest.whiteboard.impl.Authentication;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -23,9 +21,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointConfigurationImpl;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointLogImpl;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.OutboundEndPointConfigurationImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallOccurrenceImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 import com.elster.jupiter.users.Group;
@@ -35,7 +30,6 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,11 +39,9 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anySet;
@@ -397,17 +389,13 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when((ecpMock).getUsername()).thenReturn("USER");
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
 
-
-        WebServiceCallOccurrence occurrence1 = new WebServiceCallOccurrenceImpl(dataModel);
-        occurrence1.init(
+        WebServiceCallOccurrence occurrence1 = new WebServiceCallOccurrenceImpl(dataModel).init(
                 Instant.now(),
                 "Request1",
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
                 ecpMock
         );
-
-        WebServiceCallOccurrence occurrence2 = new WebServiceCallOccurrenceImpl(dataModel);
-        occurrence1.init(
+        WebServiceCallOccurrence occurrence2 = new WebServiceCallOccurrenceImpl(dataModel).init(
                 Instant.now(),
                 "Request2",
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
@@ -458,8 +446,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
 
         //when(authentication.getDisplayName(anyObject())).thenReturn("XXXXXXXXXXXXXXXX");
 
-        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel);
-        occurrence.init(
+        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel).init(
                 Instant.now(),
                 "Request1",
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
@@ -517,8 +504,8 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
 
 
 
-        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel);
-        occurrence.init(
+
+        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel).init(
                 Instant.now(),
                 "Request1",
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
