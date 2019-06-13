@@ -42,13 +42,14 @@ public class DefaultAQFacade implements AQFacade {
         try (PreparedStatement statement = connection.prepareStatement(createSql(queueTableSpec))) {
             statement.setString(1, queueTableSpec.getName());
             statement.setString(2, queueTableSpec.getPayloadType());
+            statement.setString(3, queueTableSpec.isPrioritized() ? "PRIORITY, ENQ_TIME" : "ENQ_TIME");
             statement.execute();
         }
     }
 
     private String createSql(QueueTableSpec queueTableSpec) {
         return
-                "begin dbms_aqadm.create_queue_table(queue_table => ?, queue_payload_type => ? , multiple_consumers => " +
+                "begin dbms_aqadm.create_queue_table(queue_table => ?, queue_payload_type => ? , sort_list => ?, multiple_consumers => " +
                         (queueTableSpec.isMultiConsumer() ? "TRUE" : "FALSE") +
                         "); end;";
     }

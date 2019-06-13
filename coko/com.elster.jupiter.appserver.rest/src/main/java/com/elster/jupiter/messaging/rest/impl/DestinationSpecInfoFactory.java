@@ -29,7 +29,7 @@ public class DestinationSpecInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public DestinationSpecInfo from(DestinationSpec destinationSpec, List<RecurrentTask> allTasks, List<String> allServiceCallTypes) {
+    public DestinationSpecInfo from(DestinationSpec destinationSpec, List<RecurrentTask> allTasks) {
         DestinationSpecInfo info = new DestinationSpecInfo();
         info.name = destinationSpec.getName();
         info.type = DestinationType.typeOf(destinationSpec);
@@ -41,7 +41,6 @@ public class DestinationSpecInfoFactory {
         info.isDefault = destinationSpec.isDefault();
         info.queueTypeName = destinationSpec.getQueueTypeName();
         info.tasks = getTasksFrom(destinationSpec.getName(), allTasks);
-        info.serviceCallTypes = allServiceCallTypes.stream().filter(name -> destinationSpec.getName().equals(name)).collect(Collectors.toList());
 
         return info;
     }
@@ -51,15 +50,15 @@ public class DestinationSpecInfoFactory {
                 .map(rt -> TaskMinInfo.from(rt, thesaurus)).collect(Collectors.toList());
     }
 
-    public DestinationSpecInfo withStats(DestinationSpec destinationSpec, List<RecurrentTask> allTasks, List<String> allServiceCallTypes) {
-        DestinationSpecInfo info = from(destinationSpec, allTasks, allServiceCallTypes);
+    public DestinationSpecInfo withStats(DestinationSpec destinationSpec, List<RecurrentTask> allTasks) {
+        DestinationSpecInfo info = from(destinationSpec, allTasks);
         info.numberOfMessages = destinationSpec.numberOfMessages();
         info.numberOFErrors = destinationSpec.errorCount();
         return info;
     }
 
-    public DestinationSpecInfo withAppServers(DestinationSpec destinationSpec, List<RecurrentTask> allTasks, List<String> allServiceCallTypes) {
-        DestinationSpecInfo info = withStats(destinationSpec, allTasks, allServiceCallTypes);
+    public DestinationSpecInfo withAppServers(DestinationSpec destinationSpec, List<RecurrentTask> allTasks) {
+        DestinationSpecInfo info = withStats(destinationSpec, allTasks);
         info.subscriberSpecInfos = destinationSpec.getSubscribers()
                 .stream()
                 .filter(not(SubscriberSpec::isSystemManaged))

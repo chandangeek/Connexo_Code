@@ -101,7 +101,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
             DestinationSpec queue = doTry(
                     "Create Queue : " + ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME,
                     () -> {
-                        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS, true);
+                        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS, true, true);
                         destinationSpec.activate();
                         return destinationSpec;
                     },

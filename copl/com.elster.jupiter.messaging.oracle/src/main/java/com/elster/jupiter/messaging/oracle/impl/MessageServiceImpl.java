@@ -98,8 +98,8 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
-        QueueTableSpecImpl result = QueueTableSpecImpl.from(dataModel, name, payloadType, multiConsumer);
+    public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
+        QueueTableSpecImpl result = QueueTableSpecImpl.from(dataModel, name, payloadType, multiConsumer, isPrioritized);
         result.save();
         result.activate();
         return result;

@@ -83,12 +83,11 @@ public class DestinationSpecResource {
     public PagedInfoList getDestinationSpecs(@BeanParam JsonQueryParameters queryParameters, @QueryParam("state") boolean withState) {
         List<DestinationSpec> destinationSpecs = messageService.findDestinationSpecs();
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
-        List<String> allServiceCallTypes = getServiceCallTypes();
 
         List<DestinationSpecInfo> destinationSpecInfos = destinationSpecs
                 .stream()
                 .sorted(Comparator.comparing(DestinationSpec::getName))
-                .map((DestinationSpec spec) -> mapToInfo(withState, spec, allTasks, allServiceCallTypes))
+                .map((DestinationSpec spec) -> mapToInfo(withState, spec, allTasks))
                 .skip(queryParameters.getStart().orElse(0))
                 .limit(queryParameters.getLimit().map(i -> i++).orElse(Integer.MAX_VALUE))
                 .collect(Collectors.toList());
@@ -96,10 +95,10 @@ public class DestinationSpecResource {
         return PagedInfoList.fromPagedList("destinationSpecs", destinationSpecInfos, queryParameters);
     }
 
-    private DestinationSpecInfo mapToInfo(@QueryParam("state") boolean withState, DestinationSpec destinationSpec, List<RecurrentTask> tasks, List<String> serviceCallTypes) {
+    private DestinationSpecInfo mapToInfo(@QueryParam("state") boolean withState, DestinationSpec destinationSpec, List<RecurrentTask> tasks) {
         return withState
-                ? destinationSpecInfoFactory.withAppServers(destinationSpec, tasks, serviceCallTypes)
-                : destinationSpecInfoFactory.from(destinationSpec, tasks, serviceCallTypes);
+                ? destinationSpecInfoFactory.withAppServers(destinationSpec, tasks)
+                : destinationSpecInfoFactory.from(destinationSpec, tasks);
     }
 
     @GET
@@ -109,9 +108,8 @@ public class DestinationSpecResource {
     public DestinationSpecInfo getAppServer(@PathParam("destionationSpecName") String destinationSpecName, @QueryParam("state") boolean withState) {
         DestinationSpec destinationSpec = fetchDestinationSpec(destinationSpecName);
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
-        List<String> allServiceCallTypes = getServiceCallTypes();
 
-        DestinationSpecInfo destinationSpecInfo = mapToInfo(withState, destinationSpec, allTasks, allServiceCallTypes);
+        DestinationSpecInfo destinationSpecInfo = mapToInfo(withState, destinationSpec, allTasks);
         return destinationSpecInfo;
     }
 
@@ -142,13 +140,12 @@ public class DestinationSpecResource {
     private Response doPurgeErrors(String destinationSpecName) {
         DestinationSpec destinationSpec = fetchDestinationSpec(destinationSpecName);
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
-        List<String> allServiceCallTypes = getServiceCallTypes();
 
         try (TransactionContext context = transactionService.getContext()) {
             destinationSpec.purgeErrors();
             context.commit();
         }
-        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec, allTasks, allServiceCallTypes)).build();
+        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec, allTasks)).build();
     }
 
     private Response doUpdateDestinationSpec(String destinationSpecName, DestinationSpecInfo info) {
@@ -160,13 +157,8 @@ public class DestinationSpecResource {
         }
 
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
-        List<String> allServiceCallTypes = getServiceCallTypes();
 
-        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec, allTasks, allServiceCallTypes)).build();
-    }
-
-    private List<String> getServiceCallTypes() {
-        return serviceCallService.getServiceCallTypes().find().stream().map(sc -> sc.getDestinationName()).collect(Collectors.toList());
+        return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec, allTasks)).build();
     }
 
     @POST
@@ -189,12 +181,18 @@ public class DestinationSpecResource {
         }
 
         SubscriberSpec defaultSubscriber = getSubscriber4(bean.getQueueTypeName());
-        QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QUEUE_TABLE_NAME + bean.getName(), "RAW", false);
-        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(bean.getName(), DEFAULT_RETRY_DELAY_IN_SECONDS, DEFAULT_RETRIES, IS_DEFAULT, bean.getQueueTypeName(), ENABLE_EXTRA_QUEUE_CREATION);
+        boolean prioritized = isPrioritized(bean.getQueueTypeName());
+        QueueTableSpec queueTableSpec = messageService.createQueueTableSpec(QUEUE_TABLE_NAME + bean.getName(), "RAW", false, prioritized);
+        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(bean.getName(), DEFAULT_RETRY_DELAY_IN_SECONDS, DEFAULT_RETRIES, IS_DEFAULT, bean.getQueueTypeName(), ENABLE_EXTRA_QUEUE_CREATION, prioritized);
         destinationSpec.activate();
         destinationSpec.subscribe(SubscriberName.from(bean.getName()), defaultSubscriber.getNlsComponent(), defaultSubscriber.getNlsLayer(), defaultSubscriber.getFilterCondition());
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    private boolean isPrioritized(String queueTypeName) {
+        return messageService.findDestinationSpecs().stream()
+                .filter(destinationSpec -> destinationSpec.getQueueTypeName().equals(queueTypeName)).anyMatch(destinationSpec -> destinationSpec.isPrioritized());
     }
 
     private SubscriberSpec getSubscriber4(String queueTypeName) {
@@ -230,7 +228,7 @@ public class DestinationSpecResource {
                     Response.Status.FORBIDDEN);
         }
 
-        if (!info.serviceCallTypes.isEmpty()) {
+        if (getServiceCallTypes().contains(destinationSpecName)) {
             throw new WebApplicationException(thesaurus.getString(MessageSeeds.Keys.SERVICE_CALL_TYPES_NOT_EMPTY, MessageSeeds.SERVICE_CALL_TYPES_NOT_EMPTY.getDefaultFormat()),
                     Response.Status.FORBIDDEN);
         }
@@ -247,6 +245,10 @@ public class DestinationSpecResource {
         queueTableSpec.delete();
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    private List<String> getServiceCallTypes() {
+        return serviceCallService.getServiceCallTypes().find().stream().map(sc -> sc.getDestinationName()).distinct().collect(Collectors.toList());
     }
 
     private Optional<SubscriberExecutionSpec> getSubscriberExecutionSpec4(String destinationSpecName) {

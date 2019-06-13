@@ -34,7 +34,7 @@ public class MessagingApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     private TaskService taskService;
     @Mock
-    private ServiceCallService serviceCallService;
+    protected ServiceCallService serviceCallService;
 
     @Override
     protected Application getApplication() {

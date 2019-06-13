@@ -21,6 +21,5 @@ public class DestinationSpecInfo {
     public boolean isDefault;
     public String queueTypeName;
     public List<TaskMinInfo> tasks;
-    public List<String> serviceCallTypes;
 
 }

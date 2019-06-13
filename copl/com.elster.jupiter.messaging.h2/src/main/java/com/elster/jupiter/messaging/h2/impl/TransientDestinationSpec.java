@@ -80,6 +80,11 @@ class TransientDestinationSpec implements DestinationSpec {
     }
 
     @Override
+    public boolean isPrioritized() {
+        return false;
+    }
+
+    @Override
     public boolean isActive() {
         return active;
     }

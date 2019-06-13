@@ -69,6 +69,7 @@ class DestinationSpecImpl implements DestinationSpec {
     private boolean isDefault;
     private String queueTypeName;
     private boolean isExtraQueueCreationEnabled;
+    private boolean isPrioritized;
 
     @SuppressWarnings("unused")
     private long version;
@@ -97,7 +98,11 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
-        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay, retries, buffered, isDefault, queueTypeName, isExtraQueueCreationEnabled);
+        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay, retries, buffered, isDefault, queueTypeName, isExtraQueueCreationEnabled, false);
+    }
+
+    static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled, boolean isPrioritized) {
+        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay, retries, buffered, isDefault, queueTypeName, isExtraQueueCreationEnabled, isPrioritized);
     }
 
     @Override
@@ -289,7 +294,7 @@ class DestinationSpecImpl implements DestinationSpec {
                 '}';
     }
 
-    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
+    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled, boolean isPrioritized) {
         this.name = name;
         this.queueTableSpec = queueTableSpec;
         this.queueTableName = queueTableSpec.getName();
@@ -299,6 +304,7 @@ class DestinationSpecImpl implements DestinationSpec {
         this.isDefault = isDefault;
         this.queueTypeName = queueTypeName;
         this.isExtraQueueCreationEnabled = isExtraQueueCreationEnabled;
+        this.isPrioritized = isPrioritized;
         this.fromDB = false;
         return this;
     }
@@ -487,4 +493,8 @@ class DestinationSpecImpl implements DestinationSpec {
         return isExtraQueueCreationEnabled;
     }
 
+    @Override
+    public boolean isPrioritized() {
+        return isPrioritized;
+    }
 }

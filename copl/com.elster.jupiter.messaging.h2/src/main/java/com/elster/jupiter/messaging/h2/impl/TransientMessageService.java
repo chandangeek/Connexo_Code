@@ -47,7 +47,7 @@ public class TransientMessageService implements MessageService {
     }
 
     @Override
-    public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
+    public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
         if (queueTableSpecs.containsKey(name)) {
             throw new IllegalArgumentException();
         }

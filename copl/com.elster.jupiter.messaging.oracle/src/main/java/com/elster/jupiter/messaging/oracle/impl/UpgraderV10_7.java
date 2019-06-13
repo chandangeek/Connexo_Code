@@ -16,6 +16,7 @@ import java.sql.Statement;
 
 class UpgraderV10_7 implements Upgrader {
 
+    private final String OLD_SERVICE_CALLS_NAME = "SerivceCalls";
     private final DataModel dataModel;
 
     @Inject
@@ -30,7 +31,8 @@ class UpgraderV10_7 implements Upgrader {
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
                 ImmutableList.of(
-                        "UPDATE MSG_DESTINATIONSPEC SET IS_EXTRA_QUEUE_ENABLED = 'Y' WHERE NAME = 'SerivceCalls'"
+                        "UPDATE MSG_DESTINATIONSPEC SET IS_EXTRA_QUEUE_ENABLED = 'Y' WHERE NAME = '" + OLD_SERVICE_CALLS_NAME + "'",
+			"UPDATE MSG_DESTINATIONSPEC SET PRIORITIZED = 'Y' WHERE QUEUE_TYPE_NAME = '" + OLD_SERVICE_CALLS_NAME + "'"
                 ).forEach(command -> execute(statement, command));
             }
         });

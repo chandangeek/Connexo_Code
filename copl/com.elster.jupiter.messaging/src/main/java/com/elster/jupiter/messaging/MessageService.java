@@ -19,14 +19,19 @@ public interface MessageService {
     String SUBSCRIBER_NAME = "subscriber";
     String COMPONENTNAME = "MSG";
 
+    default QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
+    	return createQueueTableSpec(name, payloadType, multiConsumer, false);
+    }
+
     /**
      * Creates a new persisted and activated QueueTableSpec
      * @param name
      * @param payloadType
      * @param multiConsumer
+     * @param isPrioritized
      * @return
      */
-    QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer);
+    QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer, boolean isPrioritized);
 
     /**
      * @param name
