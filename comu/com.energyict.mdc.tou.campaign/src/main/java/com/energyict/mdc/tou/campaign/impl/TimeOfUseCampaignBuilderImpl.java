@@ -28,7 +28,7 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     public Instant activationDate;
     public String updateType;
     public Long validationTimeout;
-    public Boolean withUniqueCalendarName;
+    public boolean withUniqueCalendarName;
     public Long sendCalendarComTaskId;
     public Long validationComTaskId;
     public Long sendCalendarСonnectionStrategyId;

@@ -134,7 +134,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .conversion(ColumnConversion.NUMBER2LONG)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName())
                 .add();
-        /*table.column(TimeOfUseCampaignDomainExtension.FieldNames.SEND_CALENDAR_СONNECTIONSTRATEGY_ID.databaseName())
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.SEND_CALENDAR_СONNECTIONSTRATEGY_ID.databaseName())
                 .number()
                 .conversion(ColumnConversion.NUMBER2LONG)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.SEND_CALENDAR_СONNECTIONSTRATEGY_ID.javaName())
@@ -143,7 +143,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .number()
                 .conversion(ColumnConversion.NUMBER2LONG)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_СONNECTIONSTRATEGY_ID.javaName())
-                .add();*/
+                .add();
         table.foreignKey(FK_NAME + "_CAL")
                 .on(calendar)
                 .references(Calendar.class)

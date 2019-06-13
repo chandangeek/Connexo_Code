@@ -47,8 +47,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "with_unique_calendar_name"),
         VALIDATION_COMTASK_ID("validationComTaskId", "validation_comtask_id"),
         SEND_CALENDAR_COMTASK_ID("sendCalendarComTaskId", "send_calendar_comtask_id"),
-        VALIDATION_СONNECTIONSTRATEGY_ID("validationСonnectionStrategyId", "validation_connectionstrategy_id"),
-        SEND_CALENDAR_СONNECTIONSTRATEGY_ID("sendCalendarСonnectionStrategyId", "send_calendar_connectionstrategy_id"),
+        VALIDATION_СONNECTIONSTRATEGY_ID("validationСonnectionStrategyId", "validation_constrategy_id"),
+        SEND_CALENDAR_СONNECTIONSTRATEGY_ID("sendCalendarСonnectionStrategyId", "send_calendar_constrategy_id"),
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -201,12 +201,12 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
-    public long getSendCalendarСonnectionStrategyId() {
+    public Long getSendCalendarСonnectionStrategyId() {
         return sendCalendarСonnectionStrategyId;
     }
 
     @Override
-    public long getValidationСonnectionStrategyId() {
+    public Long getValidationСonnectionStrategyId() {
         return validationСonnectionStrategyId;
     }
 
@@ -221,12 +221,12 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
-    public long getSendCalendarComTaskId() {
+    public Long getSendCalendarComTaskId() {
         return sendCalendarComTaskId;
     }
 
     @Override
-    public long getValidationComTaskId() {
+    public Long getValidationComTaskId() {
         return validationComTaskId;
     }
 

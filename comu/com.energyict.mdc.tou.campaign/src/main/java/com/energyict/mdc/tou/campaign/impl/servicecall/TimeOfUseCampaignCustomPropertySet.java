@@ -152,7 +152,7 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
                         .longSpec()
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName(), TranslationKeys.VALIDATION_COMTASK_ID)
                         .fromThesaurus(thesaurus)
-                        .finish()/*,
+                        .finish(),
                 propertySpecService
                         .longSpec()
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.SEND_CALENDAR_СONNECTIONSTRATEGY_ID.javaName(), TranslationKeys.SEND_CALENDAR_СONNECTIONSTRATEGY_ID)
@@ -162,7 +162,7 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
                         .longSpec()
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_СONNECTIONSTRATEGY_ID.javaName(), TranslationKeys.VALIDATION_СONNECTIONSTRATEGY_ID)
                         .fromThesaurus(thesaurus)
-                        .finish()*/
+                        .finish()
         );
     }
 }

@@ -66,10 +66,10 @@ public class TimeOfUseCampaignInfoFactory {
                 .withValidationTimeout(timeOfUseCampaignInfo.validationTimeout)
                 .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint())
                 .withUniqueCalendarName(timeOfUseCampaignInfo.withUniqueCalendarName)
-                .withSendCalendarComTaskId((long)timeOfUseCampaignInfo.sendCalendarСomTask.id)
-                .withValidationComTaskId((long)timeOfUseCampaignInfo.validationСomTask.id)
-                .withSendCalendarСonnectionStrategyId(0)//((long)timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.id)
-                .withValidationСonnectionStrategyId(0);//((long)timeOfUseCampaignInfo.validationСonnectionStrategy.id);
+                .withSendCalendarComTaskId(Long.parseLong(timeOfUseCampaignInfo.sendCalendarСomTask.id.toString()))
+                .withValidationComTaskId(Long.parseLong(timeOfUseCampaignInfo.validationСomTask.id.toString()))
+                .withSendCalendarСonnectionStrategyId(Long.parseLong(timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.id.toString()))
+                .withValidationСonnectionStrategyId(Long.parseLong(timeOfUseCampaignInfo.validationСonnectionStrategy.id.toString()));
         return timeOfUseCampaignBuilder.create();
     }
 
@@ -88,23 +88,16 @@ public class TimeOfUseCampaignInfoFactory {
         timeOfUseCampaignInfo.id = campaign.getId();
         timeOfUseCampaignInfo.version = campaign.getVersion();
         timeOfUseCampaignInfo.withUniqueCalendarName = campaign.isWithUniqueCalendarName();
-
-        timeOfUseCampaignInfo.sendCalendarСomTask.id = campaign.getSendCalendarComTaskId();
-        timeOfUseCampaignInfo.sendCalendarСomTask.name = taskService.findComTask(campaign.getSendCalendarComTaskId()).get().getName();
-
-        timeOfUseCampaignInfo.validationСomTask.id = campaign.getValidationComTaskId();
-        timeOfUseCampaignInfo.validationСomTask.name = taskService.findComTask(campaign.getValidationComTaskId()).get().getName();
-
-        timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.id = 0;//campaign.getSendCalendarСonnectionStrategyId();
-        timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.name = "name1";/*campaign.getSendCalendarСonnectionStrategyId() == 1?
-                TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat():
-                TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();*/
-
-        timeOfUseCampaignInfo.validationСonnectionStrategy.id =0; //campaign.getValidationСonnectionStrategyId();
-        timeOfUseCampaignInfo.validationСonnectionStrategy.name = "name2";/*campaign.getValidationСonnectionStrategyId() == 1?
-                TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat():
-                TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();*/
-
+        timeOfUseCampaignInfo.sendCalendarСomTask = new IdWithNameInfo(campaign.getSendCalendarComTaskId(),taskService.findComTask(campaign.getSendCalendarComTaskId()).get().getName());
+        timeOfUseCampaignInfo.validationСomTask = new IdWithNameInfo(new Long(campaign.getValidationComTaskId()),taskService.findComTask(campaign.getValidationComTaskId()).get().getName());
+        timeOfUseCampaignInfo.sendCalendarСonnectionStrategy = new IdWithNameInfo(campaign.getSendCalendarСonnectionStrategyId(),
+                campaign.getSendCalendarСonnectionStrategyId() == 1?
+                        TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat():
+                        TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
+        timeOfUseCampaignInfo.validationСonnectionStrategy = new IdWithNameInfo(campaign.getValidationСonnectionStrategyId(),
+                campaign.getValidationСonnectionStrategyId() == 1?
+                        TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat():
+                        TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
         return timeOfUseCampaignInfo;
     }
 
