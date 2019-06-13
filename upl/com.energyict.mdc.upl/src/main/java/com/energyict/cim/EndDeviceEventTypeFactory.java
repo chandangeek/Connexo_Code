@@ -7,8 +7,14 @@ package com.energyict.cim;
 /**
  * Factory containing static methods for the easy creation of different {@link EndDeviceEventType}s without knowing the exact code.
  *
- * @author sva
- * @since 4/06/13 - 15:42
+ * Codes for EndDeviceEventTypes are categorized in a manner that divides the enumerated code into 4 parts:
+ * EndDeviceEventType:= <EndDeviceType>.<EndDeviceDomain>.<EndDeviceSubdomain>.<EndDeviceEventOrAction>
+ *          where
+                    <EndDeviceType> = a numeric value from the EndDeviceType enumeration (see EndDeviceType section)
+                    <EndDeviceDomain> = a numeric value from the EndDeviceDomain enumeration (see  EndDeviceDomain section)
+                    <EndDeviceSubdomain> = a numeric value from the EndDeviceSubdomain enumeration (see EndDeviceSubdomain section)
+                    <EndDeviceEventOrAction> = a numeric value from the EndDeviceEventOrAction enumeration (see EndDeviceEventOrAction section)
+ *
  */
 public class EndDeviceEventTypeFactory {
 
@@ -790,5 +796,29 @@ public class EndDeviceEventTypeFactory {
 
     public static EndDeviceEventType getMeterClockInvalidEventType() {
         return new EndDeviceEventType("3.36.117.35");
+    }
+
+    public static EndDeviceEventType getMetrologicalMaintenanceEventType() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE,EndDeviceDomain.METROLOGY,EndDeviceSubdomain.MAINTMODE,EndDeviceEventOrAction.ACTIVATED);
+    }
+
+    public static EndDeviceEventType getTechnicalMaintenanceEventType() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE,EndDeviceDomain.FIRMWARE,EndDeviceSubdomain.MAINTMODE,EndDeviceEventOrAction.ACTIVATED);
+    }
+
+    public static EndDeviceEventType getRetrieveEmeterReadingsElectricityEventType() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER,EndDeviceDomain.COMMUNICATION,EndDeviceSubdomain.READINGS,EndDeviceEventOrAction.READ);
+    }
+
+    public static EndDeviceEventType getRetrieveEmeterReadingsGasEventType() {
+        return new EndDeviceEventType(EndDeviceType.GASMETER,EndDeviceDomain.COMMUNICATION,EndDeviceSubdomain.READINGS,EndDeviceEventOrAction.READ);
+    }
+
+    public static EndDeviceEventType getRetrieveEmeterIntervalElectricityEventType() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER,EndDeviceDomain.COMMUNICATION,EndDeviceSubdomain.INTERVAL ,EndDeviceEventOrAction.READ);
+    }
+
+    public static EndDeviceEventType getRetrieveEmeterIntervalGasEventType() {
+        return new EndDeviceEventType(EndDeviceType.GASMETER,EndDeviceDomain.COMMUNICATION,EndDeviceSubdomain.INTERVAL ,EndDeviceEventOrAction.READ);
     }
 }
