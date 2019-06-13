@@ -76,7 +76,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
             url: url,
             method: 'PUT',
             success: function (response) {
-                me.doUpdateRecord(record, response.responseText);
+                if (response && response.responseText) me.doUpdateRecord(record, response.responseText);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.cancelled', 'FWC', 'Firmware upload for device cancelled'));
             }
         });
@@ -89,7 +89,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
             url: url,
             method: 'PUT',
             success: function (response) {
-                me.doUpdateRecord(record, response.responseText);
+                if (response && response.responseText) me.doUpdateRecord(record, response.responseText);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.retry', 'FWC', 'Firmware upload for device rescheduled'));
             }
         });
