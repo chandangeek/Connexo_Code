@@ -26,6 +26,9 @@ public class ESMR50Messaging extends Dsmr40Messaging {
         // global reset not supported anymore in ESMR
         supportedMessages.remove(this.get(DeviceActionMessage.RESTORE_FACTORY_SETTINGS));
         supportedMessages.remove(this.get(DeviceActionMessage.GLOBAL_METER_RESET));
+        supportedMessages.remove(this.get(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS));
+        supportedMessages.remove(this.get(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS));
+        supportedMessages.remove(this.get(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION));
         //TODO check the list of removed messages in com/energyict/protocolimplv2/messages/convertor/Dsmr50MessageConverter.java:82
 
         //LTE modem setup category
