@@ -71,6 +71,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import org.xml.sax.SAXException;
@@ -158,6 +159,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         for (OfflineDeviceMessage pendingMessage : masterMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
+            getProtocol().journal("Executing message " + pendingMessage.getSpecification().getName());
             try {
                 if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
                     doDisconnect();
@@ -276,6 +278,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                 }
+                getProtocol().journal(Level.SEVERE,"Error while executing message " + pendingMessage.getSpecification().getName()+": " + e.getLocalizedMessage());
             }
             result.addCollectedMessage(collectedMessage);
         }
@@ -305,11 +308,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void resetAlarmRegister() throws IOException {
-        getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.98.0.255")).setValueAttr(new Unsigned32(0));
+        getCosemObjectFactory().getData(Dsmr23RegisterFactory.ALARM_REGISTER).setValueAttr(new Unsigned32(0));
     }
 
     private void resetErrorRegister() throws IOException {
-        getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.97.0.255")).setValueAttr(new Integer64Unsigned(-1L));
+        getCosemObjectFactory().getData(Dsmr23RegisterFactory.ERROR_REGISTER).setValueAttr(new Unsigned32(0));
     }
 
     private void setTime(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -624,10 +627,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void activateWakeUp() throws IOException {   //Enable the wake up via SMS
+        getProtocol().journal("Activating wake-up via SMS");
         getCosemObjectFactory().getAutoConnect().writeMode(4);
     }
 
     protected void deactivateWakeUp() throws IOException {   //Disable the wake up via SMS
+        getProtocol().journal("Disabling wake-up via SMS");
         getCosemObjectFactory().getAutoConnect().writeMode(1);
     }
 

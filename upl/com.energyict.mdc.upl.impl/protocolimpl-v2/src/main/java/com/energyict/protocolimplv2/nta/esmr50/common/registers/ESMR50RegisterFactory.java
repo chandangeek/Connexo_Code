@@ -12,7 +12,6 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.mdc.upl.ProtocolException;
@@ -21,7 +20,6 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
@@ -96,9 +94,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     protected static final ObisCode VOLTAGE_QUALITY_EVENT_LOG = ObisCode.fromString("0.0.99.98.5.255");
     protected static final ObisCode COMMUNICATION_SESSION_EVENT_LOG = ObisCode.fromString("0.0.99.98.4.255");
     protected static final ObisCode BILLING_PERIODS = ObisCode.fromString("0.0.96.7.19.255");
-    protected static final ObisCode ERROR_OBJECT = ObisCode.fromString("0.0.97.97.0.255");
-    public static final ObisCode ALARM_OBJECT = ObisCode.fromString("0.0.97.98.0.255");
-    public static final ObisCode ALARM_FILTER = ObisCode.fromString("0.0.97.98.10.255");
+
     protected static final ObisCode DEVICE_ID_1 = ObisCode.fromString("0.0.96.1.0.255");
     protected static final ObisCode DEVICE_ID_2 = ObisCode.fromString("0.0.96.1.1.255");
     protected static final ObisCode DEVICE_ID_5 = ObisCode.fromString("0.0.96.1.4.255");
@@ -586,10 +582,10 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("COMMUNICATION_SESSION_EVENT_LOG value: " + Long.toString(abstractDataType.longValue())));
             } else if (rObisCode.equalsIgnoreBChannel(BILLING_PERIODS)) {
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("BILLING_PERIODS value: " + Long.toString(abstractDataType.longValue())));
-            } else if (rObisCode.equalsIgnoreBChannel(ERROR_OBJECT)) { //TODO initially it was getUnsigned64
-                return new RegisterValue(register, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ERROR_OBJECT value: " + abstractDataType.getInteger64()));
-            } else if (rObisCode.equalsIgnoreBChannel(ALARM_OBJECT)) { //TODO initially it was getUnsigned64
-                return new RegisterValue(register, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_OBJECT value: " + abstractDataType.getInteger64()));
+            } else if (rObisCode.equalsIgnoreBChannel(ERROR_REGISTER)) { //TODO initially it was getUnsigned64
+                return new RegisterValue(register, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ERROR_REGISTER value: " + abstractDataType.getInteger64()));
+            } else if (rObisCode.equalsIgnoreBChannel(ALARM_REGISTER)) { //TODO initially it was getUnsigned64
+                return new RegisterValue(register, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_REGISTER value: " + abstractDataType.getInteger64()));
             } else if (rObisCode.equalsIgnoreBChannel(ALARM_FILTER)) { //TODO initially it was getUnsigned64
                 return new RegisterValue(register, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_FILTER value: " + abstractDataType.getInteger64()));
             } else if (rObisCode.equals(MODEM_FIRMWARE_SIGNATURE_OBISCODE)) {

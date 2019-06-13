@@ -25,6 +25,7 @@ Ext.define('Imt.controller.Main', {
         'Imt.metrologyconfiguration.controller.View',
         'Imt.usagepointsetup.controller.MetrologyConfig',
         'Cfg.privileges.Validation',
+        'Cfg.privileges.Audit',
         'Imt.processes.view.MetrologyConfigurationOutputs',
         'Imt.processes.view.LinkedMeterActivations',
         'Imt.processes.view.AvailableMeters',
@@ -96,7 +97,8 @@ Ext.define('Imt.controller.Main', {
         'Isu.controller.Overview',
         'Isu.controller.BulkChangeIssues',
         'Isu.controller.SetPriority',
-        'Imt.datavalidation.controller.Main'
+        'Imt.datavalidation.controller.Main',
+        'Cfg.audit.controller.Audit'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
@@ -124,7 +126,6 @@ Ext.define('Imt.controller.Main', {
         var me = this;
 
         me.getController('Apr.controller.CustomTask');
-        //me.getController('Imt.issue.controller.Main');
         me.getController('Imt.controller.History');
         me.getController('Imt.controller.Dashboard');
         me.getController('Cfg.controller.Validation');
@@ -306,9 +307,8 @@ Ext.define('Imt.controller.Main', {
             });
             Uni.store.PortalItems.add(taskManagement);
         }
-
         me.initIssues();
-
+    	me.initAudit();
     },
 
     initIssues: function () {
@@ -391,5 +391,25 @@ Ext.define('Imt.controller.Main', {
                 me.getController('Isu.controller.BulkChangeIssues').dataValidationActivated = true;
             }
         });
+    },
+
+    initAudit: function(){
+        if (Cfg.privileges.Audit.canViewAuditLog()) {
+
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.auditTrail', 'IMT', 'Audit trail'),
+                    portal: 'workspace',
+                    route: 'audit',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('title.auditTrail', 'IMT', 'Audit trail'),
+                            itemId: 'workspace-audit-trail-link',
+                            href: '#/workspace/audit'
+                        }
+                    ]
+                })
+            );
+        }
     }
 });

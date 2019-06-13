@@ -7,6 +7,8 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.YesNoAnswer;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Created with IntelliJ IDEA.
  * User: igh
@@ -14,6 +16,7 @@ import com.elster.jupiter.util.YesNoAnswer;
  * Time: 9:12
  * To change this template use File | Settings | File Templates.
  */
+@ProviderType
 public interface UsagePointDetail extends Effectivity {
 
     YesNoAnswer isCollarInstalled();
@@ -25,4 +28,6 @@ public interface UsagePointDetail extends Effectivity {
     UsagePoint getUsagePoint();
 
     void update();
+
+    long getVersion();
 }

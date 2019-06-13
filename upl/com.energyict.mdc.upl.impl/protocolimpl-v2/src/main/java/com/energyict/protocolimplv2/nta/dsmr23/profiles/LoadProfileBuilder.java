@@ -246,16 +246,18 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     List<CapturedRegisterObject> coRegisters = new ArrayList<>();
                     for (CapturedObject co : capturedObjects) {
                         String deviceSerialNumber = this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode());
-//                        if ((deviceSerialNumber != null) && (!deviceSerialNumber.equals(""))) {
-                        DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
-                        CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
+                        if ((deviceSerialNumber != null) && (!deviceSerialNumber.equals(""))) {
+                            DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
+                            CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
 
-                        // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
-                        if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
-                            channelRegisters.add(reg);
+                            // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
+                            if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
+                                channelRegisters.add(reg);
+                            }
+                            coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
+                        } else {
+                            getMeterProtocol().journal(Level.WARNING, "Unexpected channel found in device which could not be mapped to the master device or to any of the slave devices: "+co.getLogicalName());
                         }
-                        coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
-//                        }
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);
                 } //TODO should we log this if we didn't get it???

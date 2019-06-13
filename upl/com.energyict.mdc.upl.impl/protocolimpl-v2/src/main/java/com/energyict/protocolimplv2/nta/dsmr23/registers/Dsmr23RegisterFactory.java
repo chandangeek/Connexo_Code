@@ -57,6 +57,11 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     public static final ObisCode ISKRA_MBUS_ENCRYPTION_STATUS = ObisCode.fromString("0.0.97.98.1.255");
     public static final ObisCode GSM_SIGNAL_STRENGTH = ObisCode.fromString("0.0.96.12.5.255");
     public static final ObisCode MbusClientObisCode = ObisCode.fromString("0.x.24.1.0.255");
+
+    public static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");
+    public static final ObisCode ALARM_REGISTER = ObisCode.fromString("0.0.97.98.0.255");
+    public static final ObisCode ALARM_FILTER = ObisCode.fromString("0.0.97.98.10.255");
+
     // Mbus Registers
     public static final ObisCode MbusEncryptionStatus = ObisCode.fromString("0.x.24.50.0.255");
     public static final ObisCode MbusDisconnectMode = ObisCode.fromString("0.x.24.4.128.255");

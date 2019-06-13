@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
         'Mdc.view.setup.devicehistory.IssueAlarmFilter',
         'Mdc.view.setup.devicehistory.IssueAlarmGrid',
         'Mdc.view.setup.devicehistory.IssueAlarmPreview',
-        'Mdc.audit.view.AuditSetup'
+        'Cfg.audit.view.AuditSetup'
     ],
 
     router: null,
@@ -129,7 +129,7 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
             ]
         };
 
-        if (Mdc.privileges.Audit.canViewAuditLog()) {
+        if (Cfg.privileges.Audit.canViewAuditLog()) {
             me.content.items[0].items.push(me.getAuditTrail());
         }
 
