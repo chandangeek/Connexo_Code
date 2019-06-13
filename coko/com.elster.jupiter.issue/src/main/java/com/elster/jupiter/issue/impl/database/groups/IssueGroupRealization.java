@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.impl.database.groups;
@@ -97,6 +97,17 @@ public enum IssueGroupRealization {
         @Override
         IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
             return new GroupByPriorityImpl(dataModel, thesaurus);
+        }
+    },
+    LOCATION {
+        @Override
+        public String getKey() {
+            return "location";
+        }
+
+        @Override
+        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new GroupByLocationImpl(dataModel, thesaurus);
         }
     };
 

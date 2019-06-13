@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.impl;
@@ -29,6 +29,7 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     private String groupBy;
     private List<Long> userAssignees;
     private String meterName;
+    private List<Long> meters; // for location filtering
     private List<Long> workGroupAssignees;
     private Set<String> issueTypes;
     private List<DueDateRange> dueDates;
@@ -37,6 +38,7 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
         this.statuses = new HashSet<>();
         this.clearedStatuses = new HashSet<>();
         this.userAssignees = new ArrayList<>();
+        this.meters = new ArrayList<>();
         this.workGroupAssignees = new ArrayList<>();
         this.issueTypes = new HashSet<>();
         this.dueDates = new ArrayList<>();
@@ -171,6 +173,12 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     }
 
     @Override
+    public IssueGroupFilter withMeter(long id) {
+        this.meters.add(id);
+        return this;
+    }
+
+    @Override
     public IssueGroupFilter withId(String id) {
         this.id = id;
         return this;
@@ -195,6 +203,11 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     @Override
     public List<Long> getUserAssignees() {
         return this.userAssignees;
+    }
+
+    @Override
+    public List<Long> getMeters() {
+        return this.meters;
     }
 
     @Override

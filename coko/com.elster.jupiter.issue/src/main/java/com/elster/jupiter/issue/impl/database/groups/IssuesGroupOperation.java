@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.impl.database.groups;
@@ -249,6 +249,22 @@ public abstract class IssuesGroupOperation {
                 builder.append(" OR ");
             }
             builder.append("isu." + DatabaseConst.ISSUE_COLUMN_REASON_ID).append(" = '").append(reason).append("'");
+        }
+        if (builder.length() != 0) {
+            builder.insert(0, " AND (").append(") ");
+            return builder.toString();
+        }
+        return "";
+    }
+
+    // used for location filtering
+    String getMetersCondition() {
+        StringBuilder builder = new StringBuilder();
+        for (Long id : getFilter().getMeters()) {
+            if (builder.length() != 0) {
+                builder.append(" OR ");
+            }
+            builder.append("isu." + DatabaseConst.ISSUE_COLUMN_DEVICE_ID).append(" = '").append(id).append("'");
         }
         if (builder.length() != 0) {
             builder.insert(0, " AND (").append(") ");

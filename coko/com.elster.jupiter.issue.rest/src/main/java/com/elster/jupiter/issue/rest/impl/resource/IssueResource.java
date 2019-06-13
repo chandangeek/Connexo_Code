@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.rest.impl.resource;
@@ -44,6 +44,8 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -75,10 +77,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -96,15 +95,18 @@ public class IssueResource extends BaseResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final IssueInfoFactoryService issueInfoFactoryService;
     private final TransactionService transactionService;
+    private final LocationService locationService;
     private final Clock clock;
 
     @Inject
-    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService, TransactionService transactionService, Clock clock) {
+    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService,
+                         TransactionService transactionService, LocationService locationService, Clock clock) {
         this.issueResourceHelper = issueResourceHelper;
         this.issueInfoFactory = issueInfoFactory;
         this.conflictFactory = conflictFactory;
         this.issueInfoFactoryService = issueInfoFactoryService;
         this.transactionService = transactionService;
+        this.locationService = locationService;
         this.clock = clock;
     }
 
@@ -372,11 +374,33 @@ public class IssueResource extends BaseResource {
                 .stream()
                 .filter(el -> el != null)
                 .forEach(groupFilter::withWorkGroupAssignee);
+        filter.getLongList(IssueRestModuleConst.LOCATION)
+                .stream()
+                .filter(el -> el != null)
+                .forEach(lId -> locationService.findLocationById(lId).ifPresent(loc -> getMeteringService().findMetersByLocation(loc).forEach(m -> groupFilter.withMeter(m.getId()))));
         issueResourceHelper.getDueDates(filter)
                 .stream()
                 .forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
         List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
         List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
+
+        if(filter.getString(IssueRestModuleConst.FIELD).equals(IssueRestModuleConst.LOCATION)) {
+            // replace location id with location name for group name
+            List<IssueGroupInfo> replacedInfos = new LinkedList<>();
+            for (IssueGroupInfo info: infos) {
+                String groupName = info.description;
+                if(isNumericValue(groupName)) {
+                    Long locationId = Long.valueOf(groupName);
+                    Optional<Location> location = locationService.findLocationById(locationId); // TODO: rewrite
+                    if(location.isPresent()) {
+                        groupName = location.get().toString();
+                    }
+                }
+                replacedInfos.add(new IssueGroupInfo(info.id, groupName, info.number));
+            }
+            infos = replacedInfos;
+        }
+
         return PagedInfoList.fromPagedList("issueGroups", infos, queryParameters);
     }
 

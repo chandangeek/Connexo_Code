@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Isu.view.issues.GroupGrid', {
@@ -11,8 +11,8 @@ Ext.define('Isu.view.issues.GroupGrid', {
     alias: 'widget.issues-group-grid',
     columns: [
         {
-            itemId: 'reason',
-            text: Uni.I18n.translate('general.reason', 'ISU', 'Reason'),
+//            itemId: 'reason',
+            itemId: 'description',
             dataIndex: 'description',
             flex: 1
         },
@@ -32,13 +32,20 @@ Ext.define('Isu.view.issues.GroupGrid', {
             empty = '',
             itemsPerPage = '';
 
-
         switch(me.groupingType){
             case 'reason':
                 display = Uni.I18n.translate('issues.grouping.reason.displayMsg', 'ISU', '{0} - {1} of {2} reasons');
                 displayMore = Uni.I18n.translate('issues.groupingreason.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} reasons');
                 empty = Uni.I18n.translate('issues.grouping.reason.emptyMsg', 'ISU', '0 reasons');
                 itemsPerPage = Uni.I18n.translate('issues.grouping.reason.reasonsPerPageMsg', 'ISU', 'Reasons per page');
+                me.columns[0].text = Uni.I18n.translate('general.reason', 'ISU', 'Reason');
+                break;
+            case 'location':
+                display = Uni.I18n.translate('issues.grouping.location.displayMsg', 'ISU', '{0} - {1} of {2} locations');
+                displayMore = Uni.I18n.translate('issues.groupinglocation.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} locations');
+                empty = Uni.I18n.translate('issues.grouping.location.emptyMsg', 'ISU', '0 locations');
+                itemsPerPage = Uni.I18n.translate('issues.grouping.location.locationsPerPageMsg', 'ISU', 'Locations per page');
+                me.columns[0].text = Uni.I18n.translate('general.location', 'ISU', 'Location');
                 break;
         }
 
@@ -71,7 +78,9 @@ Ext.define('Isu.view.issues.GroupGrid', {
             display = '',
             displayMore = '',
             empty = '',
-            itemsPerPage = '';
+            itemsPerPage = '',
+            descriptionColumn = me.down('#description');
+//            descriptionColumn = me.down('#reason');
 
         me.groupingType = groupingType;
 
@@ -80,7 +89,15 @@ Ext.define('Isu.view.issues.GroupGrid', {
                 display = Uni.I18n.translate('issues.grouping.reason.displayMsg', 'ISU', '{0} - {1} of {2} reasons');
                 displayMore = Uni.I18n.translate('issues.groupingreason.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} reasons');
                 empty = Uni.I18n.translate('issues.grouping.reason.emptyMsg', 'ISU', '0 reasons');
-                itemsPerPage =  Uni.I18n.translate('issues.grouping.reason.reasonsPerPageMsg', 'ISU', 'Reasons per page');
+                itemsPerPage = Uni.I18n.translate('issues.grouping.reason.reasonsPerPageMsg', 'ISU', 'Reasons per page');
+                descriptionColumn.setText(Uni.I18n.translate('general.reason', 'ISU', 'Reason'));
+                break;
+            case 'location':
+                display = Uni.I18n.translate('issues.grouping.location.displayMsg', 'ISU', '{0} - {1} of {2} locations');
+                displayMore = Uni.I18n.translate('issues.groupinglocation.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} locations');
+                empty = Uni.I18n.translate('issues.grouping.location.emptyMsg', 'ISU', '0 locations');
+                itemsPerPage = Uni.I18n.translate('issues.grouping.location.locationsPerPageMsg', 'ISU', 'Locations per page');
+                descriptionColumn.setText(Uni.I18n.translate('general.location', 'ISU', 'Location'));
                 break;
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.impl.service;
@@ -55,6 +55,8 @@ import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -798,6 +800,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
         //filter by device
         if (!filter.getDevices().isEmpty()) {
+            condition = condition.and(where("device").in(filter.getDevices()));
+        }
+        //filter by location
+        if (!filter.getLocations().isEmpty()) {
+            filter.getLocations().forEach(loc -> meteringService.findMetersByLocation(loc).forEach(filter::addDevice));
             condition = condition.and(where("device").in(filter.getDevices()));
         }
 

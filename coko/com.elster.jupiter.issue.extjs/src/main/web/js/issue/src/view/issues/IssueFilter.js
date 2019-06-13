@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Isu.view.issues.IssueFilter', {
@@ -15,7 +15,8 @@ Ext.define('Isu.view.issues.IssueFilter', {
         'Isu.store.IssueAssignees',
         'Isu.store.Devices',
         'Isu.store.DueDate',
-        'Isu.store.IssueReasons'
+        'Isu.store.IssueReasons',
+        'Isu.store.Locations'
     ],
 
     initComponent: function () {
@@ -137,6 +138,23 @@ Ext.define('Isu.view.issues.IssueFilter', {
                         fn: me.comboLimitNotification
                     }
                 }
+            },
+            {
+                type: 'combobox',
+                itemId: 'issue-location-filter',
+                dataIndex: 'location',
+                emptyText: Uni.I18n.translate('general.location', 'ISU', 'Location'),
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Isu.store.Locations',
+                queryMode: 'remote',
+                queryParam: 'like',
+                loadStore: false,
+                queryCaching: false,
+                minChars: 0,
+                forceSelection: false,
+                matchFieldWidth: false,
+                width: 377
             }
         ];
 

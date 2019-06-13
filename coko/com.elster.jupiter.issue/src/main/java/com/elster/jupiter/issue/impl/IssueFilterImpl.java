@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.impl;
@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
@@ -25,6 +26,7 @@ public class IssueFilterImpl implements IssueFilter {
     private List<IssueStatus> statuses = new ArrayList<>();
     private List<IssueReason> reasons = new ArrayList<>();
     private List<EndDevice> devices = new ArrayList<>();
+    private List<Location> locations = new ArrayList<>();
     private List<UsagePoint> usagePoints = new ArrayList<>();
     private List<User> assignees = new ArrayList<>();
     private List<WorkGroup> workGroupAssignees = new ArrayList<>();
@@ -61,6 +63,13 @@ public class IssueFilterImpl implements IssueFilter {
     public void addDevice(EndDevice device) {
         if (device != null) {
             this.devices.add(device);
+        }
+    }
+
+    @Override
+    public void addLocation(Location location) {
+        if (location != null) {
+            this.locations.add(location);
         }
     }
 
@@ -125,6 +134,11 @@ public class IssueFilterImpl implements IssueFilter {
     @Override
     public List<EndDevice> getDevices() {
         return this.devices;
+    }
+
+    @Override
+    public List<Location> getLocations() {
+        return this.locations;
     }
 
     @Override
