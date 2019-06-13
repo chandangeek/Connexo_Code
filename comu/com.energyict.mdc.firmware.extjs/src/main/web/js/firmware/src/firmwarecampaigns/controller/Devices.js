@@ -46,7 +46,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
                     itemId: 'firmware-campaign-devices',
                     router: router,
                     deviceType: record.get('deviceType'),
-                    campaignIsOngoing: record.get('status').id === 'ONGOING'
+                    //TODO: format should be changed
+                    campaignIsOngoing: record.get('status') === 'Ongoing'
                 }));
                 me.getSideMenu().setHeader(record.get('name'));
                 me.getApplication().fireEvent('loadFirmwareCampaign', record);

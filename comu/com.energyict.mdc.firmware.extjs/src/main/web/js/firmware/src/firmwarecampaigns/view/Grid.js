@@ -114,7 +114,8 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 width: 120,
                 privileges: Fwc.privileges.FirmwareCampaign.administrate,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    return record.get('status').id !== 'ONGOING';
+                    //TODO: format should be changed
+                    return record.get('status') !== 'Ongoing';
                 },
                 menu: {
                     xtype: 'firmware-campaigns-action-menu',
