@@ -84,6 +84,8 @@ public class ServiceCallTypeResource {
         } else {
             type.setLogLevel(null);
         }
+        type.setDestination(info.destination);
+        type.setPriority(info.priority);
         type.save();
         return Response.ok(serviceCallTypeInfoFactory.from(type)).build();
     }
@@ -104,21 +106,6 @@ public class ServiceCallTypeResource {
                 .collect(Collectors.toList());
 
         return Response.status(Response.Status.OK).entity(queues).build();
-    }
-
-    @PUT
-    @Path("/setdestinationandpriority/{id}")
-    @Transactional
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
-    public Response update(@PathParam("id") int id, ServiceCallTypeInfo info) {
-        info.id = id;
-        ServiceCallType type = fetchAndLockServiceCallType(info);
-        type.setDestination(info.destination);
-        type.setPriority(info.priority);
-        type.save();
-        return Response.ok(serviceCallTypeInfoFactory.from(type)).build();
     }
 
     @POST

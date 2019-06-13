@@ -57,6 +57,8 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
         info.version = 1L;
         info.logLevel = new IdWithDisplayValueInfo<>();
         info.logLevel.id = LogLevel.SEVERE.name();
+        info.destination = "newDestination";
+        info.priority = 20;
 
         Response response = target("/servicecalltypes/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -73,21 +75,6 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.getJsonObject().toString()).isEqualTo(queues.toString());
-    }
-
-    @Test
-    public void testChangeDestinationAndPriority() throws Exception {
-        mockServiceCallType(1L);
-
-        ServiceCallTypeInfo info = new ServiceCallTypeInfo();
-        info.id = 666L; // fake id
-        info.version = 1L;
-        info.destination = "newDestination";
-        info.priority = 20;
-
-        Response response = target("/servicecalltypes/setdestinationandpriority/1").request().put(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
     }
 
     private ServiceCallType mockServiceCallType(long id) {
