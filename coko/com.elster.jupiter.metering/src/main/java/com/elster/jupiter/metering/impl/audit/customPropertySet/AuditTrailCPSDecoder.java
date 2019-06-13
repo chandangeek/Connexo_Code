@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.data.impl.audit.deviceCustomPropertySet;
+package com.elster.jupiter.metering.impl.audit.customPropertySet;
 
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditLogChange;
@@ -10,12 +10,11 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.impl.audit.AbstractCPSAuditDecoder;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.ServerDeviceService;
-import com.energyict.mdc.device.data.impl.audit.AbstractCPSAuditDecoder;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -26,10 +25,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
+public class AuditTrailCPSDecoder extends AbstractCPSAuditDecoder {
 
-    AuditTrailDeviceCPSDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService, ServerDeviceService serverDeviceService, CustomPropertySetService customPropertySetService) {
-        super(ormService, thesaurus, meteringService, serverDeviceService, customPropertySetService);
+    AuditTrailCPSDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService, CustomPropertySetService customPropertySetService) {
+        super(ormService, thesaurus, meteringService, customPropertySetService);
     }
 
     @Override
@@ -71,7 +70,7 @@ public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
             List<AuditLogChange> auditLogChanges = new ArrayList<>();
 
             Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = getCustomPropertySet();
-            if (!registeredCustomPropertySet.isPresent() || !device.isPresent()) {
+            if (!registeredCustomPropertySet.isPresent() || !usagePoint.isPresent()) {
                 return auditLogChanges;
             }
 
@@ -102,39 +101,35 @@ public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
 
     CustomPropertySetValues getCustomPropertySetValues(RegisteredCustomPropertySet registeredCustomPropertySet, Instant at) {
         CustomPropertySetValues customPropertySetValues;
-        Device dev = device.get();
+        UsagePoint up = usagePoint.get();
+        customPropertySetService.getListOfValuesModifiedBetweenFor(registeredCustomPropertySet.getCustomPropertySet(), up, getAuditTrailReference().getModTimeStart(), getAuditTrailReference().getModTimeEnd());
         if (registeredCustomPropertySet.getCustomPropertySet().isVersioned()) {
-            customPropertySetValues = customPropertySetService.getUniqueHistoryValuesForVersion(registeredCustomPropertySet.getCustomPropertySet(), dev, at, at);
+            customPropertySetValues = customPropertySetService.getUniqueHistoryValuesForVersion(registeredCustomPropertySet.getCustomPropertySet(), up, at, at);
             if (customPropertySetValues.isEmpty()) {
-                /*customPropertySetValues = customPropertySetService.getUniqueValuesModifiedBetweenFor(registeredCustomPropertySet.getCustomPropertySet(), dev, getAuditTrailReference().getModTimeStart(), getAuditTrailReference()
+                /*customPropertySetValues = customPropertySetService.getUniqueValuesModifiedBetweenFor(registeredCustomPropertySet.getCustomPropertySet(), up, getAuditTrailReference().getModTimeStart(), getAuditTrailReference()
                         .getModTimeEnd());*/
-                customPropertySetValues = (CustomPropertySetValues)customPropertySetService.getListOfValuesModifiedBetweenFor(registeredCustomPropertySet.getCustomPropertySet(), dev,
+                customPropertySetValues = (CustomPropertySetValues)customPropertySetService.getListOfValuesModifiedBetweenFor(registeredCustomPropertySet.getCustomPropertySet(), up,
                         getAuditTrailReference().getModTimeStart(), getAuditTrailReference().getModTimeEnd()).get(0);
             }
         } else {
-            customPropertySetValues = customPropertySetService.getUniqueHistoryValuesFor(registeredCustomPropertySet.getCustomPropertySet(), dev, at);
+            customPropertySetValues = customPropertySetService.getUniqueHistoryValuesFor(registeredCustomPropertySet.getCustomPropertySet(), up, at);
             if (customPropertySetValues.isEmpty()) {
-                customPropertySetValues = customPropertySetService.getUniqueValuesFor(registeredCustomPropertySet.getCustomPropertySet(), dev);
+                customPropertySetValues = customPropertySetService.getUniqueValuesFor(registeredCustomPropertySet.getCustomPropertySet(), up);
             }
         }
         return customPropertySetValues;
     }
 
     protected Optional<RegisteredCustomPropertySet> getCustomPropertySet() {
-        return getCustomPropertySetFromDeviceType()
-                .map(Optional::of)
-                .orElseGet(this::getCustomPropertySetFromActive);
-    }
-
-    private Optional<RegisteredCustomPropertySet> getCustomPropertySetFromDeviceType() {
-        return Optional.ofNullable(device)
-                .flatMap(dv -> Optional.ofNullable(dv.get().getDeviceConfiguration())
-                        .flatMap(dc -> dc.getDeviceType()
-                                .getCustomPropertySets().stream()
-                                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                                .filter(registeredCustomPropertySet -> registeredCustomPropertySet.getId() == getAuditTrailReference().getPkContext1())
-                                .findFirst())
-                );
+        if (!usagePoint.isPresent()) {
+            return Optional.empty();
+        }
+        return usagePoint.get().forCustomProperties().getAllPropertySets()
+                .stream()
+                .map(r -> (RegisteredCustomPropertySet) r)
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(registeredCustomPropertySet -> registeredCustomPropertySet.getId() == getAuditTrailReference().getPkContext1())
+                .findFirst();
     }
 
     private Optional<RegisteredCustomPropertySet> getCustomPropertySetFromActive(){

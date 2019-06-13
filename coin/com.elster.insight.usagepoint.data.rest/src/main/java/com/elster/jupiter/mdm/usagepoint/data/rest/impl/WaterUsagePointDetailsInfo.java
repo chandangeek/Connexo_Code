@@ -70,5 +70,24 @@ public class WaterUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
                 .withClamp(clamped);
     }
 
-
+    @Override
+    public boolean isEqual(UsagePoint usagePoint, Clock clock){
+        return usagePoint.getDetail(clock.instant())
+                .map(upd -> {
+                    GasUsagePointDetailsInfo detail = (GasUsagePointDetailsInfo)upd;
+                    return isEqual(collar, detail.collar) &&
+                            isEqual(grounded, detail.grounded) &&
+                            isEqual(pressure, detail.pressure) &&
+                            isEqual(physicalCapacity, detail.physicalCapacity) &&
+                            isEqual(limiter, detail.limiter) &&
+                            isEqual(loadLimiterType, detail.loadLimiterType) &&
+                            isEqual(loadLimit, detail.loadLimit) &&
+                            isEqual(bypass, detail.bypass) &&
+                            isEqual(bypassStatus, detail.bypassStatus) &&
+                            isEqual(valve, detail.valve) &&
+                            isEqual(capped, detail.capped) &&
+                            isEqual(clamped, detail.clamped);
+                })
+                .orElseGet(() -> false);
+    }
 }

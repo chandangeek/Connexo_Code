@@ -52,4 +52,19 @@ public class HeatUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
                 .withBypassStatus(bypassStatus)
                 .withValve(valve);
     }
+
+    @Override
+    public boolean isEqual(UsagePoint usagePoint, Clock clock){
+        return usagePoint.getDetail(clock.instant())
+                .map(upd -> {
+                    GasUsagePointDetailsInfo detail = (GasUsagePointDetailsInfo)upd;
+                    return isEqual(collar, detail.collar) &&
+                            isEqual(pressure, detail.pressure) &&
+                            isEqual(physicalCapacity, detail.physicalCapacity) &&
+                            isEqual(bypass, detail.bypass) &&
+                            isEqual(bypassStatus, detail.bypassStatus) &&
+                            isEqual(valve, detail.valve);
+                })
+                .orElseGet(() -> false);
+    }
 }
