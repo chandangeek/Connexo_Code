@@ -159,6 +159,10 @@ Ext.define('Apr.controller.TaskManagement', {
             case 'setTriggers':
                 me.showSetTriggers(record);
                 break;
+            case 'suspendTask':   //Lau
+                me.suspendTaskManagement(record, me.suspendOperationStart, me.suspendOperationCompleted, this);
+                //taskManagement && taskManagement.controller && taskManagement.controller.suspendTaskManagement(record, me.suspendOperationStart, me.suspendOperationCompleted, this);
+                break;
         }
     },
 
@@ -283,6 +287,109 @@ Ext.define('Apr.controller.TaskManagement', {
         var me = this;
         me.getController('Uni.controller.history.Router').getRoute(me.rootRoute).forward(null, me.rootRouteArguments);
     },
+    /* suspend task section */   // Lau
+    //suspendTaskManagement: function (taskManagement, operationStartFunc, operationCompletedFunc, controller)  {  // LAu
+    suspendTaskManagement: function (record, operationStartFunc, operationCompletedFunc, controller)  {  // LAu
+        // if (item.action === "suspendTask") {  // in switch se face direct asta
+        var me = this,
+            suspendedDataTime;
+
+        if (record.get('suspended') == 'suspended') { // ce trebuie adaugat aici ????
+            suspendedDataTime = new Date(record.get('suspendedDataTime'));
+        }
+        else {
+            var tomorrowMidnight = new Date();
+            tomorrowMidnight.setHours(24, 0, 0, 1);
+            suspendedDataTime = tomorrowMidnight;
+        }
+
+        confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+            itemId: 'snooze-snoozeConfirmationWindow',
+            confirmText: Uni.I18n.translate('general.suspend', 'APR', 'Suspend'),
+            closeAction: 'destroy',
+            green: true,
+            confirmation: function () {
+                me.suspendTask(record, operationStartFunc, operationCompletedFunc, controller, this);
+            }
+        })
+        ;
+
+        confirmationWindow.insert(1, {
+            xtype: 'snooze-date',
+            itemId: 'issue-sel-snooze-run',
+            defaultDate: suspendedDataTime,
+            padding: '-10 0 0 45'
+        });
+        confirmationWindow.insert(1, {
+            itemId: 'snooze-now-window-errors',
+            xtype: 'label',
+            margin: '0 0 10 50',
+            hidden: true
+        });
+        confirmationWindow.show({
+            title: Uni.I18n.translate('general.suspendNow', 'APR', "Suspend '{0}'?",
+                record.getData().name, false)
+        });
+
+        // function getConfirmationWindow() {
+        //     return confirmationWindow;
+        // }
+        // }  // de la if
+    },
+
+    suspendTask : function(recordTask, operationStartSuspend, operationCompletedSuspend, controller, confWindow){
+        var me = this;   // Lau
+        operationStartSuspend.call(controller);
+
+        //var suspendTime = confWindow.////
+        var suspendTime = confWindow.down('#issue-snooze-until-date').getValue().getTime();
+
+        //confWindow.des
+        //recordTask.set('', suspendTime)
+        Ext.Ajax.request({
+            url: '/api/tsk/task/tasks/' + recordTask.get('id') + '/suspend/' + suspendTime,
+            // url: '/api/tsk/task/tasks/' + recordTask.get('id')+ '/suspend/' ,
+            method: 'POST',
+            //jsonData: record.getRecordData(),
+            //jsonData: recordTask.get('id'),
+            // rawData: Ext.JSON.encode(recordTask.getData()),
+            success: function (operation) {
+                console.log('success');
+                var response = Ext.JSON.decode(operation.responseText);
+                recordTask.set('lastRunDate',response.lastRunDate);
+                recordTask.set('suspendUntil123', response.suspendUntil123);
+
+                //recordTask.set('')
+                operationCompletedSuspend.call(controller, true);
+
+                confWindow.destroy();
+            },
+
+            failure: function (response) {
+                operationCompletedSuspend.call(controller, false);
+                if (response.status === 400) {
+                    var res = Ext.JSON.decode(response.responseText);
+                    confWindow.update(res.errors[0].msg);
+                    confWindow.setVisible(true);
+                }
+                else {
+                    confWindow.destroy();
+                }
+            }
+        });
+    },
+    suspendOperationStart:function() {
+        var me = this;  // Lau
+        me.getPage() && me.getPage().setLoading(true);
+    },
+
+    suspendOperationCompleted:function(succeeded) {
+        var me = this;  // Lau
+        me.getPage() && me.getPage().setLoading(false);
+        var grid = me.getTaskManagementGrid();
+
+       // grid.getStore().reload();
+    },
 
     /* common section */
     saveOperationComplete: function () {
@@ -365,6 +472,7 @@ Ext.define('Apr.controller.TaskManagement', {
             window.location.replace(route.getRoute().buildUrl(route.arguments));
             return;
         }
+       // Lau - adaug aici ptr partea de detalii????
         me.getModel('Apr.model.Task').load(taskManagementId, {
             success: function (record) {
                 taskManagement.controller.detailRoute = 'administration/taskmanagement/view';

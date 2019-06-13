@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.tasks.impl;
 
+import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -62,6 +63,8 @@ class RecurrentTaskImpl implements RecurrentTask {
     private String payload;
     private String destination;
     private Instant lastRun;
+   // private Instant suspendUntilTime;  // Lau
+    private Instant suspendUntil22;
     private transient DestinationSpec destinationSpec;
     private int logLevel;
 
@@ -123,7 +126,20 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public void updateNextExecution() {
-        ZonedDateTime now = ZonedDateTime.ofInstant(clock.instant(), ZoneId.systemDefault());
+        Instant time = clock.instant();
+        if(suspendUntil22!=null && suspendUntil22.isAfter(time)) {
+            time = suspendUntil22;
+        }
+        else{
+            suspendUntil22 = null;
+        }
+//        if(suspendUntilTime!=null && suspendUntilTime.isAfter(time)) {
+//            time = suspendUntilTime;
+//        }
+//        else{
+//            suspendUntilTime = null;
+//        }
+        ZonedDateTime now = ZonedDateTime.ofInstant(time, ZoneId.systemDefault());
         Optional<ZonedDateTime> nextOccurrence = getScheduleExpression().nextOccurrence(now);
         nextExecution = nextOccurrence.map(ZonedDateTime::toInstant).orElse(null);
     }
@@ -470,5 +486,29 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.destination = destination;
         Save.UPDATE.save(dataModel, this);
     }
+
+//    @Override
+//    public void suspendUntil(Instant suspendUntilTime) {
+//        this.suspendUntilTime = suspendUntilTime;
+//        updateNextExecution();
+//        save();
+//    }
+//
+//    @Override
+//    public Instant getSuspendUntil(){
+//        return suspendUntilTime;
+//    }
+    @Override
+    public void setSuspendUntil(Instant suspendUntilTime) {
+        this.suspendUntil22 = suspendUntilTime;
+        updateNextExecution();
+        save();
+    }
+
+    @Override
+    public Instant getSuspendUntil(){
+        return this.suspendUntil22;
+    }
+
 
 }

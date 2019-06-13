@@ -102,6 +102,14 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                     {
                         fieldLabel: Uni.I18n.translate('validationTasks.general.nextRun', 'CFG', 'Next run'),
                         name: 'nextRun_formatted'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.suspended', 'CFG', 'Suspended val task5434'),
+                        itemId : 'validation-task-suspend',
+                        name: 'suspendUntil123',
+                        renderer: function(value){ //Lau
+                            return value  ? Uni.I18n.translate('general.suspended.yes','APR','Yes. The task has been suspended until next run.') : Uni.I18n.translate('general.suspended.no','APR','No')
+                        }
                     }
                 ]
             }         

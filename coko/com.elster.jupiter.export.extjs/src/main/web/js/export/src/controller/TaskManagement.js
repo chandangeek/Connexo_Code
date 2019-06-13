@@ -16,7 +16,7 @@ Ext.define('Dxp.controller.TaskManagement', {
     },
 
     canAdministrate: function () {
-        return false;
+        return true;  // Lau - (David) // am enable-uit suspend-ul in grid
     },
 
     canView: function () {
@@ -27,7 +27,7 @@ Ext.define('Dxp.controller.TaskManagement', {
         return false;
     },
 
-    canEdit: function () {
+    canEdit: function () { // Lau - folosesc asta ptr suspend
         return false;
     },
 
@@ -48,12 +48,12 @@ Ext.define('Dxp.controller.TaskManagement', {
     },
 
     getType: function () {
+        //widget.down('#suspended_formatted').setValue(taskManagementRecord.get('suspendUntil123'));  //Lau
         return 'DataExport';
     },
 
     getTask: function (controller, taskManagementId, operationCompleted) {
         var me = this;
-
         Ext.Ajax.request({
             url: '/api/export/dataexporttask/recurrenttask/' + taskManagementId,
             method: 'GET',

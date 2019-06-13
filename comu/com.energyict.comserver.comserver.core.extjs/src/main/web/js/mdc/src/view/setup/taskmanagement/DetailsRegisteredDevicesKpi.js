@@ -57,6 +57,17 @@ Ext.define('Mdc.view.setup.taskmanagement.DetailsRegisteredDevicesKpi', {
                                 fieldLabel: Uni.I18n.translate('general.target', 'MDC', 'Target'),
                                 itemId: 'registered-devices-kpi-target',
                                 name: 'target'
+                            },
+                            {
+                                xtype: 'displayfield',   // Lau
+                                fieldLabel: Uni.I18n.translate('general.suspended', 'MDC', 'Suspended ddada233'),
+                                itemId: 'registered-devices-kpi-suspended',
+                                name: 'suspendUntil123',
+                                renderer: function(value){ //Lau
+                                    return value  ? Uni.I18n.translate('general.suspended.yes','APR','Yes. The task has been suspended until next run.') : Uni.I18n.translate('general.suspended.no','APR','No')
+                                    //return value!='' ? Mdc.util.ScheduleToStringConverter.convert(value) || Uni.I18n.translate('general.undefined', 'MDC', 'Undefined') : '-';
+                                    // return "Yes - has been suspended until next run";
+                                }
                             }
                         ]
                     }

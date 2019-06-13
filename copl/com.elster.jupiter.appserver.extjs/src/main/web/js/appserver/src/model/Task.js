@@ -6,6 +6,7 @@ Ext.define('Apr.model.Task', {
     extend: 'Ext.data.Model',
     fields: [
         'id', 'name', 'application', 'queue', 'queueStatus', 'queueStatusDate', 'nextRun', 'trigger', 'lastRunStatus', 'lastRunDate', 'isExtraQueueCreationEnabled',
+         'suspendUntil123',
         {
             name: 'queueStatusString',
             convert: function (value, record) {
@@ -22,8 +23,16 @@ Ext.define('Apr.model.Task', {
             name: 'nextRun',
             type: 'number',
             defaultValue: null,
-            convert: function(value){
-                return value != null ? Uni.DateTime.formatDateTimeLong(new Date(value)) : Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');
+           convert: function(value){
+               return value != null ? Uni.DateTime.formatDateTimeLong(new Date(value)) : Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');
+           }
+        },
+        {
+            name: 'suspendUntil123',
+            type: 'string',
+            //defaultValue: Uni.I18n.translate('general.suspended.yes','APR','Yes')//,   // Lau
+            convert: function(value, record){  // test : daca exista valoare in suspendedDataTime atunci e Da, daca nu exista valoare, nu e suspendat (NU)
+                return record.get('suspendUntil123') ? Uni.I18n.translate('general.suspended.yes','APR','YesYES') : Uni.I18n.translate('general.suspended.no','APR','NoNO');
             }
         },
         {

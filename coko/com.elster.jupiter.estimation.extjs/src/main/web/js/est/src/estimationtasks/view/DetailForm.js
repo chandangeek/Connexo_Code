@@ -113,6 +113,10 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
                     {
                         fieldLabel: Uni.I18n.translate('estimationtasks.general.nextRun', 'EST', 'Next run'),
                         name: 'nextRun_formatted_long'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('estimationtasks.general.suspended', 'EST', 'Suspended'),
+                        name: 'suspended_formatted_string'   // Lau
                     }
                 ]
             },

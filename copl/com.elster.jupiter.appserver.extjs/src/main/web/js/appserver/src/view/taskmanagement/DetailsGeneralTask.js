@@ -43,6 +43,16 @@ Ext.define('Apr.view.taskmanagement.DetailsGeneralTask', {
                                 xtype: 'displayfield',
                                 htmlEncode: false,
                                 itemId: 'precededBy-field-container'
+                            },
+                            {
+                                fieldLabel: Uni.I18n.translate('general.suspended', 'APR', 'Suspended 333 general task'), // Lau
+                                xtype: 'displayfield',
+                                htmlEncode: false,
+                                itemId: 'suspended-field-container',
+                                name: 'suspendUntil123',
+                                renderer: function(value){ //Lau
+                                    return value  ? Uni.I18n.translate('general.suspended.yes','APR','Yes. The task has been suspended until next run.') : Uni.I18n.translate('general.suspended.no','APR','No')
+                                }
                             }
 
                         ]

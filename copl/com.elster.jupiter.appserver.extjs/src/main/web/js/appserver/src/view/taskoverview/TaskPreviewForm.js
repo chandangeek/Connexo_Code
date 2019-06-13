@@ -92,6 +92,11 @@ Ext.define('Apr.view.taskoverview.TaskPreviewForm', {
                                             fieldLabel: Uni.I18n.translate('general.nextRun', 'APR', 'Next run'),
                                             itemId: 'nextRunField',
                                             name: 'nextRun'
+                                        },                                        ,
+                                        {
+                                            fieldLabel: Uni.I18n.translate('general.suspendedTask', 'APR', 'Suspended_admin_preview_00'),
+                                            itemId: 'suspendedField',
+                                            name: 'suspendedTask'
                                         }
                                     ]
                                 }

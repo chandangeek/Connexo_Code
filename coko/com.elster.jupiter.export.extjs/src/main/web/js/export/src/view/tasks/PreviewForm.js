@@ -89,6 +89,10 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                     {
                         fieldLabel: Uni.I18n.translate('general.nextRun', 'DES', 'Next run'),
                         name: 'nextRun_formatted'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.suspended', 'DES', 'Suspended export54'),
+                        name: 'suspended_formatted'  // Lau
                     }
                 ]
             },

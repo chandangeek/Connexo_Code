@@ -48,7 +48,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         return false;
     },
 
-    canEdit: function () {
+    canEdit: function () {   // Lau - folosesc canEdit() ptr suspend
         return Mdc.privileges.DataCollectionKpi.canEdit();
     },
 
@@ -308,7 +308,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
             });
 
         pageMainContent.setLoading(true);
-
+        widget.down('#data-collection-kpi-suspend').setValue(taskManagementRecord.get('suspendUntil123'));
         Ext.Ajax.request({
             url: '/api/ddr/kpis/recurrenttask/' + taskManagementRecord.get('id'),
             method: 'GET',
