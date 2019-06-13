@@ -461,13 +461,11 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
     @Override
     public List<DestinationSpec> getCompatibleQueues4(String destination) {
-        final String destinationName = destination == null ? SERVICE_CALLS_DESTINATION_NAME : destination;
         List<DestinationSpec> destinationSpecs = messageService.findDestinationSpecs();
         String queueTypeName = SERVICE_CALLS_SUBSCRIBER_NAME;
         return destinationSpecs.stream()
                 .filter(DestinationSpec::isExtraQueueCreationEnabled)
                 .filter(destinationSpec -> destinationSpec.getQueueTypeName().equals(queueTypeName))
-                .filter(Predicates.not(destinationSpec -> destinationSpec.getName().equals(destinationName)))
                 .collect(Collectors.toList());
     }
 }
