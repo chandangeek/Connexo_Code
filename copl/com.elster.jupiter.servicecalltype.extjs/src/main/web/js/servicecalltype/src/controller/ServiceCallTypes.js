@@ -7,11 +7,13 @@ Ext.define('Sct.controller.ServiceCallTypes', {
 
     views: [
         'Sct.view.Setup',
-        'Sct.view.LogLevelWindow'
+        'Sct.view.LogLevelWindow',
+        'Sct.view.QueueAndPriorityWindow'
     ],
     stores: [
         'Sct.store.ServiceCallTypes',
-        'Sct.store.LogLevels'
+        'Sct.store.LogLevels',
+        'Sct.store.AvailableQueues'
     ],
     models: [
     ],
@@ -24,6 +26,10 @@ Ext.define('Sct.controller.ServiceCallTypes', {
         {
             ref: 'changeLogLevelWindow',
             selector: 'log-level-window'
+        },
+        {
+            ref: 'queuePriorityWindow',
+            selector: 'queue-priority-window'
         }
     ],
 
@@ -40,6 +46,12 @@ Ext.define('Sct.controller.ServiceCallTypes', {
             },
             'log-level-window': {
                 close: this.closeLogLevelWindow
+            },
+            'queue-priority-window #save-queue-priority-button': {
+                click: this.saveQueuePriority
+            },
+            'queue-priority-window': {
+                close: this.closeQueuePriority
             }
         });
     },
@@ -69,6 +81,10 @@ Ext.define('Sct.controller.ServiceCallTypes', {
         switch (item.action) {
             case 'changeLogLevel':
                 me.changeLogLevel(menu.record);
+                break;
+            case 'setQueueAndPriority':
+                me.setQueueAndPriority(menu.record);
+                break;
         }
     },
 
@@ -89,6 +105,25 @@ Ext.define('Sct.controller.ServiceCallTypes', {
         });
     },
 
+    setQueueAndPriority: function (record) {
+        var me = this,
+            store = Ext.getStore('Sct.store.AvailableQueues');
+
+        store.getProxy().setUrl(record);
+        var changeLogLevelWindow = Ext.widget('queue-priority-window', {
+            record: record,
+            store: store
+        });
+
+        me.getPage().setLoading();
+        store.load(function(records, operation, success) {
+            if (success) {
+                changeLogLevelWindow.show();
+            }
+            me.getPage().setLoading(false);
+        });
+    },
+
     updateLogLevel: function() {
         var me = this,
             window = me.getChangeLogLevelWindow(),
@@ -97,7 +132,7 @@ Ext.define('Sct.controller.ServiceCallTypes', {
             logLevel = combobox.findRecordByDisplay(combobox.getRawValue());
 
         record.set('logLevel', logLevel.data);
-        record.save( {
+        record.save({
             success: function (record) {
                 me.getPage().down('#grd-service-call-types').getStore().load();
                 window.close();
@@ -105,7 +140,27 @@ Ext.define('Sct.controller.ServiceCallTypes', {
         });
     },
 
+    saveQueuePriority: function() {
+        var me = this,
+            window = me.getQueuePriorityWindow(),
+            record = window.record;
+            form = window.down('#queue-priority-form');
+
+        form.updateRecord();
+        record.save({
+            success: function (record) {
+                me.getStore('Sct.store.ServiceCallTypes').load();
+                window.close();
+            }
+        });
+    },
+
     closeLogLevelWindow: function() {
+        var me = this;
+        me.getPage().setLoading(false);
+    },
+
+    closeQueuePriority: function() {
         var me = this;
         me.getPage().setLoading(false);
     }
