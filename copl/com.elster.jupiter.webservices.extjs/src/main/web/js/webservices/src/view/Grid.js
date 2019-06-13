@@ -71,6 +71,12 @@ Ext.define('Wss.view.Grid', {
                 }
             },
             {
+                header: Uni.I18n.translate('general.application', 'WSS', 'Application'),
+                hidden: !me.adminView,
+                dataIndex: 'applicationName',
+                flex: 1
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 hidden: !me.adminView,
                 privileges: Wss.privileges.Webservices.admin,
