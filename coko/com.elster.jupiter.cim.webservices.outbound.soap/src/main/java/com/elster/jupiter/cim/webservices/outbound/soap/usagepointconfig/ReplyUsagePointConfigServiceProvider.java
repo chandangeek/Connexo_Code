@@ -25,6 +25,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedUsagePointOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
@@ -47,7 +48,7 @@ import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigPayloadType;
         ReplyUsagePointConfigWebService.class, OutboundSoapEndPointProvider.class }, immediate = true, property = {
                 "name=" + ReplyUsagePointConfigWebService.NAME })
 public class ReplyUsagePointConfigServiceProvider
-        implements ReplyUsagePointConfigWebService, OutboundSoapEndPointProvider {
+        implements ReplyUsagePointConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     private static final String NOUN = "UsagePointConfig";
     private static final String URL = "url";
@@ -215,4 +216,7 @@ public class ReplyUsagePointConfigServiceProvider
 
         return usagePointConfigEventMessageType;
     }
+
+    @Override
+    public String getApplication(){return "Multisense";}
 }

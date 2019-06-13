@@ -6,6 +6,7 @@ package com.elster.jupiter.cim.webservices.outbound.soap.masterdatalinkageconfig
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
@@ -46,7 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
 		OutboundSoapEndPointProvider.class }, immediate = true, property = {
 				"name=" + ReplyMasterDataLinkageConfigWebService.NAME })
 public class ReplyMasterDataLinkageConfigServiceProvider
-		implements ReplyMasterDataLinkageConfigWebService, OutboundSoapEndPointProvider {
+		implements ReplyMasterDataLinkageConfigWebService, OutboundSoapEndPointProvider , ApplicationSpecific {
 
 	private static final String NOUN = "MasterDateLinkageConfig";
 	private static final String URL = "url";
@@ -196,4 +197,9 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 		response.setReply(replyType);
 		return response;
 	}
+
+	@Override
+	public String getApplication(){
+		return "Multisense";
+	};
 }
