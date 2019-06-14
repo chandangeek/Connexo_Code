@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
@@ -41,9 +42,7 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.sql.SqlBuilder;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -85,8 +84,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public final class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
-    static final String SERVICE_CALLS_DESTINATION_NAME = "SerivceCalls";
-    static final String SERVICE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
+    static final String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
+    static final String SERVICE_CALLS_SUBSCRIBER_NAME = "ServiceCalls";
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -95,6 +94,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     private volatile JsonService jsonService;
     private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
     private volatile UserService userService;
+    private volatile AppService appService;
     private volatile UpgradeService upgradeService;
     private volatile SqlDialect sqlDialect = SqlDialect.ORACLE_SE;
     private volatile Clock clock;
@@ -104,7 +104,9 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Inject
-    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService, UpgradeService upgradeService, Clock clock) {
+    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService,
+                                  CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService, AppService appService,
+                                  UpgradeService upgradeService, Clock clock) {
         this();
         sqlDialect = SqlDialect.H2;
         setFiniteStateMachineService(finiteStateMachineService);
@@ -114,6 +116,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         setMessageService(messageService);
         setJsonService(jsonService);
         setCustomPropertySetService(customPropertySetService);
+        setAppService(appService);
         setUpgradeService(upgradeService);
         setClock(clock);
         activate();
@@ -155,6 +158,11 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
     }
 
     @Reference
@@ -230,6 +238,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 bind(IServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(AppService.class).toInstance(appService);
                 bind(UserService.class).toInstance(userService);
                 bind(Clock.class).toInstance(clock);
             }
@@ -244,7 +253,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 7), UpgraderV10_7.class
                 ));
     }
 

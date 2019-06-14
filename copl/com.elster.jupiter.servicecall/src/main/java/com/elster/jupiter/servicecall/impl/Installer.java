@@ -37,6 +37,8 @@ import java.util.stream.Stream;
  * Created by bvn on 3/7/16.
  */
 public class Installer implements FullInstaller, PrivilegesProvider {
+
+    private static final String QUEUE_TABLE_NAME = "MSG_QUEUE_SERVICECALLS";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
 
@@ -58,7 +60,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        QueueTableSpec defaultQueueTableSpec = createDefaultQueueTableSpecIfNotExist();
         createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, logger);
         doTry(
                 "Install default Service Call Life Cycle.",
@@ -95,7 +97,15 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         return resources;
     }
 
-    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName, Logger logger) {
+    protected QueueTableSpec createDefaultQueueTableSpecIfNotExist() {
+        Optional<QueueTableSpec> queueTableSpec = messageService.getQueueTableSpec(QUEUE_TABLE_NAME);
+        if (!queueTableSpec.isPresent()) {
+            return messageService.createQueueTableSpec(QUEUE_TABLE_NAME, "RAW", false, true);
+        }
+        return queueTableSpec.get();
+    }
+
+    protected void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName, Logger logger) {
         Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
         if (!destinationSpecOptional.isPresent()) {
             DestinationSpec queue = doTry(
