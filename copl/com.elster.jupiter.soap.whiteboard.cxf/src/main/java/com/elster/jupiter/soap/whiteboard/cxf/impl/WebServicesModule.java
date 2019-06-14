@@ -7,6 +7,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.soap.whiteboard.cxf.CxfSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import com.google.inject.AbstractModule;
@@ -23,6 +24,7 @@ public class WebServicesModule extends AbstractModule {
         requireBinding(HttpService.class);
 
         bind(WebServicesService.class).to(WebServicesServiceImpl.class).in(Scopes.SINGLETON);
+        bind(WebServiceCallOccurrenceService.class).to(WebServiceCallOccurrenceServiceImpl.class).in(Scopes.SINGLETON);
         bind(EndPointConfigurationService.class).to(EndPointConfigurationServiceImpl.class).in(Scopes.SINGLETON);
         bind(SoapProviderSupportFactory.class).to(CxfSupportFactory.class).in(Scopes.SINGLETON);
         bind(WebServicesDataModelService.class).to(WebServicesDataModelServiceImpl.class).in(Scopes.SINGLETON);

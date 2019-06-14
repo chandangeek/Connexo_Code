@@ -42,7 +42,6 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
                                                                  Long epId){
 
 
-        //DataModel dataModel = ormService.getDataModel(/*"WebServicesService"*/WebServicesService.COMPONENT_NAME).get();
         WebServiceCallOccurrenceFinderBuilder finderBuilder =  new WebServiceCallOccurrenceFinderBuilderImpl(dataModel, Condition.TRUE);
 
         if (applicationNames != null && !applicationNames.isEmpty()){
@@ -51,7 +50,6 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
 
         if (epId != null){
             EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(epId).get();
-                    //.orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
             finderBuilder.withEndPointConfiguration(epc);
         }
 
