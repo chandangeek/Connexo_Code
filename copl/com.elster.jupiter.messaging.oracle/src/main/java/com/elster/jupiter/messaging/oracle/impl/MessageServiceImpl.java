@@ -89,7 +89,8 @@ public class MessageServiceImpl implements MessageService {
         });
         upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
                 Version.version(10, 2), UpgraderV10_2.class,
-                Version.version(10, 5), UpgraderV10_5.class
+                Version.version(10, 5), UpgraderV10_5.class,
+                Version.version(10, 7), UpgraderV10_7.class
         ));
     }
 
