@@ -11,6 +11,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
+
 import com.jayway.jsonpath.JsonModel;
 import org.json.JSONArray;
 import org.junit.Test;

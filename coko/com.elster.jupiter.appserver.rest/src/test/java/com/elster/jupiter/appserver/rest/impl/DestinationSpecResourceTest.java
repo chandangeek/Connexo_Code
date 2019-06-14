@@ -7,13 +7,14 @@ import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.rest.impl.DestinationSpecInfo;
 import com.elster.jupiter.messaging.rest.impl.DestinationSpecTypeName;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

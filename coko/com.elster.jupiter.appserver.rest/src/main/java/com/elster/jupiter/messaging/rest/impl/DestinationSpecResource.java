@@ -108,7 +108,6 @@ public class DestinationSpecResource {
     public DestinationSpecInfo getAppServer(@PathParam("destionationSpecName") String destinationSpecName, @QueryParam("state") boolean withState) {
         DestinationSpec destinationSpec = fetchDestinationSpec(destinationSpecName);
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
-
         DestinationSpecInfo destinationSpecInfo = mapToInfo(withState, destinationSpec, allTasks);
         return destinationSpecInfo;
     }
@@ -140,7 +139,6 @@ public class DestinationSpecResource {
     private Response doPurgeErrors(String destinationSpecName) {
         DestinationSpec destinationSpec = fetchDestinationSpec(destinationSpecName);
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
-
         try (TransactionContext context = transactionService.getContext()) {
             destinationSpec.purgeErrors();
             context.commit();
@@ -157,7 +155,6 @@ public class DestinationSpecResource {
         }
 
         List<RecurrentTask> allTasks = taskService.getRecurrentTasks();
-
         return Response.status(Response.Status.OK).entity(destinationSpecInfoFactory.from(destinationSpec, allTasks)).build();
     }
 

@@ -33,7 +33,6 @@ public class ServiceCallTypeInfoFactory {
         info.versionName = serviceCallType.getVersionName();
         info.destination = serviceCallType.getDestinationName();
         info.priority = serviceCallType.getPriority();
-
         info.status = new IdWithDisplayValueInfo<>(serviceCallType.getStatus().name(), serviceCallType.getStatus()
                 .getDisplayName(thesaurus));
         info.logLevel = new IdWithDisplayValueInfo<>(serviceCallType.getLogLevel().name(), serviceCallType.getLogLevel()

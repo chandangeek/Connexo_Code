@@ -21,7 +21,6 @@ public interface MessageBuilder {
 
     /**
      * Makes the message under construction expiring after the given number of seconds.
-     *
      * @param seconds
      * @return the messageBuilder, for chaining calls.
      */

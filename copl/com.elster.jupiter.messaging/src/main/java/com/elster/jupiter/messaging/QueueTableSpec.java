@@ -58,7 +58,7 @@ public interface QueueTableSpec extends HasName {
     }
 
     default DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
-	return createDestinationSpec(name, retryDelay, retries, isDefault, queueTypeName, isExtraQueueCreationEnabled, false);
+        return createDestinationSpec(name, retryDelay, retries, isDefault, queueTypeName, isExtraQueueCreationEnabled, false);
     }
 
     DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled, boolean isPrioritized);

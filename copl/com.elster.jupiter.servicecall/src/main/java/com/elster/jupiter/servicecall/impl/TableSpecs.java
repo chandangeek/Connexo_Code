@@ -17,12 +17,12 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
@@ -91,7 +91,7 @@ public enum TableSpecs {
                     .add();
             Column serviceCallLifeCycle = table.column("LIFECYCLE").number().notNull().add();
             table.column("DESTINATION").varChar(30).map("destination").since(version(10, 7)).add();
-	        table.column("PRIORITY").number().conversion(NUMBER2INT).map("priority").since(version(10, 7)).add();
+            table.column("PRIORITY").number().conversion(NUMBER2INT).map("priority").since(version(10, 7)).add();
             table.addAuditColumns();
             table.foreignKey("FK_LIFECYCLE")
                     .references(ServiceCallLifeCycle.class)

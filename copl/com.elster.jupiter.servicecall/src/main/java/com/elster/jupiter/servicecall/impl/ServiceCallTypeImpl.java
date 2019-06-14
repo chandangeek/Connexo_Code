@@ -30,8 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.stream.Collectors.toList;
 import static com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Class models the type of a service call. The type defines the life cycle its service calls will abide by and links to
@@ -238,7 +238,7 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     @Override
     public String getDestinationName() {
-        return (destination == null) ?  SERVICE_CALLS_DESTINATION_NAME : destination;
+        return (destination == null) ? SERVICE_CALLS_DESTINATION_NAME : destination;
     }
 
     @Override
