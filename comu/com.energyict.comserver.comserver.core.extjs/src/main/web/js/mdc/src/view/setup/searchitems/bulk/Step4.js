@@ -68,11 +68,12 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
     },
 
     isRemove: function () {
-        this.down('#strategyform') && this.down('#strategyform').hide();
+//        this.down('#strategyform').hide();
+        if(this.down('#strategyform')) this.down('#strategyform').hide();
     },
 
     showStrategyForm: function () {
-        this.down('#strategyform') && this.down('#strategyform').show();
+        this.down('#strategyform').show();
     },
 
 

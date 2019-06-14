@@ -203,7 +203,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     public ObisCode getPhysicalAddressCorrectedObisCode(final ObisCode obisCode, final String serialNumber) {
         int address;
 
-        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equalsIgnoreBChannel(monthlyObisCode)) {
+        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equals(monthlyObisCode)) {
             address = 0;
         } else {
             address = getPhysicalAddressFromSerialNumber(serialNumber);
