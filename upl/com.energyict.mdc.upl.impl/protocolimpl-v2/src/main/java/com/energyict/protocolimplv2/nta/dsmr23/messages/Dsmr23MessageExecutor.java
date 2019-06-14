@@ -357,7 +357,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private void changeMBusClientAttributes(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage);
         int physicalAddress = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
+        ObisCode mbusClientObisCode = getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode();
+
+        getProtocol().journal("Changing MBus attributes for device installed on channel "+installChannel+" with physical address "+physicalAddress + " with obis code "+mbusClientObisCode);
+
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, 9);
         mbusClient.setManufacturerID(getManufacturerId(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientManufacturerId)));
         mbusClient.setIdentificationNumber(getIdentificationNumber(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber), getProtocol().getDlmsSessionProperties()
                 .getFixMbusHexShortId()));
@@ -711,10 +715,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName)
                 .getValue(); // Will return empty string if the MessageAttribute could not be found
 
+        getProtocol().journal("Using firmware file: "+path);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (isResume(pendingMessage)) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
             if (lastTransferredBlockNumber > 0) {
+                getProtocol().journal("Resuming transfer from block: "+lastTransferredBlockNumber);
                 it.setStartIndex(lastTransferredBlockNumber - 1);
             }
         }
@@ -726,25 +732,30 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         it.setDelayBeforeSendingBlocks(5000);
 
         try (RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
-            if (imageIdentifier.isEmpty()) {
-                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, ImageTransfer.DEFAULT_IMAGE_NAME, false);
-            } else {
-                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, false);
+            String actualIdentifier = ImageTransfer.DEFAULT_IMAGE_NAME;
+            if (!imageIdentifier.isEmpty()) {
+                actualIdentifier = imageIdentifier;
             }
+            getProtocol().journal("Starting block transfer of image file using identifier "+actualIdentifier);
+            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, actualIdentifier, false);
+            getProtocol().journal("Block transfer finished");
         }
 
         if (activationDate.isEmpty()) {
             try {
+                getProtocol().journal("Activating immediately");
                 it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
                 it.imageActivation();
             } catch (DataAccessResultException e) {
                 if (isTemporaryFailure(e)) {
                     getProtocol().journal("Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
                 } else {
+                    getProtocol().journal(Level.WARNING, e.getLocalizedMessage());
                     throw e;
                 }
             }
         } else {
+            getProtocol().journal("Setting future activation date: "+activationDate);
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
             Array dateArray = convertActivationDateEpochToDateTimeArray(activationDate);
             sas.writeExecutionTime(dateArray);

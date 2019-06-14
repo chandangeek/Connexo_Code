@@ -384,7 +384,8 @@ public class G3RegisterMapper {
      * ObisCode mapper for Specific G3-PLC Network Management Objects
      */
     public static final ObisCode G3_PLC_BANDPLAN = ObisCode.fromString("0.0.94.43.128.255");
-    //public static final ObisCode ;
+    public static final ObisCode PSK_RENEWAL_OBISCODE = ObisCode.fromString("0.0.94.33.128.255");
+    public static final ObisCode PSK_KEK_RENEWAL_OBISCODE = ObisCode.fromString("0.0.94.43.133.255");
 
 
     protected final List<G3Mapping> mappings = new ArrayList<G3Mapping>();

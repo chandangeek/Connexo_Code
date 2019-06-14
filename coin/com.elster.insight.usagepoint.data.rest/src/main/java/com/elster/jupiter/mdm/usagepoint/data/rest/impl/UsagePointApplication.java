@@ -6,6 +6,8 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.rest.AppServerHelper;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.rest.AuditInfoFactory;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
@@ -126,6 +128,8 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile PropertySpecService propertySpecService;
     private volatile UsagePointService usagePointService;
     private volatile UserService userService;
+    private volatile AuditService auditService;
+    private volatile AuditInfoFactory auditInfoFactory;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -148,7 +152,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                 UsagePointOutputValidationResource.class,
                 UsagePointOutputEstimationResource.class,
                 PurposeEstimationResource.class,
-                PurposeValidationResource.class);
+                PurposeValidationResource.class,
+                AuditService.class);
     }
 
     @Override
@@ -378,6 +383,16 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setAuditService(AuditService auditService) {
+        this.auditService = auditService;
+    }
+
+    @Reference
+    public void setAuditInfoFactory(AuditInfoFactory auditInfoFactory) {
+        this.auditInfoFactory = auditInfoFactory;
+    }
+
+    @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
@@ -459,6 +474,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(userService).to(UserService.class);
             bind(PurposeOutputsDataInfoFactory.class).to(PurposeOutputsDataInfoFactory.class);
             bind(UsagePointOutputReferenceCopier.class).to(UsagePointOutputReferenceCopier.class);
+            bind(auditService).to(AuditService.class);
+            bind(auditInfoFactory).to(AuditInfoFactory.class);
         }
     }
 }
