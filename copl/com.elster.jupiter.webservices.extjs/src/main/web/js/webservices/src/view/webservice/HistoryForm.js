@@ -14,13 +14,18 @@ Ext.define('Wss.view.webservice.HistoryForm', {
     loadRecord: function(record) {
         this.callParent(arguments);
         var endpoint = record.getEndpoint();
+        var time = Uni.DateTime.formatDateTimeShort(record.get('startTime'));
 
         this.getForm().setValues({
             endpoint: endpoint,
             webServiceName: endpoint.get('webServiceName'),
             direction: endpoint.get('direction'),
-            logLevel: endpoint.get('logLevel')
+            logLevel: endpoint.get('logLevel'),
+            duration: record.get('endTime')
+                && Uni.util.String.formatDuration(record.get('startTime') - record.get('endTime')),
         });
+
+        this.setTitle(time);
     },
 
     initComponent: function () {
@@ -30,12 +35,21 @@ Ext.define('Wss.view.webservice.HistoryForm', {
             {
                 name: 'endpoint',
                 fieldLabel: Uni.I18n.translate('general.webserviceEndpoint', 'WSS', 'Web service endpoint'),
-                renderer: function (value) {
-                    if (!value) {
+                renderer: function (endpoint) {
+                    if (!endpoint) {
                         return '-';
                     }
 
-                    return value.get('name');
+                    if (me.endpoint) {
+                        return Ext.String.htmlEncode(endpoint.get('name'));
+                    }
+
+                    var basename = me.adminView ? 'administration' : 'workspace';
+                    var url = me.router.getRoute(basename + '/webserviceendpoints/view').buildUrl({
+                        endpointId: endpoint.get('id')
+                    });
+
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(endpoint.get('name')) + '</a>';
                 }
             },
             {
@@ -45,6 +59,24 @@ Ext.define('Wss.view.webservice.HistoryForm', {
             {
                 name: 'request',
                 fieldLabel: Uni.I18n.translate('general.request', 'WSS', 'Request')
+            },
+            {
+                name: 'startTime',
+                fieldLabel: Uni.I18n.translate('general.startedOn', 'WSS', 'Started on'),
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                }
+            },
+            {
+                name: 'endTime',
+                fieldLabel: Uni.I18n.translate('general.finishedOn', 'WSS', 'Finished on'),
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                }
+            },
+            {
+                name: 'duration',
+                fieldLabel: Uni.I18n.translate('general.duration', 'WSS', 'Duration')
             },
             {
                 name: 'applicationName',
@@ -68,32 +100,9 @@ Ext.define('Wss.view.webservice.HistoryForm', {
             {
                 name: 'status',
                 fieldLabel: Uni.I18n.translate('general.status', 'WSS', 'Status')
-            },
-            {
-                name: 'startTime',
-                fieldLabel: Uni.I18n.translate('general.startedOn', 'WSS', 'Started on'),
-                renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
-                }
-            },
-            {
-                name: 'endTime',
-                fieldLabel: Uni.I18n.translate('general.finishedOn', 'WSS', 'Finished on'),
-                renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
-                }
             }
         ];
 
         me.callParent(arguments);
-    },
-
-    renderYesOrNo: function (value) {
-        if (value === true) {
-            return Uni.I18n.translate('general.yes', 'WSS', 'Yes');
-        } else {
-            return Uni.I18n.translate('general.no', 'WSS', 'No')
-        }
     }
-
 });

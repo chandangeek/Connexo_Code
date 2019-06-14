@@ -9,7 +9,8 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
   store: null,
 
   requires: [
-    'Wss.view.Menu',
+    'Uni.view.container.EmptyGridContainer',
+    'Wss.view.endpoint.WebserviceLogMenu',
     'Wss.store.endpoint.Occurrence',
     'Wss.view.HistoryTopFilter',
     'Wss.view.webservice.HistoryPreviewContainer',
@@ -27,8 +28,8 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
           ui: 'medium',
           items: [
               {
-                  xtype: 'webservices-menu',
-                  itemId: 'webservices-menu',
+                  xtype: 'webservices-menu-log',
+                  itemId: 'webservices-menu-log',
                   router: me.router,
                   record: me.endpoint
               }
@@ -58,7 +59,15 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
             frame: true,
           },
           {
-            xtype: 'webservice-history-occurrence-grid',
+            xtype: 'preview-container',
+            grid: {
+              xtype: 'webservice-history-occurrence-grid',
+            },
+            emptyComponent: {
+                xtype: 'uni-form-empty-message',
+                itemId: 'no-logs-found',
+                text: Uni.I18n.translate('general.log-empty', 'WSS', 'There are no logs for this web service endpoint'),
+            }
           }
         ]
     };

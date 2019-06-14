@@ -17,6 +17,7 @@ Ext.define('Wss.view.endpoint.OccurrenceForm', {
     var endpoint = record.getEndpoint();
 
     this.getForm().setValues({
+        endpoint: endpoint,
         webServiceName: endpoint.get('webServiceName'),
     });
   },
@@ -25,22 +26,16 @@ Ext.define('Wss.view.endpoint.OccurrenceForm', {
       var me = this;
 
       me.items = [
+            {
+              name: 'endpoint',
+              fieldLabel: Uni.I18n.translate('general.webserviceEndpoint', 'WSS', 'Web service endpoint'),
+              renderer: function (value) {
+                return value ? value.get('name') : '-';
+              }
+          },
           {
               name: 'webServiceName',
-              fieldLabel: Uni.I18n.translate('general.webservice', 'WSS', 'Web service'),
-              renderer: function (value) {
-                var record = me.getRecord();
-                var route = me.router.getRoute();
-                if (!value || !record) {
-                  return '-';
-                }
-                var basename = route.key.split('/').slice(0, 1).join('/');
-                var url = me.router.getRoute(basename + '/webserviceendpoints/view').buildUrl({
-                    endpointId: record.getEndpoint().get('id')
-                });
-
-                return '<a href="' + url + '">' + value + '</a>';
-            }
+              fieldLabel: Uni.I18n.translate('general.webservice', 'WSS', 'Web service')
           },
           {
               name: 'startTime',

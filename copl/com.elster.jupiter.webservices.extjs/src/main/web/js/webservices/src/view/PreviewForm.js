@@ -92,7 +92,11 @@ Ext.define('Wss.view.PreviewForm', {
                     renderer: function (value) {
                         return value.localizedValue;
                     }
-
+                },
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.application', 'WSS', 'Application'),
+                    name: 'applicationName'
                 },
                 {
                     xtype: 'displayfield',

@@ -35,7 +35,7 @@ Ext.define('Wss.view.endpoint.History', {
 
     me.content = {
         ui: 'large',
-        title: Uni.I18n.translate('webservices.webserviceHistory', 'WSS', 'Web service history'),
+        title: Uni.I18n.translate('general.history', 'WSS', 'History'),
         items: [
           {
             xtype: 'webservices-webservice-history-preview',
