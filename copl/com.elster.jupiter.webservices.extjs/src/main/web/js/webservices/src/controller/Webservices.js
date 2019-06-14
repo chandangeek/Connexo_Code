@@ -316,7 +316,6 @@ Ext.define('Wss.controller.Webservices', {
             previewForm = preview.down('webservices-webservice-history-form');
 
         previewForm.loadRecord(record);
-        previewForm.setTitle(Uni.DateTime.formatDateTimeShort(record.get('startDate')));
     },
 
     chooseAction: function (menu, item) {

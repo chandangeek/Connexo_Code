@@ -36,15 +36,6 @@ Ext.define('Wss.view.HistoryTopFilter', {
             },
             {
                 type: 'combobox',
-                dataIndex: 'status',
-                emptyText: Uni.I18n.translate('general.status', 'WSS', 'Status'),
-                multiSelect: true,
-                displayField: 'display',
-                valueField: 'value',
-                store: 'Wss.store.endpoint.Status'
-            },
-            {
-                type: 'combobox',
                 dataIndex: 'type',
                 emptyText: Uni.I18n.translate('general.type', 'WSS', 'Type'),
                 hidden: Boolean(me.endpoint),
@@ -52,6 +43,15 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 displayField: 'display',
                 valueField: 'value',
                 store: 'Wss.store.endpoint.Type'
+            },
+            {
+                type: 'combobox',
+                dataIndex: 'status',
+                emptyText: Uni.I18n.translate('general.status', 'WSS', 'Status'),
+                multiSelect: true,
+                displayField: 'display',
+                valueField: 'value',
+                store: 'Wss.store.endpoint.Status'
             }
         ];
 

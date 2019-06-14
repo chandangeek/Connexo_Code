@@ -94,7 +94,7 @@ Ext.define('Wss.controller.history.Webservices', {
         };
 
         var webservicehistory = {
-            title: Uni.I18n.translate('webservices.webserviceHistory', 'WSS', 'Web service history'),
+            title: Uni.I18n.translate('webservices.webserviceHistory', 'WSS', 'Web service endpoint history'),
             privileges: Wss.privileges.Webservices.view,
             route: 'webservicehistory',
             controller: 'Wss.controller.Webservices',
