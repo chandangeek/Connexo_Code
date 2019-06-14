@@ -79,6 +79,7 @@ Ext.define('Uni.property.controller.Registry', {
         ADVANCEREADINGSSETTINGS: 'Uni.property.view.property.AdvanceReadingsSettings',
         ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
         ASSIGN: 'Uni.property.view.property.Assign',
+        MAIL: 'Uni.property.view.property.Text',
         BOOLEAN: 'Uni.property.view.property.Boolean',
         BPM_PROCESS: 'Uni.property.view.property.StartAlarmProcess',
         CLOCK: 'Uni.property.view.property.DateTime',
