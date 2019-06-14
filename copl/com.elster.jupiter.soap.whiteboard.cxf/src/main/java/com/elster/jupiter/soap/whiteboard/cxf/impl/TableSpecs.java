@@ -85,7 +85,7 @@ public enum TableSpecs {
             table.primaryKey("PK_WS_ENDPOINT").on(id).add();
         }
     },
-    WS_ENDPOINT_OCCURRENCE {
+    WS_CALL_OCCURRENCE {
         @Override
         void addTo(DataModel dataModel) {
             Table<WebServiceCallOccurrence> table = dataModel.addTable(this.name(), WebServiceCallOccurrence.class);
@@ -95,7 +95,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
 
             Column endPoint = table.column("ENDPOINTCFG").number().notNull().add();
-            table.foreignKey("FK_WS_ENDPOINT_OCCURANCE")
+            table.foreignKey("FK_WS_CALL_OCCURRENCE ")
                     .references(WS_ENDPOINTCFG.name())
                     .on(endPoint)
                     .onDelete(DeleteRule.CASCADE)
@@ -136,13 +136,10 @@ public enum TableSpecs {
                     .map(WebServiceCallOccurrenceImpl.Fields.payload.fieldName())
                     .add();
 
-            //Column endPointColumn = table.column("ENDPOINTCFG").number().notNull().conversion(NUMBER2LONG).add();
-            //Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            //table.column("VALUE").varChar(SHORT_DESCRIPTION_LENGTH).map("stringValue").add();
 
-            table.primaryKey("PK_WS_ENDPOINT_OCCURRENCE").on(idColumn).add();
+            table.primaryKey("PK_WS_CALL_OCCURRENCE").on(idColumn).add();
             //TO-DO UNCOMMENT
-            //table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
+            table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
     WS_ENDPOINT_LOG {
@@ -183,7 +180,7 @@ public enum TableSpecs {
             Column occurrence = table.column("OCCURRENCEID").number().add();
 
             table.foreignKey("FK_WS_OCCURRENCE")
-                    .references(WS_ENDPOINT_OCCURRENCE.name())
+                    .references(WS_CALL_OCCURRENCE.name())
                     .on(occurrence)
                     .onDelete(DeleteRule.CASCADE)
                     .map(EndPointLogImpl.Fields.occurrence.fieldName())
