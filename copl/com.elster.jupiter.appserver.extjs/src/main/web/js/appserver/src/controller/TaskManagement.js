@@ -350,7 +350,7 @@ Ext.define('Apr.controller.TaskManagement', {
                 console.log('success');
                 var response = Ext.JSON.decode(operation.responseText);
                 recordTask.set('lastRunDate',response.lastRunDate);
-                recordTask.set('suspendUntilTime', response.suspendUntil);
+                recordTask.set('suspendUntilTime', response.suspendUntilTime);
                 recordTask.commit();
                 operationCompletedSuspend.call(controller, true);
 
