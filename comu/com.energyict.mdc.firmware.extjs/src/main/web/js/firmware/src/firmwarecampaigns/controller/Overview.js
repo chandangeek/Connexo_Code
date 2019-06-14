@@ -63,7 +63,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         Ext.resumeLayouts(true);
         if (preview.down('firmware-campaigns-action-menu')) {
             preview.down('firmware-campaigns-action-menu').record = record;
-            preview.down('#firmware-campaigns-detail-action-menu-button').setVisible(record.get('status').id === 'ONGOING');
+            //TODO: format should be changed
+            preview.down('#firmware-campaigns-detail-action-menu-button').setVisible(record.get('status') === 'Ongoing');
         }
     },
 
@@ -101,7 +102,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
             store = this.getStore('Fwc.firmwarecampaigns.store.FirmwareCampaigns');
 
         store.getProxy().url = '/api/fwc/campaigns/' + record.id;
-        record.set('status', {id: "CANCELLED", localizedValue: "Cancelled"});
+        //TODO: format should be changed
+        record.set('status', "Cancelled");
         record.save({
             isNotEdit: true,
             success: function () {
