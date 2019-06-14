@@ -41,6 +41,11 @@ Ext.define('Sct.view.Grid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.application', 'SCT', 'Application'),
+                dataIndex: 'reservedByApplication',
+                flex: 1
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 menu: {
