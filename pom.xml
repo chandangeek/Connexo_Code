@@ -9,7 +9,7 @@
 
 	<groupId>com.elster.jupiter</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.0.0-Nessus-SNAPSHOT</version>
+	<version>0.0.1-Heracles-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>[Jupiter] com.elster.jupiter.parent</name>
 
@@ -39,8 +39,8 @@
              will be set to false by the release profile for releases -->
 		<include.source>false</include.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<baseline>0.0.1-Nessus</baseline>
-		<commercial.version>10.6.0</commercial.version>
+		<baseline>1.0.0-Nessus-SNAPSHOT</baseline>
+		<commercial.version>10.7.0</commercial.version>
 	</properties>
 
 	<!-- Repositories specification. -->

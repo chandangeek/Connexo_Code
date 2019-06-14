@@ -21,6 +21,10 @@ public interface ValueFactory<T> {
 
     T fromStringValue(String stringValue);
 
+    default T fromStringValue(Class<T> domainClass ,String stringValue){
+        return fromStringValue(stringValue);
+    }
+
     String toStringValue(T object);
 
     default boolean isReference() {
