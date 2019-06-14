@@ -83,7 +83,6 @@ public class WebServiceCallOccurrenceServiceImplIT extends WebServiceTest{
 
             WebServiceCallOccurrence tmpOccurrence  = endPointConfiguration.createEndPointOccurrence(clock.instant(), "RequestName", "Multisense");
 
-            //WebServiceCallOccurrence tmpOccurrence = webServicesService.startOccurrence(endPointConfiguration, "RequestName", "Multisense");
             Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(tmpOccurrence.getId());
 
             assertThat(epOcc.get().getId()).isEqualTo(tmpOccurrence.getId());
@@ -185,19 +184,6 @@ public class WebServiceCallOccurrenceServiceImplIT extends WebServiceTest{
             logs = webServiceCallOccurrenceService.getLogForOccurrence(tmpOccurrence2.getId(), queryParameters);
             assertThat(logs.size()).isEqualTo(1);
             assertThat(logs.get(0).getMessage()).isEqualTo("MESSAGE2");
-        }
-    }
-
-
-    @Test
-    public void testCreateInboundEndpoint() {
-        try (TransactionContext context = transactionService.getContext()) {
-            EndPointConfiguration endPointConfiguration = endPointConfigurationService.newInboundEndPointConfiguration("service", "webservice", "/srv")
-                    .setAuthenticationMethod(EndPointAuthentication.NONE).logLevel(LogLevel.SEVERE).create();
-            assertThat(endPointConfigurationService.findEndPointConfigurations().find()).hasSize(1);
-            assertThat(endPointConfigurationService.streamEndPointConfigurations().findAny()).isPresent();
-            assertThat(endPointConfigurationService.streamEndPointConfigurations().filter(Where.where("logLevel").isEqualTo(LogLevel.INFO)).findAny()).isEmpty();
-            assertThat(endPointConfigurationService.streamEndPointConfigurations().filter(Where.where("logLevel").isEqualTo(LogLevel.SEVERE)).findAny()).isPresent();
         }
     }
 }

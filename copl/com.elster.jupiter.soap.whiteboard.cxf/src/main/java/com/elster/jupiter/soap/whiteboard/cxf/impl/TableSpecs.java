@@ -205,7 +205,6 @@ public enum TableSpecs {
         }
     };
 
-
     abstract void addTo(DataModel component);
 
 }
