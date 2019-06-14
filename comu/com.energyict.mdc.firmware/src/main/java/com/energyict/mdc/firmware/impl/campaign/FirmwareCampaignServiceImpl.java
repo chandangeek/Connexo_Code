@@ -186,7 +186,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
             FirmwareCampaignItemDomainExtension firmwareCampaignItemDomainExtension = dataModel.getInstance(FirmwareCampaignItemDomainExtension.class);
             firmwareCampaignItemDomainExtension.setDevice(device);
             firmwareCampaignItemDomainExtension.setParent(parent);
-            ServiceCall serviceCall = parent.newChildCall(serviceCallType).extendedWith(firmwareCampaignItemDomainExtension).create();
+            ServiceCall serviceCall = parent.newChildCall(serviceCallType).extendedWith(firmwareCampaignItemDomainExtension).targetObject(device).create();
             serviceCall.requestTransition(DefaultState.PENDING);
             return MessageSeeds.DEVICE_WAS_ADDED;
         } else {
@@ -220,9 +220,6 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                     deviceMessage.setReleaseDate(firmwareCampaign.getUploadPeriodStart());
                     deviceMessage.save();
                     firmwareCampaignItemDomainExtension.startFirmwareProcess();
-//                    findFirmwareComTaskExecution(firmwareCampaignItemDomainExtension.getDevice())
-//                            .ifPresent(comTaskExecution -> dataModel.getInstance(TimeOfUseSendHelper.class)
-//                            .scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd()));
                 }));
     }
 

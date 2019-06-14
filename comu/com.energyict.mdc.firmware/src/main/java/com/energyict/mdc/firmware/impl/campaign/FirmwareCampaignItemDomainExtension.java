@@ -181,12 +181,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     public void startFirmwareProcess(boolean retry) {
         ServiceCall serviceCall = getServiceCall();
         Optional<DeviceMessageId> firmwareMessageId = getFirmwareCampaign().getFirmwareMessageId();
-        if (!doesDeviceTypeAllowFirmwareManagement(serviceCall)
-                || !doesDeviceConfigurationSupportFirmwareManagement()
-                || !cancelPendingFirmwareUpdates()
-                || !firmwareMessageId.isPresent()
-                || !doesConnectionWindowOverlap()
-                || doesAnyFirmwareRankingCheckFail(getDevice(), getFirmwareCampaign().getFirmwareVersion())) {
+        if (checksFailed(firmwareMessageId)) {
             serviceCall.requestTransition(DefaultState.REJECTED);
         } else {
             if (deviceAlreadyHasTheSameVersion()) {
@@ -203,6 +198,39 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                 scheduleFirmwareTask();
             }
         }
+    }
+
+    private boolean checksFailed(Optional<DeviceMessageId> firmwareMessageId) {
+        boolean failed = false;
+        if (!doesDeviceTypeAllowFirmwareManagement()) {
+            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_TYPE_DOES_NOT_ALLOW_FIRMWARE_MANAGEMENT)
+                    .format(getDevice().getName(), getDevice().getDeviceType().getName()));
+            failed = true;
+        }
+        if (!doesDeviceConfigurationSupportFirmwareManagement()) {
+            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_CONFIGURATION_DOES_NOT_SUPPORT_FIRMWARE_MANAGEMENT)
+                    .format(getDevice().getName(), getDevice().getDeviceConfiguration().getName()));
+            failed = true;
+        }
+        if (!cancelPendingFirmwareUpdates()) {
+            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.FIRMWARE_UPLOAD_CURRENTLY_ONGOING)
+                    .format(getDevice().getName()));
+            failed = true;
+        }
+        if (!firmwareMessageId.isPresent()) {
+            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.PROTOCOL_DOES_NOT_SUPPORT_UPLOADING_FIRMWARE)
+                    .format(getDevice().getName(), getDevice().getDeviceType().getName()));
+            failed = true;
+        }
+        if (!doesConnectionWindowOverlap()) {
+            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY)
+                    .format(getDevice().getName()));
+            failed = true;
+        }
+        if (doesAnyFirmwareRankingCheckFail(getDevice(), getFirmwareCampaign().getFirmwareVersion())) {
+            failed = true;
+        }
+        return failed;
     }
 
     private void prepareCommunicationTask(Device device) {
@@ -226,14 +254,9 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         return getParent().getExtension(FirmwareCampaignDomainExtension.class).get();
     }
 
-    private boolean doesDeviceTypeAllowFirmwareManagement(ServiceCall serviceCall) {
+    private boolean doesDeviceTypeAllowFirmwareManagement() {
         Set<ProtocolSupportedFirmwareOptions> deviceTypeAllowedOptions = firmwareService.getAllowedFirmwareManagementOptionsFor(getDevice().getDeviceType());
-        if (deviceTypeAllowedOptions.contains(getFirmwareCampaign().getFirmwareManagementOption())) {
-            return true;
-        } else {
-            serviceCall.log(LogLevel.WARNING, "todo");
-            return false;
-        }
+        return deviceTypeAllowedOptions.contains(getFirmwareCampaign().getFirmwareManagementOption());
     }
 
     private boolean doesDeviceConfigurationSupportFirmwareManagement() {

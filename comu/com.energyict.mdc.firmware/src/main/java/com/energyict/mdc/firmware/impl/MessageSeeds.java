@@ -56,15 +56,19 @@ public enum MessageSeeds implements MessageSeed {
     CANCELED_BY_USER(3001, "CancelledByUser", "Cancelled by user.", Level.INFO),
     RETRIED_BY_USER(3002, "RetriedByUser", "Retried by user.", Level.INFO),
 
-    FIRMWARE_INSTALLATION_FAILED(4001,"FirmwareInstallationFailed" , "Firmware installation failed.", Level.WARNING),
-    VERIFICATION_FAILED(4002,"VerificationFailed" ,"Verification failed." , Level.WARNING),
-    ACTIVE_VERIFICATION_TASK_ISNT_FOUND(4003,"ActiveVerificationTaskIsntFound" ,"Active verification task isn''t found." , Level.WARNING),
-    FIRMWARE_INSTALLATION_STARTED(4004,"FirmwareInstallationStarted" ,"Firmware installation started." , Level.INFO),
-    VERIFICATION_COMPLETED(4005,"VerificationCompleted" , "Verification completed", Level.INFO),
-    VERIFICATION_SCHEDULED(4006,"VerificationScheduled" , "Verification scheduled", Level.INFO),
-    FIRMWARE_INSTALLATION_COMPLETED(4007,"FirmwareInstallationCompleted" ,"Firmware installation completed." , Level.INFO),
-    VERIFICATION_FAILED_WRONG_FIRMWAREVERSION(4008,"VerificationFailedWrongFirmwareVersion" , "Verification failed wrong firmware version.", Level.WARNING)
-    ;
+    FIRMWARE_INSTALLATION_FAILED(4001, "FirmwareInstallationFailed", "Firmware installation failed.", Level.WARNING),
+    VERIFICATION_FAILED(4002, "VerificationFailed", "Verification failed.", Level.WARNING),
+    ACTIVE_VERIFICATION_TASK_ISNT_FOUND(4003, "ActiveVerificationTaskIsntFound", "Active verification task isn''t found.", Level.WARNING),
+    FIRMWARE_INSTALLATION_STARTED(4004, "FirmwareInstallationStarted", "Firmware installation started.", Level.INFO),
+    VERIFICATION_COMPLETED(4005, "VerificationCompleted", "Verification completed", Level.INFO),
+    VERIFICATION_SCHEDULED(4006, "VerificationScheduled", "Verification scheduled", Level.INFO),
+    FIRMWARE_INSTALLATION_COMPLETED(4007, "FirmwareInstallationCompleted", "Firmware installation completed.", Level.INFO),
+    VERIFICATION_FAILED_WRONG_FIRMWAREVERSION(4008, "VerificationFailedWrongFirmwareVersion", "Verification failed wrong firmware version.", Level.WARNING),
+    DEVICE_TYPE_DOES_NOT_ALLOW_FIRMWARE_MANAGEMENT(4009, "DeviceTypeNotAllowFirmwareManagement", "Unable to upgrade firmware version on device ''{0}'' due to check fail: ''Firmware upload is not allowed on the device type ''{1}''", Level.WARNING),
+    DEVICE_CONFIGURATION_DOES_NOT_SUPPORT_FIRMWARE_MANAGEMENT(4010, "DeviceConfigurationDoesNotSupportFirmwareManagement", "Unable to upgrade firmware version on device ''{0}'' due to check fail: The firmware management communication task is not present on the device configuration ''{1}''", Level.WARNING),
+    FIRMWARE_UPLOAD_CURRENTLY_ONGOING(4011, "FirmwareUploadOfFirmwareIsCurrentlyOngoing", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Firmware upload of firmware is currently ongoing.", Level.WARNING),
+    PROTOCOL_DOES_NOT_SUPPORT_UPLOADING_FIRMWARE(4012, "ProtocolOfTheDeviceTypeDoesNotSupportUploadingFirmware", "Unable to upgrade firmware version on device ''{0}'' due to check fail: The protocol of the device type ''{1}'' doesn''t support uploading firmware.", Level.WARNING),
+    CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY(4013, "ConnectionWindowOutsideOfCampaignTimeBoundary", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Connection window start of the connection method used by the firmware mangement communication task of the device is outside of the time boundary of the campaign.", Level.WARNING);
 
     private final int number;
     private final String key;
