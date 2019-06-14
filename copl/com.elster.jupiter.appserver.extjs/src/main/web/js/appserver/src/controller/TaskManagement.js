@@ -321,8 +321,8 @@ Ext.define('Apr.controller.TaskManagement', {
         });
         confirmationWindow.insert(2, {
             xtype: 'label',
-            margin: '0 0 10 50',  // add "It willl be suspended" in suspended data dialog
-            text: Uni.I18n.translate('general.suspend.text', 'APR', 'It will be suspended until next run'),
+            margin: '0 0 10 50',  // add "It willl be suspended" in suspended dialog
+            text: Uni.I18n.translate('general.suspend.text', 'APR', 'The next run will start after suspended period'),
         });
         confirmationWindow.insert(3, {
             itemId: 'snooze-now-window-errors',
