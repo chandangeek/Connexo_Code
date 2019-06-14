@@ -43,16 +43,11 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.suspendedTask', 'APR', 'Suspended_admin_grid_44'),
-                dataIndex: 'suspendUntil123',
-                name: 'suspendUntil123',
+                header: Uni.I18n.translate('general.suspendedTask', 'APR', 'Suspended'),
+                dataIndex: 'suspendUntilTime',
                 flex: 1,
                 renderer: function(value) {
-                    if(!Ext.isEmpty(value)) {
-                        return value.name;
-                    } else {
-                        return '-';
-                    }
+                    return value ? Uni.I18n.translate('general.suspended.yes', 'APR', 'Yes') : Uni.I18n.translate('general.suspended.no', 'APR', 'No');
                 }
             },
             {

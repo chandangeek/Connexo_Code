@@ -63,8 +63,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private String payload;
     private String destination;
     private Instant lastRun;
-   // private Instant suspendUntilTime;  // Lau
-    private Instant suspendUntil22;
+    private Instant suspendUntilTime;
     private transient DestinationSpec destinationSpec;
     private int logLevel;
 
@@ -127,18 +126,13 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public void updateNextExecution() {
         Instant time = clock.instant();
-        if(suspendUntil22!=null && suspendUntil22.isAfter(time)) {
-            time = suspendUntil22;
+
+        if(suspendUntilTime!=null && suspendUntilTime.isAfter(time)) {
+            time = suspendUntilTime;
         }
         else{
-            suspendUntil22 = null;
+            suspendUntilTime = null;
         }
-//        if(suspendUntilTime!=null && suspendUntilTime.isAfter(time)) {
-//            time = suspendUntilTime;
-//        }
-//        else{
-//            suspendUntilTime = null;
-//        }
         ZonedDateTime now = ZonedDateTime.ofInstant(time, ZoneId.systemDefault());
         Optional<ZonedDateTime> nextOccurrence = getScheduleExpression().nextOccurrence(now);
         nextExecution = nextOccurrence.map(ZonedDateTime::toInstant).orElse(null);
@@ -487,28 +481,16 @@ class RecurrentTaskImpl implements RecurrentTask {
         Save.UPDATE.save(dataModel, this);
     }
 
-//    @Override
-//    public void suspendUntil(Instant suspendUntilTime) {
-//        this.suspendUntilTime = suspendUntilTime;
-//        updateNextExecution();
-//        save();
-//    }
-//
-//    @Override
-//    public Instant getSuspendUntil(){
-//        return suspendUntilTime;
-//    }
     @Override
     public void setSuspendUntil(Instant suspendUntilTime) {
-        this.suspendUntil22 = suspendUntilTime;
+        this.suspendUntilTime = suspendUntilTime;
         updateNextExecution();
         save();
     }
 
     @Override
     public Instant getSuspendUntil(){
-        return this.suspendUntil22;
+        return suspendUntilTime;
     }
-
 
 }

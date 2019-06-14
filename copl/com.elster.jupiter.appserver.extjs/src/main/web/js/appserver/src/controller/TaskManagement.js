@@ -159,9 +159,8 @@ Ext.define('Apr.controller.TaskManagement', {
             case 'setTriggers':
                 me.showSetTriggers(record);
                 break;
-            case 'suspendTask':   //Lau
+            case 'suspendTask':
                 me.suspendTaskManagement(record, me.suspendOperationStart, me.suspendOperationCompleted, this);
-                //taskManagement && taskManagement.controller && taskManagement.controller.suspendTaskManagement(record, me.suspendOperationStart, me.suspendOperationCompleted, this);
                 break;
         }
     },
@@ -320,7 +319,12 @@ Ext.define('Apr.controller.TaskManagement', {
             defaultDate: suspendedDataTime,
             padding: '-10 0 0 45'
         });
-        confirmationWindow.insert(1, {
+        confirmationWindow.insert(2, {
+            xtype: 'label',
+            margin: '0 0 10 50',  // add "It willl be suspended" in suspended data dialog
+            text: Uni.I18n.translate('general.suspend.text', 'APR', 'It will be suspended until next run'),
+        });
+        confirmationWindow.insert(3, {
             itemId: 'snooze-now-window-errors',
             xtype: 'label',
             margin: '0 0 10 50',
@@ -330,36 +334,24 @@ Ext.define('Apr.controller.TaskManagement', {
             title: Uni.I18n.translate('general.suspendNow', 'APR', "Suspend '{0}'?",
                 record.getData().name, false)
         });
-
-        // function getConfirmationWindow() {
-        //     return confirmationWindow;
-        // }
-        // }  // de la if
     },
 
     suspendTask : function(recordTask, operationStartSuspend, operationCompletedSuspend, controller, confWindow){
-        var me = this;   // Lau
+        var me = this;
         operationStartSuspend.call(controller);
 
-        //var suspendTime = confWindow.////
         var suspendTime = confWindow.down('#issue-snooze-until-date').getValue().getTime();
 
-        //confWindow.des
-        //recordTask.set('', suspendTime)
         Ext.Ajax.request({
             url: '/api/tsk/task/tasks/' + recordTask.get('id') + '/suspend/' + suspendTime,
-            // url: '/api/tsk/task/tasks/' + recordTask.get('id')+ '/suspend/' ,
             method: 'POST',
-            //jsonData: record.getRecordData(),
-            //jsonData: recordTask.get('id'),
-            // rawData: Ext.JSON.encode(recordTask.getData()),
+
             success: function (operation) {
                 console.log('success');
                 var response = Ext.JSON.decode(operation.responseText);
                 recordTask.set('lastRunDate',response.lastRunDate);
-                recordTask.set('suspendUntil123', response.suspendUntil123);
-
-                //recordTask.set('')
+                recordTask.set('suspendUntilTime', response.suspendUntil);
+                recordTask.commit();
                 operationCompletedSuspend.call(controller, true);
 
                 confWindow.destroy();
@@ -379,16 +371,20 @@ Ext.define('Apr.controller.TaskManagement', {
         });
     },
     suspendOperationStart:function() {
-        var me = this;  // Lau
+        var me = this;
         me.getPage() && me.getPage().setLoading(true);
     },
 
     suspendOperationCompleted:function(succeeded) {
-        var me = this;  // Lau
+        var me = this;
         me.getPage() && me.getPage().setLoading(false);
         var grid = me.getTaskManagementGrid();
-
-       // grid.getStore().reload();
+        if(grid){
+            var selection = grid.getSelectionModel().getSelection(); // get current item selected
+            grid.getSelectionModel().deselectAll();  // deselect all items
+            grid.getSelectionModel().select(selection); // select current item selected, again.
+            // This will force refresh of details, needed for "Suspended" detail
+        }
     },
 
     /* common section */
@@ -472,7 +468,6 @@ Ext.define('Apr.controller.TaskManagement', {
             window.location.replace(route.getRoute().buildUrl(route.arguments));
             return;
         }
-       // Lau - adaug aici ptr partea de detalii????
         me.getModel('Apr.model.Task').load(taskManagementId, {
             success: function (record) {
                 taskManagement.controller.detailRoute = 'administration/taskmanagement/view';

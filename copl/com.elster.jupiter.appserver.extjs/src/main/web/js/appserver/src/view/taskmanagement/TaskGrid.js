@@ -39,19 +39,16 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.suspendedTask', 'APR', 'Suspended_grid_multisense11'),  // Lau
-                dataIndex: 'suspendUntil123',
+                header: Uni.I18n.translate('general.suspendedTask', 'APR', 'Suspended'),
+                dataIndex: 'suspendUntilTime',
                 flex: 1,
-                renderer: function(value){ //Lau
+                renderer: function(value){
                     return value  ? Uni.I18n.translate('general.suspended.yes','APR','Yes') : Uni.I18n.translate('general.suspended.no','APR','No')
-                    //return value!='' ? Mdc.util.ScheduleToStringConverter.convert(value) || Uni.I18n.translate('general.undefined', 'MDC', 'Undefined') : '-';
-                    // return "Yes - has been suspended until next run";
                 }
             },
             {
                 xtype: 'uni-actioncolumn',
                 width: 120,
-                //privileges: ,
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
                     var taskType = record.get('queue'),
                         taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);

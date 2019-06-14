@@ -513,7 +513,7 @@ Ext.define('Cfg.controller.TaskManagement', {
         me.historyRoute = me.historyRoute;
         me.actionMenu = actionMenu;
         me.showValidationTaskDetailsView(taskId);
-        widget.down('#validation-task-suspend').setValue(taskManagementRecord.get('suspendUntil123'));
+        me.getDetailsPage().down('#validation-task-suspend').setValue(taskManagementRecord.get('suspendUntilTime'));
         me.getDetailsPage().down('#' + actionMenu.itemId).record = taskManagementRecord;
     }
 });

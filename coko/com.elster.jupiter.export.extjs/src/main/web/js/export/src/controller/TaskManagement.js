@@ -48,7 +48,6 @@ Ext.define('Dxp.controller.TaskManagement', {
     },
 
     getType: function () {
-        //widget.down('#suspended_formatted').setValue(taskManagementRecord.get('suspendUntil123'));  //Lau
         return 'DataExport';
     },
 

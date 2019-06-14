@@ -38,7 +38,7 @@ public class TaskInfo {
     public Long queueStatusDate;
     public String trigger;
     public Long nextRun;
-    public Long suspendUntil123; // Lau
+    public Long suspendUntilTime;
     public Long currentRunDuration;
     public String lastRunStatus;
     public Long lastRunDate;
@@ -72,7 +72,7 @@ public class TaskInfo {
             setPlannedOn(recurrentTask, null);
         }
         nextRun = recurrentTask.getNextExecution() != null ? recurrentTask.getNextExecution().toEpochMilli() : null;
-        suspendUntil123 = recurrentTask.getSuspendUntil() != null ? recurrentTask.getSuspendUntil().toEpochMilli() : null;
+        suspendUntilTime = recurrentTask.getSuspendUntil() != null ? recurrentTask.getSuspendUntil().toEpochMilli() : null;
     }
 
     private void setNotScheduled(RecurrentTask recurrentTask, TaskOccurrence lastOccurrence) {
