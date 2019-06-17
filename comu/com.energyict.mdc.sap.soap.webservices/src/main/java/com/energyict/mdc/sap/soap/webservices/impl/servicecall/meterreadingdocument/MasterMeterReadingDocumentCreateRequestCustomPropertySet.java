@@ -134,18 +134,6 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .stringSpec()
-                        .named(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.CONFIRMATION_URL.javaName(), TranslationKeys.CONFIRMATION_URL)
-                        .describedAs(TranslationKeys.CONFIRMATION_URL)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .stringSpec()
-                        .named(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.RESULT_URL.javaName(), TranslationKeys.RESULT_URL)
-                        .describedAs(TranslationKeys.RESULT_URL)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
                         .booleanSpec()
                         .named(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
                         .describedAs(TranslationKeys.BULK)

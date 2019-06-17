@@ -142,12 +142,6 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .stringSpec()
-                        .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.RESULT_URL.javaName(), TranslationKeys.RESULT_URL)
-                        .describedAs(TranslationKeys.RESULT_URL)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
                         .booleanSpec()
                         .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
                         .describedAs(TranslationKeys.BULK)

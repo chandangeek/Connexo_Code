@@ -53,6 +53,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocum
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.database.UpgraderV10_7;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -81,6 +82,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static com.elster.jupiter.orm.Version.version;
 
 @Singleton
 @Component(
@@ -215,7 +218,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         loadProperties(bundleContext);
         getServiceCallCustomPropertySets().values().forEach(customPropertySetService::addCustomPropertySet);
 
-        upgradeService.register(InstallIdentifier.identifier(APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier(APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
+                ImmutableMap.of(version(10, 7), UpgraderV10_7.class));
 
         registerServices(bundleContext);
     }
